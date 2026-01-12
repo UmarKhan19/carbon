@@ -22,7 +22,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useOptimisticLocation } from "@carbon/remix";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuBraces,
   LuChevronDown,
@@ -42,6 +42,7 @@ import type { FlatTreeItem } from "~/components/TreeView";
 import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { type MethodItemType } from "~/modules/shared";
+import { generateBomIds } from "~/utils/bom";
 import { path } from "~/utils/path";
 import type { MakeMethod, Method, MethodOperation } from "../../types";
 import { getLinkToItemDetails } from "./ItemForm";
@@ -102,6 +103,13 @@ const BoMExplorer = ({
     },
     isEager: true
   });
+
+  // Generate hierarchical BOM IDs (1, 1.1, 1.1.1, etc.)
+  const bomIds = useMemo(() => generateBomIds(methods), [methods]);
+  const bomIdMap = useMemo(
+    () => new Map(methods.map((node, index) => [node.id, bomIds[index]])),
+    [methods, bomIds]
+  );
 
   const navigate = useNavigate();
   const location = useOptimisticLocation();
@@ -326,19 +334,16 @@ const BoMExplorer = ({
 
                       <div className="flex w-full items-center justify-between gap-2">
                         <div className="flex items-center gap-2 overflow-x-hidden">
-                          <MethodIcon
-                            type={
-                              // node.data.isRoot ? "Method" :
-                              node.data.methodType
-                            }
-                            isKit={node.data.kit}
-                            className="h-4 min-h-4 w-4 min-w-4 flex-shrink-0"
-                          />
+                          {bomIdMap.get(node.id) && (
+                            <Badge variant="outline">
+                              {bomIdMap.get(node.id)}
+                            </Badge>
+                          )}
                           <NodeText node={node} />
                         </div>
                         <div className="flex items-center gap-1">
                           {node.data.isRoot ? (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline">
                               V{makeMethodVersion}
                             </Badge>
                           ) : (
@@ -390,16 +395,17 @@ function NodeData({ node }: { node: FlatTreeItem<Method> }) {
   return (
     <HStack spacing={1}>
       <Badge className="text-xs" variant="outline">
+        <MethodIcon
+          type={
+            // node.data.isRoot ? "Method" :
+            node.data.methodType
+          }
+          isKit={node.data.kit}
+          className="mr-2"
+        />
         {node.data.quantity}
       </Badge>
-
-      {onShapeState ? (
-        <OnshapeStatus status={onShapeState} />
-      ) : (
-        <Badge variant="secondary">
-          <MethodItemTypeIcon type={node.data.itemType} />
-        </Badge>
-      )}
+      {onShapeState && <OnshapeStatus status={onShapeState} />}
     </HStack>
   );
 }

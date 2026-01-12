@@ -22,6 +22,7 @@ interface JobTravelerProps extends PDF {
   customer: Database["public"]["Tables"]["customer"]["Row"] | null;
   item: Database["public"]["Tables"]["item"]["Row"];
   batchNumber: string | undefined;
+  bomId?: string;
   notes?: JSONContent;
   thumbnail?: string | null;
 }
@@ -103,18 +104,20 @@ type JobHeaderProps = {
   customer: Database["public"]["Tables"]["customer"]["Row"] | null;
   item: Database["public"]["Tables"]["item"]["Row"];
   batchNumber?: string;
+  bomId?: string;
   thumbnail?: string | null;
   methodRevision?: string | null;
 };
 
 const JobHeader = ({
+  batchNumber,
+  bomId,
   company,
-  job,
   customer,
   item,
-  batchNumber,
-  thumbnail,
-  methodRevision
+  job,
+  methodRevision,
+  thumbnail
 }: JobHeaderProps) => {
   const getTargetInfo = () => {
     if (job.salesOrderId && job.salesOrderLineId) {
@@ -241,6 +244,7 @@ export const JobTravelerPageContent = ({
   customer,
   item,
   batchNumber,
+  bomId,
   notes,
   thumbnail,
   methodRevision
@@ -250,9 +254,7 @@ export const JobTravelerPageContent = ({
   const subtitle = batchNumber
     ? batchNumber
     : (item.name ?? item.readableIdWithRevision);
-  const tertiaryTitle = batchNumber
-    ? `${item.name ?? item.readableIdWithRevision}`
-    : undefined;
+  const tertiaryTitle = `Assembly ${bomId}`;
 
   return (
     <View style={tw("flex flex-col")}>
@@ -274,6 +276,7 @@ export const JobTravelerPageContent = ({
           customer={customer}
           item={item}
           batchNumber={batchNumber}
+          bomId={bomId}
           thumbnail={thumbnail}
           methodRevision={methodRevision}
         />
@@ -494,6 +497,7 @@ const JobTravelerPDF = ({
   customer,
   item,
   batchNumber,
+  bomId,
   meta,
   notes,
   thumbnail,
@@ -515,6 +519,7 @@ const JobTravelerPDF = ({
         customer={customer}
         item={item}
         batchNumber={batchNumber}
+        bomId={bomId}
         notes={notes}
         thumbnail={thumbnail}
         methodRevision={jobMakeMethod.version?.toString()}

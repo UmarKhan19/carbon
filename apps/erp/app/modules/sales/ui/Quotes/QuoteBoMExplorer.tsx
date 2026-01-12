@@ -13,7 +13,7 @@ import {
   Spinner,
   VStack
 } from "@carbon/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuChevronDown,
   LuChevronRight,
@@ -34,6 +34,7 @@ import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useOptimisticLocation } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
+import { generateBomIds } from "~/utils/bom";
 import { path } from "~/utils/path";
 import type { QuoteMethod } from "../../types";
 
@@ -61,6 +62,13 @@ const QuoteBoMExplorer = ({
     getMethodFetcher?.state === "loading" &&
     getMethodFetcher.formData?.get("quoteLineId") ===
       methods?.[0].data.quoteLineId;
+
+  // Generate hierarchical BOM IDs (1, 1.1, 1.1.1, etc.)
+  const bomIds = useMemo(() => generateBomIds(methods), [methods]);
+  const bomIdMap = useMemo(
+    () => new Map(methods.map((node, index) => [node.id, bomIds[index]])),
+    [methods, bomIds]
+  );
 
   const {
     nodes,
@@ -215,21 +223,16 @@ const QuoteBoMExplorer = ({
 
                     <div className="flex w-full items-center justify-between gap-2">
                       <div className="flex items-center gap-2 overflow-x-hidden">
-                        <MethodIcon
-                          type={
-                            // node.data.isRoot ? "Method" :
-                            node.data.methodType
-                          }
-                          isKit={node.data.kit}
-                          className="h-4 min-h-4 w-4 min-w-4 flex-shrink-0"
-                        />
+                        {bomIdMap.get(node.id) && (
+                          <Badge variant="outline">
+                            {bomIdMap.get(node.id)}
+                          </Badge>
+                        )}
                         <NodeText node={node} />
                       </div>
                       <div className="flex items-center gap-1">
                         {node.data.isRoot ? (
-                          <Badge variant="outline" className="text-xs">
-                            V{node.data.version}
-                          </Badge>
+                          <Badge variant="outline">V{node.data.version}</Badge>
                         ) : (
                           <NodeData node={node} />
                         )}
@@ -251,7 +254,13 @@ const QuoteBoMExplorer = ({
 
 export default QuoteBoMExplorer;
 
-function NodeText({ node }: { node: FlatTreeItem<QuoteMethod> }) {
+function NodeText({
+  node,
+  bomId
+}: {
+  node: FlatTreeItem<QuoteMethod>;
+  bomId?: string;
+}) {
   return (
     <div className="flex items-center gap-1">
       <span className="font-medium text-sm truncate">
@@ -272,15 +281,18 @@ function NodeData({ node }: { node: FlatTreeItem<QuoteMethod> }) {
   return (
     <HStack spacing={1}>
       <Badge className="text-xs" variant="outline">
+        <MethodIcon
+          type={
+            // node.data.isRoot ? "Method" :
+            node.data.methodType
+          }
+          isKit={node.data.kit}
+          className="mr-2"
+        />
         {node.data.quantity}
       </Badge>
-      {onShapeState ? (
-        <OnshapeStatus status={onShapeState} />
-      ) : (
-        <Badge variant="secondary">
-          <MethodItemTypeIcon type={node.data.itemType} />
-        </Badge>
-      )}
+
+      {onShapeState && <OnshapeStatus status={onShapeState} />}
     </HStack>
   );
 }

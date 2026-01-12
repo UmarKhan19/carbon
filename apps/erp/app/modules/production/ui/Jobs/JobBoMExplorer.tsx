@@ -18,7 +18,7 @@ import {
   Spinner,
   VStack
 } from "@carbon/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuBraces,
   LuChevronDown,
@@ -42,6 +42,7 @@ import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useOptimisticLocation } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
+import { generateBomIds } from "~/utils/bom";
 import { path } from "~/utils/path";
 import type { JobMethod } from "../../production.service";
 
@@ -62,6 +63,13 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
   );
 
   const isLoading = getMethodFetcher?.state === "loading";
+
+  // Generate hierarchical BOM IDs (1, 1.1, 1.1.1, etc.)
+  const bomIds = useMemo(() => generateBomIds(method), [method]);
+  const bomIdMap = useMemo(
+    () => new Map(method.map((node, index) => [node.id, bomIds[index]])),
+    [method, bomIds]
+  );
 
   const {
     nodes,
@@ -289,16 +297,16 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
 
                       <div className="flex w-full items-center justify-between gap-2">
                         <div className="flex items-center gap-2 overflow-x-hidden">
-                          <MethodIcon
-                            type={node.data.methodType}
-                            isKit={node.data.kit}
-                            className="h-4 min-h-4 w-4 min-w-4 flex-shrink-0"
-                          />
+                          {bomIdMap.get(node.id) && (
+                            <Badge variant="outline">
+                              {bomIdMap.get(node.id)}
+                            </Badge>
+                          )}
                           <NodeText node={node} />
                         </div>
                         <div className="flex items-center gap-1">
                           {node.data.isRoot ? (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline">
                               V{node.data.version}
                             </Badge>
                           ) : (
@@ -344,15 +352,17 @@ function NodeData({ node }: { node: FlatTreeItem<JobMethod> }) {
   return (
     <HStack spacing={1}>
       <Badge className="text-xs" variant="outline">
+        <MethodIcon
+          type={
+            // node.data.isRoot ? "Method" :
+            node.data.methodType
+          }
+          isKit={node.data.kit}
+          className="mr-2"
+        />
         {node.data.quantity}
       </Badge>
-      {onShapeState ? (
-        <OnshapeStatus status={onShapeState} />
-      ) : (
-        <Badge variant="secondary">
-          <MethodItemTypeIcon type={node.data.itemType} />
-        </Badge>
-      )}
+      {onShapeState && <OnshapeStatus status={onShapeState} />}
     </HStack>
   );
 }
