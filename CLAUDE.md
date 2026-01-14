@@ -84,3 +84,15 @@
 - ALWAYS update the cache after a commit.
 - NEVER update the cache about staged/uncommitted code.
 - NEVER rebuild the database to test changes. Wait for the user to do that.
+
+
+## Workflow Rules
+
+- ALWAYS check in with me before making any major changes.
+- Ask clarifying questions if uncertain - never make assumptions.
+- Make small, incremental changes - never large sweeping changes.
+- Always update CHANGELOG.md when making changes.
+- Always write tests for new code.
+- Always run tests before committing.
+- Never commit directly to main - always create a new branch.
+- Always create a PR for changes and ask for review before merging.

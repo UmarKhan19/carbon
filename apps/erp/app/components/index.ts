@@ -1,3 +1,4 @@
+import AssemblyMetadata from "./AssemblyMetadata";
 import Assignee, { useOptimisticAssignment } from "./Assignee";
 import Avatar from "./Avatar";
 import AvatarMenu from "./AvatarMenu";
@@ -33,6 +34,7 @@ import Table from "./Table";
 
 export {
   Assignee,
+  AssemblyMetadata,
   Avatar,
   AvatarMenu,
   BreadcrumbItem,

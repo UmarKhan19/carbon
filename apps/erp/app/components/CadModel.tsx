@@ -38,6 +38,8 @@ type CadModelProps = {
   uploadClassName?: string;
   viewerClassName?: string;
   isReadOnly?: boolean;
+  /** When true, each part in the assembly gets a unique color */
+  colorByPart?: boolean;
 };
 
 const CadModel = ({
@@ -46,7 +48,8 @@ const CadModel = ({
   modelPath,
   title,
   uploadClassName,
-  viewerClassName
+  viewerClassName,
+  colorByPart
 }: CadModelProps) => {
   const {
     company: { id: companyId }
@@ -128,6 +131,7 @@ const CadModel = ({
             url={modelPath ? getPrivateUrl(modelPath) : null}
             mode={mode}
             className={viewerClassName}
+            colorByPart={colorByPart}
           />
         ) : (
           <CadModelUpload

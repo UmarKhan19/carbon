@@ -11574,6 +11574,7 @@ export type Database = {
           machineRate: number | null
           machineTime: number
           machineUnit: Database["public"]["Enums"]["factor"]
+          modelUploadId: string | null
           operationLeadTime: number
           operationMinimumCost: number
           operationOrder: Database["public"]["Enums"]["methodOperationOrder"]
@@ -11619,6 +11620,7 @@ export type Database = {
           machineRate?: number | null
           machineTime?: number
           machineUnit?: Database["public"]["Enums"]["factor"]
+          modelUploadId?: string | null
           operationLeadTime?: number
           operationMinimumCost?: number
           operationOrder?: Database["public"]["Enums"]["methodOperationOrder"]
@@ -11664,6 +11666,7 @@ export type Database = {
           machineRate?: number | null
           machineTime?: number
           machineUnit?: Database["public"]["Enums"]["factor"]
+          modelUploadId?: string | null
           operationLeadTime?: number
           operationMinimumCost?: number
           operationOrder?: Database["public"]["Enums"]["methodOperationOrder"]
@@ -11830,6 +11833,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "jobs"
             referencedColumns: ["jobMakeMethodId"]
+          },
+          {
+            foreignKeyName: "jobOperation_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "jobOperation_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "modelUpload"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobOperation_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "salesRfqLines"
+            referencedColumns: ["modelId"]
           },
           {
             foreignKeyName: "jobOperation_procedureId_fkey"
@@ -12312,6 +12336,9 @@ export type Database = {
       }
       jobOperationStep: {
         Row: {
+          assemblyNodeId: string | null
+          assemblyNodeName: string | null
+          assemblyNodeQuantity: number | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -12333,6 +12360,9 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          assemblyNodeId?: string | null
+          assemblyNodeName?: string | null
+          assemblyNodeQuantity?: number | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -12354,6 +12384,9 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          assemblyNodeId?: string | null
+          assemblyNodeName?: string | null
+          assemblyNodeQuantity?: number | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -17245,6 +17278,7 @@ export type Database = {
       }
       modelUpload: {
         Row: {
+          assemblyMetadata: Json | null
           autodeskUrn: string | null
           companyId: string
           createdAt: string | null
@@ -17252,12 +17286,16 @@ export type Database = {
           id: string
           modelPath: string
           name: string | null
+          parsedAt: string | null
+          parsingError: string | null
+          parsingStatus: string | null
           size: number | null
           thumbnailPath: string | null
           updatedAt: string | null
           updatedBy: string | null
         }
         Insert: {
+          assemblyMetadata?: Json | null
           autodeskUrn?: string | null
           companyId: string
           createdAt?: string | null
@@ -17265,12 +17303,16 @@ export type Database = {
           id?: string
           modelPath: string
           name?: string | null
+          parsedAt?: string | null
+          parsingError?: string | null
+          parsingStatus?: string | null
           size?: number | null
           thumbnailPath?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Update: {
+          assemblyMetadata?: Json | null
           autodeskUrn?: string | null
           companyId?: string
           createdAt?: string | null
@@ -17278,6 +17320,9 @@ export type Database = {
           id?: string
           modelPath?: string
           name?: string | null
+          parsedAt?: string | null
+          parsingError?: string | null
+          parsingStatus?: string | null
           size?: number | null
           thumbnailPath?: string | null
           updatedAt?: string | null
@@ -46054,6 +46099,7 @@ export type Database = {
         Row: {
           active: boolean | null
           actualTime: number | null
+          assemblyMetadata: Json | null
           assignee: string | null
           autodeskUrn: string | null
           companyId: string | null
@@ -46084,6 +46130,10 @@ export type Database = {
           modelUploadId: string | null
           name: string | null
           notes: Json | null
+          parsedAt: string | null
+          parsingError: string | null
+          parsingStatus: string | null
+          priority: number | null
           productionQuantity: number | null
           quantity: number | null
           quantityComplete: number | null
@@ -49235,14 +49285,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56871,6 +56921,7 @@ export type Database = {
         Args: { item_id: string }
         Returns: {
           active: boolean
+          assemblyMetadata: Json
           assignee: string
           companyId: string
           createdAt: string
@@ -56887,6 +56938,9 @@ export type Database = {
           modelSize: number
           name: string
           notes: Json
+          parsedAt: string
+          parsingError: string
+          parsingStatus: string
           readableId: string
           readableIdWithRevision: string
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]

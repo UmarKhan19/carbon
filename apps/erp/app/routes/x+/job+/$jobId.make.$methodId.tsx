@@ -2,7 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
-import { Spinner, useMount, VStack } from "@carbon/react";
+import { Spinner, useDisclosure, useMount, VStack } from "@carbon/react";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
@@ -19,13 +19,14 @@ import {
   getProductionDataByOperations
 } from "~/modules/production";
 import {
+  GenerateFromAssemblyModal,
   JobBillOfMaterial,
   JobBillOfProcess,
   JobDocuments,
   JobEstimatesVsActuals
 } from "~/modules/production/ui/Jobs";
 import JobMakeMethodTools from "~/modules/production/ui/Jobs/JobMakeMethodTools";
-import { getModelByItemId, getTagsList } from "~/modules/shared";
+import { getTagsList } from "~/modules/shared";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -109,9 +110,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       operations?.data?.map((o) => o.id)
     ),
     files: getPartDocuments(client, companyId, makeMethod.data),
-    model: getModelByItemId(client, makeMethod.data.itemId!),
+    // Model data comes from the jobs view which already coalesces job + item modelUploadId
+    model: {
+      itemId: job.data.itemId,
+      type: job.data.itemType,
+      id: job.data.modelId,
+      modelPath: job.data.modelPath,
+      assemblyMetadata: job.data.assemblyMetadata,
+      parsingStatus: job.data.parsingStatus,
+      parsedAt: job.data.parsedAt,
+      parsingError: job.data.parsingError
+    },
     tags: tags.data ?? []
   };
+}
+
+interface AssemblyMetadata {
+  isAssembly: boolean;
+  partCount: number;
+  rootName?: string;
 }
 
 export default function JobMakeMethodRoute() {
@@ -132,6 +149,7 @@ export default function JobMakeMethodRoute() {
   } = loaderData;
 
   const { setIsExplorerCollapsed, isExplorerCollapsed } = usePanels();
+  const generateModal = useDisclosure();
 
   useMount(() => {
     if (isExplorerCollapsed) {
@@ -141,7 +159,11 @@ export default function JobMakeMethodRoute() {
 
   return (
     <VStack spacing={2} className="p-2">
-      <JobMakeMethodTools makeMethod={makeMethod} />
+      <JobMakeMethodTools
+        makeMethod={makeMethod}
+        model={loaderData.model}
+        onGenerateFromAssembly={generateModal.onOpen}
+      />
 
       <JobBillOfMaterial
         key={`bom:${methodId}`}
@@ -193,23 +215,34 @@ export default function JobMakeMethodRoute() {
           />
         )}
       </Await>
-      <Suspense fallback={null}>
-        <Await resolve={loaderData.model}>
-          {(model) => (
-            <CadModel
-              key={`cad:${model.itemId}`}
-              isReadOnly={!permissions.can("update", "sales")}
-              metadata={{
-                itemId: model?.itemId ?? undefined
-              }}
-              modelPath={model?.modelPath ?? null}
-              title="CAD Model"
-              uploadClassName="aspect-square min-h-[420px] max-h-[70vh]"
-              viewerClassName="aspect-square min-h-[420px] max-h-[70vh]"
-            />
-          )}
-        </Await>
-      </Suspense>
+      <CadModel
+        key={`cad:${loaderData.model.itemId}`}
+        isReadOnly={!permissions.can("update", "sales")}
+        metadata={{
+          itemId: loaderData.model?.itemId ?? undefined
+        }}
+        modelPath={loaderData.model?.modelPath ?? null}
+        title="CAD Model"
+        uploadClassName="aspect-square min-h-[420px] max-h-[70vh]"
+        viewerClassName="aspect-square min-h-[420px] max-h-[70vh]"
+        colorByPart={
+          loaderData.model?.parsingStatus === "completed" &&
+          !!(loaderData.model?.assemblyMetadata as AssemblyMetadata)?.isAssembly
+        }
+      />
+      {loaderData.model?.assemblyMetadata &&
+        (loaderData.model.assemblyMetadata as AssemblyMetadata).isAssembly &&
+        loaderData.model.parsingStatus === "completed" && (
+          <GenerateFromAssemblyModal
+            isOpen={generateModal.isOpen}
+            onClose={generateModal.onClose}
+            jobId={jobId}
+            modelUploadId={loaderData.model.id!}
+            assemblyMetadata={
+              loaderData.model.assemblyMetadata as AssemblyMetadata
+            }
+          />
+        )}
     </VStack>
   );
 }

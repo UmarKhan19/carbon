@@ -25,6 +25,9 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   toast,
   useDisclosure,
   useMount,
@@ -37,6 +40,7 @@ import {
   LuGitBranch,
   LuGitFork,
   LuGitMerge,
+  LuListChecks,
   LuQrCode,
   LuSettings,
   LuSquareStack,
@@ -61,7 +65,29 @@ import { path } from "~/utils/path";
 import { getJobMethodValidator } from "../../production.models";
 import type { Job, JobMakeMethod, JobMethod } from "../../types";
 
-const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
+interface AssemblyMetadata {
+  isAssembly: boolean;
+  partCount: number;
+  rootName?: string;
+}
+
+interface ModelData {
+  id: string;
+  assemblyMetadata?: AssemblyMetadata | null;
+  parsingStatus?: string | null;
+}
+
+interface JobMakeMethodToolsProps {
+  makeMethod?: JobMakeMethod;
+  model?: Promise<ModelData> | ModelData;
+  onGenerateFromAssembly?: () => void;
+}
+
+const JobMakeMethodTools = ({
+  makeMethod,
+  model,
+  onGenerateFromAssembly
+}: JobMakeMethodToolsProps) => {
   const permissions = usePermissions();
   const { jobId, methodId } = useParams();
   if (!jobId) throw new Error("jobId not found");
@@ -318,6 +344,34 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                       Tracking Labels
                     </SplitButton>
                   )}
+                {model && onGenerateFromAssembly && (
+                  <Suspense fallback={null}>
+                    <Await resolve={model}>
+                      {(resolvedModel) =>
+                        resolvedModel?.assemblyMetadata &&
+                        (resolvedModel.assemblyMetadata as AssemblyMetadata)
+                          .isAssembly &&
+                        resolvedModel.parsingStatus === "completed" ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <MenubarItem
+                                leftIcon={<LuListChecks />}
+                                isDisabled={isDisabled}
+                                onClick={onGenerateFromAssembly}
+                              >
+                                Generate from Assembly
+                              </MenubarItem>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Generate work instructions from the CAD assembly
+                              structure
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : null
+                      }
+                    </Await>
+                  </Suspense>
+                )}
               </HStack>
             </HStack>
           </Menubar>

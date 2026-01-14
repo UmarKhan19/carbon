@@ -12580,6 +12580,9 @@ export default {
             $ref: "#/parameters/rowFilter.jobs.shelfId",
           },
           {
+            $ref: "#/parameters/rowFilter.jobs.priority",
+          },
+          {
             $ref: "#/parameters/rowFilter.jobs.jobMakeMethodId",
           },
           {
@@ -12620,6 +12623,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobs.modelSize",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobs.assemblyMetadata",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobs.parsingStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobs.parsedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobs.parsingError",
           },
           {
             $ref: "#/parameters/rowFilter.jobs.salesOrderReadableId",
@@ -30685,6 +30700,9 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperation.conflictReason",
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperation.modelUploadId",
+          },
+          {
             $ref: "#/parameters/rowFilter.jobOperation.targetQuantity",
           },
           {
@@ -30873,6 +30891,9 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperation.conflictReason",
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperation.modelUploadId",
+          },
+          {
             $ref: "#/parameters/rowFilter.jobOperation.targetQuantity",
           },
           {
@@ -31013,6 +31034,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobOperation.conflictReason",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperation.modelUploadId",
           },
           {
             $ref: "#/parameters/rowFilter.jobOperation.targetQuantity",
@@ -36739,6 +36763,15 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperationStep.nonConformanceInvestigationId",
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeQuantity",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -36855,6 +36888,15 @@ export default {
             $ref: "#/parameters/rowFilter.jobOperationStep.nonConformanceInvestigationId",
           },
           {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeQuantity",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -36923,6 +36965,15 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobOperationStep.nonConformanceInvestigationId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobOperationStep.assemblyNodeQuantity",
           },
           {
             $ref: "#/parameters/body.jobOperationStep",
@@ -42787,6 +42838,18 @@ export default {
             $ref: "#/parameters/rowFilter.modelUpload.thumbnailPath",
           },
           {
+            $ref: "#/parameters/rowFilter.modelUpload.assemblyMetadata",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsingStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsingError",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -42879,6 +42942,18 @@ export default {
             $ref: "#/parameters/rowFilter.modelUpload.thumbnailPath",
           },
           {
+            $ref: "#/parameters/rowFilter.modelUpload.assemblyMetadata",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsingStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsingError",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -42923,6 +42998,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.modelUpload.thumbnailPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.assemblyMetadata",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsingStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.modelUpload.parsingError",
           },
           {
             $ref: "#/parameters/body.modelUpload",
@@ -75437,6 +75524,10 @@ export default {
           format: "text",
           type: "string",
         },
+        priority: {
+          format: "double precision",
+          type: "number",
+        },
         jobMakeMethodId: {
           description: "Note:\nThis is a Primary Key.<pk/>",
           format: "text",
@@ -75504,6 +75595,21 @@ export default {
         modelSize: {
           format: "bigint",
           type: "integer",
+        },
+        assemblyMetadata: {
+          format: "jsonb",
+        },
+        parsingStatus: {
+          format: "text",
+          type: "string",
+        },
+        parsedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        parsingError: {
+          format: "text",
+          type: "string",
         },
         salesOrderReadableId: {
           format: "text",
@@ -83921,6 +84027,12 @@ export default {
           format: "text",
           type: "string",
         },
+        modelUploadId: {
+          description:
+            "Note:\nThis is a Foreign Key to `modelUpload.id`.<fk table='modelUpload' column='id'/>",
+          format: "text",
+          type: "string",
+        },
         targetQuantity: {
           default: 0,
           description:
@@ -86679,6 +86791,18 @@ export default {
         nonConformanceInvestigationId: {
           format: "text",
           type: "string",
+        },
+        assemblyNodeId: {
+          format: "text",
+          type: "string",
+        },
+        assemblyNodeName: {
+          format: "text",
+          type: "string",
+        },
+        assemblyNodeQuantity: {
+          format: "integer",
+          type: "integer",
         },
       },
       type: "object",
@@ -89509,6 +89633,28 @@ export default {
           type: "string",
         },
         thumbnailPath: {
+          format: "text",
+          type: "string",
+        },
+        assemblyMetadata: {
+          description:
+            "Parsed CAD assembly structure: hierarchy, parts, quantities, transforms",
+          format: "jsonb",
+        },
+        parsingStatus: {
+          default: "pending",
+          description:
+            "Status of CAD parsing: pending, processing, completed, failed",
+          format: "text",
+          type: "string",
+        },
+        parsedAt: {
+          description: "Timestamp when parsing completed",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        parsingError: {
+          description: "Error message if parsing failed",
           format: "text",
           type: "string",
         },
@@ -106755,6 +106901,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.jobs.priority": {
+      name: "priority",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.jobs.jobMakeMethodId": {
       name: "jobMakeMethodId",
       required: false,
@@ -106835,6 +106987,30 @@ export default {
     },
     "rowFilter.jobs.modelSize": {
       name: "modelSize",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobs.assemblyMetadata": {
+      name: "assemblyMetadata",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobs.parsingStatus": {
+      name: "parsingStatus",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobs.parsedAt": {
+      name: "parsedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobs.parsingError": {
+      name: "parsingError",
       required: false,
       in: "query",
       type: "string",
@@ -116244,6 +116420,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.jobOperation.modelUploadId": {
+      name: "modelUploadId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.jobOperation.targetQuantity": {
       name: "targetQuantity",
       description:
@@ -119461,6 +119643,24 @@ export default {
     },
     "rowFilter.jobOperationStep.nonConformanceInvestigationId": {
       name: "nonConformanceInvestigationId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobOperationStep.assemblyNodeId": {
+      name: "assemblyNodeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobOperationStep.assemblyNodeName": {
+      name: "assemblyNodeName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobOperationStep.assemblyNodeQuantity": {
+      name: "assemblyNodeQuantity",
       required: false,
       in: "query",
       type: "string",
@@ -122714,6 +122914,36 @@ export default {
     },
     "rowFilter.modelUpload.thumbnailPath": {
       name: "thumbnailPath",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.modelUpload.assemblyMetadata": {
+      name: "assemblyMetadata",
+      description:
+        "Parsed CAD assembly structure: hierarchy, parts, quantities, transforms",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.modelUpload.parsingStatus": {
+      name: "parsingStatus",
+      description:
+        "Status of CAD parsing: pending, processing, completed, failed",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.modelUpload.parsedAt": {
+      name: "parsedAt",
+      description: "Timestamp when parsing completed",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.modelUpload.parsingError": {
+      name: "parsingError",
+      description: "Error message if parsing failed",
       required: false,
       in: "query",
       type: "string",
