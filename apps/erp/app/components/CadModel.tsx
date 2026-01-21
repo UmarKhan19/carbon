@@ -38,8 +38,12 @@ type CadModelProps = {
   uploadClassName?: string;
   viewerClassName?: string;
   isReadOnly?: boolean;
-  /** When true, each part in the assembly gets a unique color */
-  colorByPart?: boolean;
+  /** When true, preserves original colors from the model file (e.g., STEP colors) */
+  preserveColors?: boolean;
+  /** When true, enables click-to-select parts with highlighting */
+  enableSelection?: boolean;
+  /** Callback when a part is selected or deselected */
+  onPartSelected?: (partId: string | null, partName: string | null) => void;
 };
 
 const CadModel = ({
@@ -49,7 +53,9 @@ const CadModel = ({
   title,
   uploadClassName,
   viewerClassName,
-  colorByPart
+  preserveColors = true,
+  enableSelection = true,
+  onPartSelected
 }: CadModelProps) => {
   const {
     company: { id: companyId }
@@ -131,7 +137,9 @@ const CadModel = ({
             url={modelPath ? getPrivateUrl(modelPath) : null}
             mode={mode}
             className={viewerClassName}
-            colorByPart={colorByPart}
+            preserveColors={preserveColors}
+            enableSelection={enableSelection}
+            onPartSelected={onPartSelected}
           />
         ) : (
           <CadModelUpload
