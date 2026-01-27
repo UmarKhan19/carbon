@@ -1593,7 +1593,9 @@ export const path = {
     workCenterActivate: (id: string) =>
       generatePath(`${x}/resources/work-centers/activate/${id}`),
     activateProcess: (id: string) =>
-      generatePath(`${x}/resources/processes/activate/${id}`)
+      generatePath(`${x}/resources/processes/activate/${id}`),
+    deactivateProcess: (id: string) =>
+      generatePath(`${x}/resources/processes/deactivate/${id}`)
   }
 } as const;
 
