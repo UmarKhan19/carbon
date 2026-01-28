@@ -71,6 +71,7 @@ export default function CustomerEditRoute() {
     website: routeData?.customer?.website ?? "",
     salesContactId: routeData?.customer?.salesContactId ?? undefined,
     invoicingContactId: routeData?.customer?.invoicingContactId ?? undefined,
+    defaultCc: routeData?.customer?.defaultCc ?? [],
     ...getCustomFields(routeData?.customer?.customFields)
   };
 

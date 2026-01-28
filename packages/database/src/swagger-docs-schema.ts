@@ -13123,6 +13123,9 @@ export default {
             $ref: "#/parameters/rowFilter.customers.invoicingContactId",
           },
           {
+            $ref: "#/parameters/rowFilter.customers.defaultCc",
+          },
+          {
             $ref: "#/parameters/rowFilter.customers.type",
           },
           {
@@ -29123,6 +29126,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.suppliers.embedding",
+          },
+          {
+            $ref: "#/parameters/rowFilter.suppliers.defaultCc",
           },
           {
             $ref: "#/parameters/rowFilter.suppliers.type",
@@ -68604,7 +68610,7 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -68653,7 +68659,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -71267,6 +71273,13 @@ export default {
             "Note:\nThis is a Foreign Key to `customerContact.id`.<fk table='customerContact' column='id'/>",
           format: "text",
           type: "string",
+        },
+        defaultCc: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
         },
         type: {
           format: "text",
@@ -78540,6 +78553,13 @@ export default {
         embedding: {
           format: "extensions.halfvec(384)",
           type: "string",
+        },
+        defaultCc: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
         },
         type: {
           format: "text",
@@ -101038,6 +101058,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.customers.defaultCc": {
+      name: "defaultCc",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.customers.type": {
       name: "type",
       required: false,
@@ -109121,6 +109147,12 @@ export default {
     },
     "rowFilter.suppliers.embedding": {
       name: "embedding",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.suppliers.defaultCc": {
+      name: "defaultCc",
       required: false,
       in: "query",
       type: "string",

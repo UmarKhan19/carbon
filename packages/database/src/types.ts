@@ -41442,6 +41442,7 @@ export type Database = {
           customerStatusId: string | null
           customerTypeId: string | null
           customFields: Json | null
+          defaultCc: string[] | null
           fax: string | null
           id: string | null
           invoicingContactId: string | null
@@ -45392,14 +45393,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -49463,14 +49464,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -51996,6 +51997,7 @@ export type Database = {
           createdBy: string | null
           currencyCode: string | null
           customFields: Json | null
+          defaultCc: string[] | null
           embedding: unknown
           externalId: Json | null
           fax: string | null

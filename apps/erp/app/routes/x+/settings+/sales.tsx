@@ -327,8 +327,8 @@ export default function SalesSettingsRoute() {
             <CardHeader>
               <CardTitle>Default CC for Customer Emails</CardTitle>
               <CardDescription>
-                These email addresses will be automatically CC'd on all emails
-                sent to customers (quotes, sales orders, invoices, etc.).
+                These email addresses will be automatically CC'd on all quote
+                emails sent to customers.
               </CardDescription>
             </CardHeader>
             <CardContent>
