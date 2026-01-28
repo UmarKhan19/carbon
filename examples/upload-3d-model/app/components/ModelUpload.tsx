@@ -1,5 +1,5 @@
 import { cn, Spinner, toast } from "@carbon/react";
-import { convertKbToString, getFileSizeLimit } from "@carbon/utils";
+import { convertKbToString } from "@carbon/utils";
 import { useDropzone } from "react-dropzone";
 import { LuCloudUpload } from "react-icons/lu";
 
@@ -10,7 +10,7 @@ type ModelUploadProps = {
   onFileChange: (file: File | null) => void;
 };
 
-const SIZE_LIMIT = getFileSizeLimit("CAD_MODEL_UPLOAD");
+const fileSizeLimitMb = 120;
 const supportedModelTypes = ["stp", "step"];
 
 export const ModelUpload = ({
@@ -27,9 +27,10 @@ export const ModelUpload = ({
     },
     disabled: hasFile,
     multiple: false,
-    maxSize: SIZE_LIMIT.bytes,
+    maxSize: fileSizeLimitMb * 1024 * 1024, // 50 MB
     onDropAccepted: (acceptedFiles) => {
       const file = acceptedFiles[0];
+      const fileSizeLimit = fileSizeLimitMb * 1024 * 1024;
 
       const fileExtension = file.name.split(".").pop()?.toLowerCase();
       if (!fileExtension || !supportedModelTypes.includes(fileExtension)) {
@@ -38,8 +39,8 @@ export const ModelUpload = ({
         return;
       }
 
-      if (file.size > SIZE_LIMIT.bytes) {
-        toast.error(`File size too big (max. ${SIZE_LIMIT.format()})`);
+      if (file.size > fileSizeLimit) {
+        toast.error(`File size too big (max. ${fileSizeLimitMb} MB)`);
         return;
       }
 
@@ -49,7 +50,7 @@ export const ModelUpload = ({
       const { errors } = fileRejections[0];
       let message;
       if (errors[0].code === "file-too-large") {
-        message = `File size too big (max. ${SIZE_LIMIT.format()})`;
+        message = `File size too big (max. ${fileSizeLimitMb} MB)`;
       } else if (errors[0].code === "file-invalid-type") {
         message = "File type not supported";
       } else {

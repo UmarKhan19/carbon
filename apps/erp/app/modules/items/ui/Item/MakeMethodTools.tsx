@@ -47,7 +47,7 @@ import {
   LuTriangleAlert
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
-import { Hidden, Item } from "~/components/Form";
+import { Hidden, Item, useConfigurableItems } from "~/components/Form";
 import { Confirm } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import type { MethodItemType } from "~/modules/shared";
@@ -89,6 +89,7 @@ const MakeMethodTools = ({
   }, [fetcher.data?.error]);
 
   const [includeInactive, setIncludeInactive] = useState<boolean>(true);
+  const configurableItemIds = useConfigurableItems();
 
   const getMethodModal = useDisclosure();
   const saveMethodModal = useDisclosure();
@@ -277,6 +278,7 @@ const MakeMethodTools = ({
                     name="sourceId"
                     label="Source Method"
                     type={type}
+                    blacklist={configurableItemIds}
                     includeInactive={includeInactive}
                     replenishmentSystem="Make"
                   />
@@ -346,7 +348,7 @@ const MakeMethodTools = ({
                     label="Target Method"
                     type={type}
                     includeInactive={includeInactive}
-                    disabledItems={[itemId]}
+                    blacklist={[itemId, ...configurableItemIds]}
                     replenishmentSystem="Make"
                   />
                   <div className="flex items-center space-x-2">

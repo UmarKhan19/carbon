@@ -5,7 +5,11 @@ import { validationError, validator } from "@carbon/form";
 import { Menubar, VStack } from "@carbon/react";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import type { z } from "zod";
 import CadModel from "~/components/CadModel";
@@ -33,6 +37,7 @@ import { ConfigurationParametersForm } from "~/modules/items/ui/Parts";
 import { getTagsList } from "~/modules/shared";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
+import { configurableItemsQuery, getCompanyId } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -88,6 +93,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     path.to.partMakeMethod(itemId, methodId),
     await flash(request, success("Updated part manufacturing"))
   );
+}
+
+export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
+  window.clientCache?.setQueryData(
+    configurableItemsQuery(getCompanyId()).queryKey,
+    null
+  );
+  return await serverAction();
 }
 
 export default function MakeMethodRoute() {

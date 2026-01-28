@@ -14,7 +14,7 @@ import { path } from "~/utils/path";
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId } = await requirePermissions(request, {
-    create: "sales"
+    update: "sales"
   });
 
   const formData = await request.formData();

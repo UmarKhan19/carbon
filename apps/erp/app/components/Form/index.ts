@@ -49,7 +49,7 @@ import EmailRecipients from "./EmailRecipients";
 import EmojiPicker from "./EmojiPicker";
 import Employee from "./Employee";
 import Employees from "./Employees";
-import Item from "./Item";
+import Item, { useConfigurableItems } from "./Item";
 import ItemPostingGroup from "./ItemPostingGroup";
 import Location from "./Location";
 import MaterialType from "./MaterialType";
@@ -116,6 +116,7 @@ export {
   InputControlled,
   Item,
   ItemPostingGroup,
+  useConfigurableItems,
   Location,
   MaterialType,
   MultiSelect,

@@ -1,5 +1,5 @@
 import * as OV from "online-3d-viewer";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "react-aria-components";
 import * as THREE from "three";
 import { useMount } from "./hooks";
@@ -34,13 +34,12 @@ export function ModelViewer({
 }) {
   const parentDiv = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<OV.EmbeddedViewer | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [unitSystem, setUnitSystem] = useState<UnitSystem>("metric");
   const [modelInfo, setModelInfo] = useState<{
+    surfaceArea: number;
+    volume: number;
     dimensions: { x: number; y: number; z: number };
-    surfaceArea: number | null;
-    volume: number | null;
   } | null>(null);
 
   useMount(() => {
@@ -113,8 +112,10 @@ export function ModelViewer({
               }
 
               if (model) {
-                // Calculate only dimensions (fast) - surface area and volume are on-demand
+                // Calculate model dimensions and properties
                 const boundingBox = OV.GetBoundingBox(model);
+                const surfaceArea = OV.CalculateSurfaceArea(model);
+                const volume = OV.CalculateVolume(model);
                 const dimensions = {
                   x: boundingBox.max.x - boundingBox.min.x,
                   y: boundingBox.max.y - boundingBox.min.y,
@@ -122,9 +123,9 @@ export function ModelViewer({
                 };
 
                 setModelInfo({
-                  dimensions,
-                  surfaceArea: null,
-                  volume: null
+                  surfaceArea,
+                  volume,
+                  dimensions
                 });
               }
             }
@@ -137,19 +138,14 @@ export function ModelViewer({
 
         if (file) {
           loadFile(file);
-        } else if (url) {
+        }
+        if (url) {
           loadUrl(url);
         }
       }
     }
 
     return () => {
-      // Cancel any ongoing animations
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-
       if (viewerRef.current !== null && parentDiv.current !== null) {
         delete viewerRef.current.model;
         viewerRef.current.viewer.renderer.resetState();
@@ -168,65 +164,6 @@ export function ModelViewer({
     };
   });
 
-  // Smooth camera animation helper
-  const animateCamera = useCallback(
-    (
-      targetEye: OV.Coord3D,
-      targetCenter: OV.Coord3D,
-      targetUp: OV.Coord3D,
-      duration: number = 300
-    ) => {
-      if (!viewerRef.current) return;
-
-      const viewer3D = viewerRef.current.GetViewer();
-      const camera = viewer3D.GetCamera();
-      const startEye = camera.eye;
-      const startCenter = camera.center;
-      const startUp = camera.up;
-      const startTime = Date.now();
-
-      const animate = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // Easing function (ease-out cubic)
-        const eased = 1 - Math.pow(1 - progress, 3);
-
-        camera.eye = new OV.Coord3D(
-          startEye.x + (targetEye.x - startEye.x) * eased,
-          startEye.y + (targetEye.y - startEye.y) * eased,
-          startEye.z + (targetEye.z - startEye.z) * eased
-        );
-
-        camera.center = new OV.Coord3D(
-          startCenter.x + (targetCenter.x - startCenter.x) * eased,
-          startCenter.y + (targetCenter.y - startCenter.y) * eased,
-          startCenter.z + (targetCenter.z - startCenter.z) * eased
-        );
-
-        camera.up = new OV.Coord3D(
-          startUp.x + (targetUp.x - startUp.x) * eased,
-          startUp.y + (targetUp.y - startUp.y) * eased,
-          startUp.z + (targetUp.z - startUp.z) * eased
-        );
-
-        viewer3D.SetCamera(camera);
-
-        if (progress < 1) {
-          animationFrameRef.current = requestAnimationFrame(animate);
-        }
-      };
-
-      // Cancel any ongoing animation
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-
-      animate();
-    },
-    []
-  );
-
   function resetZoom() {
     if (!viewerRef.current) return;
 
@@ -236,66 +173,23 @@ export function ModelViewer({
       parentDiv.current?.clientHeight
     );
 
-    const boundingSphere = viewer3D.GetBoundingSphere(() => true);
+    const boundingSphere = viewer3D.GetBoundingSphere((meshUserData) => true);
     if (boundingSphere) {
       const center = boundingSphere.center;
       const radius = boundingSphere.radius;
+      const camera = viewer3D.GetCamera();
       const direction = new OV.Coord3D(1, 1, 1);
       const eye = new OV.Coord3D(
         center.x + direction.x * radius * 1.5,
         center.y + direction.y * radius * 1.5,
         center.z + direction.z * radius * 1.5
       );
-      const up = new OV.Coord3D(0, 1, 0);
-
-      // Animate to the reset position
-      animateCamera(eye, center, up, 400);
+      camera.center = center;
+      camera.eye = eye;
+      camera.up = new OV.Coord3D(0, 1, 0);
+      viewer3D.SetCamera(camera);
     }
   }
-
-  const setCameraView = useCallback(
-    (viewType: "front" | "top" | "side" | "isometric") => {
-      if (!viewerRef.current) return;
-
-      const viewer3D = viewerRef.current.GetViewer();
-      const boundingSphere = viewer3D.GetBoundingSphere(() => true);
-      if (!boundingSphere) return;
-
-      const center = boundingSphere.center;
-      const radius = boundingSphere.radius;
-      const distance = radius * 2.5;
-
-      let eye: OV.Coord3D;
-      let up: OV.Coord3D;
-
-      switch (viewType) {
-        case "front":
-          eye = new OV.Coord3D(center.x, center.y, center.z + distance);
-          up = new OV.Coord3D(0, 1, 0);
-          break;
-        case "top":
-          eye = new OV.Coord3D(center.x, center.y + distance, center.z);
-          up = new OV.Coord3D(0, 0, -1);
-          break;
-        case "side":
-          eye = new OV.Coord3D(center.x + distance, center.y, center.z);
-          up = new OV.Coord3D(0, 1, 0);
-          break;
-        case "isometric":
-        default:
-          eye = new OV.Coord3D(
-            center.x + radius * 1.5,
-            center.y + radius * 1.5,
-            center.z + radius * 1.5
-          );
-          up = new OV.Coord3D(0, 1, 0);
-          break;
-      }
-
-      animateCamera(eye, center, up, 500);
-    },
-    [animateCamera]
-  );
 
   function loadFile(file: File) {
     if (!file) return;
@@ -442,50 +336,31 @@ export function ModelViewer({
           <>
             <pre id="model-viewer-canvas" aria-hidden className="sr-only" />
             {resetZoomButton && (
-              <div className="absolute bottom-2 right-2 z-20 flex gap-1">
-                <IconButton
-                  aria-label="Reset zoom"
-                  icon={
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-                      <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-                      <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-                      <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-                      <rect width="10" height="8" x="7" y="8" rx="1" />
-                    </svg>
-                  }
-                  variant="ghost"
-                  onClick={resetZoom}
-                />
-                <IconButton
-                  aria-label="Front view"
-                  icon={<span className="text-xs font-bold">F</span>}
-                  variant="ghost"
-                  onClick={() => setCameraView("front")}
-                />
-                <IconButton
-                  aria-label="Top view"
-                  icon={<span className="text-xs font-bold">T</span>}
-                  variant="ghost"
-                  onClick={() => setCameraView("top")}
-                />
-                <IconButton
-                  aria-label="Side view"
-                  icon={<span className="text-xs font-bold">S</span>}
-                  variant="ghost"
-                  onClick={() => setCameraView("side")}
-                />
-              </div>
+              <IconButton
+                aria-label="Reset zoom"
+                className="absolute top-2 right-2"
+                icon={
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                    <rect width="10" height="8" x="7" y="8" rx="1" />
+                  </svg>
+                }
+                variant="ghost"
+                onClick={resetZoom}
+              />
             )}
             {modelInfo && withProperties && (
               <>
