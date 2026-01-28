@@ -7,6 +7,7 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
+  cn,
   FormControl,
   FormErrorMessage,
   FormHelperText,
@@ -127,6 +128,7 @@ export default function EmailRecipients({
   const { error, defaultValue, validate } = useField(name);
   const [emails, setEmails] = useState<string[]>(defaultValue ?? []);
   const [inputValue, setInputValue] = useState("");
+  const [inputError, setInputError] = useState(false);
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -183,10 +185,15 @@ export default function EmailRecipients({
     if (e.key === "Enter") {
       e.preventDefault();
       const value = inputValue.trim();
-      if (value && isValidEmail(value)) {
-        addEmail(value);
-        setInputValue("");
-        setOpen(false);
+      if (value) {
+        if (isValidEmail(value)) {
+          addEmail(value);
+          setInputValue("");
+          setOpen(false);
+          setInputError(false);
+        } else {
+          setInputError(true);
+        }
       }
     } else if (e.key === "Escape") {
       setOpen(false);
@@ -224,7 +231,10 @@ export default function EmailRecipients({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <div
-            className="flex flex-wrap gap-1 min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 cursor-text"
+            className={cn(
+              "flex flex-wrap gap-1 min-h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 cursor-text",
+              inputError ? "border-destructive" : "border-input"
+            )}
             onClick={(e) => {
               // Prevent popover toggle, just focus input
               e.preventDefault();
@@ -253,6 +263,7 @@ export default function EmailRecipients({
               value={inputValue}
               onChange={(e) => {
                 setInputValue(e.target.value);
+                setInputError(false);
                 setOpen(true);
               }}
               onFocus={() => setOpen(true)}
@@ -290,7 +301,12 @@ export default function EmailRecipients({
             <CommandList>
               <CommandEmpty>
                 {inputValue ? (
-                  <span className="text-muted-foreground text-sm">
+                  <span
+                    className={cn(
+                      "text-sm",
+                      inputError ? "text-destructive" : "text-muted-foreground"
+                    )}
+                  >
                     {isValidEmail(inputValue)
                       ? "Press Enter to add this email"
                       : "Enter a valid email address"}
