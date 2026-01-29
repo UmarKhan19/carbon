@@ -1,0 +1,23 @@
+{
+  "include": ["env.d.ts", "**/*.ts", "**/*.tsx", "app/types/global.d.ts"],
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "ESNext"],
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "target": "ES2019",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "paths": {
+      "~/*": ["./app/*"]
+    },
+    "rootDirs": [".", ".react-router/types"],
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noErrorTruncation": true
+  }
+}

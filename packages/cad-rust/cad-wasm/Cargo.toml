@@ -1,0 +1,25 @@
+[package]
+name = "cad-wasm"
+version.workspace = true
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+cad-common = { path = "../cad-common" }
+nalgebra = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+web-sys = { workspace = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+[features]
+default = ["panic_hook"]
+panic_hook = ["dep:console_error_panic_hook"]
+
+[profile.release]
+opt-level = "s"
+lto = true

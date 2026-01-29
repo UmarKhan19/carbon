@@ -1,0 +1,551 @@
+[
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "io",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "io",
+        "description": "io",
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "struct",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "struct",
+        "description": "struct",
+        "detail": "struct",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Optional",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "base64",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "base64",
+        "description": "base64",
+        "detail": "base64",
+        "documentation": {}
+    },
+    {
+        "label": "logging",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "logging",
+        "description": "logging",
+        "detail": "logging",
+        "documentation": {}
+    },
+    {
+        "label": "multiprocessing",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "multiprocessing",
+        "description": "multiprocessing",
+        "detail": "multiprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "tempfile",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "tempfile",
+        "description": "tempfile",
+        "detail": "tempfile",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "File",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Form",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "UploadFile",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "CORSMiddleware",
+        "importPath": "fastapi.middleware.cors",
+        "description": "fastapi.middleware.cors",
+        "isExtraImport": true,
+        "detail": "fastapi.middleware.cors",
+        "documentation": {}
+    },
+    {
+        "label": "BaseModel",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "uuid",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "uuid",
+        "description": "uuid",
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "dataclass",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "field",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "STEPControl_Reader",
+        "importPath": "OCC.Core.STEPControl",
+        "description": "OCC.Core.STEPControl",
+        "isExtraImport": true,
+        "detail": "OCC.Core.STEPControl",
+        "documentation": {}
+    },
+    {
+        "label": "IFSelect_RetDone",
+        "importPath": "OCC.Core.IFSelect",
+        "description": "OCC.Core.IFSelect",
+        "isExtraImport": true,
+        "detail": "OCC.Core.IFSelect",
+        "documentation": {}
+    },
+    {
+        "label": "STEPCAFControl_Reader",
+        "importPath": "OCC.Core.STEPCAFControl",
+        "description": "OCC.Core.STEPCAFControl",
+        "isExtraImport": true,
+        "detail": "OCC.Core.STEPCAFControl",
+        "documentation": {}
+    },
+    {
+        "label": "TDocStd_Document",
+        "importPath": "OCC.Core.TDocStd",
+        "description": "OCC.Core.TDocStd",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TDocStd",
+        "documentation": {}
+    },
+    {
+        "label": "XCAFDoc_DocumentTool",
+        "importPath": "OCC.Core.XCAFDoc",
+        "description": "OCC.Core.XCAFDoc",
+        "isExtraImport": true,
+        "detail": "OCC.Core.XCAFDoc",
+        "documentation": {}
+    },
+    {
+        "label": "TDF_LabelSequence",
+        "importPath": "OCC.Core.TDF",
+        "description": "OCC.Core.TDF",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TDF",
+        "documentation": {}
+    },
+    {
+        "label": "TDF_Label",
+        "importPath": "OCC.Core.TDF",
+        "description": "OCC.Core.TDF",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TDF",
+        "documentation": {}
+    },
+    {
+        "label": "TDataStd_Name",
+        "importPath": "OCC.Core.TDataStd",
+        "description": "OCC.Core.TDataStd",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TDataStd",
+        "documentation": {}
+    },
+    {
+        "label": "TCollection_ExtendedString",
+        "importPath": "OCC.Core.TCollection",
+        "description": "OCC.Core.TCollection",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TCollection",
+        "documentation": {}
+    },
+    {
+        "label": "BRepMesh_IncrementalMesh",
+        "importPath": "OCC.Core.BRepMesh",
+        "description": "OCC.Core.BRepMesh",
+        "isExtraImport": true,
+        "detail": "OCC.Core.BRepMesh",
+        "documentation": {}
+    },
+    {
+        "label": "TopLoc_Location",
+        "importPath": "OCC.Core.TopLoc",
+        "description": "OCC.Core.TopLoc",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TopLoc",
+        "documentation": {}
+    },
+    {
+        "label": "BRep_Tool",
+        "importPath": "OCC.Core.BRep",
+        "description": "OCC.Core.BRep",
+        "isExtraImport": true,
+        "detail": "OCC.Core.BRep",
+        "documentation": {}
+    },
+    {
+        "label": "TopExp_Explorer",
+        "importPath": "OCC.Core.TopExp",
+        "description": "OCC.Core.TopExp",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TopExp",
+        "documentation": {}
+    },
+    {
+        "label": "TopAbs_FACE",
+        "importPath": "OCC.Core.TopAbs",
+        "description": "OCC.Core.TopAbs",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TopAbs",
+        "documentation": {}
+    },
+    {
+        "label": "TopAbs_SOLID",
+        "importPath": "OCC.Core.TopAbs",
+        "description": "OCC.Core.TopAbs",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TopAbs",
+        "documentation": {}
+    },
+    {
+        "label": "TopAbs_SHELL",
+        "importPath": "OCC.Core.TopAbs",
+        "description": "OCC.Core.TopAbs",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TopAbs",
+        "documentation": {}
+    },
+    {
+        "label": "TopAbs_COMPOUND",
+        "importPath": "OCC.Core.TopAbs",
+        "description": "OCC.Core.TopAbs",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TopAbs",
+        "documentation": {}
+    },
+    {
+        "label": "topods",
+        "importPath": "OCC.Core.TopoDS",
+        "description": "OCC.Core.TopoDS",
+        "isExtraImport": true,
+        "detail": "OCC.Core.TopoDS",
+        "documentation": {}
+    },
+    {
+        "label": "Quantity_Color",
+        "importPath": "OCC.Core.Quantity",
+        "description": "OCC.Core.Quantity",
+        "isExtraImport": true,
+        "detail": "OCC.Core.Quantity",
+        "documentation": {}
+    },
+    {
+        "label": "gp_Trsf",
+        "importPath": "OCC.Core.gp",
+        "description": "OCC.Core.gp",
+        "isExtraImport": true,
+        "detail": "OCC.Core.gp",
+        "documentation": {}
+    },
+    {
+        "label": "ShapeFix_Shape",
+        "importPath": "OCC.Core.ShapeFix",
+        "description": "OCC.Core.ShapeFix",
+        "isExtraImport": true,
+        "detail": "OCC.Core.ShapeFix",
+        "documentation": {}
+    },
+    {
+        "label": "pytest",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pytest",
+        "description": "pytest",
+        "detail": "pytest",
+        "documentation": {}
+    },
+    {
+        "label": "TestClient",
+        "importPath": "fastapi.testclient",
+        "description": "fastapi.testclient",
+        "isExtraImport": true,
+        "detail": "fastapi.testclient",
+        "documentation": {}
+    },
+    {
+        "label": "GltfWriter",
+        "kind": 6,
+        "importPath": "packages.cad-service.src.gltf_writer",
+        "description": "packages.cad-service.src.gltf_writer",
+        "peekOfCode": "class GltfWriter:\n    \"\"\"\n    Writes mesh data to glTF 2.0 binary format (GLB)\n    Creates a single GLB file with:\n    - All meshes as separate mesh primitives\n    - Node hierarchy matching the assembly structure\n    - Materials with colors from STEP file\n    \"\"\"\n    def __init__(self):\n        self._buffer = io.BytesIO()",
+        "detail": "packages.cad-service.src.gltf_writer",
+        "documentation": {}
+    },
+    {
+        "label": "AssemblyNode",
+        "kind": 6,
+        "importPath": "packages.cad-service.src.main",
+        "description": "packages.cad-service.src.main",
+        "peekOfCode": "class AssemblyNode(BaseModel):\n    \"\"\"Node in the assembly hierarchy tree\"\"\"\n    id: str\n    name: str\n    type: str  # \"assembly\" | \"part\"\n    children: list[\"AssemblyNode\"] = []\n    transform: Optional[list[float]] = None  # 4x4 matrix as flat array\n    color: Optional[list[float]] = None  # RGBA\nclass ParseResponse(BaseModel):\n    \"\"\"Response from /parse endpoint\"\"\"",
+        "detail": "packages.cad-service.src.main",
+        "documentation": {}
+    },
+    {
+        "label": "ParseResponse",
+        "kind": 6,
+        "importPath": "packages.cad-service.src.main",
+        "description": "packages.cad-service.src.main",
+        "peekOfCode": "class ParseResponse(BaseModel):\n    \"\"\"Response from /parse endpoint\"\"\"\n    success: bool\n    hierarchy: Optional[AssemblyNode] = None\n    glb_base64: Optional[str] = None\n    part_count: int = 0\n    parse_time_ms: int = 0\n    error: Optional[str] = None\nclass HealthResponse(BaseModel):\n    \"\"\"Response from /health endpoint\"\"\"",
+        "detail": "packages.cad-service.src.main",
+        "documentation": {}
+    },
+    {
+        "label": "HealthResponse",
+        "kind": 6,
+        "importPath": "packages.cad-service.src.main",
+        "description": "packages.cad-service.src.main",
+        "peekOfCode": "class HealthResponse(BaseModel):\n    \"\"\"Response from /health endpoint\"\"\"\n    status: str\n    version: str\n    opencascade_version: str\ndef _parse_in_subprocess(step_path: str, tolerance: float, angular_tolerance: float, result_queue):\n    \"\"\"\n    Run STEP parsing in a subprocess to isolate C++ crashes.\n    If OpenCascade throws a C++ exception, only this subprocess dies.\n    \"\"\"",
+        "detail": "packages.cad-service.src.main",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "packages.cad-service.src.main",
+        "description": "packages.cad-service.src.main",
+        "peekOfCode": "logger = logging.getLogger(__name__)\napp = FastAPI(\n    title=\"Carbon CAD Service\",\n    description=\"STEP file parsing and glTF conversion using OpenCascade (PythonOCC)\",\n    version=\"1.0.0\",\n)\n# CORS middleware for development\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],",
+        "detail": "packages.cad-service.src.main",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "packages.cad-service.src.main",
+        "description": "packages.cad-service.src.main",
+        "peekOfCode": "app = FastAPI(\n    title=\"Carbon CAD Service\",\n    description=\"STEP file parsing and glTF conversion using OpenCascade (PythonOCC)\",\n    version=\"1.0.0\",\n)\n# CORS middleware for development\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,",
+        "detail": "packages.cad-service.src.main",
+        "documentation": {}
+    },
+    {
+        "label": "Mesh",
+        "kind": 6,
+        "importPath": "packages.cad-service.src.parser",
+        "description": "packages.cad-service.src.parser",
+        "peekOfCode": "class Mesh:\n    \"\"\"Triangle mesh data for a single part\"\"\"\n    id: str\n    name: str\n    vertices: np.ndarray  # Nx3 float32\n    normals: np.ndarray  # Nx3 float32\n    indices: np.ndarray  # Mx3 uint32\n    color: Optional[list[float]] = None  # RGBA\n    transform: Optional[list[float]] = None  # 4x4 matrix\n@dataclass",
+        "detail": "packages.cad-service.src.parser",
+        "documentation": {}
+    },
+    {
+        "label": "HierarchyNode",
+        "kind": 6,
+        "importPath": "packages.cad-service.src.parser",
+        "description": "packages.cad-service.src.parser",
+        "peekOfCode": "class HierarchyNode:\n    \"\"\"Node in assembly hierarchy\"\"\"\n    id: str\n    name: str\n    type: str  # \"assembly\" | \"part\"\n    children: list[\"HierarchyNode\"] = field(default_factory=list)\n    transform: Optional[list[float]] = None\n    color: Optional[list[float]] = None\nclass StepParser:\n    \"\"\"",
+        "detail": "packages.cad-service.src.parser",
+        "documentation": {}
+    },
+    {
+        "label": "StepParser",
+        "kind": 6,
+        "importPath": "packages.cad-service.src.parser",
+        "description": "packages.cad-service.src.parser",
+        "peekOfCode": "class StepParser:\n    \"\"\"\n    STEP file parser using PythonOCC\n    Uses a two-stage approach for robustness:\n    1. STEPControl_Reader for basic shape extraction (more reliable)\n    2. STEPCAFControl_Reader for assembly hierarchy (optional enhancement)\n    \"\"\"\n    def __init__(\n        self,\n        linear_deflection: float = 0.1,",
+        "detail": "packages.cad-service.src.parser",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "packages.cad-service.src.parser",
+        "description": "packages.cad-service.src.parser",
+        "peekOfCode": "logger = logging.getLogger(__name__)\n@dataclass\nclass Mesh:\n    \"\"\"Triangle mesh data for a single part\"\"\"\n    id: str\n    name: str\n    vertices: np.ndarray  # Nx3 float32\n    normals: np.ndarray  # Nx3 float32\n    indices: np.ndarray  # Mx3 uint32\n    color: Optional[list[float]] = None  # RGBA",
+        "detail": "packages.cad-service.src.parser",
+        "documentation": {}
+    },
+    {
+        "label": "test_health_check",
+        "kind": 2,
+        "importPath": "packages.cad-service.tests.test_parser",
+        "description": "packages.cad-service.tests.test_parser",
+        "peekOfCode": "def test_health_check():\n    \"\"\"Test that the health check endpoint returns OK\"\"\"\n    from src.main import app\n    client = TestClient(app)\n    response = client.get(\"/health\")\n    assert response.status_code == 200\n    data = response.json()\n    assert data[\"status\"] == \"ok\"\n    assert \"version\" in data\n    assert \"opencascade_version\" in data",
+        "detail": "packages.cad-service.tests.test_parser",
+        "documentation": {}
+    },
+    {
+        "label": "test_root_endpoint",
+        "kind": 2,
+        "importPath": "packages.cad-service.tests.test_parser",
+        "description": "packages.cad-service.tests.test_parser",
+        "peekOfCode": "def test_root_endpoint():\n    \"\"\"Test root endpoint returns API info\"\"\"\n    from src.main import app\n    client = TestClient(app)\n    response = client.get(\"/\")\n    assert response.status_code == 200\n    data = response.json()\n    assert data[\"service\"] == \"Carbon CAD Service\"\n    assert \"endpoints\" in data\ndef test_parse_invalid_extension():",
+        "detail": "packages.cad-service.tests.test_parser",
+        "documentation": {}
+    },
+    {
+        "label": "test_parse_invalid_extension",
+        "kind": 2,
+        "importPath": "packages.cad-service.tests.test_parser",
+        "description": "packages.cad-service.tests.test_parser",
+        "peekOfCode": "def test_parse_invalid_extension():\n    \"\"\"Test that non-STEP files are rejected\"\"\"\n    from src.main import app\n    client = TestClient(app)\n    # Create a fake file with wrong extension\n    files = {\"file\": (\"model.obj\", b\"some content\", \"application/octet-stream\")}\n    response = client.post(\"/parse\", files=files)\n    assert response.status_code == 200\n    data = response.json()\n    assert data[\"success\"] is False",
+        "detail": "packages.cad-service.tests.test_parser",
+        "documentation": {}
+    },
+    {
+        "label": "test_gltf_writer_creates_valid_glb",
+        "kind": 2,
+        "importPath": "packages.cad-service.tests.test_parser",
+        "description": "packages.cad-service.tests.test_parser",
+        "peekOfCode": "def test_gltf_writer_creates_valid_glb():\n    \"\"\"Test that the GLB writer creates valid binary glTF\"\"\"\n    import numpy as np\n    from src.gltf_writer import GltfWriter\n    from src.parser import Mesh\n    # Create a simple mesh (triangle)\n    mesh = Mesh(\n        id=\"test-part\",\n        name=\"TestPart\",\n        vertices=np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=np.float32),",
+        "detail": "packages.cad-service.tests.test_parser",
+        "documentation": {}
+    },
+    {
+        "label": "test_hierarchy_to_dict",
+        "kind": 2,
+        "importPath": "packages.cad-service.tests.test_parser",
+        "description": "packages.cad-service.tests.test_parser",
+        "peekOfCode": "def test_hierarchy_to_dict():\n    \"\"\"Test hierarchy conversion to dictionary\"\"\"\n    from src.parser import HierarchyNode, StepParser\n    parser = StepParser()\n    node = HierarchyNode(\n        id=\"root\",\n        name=\"Assembly\",\n        type=\"assembly\",\n        children=[\n            HierarchyNode(",
+        "detail": "packages.cad-service.tests.test_parser",
+        "documentation": {}
+    },
+    {
+        "label": "test_calculate_normals",
+        "kind": 2,
+        "importPath": "packages.cad-service.tests.test_parser",
+        "description": "packages.cad-service.tests.test_parser",
+        "peekOfCode": "def test_calculate_normals():\n    \"\"\"Test normal calculation for a simple triangle\"\"\"\n    import numpy as np\n    from src.parser import StepParser\n    parser = StepParser()\n    # Simple right triangle in XY plane\n    vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=np.float32)\n    indices = np.array([[0, 1, 2]], dtype=np.uint32)\n    normals = parser._calculate_normals(vertices, indices)\n    # Normal should point in +Z direction",
+        "detail": "packages.cad-service.tests.test_parser",
+        "documentation": {}
+    },
+    {
+        "label": "test_parse_sample_step_file",
+        "kind": 2,
+        "importPath": "packages.cad-service.tests.test_parser",
+        "description": "packages.cad-service.tests.test_parser",
+        "peekOfCode": "def test_parse_sample_step_file():\n    \"\"\"Integration test with a real STEP file\"\"\"\n    from src.main import app\n    client = TestClient(app)\n    with open(\"tests/fixtures/sample.step\", \"rb\") as f:\n        files = {\"file\": (\"sample.step\", f, \"application/octet-stream\")}\n        response = client.post(\"/parse\", files=files)\n    assert response.status_code == 200\n    data = response.json()\n    assert data[\"success\"] is True",
+        "detail": "packages.cad-service.tests.test_parser",
+        "documentation": {}
+    }
+]

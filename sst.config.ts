@@ -179,6 +179,29 @@ export default $config({
       },
     });
 
+    // CAD Service - PythonOCC STEP parser (internal service, no public load balancer)
+    const cadService = cluster.addService("CarbonCADService", {
+      image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.us-gov-east-1.amazonaws.com/carbon/cad-service:latest`,
+      port: 8000,
+      cpu: "1 vCPU",
+      memory: "4 GB", // CAD processing needs memory for large assemblies
+      scaling: {
+        min: 1,
+        max: 5,
+        cpuUtilization: 80,
+        memoryUtilization: 90,
+      },
+      transform: {
+        target: (args) => {
+          args.healthCheck = {
+            enabled: true,
+            path: "/health",
+            protocol: "HTTP",
+          };
+        },
+      },
+    });
+
     const rateLimitRule = {
       name: "RateLimitRule",
       statement: {

@@ -53,6 +53,7 @@
     "deploy": "turbo run deploy",
     "dev": "run-p dev:erp dev:jobs dev:stripe",
     "dev:academy": "turbo run dev --filter=./apps/academy --filter=./packages/",
+    "dev:assembly": "turbo run dev --filter=./apps/assembly --filter=./packages/",
     "dev:erp": "turbo run dev --filter=./apps/erp --filter=./packages/ ",
     "dev:jobs": "npm run -w @carbon/jobs dev:jobs",
     "dev:mes": "turbo run dev --filter=./apps/mes",
@@ -86,6 +87,7 @@
   "dependencies": {
     "@opentelemetry/semantic-conventions": "^1.38.0",
     "@react-router/remix-routes-option-adapter": "^7.12.0",
+    "agentation": "^1.1.0",
     "fast-uri": "^3.1.0",
     "fdir": "^6.5.0",
     "remix-flat-routes": "^0.8.5",

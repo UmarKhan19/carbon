@@ -3267,6 +3267,267 @@ export default {
         tags: ["qualityActions"],
       },
     },
+    "/assemblyStep": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.projectId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.stepNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.groupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.partIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.partNames",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.animationPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.duration",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.title",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.instruction",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.warnings",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.annotations",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.cameraPosition",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.toolIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.torqueSpecIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyStep",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyStep"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyStep",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyStep"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.projectId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.stepNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.groupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.partIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.partNames",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.animationPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.duration",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.title",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.instruction",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.warnings",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.annotations",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.cameraPosition",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.toolIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.torqueSpecIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyStep"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.projectId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.stepNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.groupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.partIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.partNames",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.animationPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.duration",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.title",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.instruction",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.warnings",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.annotations",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.cameraPosition",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.toolIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.torqueSpecIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStep.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.assemblyStep",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyStep"],
+      },
+    },
     "/nonConformanceSalesOrderLine": {
       get: {
         parameters: [
@@ -3985,6 +4246,159 @@ export default {
           },
         },
         tags: ["scrapReason"],
+      },
+    },
+    "/assemblyAssociationUsage": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.associationId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.stepId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.action",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.modifiedTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.createdBy",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyAssociationUsage",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyAssociationUsage"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyAssociationUsage",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyAssociationUsage"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.associationId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.stepId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.action",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.modifiedTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.createdBy",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyAssociationUsage"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.associationId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.stepId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.action",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.modifiedTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyAssociationUsage.createdBy",
+          },
+          {
+            $ref: "#/parameters/body.assemblyAssociationUsage",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyAssociationUsage"],
       },
     },
     "/trainings": {
@@ -5062,6 +5476,168 @@ export default {
           },
         },
         tags: ["purchaseInvoicePriceChange"],
+      },
+    },
+    "/assemblyStandardNote": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.content",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.category",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.usageCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.createdAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyStandardNote",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyStandardNote"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyStandardNote",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyStandardNote"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.content",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.category",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.usageCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.createdAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyStandardNote"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.content",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.category",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.usageCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyStandardNote.createdAt",
+          },
+          {
+            $ref: "#/parameters/body.assemblyStandardNote",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyStandardNote"],
       },
     },
     "/makeMethod": {
@@ -15790,6 +16366,186 @@ export default {
           },
         },
         tags: ["location"],
+      },
+    },
+    "/assemblyTorqueSpec": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.torqueValue",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.torqueUnit",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.tolerance",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.angleSpec",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.fastenerType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.createdAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyTorqueSpec",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyTorqueSpec"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyTorqueSpec",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyTorqueSpec"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.torqueValue",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.torqueUnit",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.tolerance",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.angleSpec",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.fastenerType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.createdAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyTorqueSpec"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.torqueValue",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.torqueUnit",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.tolerance",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.angleSpec",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.fastenerType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTorqueSpec.createdAt",
+          },
+          {
+            $ref: "#/parameters/body.assemblyTorqueSpec",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyTorqueSpec"],
       },
     },
     "/kanbans": {
@@ -42138,6 +42894,285 @@ export default {
         tags: ["salesRfq"],
       },
     },
+    "/assemblyPartAssociation": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchPattern",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchField",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.toolIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.torqueSpecIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultInstruction",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultNotes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultWarnings",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.adhesive",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.lubricant",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.usageCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.confirmationCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.rejectionCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.confidence",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.source",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.learnedFromStepId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyPartAssociation",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyPartAssociation"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyPartAssociation",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyPartAssociation"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchPattern",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchField",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.toolIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.torqueSpecIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultInstruction",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultNotes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultWarnings",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.adhesive",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.lubricant",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.usageCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.confirmationCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.rejectionCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.confidence",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.source",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.learnedFromStepId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyPartAssociation"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchPattern",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchField",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.matchType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.toolIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.torqueSpecIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultInstruction",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultNotes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.defaultWarnings",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.adhesive",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.lubricant",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.usageCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.confirmationCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.rejectionCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.confidence",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.source",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.learnedFromStepId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyPartAssociation.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.assemblyPartAssociation",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyPartAssociation"],
+      },
+    },
     "/parts": {
       get: {
         parameters: [
@@ -52443,6 +53478,177 @@ export default {
         tags: ["challengeAttempt"],
       },
     },
+    "/assemblyTool": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.category",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.partNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.imageUrl",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.specifications",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.createdAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyTool",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyTool"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyTool",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyTool"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.category",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.partNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.imageUrl",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.specifications",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.createdAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyTool"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.category",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.partNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.imageUrl",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.specifications",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyTool.createdAt",
+          },
+          {
+            $ref: "#/parameters/body.assemblyTool",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyTool"],
+      },
+    },
     "/nonConformanceSupplier": {
       get: {
         parameters: [
@@ -58905,6 +60111,294 @@ export default {
         tags: ["stockTransferLine"],
       },
     },
+    "/assemblyProject": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.modelUploadId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.originalFileName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.assemblyTree",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.originalAssemblyTree",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationResult",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationError",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.thumbnailPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.videoPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.modelPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.parsingProgress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.parsingError",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyProject",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyProject"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyProject",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyProject"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.modelUploadId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.originalFileName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.assemblyTree",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.originalAssemblyTree",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationResult",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationError",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.thumbnailPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.videoPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.modelPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.parsingProgress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.parsingError",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyProject"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.modelUploadId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.originalFileName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.assemblyTree",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.originalAssemblyTree",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationResult",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulationError",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.simulatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.thumbnailPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.videoPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.modelPath",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.parsingProgress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyProject.parsingError",
+          },
+          {
+            $ref: "#/parameters/body.assemblyProject",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyProject"],
+      },
+    },
     "/webhook": {
       get: {
         parameters: [
@@ -59632,6 +61126,186 @@ export default {
           },
         },
         tags: ["training"],
+      },
+    },
+    "/assemblyShareLink": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.projectId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.token",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.expiresAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.password",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.allowDownload",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.viewCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.lastViewedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.createdBy",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/assemblyShareLink",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["assemblyShareLink"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.assemblyShareLink",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["assemblyShareLink"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.projectId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.token",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.expiresAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.password",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.allowDownload",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.viewCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.lastViewedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.createdBy",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyShareLink"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.projectId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.token",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.expiresAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.password",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.allowDownload",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.viewCount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.lastViewedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.assemblyShareLink.createdBy",
+          },
+          {
+            $ref: "#/parameters/body.assemblyShareLink",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["assemblyShareLink"],
       },
     },
     "/gauge": {
@@ -71054,6 +72728,99 @@ export default {
       },
       type: "object",
     },
+    assemblyStep: {
+      required: [
+        "id",
+        "projectId",
+        "companyId",
+        "stepNumber",
+        "partIds",
+        "partNames",
+        "animationPath",
+        "createdAt",
+        "updatedAt",
+      ],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        projectId: {
+          description:
+            "Note:\nThis is a Foreign Key to `assemblyProject.id`.<fk table='assemblyProject' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        stepNumber: {
+          format: "integer",
+          type: "integer",
+        },
+        groupId: {
+          format: "text",
+          type: "string",
+        },
+        partIds: {
+          format: "jsonb",
+        },
+        partNames: {
+          format: "jsonb",
+        },
+        animationPath: {
+          format: "jsonb",
+        },
+        duration: {
+          default: 1000,
+          format: "integer",
+          type: "integer",
+        },
+        title: {
+          format: "text",
+          type: "string",
+        },
+        instruction: {
+          format: "text",
+          type: "string",
+        },
+        notes: {
+          format: "text",
+          type: "string",
+        },
+        warnings: {
+          format: "jsonb",
+        },
+        annotations: {
+          format: "jsonb",
+        },
+        cameraPosition: {
+          format: "jsonb",
+        },
+        toolIds: {
+          format: "jsonb",
+        },
+        torqueSpecIds: {
+          format: "jsonb",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     nonConformanceSalesOrderLine: {
       required: [
         "id",
@@ -71283,6 +73050,48 @@ export default {
         },
         customFields: {
           format: "jsonb",
+        },
+      },
+      type: "object",
+    },
+    assemblyAssociationUsage: {
+      required: ["id", "associationId", "stepId", "action", "createdAt"],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        associationId: {
+          description:
+            "Note:\nThis is a Foreign Key to `assemblyPartAssociation.id`.<fk table='assemblyPartAssociation' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        stepId: {
+          description:
+            "Note:\nThis is a Foreign Key to `assemblyStep.id`.<fk table='assemblyStep' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        action: {
+          format: "text",
+          type: "string",
+        },
+        modifiedTo: {
+          format: "jsonb",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -71793,6 +73602,49 @@ export default {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    assemblyStandardNote: {
+      required: ["id", "companyId", "name", "content", "createdAt"],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        content: {
+          format: "text",
+          type: "string",
+        },
+        category: {
+          format: "text",
+          type: "string",
+        },
+        tags: {
+          format: "jsonb",
+        },
+        usageCount: {
+          default: 0,
+          format: "integer",
+          type: "integer",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
           type: "string",
         },
       },
@@ -76554,6 +78406,7 @@ export default {
             "Settings",
             "Users",
             "Quality",
+            "Assembly",
           ],
           format: "public.module",
           type: "string",
@@ -76853,6 +78706,7 @@ export default {
             "Settings",
             "Users",
             "Quality",
+            "Assembly",
           ],
           format: "public.module",
           type: "string",
@@ -77022,6 +78876,65 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+      },
+      type: "object",
+    },
+    assemblyTorqueSpec: {
+      required: [
+        "id",
+        "companyId",
+        "name",
+        "torqueValue",
+        "torqueUnit",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        torqueValue: {
+          format: "numeric",
+          type: "number",
+        },
+        torqueUnit: {
+          default: "Nm",
+          format: "text",
+          type: "string",
+        },
+        tolerance: {
+          format: "numeric",
+          type: "number",
+        },
+        angleSpec: {
+          format: "numeric",
+          type: "number",
+        },
+        notes: {
+          format: "text",
+          type: "string",
+        },
+        fastenerType: {
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
         },
       },
       type: "object",
@@ -89140,6 +91053,106 @@ export default {
       },
       type: "object",
     },
+    assemblyPartAssociation: {
+      required: ["id", "companyId", "name", "createdAt", "updatedAt"],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        matchPattern: {
+          format: "text",
+          type: "string",
+        },
+        matchField: {
+          default: "name",
+          format: "text",
+          type: "string",
+        },
+        matchType: {
+          default: "contains",
+          format: "text",
+          type: "string",
+        },
+        toolIds: {
+          format: "jsonb",
+        },
+        torqueSpecIds: {
+          format: "jsonb",
+        },
+        defaultInstruction: {
+          format: "text",
+          type: "string",
+        },
+        defaultNotes: {
+          format: "text",
+          type: "string",
+        },
+        defaultWarnings: {
+          format: "jsonb",
+        },
+        adhesive: {
+          format: "text",
+          type: "string",
+        },
+        lubricant: {
+          format: "text",
+          type: "string",
+        },
+        usageCount: {
+          default: 0,
+          format: "integer",
+          type: "integer",
+        },
+        confirmationCount: {
+          default: 0,
+          format: "integer",
+          type: "integer",
+        },
+        rejectionCount: {
+          default: 0,
+          format: "integer",
+          type: "integer",
+        },
+        confidence: {
+          default: 0.5,
+          format: "numeric",
+          type: "number",
+        },
+        source: {
+          default: "manual",
+          format: "text",
+          type: "string",
+        },
+        learnedFromStepId: {
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     parts: {
       properties: {
         active: {
@@ -94078,6 +96091,7 @@ export default {
             "Settings",
             "Users",
             "Quality",
+            "Assembly",
           ],
           format: "public.module",
           type: "string",
@@ -94111,6 +96125,52 @@ export default {
         topicId: {
           format: "text",
           type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    assemblyTool: {
+      required: ["id", "companyId", "name", "createdAt"],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        description: {
+          format: "text",
+          type: "string",
+        },
+        category: {
+          format: "text",
+          type: "string",
+        },
+        partNumber: {
+          format: "text",
+          type: "string",
+        },
+        imageUrl: {
+          format: "text",
+          type: "string",
+        },
+        specifications: {
+          format: "jsonb",
         },
         createdAt: {
           default: "now()",
@@ -97669,6 +99729,128 @@ export default {
       },
       type: "object",
     },
+    assemblyProject: {
+      required: [
+        "id",
+        "companyId",
+        "name",
+        "status",
+        "originalFileName",
+        "assemblyTree",
+        "originalAssemblyTree",
+        "createdAt",
+        "createdBy",
+        "updatedAt",
+      ],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        description: {
+          format: "text",
+          type: "string",
+        },
+        status: {
+          default: "preprocessing",
+          description:
+            "preprocessing | parsing | simulating | editing | published | failed",
+          format: "text",
+          type: "string",
+        },
+        modelUploadId: {
+          description:
+            "Note:\nThis is a Foreign Key to `modelUpload.id`.<fk table='modelUpload' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        originalFileName: {
+          format: "text",
+          type: "string",
+        },
+        assemblyTree: {
+          format: "jsonb",
+        },
+        originalAssemblyTree: {
+          format: "jsonb",
+        },
+        simulationStatus: {
+          format: "text",
+          type: "string",
+        },
+        simulationResult: {
+          format: "jsonb",
+        },
+        simulationError: {
+          format: "text",
+          type: "string",
+        },
+        simulatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        thumbnailPath: {
+          format: "text",
+          type: "string",
+        },
+        videoPath: {
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        modelPath: {
+          description:
+            "Storage path to converted GLB model (e.g., companyId/assembly/projectId/model.glb)",
+          format: "text",
+          type: "string",
+        },
+        parsingProgress: {
+          default: 0,
+          description: "CAD parsing progress percentage (0-100)",
+          format: "integer",
+          type: "integer",
+        },
+        parsingError: {
+          description: "Error message if CAD parsing failed",
+          format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     webhook: {
       required: [
         "id",
@@ -97985,6 +100167,61 @@ export default {
           type: "string",
         },
         updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    assemblyShareLink: {
+      required: ["id", "projectId", "token", "createdAt"],
+      properties: {
+        id: {
+          default: "public.nanoid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        projectId: {
+          description:
+            "Note:\nThis is a Foreign Key to `assemblyProject.id`.<fk table='assemblyProject' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        token: {
+          format: "text",
+          type: "string",
+        },
+        expiresAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        password: {
+          format: "text",
+          type: "string",
+        },
+        allowDownload: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        viewCount: {
+          default: 0,
+          format: "integer",
+          type: "integer",
+        },
+        lastViewedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        createdBy: {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
@@ -99354,6 +101591,7 @@ export default {
             "Settings",
             "Users",
             "Quality",
+            "Assembly",
           ],
           format: "public.module",
           type: "string",
@@ -99786,6 +102024,7 @@ export default {
             "Settings",
             "Users",
             "Quality",
+            "Assembly",
           ],
           format: "public.module",
           type: "string",
@@ -101822,6 +104061,129 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.assemblyStep": {
+      name: "assemblyStep",
+      description: "assemblyStep",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyStep",
+      },
+    },
+    "rowFilter.assemblyStep.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.projectId": {
+      name: "projectId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.stepNumber": {
+      name: "stepNumber",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.groupId": {
+      name: "groupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.partIds": {
+      name: "partIds",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.partNames": {
+      name: "partNames",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.animationPath": {
+      name: "animationPath",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.duration": {
+      name: "duration",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.title": {
+      name: "title",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.instruction": {
+      name: "instruction",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.notes": {
+      name: "notes",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.warnings": {
+      name: "warnings",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.annotations": {
+      name: "annotations",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.cameraPosition": {
+      name: "cameraPosition",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.toolIds": {
+      name: "toolIds",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.torqueSpecIds": {
+      name: "torqueSpecIds",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStep.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.nonConformanceSalesOrderLine": {
       name: "nonConformanceSalesOrderLine",
       description: "nonConformanceSalesOrderLine",
@@ -102094,6 +104456,57 @@ export default {
     },
     "rowFilter.scrapReason.customFields": {
       name: "customFields",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.assemblyAssociationUsage": {
+      name: "assemblyAssociationUsage",
+      description: "assemblyAssociationUsage",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyAssociationUsage",
+      },
+    },
+    "rowFilter.assemblyAssociationUsage.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyAssociationUsage.associationId": {
+      name: "associationId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyAssociationUsage.stepId": {
+      name: "stepId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyAssociationUsage.action": {
+      name: "action",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyAssociationUsage.modifiedTo": {
+      name: "modifiedTo",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyAssociationUsage.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyAssociationUsage.createdBy": {
+      name: "createdBy",
       required: false,
       in: "query",
       type: "string",
@@ -102670,6 +105083,63 @@ export default {
     },
     "rowFilter.purchaseInvoicePriceChange.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.assemblyStandardNote": {
+      name: "assemblyStandardNote",
+      description: "assemblyStandardNote",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyStandardNote",
+      },
+    },
+    "rowFilter.assemblyStandardNote.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStandardNote.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStandardNote.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStandardNote.content": {
+      name: "content",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStandardNote.category": {
+      name: "category",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStandardNote.tags": {
+      name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStandardNote.usageCount": {
+      name: "usageCount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyStandardNote.createdAt": {
+      name: "createdAt",
       required: false,
       in: "query",
       type: "string",
@@ -108553,6 +111023,75 @@ export default {
     },
     "rowFilter.location.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.assemblyTorqueSpec": {
+      name: "assemblyTorqueSpec",
+      description: "assemblyTorqueSpec",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyTorqueSpec",
+      },
+    },
+    "rowFilter.assemblyTorqueSpec.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.torqueValue": {
+      name: "torqueValue",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.torqueUnit": {
+      name: "torqueUnit",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.tolerance": {
+      name: "tolerance",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.angleSpec": {
+      name: "angleSpec",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.notes": {
+      name: "notes",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.fastenerType": {
+      name: "fastenerType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTorqueSpec.createdAt": {
+      name: "createdAt",
       required: false,
       in: "query",
       type: "string",
@@ -122273,6 +124812,141 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.assemblyPartAssociation": {
+      name: "assemblyPartAssociation",
+      description: "assemblyPartAssociation",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyPartAssociation",
+      },
+    },
+    "rowFilter.assemblyPartAssociation.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.matchPattern": {
+      name: "matchPattern",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.matchField": {
+      name: "matchField",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.matchType": {
+      name: "matchType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.toolIds": {
+      name: "toolIds",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.torqueSpecIds": {
+      name: "torqueSpecIds",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.defaultInstruction": {
+      name: "defaultInstruction",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.defaultNotes": {
+      name: "defaultNotes",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.defaultWarnings": {
+      name: "defaultWarnings",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.adhesive": {
+      name: "adhesive",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.lubricant": {
+      name: "lubricant",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.usageCount": {
+      name: "usageCount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.confirmationCount": {
+      name: "confirmationCount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.rejectionCount": {
+      name: "rejectionCount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.confidence": {
+      name: "confidence",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.source": {
+      name: "source",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.learnedFromStepId": {
+      name: "learnedFromStepId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyPartAssociation.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.parts": {
       name: "parts",
       description: "parts",
@@ -127876,6 +130550,69 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.assemblyTool": {
+      name: "assemblyTool",
+      description: "assemblyTool",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyTool",
+      },
+    },
+    "rowFilter.assemblyTool.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.category": {
+      name: "category",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.partNumber": {
+      name: "partNumber",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.imageUrl": {
+      name: "imageUrl",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.specifications": {
+      name: "specifications",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyTool.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.nonConformanceSupplier": {
       name: "nonConformanceSupplier",
       description: "nonConformanceSupplier",
@@ -131959,6 +134696,153 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.assemblyProject": {
+      name: "assemblyProject",
+      description: "assemblyProject",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyProject",
+      },
+    },
+    "rowFilter.assemblyProject.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.status": {
+      name: "status",
+      description:
+        "preprocessing | parsing | simulating | editing | published | failed",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.modelUploadId": {
+      name: "modelUploadId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.originalFileName": {
+      name: "originalFileName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.assemblyTree": {
+      name: "assemblyTree",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.originalAssemblyTree": {
+      name: "originalAssemblyTree",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.simulationStatus": {
+      name: "simulationStatus",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.simulationResult": {
+      name: "simulationResult",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.simulationError": {
+      name: "simulationError",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.simulatedAt": {
+      name: "simulatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.thumbnailPath": {
+      name: "thumbnailPath",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.videoPath": {
+      name: "videoPath",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.modelPath": {
+      name: "modelPath",
+      description:
+        "Storage path to converted GLB model (e.g., companyId/assembly/projectId/model.glb)",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.parsingProgress": {
+      name: "parsingProgress",
+      description: "CAD parsing progress percentage (0-100)",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyProject.parsingError": {
+      name: "parsingError",
+      description: "Error message if CAD parsing failed",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.webhook": {
       name: "webhook",
       description: "webhook",
@@ -132288,6 +135172,75 @@ export default {
     },
     "rowFilter.training.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.assemblyShareLink": {
+      name: "assemblyShareLink",
+      description: "assemblyShareLink",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/assemblyShareLink",
+      },
+    },
+    "rowFilter.assemblyShareLink.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.projectId": {
+      name: "projectId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.token": {
+      name: "token",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.expiresAt": {
+      name: "expiresAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.password": {
+      name: "password",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.allowDownload": {
+      name: "allowDownload",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.viewCount": {
+      name: "viewCount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.lastViewedAt": {
+      name: "lastViewedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.assemblyShareLink.createdBy": {
+      name: "createdBy",
       required: false,
       in: "query",
       type: "string",

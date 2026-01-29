@@ -2135,6 +2135,761 @@ export type Database = {
           },
         ]
       }
+      assemblyAssociationUsage: {
+        Row: {
+          action: string
+          associationId: string
+          createdAt: string
+          createdBy: string | null
+          id: string
+          modifiedTo: Json | null
+          stepId: string
+        }
+        Insert: {
+          action: string
+          associationId: string
+          createdAt?: string
+          createdBy?: string | null
+          id?: string
+          modifiedTo?: Json | null
+          stepId: string
+        }
+        Update: {
+          action?: string
+          associationId?: string
+          createdAt?: string
+          createdBy?: string | null
+          id?: string
+          modifiedTo?: Json | null
+          stepId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyAssociationUsage_associationId_fkey"
+            columns: ["associationId"]
+            isOneToOne: false
+            referencedRelation: "assemblyPartAssociation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyAssociationUsage_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyAssociationUsage_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyAssociationUsage_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyAssociationUsage_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyAssociationUsage_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyAssociationUsage_stepId_fkey"
+            columns: ["stepId"]
+            isOneToOne: false
+            referencedRelation: "assemblyStep"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assemblyPartAssociation: {
+        Row: {
+          adhesive: string | null
+          companyId: string
+          confidence: number | null
+          confirmationCount: number | null
+          createdAt: string
+          defaultInstruction: string | null
+          defaultNotes: string | null
+          defaultWarnings: Json | null
+          id: string
+          learnedFromStepId: string | null
+          lubricant: string | null
+          matchField: string | null
+          matchPattern: string | null
+          matchType: string | null
+          name: string
+          rejectionCount: number | null
+          source: string | null
+          toolIds: Json | null
+          torqueSpecIds: Json | null
+          updatedAt: string
+          usageCount: number | null
+        }
+        Insert: {
+          adhesive?: string | null
+          companyId: string
+          confidence?: number | null
+          confirmationCount?: number | null
+          createdAt?: string
+          defaultInstruction?: string | null
+          defaultNotes?: string | null
+          defaultWarnings?: Json | null
+          id?: string
+          learnedFromStepId?: string | null
+          lubricant?: string | null
+          matchField?: string | null
+          matchPattern?: string | null
+          matchType?: string | null
+          name: string
+          rejectionCount?: number | null
+          source?: string | null
+          toolIds?: Json | null
+          torqueSpecIds?: Json | null
+          updatedAt?: string
+          usageCount?: number | null
+        }
+        Update: {
+          adhesive?: string | null
+          companyId?: string
+          confidence?: number | null
+          confirmationCount?: number | null
+          createdAt?: string
+          defaultInstruction?: string | null
+          defaultNotes?: string | null
+          defaultWarnings?: Json | null
+          id?: string
+          learnedFromStepId?: string | null
+          lubricant?: string | null
+          matchField?: string | null
+          matchPattern?: string | null
+          matchType?: string | null
+          name?: string
+          rejectionCount?: number | null
+          source?: string | null
+          toolIds?: Json | null
+          torqueSpecIds?: Json | null
+          updatedAt?: string
+          usageCount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyPartAssociation_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPartAssociation_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPartAssociation_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyPartAssociation_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+        ]
+      }
+      assemblyProject: {
+        Row: {
+          assemblyTree: Json
+          companyId: string
+          createdAt: string
+          createdBy: string
+          description: string | null
+          id: string
+          modelPath: string | null
+          modelUploadId: string | null
+          name: string
+          originalAssemblyTree: Json
+          originalFileName: string
+          parsingError: string | null
+          parsingProgress: number | null
+          simulatedAt: string | null
+          simulationError: string | null
+          simulationResult: Json | null
+          simulationStatus: string | null
+          status: string
+          thumbnailPath: string | null
+          updatedAt: string
+          updatedBy: string | null
+          videoPath: string | null
+        }
+        Insert: {
+          assemblyTree?: Json
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          description?: string | null
+          id?: string
+          modelPath?: string | null
+          modelUploadId?: string | null
+          name: string
+          originalAssemblyTree?: Json
+          originalFileName: string
+          parsingError?: string | null
+          parsingProgress?: number | null
+          simulatedAt?: string | null
+          simulationError?: string | null
+          simulationResult?: Json | null
+          simulationStatus?: string | null
+          status?: string
+          thumbnailPath?: string | null
+          updatedAt?: string
+          updatedBy?: string | null
+          videoPath?: string | null
+        }
+        Update: {
+          assemblyTree?: Json
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          description?: string | null
+          id?: string
+          modelPath?: string | null
+          modelUploadId?: string | null
+          name?: string
+          originalAssemblyTree?: Json
+          originalFileName?: string
+          parsingError?: string | null
+          parsingProgress?: number | null
+          simulatedAt?: string | null
+          simulationError?: string | null
+          simulationResult?: Json | null
+          simulationStatus?: string | null
+          status?: string
+          thumbnailPath?: string | null
+          updatedAt?: string
+          updatedBy?: string | null
+          videoPath?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyProject_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyProject_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyProject_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyProject_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyProject_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "modelUpload"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "salesRfqLines"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyProject_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyProject_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyShareLink: {
+        Row: {
+          allowDownload: boolean | null
+          createdAt: string
+          createdBy: string | null
+          expiresAt: string | null
+          id: string
+          lastViewedAt: string | null
+          password: string | null
+          projectId: string
+          token: string
+          viewCount: number | null
+        }
+        Insert: {
+          allowDownload?: boolean | null
+          createdAt?: string
+          createdBy?: string | null
+          expiresAt?: string | null
+          id?: string
+          lastViewedAt?: string | null
+          password?: string | null
+          projectId: string
+          token: string
+          viewCount?: number | null
+        }
+        Update: {
+          allowDownload?: boolean | null
+          createdAt?: string
+          createdBy?: string | null
+          expiresAt?: string | null
+          id?: string
+          lastViewedAt?: string | null
+          password?: string | null
+          projectId?: string
+          token?: string
+          viewCount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyShareLink_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyShareLink_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyShareLink_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyShareLink_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyShareLink_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyShareLink_projectId_fkey"
+            columns: ["projectId"]
+            isOneToOne: false
+            referencedRelation: "assemblyProject"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assemblyStandardNote: {
+        Row: {
+          category: string | null
+          companyId: string
+          content: string
+          createdAt: string
+          id: string
+          name: string
+          tags: Json | null
+          usageCount: number | null
+        }
+        Insert: {
+          category?: string | null
+          companyId: string
+          content: string
+          createdAt?: string
+          id?: string
+          name: string
+          tags?: Json | null
+          usageCount?: number | null
+        }
+        Update: {
+          category?: string | null
+          companyId?: string
+          content?: string
+          createdAt?: string
+          id?: string
+          name?: string
+          tags?: Json | null
+          usageCount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+        ]
+      }
+      assemblyStep: {
+        Row: {
+          animationPath: Json
+          annotations: Json | null
+          cameraPosition: Json | null
+          companyId: string
+          createdAt: string
+          duration: number | null
+          groupId: string | null
+          id: string
+          instruction: string | null
+          notes: string | null
+          partIds: Json
+          partNames: Json
+          projectId: string
+          stepNumber: number
+          title: string | null
+          toolIds: Json | null
+          torqueSpecIds: Json | null
+          updatedAt: string
+          warnings: Json | null
+        }
+        Insert: {
+          animationPath?: Json
+          annotations?: Json | null
+          cameraPosition?: Json | null
+          companyId: string
+          createdAt?: string
+          duration?: number | null
+          groupId?: string | null
+          id?: string
+          instruction?: string | null
+          notes?: string | null
+          partIds?: Json
+          partNames?: Json
+          projectId: string
+          stepNumber: number
+          title?: string | null
+          toolIds?: Json | null
+          torqueSpecIds?: Json | null
+          updatedAt?: string
+          warnings?: Json | null
+        }
+        Update: {
+          animationPath?: Json
+          annotations?: Json | null
+          cameraPosition?: Json | null
+          companyId?: string
+          createdAt?: string
+          duration?: number | null
+          groupId?: string | null
+          id?: string
+          instruction?: string | null
+          notes?: string | null
+          partIds?: Json
+          partNames?: Json
+          projectId?: string
+          stepNumber?: number
+          title?: string | null
+          toolIds?: Json | null
+          torqueSpecIds?: Json | null
+          updatedAt?: string
+          warnings?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyStep_projectId_fkey"
+            columns: ["projectId"]
+            isOneToOne: false
+            referencedRelation: "assemblyProject"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assemblyTool: {
+        Row: {
+          category: string | null
+          companyId: string
+          createdAt: string
+          description: string | null
+          id: string
+          imageUrl: string | null
+          name: string
+          partNumber: string | null
+          specifications: Json | null
+        }
+        Insert: {
+          category?: string | null
+          companyId: string
+          createdAt?: string
+          description?: string | null
+          id?: string
+          imageUrl?: string | null
+          name: string
+          partNumber?: string | null
+          specifications?: Json | null
+        }
+        Update: {
+          category?: string | null
+          companyId?: string
+          createdAt?: string
+          description?: string | null
+          id?: string
+          imageUrl?: string | null
+          name?: string
+          partNumber?: string | null
+          specifications?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+        ]
+      }
+      assemblyTorqueSpec: {
+        Row: {
+          angleSpec: number | null
+          companyId: string
+          createdAt: string
+          fastenerType: string | null
+          id: string
+          name: string
+          notes: string | null
+          tolerance: number | null
+          torqueUnit: string
+          torqueValue: number
+        }
+        Insert: {
+          angleSpec?: number | null
+          companyId: string
+          createdAt?: string
+          fastenerType?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          tolerance?: number | null
+          torqueUnit?: string
+          torqueValue: number
+        }
+        Update: {
+          angleSpec?: number | null
+          companyId?: string
+          createdAt?: string
+          fastenerType?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          tolerance?: number | null
+          torqueUnit?: string
+          torqueValue?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyTorqueSpec_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyTorqueSpec_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyTorqueSpec_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyTorqueSpec_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+        ]
+      }
       attributeDataType: {
         Row: {
           id: number
@@ -49285,14 +50040,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -57962,6 +58717,7 @@ export type Database = {
         | "Settings"
         | "Users"
         | "Quality"
+        | "Assembly"
       month:
         | "January"
         | "February"
@@ -59098,6 +59854,7 @@ export const Constants = {
         "Settings",
         "Users",
         "Quality",
+        "Assembly",
       ],
       month: [
         "January",

@@ -1,0 +1,11 @@
+[package]
+name = "cad-common"
+version.workspace = true
+edition = "2021"
+
+[dependencies]
+nalgebra = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
