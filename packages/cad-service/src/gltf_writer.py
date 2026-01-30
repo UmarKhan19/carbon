@@ -235,12 +235,12 @@ class GltfWriter:
         if cache_key in self._material_cache:
             return self._material_cache[cache_key]
 
-        # Create new material
+        # Create new material with Autodesk-like metallic shine
         material = {
             "pbrMetallicRoughness": {
                 "baseColorFactor": color,
-                "metallicFactor": 0.1,
-                "roughnessFactor": 0.5,
+                "metallicFactor": 0.3,    # More metallic for shine effect
+                "roughnessFactor": 0.35,  # Smoother surface for better reflections
             },
         }
 

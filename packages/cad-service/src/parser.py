@@ -586,6 +586,19 @@ class StepParser:
                         continue
 
                 print(f"[XCAF]   -> Assembly {name} done with {len(children)} children")
+
+                # IMPORTANT: Flatten single-child assemblies
+                # XCAF wraps each part instance in its own assembly - unwrap it
+                if len(children) == 1 and children[0].type == "part":
+                    # Return the single part directly, using our name if better
+                    single_child = children[0]
+                    # Use the assembly name if child has generic name
+                    if single_child.name.startswith("Part_") and not name.startswith("Part_"):
+                        single_child.name = name
+                    print(f"[XCAF]   -> Flattened single-part assembly to: {single_child.name}")
+                    return single_child
+
+                # Only return assembly if it has multiple children or sub-assemblies
                 return HierarchyNode(
                     id=node_id,
                     name=name,

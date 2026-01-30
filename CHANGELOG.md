@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Assembly App (`apps/assembly/`)
 - Fixed race condition where CAD model wouldn't load on page refresh/navigation. Added `isViewerReady` state to ensure model loads only after xeokit viewer is initialized (`Viewer/XeokitCanvas.tsx`)
+- **Fixed model disappearing on zoom out** - Extended camera far clipping plane to 100000 (`XeokitCanvas.tsx`)
+- Added custom 3-point lighting setup for better metallic shine (key, fill, rim lights)
 
 #### CAD Service (`packages/cad-service/`)
 - Fixed STEP file color extraction using official PythonOCC pattern (`GetInstanceColor` before `GetColor`)
@@ -19,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added comprehensive debug logging throughout XCAF parsing pipeline
 - Added part name extraction logging and reference instance name fallback in parser
 - Fixed tree-viewer ID matching by using hierarchy ID as GLB node name (`gltf_writer.py`)
+- **Fixed part hierarchy flattening** - Single-child assemblies are now unwrapped to show parts correctly (no more folders for single parts)
+- Improved material shine with higher metallic (0.3) and lower roughness (0.35) for Autodesk-like appearance
 
 
 

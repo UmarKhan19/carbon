@@ -71,30 +71,101 @@ export function XeokitCanvas({
         canvasId,
         transparent: false,
         // Quality settings
-        antialias: true,                      // Smooth jagged edges
-        logarithmicDepthBufferEnabled: true,  // Better depth precision for large models
-        pbrEnabled: true,                     // Physically-based rendering
-        preserveDrawingBuffer: true           // Required for screenshots
+        antialias: true, // Smooth jagged edges
+        logarithmicDepthBufferEnabled: true, // Better depth precision for large models
+        pbrEnabled: true, // Physically-based rendering
+        preserveDrawingBuffer: true // Required for screenshots
       });
 
       // Set dark background
       viewer.scene.canvas.canvas.style.background = "#1a1a2e";
 
+      // Fix zoom-out clipping: extend camera far plane
+      viewer.scene.camera.perspective.far = 100000; // Large far plane to prevent model disappearing
+      viewer.scene.camera.perspective.near = 0.1; // Small near plane for close-up views
+
       // Enable SAO (Scalable Ambient Occlusion) for depth/shadow effects
       viewer.scene.sao.enabled = true;
-      viewer.scene.sao.intensity = 0.25;      // Subtle shadows
+      viewer.scene.sao.intensity = 0.15; // Subtle shadows (reduced for cleaner look)
       viewer.scene.sao.bias = 0.5;
-      viewer.scene.sao.scale = 500;
+      viewer.scene.sao.scale = 1000;
       viewer.scene.sao.kernelRadius = 100;
 
       // Better gamma correction for color accuracy
       viewer.scene.gammaOutput = true;
       viewer.scene.gammaFactor = 2.2;
 
+      // Autodesk-like metallic/shiny appearance
+      // Configure default material for imported models
+      viewer.scene.pbrEnabled = true;
+
+      // Configure highlight material (when parts are selected)
+      viewer.scene.highlightMaterial.fill = true;
+      viewer.scene.highlightMaterial.fillColor = [0.5, 0.7, 1.0];
+      viewer.scene.highlightMaterial.fillAlpha = 0.3;
+      viewer.scene.highlightMaterial.edges = true;
+      viewer.scene.highlightMaterial.edgeColor = [0.3, 0.5, 1.0];
+      viewer.scene.highlightMaterial.edgeAlpha = 1.0;
+      viewer.scene.highlightMaterial.edgeWidth = 2;
+
       // Configure edge material for better visibility
-      viewer.scene.edgeMaterial.edgeColor = [0.1, 0.1, 0.1];
-      viewer.scene.edgeMaterial.edgeAlpha = 0.5;
+      viewer.scene.edgeMaterial.edgeColor = [0.2, 0.2, 0.2];
+      viewer.scene.edgeMaterial.edgeAlpha = 0.3;
       viewer.scene.edgeMaterial.edgeWidth = 1;
+
+      // Add better lighting for metallic shine effect (Autodesk-like)
+      // xeokit uses scene.lights array - clear and add custom lights
+      try {
+        // Clear default lights
+        const lightIds = Object.keys(viewer.scene.lights);
+        lightIds.forEach((id) => {
+          if (viewer.scene.lights[id]) {
+            viewer.scene.lights[id].destroy();
+          }
+        });
+
+        // Add custom lighting setup using xeokit's Light classes
+        const { DirLight, AmbientLight } = xeokit;
+
+        // Key light - main illumination
+        new DirLight(viewer.scene, {
+          id: "keyLight",
+          dir: [0.8, -0.6, -0.8],
+          color: [1.0, 1.0, 0.95],
+          intensity: 1.0,
+          space: "world"
+        });
+
+        // Fill light - softer from opposite side
+        new DirLight(viewer.scene, {
+          id: "fillLight",
+          dir: [-0.8, -0.4, 0.4],
+          color: [0.9, 0.95, 1.0],
+          intensity: 0.6,
+          space: "world"
+        });
+
+        // Rim light - highlights edges
+        new DirLight(viewer.scene, {
+          id: "rimLight",
+          dir: [-0.2, -0.8, 0.5],
+          color: [1.0, 1.0, 1.0],
+          intensity: 0.4,
+          space: "world"
+        });
+
+        // Ambient light
+        new AmbientLight(viewer.scene, {
+          id: "ambientLight",
+          color: [0.9, 0.9, 1.0],
+          intensity: 0.3
+        });
+      } catch (lightErr) {
+        console.warn(
+          "[VIEWER] Custom lighting setup failed, using defaults:",
+          lightErr
+        );
+      }
 
       // NavCube - view orientation widget (like BuildOS)
       navCubeRef.current = new NavCubePlugin(viewer, {
