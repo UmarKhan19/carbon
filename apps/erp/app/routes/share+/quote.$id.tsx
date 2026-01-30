@@ -695,6 +695,14 @@ const LinePricingOptions = ({
     [locale, quote.currencyCode, line.unitPricePrecision]
   );
 
+  const hasAnyDiscount = options.some((option) => option.discountPercent > 0);
+  const hasAnyAddOns = options.some(
+    (option) =>
+      (convertedAdditionalChargesByQuantity[option.quantity] ?? 0) +
+        (option.convertedShippingCost ?? 0) >
+      0
+  );
+
   return (
     <VStack spacing={4}>
       <RadioGroup
@@ -743,8 +751,8 @@ const LinePricingOptions = ({
               <Th />
               <Th>{strings.Quantity}</Th>
               <Th>{strings["Unit Price"]}</Th>
-              <Th>Discount</Th>
-              <Th>{strings["Add-Ons"]}</Th>
+              {hasAnyDiscount && <Th>Discount</Th>}
+              {hasAnyAddOns && <Th>{strings["Add-Ons"]}</Th>}
               <Th>{strings["Lead Time"]}</Th>
               <Th>{strings.Subtotal}</Th>
             </Tr>
@@ -752,7 +760,12 @@ const LinePricingOptions = ({
           <Tbody>
             {!Array.isArray(options) || options.length === 0 ? (
               <Tr>
-                <Td colSpan={6} className="text-center py-8">
+                <Td
+                  colSpan={
+                    5 + (hasAnyDiscount ? 1 : 0) + (hasAnyAddOns ? 1 : 0)
+                  }
+                  className="text-center py-8"
+                >
                   {strings["No pricing options found"]}
                 </Td>
               </Tr>
@@ -780,18 +793,22 @@ const LinePricingOptions = ({
                           option.convertedUnitPrice ?? 0
                         )}
                       </Td>
-                      <Td>
-                        {option.discountPercent > 0
-                          ? percentFormatter.format(option.discountPercent)
-                          : "-"}
-                      </Td>
-                      <Td>
-                        {formatter.format(
-                          convertedAdditionalChargesByQuantity[
-                            option.quantity
-                          ] + (option.convertedShippingCost ?? 0)
-                        )}
-                      </Td>
+                      {hasAnyDiscount && (
+                        <Td>
+                          {option.discountPercent > 0
+                            ? percentFormatter.format(option.discountPercent)
+                            : "-"}
+                        </Td>
+                      )}
+                      {hasAnyAddOns && (
+                        <Td>
+                          {formatter.format(
+                            convertedAdditionalChargesByQuantity[
+                              option.quantity
+                            ] + (option.convertedShippingCost ?? 0)
+                          )}
+                        </Td>
+                      )}
                       <Td>
                         {new Intl.NumberFormat(locale, {
                           style: "unit",

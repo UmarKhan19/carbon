@@ -41,10 +41,57 @@ export async function action({ request, params }: ActionFunctionArgs) {
     salesOrderId,
     salesOrderLineId,
     locationId,
-    shelfId
+    shelfId,
+    leftoverAction,
+    leftoverShipQuantity,
+    leftoverReceiveQuantity
   } = validation.data;
 
   const makeToOrder = !!salesOrderId || !!salesOrderLineId;
+
+  // Get job data to calculate leftovers
+  const job = await client
+    .from("job")
+    .select("quantity")
+    .eq("id", jobId)
+    .single();
+  if (job.error) {
+    throw redirect(
+      requestReferrer(request) ?? path.to.job(jobId),
+      await flash(request, error(job.error, "Failed to get job data"))
+    );
+  }
+
+  const originalQuantity = job.data?.quantity ?? 0;
+  const leftoverQuantity = Math.max(0, quantityComplete - originalQuantity);
+  const hasLeftover = leftoverQuantity > 0;
+
+  // Calculate what to ship vs receive based on leftover action
+  let quantityToShip = originalQuantity; // Default: ship original quantity
+  let quantityToReceiveToInventory = 0;
+
+  if (hasLeftover && leftoverAction) {
+    switch (leftoverAction) {
+      case "ship":
+        // Ship all completed (including leftovers) to customer
+        quantityToShip = quantityComplete;
+        break;
+      case "receive":
+        // Ship original quantity, receive leftovers to inventory
+        quantityToShip = originalQuantity;
+        quantityToReceiveToInventory = leftoverQuantity;
+        break;
+      case "split":
+        // Ship original + specified amount, receive rest to inventory
+        quantityToShip = originalQuantity + (leftoverShipQuantity ?? 0);
+        quantityToReceiveToInventory = leftoverReceiveQuantity ?? 0;
+        break;
+      case "discard":
+        // Ship original quantity, discard leftovers (no action)
+        quantityToShip = originalQuantity;
+        break;
+    }
+  }
 
   if (makeToOrder) {
     const makeToOrderUpdate = await client
@@ -53,6 +100,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         status: "Completed" as const,
         completedDate: new Date().toISOString(),
         quantityComplete,
+        quantityShipped: quantityToShip,
         updatedAt: new Date().toISOString(),
         updatedBy: userId
       })
@@ -67,7 +115,35 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       );
     }
+
+    // If we need to receive leftovers to inventory
+    if (quantityToReceiveToInventory > 0) {
+      const serviceRole = await getCarbonServiceRole();
+      const issue = await serviceRole.functions.invoke("issue", {
+        body: {
+          jobId,
+          type: "jobCompleteInventory",
+          companyId,
+          userId,
+          quantityComplete: quantityToReceiveToInventory,
+          shelfId,
+          locationId
+        },
+        region: FunctionRegion.UsEast1
+      });
+
+      if (issue.error) {
+        throw redirect(
+          requestReferrer(request) ?? path.to.job(jobId),
+          await flash(
+            request,
+            error(issue.error, "Failed to receive leftovers to inventory")
+          )
+        );
+      }
+    }
   } else {
+    // Make-to-stock: receive all completed to inventory
     const serviceRole = await getCarbonServiceRole();
     const issue = await serviceRole.functions.invoke("issue", {
       body: {

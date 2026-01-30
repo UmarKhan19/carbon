@@ -147,3 +147,51 @@ export const getSalesOrderJobStatus = (
 
   return { jobVariant, jobLabel, jobs: filteredJobs };
 };
+
+type SalesOrderForProductionCheck = {
+  jobs?: Array<{
+    salesOrderLineId: string;
+    productionQuantity: number;
+    quantityComplete: number;
+    status: string;
+  }>;
+  lines?: Array<{
+    id: string;
+    methodType: "Buy" | "Make" | "Pick";
+    saleQuantity: number;
+  }>;
+};
+
+/**
+ * Checks if a Sales Order has incomplete jobs.
+ * Returns true if any "Make" line item has incomplete jobs.
+ * A job is considered complete when quantityComplete >= saleQuantity for that line.
+ */
+export const hasIncompleteJobs = (
+  salesOrder: SalesOrderForProductionCheck
+): boolean => {
+  const jobs = salesOrder.jobs ?? [];
+  const lines = salesOrder.lines ?? [];
+
+  const makeLines = lines.filter((line) => line.methodType === "Make");
+  if (makeLines.length === 0) {
+    return false;
+  }
+
+  for (const line of makeLines) {
+    const lineJobs = jobs.filter((job) => job.salesOrderLineId === line.id);
+    if (lineJobs.length === 0) {
+      return true;
+    }
+
+    const totalCompleted = lineJobs.reduce(
+      (acc, job) => acc + (job.quantityComplete ?? 0),
+      0
+    );
+    if (totalCompleted < (line.saleQuantity ?? 0)) {
+      return true;
+    }
+  }
+
+  return false;
+};

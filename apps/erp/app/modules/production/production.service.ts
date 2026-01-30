@@ -163,6 +163,11 @@ export async function convertSalesOrderLinesToJobs(
           companyId
         );
 
+        // Calculate scrap quantity based on item's scrap percentage
+        const scrapPercentage = manufacturing.data?.scrapPercentage ?? 0;
+        const scrapQuantity =
+          scrapPercentage > 0 ? Math.ceil(jobQuantity * scrapPercentage) : 0;
+
         const data = {
           customerId: salesOrder.data?.customerId ?? undefined,
           deadlineType: "Hard Deadline" as const,
@@ -180,7 +185,7 @@ export async function convertSalesOrderLinesToJobs(
           quoteLineId: quoteId ? line.id : undefined,
           salesOrderId: salesOrderId ?? undefined,
           salesOrderLineId: line.id,
-          scrapQuantity: 0,
+          scrapQuantity,
           shelfId: shelfId ?? undefined,
           unitOfMeasureCode: line.unitOfMeasureCode ?? "EA"
         };
@@ -910,7 +915,7 @@ export async function getJobMakeMethodById(
 ) {
   return client
     .from("jobMakeMethod")
-    .select("*, ...item(itemType:type)")
+    .select("*, ...item(itemType:type, methodRevision:revision)")
     .eq("id", jobMakeMethodId)
     .eq("companyId", companyId)
     .single();
@@ -2670,7 +2675,9 @@ export async function upsertMaintenanceDispatch(
   if ("createdBy" in dispatch) {
     return client
       .from("maintenanceDispatch")
-      .insert([dispatch])
+      .insert([
+        { ...dispatch, severity: dispatch.severity ?? "Support Required" }
+      ])
       .select("id")
       .single();
   } else {

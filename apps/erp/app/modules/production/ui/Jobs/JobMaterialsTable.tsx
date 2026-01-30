@@ -38,8 +38,8 @@ import {
   Table,
   TrackingTypeIcon
 } from "~/components";
-import { usePermissions, useRouteData } from "~/hooks";
-import { useBom, useItems } from "~/stores";
+import { usePermissions, useRouteData, useUrlParams } from "~/hooks";
+import { useItems } from "~/stores";
 import {
   addToStockTransferSession,
   removeFromStockTransferSession,
@@ -68,7 +68,8 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
   const formatter = useNumberFormatter();
 
   const [items] = useItems();
-  const [, setSelectedMaterialId] = useBom();
+  const [, setSearchParams] = useUrlParams();
+
   const sessionItemsCount = useStockTransferSessionItemsCount();
   const [session, setStockTransferSession] = useStockTransferSession();
 
@@ -175,7 +176,7 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
               <Hyperlink
                 to={path.to.jobMakeMethod(jobId, row.original.jobMakeMethodId)}
                 onClick={() => {
-                  setSelectedMaterialId(row.original.id ?? null);
+                  setSearchParams({ materialId: row.original.id ?? null });
                 }}
                 className="max-w-[260px] truncate"
               >
@@ -351,14 +352,7 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
         }
       }
     ];
-  }, [
-    items,
-    jobId,
-    setSelectedMaterialId,
-    isRequired,
-    formatter,
-    sessionItemsCount
-  ]);
+  }, [items, jobId, setSearchParams, isRequired, formatter, sessionItemsCount]);
 
   const renderContextMenu = useMemo(() => {
     return (row: JobMaterial) => {

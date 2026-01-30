@@ -12,12 +12,7 @@ import {
   requireAuthSession
 } from "@carbon/auth/session.server";
 import { SidebarProvider, TooltipProvider, useMount } from "@carbon/react";
-import {
-  AcademyBanner,
-  ItarPopup,
-  useKeyboardWedge,
-  useNProgress
-} from "@carbon/remix";
+import { ItarPopup, useKeyboardWedge, useNProgress } from "@carbon/remix";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import posthog from "posthog-js";
@@ -173,10 +168,6 @@ export default function AuthenticatedRoute() {
           <RealtimeDataProvider>
             <SidebarProvider defaultOpen={false}>
               <TooltipProvider delayDuration={0}>
-                {user?.acknowledgedUniversity ? null : (
-                  <AcademyBanner acknowledgeAction={path.to.acknowledge} />
-                )}
-
                 <AppSidebar
                   activeEvents={activeEvents}
                   activeMaintenanceCount={activeMaintenanceCount}

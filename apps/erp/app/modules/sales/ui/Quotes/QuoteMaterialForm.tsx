@@ -27,9 +27,9 @@ import {
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useUrlParams } from "~/hooks";
 import type { MethodItemType, MethodType } from "~/modules/shared";
-import { useBom, useItems } from "~/stores";
+import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { quoteOperationValidator } from "../../sales.models";
 import { quoteMaterialValidator } from "../../sales.models";
@@ -117,7 +117,7 @@ const QuoteMaterialForm = ({
     }));
   };
 
-  const [, setSelectedMaterialId] = useBom();
+  const [, setSearchParams] = useUrlParams();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -127,7 +127,7 @@ const QuoteMaterialForm = ({
       initialValues.quoteMaterialMakeMethodId!
     );
 
-    setSelectedMaterialId(initialValues.id ?? null);
+    setSearchParams({ materialId: initialValues.id ?? null });
     navigate(newPath);
   }, [
     fetcher.data,
@@ -138,8 +138,7 @@ const QuoteMaterialForm = ({
     lineId,
     location.pathname,
     navigate,
-    quoteId,
-    setSelectedMaterialId
+    quoteId
   ]);
 
   const [items] = useItems();

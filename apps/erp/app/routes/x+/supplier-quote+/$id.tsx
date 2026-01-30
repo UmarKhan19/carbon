@@ -7,6 +7,7 @@ import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { getCurrencyByCode } from "~/modules/accounting";
 import {
+  getSupplier,
   getSupplierInteraction,
   getSupplierInteractionDocuments,
   getSupplierQuote,
@@ -18,6 +19,7 @@ import {
   SupplierQuoteProperties
 } from "~/modules/purchasing/ui/SupplierQuote";
 import SupplierQuoteExplorer from "~/modules/purchasing/ui/SupplierQuote/SupplierQuoteExplorer";
+import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -49,10 +51,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const [supplierInteraction, presentationCurrency] = await Promise.all([
-    getSupplierInteraction(serviceRole, quote.data.supplierInteractionId!),
-    getCurrencyByCode(serviceRole, companyId, quote.data.currencyCode!)
-  ]);
+  const [supplierInteraction, presentationCurrency, supplier, companySettings] =
+    await Promise.all([
+      getSupplierInteraction(serviceRole, quote.data.supplierInteractionId!),
+      getCurrencyByCode(serviceRole, companyId, quote.data.currencyCode!),
+      getSupplier(serviceRole, quote.data.supplierId!),
+      getCompanySettings(serviceRole, companyId)
+    ]);
 
   if (supplierInteraction.error) {
     throw redirect(
@@ -72,6 +77,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     exchangeRate = presentationCurrency.data.exchangeRate;
   }
 
+  // Compute default CC: use supplier's if set, otherwise company's
+  const defaultCc =
+    supplier.data?.defaultCc?.length > 0
+      ? supplier.data.defaultCc
+      : (companySettings.data?.defaultSupplierCc ?? []);
+
   return {
     quote: quote.data,
     lines: lines.data ?? [],
@@ -82,7 +93,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       quote.data.supplierInteractionId!
     ),
     interaction: supplierInteraction.data,
-    exchangeRate
+    exchangeRate,
+    defaultCc
   };
 }
 

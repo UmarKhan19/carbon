@@ -227,6 +227,7 @@ export const paperlessPartsTask = task({
             customerContactId: quoteCustomerContactId,
           },
           { createdBy: quoteCreatedBy },
+          quoteLocationId,
         ] = await Promise.all([
           getCustomerIdAndContactId(carbon, paperless, {
             company: company.data,
@@ -236,6 +237,10 @@ export const paperlessPartsTask = task({
             company: company.data,
             estimator: ppQuote.data.estimator,
             salesPerson: ppQuote.data.salesperson,
+          }),
+          getOrderLocationId(carbon, {
+            company: company.data,
+            sendFrom: ppQuote.data.send_from_facility,
           }),
         ]);
 
@@ -281,23 +286,18 @@ export const paperlessPartsTask = task({
           },
         };
 
-        const [
-          quoteCustomerPayment,
-          quoteCustomerShipping,
-          quoteEmployee,
-          quoteOpportunity,
-        ] = await Promise.all([
-          getCustomerPayment(carbon, quote.customerId),
-          getCustomerShipping(carbon, quote.customerId),
-          getEmployeeJob(carbon, quote.createdBy, quote.companyId),
-          carbon
-            .from("opportunity")
-            .insert([
-              { companyId: quote.companyId, customerId: quote.customerId },
-            ])
-            .select("id")
-            .single(),
-        ]);
+        const [quoteCustomerPayment, quoteCustomerShipping, quoteOpportunity] =
+          await Promise.all([
+            getCustomerPayment(carbon, quote.customerId),
+            getCustomerShipping(carbon, quote.customerId),
+            carbon
+              .from("opportunity")
+              .insert([
+                { companyId: quote.companyId, customerId: quote.customerId },
+              ])
+              .select("id")
+              .single(),
+          ]);
 
         if (quoteCustomerPayment.error) return quoteCustomerPayment;
         if (quoteCustomerShipping.error) return quoteCustomerShipping;
@@ -329,7 +329,6 @@ export const paperlessPartsTask = task({
           quote.exchangeRateUpdatedAt = new Date().toISOString();
         }
 
-        const quoteLocationId = quoteEmployee?.data?.locationId ?? null;
         const insert = await carbon
           .from("quote")
           .insert([
@@ -779,19 +778,6 @@ async function getCustomerShipping(
     .from("customerShipping")
     .select("*")
     .eq("customerId", customerId)
-    .single();
-}
-
-async function getEmployeeJob(
-  client: SupabaseClient<Database>,
-  employeeId: string,
-  companyId: string
-) {
-  return client
-    .from("employeeJob")
-    .select("*")
-    .eq("id", employeeId)
-    .eq("companyId", companyId)
     .single();
 }
 

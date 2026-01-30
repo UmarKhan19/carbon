@@ -20,7 +20,13 @@ import {
   LuExternalLink,
   LuSearch
 } from "react-icons/lu";
-import { Link, useFetchers, useNavigate, useParams } from "react-router";
+import {
+  Link,
+  useFetchers,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router";
 import { MethodIcon, MethodItemTypeIcon } from "~/components";
 import { OnshapeStatus } from "~/components/Icons";
 import type { FlatTree, FlatTreeItem } from "~/components/TreeView";
@@ -28,7 +34,6 @@ import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useOptimisticLocation } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
-import { useBom } from "~/stores";
 import { path } from "~/utils/path";
 import type { QuoteMethod } from "../../types";
 
@@ -66,8 +71,8 @@ const QuoteBoMExplorer = ({
     expandAllBelowDepth,
     // toggleExpandLevel,
     collapseAllBelowDepth,
+    deselectAllNodes,
     selectNode,
-    scrollToNode,
     virtualizer
   } = useTree({
     tree: methods,
@@ -93,9 +98,15 @@ const QuoteBoMExplorer = ({
   });
 
   const params = useParams();
-  const [selectedMaterialId, setSelectedMaterialId] = useBom();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMaterialId = searchParams.get("materialId");
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
+    if (!selectedMaterialId) {
+      deselectAllNodes();
+      return;
+    }
+
     if (selectedMaterialId) {
       const node = methods.find(
         (m) => m.data.methodMaterialId === selectedMaterialId
@@ -152,9 +163,16 @@ const QuoteBoMExplorer = ({
                     )}
                     onClick={(e) => {
                       selectNode(node.id);
-                      setSelectedMaterialId(node.data.methodMaterialId);
+
                       if (location.pathname !== getNodePath(node)) {
-                        navigate(getNodePath(node), { replace: true });
+                        navigate(
+                          `${getNodePath(node)}?materialId=${node.data.methodMaterialId}`,
+                          { replace: true }
+                        );
+                      } else {
+                        setSearchParams({
+                          materialId: node.data.methodMaterialId
+                        });
                       }
                     }}
                   >
@@ -181,7 +199,6 @@ const QuoteBoMExplorer = ({
                           } else {
                             toggleExpandNode(node.id);
                           }
-                          scrollToNode(node.id);
                         }}
                       >
                         {node.hasChildren ? (

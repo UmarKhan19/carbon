@@ -73,7 +73,8 @@ export default function CustomersNewRoute() {
     phone: "",
     fax: "",
     website: "",
-    taxPercent: 0
+    taxPercent: 0,
+    defaultCC: []
   };
 
   return (

@@ -34,6 +34,14 @@ export function formatDurationHours(
   return formatDurationMilliseconds(hours * 1000 * 60 * 60, options);
 }
 
+export function formatDurationMinutes(
+  minutes: number,
+  options?: DurationOptions
+): string {
+  if (minutes === 0) return "";
+  return formatDurationMilliseconds(minutes * 1000 * 60, options);
+}
+
 export function formatDurationMilliseconds(
   milliseconds: number,
   options?: DurationOptions

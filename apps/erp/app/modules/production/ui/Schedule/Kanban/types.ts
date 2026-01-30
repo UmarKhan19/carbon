@@ -61,6 +61,7 @@ const baseItemValidator = z.object({
   link: z.string().optional(),
   priority: z.number(),
   progress: z.number().optional(), // miliseconds
+  targetQuantity: z.number().optional(),
   quantity: z.number().optional(),
   quantityCompleted: z.number().optional(),
   quantityScrapped: z.number().optional(),

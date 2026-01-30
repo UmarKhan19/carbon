@@ -1101,12 +1101,7 @@ function SplitShipmentLineModal({
               name="locationId"
               value={line.locationId ?? ""}
             />
-            <Number
-              name="quantity"
-              label="Quantity"
-              maxValue={(line.orderQuantity || 0) - 0.0001}
-              minValue={0.0001}
-            />
+            <Number name="quantity" label="Quantity" minValue={0.0001} />
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>

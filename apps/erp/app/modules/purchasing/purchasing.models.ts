@@ -50,6 +50,7 @@ export const purchaseOrderTypeType = [
 export const purchaseOrderStatusType = [
   "Draft",
   "Planned",
+  "Needs Approval",
   "To Review",
   "To Receive",
   "To Receive and Invoice",
@@ -109,7 +110,8 @@ export const supplierQuoteFinalizeValidator = z
   .object({
     notification: z.enum(["Email", "Share"]).optional(),
     supplierContact: zfd.text(z.string().optional()),
-    sendAttachments: zfd.checkbox()
+    sendAttachments: zfd.checkbox(),
+    cc: z.array(z.string()).optional()
   })
   .refine(
     (data) => (data.notification === "Email" ? data.supplierContact : true),
@@ -246,6 +248,23 @@ export const purchaseOrderFinalizeValidator = z
     }
   );
 
+export const purchaseOrderApprovalValidator = z
+  .object({
+    approvalRequestId: z
+      .string()
+      .min(1, { message: "Approval request is required" }),
+    decision: z.enum(["Approved", "Rejected"]),
+    notification: z.enum(["Email", "None"]).optional(),
+    supplierContact: zfd.text(z.string().optional())
+  })
+  .refine(
+    (data) => (data.notification === "Email" ? data.supplierContact : true),
+    {
+      message: "Supplier contact is required for email",
+      path: ["supplierContact"] // path of error
+    }
+  );
+
 export const selectedLineSchema = z.object({
   leadTime: z.number(),
   quantity: z.number(),
@@ -267,7 +286,8 @@ export const supplierValidator = z.object({
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
   invoicingContactId: zfd.text(z.string().optional()),
-  website: zfd.text(z.string().optional())
+  website: zfd.text(z.string().optional()),
+  defaultCc: z.array(z.string().email()).default([])
 });
 
 export const supplierContactValidator = z.object({

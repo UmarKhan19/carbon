@@ -73,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
             modelUploadId: item.data?.modelUploadId ?? null,
             scrapQuantity: Math.ceil(
               (manufacturing?.data?.lotSize ?? 0) *
-                ((manufacturing?.data?.scrapPercentage ?? 0) / 100)
+                (manufacturing?.data?.scrapPercentage ?? 0)
             ),
             updatedBy: userId,
             updatedAt: new Date().toISOString()

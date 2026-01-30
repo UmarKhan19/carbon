@@ -21,6 +21,7 @@ import {
   today
 } from "@internationalized/date";
 import type { ColumnDef } from "@tanstack/react-table";
+import type { ReactNode } from "react";
 import { memo, useMemo, useState } from "react";
 import {
   LuBookMarked,
@@ -69,6 +70,23 @@ type SalesOrdersTableProps = {
   data: SalesOrder[];
   count: number;
 };
+
+const IconWithTooltip = ({
+  icon,
+  tooltip
+}: {
+  icon: ReactNode;
+  tooltip: string;
+}) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <span className="inline-flex">{icon}</span>
+    </TooltipTrigger>
+    <TooltipContent>
+      <p>{tooltip}</p>
+    </TooltipContent>
+  </Tooltip>
+);
 
 const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
   const permissions = usePermissions();
@@ -132,9 +150,32 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       {
         accessorKey: "status",
         header: "Status",
-        cell: (item) => {
-          const status = item.getValue<(typeof salesOrderStatusType)[number]>();
-          return <SalesStatus status={status} />;
+        cell: ({ row }) => {
+          const status =
+            row.getValue<(typeof salesOrderStatusType)[number]>("status");
+          const jobs = (row.original.jobs ?? []) as SalesOrderJob[];
+          const lines =
+            (row.original.lines as {
+              id: string;
+              saleQuantity: number;
+              methodType: "Buy" | "Make" | "Pick";
+            }[]) ?? [];
+          return (
+            <SalesStatus
+              status={status}
+              jobs={jobs.map((job) => ({
+                salesOrderLineId: job.salesOrderLineId,
+                productionQuantity: job.quantity,
+                quantityComplete: job.quantityComplete,
+                status: job.status
+              }))}
+              lines={lines.map((line) => ({
+                id: line.id,
+                methodType: line.methodType,
+                saleQuantity: line.saleQuantity
+              }))}
+            />
+          );
         },
         meta: {
           filter: {
@@ -172,7 +213,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
             const relevantJobs =
               jobs.filter?.((job) => job.salesOrderLineId === line.id) ?? [];
             const totalJobQuantity = relevantJobs.reduce(
-              (acc, job) => acc + job.productionQuantity,
+              (acc, job) => acc + job.quantity,
               0
             );
 
@@ -191,11 +232,20 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
           });
 
           const statusIcon = everyMadeLineIsCompleted ? (
-            <LuCheck className="w-3 h-3 mr-2 text-emerald-500" />
+            <IconWithTooltip
+              icon={<LuCheck className="w-3 h-3 mr-2 text-emerald-500" />}
+              tooltip="All jobs completed"
+            />
           ) : everyMadeLineHasSufficientJobs ? (
-            <LuLoader className="w-3 h-3 mr-2 text-orange-500" />
+            <IconWithTooltip
+              icon={<LuLoader className="w-3 h-3 mr-2 text-orange-500" />}
+              tooltip="Jobs in progress"
+            />
           ) : (
-            <LuTriangleAlert className="w-3 h-3 mr-2 text-red-500" />
+            <IconWithTooltip
+              icon={<LuTriangleAlert className="w-3 h-3 mr-2 text-red-500" />}
+              tooltip="Not enough jobs to cover quantity"
+            />
           );
 
           return (
@@ -209,8 +259,10 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
             >
               {!everyMadeLineHasSufficientJobs && jobs.length === 0 && (
                 <Tooltip>
-                  <TooltipTrigger>
-                    <LuTriangleAlert className="w-3 h-3 mr-2 text-red-500" />
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <LuTriangleAlert className="w-3 h-3 mr-2 text-red-500" />
+                    </span>
                   </TooltipTrigger>
                   <TooltipContent side="left">
                     <p>Not enough jobs to cover quantity</p>

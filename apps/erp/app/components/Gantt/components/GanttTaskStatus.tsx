@@ -1,4 +1,10 @@
-import { cn, Spinner } from "@carbon/react";
+import {
+  cn,
+  Spinner,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@carbon/react";
 import assertNever from "assert-never";
 import {
   LuBan,
@@ -108,68 +114,94 @@ export function GanttTaskStatusIcon({
   status: GanttTaskStatus;
   className: string;
 }) {
-  switch (status) {
-    case "PENDING":
-      return (
-        <LuLayers className={cn(runStatusClassNameColor(status), className)} />
-      );
-    case "EXECUTING":
-      return (
-        <Spinner
-          className={cn(runStatusClassNameColor(status), "w-2 h-2", className)}
-        />
-      );
-    case "WAITING_TO_RESUME":
-      return (
-        <LuSnowflake
-          className={cn(runStatusClassNameColor(status), className)}
-        />
-      );
-    case "RETRYING_AFTER_FAILURE":
-      return (
-        <LuRefreshCcw
-          className={cn(runStatusClassNameColor(status), className)}
-        />
-      );
-    case "PAUSED":
-      return (
-        <LuCirclePause
-          className={cn(runStatusClassNameColor(status), className)}
-        />
-      );
-    case "CANCELED":
-      return (
-        <LuBan className={cn(runStatusClassNameColor(status), className)} />
-      );
-    case "INTERRUPTED":
-      return (
-        <LuCircleSlash
-          className={cn(runStatusClassNameColor(status), className)}
-        />
-      );
-    case "COMPLETED_SUCCESSFULLY":
-      return (
-        <LuCircleCheck
-          className={cn(runStatusClassNameColor(status), className)}
-        />
-      );
-    case "COMPLETED_WITH_ERRORS":
-      return (
-        <LuCircleX className={cn(runStatusClassNameColor(status), className)} />
-      );
-    case "SYSTEM_FAILURE":
-      return (
-        <LuCircleX className={cn(runStatusClassNameColor(status), className)} />
-      );
-    case "CRASHED":
-      return (
-        <LuFlame className={cn(runStatusClassNameColor(status), className)} />
-      );
+  const getIcon = () => {
+    switch (status) {
+      case "PENDING":
+        return (
+          <LuLayers
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "EXECUTING":
+        return (
+          <Spinner
+            className={cn(
+              runStatusClassNameColor(status),
+              "w-2 h-2",
+              className
+            )}
+          />
+        );
+      case "WAITING_TO_RESUME":
+        return (
+          <LuSnowflake
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "RETRYING_AFTER_FAILURE":
+        return (
+          <LuRefreshCcw
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "PAUSED":
+        return (
+          <LuCirclePause
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "CANCELED":
+        return (
+          <LuBan className={cn(runStatusClassNameColor(status), className)} />
+        );
+      case "INTERRUPTED":
+        return (
+          <LuCircleSlash
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "COMPLETED_SUCCESSFULLY":
+        return (
+          <LuCircleCheck
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "COMPLETED_WITH_ERRORS":
+        return (
+          <LuCircleX
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "SYSTEM_FAILURE":
+        return (
+          <LuCircleX
+            className={cn(runStatusClassNameColor(status), className)}
+          />
+        );
+      case "CRASHED":
+        return (
+          <LuFlame className={cn(runStatusClassNameColor(status), className)} />
+        );
 
-    default: {
-      assertNever(status);
+      default: {
+        assertNever(status);
+      }
     }
-  }
+  };
+
+  const icon = getIcon();
+  const tooltipText = runStatusTitle(status);
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{icon}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>{tooltipText}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 export function runStatusClassNameColor(status: GanttTaskStatus): string {

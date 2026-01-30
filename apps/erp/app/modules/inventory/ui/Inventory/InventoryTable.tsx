@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Checkbox,
   Combobox,
@@ -29,7 +30,8 @@ import {
   LuPuzzle,
   LuRuler,
   LuShapes,
-  LuStar
+  LuStar,
+  LuTag
 } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import {
@@ -64,10 +66,18 @@ type InventoryTableProps = {
   locationId: string;
   forms: ListItem[];
   substances: ListItem[];
+  tags: string[];
 };
 
 const InventoryTable = memo(
-  ({ data, count, locationId, forms, substances }: InventoryTableProps) => {
+  ({
+    data,
+    count,
+    locationId,
+    forms,
+    substances,
+    tags
+  }: InventoryTableProps) => {
     const [params] = useUrlParams();
 
     const locations = useLocations();
@@ -403,6 +413,30 @@ const InventoryTable = memo(
           }
         },
         {
+          accessorKey: "tags",
+          header: "Tags",
+          cell: ({ row }) => (
+            <HStack spacing={0} className="gap-1">
+              {(row.original.tags || []).map((tag) => (
+                <Badge key={tag} variant="secondary">
+                  {tag}
+                </Badge>
+              ))}
+            </HStack>
+          ),
+          meta: {
+            filter: {
+              type: "static",
+              options: tags?.map((tag) => ({
+                value: tag,
+                label: <Badge variant="secondary">{tag}</Badge>
+              })),
+              isArray: true
+            },
+            icon: <LuTag />
+          }
+        },
+        {
           accessorKey: "active",
           header: "Active",
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
@@ -426,11 +460,13 @@ const InventoryTable = memo(
       numberFormatter,
       params,
       substances,
+      tags,
       unitOfMeasures
     ]);
 
     const defaultColumnVisibility = {
       active: false,
+      tags: false,
       type: false,
       finish: false,
       grade: false,

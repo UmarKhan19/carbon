@@ -122,7 +122,7 @@ function OperationCard({
               </span>
             </div>
             <Heading size="h4" className="text-muted-foreground/70">
-              {operation.operationQuantity}
+              {operation.targetQuantity ?? operation.operationQuantity ?? 0}
             </Heading>
           </div>
         </CardHeader>

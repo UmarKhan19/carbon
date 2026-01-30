@@ -62,7 +62,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const willBeFinished =
     validation.data.quantity + currentQuantity >=
-    (jobOperation.data.operationQuantity ?? 0);
+    (jobOperation.data.targetQuantity ??
+      jobOperation.data.operationQuantity ??
+      0);
 
   if (validation.data.trackingType === "Serial") {
     const response = await serviceRole.functions.invoke("issue", {

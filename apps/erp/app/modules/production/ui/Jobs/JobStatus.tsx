@@ -6,56 +6,35 @@ type JobStatusProps = {
   className?: string;
 };
 
-function JobStatus({ status, className }: JobStatusProps) {
-  switch (status) {
-    case "Draft":
-      return (
-        <Status color="gray" className={className}>
-          {status}
-        </Status>
-      );
-    case "Planned":
-      return (
-        <Status color="yellow" className={className}>
-          {status}
-        </Status>
-      );
-    case "Ready":
-      return (
-        <Status color="blue" className={className}>
-          Released
-        </Status>
-      ); // TODO: update this properly
-    case "In Progress":
-      return (
-        <Status color="blue" className={className}>
-          {status}
-        </Status>
-      );
-    case "Paused":
-    case "Due Today":
-      return (
-        <Status color="orange" className={className}>
-          {status}
-        </Status>
-      );
-    case "Completed":
-      return (
-        <Status color="green" className={className}>
-          {status}
-        </Status>
-      );
-    case "Overdue":
-    case "Cancelled":
-      return (
-        <Status color="red" className={className}>
-          {status}
-        </Status>
-      );
+const STATUS_COLOR_MAP: Record<
+  (typeof jobStatus)[number],
+  "gray" | "yellow" | "blue" | "orange" | "green" | "red"
+> = {
+  Draft: "gray",
+  Planned: "yellow",
+  Ready: "blue",
+  "In Progress": "blue",
+  Paused: "orange",
+  "Due Today": "orange",
+  Completed: "green",
+  Overdue: "red",
+  Cancelled: "red"
+} as const;
 
-    default:
-      return null;
-  }
+function JobStatus({ status, className }: JobStatusProps) {
+  if (!status) return null;
+
+  const color = STATUS_COLOR_MAP[status];
+  if (!color) return null;
+
+  const displayText = status === "Ready" ? "Released" : status;
+  const tooltip = status === "Ready" ? status : undefined;
+
+  return (
+    <Status color={color} className={className} tooltip={tooltip}>
+      {displayText}
+    </Status>
+  );
 }
 
 export default JobStatus;

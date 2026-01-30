@@ -353,6 +353,7 @@ const QuoteHeader = () => {
           shipment={routeData?.shipment ?? null}
           onClose={finalizeModal.onClose}
           fetcher={finalizeFetcher}
+          defaultCc={routeData?.defaultCc ?? []}
         />
       )}
       {createRevisionModal.isOpen && (

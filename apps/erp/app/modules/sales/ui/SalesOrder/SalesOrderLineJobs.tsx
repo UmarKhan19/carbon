@@ -108,7 +108,7 @@ export function SalesOrderLineJobs({
       : quantityRequired;
     return {
       quantity,
-      scrapQuantity: Math.ceil(quantity * (scrapPercentage / 100))
+      scrapQuantity: Math.ceil(quantity * scrapPercentage)
     };
   });
 
@@ -311,13 +311,13 @@ export function SalesOrderJobItem({ job }: { job: SalesOrderJob }) {
           <div>
             <label className="text-xs text-muted-foreground">Complete</label>
             <p className="text-sm">
-              {job.quantityComplete ?? 0}/{job.productionQuantity ?? 0}
+              {job.quantityComplete ?? 0}/{job.quantity ?? 0}
             </p>
           </div>
           <div>
             <label className="text-xs text-muted-foreground">Shipped</label>
             <p className="text-sm">
-              {job.quantityShipped ?? 0}/{job.productionQuantity ?? 0}
+              {job.quantityShipped ?? 0}/{job.quantity ?? 0}
             </p>
           </div>
         </HStack>
@@ -467,7 +467,9 @@ function JobDetails({ job }: { job: Job }) {
                         <Progress
                           value={Math.min(
                             ((operation.quantityComplete ?? 0) /
-                              (operation.operationQuantity ?? 0)) *
+                              (operation.targetQuantity ??
+                                operation.operationQuantity ??
+                                0)) *
                               100,
                             100
                           )}
@@ -475,7 +477,9 @@ function JobDetails({ job }: { job: Job }) {
                             operation.quantityComplete ?? 0
                           ).toString()}
                           denominator={(
-                            operation.operationQuantity ?? 0
+                            operation.targetQuantity ??
+                            operation.operationQuantity ??
+                            0
                           ).toString()}
                         />
                       </div>

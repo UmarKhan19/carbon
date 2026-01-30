@@ -61,7 +61,7 @@ export function QuantityModal({
   onClose: () => void;
 }) {
   const fetcher = useFetcher<ProductionQuantity>();
-  const [quantity, setQuantity] = useState(type === "finish" ? 0 : 1);
+  const [quantity, setQuantity] = useState(0);
 
   const titleMap = {
     scrap: `Log scrap for ${operation.itemReadableId}`,
@@ -133,7 +133,7 @@ export function QuantityModal({
               parentIsSerial || parentIsBatch ? trackedEntityId : undefined,
             jobOperationId: operation.id,
             // @ts-ignore
-            quantity: type === "finish" ? undefined : 1,
+            quantity: type === "finish" ? undefined : 0,
             setupProductionEventId: setupProductionEvent?.id,
             laborProductionEventId: laborProductionEvent?.id,
             machineProductionEventId: machineProductionEvent?.id
@@ -198,7 +198,7 @@ export function QuantityModal({
                     value={quantity}
                     onChange={setQuantity}
                     isReadOnly={parentIsSerial}
-                    minValue={1}
+                    minValue={0}
                   />
                 </>
               )}

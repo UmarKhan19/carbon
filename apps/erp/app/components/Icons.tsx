@@ -1,7 +1,14 @@
 import type { Database } from "@carbon/database";
 import type { LinearIssue } from "@carbon/ee/linear";
 import { mapLinearStatusToCarbonStatus } from "@carbon/ee/linear";
-import { Badge, cn, Status } from "@carbon/react";
+import {
+  Badge,
+  cn,
+  Status,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@carbon/react";
 import { useMode } from "@carbon/remix";
 import { getColor } from "@carbon/utils";
 import type { ReactNode } from "react";
@@ -153,18 +160,43 @@ export const OnshapeStatus = ({
   status: string;
   className?: string;
 }) => {
-  switch (status) {
-    case "In progress":
-      return <AlmostDoneIcon className={className} />;
-    case "Released":
-      return <LuCircleCheck className={cn("text-blue-600", className)} />;
-    case "Rejected":
-      return <LuCircleX className={cn("text-red-600", className)} />;
-    case "Pending":
-      return <InProgressStatusIcon className={className} />;
-    default:
-      return <Status color="gray">{status}</Status>;
+  const getIcon = () => {
+    switch (status) {
+      case "In progress":
+        return <AlmostDoneIcon className={className} />;
+      case "Released":
+        return <LuCircleCheck className={cn("text-blue-600", className)} />;
+      case "Rejected":
+        return <LuCircleX className={cn("text-red-600", className)} />;
+      case "Pending":
+        return <InProgressStatusIcon className={className} />;
+      default:
+        return <Status color="gray">{status}</Status>;
+    }
+  };
+
+  const icon = getIcon();
+
+  // Status component already has tooltip, so return it directly
+  if (
+    status !== "In progress" &&
+    status !== "Released" &&
+    status !== "Rejected" &&
+    status !== "Pending"
+  ) {
+    return icon;
   }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{icon}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>{status}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 };
 
 export function OperationStatusIcon({
@@ -174,25 +206,41 @@ export function OperationStatusIcon({
   status: JobOperation["status"];
   className?: string;
 }) {
-  switch (status) {
-    case "Todo":
-      return (
-        <LuCircleDashed className={cn("text-muted-foreground", className)} />
-      );
-    case "Ready":
-      return <TodoStatusIcon className={cn("text-blue-600", className)} />;
-    case "Waiting":
-    case "Canceled":
-      return <LuCircleX className={cn("text-red-600", className)} />;
-    case "Done":
-      return <LuCircleCheck className={cn("text-green-600", className)} />;
-    case "In Progress":
-      return <AlmostDoneIcon className={className} />;
-    case "Paused":
-      return <InProgressStatusIcon className={className} />;
-    default:
-      return null;
-  }
+  const getIcon = () => {
+    switch (status) {
+      case "Todo":
+        return (
+          <LuCircleDashed className={cn("text-muted-foreground", className)} />
+        );
+      case "Ready":
+        return <TodoStatusIcon className={cn("text-blue-600", className)} />;
+      case "Waiting":
+      case "Canceled":
+        return <LuCircleX className={cn("text-red-600", className)} />;
+      case "Done":
+        return <LuCircleCheck className={cn("text-green-600", className)} />;
+      case "In Progress":
+        return <AlmostDoneIcon className={className} />;
+      case "Paused":
+        return <InProgressStatusIcon className={className} />;
+      default:
+        return null;
+    }
+  };
+
+  const icon = getIcon();
+  if (!icon) return null;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{icon}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>{status}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 export const IssueTaskStatusIcon = ({
@@ -202,18 +250,34 @@ export const IssueTaskStatusIcon = ({
   status: (typeof nonConformanceTaskStatus)[number];
   className?: string;
 }) => {
-  switch (status) {
-    case "Pending":
-      return <LuCircleDashed className={cn("text-foreground", className)} />;
-    case "Skipped":
-      return <LuCircleX className={cn("text-muted-foreground", className)} />;
-    case "Completed":
-      return <LuCircleCheck className={cn("text-emerald-600", className)} />;
-    case "In Progress":
-      return <AlmostDoneIcon className={className} />;
-    default:
-      return null;
-  }
+  const getIcon = () => {
+    switch (status) {
+      case "Pending":
+        return <LuCircleDashed className={cn("text-foreground", className)} />;
+      case "Skipped":
+        return <LuCircleX className={cn("text-muted-foreground", className)} />;
+      case "Completed":
+        return <LuCircleCheck className={cn("text-emerald-600", className)} />;
+      case "In Progress":
+        return <AlmostDoneIcon className={className} />;
+      default:
+        return null;
+    }
+  };
+
+  const icon = getIcon();
+  if (!icon) return null;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{icon}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>{status}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 };
 
 export const QuoteLineStatusIcon = ({
@@ -221,18 +285,34 @@ export const QuoteLineStatusIcon = ({
 }: {
   status: Database["public"]["Enums"]["quoteLineStatus"];
 }) => {
-  switch (status) {
-    case "Not Started":
-      return <LuCircle size={12} className="text-blue-600" />;
-    case "No Quote":
-      return <LuCircleX size={12} className="text-red-600" />;
-    case "Complete":
-      return <LuCircleCheck size={12} className="text-emerald-600" />;
-    case "In Progress":
-      return <LuClock3 size={12} className="text-yellow-600" />;
-    default:
-      return null;
-  }
+  const getIcon = () => {
+    switch (status) {
+      case "Not Started":
+        return <LuCircle size={12} className="text-blue-600" />;
+      case "No Quote":
+        return <LuCircleX size={12} className="text-red-600" />;
+      case "Complete":
+        return <LuCircleCheck size={12} className="text-emerald-600" />;
+      case "In Progress":
+        return <LuClock3 size={12} className="text-yellow-600" />;
+      default:
+        return null;
+    }
+  };
+
+  const icon = getIcon();
+  if (!icon) return null;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{icon}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>{status}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 };
 
 export const ProcedureStepTypeIcon = ({

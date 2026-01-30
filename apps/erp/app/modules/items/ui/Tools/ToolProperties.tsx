@@ -1,14 +1,8 @@
 import type { Json } from "@carbon/database";
-import { InputControlled, ValidatedForm } from "@carbon/form";
+import { InputControlled, Select, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   Button,
-  cn,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuIcon,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   HStack,
   Tooltip,
   TooltipContent,
@@ -295,93 +289,109 @@ const ToolProperties = () => {
         />
       </ValidatedForm>
 
-      <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Tracking Type</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
+      <ValidatedForm
+        defaultValues={{
+          itemTrackingType:
+            routeData?.toolSummary?.itemTrackingType ?? undefined
+        }}
+        validator={z.object({
+          itemTrackingType: z.string()
+        })}
+        className="w-full"
+      >
+        <Select
+          name="itemTrackingType"
+          label="Tracking Type"
+          inline={(value) => (
             <Badge variant="secondary">
-              <TrackingTypeIcon
-                type={routeData?.toolSummary?.itemTrackingType!}
-                className={cn(
-                  "mr-2",
-                  routeData?.toolSummary?.active === false && "opacity-50"
-                )}
-              />
-              <span>{routeData?.toolSummary?.itemTrackingType!}</span>
+              <TrackingTypeIcon type={value} className="mr-2" />
+              <span>{value}</span>
             </Badge>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {itemTrackingTypes.map((type) => (
-              <DropdownMenuItem
-                key={type}
-                onClick={() => onUpdate("itemTrackingType", type)}
-              >
-                <DropdownMenuIcon icon={<TrackingTypeIcon type={type} />} />
-                <span>{type}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </VStack>
+          )}
+          options={itemTrackingTypes.map((type) => ({
+            value: type,
+            label: (
+              <span className="flex items-center gap-2">
+                <TrackingTypeIcon type={type} />
+                {type}
+              </span>
+            )
+          }))}
+          onChange={(value) => {
+            onUpdate("itemTrackingType", value?.value ?? null);
+          }}
+        />
+      </ValidatedForm>
 
-      <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Default Method Type</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
+      <ValidatedForm
+        defaultValues={{
+          defaultMethodType:
+            routeData?.toolSummary?.defaultMethodType ?? undefined
+        }}
+        validator={z.object({
+          defaultMethodType: z.string()
+        })}
+        className="w-full"
+      >
+        <Select
+          name="defaultMethodType"
+          label="Default Method Type"
+          inline={(value) => (
             <Badge variant="secondary">
-              <MethodIcon
-                type={routeData?.toolSummary?.defaultMethodType!}
-                className={cn(
-                  "mr-2",
-                  routeData?.toolSummary?.active === false && "opacity-50"
-                )}
-              />
-              <span>{routeData?.toolSummary?.defaultMethodType!}</span>
+              <MethodIcon type={value} className="mr-2" />
+              <span>{value}</span>
             </Badge>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {methodType
-              .filter((type) => type !== "Make")
-              .map((type) => (
-                <DropdownMenuItem
-                  key={type}
-                  onClick={() => onUpdate("defaultMethodType", type)}
-                >
-                  <DropdownMenuIcon icon={<MethodIcon type={type} />} />
-                  <span>{type}</span>
-                </DropdownMenuItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </VStack>
+          )}
+          options={methodType
+            .filter((type) => type !== "Make")
+            .map((type) => ({
+              value: type,
+              label: (
+                <span className="flex items-center gap-2">
+                  <MethodIcon type={type} />
+                  {type}
+                </span>
+              )
+            }))}
+          onChange={(value) => {
+            onUpdate("defaultMethodType", value?.value ?? null);
+          }}
+        />
+      </ValidatedForm>
 
-      <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Replenishment</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
+      <ValidatedForm
+        defaultValues={{
+          replenishmentSystem:
+            routeData?.toolSummary?.replenishmentSystem ?? undefined
+        }}
+        validator={z.object({
+          replenishmentSystem: z.string()
+        })}
+        className="w-full"
+      >
+        <Select
+          name="replenishmentSystem"
+          label="Replenishment"
+          inline={(value) => (
             <Badge variant="secondary">
-              <ReplenishmentSystemIcon
-                type={routeData?.toolSummary?.replenishmentSystem!}
-                className="mr-2"
-              />
-              <span>{routeData?.toolSummary?.replenishmentSystem!}</span>
+              <ReplenishmentSystemIcon type={value} className="mr-2" />
+              <span>{value}</span>
             </Badge>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {itemReplenishmentSystems.map((system) => (
-              <DropdownMenuItem
-                key={system}
-                onClick={() => onUpdate("replenishmentSystem", system)}
-              >
-                <DropdownMenuIcon
-                  icon={<ReplenishmentSystemIcon type={system} />}
-                />
-                <span>{system}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </VStack>
+          )}
+          options={itemReplenishmentSystems.map((system) => ({
+            value: system,
+            label: (
+              <span className="flex items-center gap-2">
+                <ReplenishmentSystemIcon type={system} />
+                {system}
+              </span>
+            )
+          }))}
+          onChange={(value) => {
+            onUpdate("replenishmentSystem", value?.value ?? null);
+          }}
+        />
+      </ValidatedForm>
 
       <VStack spacing={2}>
         <h3 className="text-xs text-muted-foreground">Unit of Measure</h3>

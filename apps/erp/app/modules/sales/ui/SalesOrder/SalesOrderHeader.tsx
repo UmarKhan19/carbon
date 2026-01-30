@@ -288,7 +288,24 @@ const SalesOrderHeader = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <SalesStatus status={routeData?.salesOrder?.status} />
+            <SalesStatus
+              status={routeData?.salesOrder?.status}
+              jobs={
+                routeData?.salesOrder?.jobs as Array<{
+                  salesOrderLineId: string;
+                  productionQuantity: number;
+                  quantityComplete: number;
+                  status: string;
+                }>
+              }
+              lines={
+                routeData?.salesOrder?.lines as Array<{
+                  id: string;
+                  methodType: "Buy" | "Make" | "Pick";
+                  saleQuantity: number;
+                }>
+              }
+            />
           </HStack>
           <HStack>
             <DropdownMenu>

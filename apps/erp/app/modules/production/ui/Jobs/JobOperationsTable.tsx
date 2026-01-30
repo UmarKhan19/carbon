@@ -149,9 +149,10 @@ const JobOperationsTable = memo(({ data, count }: JobOperationsTableProps) => {
       },
 
       {
-        accessorKey: "operationQuantity",
+        accessorKey: "targetQuantity",
         header: "Quantity",
-        cell: (item) => item.getValue(),
+        cell: (item) =>
+          item.getValue<number>() ?? item.row.original.operationQuantity ?? 0,
         meta: {
           icon: <LuHash />
         }

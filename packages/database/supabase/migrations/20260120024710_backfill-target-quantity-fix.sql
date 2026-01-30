@@ -1,0 +1,1 @@
+UPDATE "jobOperation" SET "targetQuantity" = "operationQuantity" WHERE "targetQuantity" = 0;

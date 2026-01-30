@@ -16,16 +16,21 @@ import { parseAcceptLanguage } from "intl-parse-accept-language";
 import { type ActionFunctionArgs, redirect } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
 import { upsertDocument } from "~/modules/documents";
-import { runMRP } from "~/modules/production/production.service";
 import {
   finalizePurchaseOrder,
   getPurchaseOrder,
   getPurchaseOrderLines,
   getPurchaseOrderLocations,
   getSupplierContact,
-  purchaseOrderFinalizeValidator
+  purchaseOrderFinalizeValidator,
+  updatePurchaseOrderStatus
 } from "~/modules/purchasing";
 import { getCompany, getCompanySettings } from "~/modules/settings";
+import {
+  createApprovalRequest,
+  hasPendingApproval,
+  isApprovalRequired
+} from "~/modules/shared";
 import { getUser } from "~/modules/users/users.server";
 import { loader as pdfLoader } from "~/routes/file+/purchase-order+/$orderId[.]pdf";
 import { path, requestReferrer } from "~/utils/path";
@@ -46,28 +51,9 @@ export async function action(args: ActionFunctionArgs) {
   let file: ArrayBuffer;
   let fileName: string;
 
-  const finalize = await finalizePurchaseOrder(client, orderId, userId);
-  if (finalize.error) {
-    throw redirect(
-      path.to.purchaseOrder(orderId),
-      await flash(
-        request,
-        error(finalize.error, "Failed to finalize purchase order")
-      )
-    );
-  }
-
   const serviceRole = getCarbonServiceRole();
 
-  const [purchaseOrder] = await Promise.all([
-    getPurchaseOrder(serviceRole, orderId),
-    runMRP(serviceRole, {
-      type: "purchaseOrder",
-      id: orderId,
-      companyId,
-      userId
-    })
-  ]);
+  const purchaseOrder = await getPurchaseOrder(serviceRole, orderId);
   if (purchaseOrder.error) {
     throw redirect(
       path.to.purchaseOrder(orderId),
@@ -85,6 +71,58 @@ export async function action(args: ActionFunctionArgs) {
         request,
         error("You are not authorized to finalize this purchase order")
       )
+    );
+  }
+
+  const orderAmount = purchaseOrder.data.orderTotal ?? 0;
+  const approvalRequired = await isApprovalRequired(
+    serviceRole,
+    "purchaseOrder",
+    companyId,
+    orderAmount
+  );
+
+  const finalize = await finalizePurchaseOrder(client, orderId, userId);
+  if (finalize.error) {
+    throw redirect(
+      path.to.purchaseOrder(orderId),
+      await flash(
+        request,
+        error(finalize.error, "Failed to finalize purchase order")
+      )
+    );
+  }
+
+  // If approval is required, create the request and return early
+  // PDF generation, email sending, and price updates happen after approval
+  if (approvalRequired) {
+    const hasPending = await hasPendingApproval(
+      serviceRole,
+      "purchaseOrder",
+      orderId
+    );
+
+    if (!hasPending) {
+      await createApprovalRequest(serviceRole, {
+        documentType: "purchaseOrder",
+        documentId: orderId,
+        companyId,
+        requestedBy: userId,
+        createdBy: userId,
+        amount: orderAmount
+      });
+    }
+
+    await updatePurchaseOrderStatus(client, {
+      id: orderId,
+      status: "Needs Approval",
+      assignee: undefined,
+      updatedBy: userId
+    });
+
+    throw redirect(
+      requestReferrer(request) ?? path.to.purchaseOrder(orderId),
+      await flash(request, success("Purchase order submitted for approval"))
     );
   }
 
@@ -220,44 +258,46 @@ export async function action(args: ActionFunctionArgs) {
           throw new Error("Failed to get purchase order locations");
         if (!paymentTerms.data) throw new Error("Failed to get payment terms");
 
-        const emailTemplate = PurchaseOrderEmail({
-          company: company.data,
-          locale: locales?.[0] ?? "en-US",
-          purchaseOrder: purchaseOrder.data,
-          purchaseOrderLines: purchaseOrderLines.data ?? [],
-          purchaseOrderLocations: purchaseOrderLocations.data,
-          recipient: {
-            email: supplier.data.contact.email,
-            firstName: supplier.data.contact.firstName ?? undefined,
-            lastName: supplier.data.contact.lastName ?? undefined
-          },
-          sender: {
-            email: buyer.data.email,
-            firstName: buyer.data.firstName,
-            lastName: buyer.data.lastName
-          },
-          paymentTerms: paymentTerms.data
-        });
+        if (supplier.data.contact.email) {
+          const emailTemplate = PurchaseOrderEmail({
+            company: company.data,
+            locale: locales?.[0] ?? "en-US",
+            purchaseOrder: purchaseOrder.data,
+            purchaseOrderLines: purchaseOrderLines.data ?? [],
+            purchaseOrderLocations: purchaseOrderLocations.data,
+            recipient: {
+              email: supplier.data.contact.email,
+              firstName: supplier.data.contact.firstName ?? undefined,
+              lastName: supplier.data.contact.lastName ?? undefined
+            },
+            sender: {
+              email: buyer.data.email,
+              firstName: buyer.data.firstName,
+              lastName: buyer.data.lastName
+            },
+            paymentTerms: paymentTerms.data
+          });
 
-        const html = await renderAsync(emailTemplate);
-        const text = await renderAsync(emailTemplate, { plainText: true });
+          const html = await renderAsync(emailTemplate);
+          const text = await renderAsync(emailTemplate, { plainText: true });
 
-        await Promise.all([
-          tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
-            to: [buyer.data.email, supplier.data.contact.email],
-            from: buyer.data.email,
-            subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
-            html,
-            text,
-            attachments: [
-              {
-                content: Buffer.from(file).toString("base64"),
-                filename: fileName
-              }
-            ],
-            companyId
-          })
-        ]);
+          await Promise.all([
+            tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
+              to: [buyer.data.email, supplier.data.contact.email],
+              from: buyer.data.email,
+              subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
+              html,
+              text,
+              attachments: [
+                {
+                  content: Buffer.from(file).toString("base64"),
+                  filename: fileName
+                }
+              ],
+              companyId
+            })
+          ]);
+        }
       } catch (err) {
         throw redirect(
           path.to.purchaseOrder(orderId),

@@ -129,7 +129,7 @@ export function ItemCard({
               </span>
             </div>
             <Heading size="h4" className="text-muted-foreground/70">
-              {item.operationQuantity}
+              {item.targetQuantity}
             </Heading>
           </div>
 
@@ -171,10 +171,14 @@ export function ItemCard({
               <HStack className="mt-2">
                 <ProgressComponent
                   numerator={(item.quantityCompleted ?? 0).toString()}
-                  denominator={(item.quantity ?? 0).toString()}
+                  denominator={(
+                    item.targetQuantity ??
+                    item.quantity ??
+                    0
+                  ).toString()}
                   value={
-                    item.quantityCompleted && item.quantity
-                      ? (item.quantityCompleted / item.quantity) * 100
+                    item.quantityCompleted && item.targetQuantity
+                      ? (item.quantityCompleted / item.targetQuantity) * 100
                       : 0
                   }
                 />
@@ -307,20 +311,36 @@ export function ItemCard({
 }
 
 function getStatusIcon(status: Item["status"] | "In Progress") {
-  switch (status) {
-    case "Ready":
-    case "Todo":
-      return <TodoStatusIcon className="text-foreground" />;
-    case "Waiting":
-    case "Canceled":
-      return <LuCircleX className="text-muted-foreground" />;
-    case "Done":
-      return <LuCircleCheck className="text-blue-600" />;
-    case "In Progress":
-      return <AlmostDoneIcon />;
-    case "Paused":
-      return <InProgressStatusIcon />;
-    default:
-      return null;
-  }
+  const getIcon = () => {
+    switch (status) {
+      case "Ready":
+      case "Todo":
+        return <TodoStatusIcon className="text-foreground" />;
+      case "Waiting":
+      case "Canceled":
+        return <LuCircleX className="text-muted-foreground" />;
+      case "Done":
+        return <LuCircleCheck className="text-blue-600" />;
+      case "In Progress":
+        return <AlmostDoneIcon />;
+      case "Paused":
+        return <InProgressStatusIcon />;
+      default:
+        return null;
+    }
+  };
+
+  const icon = getIcon();
+  if (!icon) return null;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{icon}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>{status}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 }

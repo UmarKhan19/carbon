@@ -188,12 +188,19 @@ export const jobValidator = baseJobValidator.refine(
   }
 );
 
+export const leftoverAction = ["ship", "receive", "split", "discard"] as const;
+export type LeftoverAction = (typeof leftoverAction)[number];
+
 export const jobCompleteValidator = z.object({
   quantityComplete: zfd.numeric(z.number().min(0)),
   salesOrderId: zfd.text(z.string().optional()),
   salesOrderLineId: zfd.text(z.string().optional()),
   locationId: zfd.text(z.string().optional()),
-  shelfId: zfd.text(z.string().optional())
+  shelfId: zfd.text(z.string().optional()),
+  // Leftover handling fields - for when quantityComplete > job.quantity
+  leftoverAction: zfd.text(z.enum(leftoverAction).optional()),
+  leftoverShipQuantity: zfd.numeric(z.number().min(0).optional()),
+  leftoverReceiveQuantity: zfd.numeric(z.number().min(0).optional())
 });
 
 export const salesOrderToJobValidator = baseJobValidator

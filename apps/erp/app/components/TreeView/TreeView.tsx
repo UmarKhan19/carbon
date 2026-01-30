@@ -262,7 +262,12 @@ export function useTree<TData, TFilterValue>({
       const itemIndex = state.visibleNodeIds.findIndex((n) => n === id);
 
       if (itemIndex !== -1) {
-        virtualizer.scrollToIndex(itemIndex, { align: "auto" });
+        const range = virtualizer.getVirtualItems();
+        const isInView = range.some((item) => item.index === itemIndex);
+
+        if (!isInView) {
+          virtualizer.scrollToIndex(itemIndex, { align: "auto" });
+        }
       }
     },
     [state]
@@ -270,7 +275,7 @@ export function useTree<TData, TFilterValue>({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const selectNode = useCallback(
-    (id: string, scrollToNode = true) => {
+    (id: string, scrollToNode = false) => {
       dispatch({
         type: "SELECT_NODE",
         payload: { id, scrollToNode, scrollToNodeFn }

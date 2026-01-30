@@ -19,11 +19,10 @@ import {
   InputGroup,
   InputLeftElement,
   useDisclosure,
-  useMount,
   VStack
 } from "@carbon/react";
 import { useOptimisticLocation } from "@carbon/remix";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LuBraces,
   LuChevronDown,
@@ -34,7 +33,7 @@ import {
   LuSearch,
   LuTable
 } from "react-icons/lu";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { MethodIcon, MethodItemTypeIcon } from "~/components";
 import { OnshapeStatus } from "~/components/Icons";
 import { ImportCSVModal } from "~/components/ImportCSVModal";
@@ -43,7 +42,6 @@ import type { FlatTreeItem } from "~/components/TreeView";
 import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { type MethodItemType } from "~/modules/shared";
-import { useBom } from "~/stores";
 import { path } from "~/utils/path";
 import type { MakeMethod, Method, MethodOperation } from "../../types";
 import { getLinkToItemDetails } from "./ItemForm";
@@ -80,8 +78,8 @@ const BoMExplorer = ({
     toggleExpandNode,
     expandAllBelowDepth,
     collapseAllBelowDepth,
+    deselectAllNodes,
     selectNode,
-    scrollToNode,
     virtualizer
   } = useTree({
     tree: methods,
@@ -112,24 +110,27 @@ const BoMExplorer = ({
   if (!itemId) throw new Error("itemId not found");
   if (!methodId) throw new Error("methodId not found");
 
-  const [selectedMaterialId, setSelectedMaterialId] = useBom();
-  useMount(() => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMaterialId = searchParams.get("materialId");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
+  useEffect(() => {
+    if (!selectedMaterialId) {
+      deselectAllNodes();
+      return;
+    }
+
     if (selectedMaterialId) {
       const node = methods.find(
         (m) => m.data.methodMaterialId === selectedMaterialId
       );
-      if (node) {
-        selectNode(node.id);
-      }
-    } else if (params.makeMethodId) {
+      if (node?.id) selectNode(node?.id);
+    } else if (params.methodId) {
       const node = methods.find(
-        (m) => m.data.materialMakeMethodId === params.makeMethodId
+        (m) => m.data.materialMakeMethodId === params.methodId
       );
-      if (node) {
-        selectNode(node.id);
-      }
+      if (node?.id) selectNode(node?.id);
     }
-  });
+  }, [selectedMaterialId, params.methodId]);
 
   const importBomDisclosure = useDisclosure();
 
@@ -265,38 +266,27 @@ const BoMExplorer = ({
                           : "bg-transparent hover:bg-muted/90"
                       )}
                       onClick={() => {
-                        selectNode(node.id);
-                        setSelectedMaterialId(node.data.methodMaterialId);
-                        if (node.data.isRoot) {
-                          if (
-                            location.pathname !==
-                            getRootLink(itemType, itemId, methodId)
-                          ) {
-                            navigate(getRootLink(itemType, itemId, methodId));
-                          }
-                        } else {
-                          if (
-                            location.pathname !==
-                            getMaterialLink(
+                        selectNode(node.id, false);
+                        const nodePath = node.data.isRoot
+                          ? getRootLink(itemType, itemId, methodId)
+                          : getMaterialLink(
                               itemType,
                               itemId,
                               methodId,
                               node.data.methodType === "Make"
                                 ? node.data.materialMakeMethodId
                                 : node.data.makeMethodId
-                            )
-                          ) {
-                            navigate(
-                              getMaterialLink(
-                                itemType,
-                                itemId,
-                                methodId,
-                                node.data.methodType === "Make"
-                                  ? node.data.materialMakeMethodId
-                                  : node.data.makeMethodId
-                              )
                             );
-                          }
+
+                        if (location.pathname !== nodePath) {
+                          navigate(
+                            `${nodePath}?materialId=${node.data.methodMaterialId}`,
+                            { replace: true }
+                          );
+                        } else {
+                          setSearchParams({
+                            materialId: node.data.methodMaterialId
+                          });
                         }
                       }}
                     >
@@ -320,7 +310,6 @@ const BoMExplorer = ({
                             } else {
                               toggleExpandNode(node.id);
                             }
-                            scrollToNode(node.id);
                           }}
                         >
                           {node.hasChildren ? (

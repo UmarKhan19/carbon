@@ -13,6 +13,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  toast,
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
@@ -140,9 +141,27 @@ const PlanningTable = memo(
     // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
     const onBulkUpdate = useCallback(
       (selectedRows: typeof data, action: "order") => {
+        // Filter out rows without suppliers and track them for error reporting
+        const rowsWithoutSuppliers = selectedRows.filter(
+          (row) => row.id && !suppliersMap[row.id]
+        );
+        const rowsWithSuppliers = selectedRows.filter(
+          (row) => row.id && suppliersMap[row.id]
+        );
+
+        if (rowsWithoutSuppliers.length > 0) {
+          toast.error(
+            `Cannot place order - ${rowsWithoutSuppliers.length} item(s) have no supplier associated`
+          );
+        }
+
+        if (rowsWithSuppliers.length === 0) {
+          return;
+        }
+
         const payload = {
           locationId,
-          items: selectedRows
+          items: rowsWithSuppliers
             .filter((row) => row.id)
             .map((row) => {
               const ordersWithPeriods = (ordersMap[row.id!] || []).map(

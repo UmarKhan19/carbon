@@ -971,6 +971,9 @@ function getAssociationLink(
 ) {
   switch (key) {
     case "jobOperations":
+      if (child.type === "jobOperationsInspection") {
+        return path.to.jobInspectionSteps(child.documentId);
+      }
       return path.to.jobDetails(child.documentId);
     case "purchaseOrderLines":
       if (!child.documentLineId) return "#";

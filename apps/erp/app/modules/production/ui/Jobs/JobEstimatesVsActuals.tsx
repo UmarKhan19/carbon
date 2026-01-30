@@ -61,6 +61,7 @@ import { JobOperationStatus } from "./JobOperationStatus";
 type Operation = z.infer<typeof jobOperationValidator> & {
   status: JobOperation["status"];
   operationQuantity: number | null;
+  targetQuantity: number | null;
 };
 
 type JobMaterial = NonNullable<
@@ -342,7 +343,9 @@ const JobEstimatesVsActuals = ({
                         </Td>
                         <Td className="px-2">
                           {`${getCompleteQuantity(operation)}/${
-                            operation.operationQuantity
+                            operation.targetQuantity ??
+                            operation.operationQuantity ??
+                            0
                           }`}
                         </Td>
                         <Td className="px-2">{getScrapQuantity(operation)}</Td>

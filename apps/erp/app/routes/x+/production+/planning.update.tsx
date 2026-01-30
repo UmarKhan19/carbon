@@ -182,15 +182,20 @@ export async function action({ request }: ActionFunctionArgs) {
                 companyId
               );
 
+              // Calculate scrap quantity based on scrap percentage
+              const scrapPercentage = manufacturing.data?.scrapPercentage ?? 0;
+              const scrapQuantity =
+                scrapPercentage > 0
+                  ? Math.ceil(order.quantity * scrapPercentage)
+                  : 0;
+
               const createJob = await upsertJob(
                 client,
                 {
                   itemId: item.id,
                   jobId,
                   quantity: order.quantity,
-                  scrapQuantity: Math.ceil(
-                    order.quantity * (manufacturing.data?.scrapPercentage ?? 0)
-                  ),
+                  scrapQuantity,
                   startDate: order.startDate ?? undefined,
                   dueDate: order.dueDate ?? undefined,
                   deadlineType: order.isASAP ? "ASAP" : "Soft Deadline",
@@ -237,15 +242,22 @@ export async function action({ request }: ActionFunctionArgs) {
             } else {
               // Update existing job
               jobIds.push(order.existingId);
+
+              // Calculate scrap quantity based on scrap percentage
+              const updateScrapPercentage =
+                manufacturing.data?.scrapPercentage ?? 0;
+              const updateScrapQuantity =
+                updateScrapPercentage > 0
+                  ? Math.ceil(order.quantity * (updateScrapPercentage / 100))
+                  : 0;
+
               const updateJob = await client
                 .from("job")
                 .update({
                   dueDate: order.dueDate ?? undefined,
                   deadlineType: order.isASAP ? "ASAP" : "Soft Deadline",
                   quantity: order.quantity,
-                  scrapQuantity: Math.ceil(
-                    order.quantity * (manufacturing.data?.scrapPercentage ?? 0)
-                  ),
+                  scrapQuantity: updateScrapQuantity,
                   startDate: order.startDate ?? undefined,
                   status: "Planned",
                   updatedAt: new Date().toISOString(),

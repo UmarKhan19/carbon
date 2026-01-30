@@ -19,6 +19,7 @@ import type { z } from "zod";
 import {
   Currency,
   CustomFormFields,
+  EmailRecipients,
   Employee,
   Hidden,
   Input,
@@ -100,25 +101,19 @@ const SupplierForm = ({
                   )}
                 >
                   <Input autoFocus={!isEditing} name="name" label="Name" />
-
                   <SupplierStatus
                     name="supplierStatusId"
                     label="Supplier Status"
                     placeholder="Select Supplier Status"
                   />
-
                   <SupplierType
                     name="supplierTypeId"
                     label="Supplier Type"
                     placeholder="Select Supplier Type"
                   />
-
                   <Employee name="accountManagerId" label="Account Manager" />
-
                   <Currency name="currencyCode" label="Currency" />
-
                   <Input name="website" label="Website" />
-
                   {isEditing && (
                     <>
                       <SupplierContact
@@ -133,7 +128,7 @@ const SupplierForm = ({
                       />
                     </>
                   )}
-
+                  <EmailRecipients name="defaultCc" label="Default CC" />
                   <CustomFormFields table="supplier" />
                 </div>
               </ModalCardBody>

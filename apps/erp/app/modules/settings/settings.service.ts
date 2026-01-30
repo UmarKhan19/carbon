@@ -626,6 +626,28 @@ export async function updatePurchasePriceUpdateTimingSetting(
     .eq("id", companyId);
 }
 
+export async function updateDefaultSupplierCc(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  defaultSupplierCc: string[]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ defaultSupplierCc }))
+    .eq("id", companyId);
+}
+
+export async function updateDefaultCustomerCc(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  defaultCustomerCc: string[]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ defaultCustomerCc }))
+    .eq("id", companyId);
+}
+
 export async function updateSequence(
   client: SupabaseClient<Database>,
   table: string,

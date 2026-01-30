@@ -11,12 +11,7 @@ import {
   updateCompanySession
 } from "@carbon/auth/session.server";
 import { TooltipProvider, useMount } from "@carbon/react";
-import {
-  AcademyBanner,
-  ItarPopup,
-  useKeyboardWedge,
-  useNProgress
-} from "@carbon/remix";
+import { ItarPopup, useKeyboardWedge, useNProgress } from "@carbon/remix";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import posthog from "posthog-js";
@@ -182,10 +177,6 @@ export default function AuthenticatedRoute() {
           <RealtimeDataProvider>
             <TooltipProvider>
               <div className="flex flex-col h-screen">
-                {user?.acknowledgedUniversity ? null : (
-                  <AcademyBanner acknowledgeAction={path.to.acknowledge} />
-                )}
-
                 <Topbar />
                 <div className="flex flex-1 h-[calc(100vh-49px)] relative">
                   <PrimaryNavigation />

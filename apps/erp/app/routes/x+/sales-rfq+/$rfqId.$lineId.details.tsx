@@ -44,7 +44,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   if (line.error) {
     throw redirect(
-      path.to.quote(rfqId),
+      path.to.salesRfq(rfqId),
       await flash(request, error(line.error, "Failed to load line"))
     );
   }

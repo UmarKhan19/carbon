@@ -65,10 +65,10 @@ import type {
   SortableItemRenderProps
 } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { usePermissions, useRouteData, useUrlParams, useUser } from "~/hooks";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import type { MethodItemType, MethodType } from "~/modules/shared";
-import { type Item as ItemType, useBom, useItems } from "~/stores";
+import { type Item as ItemType, useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { jobOperationValidator } from "../../production.models";
 import {
@@ -316,7 +316,7 @@ const JobBillOfMaterial = ({
     if (!permissions.can("update", "production") || isDisabled) return;
     const materialId = nanoid();
     setSelectedItemId(materialId);
-    setSelectedMaterialId(materialId);
+    setSearchParams({ materialId: materialId });
 
     let newOrder = 1;
     if (items.length) {
@@ -417,9 +417,10 @@ const JobBillOfMaterial = ({
     });
   }, [items]);
 
-  const [selectedMaterialId, setSelectedMaterialId] = useBom();
+  const [searchParams, setSearchParams] = useUrlParams();
+  const selectedMaterialId = searchParams.get("materialId");
   const onSelectItem = (id: string | null) => {
-    setSelectedMaterialId(id);
+    setSearchParams({ materialId: id });
     setSelectedItemId(id);
   };
 
@@ -800,7 +801,7 @@ function MaterialForm({
 
       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
         <Item
-          disabledItems={[params.itemId!]}
+          blacklist={[params.itemId!]}
           isReadOnly={isDisabled}
           name="itemId"
           label={itemType}

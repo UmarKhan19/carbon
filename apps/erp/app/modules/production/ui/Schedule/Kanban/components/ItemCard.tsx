@@ -273,15 +273,22 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             </HStack>
           )}
         {displaySettings.showProgress &&
-          Number.isFinite(item.quantity) &&
-          Number(item.quantity) > 0 && (
+          Number.isFinite(item.targetQuantity ?? item.quantity) &&
+          Number(item.targetQuantity ?? item.quantity) > 0 && (
             <HStack>
               <ProgressComponent
                 numerator={(item.quantityCompleted ?? 0).toString()}
-                denominator={(item.quantity ?? 0).toString()}
+                denominator={(
+                  item.targetQuantity ??
+                  item.quantity ??
+                  0
+                ).toString()}
                 value={
-                  item.quantityCompleted && item.quantity
-                    ? (item.quantityCompleted / item.quantity) * 100
+                  item.quantityCompleted &&
+                  (item.targetQuantity ?? item.quantity)
+                    ? (item.quantityCompleted /
+                        (item.targetQuantity ?? item.quantity)) *
+                      100
                     : 0
                 }
               />

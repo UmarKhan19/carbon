@@ -177,6 +177,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             batchNumber={data.batchNumber}
             notes={index === 0 ? jobNotes : undefined}
             thumbnail={data.thumbnail}
+            methodRevision={data.makeMethod.version?.toString()}
           />
         </Page>
       ))}

@@ -73,6 +73,10 @@ class MaterialManager {
       }
     }
   }
+
+  getMaterialIds(): string[] {
+    return this.materialsWithoutOperations.map((m) => m.id);
+  }
 }
 
 export { MaterialManager };

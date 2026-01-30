@@ -89,7 +89,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const willBeFinished =
     quantityToComplete + currentQuantity >=
-    (jobOperation.data.operationQuantity ?? 0);
+    (jobOperation.data.targetQuantity ??
+      jobOperation.data.operationQuantity ??
+      0);
 
   const isTrackedEntity =
     jobMakeMethod.data.requiresSerialTracking ||

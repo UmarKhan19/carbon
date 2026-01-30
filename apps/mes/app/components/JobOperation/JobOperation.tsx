@@ -626,8 +626,7 @@ export const JobOperation = ({
                   </div>
                   <div className="p-6 pt-0">
                     <Heading size="h1">
-                      {operation.quantityComplete} of{" "}
-                      {operation.operationQuantity}
+                      {operation.quantityComplete} of {operation.targetQuantity}
                     </Heading>
                   </div>
                 </div>
@@ -2132,15 +2131,14 @@ export const JobOperation = ({
                   <Progress
                     indicatorClassName={
                       operation.operationStatus === "Paused" &&
-                      operation.quantityComplete < operation.operationQuantity
+                      operation.quantityComplete < operation.targetQuantity
                         ? "bg-yellow-500"
                         : ""
                     }
                     numerator={operation.quantityComplete.toString()}
-                    denominator={operation.operationQuantity.toString()}
+                    denominator={operation.targetQuantity.toString()}
                     value={
-                      (operation.quantityComplete /
-                        operation.operationQuantity) *
+                      (operation.quantityComplete / operation.targetQuantity) *
                       100
                     }
                   />

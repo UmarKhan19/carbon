@@ -45,35 +45,44 @@ export async function action({ request }: ActionFunctionArgs) {
 
   let jobId = validation.data.jobId;
   const useNextSequence = !jobId;
-  let leadTime = 7;
+
+  // Fetch manufacturing data for lead time and scrap percentage
+  const [nextSequenceResult, manufacturing] = await Promise.all([
+    useNextSequence
+      ? getNextSequence(client, "job", companyId)
+      : Promise.resolve({ data: null, error: null }),
+    getItemReplenishment(client, validation.data.itemId, companyId)
+  ]);
 
   if (useNextSequence) {
-    const [nextSequence, manufacturing] = await Promise.all([
-      getNextSequence(client, "job", companyId),
-      getItemReplenishment(client, validation.data.itemId, companyId)
-    ]);
-    if (nextSequence.error) {
+    if (nextSequenceResult.error) {
       throw redirect(
         path.to.newJob,
         await flash(
           request,
-          error(nextSequence.error, "Failed to get next sequence")
+          error(nextSequenceResult.error, "Failed to get next sequence")
         )
       );
     }
-    jobId = nextSequence.data;
-    leadTime = manufacturing.data?.leadTime ?? 7;
-  } else {
-    const manufacturing = await getItemReplenishment(
-      client,
-      validation.data.itemId,
-      companyId
-    );
-    leadTime = manufacturing.data?.leadTime ?? 7;
+    jobId = nextSequenceResult.data;
   }
+
+  const leadTime = manufacturing.data?.leadTime ?? 7;
 
   if (!jobId) throw new Error("jobId is not defined");
   const { id: _id, ...d } = validation.data;
+
+  // Calculate scrap quantity from the item's scrap percentage if not set
+  const scrapPercentage = manufacturing.data?.scrapPercentage ?? 0;
+  const calculatedScrapQuantity =
+    scrapPercentage > 0
+      ? Math.ceil(validation.data.quantity * scrapPercentage)
+      : 0;
+  // Use the form value if set, otherwise use calculated value
+  const scrapQuantity =
+    d.scrapQuantity && d.scrapQuantity > 0
+      ? d.scrapQuantity
+      : calculatedScrapQuantity;
 
   let configuration = undefined;
   if (d.configuration) {
@@ -104,6 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
     jobId,
     configuration,
     priority,
+    scrapQuantity,
     shelfId: shelfId ?? undefined,
     startDate: d.dueDate
       ? parseDate(d.dueDate).subtract({ days: leadTime }).toString()

@@ -27,9 +27,9 @@ import {
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUrlParams } from "~/hooks";
 import type { MethodItemType, MethodType } from "~/modules/shared";
-import { useBom, useItems } from "~/stores";
+import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { jobOperationValidator } from "../../production.models";
 import { jobMaterialValidator } from "../../production.models";
@@ -123,7 +123,7 @@ const JobMaterialForm = ({
     }
   };
 
-  const [, setSelectedMaterialId] = useBom();
+  const [, setSearchParams] = useUrlParams();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -132,7 +132,7 @@ const JobMaterialForm = ({
       initialValues.jobMakeMethodId!
     );
 
-    setSelectedMaterialId(initialValues.id ?? null);
+    setSearchParams({ materialId: initialValues.id ?? null });
     navigate(newPath);
   }, [
     fetcher.data,
@@ -142,8 +142,7 @@ const JobMaterialForm = ({
     initialValues.jobMaterialMakeMethodId,
     jobId,
     location.pathname,
-    navigate,
-    setSelectedMaterialId
+    navigate
   ]);
 
   const isDisabled = ["Completed", "Cancelled"].includes(

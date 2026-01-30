@@ -142,7 +142,11 @@ export async function action(args: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { notification, customerContact: customerContactId } = validation.data;
+  const {
+    notification,
+    customerContact: customerContactId,
+    cc: ccSelections
+  } = validation.data;
 
   switch (notification) {
     case "Email":
@@ -188,6 +192,7 @@ export async function action(args: ActionFunctionArgs) {
 
         await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
           to: [user.data.email, customerContact.data.contact!.email!],
+          cc: ccSelections?.length ? ccSelections : undefined,
           from: user.data.email,
           subject: `Quote ${quote.data.quoteId}`,
           html,

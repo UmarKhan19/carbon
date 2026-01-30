@@ -1692,7 +1692,8 @@ export async function getOrderLocationId(
   const locations = await carbon
     .from("location")
     .select("id, name")
-    .eq("companyId", company.id);
+    .eq("companyId", company.id)
+    .order("createdAt", { ascending: true });
 
   if (sendFrom) {
     const location = locations.data?.find(
@@ -1704,15 +1705,10 @@ export async function getOrderLocationId(
       return location.id;
     }
   }
-  if (locations.data && locations.data.length > 0 && locations.data[0]?.id) {
-    return locations.data[0]?.id ?? null;
-  }
-  const hq = locations.data?.filter((location) =>
-    location.name?.toLowerCase().includes("headquarters")
-  );
 
-  if (hq && hq.length > 0) {
-    return hq[0]?.id ?? null;
+  // Fallback to the first created location
+  if (locations.data && locations.data.length > 0 && locations.data[0]?.id) {
+    return locations.data[0].id;
   }
 
   return null;

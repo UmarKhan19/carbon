@@ -135,6 +135,25 @@ export class SchedulingEngine {
     // Initialize material manager
     await this.materialManager.initialize(this.jobId);
 
+    // Assign operations to materials that don't have one
+    if (this.operations.length > 0) {
+      const operationsByJobMakeMethodId = this.operations.reduce<
+        Record<string, BaseOperation[]>
+      >((acc, op) => {
+        if (!acc[op.jobMakeMethodId]) {
+          acc[op.jobMakeMethodId] = [];
+        }
+        acc[op.jobMakeMethodId].push(op);
+        return acc;
+      }, {});
+
+      const materialIds = this.materialManager.getMaterialIds();
+      await this.materialManager.assignOperationsToMaterials(
+        materialIds,
+        operationsByJobMakeMethodId
+      );
+    }
+
     // Build assembly tree and get depth
     const assemblyTree = await this.assemblyHandler.buildAssemblyTree(
       this.jobId

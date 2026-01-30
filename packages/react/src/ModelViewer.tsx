@@ -1,10 +1,10 @@
 import * as OV from "online-3d-viewer";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "react-aria-components";
 import * as THREE from "three";
 import { useMount } from "./hooks";
 import { IconButton } from "./IconButton";
-import { Progress } from "./Progress";
+import { Spinner } from "./Spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./Tabs";
 import { cn } from "./utils/cn";
 
@@ -34,11 +34,7 @@ export function ModelViewer({
 }) {
   const parentDiv = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<OV.EmbeddedViewer | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
   const [unitSystem, setUnitSystem] = useState<UnitSystem>("metric");
   const [modelInfo, setModelInfo] = useState<{
     surfaceArea: number;
@@ -63,102 +59,78 @@ export function ModelViewer({
             : new OV.RGBAColor(255, 255, 255, 0),
           defaultColor: new OV.RGBColor(0, 125, 125),
           onModelLoaded: () => {
-            try {
-              if (viewerRef.current) {
-                const viewer3D = viewerRef.current.GetViewer();
-                updateColor(color ?? (isDarkMode ? darkColor : lightColor));
+            if (viewerRef.current) {
+              const viewer3D = viewerRef.current.GetViewer();
+              updateColor(color ?? (isDarkMode ? darkColor : lightColor));
 
-                viewer3D.Resize(
-                  parentDiv.current?.clientWidth,
-                  parentDiv.current?.clientHeight
-                );
-
-                const boundingSphere = viewer3D.GetBoundingSphere(() => true);
-                if (boundingSphere) {
-                  const scene = viewer3D.scene;
-                  const center = boundingSphere.center;
-                  const radius = boundingSphere.radius;
-                  const camera = viewer3D.GetCamera();
-                  const direction = new OV.Coord3D(1, 1, 1);
-                  const eye = new OV.Coord3D(
-                    center.x + direction.x * radius * 1.5,
-                    center.y + direction.y * radius * 1.5,
-                    center.z + direction.z * radius * 1.5
-                  );
-                  camera.center = center;
-                  camera.eye = eye;
-                  camera.up = new OV.Coord3D(0, 1, 0);
-                  viewer3D.SetCamera(camera);
-
-                  // Add ambient light for overall illumination
-                  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-                  scene.add(ambientLight);
-
-                  // Add directional lights for isometric highlights
-                  const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-                  dirLight1.position.set(1, 1, 1);
-                  scene.add(dirLight1);
-
-                  const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
-                  dirLight2.position.set(-1, 0.5, -1);
-                  scene.add(dirLight2);
-
-                  // Add subtle point light for depth
-                  const pointLight = new THREE.PointLight(0xffffff, 0.3);
-                  pointLight.position.set(0, radius * 2, 0);
-                  scene.add(pointLight);
-
-                  viewer3D.Render();
-                }
-
-                let model;
-                if (withProperties) {
-                  model = viewer.GetModel();
-                }
-
-                if (model) {
-                  // Calculate model dimensions and properties
-                  const boundingBox = OV.GetBoundingBox(model);
-                  const surfaceArea = OV.CalculateSurfaceArea(model);
-                  const volume = OV.CalculateVolume(model);
-                  const dimensions = {
-                    x: boundingBox.max.x - boundingBox.min.x,
-                    y: boundingBox.max.y - boundingBox.min.y,
-                    z: boundingBox.max.z - boundingBox.min.z
-                  };
-
-                  setModelInfo({
-                    surfaceArea,
-                    volume,
-                    dimensions
-                  });
-                }
-              }
-
-              // Clear progress interval and set to 100%
-              if (progressIntervalRef.current) {
-                clearInterval(progressIntervalRef.current);
-                progressIntervalRef.current = null;
-              }
-              setLoadingProgress(100);
-
-              // Small delay before hiding loading state to show 100% completion
-              setTimeout(() => {
-                setIsLoading(false);
-                setError(null);
-              }, 200);
-            } catch (err) {
-              if (progressIntervalRef.current) {
-                clearInterval(progressIntervalRef.current);
-                progressIntervalRef.current = null;
-              }
-              setError(
-                err instanceof Error
-                  ? err.message
-                  : "Failed to initialize model viewer"
+              viewer3D.Resize(
+                parentDiv.current?.clientWidth,
+                parentDiv.current?.clientHeight
               );
-              setIsLoading(false);
+
+              const boundingSphere = viewer3D.GetBoundingSphere(() => true);
+              if (boundingSphere) {
+                const scene = viewer3D.scene;
+                const center = boundingSphere.center;
+                const radius = boundingSphere.radius;
+                const camera = viewer3D.GetCamera();
+                const direction = new OV.Coord3D(1, 1, 1);
+                const eye = new OV.Coord3D(
+                  center.x + direction.x * radius * 1.5,
+                  center.y + direction.y * radius * 1.5,
+                  center.z + direction.z * radius * 1.5
+                );
+                camera.center = center;
+                camera.eye = eye;
+                camera.up = new OV.Coord3D(0, 1, 0);
+                viewer3D.SetCamera(camera);
+
+                // Add ambient light for overall illumination
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(ambientLight);
+
+                // Add directional lights for isometric highlights
+                const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+                dirLight1.position.set(1, 1, 1);
+                scene.add(dirLight1);
+
+                const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+                dirLight2.position.set(-1, 0.5, -1);
+                scene.add(dirLight2);
+
+                // Add subtle point light for depth
+                const pointLight = new THREE.PointLight(0xffffff, 0.3);
+                pointLight.position.set(0, radius * 2, 0);
+                scene.add(pointLight);
+
+                viewer3D.Render();
+              }
+
+              let model;
+              if (withProperties) {
+                model = viewer.GetModel();
+              }
+
+              if (model) {
+                // Calculate model dimensions and properties
+                const boundingBox = OV.GetBoundingBox(model);
+                const surfaceArea = OV.CalculateSurfaceArea(model);
+                const volume = OV.CalculateVolume(model);
+                const dimensions = {
+                  x: boundingBox.max.x - boundingBox.min.x,
+                  y: boundingBox.max.y - boundingBox.min.y,
+                  z: boundingBox.max.z - boundingBox.min.z
+                };
+
+                setModelInfo({
+                  surfaceArea,
+                  volume,
+                  dimensions
+                });
+              }
             }
+
+            setIsLoading(false);
           }
         });
 
@@ -174,18 +146,6 @@ export function ModelViewer({
     }
 
     return () => {
-      // Cancel any ongoing animations
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-
-      // Clear progress interval
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-
       if (viewerRef.current !== null && parentDiv.current !== null) {
         delete viewerRef.current.model;
         viewerRef.current.viewer.renderer.resetState();
@@ -204,65 +164,6 @@ export function ModelViewer({
     };
   });
 
-  // Smooth camera animation helper
-  const animateCamera = useCallback(
-    (
-      targetEye: OV.Coord3D,
-      targetCenter: OV.Coord3D,
-      targetUp: OV.Coord3D,
-      duration: number = 300
-    ) => {
-      if (!viewerRef.current) return;
-
-      const viewer3D = viewerRef.current.GetViewer();
-      const camera = viewer3D.GetCamera();
-      const startEye = camera.eye;
-      const startCenter = camera.center;
-      const startUp = camera.up;
-      const startTime = Date.now();
-
-      const animate = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // Easing function (ease-out cubic)
-        const eased = 1 - Math.pow(1 - progress, 3);
-
-        camera.eye = new OV.Coord3D(
-          startEye.x + (targetEye.x - startEye.x) * eased,
-          startEye.y + (targetEye.y - startEye.y) * eased,
-          startEye.z + (targetEye.z - startEye.z) * eased
-        );
-
-        camera.center = new OV.Coord3D(
-          startCenter.x + (targetCenter.x - startCenter.x) * eased,
-          startCenter.y + (targetCenter.y - startCenter.y) * eased,
-          startCenter.z + (targetCenter.z - startCenter.z) * eased
-        );
-
-        camera.up = new OV.Coord3D(
-          startUp.x + (targetUp.x - startUp.x) * eased,
-          startUp.y + (targetUp.y - startUp.y) * eased,
-          startUp.z + (targetUp.z - startUp.z) * eased
-        );
-
-        viewer3D.SetCamera(camera);
-
-        if (progress < 1) {
-          animationFrameRef.current = requestAnimationFrame(animate);
-        }
-      };
-
-      // Cancel any ongoing animation
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-
-      animate();
-    },
-    []
-  );
-
   function resetZoom() {
     if (!viewerRef.current) return;
 
@@ -272,66 +173,23 @@ export function ModelViewer({
       parentDiv.current?.clientHeight
     );
 
-    const boundingSphere = viewer3D.GetBoundingSphere(() => true);
+    const boundingSphere = viewer3D.GetBoundingSphere((meshUserData) => true);
     if (boundingSphere) {
       const center = boundingSphere.center;
       const radius = boundingSphere.radius;
+      const camera = viewer3D.GetCamera();
       const direction = new OV.Coord3D(1, 1, 1);
       const eye = new OV.Coord3D(
         center.x + direction.x * radius * 1.5,
         center.y + direction.y * radius * 1.5,
         center.z + direction.z * radius * 1.5
       );
-      const up = new OV.Coord3D(0, 1, 0);
-
-      // Animate to the reset position
-      animateCamera(eye, center, up, 400);
+      camera.center = center;
+      camera.eye = eye;
+      camera.up = new OV.Coord3D(0, 1, 0);
+      viewer3D.SetCamera(camera);
     }
   }
-
-  const setCameraView = useCallback(
-    (viewType: "front" | "top" | "side" | "isometric") => {
-      if (!viewerRef.current) return;
-
-      const viewer3D = viewerRef.current.GetViewer();
-      const boundingSphere = viewer3D.GetBoundingSphere(() => true);
-      if (!boundingSphere) return;
-
-      const center = boundingSphere.center;
-      const radius = boundingSphere.radius;
-      const distance = radius * 2.5;
-
-      let eye: OV.Coord3D;
-      let up: OV.Coord3D;
-
-      switch (viewType) {
-        case "front":
-          eye = new OV.Coord3D(center.x, center.y, center.z + distance);
-          up = new OV.Coord3D(0, 1, 0); // Standard up for front view
-          break;
-        case "top":
-          eye = new OV.Coord3D(center.x, center.y + distance, center.z);
-          up = new OV.Coord3D(0, 0, -1); // Looking down, up vector points towards negative Z
-          break;
-        case "side":
-          eye = new OV.Coord3D(center.x + distance, center.y, center.z);
-          up = new OV.Coord3D(0, 1, 0); // Standard up for side view
-          break;
-        case "isometric":
-        default:
-          eye = new OV.Coord3D(
-            center.x + radius * 1.5,
-            center.y + radius * 1.5,
-            center.z + radius * 1.5
-          );
-          up = new OV.Coord3D(0, 1, 0); // Standard up for isometric
-          break;
-      }
-
-      animateCamera(eye, center, up, 500);
-    },
-    [animateCamera]
-  );
 
   function loadFile(file: File) {
     if (!file) return;
@@ -339,35 +197,7 @@ export function ModelViewer({
     const viewer = viewerRef.current;
     if (!viewer) return;
 
-    setError(null);
-    setLoadingProgress(0);
-
-    // Clear any existing progress interval
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-    }
-
-    try {
-      // Simulate progress for file loading
-      progressIntervalRef.current = setInterval(() => {
-        setLoadingProgress((prev) => {
-          if (prev >= 90) {
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 100);
-
-      viewer.LoadModelFromFileList([file]);
-    } catch (err) {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-      setError(
-        err instanceof Error ? err.message : "Failed to load model file"
-      );
-      setIsLoading(false);
-    }
+    viewer.LoadModelFromFileList([file]);
   }
 
   function loadUrl(url: string) {
@@ -375,34 +205,7 @@ export function ModelViewer({
     if (!viewerRef.current) return;
     const viewer = viewerRef.current;
     if (!viewer) return;
-
-    setError(null);
-    setLoadingProgress(0);
-
-    // Clear any existing progress interval
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-    }
-
-    try {
-      // Simulate progress for URL loading
-      progressIntervalRef.current = setInterval(() => {
-        setLoadingProgress((prev) => {
-          if (prev >= 90) {
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 100);
-
-      viewer.LoadModelFromUrlList([url]);
-    } catch (err) {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-      setError(err instanceof Error ? err.message : "Failed to load model URL");
-      setIsLoading(false);
-    }
+    viewer.LoadModelFromUrlList([url]);
   }
 
   function updateColor(color: string) {
@@ -520,104 +323,44 @@ export function ModelViewer({
         role={"img"}
         aria-label="Canvas showing the model in the 3D Viewer"
         className={cn(
-          "h-full w-full tems-center justify-center rounded-lg border border-border bg-gradient-to-bl from-card from-50% via-card to-background min-h-[400px] shadow-md dark:border-none dark:shadow-[inset_0_0.5px_0_rgb(255_255_255_/_0.08),_inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)] relative",
+          "h-full w-full items-center justify-center rounded-lg border border-border bg-gradient-to-bl from-card from-50% via-card to-background min-h-[400px] shadow-md dark:border-none dark:shadow-[inset_0_0.5px_0_rgb(255_255_255_/_0.08),_inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)] relative",
 
           className
         )}
       >
         {isLoading ? (
-          <div className="absolute inset-0 bg-card h-full w-full flex flex-col gap-3 items-center justify-center">
-            {loadingProgress > 0 && (
-              <div className="flex flex-col items-center gap-2">
-                <Progress
-                  value={loadingProgress}
-                  className="w-48"
-                  indicatorClassName="bg-foreground"
-                />
-                <span className="text-xs text-muted-foreground">
-                  Loading model... {loadingProgress}%
-                </span>
-              </div>
-            )}
-          </div>
-        ) : error ? (
-          <div className="absolute inset-0 bg-card h-full w-full flex flex-col gap-3 items-center justify-center p-6 text-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-destructive"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <div>
-              <h3 className="font-semibold text-sm mb-1">
-                Failed to load model
-              </h3>
-              <p className="text-xs text-muted-foreground max-w-md">{error}</p>
-            </div>
+          <div className="absolute inset-0 bg-card h-full w-full flex items-center justify-center">
+            <Spinner className="w-10 h-10" />
           </div>
         ) : (
           <>
             <pre id="model-viewer-canvas" aria-hidden className="sr-only" />
             {resetZoomButton && (
-              <div className="absolute bottom-2 right-2 z-20 flex flex-col gap-1">
-                <div className="flex gap-1">
-                  <IconButton
-                    aria-label="Reset zoom"
-                    icon={
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-                        <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-                        <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-                        <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-                        <rect width="10" height="8" x="7" y="8" rx="1" />
-                      </svg>
-                    }
-                    variant="ghost"
-                    onClick={resetZoom}
-                  />
-                  <IconButton
-                    aria-label="Front view"
-                    className="h-7 w-7"
-                    icon={<span className="text-[10px] font-semibold">F</span>}
-                    variant="ghost"
-                    onClick={() => setCameraView("front")}
-                  />
-                  <IconButton
-                    aria-label="Top view"
-                    className="h-7 w-7"
-                    icon={<span className="text-[10px] font-semibold">T</span>}
-                    variant="ghost"
-                    onClick={() => setCameraView("top")}
-                  />
-                  <IconButton
-                    aria-label="Side view"
-                    className="h-7 w-7"
-                    icon={<span className="text-[10px] font-semibold">S</span>}
-                    variant="ghost"
-                    onClick={() => setCameraView("side")}
-                  />
-                </div>
-              </div>
+              <IconButton
+                aria-label="Reset zoom"
+                className="absolute top-2 right-2"
+                icon={
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                    <rect width="10" height="8" x="7" y="8" rx="1" />
+                  </svg>
+                }
+                variant="ghost"
+                onClick={resetZoom}
+              />
             )}
             {modelInfo && withProperties && (
               <>

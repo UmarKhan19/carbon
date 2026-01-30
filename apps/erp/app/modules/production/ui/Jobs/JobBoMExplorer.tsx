@@ -28,7 +28,13 @@ import {
   LuSearch,
   LuTable
 } from "react-icons/lu";
-import { Link, useFetchers, useNavigate, useParams } from "react-router";
+import {
+  Link,
+  useFetchers,
+  useNavigate,
+  useParams,
+  useSearchParams
+} from "react-router";
 import { MethodIcon, MethodItemTypeIcon } from "~/components";
 import { OnshapeStatus } from "~/components/Icons";
 import type { FlatTree, FlatTreeItem } from "~/components/TreeView";
@@ -36,7 +42,6 @@ import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useOptimisticLocation } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
-import { useBom } from "~/stores";
 import { path } from "~/utils/path";
 import type { JobMethod } from "../../production.service";
 
@@ -66,7 +71,6 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
     expandAllBelowDepth,
     selectNode,
     collapseAllBelowDepth,
-    scrollToNode,
     deselectAllNodes,
     virtualizer
   } = useTree({
@@ -90,10 +94,11 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
     isEager: true
   });
 
-  const [selectedMaterialId, setSelectedMaterialId] = useBom();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMaterialId = searchParams.get("materialId");
   // biome-ignore lint/correctness/useExhaustiveDependencies: supress
   useEffect(() => {
-    if (location.pathname === path.to.jobDetails(jobId!)) {
+    if (!selectedMaterialId) {
       deselectAllNodes();
       return;
     }
@@ -229,11 +234,19 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
                           ? "bg-muted hover:bg-muted/90"
                           : "bg-transparent hover:bg-muted/90"
                       )}
-                      onClick={(e) => {
-                        selectNode(node.id);
-                        setSelectedMaterialId(node.data.methodMaterialId);
-                        if (location.pathname !== getNodePath(node)) {
-                          navigate(getNodePath(node));
+                      onClick={() => {
+                        selectNode(node.id, false);
+                        const nodePath = getNodePath(node);
+
+                        if (location.pathname !== nodePath) {
+                          navigate(
+                            `${nodePath}?materialId=${node.data.methodMaterialId}`,
+                            { replace: true }
+                          );
+                        } else {
+                          setSearchParams({
+                            materialId: node.data.methodMaterialId
+                          });
                         }
                       }}
                     >
@@ -260,7 +273,6 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
                             } else {
                               toggleExpandNode(node.id);
                             }
-                            scrollToNode(node.id);
                           }}
                         >
                           {node.hasChildren ? (

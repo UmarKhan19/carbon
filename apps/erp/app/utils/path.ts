@@ -56,6 +56,7 @@ export const path = {
       groupsByType: (type?: string) =>
         generatePath(`${api}/users/groups?type=${type}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
+      itemConfigurable: `${api}/items/configurable`,
       itemForecast: (itemId: string, locationId: string) =>
         generatePath(`${api}/items/${itemId}/${locationId}/forecast`),
       itemPostingGroups: `${api}/items/groups`,
@@ -363,6 +364,15 @@ export const path = {
     },
     authenticatedRoot: x,
     acknowledge: `${x}/acknowledge`,
+    approvalRules: `${x}/settings/approval-rules`,
+    approvalRule: (id: string) =>
+      generatePath(`${x}/settings/approval-rules/${id}`),
+    newApprovalRule: (documentType?: string) =>
+      documentType
+        ? `${x}/settings/approval-rules/new?type=${documentType}`
+        : `${x}/settings/approval-rules/new`,
+    deleteApprovalRule: (id: string) =>
+      generatePath(`${x}/settings/approval-rules/${id}/delete`),
     abilities: `${x}/resources/abilities`,
     ability: (id: string) => generatePath(`${x}/resources/ability/${id}`),
     account: `${x}/account`,
@@ -849,6 +859,8 @@ export const path = {
     jobComplete: (id: string) => generatePath(`${x}/job/${id}/complete`),
     jobConfigure: (id: string) => generatePath(`${x}/job/${id}/configure`),
     jobDetails: (id: string) => generatePath(`${x}/job/${id}/details`),
+    jobInspectionSteps: (id: string) =>
+      generatePath(`${x}/job/${id}/steps?filter=type:eq:Inspection`),
     jobMaterial: (jobId: string, id: string) =>
       generatePath(`${x}/job/methods/${jobId}/material/${id}`),
     jobMaterials: (id: string) => generatePath(`${x}/job/${id}/materials`),

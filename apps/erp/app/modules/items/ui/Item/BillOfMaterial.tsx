@@ -77,13 +77,13 @@ import type {
   SortableItemRenderProps
 } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
-import { usePermissions, useUser } from "~/hooks";
+import { usePermissions, useUrlParams, useUser } from "~/hooks";
 import {
   type MethodItemType,
   type MethodType,
   methodType
 } from "~/modules/shared";
-import { type Item as ItemType, useBom, useItems } from "~/stores";
+import { type Item as ItemType, useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { methodOperationValidator } from "../../items.models";
 import { methodMaterialValidator } from "../../items.models";
@@ -227,7 +227,7 @@ const BillOfMaterial = ({
     if (isReadOnly) return;
     const materialId = nanoid();
     setSelectedItemId(materialId);
-    setSelectedMaterialId(materialId);
+    setSearchParams({ materialId: materialId });
 
     let newOrder = 1;
     if (materials.length) {
@@ -327,7 +327,7 @@ const BillOfMaterial = ({
     });
   }, [materials]);
 
-  const [selectedMaterialId, setSelectedMaterialId] = useBom();
+  const [, setSearchParams] = useUrlParams();
 
   const renderListItem = ({
     item,
@@ -338,7 +338,7 @@ const BillOfMaterial = ({
   }: SortableItemRenderProps<ItemWithData>) => {
     const isOpen = item.id === selectedItemId;
     const onSelectItem = (id: string | null) => {
-      setSelectedMaterialId(id);
+      setSearchParams({ materialId: id });
       setSelectedItemId(id);
     };
 
@@ -350,7 +350,7 @@ const BillOfMaterial = ({
         order={order}
         key={item.id}
         isExpanded={isOpen}
-        isHighlighted={item.id === selectedMaterialId}
+        isHighlighted={item.id === materialId}
         onSelectItem={onSelectItem}
         onToggleItem={onToggleItem}
         onRemoveItem={onRemoveItem}
@@ -724,7 +724,7 @@ function MaterialForm({
 
       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
         <Item
-          disabledItems={[params.itemId!]}
+          blacklist={[params.itemId!]}
           name="itemId"
           label={itemType}
           includeInactive

@@ -735,7 +735,15 @@ export const PurchasingPlanningOrderDrawer = memo(
               </Button>
               <Button
                 variant="primary"
-                onClick={() => onSubmit(selectedItem.id, orders)}
+                onClick={() => {
+                  if (!selectedSupplier) {
+                    toast.error(
+                      "Cannot place order - no supplier associated with this item"
+                    );
+                    return;
+                  }
+                  onSubmit(selectedItem.id, orders);
+                }}
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >

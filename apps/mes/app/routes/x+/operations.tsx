@@ -143,6 +143,10 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     )
   ]);
 
+  if (operations.error) {
+    console.error(operations.error);
+  }
+
   const activeWorkCenters = new Set();
   operations.data?.forEach((op) => {
     if (op.operationStatus === "In Progress") {
@@ -246,6 +250,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
           deadlineType: op.jobDeadlineType,
           customerId: op.jobCustomerId,
           operationQuantity: op.operationQuantity,
+          targetQuantity: op.targetQuantity ?? op.operationQuantity,
           jobReadableId: op.jobReadableId,
           itemReadableId: op.itemReadableId,
           itemDescription: op.itemDescription,

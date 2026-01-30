@@ -1,5 +1,5 @@
 import type { Database } from "@carbon/database";
-import { cn } from "@carbon/react";
+import { cn, Tooltip, TooltipContent, TooltipTrigger } from "@carbon/react";
 import { AiOutlinePartition } from "react-icons/ai";
 import {
   BsExclamationSquareFill,
@@ -193,23 +193,39 @@ export function OperationStatusIcon({
 }: {
   status: Operation["operationStatus"];
 }) {
-  switch (status) {
-    case "Todo":
-      return <TodoStatusIcon className="text-foreground" />;
-    case "Ready":
-      return <TodoStatusIcon className="text-blue-600" />;
-    case "Waiting":
-    case "Canceled":
-      return <LuCircleX className="text-red-600" />;
-    case "Done":
-      return <LuCircleCheck className="text-green-600" />;
-    case "In Progress":
-      return <AlmostDoneIcon />;
-    case "Paused":
-      return <InProgressStatusIcon />;
-    default:
-      return null;
-  }
+  const getIcon = () => {
+    switch (status) {
+      case "Todo":
+        return <TodoStatusIcon className="text-foreground" />;
+      case "Ready":
+        return <TodoStatusIcon className="text-blue-600" />;
+      case "Waiting":
+      case "Canceled":
+        return <LuCircleX className="text-red-600" />;
+      case "Done":
+        return <LuCircleCheck className="text-green-600" />;
+      case "In Progress":
+        return <AlmostDoneIcon />;
+      case "Paused":
+        return <InProgressStatusIcon />;
+      default:
+        return null;
+    }
+  };
+
+  const icon = getIcon();
+  if (!icon) return null;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">{icon}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>{status}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 export const ProcedureStepTypeIcon = ({

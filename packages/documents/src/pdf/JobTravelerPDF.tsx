@@ -1,16 +1,24 @@
 import { getMESUrl } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
+import { formatDurationMinutes } from "@carbon/utils";
 import { Image, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import { generateQRCode } from "../qr/qr-code";
 import type { Company, PDF } from "../types";
 import { Header, Note, Template } from "./components";
 
+type JobOperationStep = Database["public"]["Tables"]["jobOperationStep"]["Row"];
+
+type JobOperationWithSteps =
+  Database["public"]["Tables"]["jobOperation"]["Row"] & {
+    jobOperationStep?: JobOperationStep[];
+  };
+
 interface JobTravelerProps extends PDF {
   job: Database["public"]["Views"]["jobs"]["Row"];
   jobMakeMethod: Database["public"]["Tables"]["jobMakeMethod"]["Row"];
-  jobOperations: Database["public"]["Tables"]["jobOperation"]["Row"][];
+  jobOperations: JobOperationWithSteps[];
   customer: Database["public"]["Tables"]["customer"]["Row"] | null;
   item: Database["public"]["Tables"]["item"]["Row"];
   batchNumber: string | undefined;
@@ -96,6 +104,7 @@ type JobHeaderProps = {
   item: Database["public"]["Tables"]["item"]["Row"];
   batchNumber?: string;
   thumbnail?: string | null;
+  methodRevision?: string | null;
 };
 
 const JobHeader = ({
@@ -104,7 +113,8 @@ const JobHeader = ({
   customer,
   item,
   batchNumber,
-  thumbnail
+  thumbnail,
+  methodRevision
 }: JobHeaderProps) => {
   const getTargetInfo = () => {
     if (job.salesOrderId && job.salesOrderLineId) {
@@ -135,6 +145,13 @@ const JobHeader = ({
             {job.itemReadableIdWithRevision}
           </Text>
         </View>
+
+        {methodRevision && methodRevision !== "0" && (
+          <View style={jobHeaderStyles.infoRow}>
+            <Text style={jobHeaderStyles.label}>Method Revision:</Text>
+            <Text style={jobHeaderStyles.value}>V{methodRevision}</Text>
+          </View>
+        )}
 
         {getTrackingNumber() && (
           <View style={jobHeaderStyles.infoRow}>
@@ -225,8 +242,11 @@ export const JobTravelerPageContent = ({
   item,
   batchNumber,
   notes,
-  thumbnail
-}: Omit<JobTravelerProps, "meta" | "title" | "locale" | "jobMakeMethod">) => {
+  thumbnail,
+  methodRevision
+}: Omit<JobTravelerProps, "meta" | "title" | "locale" | "jobMakeMethod"> & {
+  methodRevision?: string | null;
+}) => {
   const subtitle = batchNumber
     ? batchNumber
     : (item.name ?? item.readableIdWithRevision);
@@ -255,6 +275,7 @@ export const JobTravelerPageContent = ({
           item={item}
           batchNumber={batchNumber}
           thumbnail={thumbnail}
+          methodRevision={methodRevision}
         />
       </View>
 
@@ -266,8 +287,9 @@ export const JobTravelerPageContent = ({
           )}
         >
           <Text style={tw("w-1/12 text-left")}>Seq</Text>
-          <Text style={tw("w-3/12 text-left")}>Operation</Text>
-          <Text style={tw("w-2/3 text-right pr-4")}>Actions</Text>
+          <Text style={tw("w-2/12 text-left")}>Operation</Text>
+          <Text style={tw("w-3/12 text-left")}>Expected Times</Text>
+          <Text style={tw("w-6/12 text-right pr-4")}>Actions</Text>
         </View>
 
         {jobOperations
@@ -302,6 +324,21 @@ export const JobTravelerPageContent = ({
               );
             }
 
+            const setupTimeFormatted = formatDurationMinutes(
+              operation.setupTime,
+              { style: "short" }
+            );
+            const laborTimeFormatted = formatDurationMinutes(
+              operation.laborTime,
+              { style: "short" }
+            );
+            const machineTimeFormatted = formatDurationMinutes(
+              operation.machineTime,
+              { style: "short" }
+            );
+            const hasExpectedTimes =
+              setupTimeFormatted || laborTimeFormatted || machineTimeFormatted;
+
             return (
               <View
                 style={tw(
@@ -314,10 +351,31 @@ export const JobTravelerPageContent = ({
                   <Text style={tw("w-1/12 text-left")}>
                     {getParallelizedOrder(index, operation, jobOperations)}
                   </Text>
-                  <View style={tw("w-3/12 text-left")}>
+                  <View style={tw("w-2/12 text-left")}>
                     <Text style={tw("font-bold")}>{operation.description}</Text>
                   </View>
-                  <View style={tw("w-2/3 flex flex-row justify-end gap-2")}>
+                  <View style={tw("w-3/12 text-left")}>
+                    {hasExpectedTimes && (
+                      <View style={tw("flex flex-col gap-1")}>
+                        {setupTimeFormatted && (
+                          <Text style={tw("text-[8px]")}>
+                            Setup: {setupTimeFormatted}
+                          </Text>
+                        )}
+                        {laborTimeFormatted && (
+                          <Text style={tw("text-[8px]")}>
+                            Labor: {laborTimeFormatted}
+                          </Text>
+                        )}
+                        {machineTimeFormatted && (
+                          <Text style={tw("text-[8px]")}>
+                            Machine: {machineTimeFormatted}
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                  <View style={tw("w-6/12 flex flex-row justify-end gap-2")}>
                     {isInside && setupQrCode && (
                       <View style={tw("flex flex-col items-center w-1/4")}>
                         <>
@@ -356,6 +414,67 @@ export const JobTravelerPageContent = ({
             );
           })}
       </View>
+
+      {/* Work Instructions and Procedure Steps Section */}
+      {/* {jobOperations
+        .sort((a, b) => a.order - b.order)
+        .map((operation) => {
+          const workInstruction = operation.workInstruction as
+            | JSONContent
+            | undefined;
+          const hasWorkInstruction =
+            workInstruction &&
+            typeof workInstruction === "object" &&
+            "content" in workInstruction &&
+            Array.isArray(workInstruction.content) &&
+            workInstruction.content.length > 0;
+
+          const hasProcedureSteps =
+            operation.jobOperationStep && operation.jobOperationStep.length > 0;
+
+          if (!hasWorkInstruction && !hasProcedureSteps) {
+            return null;
+          }
+
+          return (
+            <View key={`instructions-${operation.id}`}>
+              {hasProcedureSteps && (
+                <View>
+                  {operation
+                    .jobOperationStep!.sort((a, b) => a.sortOrder - b.sortOrder)
+                    .map((step) => {
+                      const stepDescription = step.description as
+                        | JSONContent
+                        | undefined;
+                      const hasStepDescription =
+                        stepDescription &&
+                        typeof stepDescription === "object" &&
+                        "content" in stepDescription &&
+                        Array.isArray(stepDescription.content) &&
+                        stepDescription.content.length > 0;
+
+                      return (
+                        <View key={step.id}>
+                          {hasStepDescription && (
+                            <Note
+                              title="Procedure Step"
+                              content={stepDescription}
+                            />
+                          )}
+                          <Text style={tw("text-[8px]")}>{step.name}</Text>
+                        </View>
+                      );
+                    })}
+                </View>
+              )}
+              {hasWorkInstruction && (
+                <View>
+                  <Note title="Work Instructions" content={workInstruction} />
+                </View>
+              )}
+            </View>
+          );
+        })} */}
 
       {/* Notes Section */}
       {notes && (
@@ -398,6 +517,7 @@ const JobTravelerPDF = ({
         batchNumber={batchNumber}
         notes={notes}
         thumbnail={thumbnail}
+        methodRevision={jobMakeMethod.version?.toString()}
       />
     </Template>
   );
