@@ -37756,6 +37756,9 @@ export default {
             $ref: "#/parameters/rowFilter.customer.invoicingContactId",
           },
           {
+            $ref: "#/parameters/rowFilter.customer.isDemo",
+          },
+          {
             $ref: "#/parameters/rowFilter.customer.defaultCc",
           },
           {
@@ -37890,6 +37893,9 @@ export default {
             $ref: "#/parameters/rowFilter.customer.invoicingContactId",
           },
           {
+            $ref: "#/parameters/rowFilter.customer.isDemo",
+          },
+          {
             $ref: "#/parameters/rowFilter.customer.defaultCc",
           },
           {
@@ -37976,6 +37982,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.customer.invoicingContactId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customer.isDemo",
           },
           {
             $ref: "#/parameters/rowFilter.customer.defaultCc",
@@ -54040,6 +54049,9 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.invoicingContactId",
           },
           {
+            $ref: "#/parameters/rowFilter.supplier.isDemo",
+          },
+          {
             $ref: "#/parameters/rowFilter.supplier.defaultCc",
           },
           {
@@ -54175,6 +54187,8 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.supplier.isDemo",
+          },
+          {
             $ref: "#/parameters/rowFilter.supplier.defaultCc",
           },
           {
@@ -54261,6 +54275,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.supplier.invoicingContactId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplier.isDemo",
           },
           {
             $ref: "#/parameters/rowFilter.supplier.defaultCc",
@@ -61100,6 +61117,123 @@ export default {
           },
         },
         tags: ["part"],
+      },
+    },
+    "/demoModule": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.demoModule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.demoModule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.demoModule.description",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/demoModule",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["demoModule"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.demoModule",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["demoModule"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.demoModule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.demoModule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.demoModule.description",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["demoModule"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.demoModule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.demoModule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.demoModule.description",
+          },
+          {
+            $ref: "#/parameters/body.demoModule",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["demoModule"],
       },
     },
     "/approvalRule": {
@@ -83748,6 +83882,11 @@ export default {
           format: "text",
           type: "string",
         },
+        isDemo: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
         defaultCc: {
           format: "text[]",
           items: {
@@ -91873,6 +92012,11 @@ export default {
             "Note:\nThis is a Foreign Key to `supplierContact.id`.<fk table='supplierContact' column='id'/>",
           format: "text",
           type: "string",
+        },
+        isDemo: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
         },
         defaultCc: {
           format: "text[]",
@@ -115443,6 +115587,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.customer.isDemo": {
+      name: "isDemo",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.customer.defaultCc": {
       name: "defaultCc",
       required: false,
@@ -124673,6 +124823,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.supplier.isDemo": {
+      name: "isDemo",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.supplier.defaultCc": {
       name: "defaultCc",
       required: false,
@@ -128407,6 +128563,39 @@ export default {
     },
     "rowFilter.part.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.part.isDemo": {
+      name: "isDemo",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.demoModule": {
+      name: "demoModule",
+      description: "demoModule",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/demoModule",
+      },
+    },
+    "rowFilter.demoModule.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.demoModule.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.demoModule.description": {
+      name: "description",
       required: false,
       in: "query",
       type: "string",
