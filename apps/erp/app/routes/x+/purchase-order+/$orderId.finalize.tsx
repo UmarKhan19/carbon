@@ -9,6 +9,7 @@ import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
 import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend"; // Assuming you have a sendEmail task defined
+import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
 import { tasks } from "@trigger.dev/sdk";
@@ -28,6 +29,8 @@ import {
 import { getCompany, getCompanySettings } from "~/modules/settings";
 import {
   createApprovalRequest,
+  getApprovalRuleByAmount,
+  getApproverUserIdsForRule,
   hasPendingApproval,
   isApprovalRequired
 } from "~/modules/shared";
@@ -111,6 +114,31 @@ export async function action(args: ActionFunctionArgs) {
         createdBy: userId,
         amount: orderAmount
       });
+
+      const rule = await getApprovalRuleByAmount(
+        serviceRole,
+        "purchaseOrder",
+        companyId,
+        orderAmount
+      );
+      const approverIds = rule.data
+        ? await getApproverUserIdsForRule(serviceRole, rule.data)
+        : [];
+
+      if (approverIds.length > 0) {
+        try {
+          await tasks.trigger("notify", {
+            event: NotificationEvent.ApprovalRequested,
+            companyId,
+            documentId: orderId,
+            documentType: "purchaseOrder",
+            recipient: { type: "users", userIds: approverIds },
+            from: userId
+          });
+        } catch (e) {
+          console.error("Failed to trigger approval notification", e);
+        }
+      }
     }
 
     await updatePurchaseOrderStatus(client, {

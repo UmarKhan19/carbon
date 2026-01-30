@@ -1,12 +1,16 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
+import { NotificationEvent } from "@carbon/notifications";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { tasks } from "@trigger.dev/sdk";
 import { type ActionFunctionArgs } from "react-router";
 import { qualityDocumentStatus } from "~/modules/quality/quality.models";
 import {
   canApproveRequest,
   createApprovalRequest,
+  getApprovalRuleByAmount,
+  getApproverUserIdsForRule,
   getLatestApprovalRequestForDocument,
   hasPendingApproval,
   isApprovalRequired
@@ -59,6 +63,32 @@ async function processToActive(
       createdBy: userId,
       amount: undefined
     });
+
+    const rule = await getApprovalRuleByAmount(
+      serviceRole,
+      "qualityDocument",
+      companyId,
+      undefined
+    );
+    const approverIds = rule.data
+      ? await getApproverUserIdsForRule(serviceRole, rule.data)
+      : [];
+
+    if (approverIds.length > 0) {
+      try {
+        await tasks.trigger("notify", {
+          event: NotificationEvent.ApprovalRequested,
+          companyId,
+          documentId: doc.id,
+          documentType: "qualityDocument",
+          recipient: { type: "users", userIds: approverIds },
+          from: userId
+        });
+      } catch (e) {
+        console.error("Failed to trigger approval notification", e);
+      }
+    }
+
     idsToSkipActive.push(doc.id);
     if (doc.status === "Archived") {
       archivedIdsToMoveToDraft.push(doc.id);
