@@ -10,6 +10,8 @@ const payloadSchema = z.object({
   recordId: z.string(),
   description: z.string(),
   event: z.enum([
+    NotificationEvent.ApprovalApproved,
+    NotificationEvent.ApprovalRejected,
     NotificationEvent.ApprovalRequested,
     NotificationEvent.DigitalQuoteResponse,
     NotificationEvent.GaugeCalibrationExpired,
@@ -123,8 +125,8 @@ export const suggestionResponseWorkflow = workflow(
 export const approvalWorkflow = workflow(
   NotificationWorkflow.Approval,
   async ({ payload, step }) => {
-    await step.inApp(NotificationType.ApprovalRequestedInApp, () => ({
-      body: "Approval requested",
+    await step.inApp(NotificationType.ApprovalInApp, () => ({
+      body: payload.description,
       payload
     }));
   },

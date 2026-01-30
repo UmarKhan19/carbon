@@ -18,6 +18,8 @@ export enum NotificationWorkflow {
 }
 
 export enum NotificationEvent {
+  ApprovalApproved = "approval-approved",
+  ApprovalRejected = "approval-rejected",
   ApprovalRequested = "approval-requested",
   DigitalQuoteResponse = "digital-quote-response",
   GaugeCalibrationExpired = "gauge-calibration-expired",
@@ -45,7 +47,7 @@ export enum NotificationEvent {
 }
 
 export enum NotificationType {
-  ApprovalRequestedInApp = "approval-requested-in-app",
+  ApprovalInApp = "approval-in-app",
   AssignmentInApp = "assignment-in-app",
   DigitalQuoteResponseInApp = "digital-quote-response-in-app",
   JobCompletedInApp = "job-completed-in-app",
