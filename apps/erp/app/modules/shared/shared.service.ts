@@ -11,6 +11,7 @@ import type {
   ApprovalRequestForApproveCheck,
   ApprovalRequestForCancelCheck,
   ApprovalRequestForViewCheck,
+  ApprovalRule,
   CreateApprovalRequestInput,
   UpsertApprovalRuleInput
 } from "./types";
@@ -374,6 +375,35 @@ export async function getApprovalRuleByAmount(
     .order("id", { ascending: true })
     .limit(1)
     .maybeSingle();
+}
+
+export async function getApproverUserIdsForRule(
+  client: SupabaseClient<Database>,
+  rule: Pick<ApprovalRule, "approverGroupIds" | "defaultApproverId">
+): Promise<string[]> {
+  const groupIds = rule.approverGroupIds?.filter(Boolean) ?? [];
+  const defaultId = rule.defaultApproverId ?? null;
+
+  const fromGroups =
+    groupIds.length > 0
+      ? await client.rpc("users_for_groups", { groups: groupIds })
+      : { data: [] as string[], error: null };
+
+  if (fromGroups.error) {
+    console.error(
+      "getApproverUserIdsForRule: users_for_groups failed",
+      fromGroups.error
+    );
+    return defaultId ? [defaultId] : [];
+  }
+
+  const ids = Array.isArray(fromGroups.data)
+    ? (fromGroups.data as string[])
+    : [];
+  const combined = defaultId
+    ? [...new Set([...ids, defaultId])]
+    : [...new Set(ids)];
+  return combined;
 }
 
 export async function getApprovalRuleById(
