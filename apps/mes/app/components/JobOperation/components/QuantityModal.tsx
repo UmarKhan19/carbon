@@ -61,7 +61,7 @@ export function QuantityModal({
   onClose: () => void;
 }) {
   const fetcher = useFetcher<ProductionQuantity>();
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(parentIsSerial ? 1 : 0);
 
   const titleMap = {
     scrap: `Log scrap for ${operation.itemReadableId}`,
@@ -197,6 +197,7 @@ export function QuantityModal({
                     label="Quantity"
                     value={quantity}
                     onChange={setQuantity}
+                    isReadOnly={parentIsSerial}
                     minValue={0}
                   />
                 </>
