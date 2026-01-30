@@ -197,7 +197,6 @@ export function QuantityModal({
                     label="Quantity"
                     value={quantity}
                     onChange={setQuantity}
-                    isReadOnly={parentIsSerial}
                     minValue={0}
                   />
                 </>
