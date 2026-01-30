@@ -20,9 +20,9 @@ import { LuEllipsisVertical, LuPencil, LuTrash } from "react-icons/lu";
 import { useNavigate } from "react-router";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { useCurrencyFormatter, usePermissions, useUrlParams } from "~/hooks";
-import type { ApprovalRule } from "~/modules/shared";
 import {
   type ApprovalDocumentType,
+  type ApprovalRule,
   approvalDocumentTypeLabel,
   approvalDocumentTypesWithAmounts
 } from "~/modules/shared";
