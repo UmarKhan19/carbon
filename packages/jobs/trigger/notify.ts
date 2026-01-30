@@ -89,6 +89,8 @@ export const notifyTask = task({
           return NotificationWorkflow.SupplierQuoteResponse;
         case NotificationEvent.JobOperationMessage:
           return NotificationWorkflow.Message;
+        case NotificationEvent.ApprovalApproved:
+        case NotificationEvent.ApprovalRejected:
         case NotificationEvent.ApprovalRequested:
           return NotificationWorkflow.Approval;
         default:
@@ -430,6 +432,56 @@ export const notifyTask = task({
             return `Quality document "${qualityDocumentName}" requires your approval`;
           }
           return `Approval requested`;
+
+        case NotificationEvent.ApprovalApproved:
+          if (documentType === "purchaseOrder") {
+            const poApproved = await client
+              .from("purchaseOrder")
+              .select("purchaseOrderId")
+              .eq("id", documentId)
+              .single();
+            if (poApproved.error || !poApproved.data) {
+              return "Your purchase order was approved";
+            }
+            return `Purchase order ${poApproved.data.purchaseOrderId} was approved`;
+          }
+          if (documentType === "qualityDocument") {
+            const qdApproved = await client
+              .from("qualityDocument")
+              .select("name")
+              .eq("id", documentId)
+              .single();
+            if (qdApproved.error || !qdApproved.data) {
+              return "Your quality document was approved";
+            }
+            return `Quality document "${qdApproved.data.name ?? "Untitled"}" was approved`;
+          }
+          return "Your approval request was approved";
+
+        case NotificationEvent.ApprovalRejected:
+          if (documentType === "purchaseOrder") {
+            const poRejected = await client
+              .from("purchaseOrder")
+              .select("purchaseOrderId")
+              .eq("id", documentId)
+              .single();
+            if (poRejected.error || !poRejected.data) {
+              return "Your purchase order was rejected";
+            }
+            return `Purchase order ${poRejected.data.purchaseOrderId} was rejected`;
+          }
+          if (documentType === "qualityDocument") {
+            const qdRejected = await client
+              .from("qualityDocument")
+              .select("name")
+              .eq("id", documentId)
+              .single();
+            if (qdRejected.error || !qdRejected.data) {
+              return "Your quality document was rejected";
+            }
+            return `Quality document "${qdRejected.data.name ?? "Untitled"}" was rejected`;
+          }
+          return "Your approval request was rejected";
 
         default:
           return null;
