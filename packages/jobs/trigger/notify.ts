@@ -4,6 +4,7 @@ import {
   VERCEL_URL,
 } from "@carbon/auth";
 
+import type { Database } from "@carbon/database";
 import { notifyTaskAssigned } from "@carbon/ee/notifications";
 import {
   getSubscriberId,
@@ -15,6 +16,9 @@ import {
 } from "@carbon/notifications";
 import { Novu } from "@novu/node";
 import { task } from "@trigger.dev/sdk";
+
+type ApprovalDocumentType =
+  Database["public"]["Enums"]["approvalDocumentType"];
 
 const novu = new Novu(NOVU_SECRET_KEY!);
 const isLocal = VERCEL_URL === undefined || VERCEL_URL.includes("localhost");
@@ -34,19 +38,20 @@ export const notifyTask = task({
     companyId: string;
     documentId: string;
     recipient:
-      | {
-          type: "user";
-          userId: string;
-        }
-      | {
-          type: "group";
-          groupIds: string[];
-        }
-      | {
-          type: "users";
-          userIds: string[];
-        };
+    | {
+      type: "user";
+      userId: string;
+    }
+    | {
+      type: "group";
+      groupIds: string[];
+    }
+    | {
+      type: "users";
+      userIds: string[];
+    };
     from?: string;
+    documentType?: ApprovalDocumentType;
   }) => {
     if (isLocal) {
       console.log("Skipping notify task on local", { payload });
@@ -84,12 +89,18 @@ export const notifyTask = task({
           return NotificationWorkflow.SupplierQuoteResponse;
         case NotificationEvent.JobOperationMessage:
           return NotificationWorkflow.Message;
+        case NotificationEvent.ApprovalRequested:
+          return NotificationWorkflow.Approval;
         default:
           return null;
       }
     }
 
-    async function getDescription(type: NotificationEvent, documentId: string) {
+    async function getDescription(
+      type: NotificationEvent,
+      documentId: string,
+      documentType?: ApprovalDocumentType
+    ) {
       switch (type) {
         case NotificationEvent.SalesRfqReady:
         case NotificationEvent.SalesRfqAssignment:
@@ -142,7 +153,7 @@ export const notifyTask = task({
             .select("*")
             .eq("id", documentId)
             .single();
-            
+
           if (maintenanceDispatchCreated.error) {
             console.error("Failed to get maintenanceDispatchCreated", maintenanceDispatchCreated.error);
             throw maintenanceDispatchCreated.error;
@@ -155,7 +166,7 @@ export const notifyTask = task({
             .select("*")
             .eq("id", documentId)
             .single();
-            
+
           if (maintenanceDispatchAssignment.error) {
             console.error("Failed to get maintenanceDispatchAssignment", maintenanceDispatchAssignment.error);
             throw maintenanceDispatchAssignment.error;
@@ -369,7 +380,7 @@ export const notifyTask = task({
             .eq("id", documentId)
             .single();
 
-          
+
           if (supplierQuote.error) {
             console.error("Failed to get supplier quote", supplierQuote.error);
             throw supplierQuote.error;
@@ -378,6 +389,47 @@ export const notifyTask = task({
           const externalNotes = supplierQuote.data.externalNotes as Record<string, unknown> | null;
           const respondedBy = externalNotes?.lastSubmittedBy as string | undefined || "Supplier";
           return `Supplier Quote ${supplierQuote?.data?.supplierQuoteId} was submitted by ${respondedBy}`;
+
+        case NotificationEvent.ApprovalRequested:
+          if (documentType === "purchaseOrder") {
+            const purchaseOrderResult = await client
+              .from("purchaseOrder")
+              .select("purchaseOrderId")
+              .eq("id", documentId)
+              .single();
+
+            if (purchaseOrderResult.error || !purchaseOrderResult.data) {
+              console.error(
+                "Failed to retrieve purchase order for approval notification",
+                purchaseOrderResult.error
+              );
+              return "Purchase order requires your approval";
+            }
+
+            const purchaseOrderId = purchaseOrderResult.data.purchaseOrderId;
+            return `Purchase order ${purchaseOrderId} requires your approval`;
+          }
+
+          if (documentType === "qualityDocument") {
+            const qualityDocumentResult = await client
+              .from("qualityDocument")
+              .select("name")
+              .eq("id", documentId)
+              .single();
+
+            if (qualityDocumentResult.error || !qualityDocumentResult.data) {
+              console.error(
+                "Failed to retrieve quality document for approval notification",
+                qualityDocumentResult.error
+              );
+              return "Quality document requires your approval";
+            }
+
+            const qualityDocumentName =
+              qualityDocumentResult.data.name ?? "Untitled";
+            return `Quality document "${qualityDocumentName}" requires your approval`;
+          }
+          return `Approval requested`;
 
         default:
           return null;
@@ -393,7 +445,11 @@ export const notifyTask = task({
       );
     }
 
-    const description = await getDescription(payload.event, payload.documentId);
+    const description = await getDescription(
+      payload.event,
+      payload.documentId,
+      payload.documentType
+    );
 
     if (!description) {
       console.error(
@@ -448,15 +504,18 @@ export const notifyTask = task({
       }
     }
 
+    const baseNotificationPayload = {
+      recordId: payload.documentId,
+      description,
+      event: payload.event,
+      from: payload.from,
+      ...(payload.documentType && { documentType: payload.documentType }),
+    };
+
     if (payload.recipient.type === "user") {
       const novuPayload = {
         workflow,
-        payload: {
-          recordId: payload.documentId,
-          description,
-          event: payload.event,
-          from: payload.from,
-        },
+        payload: baseNotificationPayload,
         user: {
           subscriberId: getSubscriberId({
             companyId: payload.companyId,
@@ -489,12 +548,12 @@ export const notifyTask = task({
       const userIds =
         payload.recipient.type === "group"
           ? await client.rpc("users_for_groups", {
-              groups: payload.recipient.groupIds,
-            })
+            groups: payload.recipient.groupIds,
+          })
           : {
-              data: payload.recipient.userIds,
-              error: null,
-            };
+            data: payload.recipient.userIds,
+            error: null,
+          };
 
       if (userIds.error) {
         console.error("Failed to get userIds", userIds.error);
@@ -539,12 +598,7 @@ export const notifyTask = task({
       const notificationPayloads: TriggerPayload[] =
         [...new Set(filteredUserIds)].map((userId) => ({
           workflow,
-          payload: {
-            recordId: payload.documentId,
-            description,
-            event: payload.event,
-            from: payload.from,
-          },
+          payload: baseNotificationPayload,
           user: {
             subscriberId: getSubscriberId({
               companyId: payload.companyId,
