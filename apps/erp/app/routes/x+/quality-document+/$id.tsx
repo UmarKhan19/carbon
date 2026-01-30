@@ -8,7 +8,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { Database } from "@carbon/database";
 import { validationError, validator } from "@carbon/form";
+import { NotificationEvent } from "@carbon/notifications";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
@@ -185,6 +187,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       )
     );
+  }
+
+  const requestedBy = approvalRequest.data?.requestedBy;
+  const companyId = approvalRequest.data?.companyId;
+  if (requestedBy && companyId && requestedBy !== userId) {
+    try {
+      await tasks.trigger("notify", {
+        event:
+          decision === "Approved"
+            ? NotificationEvent.ApprovalApproved
+            : NotificationEvent.ApprovalRejected,
+        companyId,
+        documentId: id,
+        documentType: "qualityDocument",
+        recipient: { type: "user", userId: requestedBy },
+        from: userId
+      });
+    } catch (e) {
+      console.error("Failed to trigger approval decision notification", e);
+    }
   }
 
   throw redirect(

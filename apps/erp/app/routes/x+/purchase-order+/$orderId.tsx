@@ -9,6 +9,7 @@ import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
 import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { NotificationEvent } from "@carbon/notifications";
 import { VStack } from "@carbon/react";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
@@ -129,6 +130,25 @@ export async function action(args: ActionFunctionArgs) {
         )
       )
     );
+  }
+
+  const requestedBy = approvalRequest.data?.requestedBy;
+  if (requestedBy && requestedBy !== userId) {
+    try {
+      await tasks.trigger("notify", {
+        event:
+          decision === "Approved"
+            ? NotificationEvent.ApprovalApproved
+            : NotificationEvent.ApprovalRejected,
+        companyId,
+        documentId: orderId,
+        documentType: "purchaseOrder",
+        recipient: { type: "user", userId: requestedBy },
+        from: userId
+      });
+    } catch (e) {
+      console.error("Failed to trigger approval decision notification", e);
+    }
   }
 
   // If approved, handle post-approval tasks: PDF generation, document creation, email, price updates
