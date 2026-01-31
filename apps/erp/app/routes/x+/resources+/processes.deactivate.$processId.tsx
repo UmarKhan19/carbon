@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { Confirm } from "~/components/Modals";
-import { deactivateProcess, getProcess } from "~/modules/resources";
+import { getProcess, processDeactivate } from "~/modules/resources";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -42,16 +42,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const { error: deactivateProcessError } = await deactivateProcess(
+  const { error: processDeactivateError } = await processDeactivate(
     client,
     processId
   );
-  if (deactivateProcessError) {
+  if (processDeactivateError) {
     throw redirect(
       path.to.processes,
       await flash(
         request,
-        error(deactivateProcessError, "Failed to deactivate process")
+        error(processDeactivateError, "Failed to deactivate process")
       )
     );
   }
@@ -74,7 +74,7 @@ export default function DeactivateProcessRoute() {
 
   return (
     <Confirm
-      action={path.to.deactivateProcess(processId)}
+      action={path.to.processDeactivate(processId)}
       title={`Deactivate ${process.name}`}
       text={`Are you sure you want to deactivate the process: ${process.name}? It will no longer appear in dropdowns.`}
       confirmText="Deactivate"

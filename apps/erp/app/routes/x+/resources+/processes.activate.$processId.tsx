@@ -87,7 +87,7 @@ export default function ActivateProcessRoute() {
 
   return (
     <Confirm
-      action={path.to.activateProcess(processId)}
+      action={path.to.processActivate(processId)}
       title={`Activate ${process.name}`}
       text={`Are you sure you want to activate the process: ${process.name}? It will appear in dropdowns again.`}
       confirmText="Activate"

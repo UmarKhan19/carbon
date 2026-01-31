@@ -530,8 +530,7 @@ export const path = {
       generatePath(`${x}/settings/custom-fields/${table}`),
     customFieldList: (id: string) =>
       generatePath(`${x}/settings/custom-fields/${id}`),
-    deactivateGauge: (id: string) =>
-      generatePath(`${x}/quality/gauges/deactivate/${id}`),
+
     deactivateUsers: `${x}/users/deactivate`,
     defaultRevision: (id: string) =>
       generatePath(`${x}/items/revisions/default/${id}`),
@@ -802,6 +801,8 @@ export const path = {
     gaugeCalibrationRecord: (id: string) =>
       generatePath(`${x}/quality/calibrations/${id}`),
     gaugeCalibrationRecords: `${x}/quality/calibrations`,
+    gaugeDeactivate: (id: string) =>
+      generatePath(`${x}/quality/gauges/deactivate/${id}`),
     gaugeTypes: `${x}/quality/gauge-types`,
     gaugeType: (id: string) => generatePath(`${x}/quality/gauge-types/${id}`),
     group: (id: string) => generatePath(`${x}/users/groups/${id}`),
@@ -1233,9 +1234,12 @@ export const path = {
     procedures: `${x}/production/procedures`,
     process: (id: string) => generatePath(`${x}/resources/processes/${id}`),
     processes: `${x}/resources/processes`,
+    processActivate: (id: string) =>
+      generatePath(`${x}/resources/processes/activate/${id}`),
+    processDeactivate: (id: string) =>
+      generatePath(`${x}/resources/processes/deactivate/${id}`),
     production: `${x}/production`,
     productionPlanning: `${x}/production/planning`,
-
     productionPlanningItem: (itemId: string) =>
       generatePath(`${x}/production/planning/${itemId}`),
     productionSettings: `${x}/settings/production`,
@@ -1591,11 +1595,7 @@ export const path = {
     workCenter: (id: string) =>
       generatePath(`${x}/resources/work-centers/${id}`),
     workCenterActivate: (id: string) =>
-      generatePath(`${x}/resources/work-centers/activate/${id}`),
-    activateProcess: (id: string) =>
-      generatePath(`${x}/resources/processes/activate/${id}`),
-    deactivateProcess: (id: string) =>
-      generatePath(`${x}/resources/processes/deactivate/${id}`)
+      generatePath(`${x}/resources/work-centers/activate/${id}`)
   }
 } as const;
 

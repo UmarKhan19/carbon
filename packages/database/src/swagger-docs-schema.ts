@@ -15175,6 +15175,9 @@ export default {
             $ref: "#/parameters/rowFilter.process.completeAllOnScan",
           },
           {
+            $ref: "#/parameters/rowFilter.process.active",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -15270,6 +15273,9 @@ export default {
             $ref: "#/parameters/rowFilter.process.completeAllOnScan",
           },
           {
+            $ref: "#/parameters/rowFilter.process.active",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -15317,6 +15323,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.process.completeAllOnScan",
+          },
+          {
+            $ref: "#/parameters/rowFilter.process.active",
           },
           {
             $ref: "#/parameters/body.process",
@@ -45745,6 +45754,9 @@ export default {
             $ref: "#/parameters/rowFilter.processes.completeAllOnScan",
           },
           {
+            $ref: "#/parameters/rowFilter.processes.active",
+          },
+          {
             $ref: "#/parameters/rowFilter.processes.workCenters",
           },
           {
@@ -72798,6 +72810,7 @@ export default {
         "createdAt",
         "processType",
         "completeAllOnScan",
+        "active",
       ],
       properties: {
         id: {
@@ -72872,6 +72885,11 @@ export default {
         },
         completeAllOnScan: {
           default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        active: {
+          default: true,
           format: "boolean",
           type: "boolean",
         },
@@ -87030,6 +87048,10 @@ export default {
           type: "array",
         },
         completeAllOnScan: {
+          format: "boolean",
+          type: "boolean",
+        },
+        active: {
           format: "boolean",
           type: "boolean",
         },
@@ -103040,6 +103062,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.process.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.postingGroupInventory": {
       name: "postingGroupInventory",
       description: "postingGroupInventory",
@@ -118953,6 +118981,12 @@ export default {
     },
     "rowFilter.processes.completeAllOnScan": {
       name: "completeAllOnScan",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.processes.active": {
+      name: "active",
       required: false,
       in: "query",
       type: "string",

@@ -135,7 +135,7 @@ export async function activateProcess(
   return client.from("process").update({ active: true }).eq("id", processId);
 }
 
-export async function deactivateProcess(
+export async function processDeactivate(
   client: SupabaseClient<Database>,
   processId: string
 ) {

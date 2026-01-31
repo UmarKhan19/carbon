@@ -255,7 +255,7 @@ const ProcessesTable = memo(({ data, count }: ProcessesTableProps) => {
               disabled={!permissions.can("delete", "resources")}
               onClick={() => {
                 navigate(
-                  `${path.to.deactivateProcess(row.id!)}?${params.toString()}`
+                  `${path.to.processDeactivate(row.id!)}?${params.toString()}`
                 );
               }}
             >
@@ -267,7 +267,7 @@ const ProcessesTable = memo(({ data, count }: ProcessesTableProps) => {
               disabled={!permissions.can("delete", "resources")}
               onClick={() => {
                 navigate(
-                  `${path.to.activateProcess(row.id!)}?${params.toString()}`
+                  `${path.to.processActivate(row.id!)}?${params.toString()}`
                 );
               }}
             >

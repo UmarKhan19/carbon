@@ -22414,6 +22414,7 @@ export type Database = {
       }
       process: {
         Row: {
+          active: boolean
           companyId: string
           completeAllOnScan: boolean
           createdAt: string
@@ -22428,6 +22429,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          active?: boolean
           companyId: string
           completeAllOnScan?: boolean
           createdAt?: string
@@ -22442,6 +22444,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          active?: boolean
           companyId?: string
           completeAllOnScan?: boolean
           createdAt?: string
@@ -46316,6 +46319,7 @@ export type Database = {
       }
       processes: {
         Row: {
+          active: boolean | null
           companyId: string | null
           completeAllOnScan: boolean | null
           createdAt: string | null
