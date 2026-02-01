@@ -104,9 +104,19 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedMaterialId = searchParams.get("materialId");
+  const isDetailsRoute =
+    jobId && location.pathname === path.to.jobDetails(jobId);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: supress
   useEffect(() => {
     if (!selectedMaterialId) {
+      if (isDetailsRoute) {
+        const rootNode = method.find((m) => m.data.isRoot);
+        if (rootNode) {
+          selectNode(rootNode.id);
+          return;
+        }
+      }
       deselectAllNodes();
       return;
     }
@@ -463,7 +473,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
 
 function getNodePath(node: FlatTreeItem<JobMethod>) {
   return node.data.isRoot
-    ? path.to.jobMethod(node.data.jobId, node.data.jobMaterialMakeMethodId)
+    ? path.to.jobDetails(node.data.jobId)
     : node.data.methodType === "Make"
       ? path.to.jobMakeMethod(
           node.data.jobId,

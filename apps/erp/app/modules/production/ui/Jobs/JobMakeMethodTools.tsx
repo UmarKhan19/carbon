@@ -114,7 +114,9 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
   const getMethodModal = useDisclosure();
   const saveMethodModal = useDisclosure();
 
-  const isJobMethod = pathname === path.to.jobMethod(jobId, methodId!);
+  const isJobDetails = pathname === path.to.jobDetails(jobId);
+  const isJobMethod =
+    isJobDetails || pathname === path.to.jobMethod(jobId, methodId!);
   const isJobMakeMethod =
     methodId && pathname === path.to.jobMakeMethod(jobId, methodId);
 
