@@ -405,7 +405,6 @@ export const supplierQuoteLineValidator = z.object({
 
 export const purchasingRfqStatusType = [
   "Draft",
-  "Ready for request",
   "Requested",
   "Closed"
 ] as const;

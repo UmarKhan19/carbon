@@ -164,12 +164,13 @@ const PurchasingRFQHeader = () => {
                   >
                     <DropdownMenuIcon icon={<LuShare2 />} />
                     {supplier.supplier.name}
-                    {supplier.quoteExternalLinkId && (
-                      <Copy
-                        className="ml-2"
-                        text={`${window.location.origin}${path.to.externalSupplierQuote(supplier.quoteExternalLinkId)}`}
-                      />
-                    )}
+                    {supplier.quoteExternalLinkId &&
+                      typeof window !== "undefined" && (
+                        <Copy
+                          className="ml-2"
+                          text={`${window.location.origin}${path.to.externalSupplierQuote(supplier.quoteExternalLinkId)}`}
+                        />
+                      )}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

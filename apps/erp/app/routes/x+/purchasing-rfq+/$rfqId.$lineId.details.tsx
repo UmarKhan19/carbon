@@ -147,7 +147,7 @@ export default function PurchasingRFQLine() {
               files={resolvedFiles ?? []}
               id={rfqId}
               lineId={lineId}
-              type="Purchasing RFQ"
+              type="Purchasing Request for Quote"
             />
           )}
         </Await>

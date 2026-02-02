@@ -70507,7 +70507,7 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -70556,7 +70556,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -74486,7 +74486,7 @@ export default {
         },
         status: {
           default: "Draft",
-          enum: ["Draft", "Ready for request", "Requested", "Closed"],
+          enum: ["Draft", "Requested", "Closed"],
           format: 'public."purchasingRfqStatus"',
           type: "string",
         },
@@ -77822,7 +77822,7 @@ export default {
           type: "integer",
         },
         status: {
-          enum: ["Draft", "Ready for request", "Requested", "Closed"],
+          enum: ["Draft", "Requested", "Closed"],
           format: 'public."purchasingRfqStatus"',
           type: "string",
         },
@@ -79530,6 +79530,7 @@ export default {
             "Issue",
             "Gauge Calibration Record",
             "Purchasing Request for Quote",
+            "Supplier Quote",
           ],
           format: 'public."documentSourceType"',
           type: "string",
@@ -90003,6 +90004,7 @@ export default {
             "Issue",
             "Gauge Calibration Record",
             "Purchasing Request for Quote",
+            "Supplier Quote",
           ],
           format: 'public."documentSourceType"',
           type: "string",

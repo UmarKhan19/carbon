@@ -9,8 +9,6 @@ const PurchasingRFQStatus = ({ status }: PurchasingRFQStatusProps) => {
   switch (status) {
     case "Draft":
       return <Status color="gray">{status}</Status>;
-    case "Ready for request":
-      return <Status color="blue">Ready for request</Status>;
     case "Requested":
       return <Status color="green">{status}</Status>;
     case "Closed":

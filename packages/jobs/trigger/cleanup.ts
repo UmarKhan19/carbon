@@ -84,7 +84,7 @@ export const cleanup = schedules.task({
       const expiredRfqs = await serviceRole
         .from("purchasingRfq")
         .select("*")
-        .in("status", ["Draft", "Ready for request", "Requested"])
+        .in("status", ["Draft", "Requested"])
         .not("dueDate", "is", null)
         .lt("dueDate", new Date().toISOString());
 
