@@ -54,6 +54,8 @@ type BoMExplorerProps = {
   methodId?: string;
   operations?: MethodOperation[];
   selectedId?: string;
+  filterText?: string;
+  hideSearch?: boolean;
 };
 
 const BoMExplorer = ({
@@ -61,9 +63,12 @@ const BoMExplorer = ({
   makeMethod,
   methods,
   methodId: methodIdProp,
-  selectedId
+  selectedId,
+  filterText: filterTextProp,
+  hideSearch
 }: BoMExplorerProps) => {
-  const [filterText, setFilterText] = useState("");
+  const [filterTextInternal, setFilterTextInternal] = useState("");
+  const filterText = filterTextProp ?? filterTextInternal;
   const parentRef = useRef<HTMLDivElement>(null);
   const integrations = useIntegrations();
   const params = useParams();
@@ -148,103 +153,111 @@ const BoMExplorer = ({
   return (
     <>
       <VStack className="h-full">
-        <HStack className="w-full justify-between flex-shrink-0">
-          <InputGroup size="sm" className="flex flex-grow">
-            <InputLeftElement>
-              <LuSearch className="h-4 w-4" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search..."
-              value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
-            />
-          </InputGroup>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <IconButton
-                aria-label="Actions"
-                variant="secondary"
-                size="sm"
-                icon={<LuEllipsisVertical />}
+        {!hideSearch && (
+          <HStack className="w-full justify-between flex-shrink-0">
+            <InputGroup size="sm" className="flex flex-grow">
+              <InputLeftElement>
+                <LuSearch className="h-4 w-4" />
+              </InputLeftElement>
+              <Input
+                placeholder="Search..."
+                value={filterText}
+                onChange={(e) => setFilterTextInternal(e.target.value)}
               />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <DropdownMenuIcon icon={<LuDownload />} />
-                  Export
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={path.to.api.billOfMaterialsCsv(makeMethodId, false)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <DropdownMenuIcon icon={<LuTable />} />
-                      <div className="flex flex-grow items-center gap-4 justify-between">
-                        <span>BoM</span>
-                        <Badge variant="green" className="text-xs">
-                          CSV
-                        </Badge>
-                      </div>
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={path.to.api.billOfMaterialsCsv(makeMethodId, true)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <DropdownMenuIcon icon={<LuTable />} />
-                      <div className="flex flex-grow items-center gap-4 justify-between">
-                        <span>BoM + BoP</span>
-                        <Badge variant="green" className="text-xs">
-                          CSV
-                        </Badge>
-                      </div>
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={path.to.api.billOfMaterials(makeMethodId, false)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <DropdownMenuIcon icon={<LuBraces />} />
-                      <div className="flex flex-grow items-center gap-4 justify-between">
-                        <span>BoM</span>
-                        <Badge variant="outline" className="text-xs">
-                          JSON
-                        </Badge>
-                      </div>
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={path.to.api.billOfMaterials(makeMethodId, true)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <DropdownMenuIcon icon={<LuBraces />} />
-                      <div className="flex flex-grow items-center gap-4 justify-between">
-                        <span>BoM + BoP</span>
-                        <Badge variant="outline" className="text-xs">
-                          JSON
-                        </Badge>
-                      </div>
-                    </a>
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              {/* <DropdownMenuItem onClick={importBomDisclosure.onOpen}>
+            </InputGroup>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <IconButton
+                  aria-label="Actions"
+                  variant="secondary"
+                  size="sm"
+                  icon={<LuEllipsisVertical />}
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <DropdownMenuIcon icon={<LuDownload />} />
+                    Export
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={path.to.api.billOfMaterialsCsv(
+                          makeMethodId,
+                          false
+                        )}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <DropdownMenuIcon icon={<LuTable />} />
+                        <div className="flex flex-grow items-center gap-4 justify-between">
+                          <span>BoM</span>
+                          <Badge variant="green" className="text-xs">
+                            CSV
+                          </Badge>
+                        </div>
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={path.to.api.billOfMaterialsCsv(
+                          makeMethodId,
+                          true
+                        )}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <DropdownMenuIcon icon={<LuTable />} />
+                        <div className="flex flex-grow items-center gap-4 justify-between">
+                          <span>BoM + BoP</span>
+                          <Badge variant="green" className="text-xs">
+                            CSV
+                          </Badge>
+                        </div>
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={path.to.api.billOfMaterials(makeMethodId, false)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <DropdownMenuIcon icon={<LuBraces />} />
+                        <div className="flex flex-grow items-center gap-4 justify-between">
+                          <span>BoM</span>
+                          <Badge variant="outline" className="text-xs">
+                            JSON
+                          </Badge>
+                        </div>
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={path.to.api.billOfMaterials(makeMethodId, true)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <DropdownMenuIcon icon={<LuBraces />} />
+                        <div className="flex flex-grow items-center gap-4 justify-between">
+                          <span>BoM + BoP</span>
+                          <Badge variant="outline" className="text-xs">
+                            JSON
+                          </Badge>
+                        </div>
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                {/* <DropdownMenuItem onClick={importBomDisclosure.onOpen}>
                 <DropdownMenuIcon icon={<LuUpload />} />
                 Import
               </DropdownMenuItem> */}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </HStack>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </HStack>
+        )}
         {integrations.has("onshape") && (
           <div className="flex flex-shrink-0 w-full">
             <OnshapeSync
@@ -379,6 +392,91 @@ const BoMExplorer = ({
 };
 
 export default BoMExplorer;
+
+export function BoMActions({ makeMethodId }: { makeMethodId: string }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <IconButton
+          aria-label="Actions"
+          variant="secondary"
+          size="sm"
+          icon={<LuEllipsisVertical />}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <DropdownMenuIcon icon={<LuDownload />} />
+            Export
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem asChild>
+              <a
+                href={path.to.api.billOfMaterialsCsv(makeMethodId, false)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <DropdownMenuIcon icon={<LuTable />} />
+                <div className="flex flex-grow items-center gap-4 justify-between">
+                  <span>BoM</span>
+                  <Badge variant="green" className="text-xs">
+                    CSV
+                  </Badge>
+                </div>
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a
+                href={path.to.api.billOfMaterialsCsv(makeMethodId, true)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <DropdownMenuIcon icon={<LuTable />} />
+                <div className="flex flex-grow items-center gap-4 justify-between">
+                  <span>BoM + BoP</span>
+                  <Badge variant="green" className="text-xs">
+                    CSV
+                  </Badge>
+                </div>
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a
+                href={path.to.api.billOfMaterials(makeMethodId, false)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <DropdownMenuIcon icon={<LuBraces />} />
+                <div className="flex flex-grow items-center gap-4 justify-between">
+                  <span>BoM</span>
+                  <Badge variant="outline" className="text-xs">
+                    JSON
+                  </Badge>
+                </div>
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a
+                href={path.to.api.billOfMaterials(makeMethodId, true)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <DropdownMenuIcon icon={<LuBraces />} />
+                <div className="flex flex-grow items-center gap-4 justify-between">
+                  <span>BoM + BoP</span>
+                  <Badge variant="outline" className="text-xs">
+                    JSON
+                  </Badge>
+                </div>
+              </a>
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function NodeText({ node }: { node: FlatTreeItem<Method> }) {
   return (

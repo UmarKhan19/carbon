@@ -2,14 +2,15 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
-  Spinner,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Spinner
 } from "@carbon/react";
 import { useRouteData } from "@carbon/remix";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
+import { LuSearch } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Await,
@@ -31,7 +32,7 @@ import {
   getSupplierParts,
   getTool
 } from "~/modules/items";
-import { BoMExplorer } from "~/modules/items/ui/Item";
+import { BoMActions, BoMExplorer } from "~/modules/items/ui/Item";
 import type { UsedInNode } from "~/modules/items/ui/Item/UsedIn";
 import { UsedInSkeleton, UsedInTree } from "~/modules/items/ui/Item/UsedIn";
 import { ToolHeader, ToolProperties } from "~/modules/items/ui/Tools";
@@ -116,7 +117,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function ToolRoute() {
-  const { itemId, makeMethodId } = useParams();
+  const { itemId } = useParams();
   if (!itemId) throw new Error("Could not find itemId");
 
   const toolData = useRouteData<{
@@ -130,7 +131,7 @@ export default function ToolRoute() {
 
   const isManufactured = toolData.toolSummary?.replenishmentSystem !== "Buy";
 
-  const defaultTab = makeMethodId ? "manufacturing" : "used-in";
+  const [filterText, setFilterText] = useState("");
 
   return (
     <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
@@ -139,18 +140,66 @@ export default function ToolRoute() {
         <div className="flex flex-grow overflow-hidden">
           <ResizablePanels
             explorer={
-              <Tabs defaultValue={defaultTab} className="flex flex-col h-full">
-                {isManufactured && (
-                  <div className="p-2 pb-0">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="used-in">Used In</TabsTrigger>
-                      <TabsTrigger value="manufacturing">
+              <div className="flex flex-col h-full">
+                <HStack className="w-full justify-between flex-shrink-0 p-2 pb-0">
+                  <InputGroup size="sm" className="flex flex-grow">
+                    <InputLeftElement>
+                      <LuSearch className="h-4 w-4" />
+                    </InputLeftElement>
+                    <Input
+                      placeholder="Search..."
+                      value={filterText}
+                      onChange={(e) => setFilterText(e.target.value)}
+                    />
+                  </InputGroup>
+                  {isManufactured && (
+                    <Suspense fallback={null}>
+                      <Await resolve={methodTree}>
+                        {(resolved) =>
+                          resolved ? (
+                            <BoMActions makeMethodId={resolved.makeMethod.id} />
+                          ) : null
+                        }
+                      </Await>
+                    </Suspense>
+                  )}
+                </HStack>
+                <div className="flex-1 overflow-y-auto">
+                  {isManufactured && (
+                    <>
+                      <h4 className="text-sm text-muted-foreground px-4 pt-2">
                         Manufacturing
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
-                )}
-                <TabsContent value="used-in" className="flex-1 overflow-y-auto">
+                      </h4>
+                      <Suspense
+                        fallback={
+                          <div className="flex w-full items-center justify-center p-4">
+                            <Spinner className="h-6 w-6" />
+                          </div>
+                        }
+                      >
+                        <Await resolve={methodTree}>
+                          {(resolved) =>
+                            resolved ? (
+                              <div className="w-full p-2">
+                                <BoMExplorer
+                                  itemType="Tool"
+                                  makeMethod={resolved.makeMethod}
+                                  // @ts-ignore
+                                  methods={resolved.methods}
+                                  methodId={resolved.makeMethod.id}
+                                  filterText={filterText}
+                                  hideSearch
+                                />
+                              </div>
+                            ) : null
+                          }
+                        </Await>
+                      </Suspense>
+                    </>
+                  )}
+                  <h4 className="text-sm text-muted-foreground px-4 pt-2">
+                    Used In
+                  </h4>
                   <Suspense fallback={<UsedInSkeleton />}>
                     <Await resolve={usedIn}>
                       {(resolvedUsedIn) => {
@@ -270,43 +319,15 @@ export default function ToolRoute() {
                             itemReadableIdWithRevision={
                               toolData.toolSummary?.readableIdWithRevision ?? ""
                             }
+                            filterText={filterText}
+                            hideSearch
                           />
                         );
                       }}
                     </Await>
                   </Suspense>
-                </TabsContent>
-                {isManufactured && (
-                  <TabsContent
-                    value="manufacturing"
-                    className="flex-1 overflow-y-auto"
-                  >
-                    <Suspense
-                      fallback={
-                        <div className="flex w-full h-full items-center justify-center p-4">
-                          <Spinner className="h-6 w-6" />
-                        </div>
-                      }
-                    >
-                      <Await resolve={methodTree}>
-                        {(resolved) =>
-                          resolved ? (
-                            <div className="w-full h-full p-2">
-                              <BoMExplorer
-                                itemType="Tool"
-                                makeMethod={resolved.makeMethod}
-                                // @ts-ignore
-                                methods={resolved.methods}
-                                methodId={resolved.makeMethod.id}
-                              />
-                            </div>
-                          ) : null
-                        }
-                      </Await>
-                    </Suspense>
-                  </TabsContent>
-                )}
-              </Tabs>
+                </div>
+              </div>
             }
             content={
               <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
