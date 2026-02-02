@@ -38,11 +38,9 @@ import {
   LuChevronDown,
   LuCirclePlus,
   LuCopy,
-  LuEye,
   LuGitBranch,
   LuGitFork,
   LuGitMerge,
-  LuPencil,
   LuStar,
   LuTriangleAlert
 } from "react-icons/lu";
@@ -65,17 +63,20 @@ type MakeMethodToolsProps = {
   itemId: string;
   type: MethodItemType;
   makeMethods: MakeMethod[];
+  currentMethodId?: string;
 };
 
 const MakeMethodTools = ({
   itemId,
   makeMethods,
-  type
+  type,
+  currentMethodId
 }: MakeMethodToolsProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<{ error: string | null }>();
   const params = useParams();
   const { methodId, makeMethodId } = params;
+  const activeMethodId = currentMethodId ?? makeMethodId ?? methodId;
 
   const isGetMethodLoading =
     fetcher.state !== "idle" && fetcher.formAction === path.to.makeMethodGet;
@@ -97,7 +98,6 @@ const MakeMethodTools = ({
   const activeMethodModal = useDisclosure();
   const itemLink = type && itemId ? getLinkToItemDetails(type, itemId) : null;
 
-  const activeMethodId = makeMethodId ?? methodId;
   const activeMethod =
     makeMethods.find((m) => m.id === activeMethodId) ?? makeMethods[0];
 
@@ -154,46 +154,36 @@ const MakeMethodTools = ({
                   {makeMethods
                     .sort((a, b) => b.version - a.version)
                     .map((makeMethod) => {
-                      const isCurrent =
-                        (makeMethod.id === methodId &&
-                          makeMethodId === undefined) ||
-                        makeMethod.id === makeMethodId;
-
-                      const isReadOnly = makeMethod.status !== "Draft";
+                      const isCurrent = makeMethod.id === activeMethodId;
 
                       return (
                         <DropdownMenuSub key={makeMethod.id}>
-                          <DropdownMenuSubTrigger className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2">
-                              <LuCheck
-                                className={cn(!isCurrent && "opacity-0")}
+                          <DropdownMenuSubTrigger>
+                            <Link
+                              to={getPathToMakeMethod(
+                                type,
+                                itemId,
+                                makeMethod.id
+                              )}
+                              className="flex items-center justify-between gap-4"
+                            >
+                              <div className="flex items-center gap-2">
+                                <LuCheck
+                                  className={cn(!isCurrent && "opacity-0")}
+                                />
+                                <span>Version {makeMethod.version}</span>
+                              </div>
+                              <MakeMethodVersionStatus
+                                status={makeMethod.status}
+                                isActive={
+                                  makeMethod.status === "Active" ||
+                                  makeMethods.length === 1
+                                }
                               />
-                              <span>Version {makeMethod.version}</span>
-                            </div>
-                            <MakeMethodVersionStatus
-                              status={makeMethod.status}
-                              isActive={
-                                makeMethod.status === "Active" ||
-                                makeMethods.length === 1
-                              }
-                            />
+                            </Link>
                           </DropdownMenuSubTrigger>
                           <DropdownMenuPortal>
                             <DropdownMenuSubContent>
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  to={getPathToMakeMethod(
-                                    type,
-                                    itemId,
-                                    makeMethod.id
-                                  )}
-                                >
-                                  <DropdownMenuIcon
-                                    icon={isReadOnly ? <LuEye /> : <LuPencil />}
-                                  />
-                                  {isReadOnly ? "View Version" : "Edit Version"}
-                                </Link>
-                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => {
                                   flushSync(() => {
@@ -205,7 +195,7 @@ const MakeMethodTools = ({
                                 <DropdownMenuIcon icon={<LuCopy />} />
                                 Copy Version
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator />
+
                               {/* <DropdownMenuItem
                                 destructive
                                 disabled={

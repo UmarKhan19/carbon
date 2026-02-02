@@ -51,7 +51,8 @@ type BoMExplorerProps = {
   itemType: MethodItemType;
   makeMethod: MakeMethod;
   methods: FlatTreeItem<Method>[];
-  operations: MethodOperation[];
+  methodId?: string;
+  operations?: MethodOperation[];
   selectedId?: string;
 };
 
@@ -59,6 +60,7 @@ const BoMExplorer = ({
   itemType,
   makeMethod,
   methods,
+  methodId: methodIdProp,
   selectedId
 }: BoMExplorerProps) => {
   const [filterText, setFilterText] = useState("");
@@ -114,8 +116,9 @@ const BoMExplorer = ({
   const navigate = useNavigate();
   const location = useOptimisticLocation();
 
-  const { itemId, methodId } = params;
+  const { itemId } = params;
   if (!itemId) throw new Error("itemId not found");
+  const methodId = methodIdProp ?? params.methodId;
   if (!methodId) throw new Error("methodId not found");
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -283,17 +286,20 @@ const BoMExplorer = ({
                               methodId,
                               node.data.methodType === "Make"
                                 ? node.data.materialMakeMethodId
-                                : node.data.makeMethodId
+                                : node.data.makeMethodId,
+                              node
                             );
 
-                        if (location.pathname !== nodePath) {
-                          navigate(
-                            `${nodePath}?materialId=${node.data.methodMaterialId}`,
-                            { replace: true }
-                          );
+                        const separator = nodePath.includes("?") ? "&" : "?";
+                        const fullPath = `${nodePath}${separator}materialId=${node.data.methodMaterialId}`;
+                        const nodePathname = nodePath.split("?")[0];
+
+                        if (location.pathname !== nodePathname) {
+                          navigate(fullPath, { replace: true });
                         } else {
-                          setSearchParams({
-                            materialId: node.data.methodMaterialId
+                          setSearchParams((prev) => {
+                            prev.set("materialId", node.data.methodMaterialId);
+                            return prev;
                           });
                         }
                       }}
@@ -513,9 +519,9 @@ function getRootLink(
 ) {
   switch (itemType) {
     case "Part":
-      return path.to.partMakeMethod(itemId, methodId);
+      return `${path.to.partDetails(itemId)}?methodId=${methodId}`;
     case "Tool":
-      return path.to.toolMakeMethod(itemId, methodId);
+      return `${path.to.toolDetails(itemId)}?methodId=${methodId}`;
     default:
       throw new Error(`Unimplemented BoMExplorer itemType: ${itemType}`);
   }
@@ -525,13 +531,14 @@ function getMaterialLink(
   itemType: MethodItemType,
   itemId: string,
   methodId: string,
-  makeMethodId: string
+  makeMethodId: string,
+  node: FlatTreeItem<Method>
 ) {
   switch (itemType) {
     case "Part":
-      return path.to.partManufacturingMaterial(itemId, methodId, makeMethodId);
+      return `${path.to.partMake(itemId, makeMethodId)}?methodId=${methodId}`;
     case "Tool":
-      return path.to.toolManufacturingMaterial(itemId, methodId, makeMethodId);
+      return `${path.to.toolMake(itemId, makeMethodId)}?methodId=${methodId}`;
     default:
       throw new Error(`Unimplemented BoMExplorer itemType: ${itemType}`);
   }

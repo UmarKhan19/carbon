@@ -3,19 +3,11 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
 import { Menubar, VStack } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
-import type { z } from "zod";
 import { CadModel } from "~/components";
 import { usePermissions } from "~/hooks/usePermissions";
-import type {
-  ConfigurationParameter,
-  ConfigurationParameterGroup,
-  ConfigurationRule,
-  itemManufacturingValidator
-} from "~/modules/items";
 import {
   getMakeMethodById,
   getMakeMethods,
@@ -54,7 +46,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (makeMethod.error) {
     throw redirect(
-      path.to.partDetails(itemId),
+      path.to.toolDetails(itemId),
       await flash(
         request,
         error(makeMethod.error, "Failed to load make method")
@@ -64,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (methodOperations.error) {
     throw redirect(
-      path.to.partDetails(itemId),
+      path.to.toolDetails(itemId),
       await flash(
         request,
         error(methodOperations.error, "Failed to load method operations")
@@ -73,7 +65,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
   if (methodMaterials.error) {
     throw redirect(
-      path.to.partDetails(itemId),
+      path.to.toolDetails(itemId),
       await flash(
         request,
         error(methodMaterials.error, "Failed to load method materials")
@@ -83,7 +75,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     makeMethod: makeMethod.data,
-
     methodMaterials:
       methodMaterials.data?.map((m) => ({
         ...m,
@@ -106,33 +97,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         workCenterId: operation.workCenterId ?? undefined,
         workInstruction: operation.workInstruction as JSONContent | null
       })) ?? [],
-    makeMethods: getMakeMethods(client, makeMethod.data.itemId, companyId),
     model: getModelByItemId(client, makeMethod.data.itemId),
+    makeMethods: getMakeMethods(client, makeMethod.data.itemId, companyId),
     tags: tags.data ?? []
   };
 }
 
-export default function MethodMaterialMakePage() {
+export default function ToolMakeMethodPage() {
   const loaderData = useLoaderData<typeof loader>();
   const permissions = usePermissions();
   const { makeMethod, makeMethods, methodMaterials, methodOperations, tags } =
     loaderData;
 
-  const { itemId, methodId, makeMethodId } = useParams();
+  const { itemId, makeMethodId } = useParams();
   if (!itemId) throw new Error("Could not find itemId");
-  if (!methodId) throw new Error("Could not find methodId");
   if (!makeMethodId) throw new Error("Could not find makeMethodId");
-
-  const routeData = useRouteData<{
-    partManufacturing: z.infer<typeof itemManufacturingValidator> & {
-      customFields: Record<string, string>;
-    };
-    configurationParametersAndGroups: {
-      groups: ConfigurationParameterGroup[];
-      parameters: ConfigurationParameter[];
-    };
-    configurationRules: ConfigurationRule[];
-  }>(path.to.partMethod(itemId, methodId));
 
   return (
     <VStack spacing={2} className="p-2">
@@ -142,31 +121,25 @@ export default function MethodMaterialMakePage() {
             <MakeMethodTools
               itemId={makeMethod.itemId}
               makeMethods={makeMethods.data ?? []}
-              type="Part"
+              type="Tool"
+              currentMethodId={makeMethod.id}
             />
           )}
         </Await>
       </Suspense>
 
       <BillOfMaterial
-        key={`bom:${itemId}`}
+        key={`bom:${makeMethodId}`}
         makeMethod={makeMethod}
-        // @ts-ignore
         materials={methodMaterials}
         operations={methodOperations}
-        configurable={routeData?.partManufacturing.requiresConfiguration}
-        configurationRules={routeData?.configurationRules}
-        parameters={routeData?.configurationParametersAndGroups.parameters}
       />
       <BillOfProcess
-        key={`bop:${itemId}`}
+        key={`bop:${makeMethodId}`}
         makeMethod={makeMethod}
         materials={methodMaterials}
         // @ts-ignore
         operations={methodOperations}
-        configurable={routeData?.partManufacturing.requiresConfiguration}
-        configurationRules={routeData?.configurationRules}
-        parameters={routeData?.configurationParametersAndGroups.parameters}
         tags={tags}
       />
       <Suspense fallback={null}>

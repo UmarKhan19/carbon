@@ -9,6 +9,9 @@ import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel } from "~/components";
 import { usePermissions } from "~/hooks/usePermissions";
 import {
+  getConfigurationParameters,
+  getConfigurationRules,
+  getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
   getMethodMaterialsByMakeMethod,
@@ -36,17 +39,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
   if (!makeMethodId) throw new Error("Could not find makeMethodId");
 
-  const [makeMethod, methodMaterials, methodOperations, tags] =
-    await Promise.all([
-      getMakeMethodById(client, makeMethodId, companyId),
-      getMethodMaterialsByMakeMethod(client, makeMethodId),
-      getMethodOperationsByMakeMethodId(client, makeMethodId),
-      getTagsList(client, companyId, "operation")
-    ]);
+  const [
+    makeMethod,
+    methodMaterials,
+    methodOperations,
+    tags,
+    partManufacturing
+  ] = await Promise.all([
+    getMakeMethodById(client, makeMethodId, companyId),
+    getMethodMaterialsByMakeMethod(client, makeMethodId),
+    getMethodOperationsByMakeMethodId(client, makeMethodId),
+    getTagsList(client, companyId, "operation"),
+    getItemManufacturing(client, itemId, companyId)
+  ]);
 
   if (makeMethod.error) {
     throw redirect(
-      path.to.toolDetails(itemId),
+      path.to.partDetails(itemId),
       await flash(
         request,
         error(makeMethod.error, "Failed to load make method")
@@ -56,7 +65,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (methodOperations.error) {
     throw redirect(
-      path.to.toolDetails(itemId),
+      path.to.partDetails(itemId),
       await flash(
         request,
         error(methodOperations.error, "Failed to load method operations")
@@ -65,7 +74,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
   if (methodMaterials.error) {
     throw redirect(
-      path.to.toolDetails(itemId),
+      path.to.partDetails(itemId),
       await flash(
         request,
         error(methodMaterials.error, "Failed to load method materials")
@@ -73,9 +82,26 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const configData = partManufacturing.data?.requiresConfiguration
+    ? {
+        configurationParametersAndGroups: await getConfigurationParameters(
+          client,
+          itemId,
+          companyId
+        ),
+        configurationRules: await getConfigurationRules(
+          client,
+          itemId,
+          companyId
+        )
+      }
+    : {
+        configurationParametersAndGroups: { groups: [], parameters: [] },
+        configurationRules: []
+      };
+
   return {
     makeMethod: makeMethod.data,
-
     methodMaterials:
       methodMaterials.data?.map((m) => ({
         ...m,
@@ -98,21 +124,30 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         workCenterId: operation.workCenterId ?? undefined,
         workInstruction: operation.workInstruction as JSONContent | null
       })) ?? [],
+    partManufacturing: partManufacturing.data,
+    ...configData,
     model: getModelByItemId(client, makeMethod.data.itemId),
     makeMethods: getMakeMethods(client, makeMethod.data.itemId, companyId),
     tags: tags.data ?? []
   };
 }
 
-export default function MethodMaterialMakePage() {
+export default function PartMakeMethodPage() {
   const loaderData = useLoaderData<typeof loader>();
   const permissions = usePermissions();
-  const { makeMethod, makeMethods, methodMaterials, methodOperations, tags } =
-    loaderData;
+  const {
+    makeMethod,
+    makeMethods,
+    methodMaterials,
+    methodOperations,
+    partManufacturing,
+    configurationParametersAndGroups,
+    configurationRules,
+    tags
+  } = loaderData;
 
-  const { itemId, methodId, makeMethodId } = useParams();
+  const { itemId, makeMethodId } = useParams();
   if (!itemId) throw new Error("Could not find itemId");
-  if (!methodId) throw new Error("Could not find methodId");
   if (!makeMethodId) throw new Error("Could not find makeMethodId");
 
   return (
@@ -123,30 +158,31 @@ export default function MethodMaterialMakePage() {
             <MakeMethodTools
               itemId={makeMethod.itemId}
               makeMethods={makeMethods.data ?? []}
-              type="Tool"
+              type="Part"
+              currentMethodId={makeMethod.id}
             />
           )}
         </Await>
       </Suspense>
 
       <BillOfMaterial
-        key={`bom:${itemId}`}
+        key={`bom:${makeMethodId}`}
         makeMethod={makeMethod}
         materials={methodMaterials}
         operations={methodOperations}
-        // configurable={routeData?.toolManufacturing.requiresConfiguration}
-        // configurationRules={routeData?.configurationRules}
-        // parameters={routeData?.configurationParametersAndGroups.parameters}
+        configurable={partManufacturing?.requiresConfiguration}
+        configurationRules={configurationRules}
+        parameters={configurationParametersAndGroups.parameters}
       />
       <BillOfProcess
-        key={`bop:${itemId}`}
+        key={`bop:${makeMethodId}`}
         makeMethod={makeMethod}
         materials={methodMaterials}
         // @ts-ignore
         operations={methodOperations}
-        // configurable={routeData?.toolManufacturing.requiresConfiguration}
-        // configurationRules={routeData?.configurationRules}
-        // parameters={routeData?.configurationParametersAndGroups.parameters}
+        configurable={partManufacturing?.requiresConfiguration}
+        configurationRules={configurationRules}
+        parameters={configurationParametersAndGroups.parameters}
         tags={tags}
       />
       <Suspense fallback={null}>
@@ -154,7 +190,7 @@ export default function MethodMaterialMakePage() {
           {(model) => (
             <CadModel
               key={`cad:${model.itemId}`}
-              isReadOnly={!permissions.can("update", "sales")}
+              isReadOnly={!permissions.can("update", "parts")}
               metadata={{
                 itemId: model?.itemId ?? undefined
               }}

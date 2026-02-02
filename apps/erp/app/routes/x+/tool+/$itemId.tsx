@@ -1,16 +1,40 @@
-import { error, getCarbonServiceRole } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import {
+  Spinner,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from "@carbon/react";
+import { useRouteData } from "@carbon/remix";
+import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { Outlet, redirect } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
+import { ResizablePanels } from "~/components/Layout";
+import { flattenTree } from "~/components/TreeView";
+import type { ItemFile, ToolSummary } from "~/modules/items";
 import {
   getItemFiles,
+  getMakeMethodById,
   getMakeMethods,
+  getMethodTree,
+  getPartUsedIn,
   getPickMethods,
   getSupplierParts,
   getTool
 } from "~/modules/items";
-import { ToolHeader } from "~/modules/items/ui/Tools";
+import { BoMExplorer } from "~/modules/items/ui/Item";
+import type { UsedInNode } from "~/modules/items/ui/Item/UsedIn";
+import { UsedInSkeleton, UsedInTree } from "~/modules/items/ui/Item/UsedIn";
+import { ToolHeader, ToolProperties } from "~/modules/items/ui/Tools";
 import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -22,19 +46,19 @@ export const handle: Handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { companyId } = await requirePermissions(request, {
-    view: "parts"
+  const { client, companyId } = await requirePermissions(request, {
+    view: "parts",
+    bypassRls: true
   });
 
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  const serviceRole = await getCarbonServiceRole();
   const [toolSummary, supplierParts, pickMethods, tags] = await Promise.all([
-    getTool(serviceRole, itemId, companyId),
-    getSupplierParts(serviceRole, itemId, companyId),
-    getPickMethods(serviceRole, itemId, companyId),
-    getTagsList(serviceRole, companyId, "tool")
+    getTool(client, itemId, companyId),
+    getSupplierParts(client, itemId, companyId),
+    getPickMethods(client, itemId, companyId),
+    getTagsList(client, companyId, "tool")
   ]);
 
   if (toolSummary.error) {
@@ -47,21 +71,252 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const url = new URL(request.url);
+  const requestedMethodId = url.searchParams.get("methodId");
+
+  const methodTree = getMakeMethods(client, itemId, companyId).then(
+    async (makeMethods) => {
+      const makeMethod = requestedMethodId
+        ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
+          makeMethods.data?.find((m) => m.status === "Active") ??
+          makeMethods.data?.[0])
+        : (makeMethods.data?.find((m) => m.status === "Active") ??
+          makeMethods.data?.[0]);
+      if (!makeMethod) return null;
+
+      const fullMethod = await getMakeMethodById(
+        client,
+        makeMethod.id,
+        companyId
+      );
+      if (fullMethod.error || !fullMethod.data) return null;
+
+      const tree = await getMethodTree(client, fullMethod.data.id);
+      if (tree.error) return null;
+
+      const methods = tree.data.length > 0 ? flattenTree(tree.data[0]) : [];
+
+      return {
+        makeMethod: fullMethod.data,
+        methods
+      };
+    }
+  );
+
   return {
     toolSummary: toolSummary.data,
-    files: getItemFiles(serviceRole, itemId, companyId),
+    files: getItemFiles(client, itemId, companyId),
     supplierParts: supplierParts.data ?? [],
     pickMethods: pickMethods.data ?? [],
-    makeMethods: getMakeMethods(serviceRole, itemId, companyId),
-    tags: tags.data ?? []
+    makeMethods: getMakeMethods(client, itemId, companyId),
+    tags: tags.data ?? [],
+    usedIn: getPartUsedIn(client, itemId, companyId),
+    methodTree
   };
 }
 
 export default function ToolRoute() {
+  const { itemId, makeMethodId } = useParams();
+  if (!itemId) throw new Error("Could not find itemId");
+
+  const toolData = useRouteData<{
+    toolSummary: ToolSummary;
+    files: Promise<ItemFile[]>;
+  }>(path.to.tool(itemId));
+
+  if (!toolData) throw new Error("Could not find tool data");
+
+  const { usedIn, methodTree } = useLoaderData<typeof loader>();
+
+  const isManufactured = toolData.toolSummary?.replenishmentSystem !== "Buy";
+
+  const defaultTab = makeMethodId ? "manufacturing" : "used-in";
+
   return (
     <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
       <ToolHeader />
-      <Outlet />
+      <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
+        <div className="flex flex-grow overflow-hidden">
+          <ResizablePanels
+            explorer={
+              <Tabs defaultValue={defaultTab} className="flex flex-col h-full">
+                {isManufactured && (
+                  <div className="p-2 pb-0">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="used-in">Used In</TabsTrigger>
+                      <TabsTrigger value="manufacturing">
+                        Manufacturing
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                )}
+                <TabsContent value="used-in" className="flex-1 overflow-y-auto">
+                  <Suspense fallback={<UsedInSkeleton />}>
+                    <Await resolve={usedIn}>
+                      {(resolvedUsedIn) => {
+                        const {
+                          issues,
+                          jobMaterials,
+                          jobs,
+                          maintenanceDispatchItems,
+                          methodMaterials,
+                          purchaseOrderLines,
+                          receiptLines,
+                          quoteLines,
+                          quoteMaterials,
+                          salesOrderLines,
+                          shipmentLines,
+                          supplierQuotes
+                        } = resolvedUsedIn;
+
+                        const tree: UsedInNode[] = [
+                          {
+                            key: "issues",
+                            name: "Issues",
+                            module: "quality",
+                            children: issues
+                          },
+                          {
+                            key: "jobs",
+                            name: "Jobs",
+                            module: "production",
+                            children: jobs.map((job) => ({
+                              ...job,
+                              methodType: "Make"
+                            }))
+                          },
+                          {
+                            key: "jobMaterials",
+                            name: "Job Materials",
+                            module: "production",
+                            children: jobMaterials
+                          },
+                          {
+                            key: "maintenanceDispatchItems",
+                            name: "Maintenance",
+                            module: "resources",
+                            children: maintenanceDispatchItems
+                          },
+                          {
+                            key: "methodMaterials",
+                            name: "Method Materials",
+                            module: "parts",
+                            // @ts-expect-error
+                            children: methodMaterials
+                          },
+                          {
+                            key: "purchaseOrderLines",
+                            name: "Purchase Orders",
+                            module: "purchasing",
+                            children: purchaseOrderLines.map((po) => ({
+                              ...po,
+                              methodType: "Buy"
+                            }))
+                          },
+                          {
+                            key: "receiptLines",
+                            name: "Receipts",
+                            module: "inventory",
+                            children: receiptLines.map((receipt) => ({
+                              ...receipt,
+                              methodType: "Pick"
+                            }))
+                          },
+                          {
+                            key: "quoteLines",
+                            name: "Quotes",
+                            module: "sales",
+                            children: quoteLines
+                          },
+                          {
+                            key: "quoteMaterials",
+                            name: "Quote Materials",
+                            module: "sales",
+                            children: quoteMaterials?.map((qm) => ({
+                              ...qm,
+                              documentReadableId: qm.documentReadableId ?? ""
+                            }))
+                          },
+                          {
+                            key: "salesOrderLines",
+                            name: "Sales Orders",
+                            module: "sales",
+                            children: salesOrderLines
+                          },
+                          {
+                            key: "shipmentLines",
+                            name: "Shipments",
+                            module: "inventory",
+                            children: shipmentLines.map((shipment) => ({
+                              ...shipment,
+                              methodType: "Shipment"
+                            }))
+                          },
+                          {
+                            key: "supplierQuotes",
+                            name: "Supplier Quotes",
+                            module: "purchasing",
+                            children: supplierQuotes
+                          }
+                        ];
+
+                        return (
+                          <UsedInTree
+                            tree={tree}
+                            revisions={toolData.toolSummary?.revisions}
+                            itemReadableId={
+                              toolData.toolSummary?.readableId ?? ""
+                            }
+                            itemReadableIdWithRevision={
+                              toolData.toolSummary?.readableIdWithRevision ?? ""
+                            }
+                          />
+                        );
+                      }}
+                    </Await>
+                  </Suspense>
+                </TabsContent>
+                {isManufactured && (
+                  <TabsContent
+                    value="manufacturing"
+                    className="flex-1 overflow-y-auto"
+                  >
+                    <Suspense
+                      fallback={
+                        <div className="flex w-full h-full items-center justify-center p-4">
+                          <Spinner className="h-6 w-6" />
+                        </div>
+                      }
+                    >
+                      <Await resolve={methodTree}>
+                        {(resolved) =>
+                          resolved ? (
+                            <div className="w-full h-full p-2">
+                              <BoMExplorer
+                                itemType="Tool"
+                                makeMethod={resolved.makeMethod}
+                                // @ts-ignore
+                                methods={resolved.methods}
+                                methodId={resolved.makeMethod.id}
+                              />
+                            </div>
+                          ) : null
+                        }
+                      </Await>
+                    </Suspense>
+                  </TabsContent>
+                )}
+              </Tabs>
+            }
+            content={
+              <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
+                <Outlet />
+              </div>
+            }
+            properties={<ToolProperties />}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -226,12 +226,6 @@ export default function JobDetailsRoute() {
     <div className="h-[calc(100dvh-49px)] w-full items-start overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
       <VStack spacing={2} className="p-2">
         <JobMakeMethodTools makeMethod={makeMethod ?? undefined} />
-        <JobNotes
-          id={jobId}
-          title={jobData?.job.jobId ?? ""}
-          subTitle={jobData?.job.itemReadableIdWithRevision ?? ""}
-          notes={notes}
-        />
 
         {methodId && (
           <>
@@ -258,6 +252,15 @@ export default function JobDetailsRoute() {
             />
           </>
         )}
+        <Suspense>
+          <Await resolve={purchaseOrderLines}>
+            {(purchaseOrderLines) => (
+              <JobPurchaseOrderLines
+                purchaseOrderLines={purchaseOrderLines.data ?? []}
+              />
+            )}
+          </Await>
+        </Suspense>
 
         <Suspense
           fallback={
@@ -281,6 +284,13 @@ export default function JobDetailsRoute() {
           </Await>
         </Suspense>
 
+        <JobNotes
+          id={jobId}
+          title={jobData?.job.jobId ?? ""}
+          subTitle={jobData?.job.itemReadableIdWithRevision ?? ""}
+          notes={notes}
+        />
+
         <Suspense
           fallback={
             <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center min-h-[420px] max-h-[70vh]">
@@ -301,15 +311,6 @@ export default function JobDetailsRoute() {
           </Await>
         </Suspense>
 
-        <Suspense>
-          <Await resolve={purchaseOrderLines}>
-            {(purchaseOrderLines) => (
-              <JobPurchaseOrderLines
-                purchaseOrderLines={purchaseOrderLines.data ?? []}
-              />
-            )}
-          </Await>
-        </Suspense>
         <CadModel
           isReadOnly={!permissions.can("update", "production")}
           metadata={{

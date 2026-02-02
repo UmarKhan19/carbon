@@ -279,7 +279,7 @@ function SalesRFQLineItem({
         <HStack
           className={cn(
             "group w-full p-2 items-center hover:bg-accent/30 cursor-pointer relative",
-            isSelected && "bg-accent/60 hover:bg-accent/50 shadow-inner"
+            isSelected && "bg-accent/60 hover:bg-accent/50"
           )}
         >
           <HStack spacing={2} className="flex-grow min-w-0 pr-10">
