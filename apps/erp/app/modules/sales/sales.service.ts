@@ -861,6 +861,18 @@ export async function getQuoteMakeMethod(
     .single();
 }
 
+export async function getRootQuoteMakeMethod(
+  client: SupabaseClient<Database>,
+  quoteLineId: string
+) {
+  return client
+    .from("quoteMakeMethod")
+    .select("*, ...item(itemType:type)")
+    .eq("quoteLineId", quoteLineId)
+    .is("parentMaterialId", null)
+    .single();
+}
+
 export async function getQuoteMethodTrees(
   client: SupabaseClient<Database>,
   quoteId: string
@@ -1574,7 +1586,11 @@ export async function upsertCustomer(
       })
 ) {
   if ("createdBy" in customer) {
-    return client.from("customer").insert([customer]).select("id").single();
+    return client
+      .from("customer")
+      .insert([customer])
+      .select("id, name")
+      .single();
   }
   return client
     .from("customer")

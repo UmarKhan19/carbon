@@ -1416,7 +1416,11 @@ export async function upsertSupplier(
       })
 ) {
   if ("createdBy" in supplier) {
-    return client.from("supplier").insert([supplier]).select("*").single();
+    return client
+      .from("supplier")
+      .insert([supplier])
+      .select("id, name")
+      .single();
   }
   return client
     .from("supplier")

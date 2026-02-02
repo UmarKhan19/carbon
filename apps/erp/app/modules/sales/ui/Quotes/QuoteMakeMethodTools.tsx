@@ -113,7 +113,10 @@ const QuoteMakeMethodTools = () => {
   const getMethodModal = useDisclosure();
   const saveMethodModal = useDisclosure();
 
+  const isQuoteLineDetails =
+    lineId && pathname === path.to.quoteLine(quoteId, lineId);
   const isQuoteLineMethod =
+    isQuoteLineDetails ||
     pathname === path.to.quoteLineMethod(quoteId, lineId!, methodId!);
   const isQuoteMakeMethod =
     methodId &&

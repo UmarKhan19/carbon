@@ -108,25 +108,46 @@ const QuoteBoMExplorer = ({
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedMaterialId = searchParams.get("materialId");
+
+  const explorerLineId = methods[0]?.data.quoteLineId;
+  const isDetailsRouteForThisLine =
+    params.quoteId &&
+    params.lineId &&
+    params.lineId === explorerLineId &&
+    location.pathname === path.to.quoteLine(params.quoteId, params.lineId);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     if (!selectedMaterialId) {
+      if (isDetailsRouteForThisLine) {
+        const rootNode = methods.find((m) => m.data.isRoot);
+        if (rootNode) {
+          selectNode(rootNode.id);
+          return;
+        }
+      }
       deselectAllNodes();
       return;
     }
 
-    if (selectedMaterialId) {
-      const node = methods.find(
-        (m) => m.data.methodMaterialId === selectedMaterialId
-      );
-      if (node?.id) selectNode(node?.id);
+    const node = methods.find(
+      (m) => m.data.methodMaterialId === selectedMaterialId
+    );
+    if (node?.id) {
+      selectNode(node.id);
     } else if (params.methodId) {
-      const node = methods.find(
+      const methodNode = methods.find(
         (m) => m.data.quoteMaterialMakeMethodId === params.methodId
       );
-      if (node?.id) selectNode(node?.id);
+      if (methodNode?.id) {
+        selectNode(methodNode.id);
+      } else {
+        deselectAllNodes();
+      }
+    } else {
+      deselectAllNodes();
     }
-  }, [selectedMaterialId, params.methodId]);
+  }, [selectedMaterialId, params.methodId, location.pathname]);
 
   return (
     <VStack className="flex flex-1 w-full">
@@ -393,11 +414,7 @@ function NodePreview({ node }: { node: FlatTreeItem<QuoteMethod> }) {
 
 function getNodePath(node: FlatTreeItem<QuoteMethod>) {
   return node.data.isRoot
-    ? path.to.quoteLineMethod(
-        node.data.quoteId,
-        node.data.quoteLineId,
-        node.data.quoteMaterialMakeMethodId
-      )
+    ? path.to.quoteLine(node.data.quoteId, node.data.quoteLineId)
     : node.data.methodType === "Make"
       ? path.to.quoteLineMakeMethod(
           node.data.quoteId,

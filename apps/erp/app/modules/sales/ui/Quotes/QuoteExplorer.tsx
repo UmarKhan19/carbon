@@ -125,20 +125,15 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
 
   const optimisticDrags = useOptimisticDocumentDrag();
 
-  const linesByItemId = new Map<string, QuotationLine | OptimisticQuoteLine>(
-    quoteData?.lines?.map((line) => [line.itemId!, line]) ?? []
+  const linesMap = new Map<string, QuotationLine | OptimisticQuoteLine>(
+    quoteData?.lines?.map((line) => [line.id!, line]) ?? []
   );
 
-  // Merge pending items with existing items
   for (let pendingItem of optimisticDrags) {
-    let existingItem = linesByItemId.get(pendingItem.itemId!);
-    let merged = existingItem
-      ? { ...existingItem, ...pendingItem }
-      : { ...pendingItem, quoteId };
-    linesByItemId.set(pendingItem.itemId!, merged);
+    linesMap.set(pendingItem.itemId!, { ...pendingItem, quoteId });
   }
 
-  const linesToRender = Array.from(linesByItemId.values()).sort((a, b) =>
+  const linesToRender = Array.from(linesMap.values()).sort((a, b) =>
     (a.itemReadableId ?? "").localeCompare(b.itemReadableId ?? "")
   );
 
