@@ -9,21 +9,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent") as string;
   const redirectTo = formData.get("redirectTo") as string | null;
 
-  if (intent === "academy") {
-    await client
-      .from("user")
-      .update({
-        acknowledgedUniversity: true
-      })
-      .eq("id", userId);
-
-    if (redirectTo) {
-      throw redirect(redirectTo);
-    }
-
-    return { success: true, message: "University acknowledged" };
-  }
-
+  // Keep ITAR handling unchanged — compliance blocker
   if (intent === "itar") {
     const updateResult = await client
       .from("user")
@@ -40,5 +26,39 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     return { success: true, message: "ITAR acknowledged" };
+  }
+
+  // Generic flag handling — covers training dismissals and any future flags
+  if (intent === "flag") {
+    const flag = formData.get("flag") as string;
+    const value = formData.get("value") !== "false";
+
+    if (!flag) {
+      return { success: false, message: "Missing flag key" };
+    }
+
+    const { data: user } = await client
+      .from("user")
+      .select("flags")
+      .eq("id", userId)
+      .single();
+
+    const currentFlags = (user?.flags as Record<string, boolean>) ?? {};
+    const updatedFlags = { ...currentFlags, [flag]: value };
+
+    const updateResult = await client
+      .from("user")
+      .update({ flags: updatedFlags })
+      .eq("id", userId);
+
+    if (updateResult.error) {
+      return { success: false, message: "Failed to update flag" };
+    }
+
+    if (redirectTo) {
+      throw redirect(redirectTo);
+    }
+
+    return { success: true, message: "Flag updated" };
   }
 }

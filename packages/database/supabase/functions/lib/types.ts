@@ -39091,7 +39091,6 @@ export type Database = {
         Row: {
           about: string
           acknowledgedITAR: boolean
-          acknowledgedUniversity: boolean
           active: boolean | null
           admin: boolean | null
           avatarUrl: string | null
@@ -39100,6 +39099,7 @@ export type Database = {
           email: string
           externalId: Json | null
           firstName: string
+          flags: Json
           fullName: string | null
           id: string
           lastName: string
@@ -39108,7 +39108,6 @@ export type Database = {
         Insert: {
           about?: string
           acknowledgedITAR?: boolean
-          acknowledgedUniversity?: boolean
           active?: boolean | null
           admin?: boolean | null
           avatarUrl?: string | null
@@ -39117,6 +39116,7 @@ export type Database = {
           email: string
           externalId?: Json | null
           firstName?: string
+          flags?: Json
           fullName?: string | null
           id: string
           lastName?: string
@@ -39125,7 +39125,6 @@ export type Database = {
         Update: {
           about?: string
           acknowledgedITAR?: boolean
-          acknowledgedUniversity?: boolean
           active?: boolean | null
           admin?: boolean | null
           avatarUrl?: string | null
@@ -39134,6 +39133,7 @@ export type Database = {
           email?: string
           externalId?: Json | null
           firstName?: string
+          flags?: Json
           fullName?: string | null
           id?: string
           lastName?: string
