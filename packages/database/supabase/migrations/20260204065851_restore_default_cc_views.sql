@@ -1,7 +1,4 @@
 -- Restore defaultCc column to customers and suppliers views.
--- It was added in 20260127130101_default_cc_settings.sql but lost when
--- 20260130005853_external-id-migration.sql and 20260203211225_external-id-view-fix.sql
--- recreated the views without including it.
 
 DROP VIEW IF EXISTS "suppliers";
 CREATE OR REPLACE VIEW "suppliers" WITH(SECURITY_INVOKER=true) AS
