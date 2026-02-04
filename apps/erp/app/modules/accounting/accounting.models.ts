@@ -306,6 +306,9 @@ export const defaultIncomeAcountValidator = z.object({
   })
 });
 
+export const defaultAccountValidator =
+  defaultBalanceSheetAccountValidator.merge(defaultIncomeAcountValidator);
+
 export const paymentTermsCalculationMethod = [
   "Net",
   "End of Month",

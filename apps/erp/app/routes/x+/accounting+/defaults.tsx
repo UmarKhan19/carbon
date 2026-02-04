@@ -2,12 +2,13 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { VStack } from "@carbon/react";
+import { ScrollArea, VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { AccountListItem } from "~/modules/accounting";
 import {
+  defaultAccountValidator,
   defaultBalanceSheetAccountValidator,
   defaultIncomeAcountValidator,
   getDefaultAccounts,
@@ -56,8 +57,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent") as string;
 
-  if (intent === "income") {
-    const validation = await validator(defaultIncomeAcountValidator).validate(
+  if (intent === "all") {
+    const validation = await validator(defaultAccountValidator).validate(
       formData
     );
 
@@ -65,52 +66,46 @@ export async function action({ request }: ActionFunctionArgs) {
       return validationError(validation.error);
     }
 
-    const updateDefaults = await updateDefaultIncomeAccounts(client, {
-      ...validation.data,
-      companyId,
-      updatedBy: userId
-    });
-    if (updateDefaults.error) {
-      return data(
-        {},
-        await flash(
-          request,
-          error(updateDefaults.error, "Failed to update default accounts")
-        )
-      );
-    }
-
-    throw redirect(
-      path.to.accountingDefaults,
-      await flash(request, success("Updated income statement accounts"))
+    const incomeValidation = defaultIncomeAcountValidator.safeParse(
+      validation.data
     );
-  } else if (intent === "balance") {
-    const validation = await validator(
-      defaultBalanceSheetAccountValidator
-    ).validate(formData);
+    const balanceValidation = defaultBalanceSheetAccountValidator.safeParse(
+      validation.data
+    );
 
-    if (validation.error) {
-      return validationError(validation.error);
+    if (!incomeValidation.success || !balanceValidation.success) {
+      throw new Error("Failed to parse default accounts");
     }
 
-    const updateDefaults = await updateDefaultBalanceSheetAccounts(client, {
-      ...validation.data,
-      companyId,
-      updatedBy: userId
-    });
-    if (updateDefaults.error) {
+    const [updateIncome, updateBalance] = await Promise.all([
+      updateDefaultIncomeAccounts(client, {
+        ...incomeValidation.data,
+        companyId,
+        updatedBy: userId
+      }),
+      updateDefaultBalanceSheetAccounts(client, {
+        ...balanceValidation.data,
+        companyId,
+        updatedBy: userId
+      })
+    ]);
+
+    if (updateIncome.error || updateBalance.error) {
       return data(
         {},
         await flash(
           request,
-          error(updateDefaults.error, "Failed to update default accounts")
+          error(
+            updateIncome.error || updateBalance.error,
+            "Failed to update default accounts"
+          )
         )
       );
     }
 
     throw redirect(
       path.to.accountingDefaults,
-      await flash(request, success("Updated balance sheet accounts"))
+      await flash(request, success("Updated default accounts"))
     );
   }
 
@@ -125,12 +120,17 @@ export default function AccountDefaultsRoute() {
   }>(path.to.accounting);
 
   return (
-    <VStack className="h-full p-4 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
-      <AccountDefaultsForm
-        balanceSheetAccounts={routeData?.balanceSheetAccounts ?? []}
-        incomeStatementAccounts={routeData?.incomeStatementAccounts ?? []}
-        initialValues={defaultAccounts}
-      />
-    </VStack>
+    <ScrollArea className="w-full h-[calc(100dvh-49px)]">
+      <VStack
+        spacing={4}
+        className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
+      >
+        <AccountDefaultsForm
+          balanceSheetAccounts={routeData?.balanceSheetAccounts ?? []}
+          incomeStatementAccounts={routeData?.incomeStatementAccounts ?? []}
+          initialValues={defaultAccounts}
+        />
+      </VStack>
+    </ScrollArea>
   );
 }

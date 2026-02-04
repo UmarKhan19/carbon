@@ -1,37 +1,403 @@
 import { ValidatedForm } from "@carbon/form";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  HStack,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger
-} from "@carbon/react";
+import { Badge, Button, HStack } from "@carbon/react";
+import type { ReactNode } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router";
-import { z } from "zod";
-import { Hidden, Select, Submit } from "~/components/Form";
+import { Combobox, Hidden, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import {
-  defaultBalanceSheetAccountValidator,
-  defaultIncomeAcountValidator
-} from "../../accounting.models";
+import { defaultAccountValidator } from "../../accounting.models";
 import type { AccountListItem } from "../../types";
 
-const defaultUnion = z.union([
-  defaultBalanceSheetAccountValidator,
-  defaultIncomeAcountValidator
-]);
+type AccountType = "income" | "balance";
+
+type BadgeType = "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
+
+type AccountDefaultField = {
+  name: string;
+  label: string;
+  description: string;
+  accountType: AccountType;
+  badgeType: BadgeType;
+};
+
+type CategoryGroup = {
+  id: string;
+  title: string;
+  description: string;
+  fields: AccountDefaultField[];
+};
+
+const badgeColors: Record<BadgeType, string> = {
+  Asset: "green",
+  Liability: "red",
+  Equity: "blue",
+  Revenue: "yellow",
+  Expense: "orange"
+};
+
+const categoryGroups: CategoryGroup[] = [
+  // --- Assets ---
+  {
+    id: "cash-banking",
+    title: "Cash & Banking",
+    description: "Configure default accounts for cash and bank transactions",
+    fields: [
+      {
+        name: "bankCashAccount",
+        label: "Bank - Cash",
+        description: "Primary cash account for bank transactions",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "bankLocalCurrencyAccount",
+        label: "Bank - Local Currency",
+        description: "Bank account denominated in the local currency",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "bankForeignCurrencyAccount",
+        label: "Bank - Foreign Currency",
+        description: "Bank account denominated in a foreign currency",
+        accountType: "balance",
+        badgeType: "Asset"
+      }
+    ]
+  },
+  {
+    id: "receivables",
+    title: "Accounts Receivable",
+    description: "Default accounts for customer transactions and receivables",
+    fields: [
+      {
+        name: "receivablesAccount",
+        label: "Receivables",
+        description: "Accounts receivable for amounts owed by customers",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "prepaymentAccount",
+        label: "Prepayments",
+        description:
+          "Account for advance payments made before goods or services are received",
+        accountType: "balance",
+        badgeType: "Asset"
+      }
+    ]
+  },
+  {
+    id: "inventory",
+    title: "Inventory",
+    description: "Configure default accounts for inventory management",
+    fields: [
+      {
+        name: "inventoryAccount",
+        label: "Inventory",
+        description: "Primary account for on-hand inventory valuation",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "inventoryInterimAccrualAccount",
+        label: "Inventory Interim Accrual",
+        description:
+          "Interim accrual for inventory received but not yet invoiced",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "workInProgressAccount",
+        label: "Work in Progress (WIP)",
+        description: "Account for production orders not yet completed",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "inventoryInvoicedNotReceivedAccount",
+        label: "Inventory Invoiced Not Received",
+        description:
+          "Accrual for inventory invoiced but not yet physically received",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "inventoryShippedNotInvoicedAccount",
+        label: "Inventory Shipped Not Invoiced",
+        description:
+          "Accrual for inventory shipped but not yet invoiced to customer",
+        accountType: "balance",
+        badgeType: "Asset"
+      }
+    ]
+  },
+  {
+    id: "fixed-assets",
+    title: "Fixed Assets",
+    description: "Default accounts for long-term assets and depreciation",
+    fields: [
+      {
+        name: "assetAquisitionCostAccount",
+        label: "Asset Acquisition Cost",
+        description: "Account for the purchase cost of fixed assets",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "assetAquisitionCostOnDisposalAccount",
+        label: "Asset Cost on Disposal",
+        description: "Account for the cost of fixed assets when disposed",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "accumulatedDepreciationAccount",
+        label: "Accumulated Depreciation",
+        description:
+          "Contra-asset account for total depreciation of fixed assets",
+        accountType: "balance",
+        badgeType: "Asset"
+      },
+      {
+        name: "accumulatedDepreciationOnDisposalAccount",
+        label: "Accumulated Depreciation on Disposal",
+        description: "Depreciation reversal when a fixed asset is disposed",
+        accountType: "balance",
+        badgeType: "Asset"
+      }
+    ]
+  },
+  // --- Liabilities ---
+  {
+    id: "payables",
+    title: "Accounts Payable",
+    description:
+      "Configure default accounts for vendor and supplier transactions",
+    fields: [
+      {
+        name: "payablesAccount",
+        label: "Payables",
+        description: "Accounts payable for amounts owed to suppliers",
+        accountType: "balance",
+        badgeType: "Liability"
+      },
+      {
+        name: "inventoryReceivedNotInvoicedAccount",
+        label: "Inventory Received Not Invoiced",
+        description: "Accrual for inventory received but not yet invoiced",
+        accountType: "balance",
+        badgeType: "Liability"
+      }
+    ]
+  },
+  {
+    id: "taxes",
+    title: "Taxes",
+    description: "Default accounts for tax-related transactions",
+    fields: [
+      {
+        name: "salesTaxPayableAccount",
+        label: "Sales Tax Payable",
+        description: "Liability account for sales tax collected from customers",
+        accountType: "balance",
+        badgeType: "Liability"
+      },
+      {
+        name: "purchaseTaxPayableAccount",
+        label: "Purchase Tax Payable",
+        description: "Liability account for tax paid on purchases",
+        accountType: "balance",
+        badgeType: "Liability"
+      },
+      {
+        name: "reverseChargeSalesTaxPayableAccount",
+        label: "Reverse Charge Sales Tax",
+        description: "Tax liability for reverse-charge transactions",
+        accountType: "balance",
+        badgeType: "Liability"
+      }
+    ]
+  },
+  // --- Equity ---
+  {
+    id: "equity",
+    title: "Equity",
+    description: "Configure default equity and retained earnings accounts",
+    fields: [
+      {
+        name: "retainedEarningsAccount",
+        label: "Retained Earnings",
+        description: "Equity account for accumulated profits or losses",
+        accountType: "balance",
+        badgeType: "Equity"
+      }
+    ]
+  },
+  // --- Revenue ---
+  {
+    id: "revenue",
+    title: "Sales & Revenue",
+    description: "Default accounts for sales and income",
+    fields: [
+      {
+        name: "salesAccount",
+        label: "Sales",
+        description: "Default account for posting sales revenue from invoices",
+        accountType: "income",
+        badgeType: "Revenue"
+      },
+      {
+        name: "salesDiscountAccount",
+        label: "Sales Discounts",
+        description: "Contra-revenue account for discounts given on sales",
+        accountType: "income",
+        badgeType: "Revenue"
+      }
+    ]
+  },
+  // --- Expenses ---
+  {
+    id: "cogs",
+    title: "Purchasing & Cost of Goods",
+    description: "Configure default accounts for purchasing and COGS",
+    fields: [
+      {
+        name: "costOfGoodsSoldAccount",
+        label: "Cost of Goods Sold",
+        description: "Expense account for the cost of items sold",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "purchaseAccount",
+        label: "Purchases",
+        description:
+          "Account for recording raw material and inventory purchases",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "directCostAppliedAccount",
+        label: "Direct Cost Applied",
+        description: "Account for direct costs applied to production orders",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "overheadCostAppliedAccount",
+        label: "Overhead Cost Applied",
+        description: "Account for overhead costs applied to production orders",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "purchaseVarianceAccount",
+        label: "Purchase Variance",
+        description: "Variance between expected and actual purchase costs",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "inventoryAdjustmentVarianceAccount",
+        label: "Inventory Adjustment Variance",
+        description: "Variance from physical inventory count adjustments",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "materialVarianceAccount",
+        label: "Material Variance",
+        description: "Variance between standard and actual material costs",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "capacityVarianceAccount",
+        label: "Capacity Variance",
+        description: "Variance between standard and actual capacity costs",
+        accountType: "income",
+        badgeType: "Expense"
+      }
+    ]
+  },
+  {
+    id: "expenses",
+    title: "Operating Expenses",
+    description: "Default accounts for business expenses",
+    fields: [
+      {
+        name: "overheadAccount",
+        label: "Overhead",
+        description: "General overhead expense account for indirect costs",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "maintenanceAccount",
+        label: "Maintenance Expense",
+        description: "Expense account for equipment and facility maintenance",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "assetDepreciationExpenseAccount",
+        label: "Depreciation Expense",
+        description: "Periodic depreciation expense for fixed assets",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "assetGainsAndLossesAccount",
+        label: "Gains and Losses",
+        description: "Gains or losses recognized on disposal of fixed assets",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "serviceChargeAccount",
+        label: "Service Charges",
+        description: "Bank and financial service charge expenses",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "interestAccount",
+        label: "Interest",
+        description: "Interest income or expense from banking activities",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "supplierPaymentDiscountAccount",
+        label: "Supplier Payment Discounts",
+        description: "Discounts earned for early payment to suppliers",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "customerPaymentDiscountAccount",
+        label: "Customer Payment Discounts",
+        description: "Discounts given to customers for early payment",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "roundingAccount",
+        label: "Rounding Account",
+        description: "Account for small rounding differences in transactions",
+        accountType: "income",
+        badgeType: "Expense"
+      }
+    ]
+  }
+];
 
 type AccountDefaultsFormProps = {
   balanceSheetAccounts: AccountListItem[];
   incomeStatementAccounts: AccountListItem[];
-  initialValues: z.infer<typeof defaultUnion>;
+  initialValues: Record<string, string>;
 };
 
 const AccountDefaultsForm = ({
@@ -45,280 +411,111 @@ const AccountDefaultsForm = ({
 
   const isDisabled = !permissions.can("update", "accounting");
 
-  const incomeStatementAccountOptions = incomeStatementAccounts.map((c) => ({
-    value: c.number,
-    label: `${c.number} - ${c.name}`
-  }));
-
-  const balanceSheetAccountOptions = balanceSheetAccounts.map((c) => ({
-    value: c.number,
-    label: `${c.number} - ${c.name}`
-  }));
-
-  const initialIncomeStatementValues =
-    defaultIncomeAcountValidator.safeParse(initialValues);
-  const initialBalanceSheetValues =
-    defaultBalanceSheetAccountValidator.safeParse(initialValues);
+  const accountOptions: Record<
+    AccountType,
+    { value: string; label: ReactNode }[]
+  > = useMemo(
+    () => ({
+      income: incomeStatementAccounts.map((c) => ({
+        value: c.number,
+        label: (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-muted-foreground">
+              {c.number}
+            </span>
+            <span className="text-xs text-foreground truncate">{c.name}</span>
+          </div>
+        )
+      })),
+      balance: balanceSheetAccounts.map((c) => ({
+        value: c.number,
+        label: (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-muted-foreground">
+              {c.number}
+            </span>
+            <span className="text-xs text-foreground truncate">{c.name}</span>
+          </div>
+        )
+      }))
+    }),
+    [incomeStatementAccounts, balanceSheetAccounts]
+  );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Default Accounts</CardTitle>
-        <CardDescription>
-          These accounts are used in the absence of a more specific account from
-          a posting group
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="income">
-          <TabsList>
-            <TabsTrigger value="income">Income Statement</TabsTrigger>
-            <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="income" className="py-6">
-            <ValidatedForm
-              validator={defaultIncomeAcountValidator}
-              method="post"
-              action={path.to.accountingDefaults}
-              defaultValues={initialIncomeStatementValues.data}
-              className="w-full flex flex-col space-y-4"
-            >
-              <Hidden name="intent" value="income" />
-              <div className="grid gap-y-4 gap-x-8 grid-cols-1 md:grid-cols-2">
-                <Select
-                  name="salesAccount"
-                  label="Sales"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="salesDiscountAccount"
-                  label="Sales Discounts"
-                  options={incomeStatementAccountOptions}
-                />
-
-                <Select
-                  name="costOfGoodsSoldAccount"
-                  label="Cost of Goods Sold"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="purchaseAccount"
-                  label="Purchases"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="directCostAppliedAccount"
-                  label="Direct Cost Applied"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="overheadCostAppliedAccount"
-                  label="Overhead Cost Applied"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="purchaseVarianceAccount"
-                  label="Purchase Variance"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="inventoryAdjustmentVarianceAccount"
-                  label="Inventory Adjustment"
-                  options={incomeStatementAccountOptions}
-                />
-
-                <Select
-                  name="materialVarianceAccount"
-                  label="Material Variance"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="capacityVarianceAccount"
-                  label="Capacity Variance"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="overheadAccount"
-                  label="Overhead"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="maintenanceAccount"
-                  label="Maintenance Expense"
-                  options={incomeStatementAccountOptions}
-                />
-
-                <Select
-                  name="assetDepreciationExpenseAccount"
-                  label="Depreciation Expense"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="assetGainsAndLossesAccount"
-                  label="Gains and Losses"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="serviceChargeAccount"
-                  label="Service Charges"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="interestAccount"
-                  label="Interest"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="supplierPaymentDiscountAccount"
-                  label="Supplier Payment Discounts"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="customerPaymentDiscountAccount"
-                  label="Customer Payment Discounts"
-                  options={incomeStatementAccountOptions}
-                />
-                <Select
-                  name="roundingAccount"
-                  label="Rounding Account"
-                  options={incomeStatementAccountOptions}
-                />
+    <ValidatedForm
+      validator={defaultAccountValidator}
+      method="post"
+      action={path.to.accountingDefaults}
+      defaultValues={initialValues}
+      className="w-full"
+    >
+      <Hidden name="intent" value="all" />
+      <div className="rounded-lg border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border p-6">
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">
+              Default Accounts
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Configure the default accounts used for various transaction types
+              across your system
+            </p>
+          </div>
+          <HStack>
+            <Submit isDisabled={isDisabled}>Save</Submit>
+            <Button size="md" variant="solid" onClick={onClose}>
+              Cancel
+            </Button>
+          </HStack>
+        </div>
+        <div className="flex flex-col gap-8 p-6">
+          {categoryGroups.map((group) => (
+            <div key={group.id} className="border border-border rounded-lg">
+              <div className="py-6 px-4 border-b border-border">
+                <h2 className="text-base font-semibold text-foreground">
+                  {group.title}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {group.description}
+                </p>
               </div>
-              <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
-                <Button size="md" variant="solid" onClick={onClose}>
-                  Cancel
-                </Button>
-              </HStack>
-            </ValidatedForm>
-          </TabsContent>
-          <TabsContent value="balance" className="py-6">
-            <ValidatedForm
-              validator={defaultBalanceSheetAccountValidator}
-              method="post"
-              action={path.to.accountingDefaults}
-              defaultValues={initialBalanceSheetValues.data}
-              className="w-full flex flex-col space-y-4"
-            >
-              <Hidden name="intent" value="balance" />
-              <div className="grid gap-y-4 gap-x-8 grid-cols-1 md:grid-cols-2">
-                <Select
-                  name="inventoryAccount"
-                  label="Inventory"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="inventoryInterimAccrualAccount"
-                  label="Inventory Interim Accrual"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="workInProgressAccount"
-                  label="Work in Progress (WIP)"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="receivablesAccount"
-                  label="Receivables"
-                  options={balanceSheetAccountOptions}
-                />
-
-                <Select
-                  name="inventoryInvoicedNotReceivedAccount"
-                  label="Inventory Invoiced Not Received"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="bankCashAccount"
-                  label="Bank - Cash"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="bankLocalCurrencyAccount"
-                  label="Bank - Local Currency"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="bankForeignCurrencyAccount"
-                  label="Bank - Foreign Currency"
-                  options={balanceSheetAccountOptions}
-                />
-
-                <Select
-                  name="assetAquisitionCostAccount"
-                  label="Asset Aquisition Cost"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="assetAquisitionCostOnDisposalAccount"
-                  label="Asset Cost on Disposal"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="accumulatedDepreciationAccount"
-                  label="Accumulated Depreciation"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="accumulatedDepreciationOnDisposalAccount"
-                  label="Accumulated Depreciation on Disposal"
-                  options={balanceSheetAccountOptions}
-                />
-
-                <Select
-                  name="prepaymentAccount"
-                  label="Prepayments"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="payablesAccount"
-                  label="Payables"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="inventoryReceivedNotInvoicedAccount"
-                  label="Inventory Received Not Invoiced"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="inventoryShippedNotInvoicedAccount"
-                  label="Inventory Shipped Not Invoiced"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="salesTaxPayableAccount"
-                  label="Sales Tax Payable"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="purchaseTaxPayableAccount"
-                  label="Purchase Tax Payable"
-                  options={balanceSheetAccountOptions}
-                />
-                <Select
-                  name="reverseChargeSalesTaxPayableAccount"
-                  label="Reverse Charge Sales Tax"
-                  options={balanceSheetAccountOptions}
-                />
-
-                <Select
-                  name="retainedEarningsAccount"
-                  label="Retained Earnings"
-                  options={balanceSheetAccountOptions}
-                />
+              <div className="flex flex-col gap-3 p-4">
+                {group.fields.map((field) => (
+                  <div
+                    key={field.name}
+                    className="group rounded-lg border border-border p-4 transition-all hover:border-muted-foreground/30"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-sm font-medium text-foreground">
+                            {field.label}
+                          </h3>
+                          <Badge variant={badgeColors[field.badgeType]}>
+                            {field.badgeType}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {field.description}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0 w-64">
+                        <Combobox
+                          name={field.name}
+                          options={accountOptions[field.accountType]}
+                          size="sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
-                <Button size="md" variant="solid" onClick={onClose}>
-                  Cancel
-                </Button>
-              </HStack>
-            </ValidatedForm>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+            </div>
+          ))}
+        </div>
+      </div>
+    </ValidatedForm>
   );
 };
 
