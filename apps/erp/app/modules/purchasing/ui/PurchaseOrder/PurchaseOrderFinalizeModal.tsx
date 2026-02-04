@@ -13,7 +13,11 @@ import {
 import { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useParams } from "react-router";
-import { SelectControlled, SupplierContact } from "~/components/Form";
+import {
+  EmailRecipients,
+  SelectControlled,
+  SupplierContact
+} from "~/components/Form";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { path } from "~/utils/path";
 import { purchaseOrderFinalizeValidator } from "../../purchasing.models";
@@ -23,12 +27,14 @@ type PurchaseOrderFinalizeModalProps = {
   purchaseOrder?: PurchaseOrder;
   fetcher: FetcherWithComponents<unknown>;
   onClose: () => void;
+  defaultCc?: string[];
 };
 
 const PurchaseOrderFinalizeModal = ({
   purchaseOrder,
   onClose,
-  fetcher
+  fetcher,
+  defaultCc = []
 }: PurchaseOrderFinalizeModalProps) => {
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
@@ -57,7 +63,8 @@ const PurchaseOrderFinalizeModal = ({
           onSubmit={onClose}
           defaultValues={{
             notification: notificationType as "Email" | "None",
-            supplierContact: purchaseOrder?.supplierContactId ?? undefined
+            supplierContact: purchaseOrder?.supplierContactId ?? undefined,
+            cc: defaultCc
           }}
           fetcher={fetcher}
         >
@@ -92,10 +99,13 @@ const PurchaseOrderFinalizeModal = ({
                 />
               )}
               {notificationType === "Email" && (
-                <SupplierContact
-                  name="supplierContact"
-                  supplier={purchaseOrder?.supplierId ?? undefined}
-                />
+                <>
+                  <SupplierContact
+                    name="supplierContact"
+                    supplier={purchaseOrder?.supplierId ?? undefined}
+                  />
+                  <EmailRecipients name="cc" label="CC" type="employee" />
+                </>
               )}
             </VStack>
           </ModalBody>

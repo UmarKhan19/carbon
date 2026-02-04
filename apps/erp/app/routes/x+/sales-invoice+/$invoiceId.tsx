@@ -1,4 +1,4 @@
-import { error } from "@carbon/auth";
+import { error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
@@ -19,6 +19,7 @@ import {
   getOpportunity,
   getOpportunityDocuments
 } from "~/modules/sales/sales.service";
+import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -52,14 +53,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const [customer, opportunity] = await Promise.all([
+  const serviceRole = getCarbonServiceRole();
+  const [customer, opportunity, companySettings] = await Promise.all([
     salesInvoice.data?.customerId
       ? getCustomer(client, salesInvoice.data.customerId)
       : null,
     salesInvoice.data?.opportunityId
       ? getOpportunity(client, salesInvoice.data.opportunityId)
-      : null
+      : null,
+    getCompanySettings(serviceRole, companyId)
   ]);
+
+  const defaultCc = customer?.data?.defaultCc?.length
+    ? customer.data.defaultCc
+    : (companySettings.data?.defaultCustomerCc ?? []);
 
   return {
     salesInvoice: salesInvoice.data,
@@ -71,7 +78,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       salesInvoice.data?.opportunityId!
     ),
     opportunity: opportunity?.data ?? null,
-    customer: customer?.data ?? null
+    customer: customer?.data ?? null,
+    defaultCc
   };
 }
 

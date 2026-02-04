@@ -238,7 +238,8 @@ export const purchaseOrderPaymentValidator = z.object({
 export const purchaseOrderFinalizeValidator = z
   .object({
     notification: z.enum(["Email", "None"]).optional(),
-    supplierContact: zfd.text(z.string().optional())
+    supplierContact: zfd.text(z.string().optional()),
+    cc: z.array(z.string()).optional()
   })
   .refine(
     (data) => (data.notification === "Email" ? data.supplierContact : true),
@@ -255,7 +256,8 @@ export const purchaseOrderApprovalValidator = z
       .min(1, { message: "Approval request is required" }),
     decision: z.enum(["Approved", "Rejected"]),
     notification: z.enum(["Email", "None"]).optional(),
-    supplierContact: zfd.text(z.string().optional())
+    supplierContact: zfd.text(z.string().optional()),
+    cc: z.array(z.string()).optional()
   })
   .refine(
     (data) => (data.notification === "Email" ? data.supplierContact : true),

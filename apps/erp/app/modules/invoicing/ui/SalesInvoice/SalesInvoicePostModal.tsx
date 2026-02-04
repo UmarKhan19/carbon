@@ -20,7 +20,11 @@ import {
 } from "@carbon/react";
 import { useEffect, useState } from "react";
 import type { FetcherWithComponents } from "react-router";
-import { CustomerContact, SelectControlled } from "~/components/Form";
+import {
+  CustomerContact,
+  EmailRecipients,
+  SelectControlled
+} from "~/components/Form";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { path } from "~/utils/path";
 import { salesInvoicePostValidator } from "../../invoicing.models";
@@ -38,6 +42,7 @@ type SalesInvoicePostModalProps = {
   }[];
   customerId: string | null;
   customerContactId: string | null;
+  defaultCc?: string[];
 };
 
 const SalesInvoicePostModal = ({
@@ -47,7 +52,8 @@ const SalesInvoicePostModal = ({
   invoiceId,
   linesToShip,
   customerId,
-  customerContactId
+  customerContactId,
+  defaultCc = []
 }: SalesInvoicePostModalProps) => {
   const hasLinesToShip = linesToShip.length > 0;
   const integrations = useIntegrations();
@@ -80,7 +86,8 @@ const SalesInvoicePostModal = ({
           action={path.to.salesInvoicePost(invoiceId)}
           defaultValues={{
             notification: notificationType as "Email" | "None",
-            customerContact: customerContactId ?? undefined
+            customerContact: customerContactId ?? undefined,
+            cc: defaultCc
           }}
           fetcher={fetcher}
         >
@@ -151,10 +158,13 @@ const SalesInvoicePostModal = ({
               )}
 
               {notificationType === "Email" && (
-                <CustomerContact
-                  name="customerContact"
-                  customer={customerId ?? undefined}
-                />
+                <>
+                  <CustomerContact
+                    name="customerContact"
+                    customer={customerId ?? undefined}
+                  />
+                  <EmailRecipients name="cc" label="CC" type="employee" />
+                </>
               )}
             </VStack>
           </ModalBody>

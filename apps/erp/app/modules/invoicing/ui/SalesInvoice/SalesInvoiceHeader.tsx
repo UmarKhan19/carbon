@@ -67,6 +67,7 @@ const SalesInvoiceHeader = () => {
   const routeData = useRouteData<{
     salesInvoice: SalesInvoice;
     salesInvoiceLines: SalesInvoiceLine[];
+    defaultCc: string[];
   }>(path.to.salesInvoice(invoiceId));
 
   if (!routeData?.salesInvoice) throw new Error("salesInvoice not found");
@@ -343,6 +344,7 @@ const SalesInvoiceHeader = () => {
           onClose={postingModal.onClose}
           linesToShip={linesNotAssociatedWithSO}
           fetcher={postFetcher}
+          defaultCc={routeData?.defaultCc ?? []}
         />
       )}
       {voidModal.isOpen && (

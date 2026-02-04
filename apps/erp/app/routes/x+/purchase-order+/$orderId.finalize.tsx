@@ -252,7 +252,7 @@ export async function action(args: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { notification, supplierContact } = validation.data;
+  const { notification, supplierContact, cc: ccSelections } = validation.data;
 
   switch (notification) {
     case "Email":
@@ -313,6 +313,7 @@ export async function action(args: ActionFunctionArgs) {
           await Promise.all([
             tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
               to: [buyer.data.email, supplier.data.contact.email],
+              cc: ccSelections?.length ? ccSelections : undefined,
               from: buyer.data.email,
               subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
               html,

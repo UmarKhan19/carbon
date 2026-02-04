@@ -13,7 +13,11 @@ import {
 import { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useParams } from "react-router";
-import { SelectControlled, SupplierContact } from "~/components/Form";
+import {
+  EmailRecipients,
+  SelectControlled,
+  SupplierContact
+} from "~/components/Form";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import type { ApprovalDecision } from "~/modules/shared/types";
 import { path } from "~/utils/path";
@@ -26,6 +30,7 @@ type PurchaseOrderApprovalModalProps = {
   decision: ApprovalDecision;
   fetcher: FetcherWithComponents<unknown>;
   onClose: () => void;
+  defaultCc?: string[];
 };
 
 const PurchaseOrderApprovalModal = ({
@@ -33,7 +38,8 @@ const PurchaseOrderApprovalModal = ({
   approvalRequestId,
   decision,
   onClose,
-  fetcher
+  fetcher,
+  defaultCc = []
 }: PurchaseOrderApprovalModalProps) => {
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
@@ -65,7 +71,8 @@ const PurchaseOrderApprovalModal = ({
             approvalRequestId,
             decision,
             notification: notificationType as "Email" | "None",
-            supplierContact: purchaseOrder?.supplierContactId ?? undefined
+            supplierContact: purchaseOrder?.supplierContactId ?? undefined,
+            cc: defaultCc
           }}
           fetcher={fetcher}
         >
@@ -105,10 +112,13 @@ const PurchaseOrderApprovalModal = ({
                 />
               )}
               {isApproving && notificationType === "Email" && (
-                <SupplierContact
-                  name="supplierContact"
-                  supplier={purchaseOrder?.supplierId ?? undefined}
-                />
+                <>
+                  <SupplierContact
+                    name="supplierContact"
+                    supplier={purchaseOrder?.supplierId ?? undefined}
+                  />
+                  <EmailRecipients name="cc" label="CC" type="employee" />
+                </>
               )}
             </VStack>
           </ModalBody>

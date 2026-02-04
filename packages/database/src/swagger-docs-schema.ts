@@ -13669,6 +13669,9 @@ export default {
             $ref: "#/parameters/rowFilter.customers.invoicingContactId",
           },
           {
+            $ref: "#/parameters/rowFilter.customers.defaultCc",
+          },
+          {
             $ref: "#/parameters/rowFilter.customers.externalId",
           },
           {
@@ -30770,6 +30773,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.suppliers.embedding",
+          },
+          {
+            $ref: "#/parameters/rowFilter.suppliers.defaultCc",
           },
           {
             $ref: "#/parameters/rowFilter.suppliers.type",
@@ -61672,6 +61678,12 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.defaultCustomerCc",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.includeThumbnailsOnSalesPdfs",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.includeThumbnailsOnPurchasingPdfs",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -61800,6 +61812,12 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.defaultCustomerCc",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.includeThumbnailsOnSalesPdfs",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.includeThumbnailsOnPurchasingPdfs",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -61880,6 +61898,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.defaultCustomerCc",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.includeThumbnailsOnSalesPdfs",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.includeThumbnailsOnPurchasingPdfs",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -73829,6 +73853,13 @@ export default {
           format: "text",
           type: "string",
         },
+        defaultCc: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
         externalId: {
           format: "jsonb",
         },
@@ -81621,6 +81652,13 @@ export default {
         embedding: {
           format: "extensions.halfvec(384)",
           type: "string",
+        },
+        defaultCc: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
         },
         type: {
           format: "text",
@@ -96581,6 +96619,8 @@ export default {
         "supplierQuoteNotificationGroup",
         "maintenanceGenerateInAdvance",
         "maintenanceAdvanceDays",
+        "includeThumbnailsOnSalesPdfs",
+        "includeThumbnailsOnPurchasingPdfs",
       ],
       properties: {
         id: {
@@ -96724,6 +96764,16 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        includeThumbnailsOnSalesPdfs: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        includeThumbnailsOnPurchasingPdfs: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
         },
       },
       type: "object",
@@ -104693,6 +104743,12 @@ export default {
     },
     "rowFilter.customers.invoicingContactId": {
       name: "invoicingContactId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customers.defaultCc": {
+      name: "defaultCc",
       required: false,
       in: "query",
       type: "string",
@@ -113413,6 +113469,12 @@ export default {
     },
     "rowFilter.suppliers.embedding": {
       name: "embedding",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.suppliers.defaultCc": {
+      name: "defaultCc",
       required: false,
       in: "query",
       type: "string",
@@ -130417,6 +130479,18 @@ export default {
     },
     "rowFilter.companySettings.defaultCustomerCc": {
       name: "defaultCustomerCc",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.includeThumbnailsOnSalesPdfs": {
+      name: "includeThumbnailsOnSalesPdfs",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.includeThumbnailsOnPurchasingPdfs": {
+      name: "includeThumbnailsOnPurchasingPdfs",
       required: false,
       in: "query",
       type: "string",

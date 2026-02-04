@@ -19,6 +19,7 @@ import type { z } from "zod";
 import {
   Currency,
   CustomFormFields,
+  EmailRecipients,
   Employee,
   Hidden,
   Input,
@@ -127,7 +128,7 @@ const SupplierForm = ({
                       />
                     </>
                   )}
-
+                  <EmailRecipients name="defaultCc" label="Default CC" />
                   <CustomFormFields table="supplier" />
                 </div>
               </ModalCardBody>
