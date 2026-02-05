@@ -13,7 +13,6 @@ import type {
   ShouldRevalidateFunction
 } from "react-router";
 import { Outlet, redirect, useLoaderData, useNavigate } from "react-router";
-import { Sidebar } from "~/components/Layout/Sidebar";
 import { Topbar } from "~/components/Layout/Topbar";
 import { getCompanies } from "~/modules/settings";
 import {
@@ -100,12 +99,9 @@ export default function AuthenticatedRoute() {
       <TooltipProvider>
         <div className="flex flex-col h-screen">
           <Topbar />
-          <div className="flex flex-1 h-[calc(100vh-49px)] relative">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto scrollbar-hide border-l border-t bg-muted sm:rounded-tl-2xl relative z-10">
-              <Outlet />
-            </main>
-          </div>
+          <main className="flex-1 overflow-y-auto scrollbar-hide bg-background h-[calc(100vh-49px)]">
+            <Outlet />
+          </main>
         </div>
       </TooltipProvider>
     </CarbonProvider>

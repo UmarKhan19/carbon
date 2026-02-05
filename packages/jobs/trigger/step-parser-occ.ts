@@ -1,5 +1,6 @@
 import { getCarbonServiceRole } from "@carbon/auth";
-import { task, logger, metadata } from "@trigger.dev/sdk";
+import { task, logger, metadata, tasks } from "@trigger.dev/sdk";
+import type { assemblySimulateTask } from "./assembly-simulate";
 
 /**
  * Assembly node from OpenCascade parser
@@ -166,12 +167,14 @@ export const stepParserOccTask = task({
       await metadata.set("status", "finalizing");
       await metadata.set("progress", 90);
 
-      // 4. Update assemblyProject with results
+      // 4. Update assemblyProject with results and chain simulation
       const { error: updateError } = await client
         .from("assemblyProject")
         .update({
-          status: "editing",
+          status: "simulating",
+          simulationStatus: "pending",
           assemblyTree: result.hierarchy,
+          originalAssemblyTree: result.hierarchy,
           modelPath: glbPath,
           parsingProgress: 100,
           parsingError: null,
@@ -182,10 +185,16 @@ export const stepParserOccTask = task({
         throw new Error(`Failed to update project: ${updateError.message}`);
       }
 
-      await metadata.set("status", "completed");
+      // Auto-chain: trigger simulation immediately after parse
+      await tasks.trigger<typeof assemblySimulateTask>("assembly-simulate", {
+        projectId,
+        companyId,
+      });
+
+      await metadata.set("status", "simulation-triggered");
       await metadata.set("progress", 100);
 
-      logger.info("STEP parsing completed successfully", {
+      logger.info("STEP parsing completed, simulation triggered", {
         projectId,
         partCount: result.part_count,
         glbPath,
