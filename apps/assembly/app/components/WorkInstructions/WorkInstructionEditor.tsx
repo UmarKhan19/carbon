@@ -14,7 +14,7 @@ import type {
 import { PlaybackControls } from "./CenterViewer/PlaybackControls";
 import { StepNavigation } from "./CenterViewer/StepNavigation";
 import { ViewerToolbar } from "./CenterViewer/ViewerToolbar";
-import { LeftPanel } from "./LeftPanel";
+import { FloatingLeftSidebar } from "./FloatingLeftSidebar";
 import { RightPanel } from "./RightPanel";
 
 export interface WorkInstructionEditorProps {
@@ -41,9 +41,6 @@ export function WorkInstructionEditor({
   onSave
 }: WorkInstructionEditorProps) {
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
-  const [leftPanelTab, setLeftPanelTab] = useState<"model" | "instructions">(
-    "instructions"
-  );
   const [rightPanelTab, setRightPanelTab] = useState<
     "supplements" | "tools" | "notes" | "standardNotes" | "media"
   >("supplements");
@@ -135,19 +132,17 @@ export function WorkInstructionEditor({
 
   return (
     <div className="flex h-full w-full bg-background">
-      {/* Left Panel - Steps / Model Tree */}
-      <LeftPanel
-        steps={steps}
-        assemblyTree={assemblyTree}
-        selectedStepIndex={selectedStepIndex}
-        onStepSelect={handleStepSelect}
-        activeTab={leftPanelTab}
-        onTabChange={setLeftPanelTab}
-        onStepsReorder={onStepsReorder}
-      />
-
-      {/* Center Panel - 3D Viewer */}
+      {/* Center Panel - 3D Viewer (full width, floating sidebar overlays) */}
       <div className="flex-1 flex flex-col bg-[#1a1a2e] relative">
+        {/* Floating Left Sidebar — overlays the viewer */}
+        <FloatingLeftSidebar
+          steps={steps}
+          assemblyTree={assemblyTree}
+          selectedStepIndex={selectedStepIndex}
+          onStepSelect={handleStepSelect}
+          onStepsReorder={onStepsReorder}
+        />
+
         {/* Viewer Toolbar */}
         <ViewerToolbar
           onFitToView={fitToView}
