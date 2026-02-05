@@ -22,6 +22,7 @@ import {
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Link, redirect, useFetcher, useLoaderData } from "react-router";
 import { WorkInstructionEditor } from "~/components/WorkInstructions";
+import { ExportModal } from "~/components/WorkInstructions/ExportModal";
 import type {
   AssemblyStep,
   AssemblyTreeNode,
@@ -212,13 +213,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ? `/file/model/${project.modelPath}`
     : undefined;
 
+  // Get share links
+  const { data: shareLinks } = await client
+    .from("assemblyShareLink")
+    .select("*")
+    .eq("projectId", projectId)
+    .order("createdAt", { ascending: false });
+
   return {
     project,
     steps,
     tools,
     standardNotes,
     assemblyTree,
-    modelUrl
+    modelUrl,
+    shareLinks: shareLinks ?? []
   };
 }
 
@@ -250,6 +259,44 @@ export async function action({ request, params }: ActionFunctionArgs) {
         .eq("companyId", companyId);
     }
     return { ok: true };
+  }
+
+  // Handle share link creation
+  if (intent === "createShareLink") {
+    const allowDownload = formData.get("allowDownload") === "true";
+    const expiresInDays = Number.parseInt(
+      formData.get("expiresInDays") as string,
+      10
+    );
+    const password = formData.get("password") as string;
+
+    const token = crypto.randomUUID();
+    const expiresAt = expiresInDays
+      ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000).toISOString()
+      : null;
+
+    await client.from("assemblyShareLink").insert({
+      projectId,
+      token,
+      expiresAt,
+      password: password || null,
+      allowDownload,
+      createdBy: userId
+    });
+
+    return { ok: true };
+  }
+
+  // Handle video export
+  if (intent === "exportVideo") {
+    // TODO: Trigger video export job via Trigger.dev
+    return { ok: true, message: "Video export started" };
+  }
+
+  // Handle PDF export
+  if (intent === "exportPdf") {
+    // TODO: Generate PDF
+    return { ok: true, message: "PDF export started" };
   }
 
   const stepsJson = formData.get("steps") as string;
@@ -575,12 +622,14 @@ export default function ProjectEditRoute() {
     tools,
     standardNotes,
     assemblyTree,
-    modelUrl
+    modelUrl,
+    shareLinks
   } = useLoaderData<typeof loader>();
 
   const [steps, setSteps] = useState<AssemblyStep[]>(initialSteps);
   const [editingName, setEditingName] = useState(false);
   const [projectName, setProjectName] = useState(project.name);
+  const [showExportModal, setShowExportModal] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const fetcher = useFetcher();
   const nameFetcher = useFetcher();
@@ -699,7 +748,7 @@ export default function ProjectEditRoute() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setShowExportModal(true)}>
                 <BsDownload className="w-4 h-4 mr-2" />
                 Export
               </DropdownMenuItem>
@@ -735,6 +784,13 @@ export default function ProjectEditRoute() {
           onSave={handleSave}
         />
       </div>
+
+      <ExportModal
+        open={showExportModal}
+        onOpenChange={setShowExportModal}
+        projectId={project.id}
+        shareLinks={shareLinks}
+      />
     </div>
   );
 }
