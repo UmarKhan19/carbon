@@ -1,9 +1,24 @@
 import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Button, Heading } from "@carbon/react";
-import { useCallback, useState } from "react";
-import { BsArrowLeft } from "react-icons/bs";
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Input
+} from "@carbon/react";
+import { useCallback, useRef, useState } from "react";
+import {
+  BsArrowLeft,
+  BsDownload,
+  BsGear,
+  BsPlayCircle,
+  BsThreeDots,
+  BsTrash
+} from "react-icons/bs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Link, redirect, useFetcher, useLoaderData } from "react-router";
 import { WorkInstructionEditor } from "~/components/WorkInstructions";
@@ -218,6 +233,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const formData = await request.formData();
+  const intent = formData.get("intent") as string;
+
+  // Handle project name update
+  if (intent === "updateName") {
+    const name = formData.get("name") as string;
+    if (name?.trim()) {
+      await client
+        .from("assemblyProject")
+        .update({
+          name: name.trim(),
+          updatedBy: userId,
+          updatedAt: new Date().toISOString()
+        })
+        .eq("id", projectId)
+        .eq("companyId", companyId);
+    }
+    return { ok: true };
+  }
+
   const stepsJson = formData.get("steps") as string;
 
   try {
@@ -545,7 +579,11 @@ export default function ProjectEditRoute() {
   } = useLoaderData<typeof loader>();
 
   const [steps, setSteps] = useState<AssemblyStep[]>(initialSteps);
+  const [editingName, setEditingName] = useState(false);
+  const [projectName, setProjectName] = useState(project.name);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const fetcher = useFetcher();
+  const nameFetcher = useFetcher();
   const isSaving = fetcher.state === "submitting";
 
   const handleStepUpdate = useCallback(
@@ -575,30 +613,111 @@ export default function ProjectEditRoute() {
     fetcher.submit({ steps: JSON.stringify(steps) }, { method: "post" });
   }, [fetcher, steps]);
 
+  const handleNameSave = useCallback(() => {
+    setEditingName(false);
+    if (projectName.trim() && projectName !== project.name) {
+      nameFetcher.submit(
+        {
+          intent: "updateName",
+          name: projectName.trim()
+        },
+        { method: "post" }
+      );
+    }
+  }, [nameFetcher, projectName, project.name]);
+
+  const statusStyles: Record<string, string> = {
+    published: "bg-green-100 text-green-700",
+    editing: "bg-blue-100 text-blue-700",
+    simulating: "bg-violet-100 text-violet-700",
+    preprocessing: "bg-yellow-100 text-yellow-700",
+    parsing: "bg-yellow-100 text-yellow-700",
+    failed: "bg-red-100 text-red-700"
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-49px)]">
       {/* Top Bar */}
       <div className="h-12 border-b bg-card flex items-center justify-between px-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild>
-            <Link to={path.to.project(project.id)}>
-              <BsArrowLeft className="w-4 h-4 mr-2" />
-              Back
+            <Link to={path.to.dashboard}>
+              <BsArrowLeft className="w-4 h-4" />
             </Link>
           </Button>
           <div className="h-6 w-px bg-border" />
-          <Heading size="h4">{project.name}</Heading>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-            Editing
+
+          {/* Editable project name */}
+          {editingName ? (
+            <Input
+              ref={nameInputRef}
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              onBlur={handleNameSave}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleNameSave();
+                if (e.key === "Escape") {
+                  setProjectName(project.name);
+                  setEditingName(false);
+                }
+              }}
+              className="h-7 text-sm font-semibold w-64"
+              autoFocus
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingName(true);
+                setTimeout(() => nameInputRef.current?.select(), 0);
+              }}
+              className="text-sm font-semibold hover:text-primary transition-colors truncate max-w-[300px]"
+              title="Click to rename"
+            >
+              {projectName}
+            </button>
+          )}
+
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              statusStyles[project.status] ?? "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {project.status}
           </span>
         </div>
+
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            Preview
-          </Button>
           <Button size="sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Changes"}
+            {isSaving ? "Saving..." : "Save"}
           </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <BsThreeDots className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <BsDownload className="w-4 h-4 mr-2" />
+                Export
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <BsGear className="w-4 h-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <BsPlayCircle className="w-4 h-4 mr-2" />
+                Re-run Simulation
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive">
+                <BsTrash className="w-4 h-4 mr-2" />
+                Delete Project
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
