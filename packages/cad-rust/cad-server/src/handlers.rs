@@ -135,6 +135,10 @@ pub struct SimulateResponse {
 ///
 /// Requires both assembly_tree (hierarchy) and glb_base64 (mesh data).
 /// The GLB is parsed to extract meshes which are matched to parts by name.
+///
+/// The simulation runs on `spawn_blocking` because collision detection is
+/// CPU-intensive and would block the tokio async runtime, starving other
+/// requests (health checks, concurrent parses, etc.).
 pub async fn run_simulation(
     State(state): State<Arc<AppState>>,
     Json(request): Json<SimulateRequest>,
@@ -187,39 +191,51 @@ pub async fn run_simulation(
         warn!("No GLB data provided - simulation may fail if meshes are not pre-loaded");
     }
 
-    let mut simulator = AssemblySimulator::new(state.simulator_config.clone());
+    let simulator_config = state.simulator_config.clone();
 
-    // Load the assembly
-    if let Err(e) = simulator.load_assembly(&assembly_tree) {
-        error!("Failed to load assembly: {}", e);
-        return Json(SimulateResponse {
-            success: false,
-            result: None,
-            error: Some(e.to_string()),
-        });
-    }
+    // Run the CPU-intensive simulation on spawn_blocking so we don't
+    // block the tokio runtime and starve other async tasks.
+    let sim_result = tokio::task::spawn_blocking(move || {
+        let mut simulator = AssemblySimulator::new(simulator_config);
 
-    // Run simulation
-    match simulator.compute_sequence() {
-        Ok(result) => {
-            info!(
-                "Simulation completed: {} steps, success={}",
-                result.steps.len(),
-                result.success
-            );
-            Json(SimulateResponse {
-                success: true,
-                result: Some(result),
-                error: None,
-            })
-        }
-        Err(e) => {
-            error!("Simulation error: {}", e);
-            Json(SimulateResponse {
+        if let Err(e) = simulator.load_assembly(&assembly_tree) {
+            error!("Failed to load assembly: {}", e);
+            return SimulateResponse {
                 success: false,
                 result: None,
                 error: Some(e.to_string()),
-            })
+            };
         }
-    }
+
+        match simulator.compute_sequence() {
+            Ok(result) => {
+                info!(
+                    "Simulation completed: {} steps, success={}",
+                    result.steps.len(),
+                    result.success
+                );
+                SimulateResponse {
+                    success: true,
+                    result: Some(result),
+                    error: None,
+                }
+            }
+            Err(e) => {
+                error!("Simulation error: {}", e);
+                SimulateResponse {
+                    success: false,
+                    result: None,
+                    error: Some(e.to_string()),
+                }
+            }
+        }
+    })
+    .await
+    .unwrap_or_else(|e| SimulateResponse {
+        success: false,
+        result: None,
+        error: Some(format!("Simulation task panicked: {}", e)),
+    });
+
+    Json(sim_result)
 }

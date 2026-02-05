@@ -76,6 +76,10 @@ impl AssemblySimulator {
     }
 
     /// Load an assembly tree into the simulator.
+    ///
+    /// After loading, auto-scales `removal_distance` to 2x the assembly
+    /// bounding box diagonal so the sweep is always large enough to clear
+    /// any part, regardless of model units (mm, inches, etc.).
     pub fn load_assembly(&mut self, root: &AssemblyNode) -> Result<(), SimulatorError> {
         self.parts.clear();
         self.removed_parts.clear();
@@ -85,6 +89,10 @@ impl AssemblySimulator {
         if parts.is_empty() {
             return Err(SimulatorError::NoParts);
         }
+
+        // Track global bounding box to auto-scale removal distance
+        let mut global_min = Point3::new(f32::MAX, f32::MAX, f32::MAX);
+        let mut global_max = Point3::new(f32::MIN, f32::MIN, f32::MIN);
 
         for part in parts {
             if let Some(mesh) = &part.mesh {
@@ -97,6 +105,18 @@ impl AssemblySimulator {
                     continue;
                 }
 
+                // Update global bounding box from mesh vertices + transform
+                let transform = matrix4_to_isometry(&part.transform);
+                for v in &vertices {
+                    let world_pt = transform * v;
+                    global_min.x = global_min.x.min(world_pt.x);
+                    global_min.y = global_min.y.min(world_pt.y);
+                    global_min.z = global_min.z.min(world_pt.z);
+                    global_max.x = global_max.x.max(world_pt.x);
+                    global_max.y = global_max.y.max(world_pt.y);
+                    global_max.z = global_max.z.max(world_pt.z);
+                }
+
                 let tri_mesh = TriMesh::new(vertices, indices);
 
                 // Compute bounding box size
@@ -104,9 +124,6 @@ impl AssemblySimulator {
                 let bbox_size = bbox
                     .map(|b| b.size())
                     .unwrap_or_else(|| Vector3::new(1.0, 1.0, 1.0));
-
-                // Convert transform matrix to Isometry
-                let transform = matrix4_to_isometry(&part.transform);
 
                 self.parts.push(PartData {
                     id: part.id.clone(),
@@ -120,6 +137,16 @@ impl AssemblySimulator {
 
         if self.parts.is_empty() {
             return Err(SimulatorError::NoParts);
+        }
+
+        // Auto-scale removal distance to 2x the assembly diagonal
+        let diagonal = (global_max - global_min).magnitude();
+        if diagonal > 0.0 {
+            self.config.removal_distance = diagonal * 2.0;
+            info!(
+                "Assembly bounding box: min={:?}, max={:?}, diagonal={:.1}, removal_distance={:.1}",
+                global_min, global_max, diagonal, self.config.removal_distance
+            );
         }
 
         info!("Loaded {} parts into simulator", self.parts.len());
@@ -215,14 +242,33 @@ impl AssemblySimulator {
     }
 
     /// Find all parts that can be removed in the current state.
+    ///
+    /// Tests 6 cardinal + 8 diagonal directions. Diagonal directions are
+    /// needed for interlocking geometries (e.g. L-brackets) that can't be
+    /// separated along any single axis.
     fn find_removable_parts(&self) -> Vec<(String, Vector3<f32>)> {
+        let s = 1.0_f32 / 2.0_f32.sqrt(); // normalized diagonal component
         let directions = [
+            // Cardinal directions (axis-aligned)
             Vector3::new(1.0, 0.0, 0.0),  // +X
             Vector3::new(-1.0, 0.0, 0.0), // -X
             Vector3::new(0.0, 1.0, 0.0),  // +Y
             Vector3::new(0.0, -1.0, 0.0), // -Y
             Vector3::new(0.0, 0.0, 1.0),  // +Z
             Vector3::new(0.0, 0.0, -1.0), // -Z
+            // Diagonal directions (for interlocking geometries)
+            Vector3::new(s, s, 0.0),
+            Vector3::new(s, -s, 0.0),
+            Vector3::new(-s, s, 0.0),
+            Vector3::new(-s, -s, 0.0),
+            Vector3::new(s, 0.0, s),
+            Vector3::new(s, 0.0, -s),
+            Vector3::new(-s, 0.0, s),
+            Vector3::new(-s, 0.0, -s),
+            Vector3::new(0.0, s, s),
+            Vector3::new(0.0, s, -s),
+            Vector3::new(0.0, -s, s),
+            Vector3::new(0.0, -s, -s),
         ];
 
         let mut removable = Vec::new();
@@ -246,6 +292,10 @@ impl AssemblySimulator {
     }
 
     /// Test if a part can be removed in a given direction without collision.
+    ///
+    /// Starts the sweep from step 1 (not 0) because assembled parts are
+    /// typically in contact at rest. We only care about *new* collisions
+    /// that occur as the part moves away, not the initial mating contact.
     fn can_remove_in_direction(&self, part_id: &str, direction: &Vector3<f32>) -> bool {
         let part = match self.parts.iter().find(|p| p.id == part_id) {
             Some(p) => p,
@@ -263,10 +313,12 @@ impl AssemblySimulator {
             return true; // No obstacles
         }
 
-        // Test collision at multiple points along the removal path
+        // Test collision at multiple points along the removal path.
+        // Start from step 1 to skip the rest position where parts are
+        // in designed contact (mating faces, bolt-in-hole, etc.).
         let step_distance = self.config.removal_distance / self.config.removal_steps as f32;
 
-        for step in 0..self.config.removal_steps {
+        for step in 1..=self.config.removal_steps {
             let offset = direction * (step as f32 * step_distance);
             let test_transform = Translation3::from(offset) * part.transform;
 

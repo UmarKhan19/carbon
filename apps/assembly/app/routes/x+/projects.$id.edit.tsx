@@ -10,10 +10,72 @@ import { WorkInstructionEditor } from "~/components/WorkInstructions";
 import type {
   AssemblyStep,
   AssemblyTreeNode,
+  Position3D,
   StandardNote,
+  StepKeyframe,
   Tool
 } from "~/types/assembly.types";
 import { path } from "~/utils/path";
+
+// ---------------------------------------------------------------------------
+// Animation data conversion: Rust AnimationKeyframe → frontend StepKeyframe
+// ---------------------------------------------------------------------------
+
+interface RustAnimationKeyframe {
+  time: number;
+  // nalgebra Matrix4 serialises as column-major nested array:
+  // [[col0], [col1], [col2], [col3]] – translation is col3[0..2]
+  transform: number[][] | number[];
+}
+
+/** Extract [tx, ty, tz] from a serialised nalgebra Matrix4. */
+function extractTranslation(
+  transform: number[][] | number[]
+): [number, number, number] {
+  if (Array.isArray(transform[0])) {
+    // Column-major nested: [[col0], [col1], [col2], [col3]]
+    const cols = transform as number[][];
+    return [cols[3][0], cols[3][1], cols[3][2]];
+  }
+  // Flat column-major: 16 elements – translation at indices 12,13,14
+  const flat = transform as number[];
+  return [flat[12], flat[13], flat[14]];
+}
+
+/**
+ * Convert Rust simulator AnimationKeyframes to frontend StepKeyframes.
+ *
+ * The Rust simulator outputs absolute 4×4 transforms. The frontend needs
+ * *offsets* relative to the entity's model-space rest position so we can
+ * apply them via `entity.offset` in xeokit.
+ *
+ * Convention after conversion:
+ *   position = {x:0, y:0, z:0}  →  part is at its model rest position
+ *   position = {x:d, …}         →  part is displaced by d along X
+ */
+function convertAnimationPath(
+  raw: RustAnimationKeyframe[],
+  partId: string
+): StepKeyframe[] {
+  if (!raw || raw.length < 2) return [];
+
+  // The last keyframe (time ≈ 1.0) is the rest/assembled position
+  const restT = extractTranslation(raw[raw.length - 1].transform);
+
+  return raw.map((kf) => {
+    const t = extractTranslation(kf.transform);
+    return {
+      partId,
+      timestamp: kf.time,
+      position: {
+        x: t[0] - restT[0],
+        y: t[1] - restT[1],
+        z: t[2] - restT[2]
+      } as Position3D,
+      rotation: { x: 0, y: 0, z: 0 } as Position3D
+    };
+  });
+}
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -65,7 +127,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         partIds: Array.isArray(s.partIds) ? s.partIds : [],
         partNames: Array.isArray(s.partNames) ? s.partNames : [],
         animationData: s.animationPath
-          ? { keyframes: s.animationPath }
+          ? {
+              keyframes: convertAnimationPath(
+                s.animationPath as unknown as RustAnimationKeyframe[],
+                Array.isArray(s.partIds) ? String(s.partIds[0]) : ""
+              )
+            }
           : undefined,
         duration: s.duration ?? 1000,
         cameraPreset: s.cameraPosition ?? undefined,
@@ -505,10 +572,7 @@ export default function ProjectEditRoute() {
   );
 
   const handleSave = useCallback(() => {
-    fetcher.submit(
-      { steps: JSON.stringify(steps) },
-      { method: "post" }
-    );
+    fetcher.submit({ steps: JSON.stringify(steps) }, { method: "post" });
   }, [fetcher, steps]);
 
   return (

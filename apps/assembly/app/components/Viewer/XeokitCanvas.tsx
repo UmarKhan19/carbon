@@ -74,7 +74,8 @@ export function XeokitCanvas({
         antialias: true, // Smooth jagged edges
         logarithmicDepthBufferEnabled: true, // Better depth precision for large models
         pbrEnabled: true, // Physically-based rendering
-        preserveDrawingBuffer: true // Required for screenshots
+        preserveDrawingBuffer: true, // Required for screenshots
+        entityOffsetsEnabled: true // Required for animation (entity.offset = [dx, dy, dz])
       });
 
       // Set dark background

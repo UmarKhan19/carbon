@@ -1,5 +1,9 @@
 import { useCallback, useState } from "react";
-import { useXeokit, XeokitCanvas } from "~/components/Viewer";
+import {
+  useAnimationPlayback,
+  useXeokit,
+  XeokitCanvas
+} from "~/components/Viewer";
 import type {
   AssemblyProject,
   AssemblyStep,
@@ -43,9 +47,9 @@ export function WorkInstructionEditor({
   const [rightPanelTab, setRightPanelTab] = useState<
     "supplements" | "tools" | "notes" | "standardNotes" | "media"
   >("supplements");
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const {
+    viewer,
     viewerState,
     handleViewerReady,
     handlePartSelected,
@@ -56,6 +60,21 @@ export function WorkInstructionEditor({
   } = useXeokit({
     onPartSelected: (partId, partName) => {
       console.log("Part selected:", partId, partName);
+    }
+  });
+
+  // Animation playback engine
+  const {
+    isPlaying,
+    hiddenPartIds: animationHiddenIds,
+    play: animPlay,
+    pause: animPause
+  } = useAnimationPlayback({
+    viewer,
+    steps,
+    selectedStepIndex,
+    onStepChange: (index) => {
+      setSelectedStepIndex(index);
     }
   });
 
@@ -75,13 +94,12 @@ export function WorkInstructionEditor({
 
   // Handle playback
   const handlePlay = useCallback(() => {
-    setIsPlaying(true);
-    // Playback logic would go here - advance through steps automatically
-  }, []);
+    animPlay();
+  }, [animPlay]);
 
   const handlePause = useCallback(() => {
-    setIsPlaying(false);
-  }, []);
+    animPause();
+  }, [animPause]);
 
   const handleNext = useCallback(() => {
     if (selectedStepIndex < steps.length - 1) {
@@ -146,7 +164,10 @@ export function WorkInstructionEditor({
             onViewerReady={handleViewerReady}
             onPartSelected={handlePartSelected}
             highlightedPartIds={viewerState.highlightedPartIds}
-            hiddenPartIds={viewerState.hiddenPartIds}
+            hiddenPartIds={[
+              ...viewerState.hiddenPartIds,
+              ...animationHiddenIds
+            ]}
           />
         </div>
 
