@@ -23,6 +23,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Link, redirect, useFetcher, useLoaderData } from "react-router";
 import { WorkInstructionEditor } from "~/components/WorkInstructions";
 import { ExportModal } from "~/components/WorkInstructions/ExportModal";
+import { SettingsDrawer } from "~/components/WorkInstructions/SettingsDrawer";
 import type {
   AssemblyStep,
   AssemblyTreeNode,
@@ -630,6 +631,7 @@ export default function ProjectEditRoute() {
   const [editingName, setEditingName] = useState(false);
   const [projectName, setProjectName] = useState(project.name);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const fetcher = useFetcher();
   const nameFetcher = useFetcher();
@@ -752,7 +754,7 @@ export default function ProjectEditRoute() {
                 <BsDownload className="w-4 h-4 mr-2" />
                 Export
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setShowSettings(true)}>
                 <BsGear className="w-4 h-4 mr-2" />
                 Settings
               </DropdownMenuItem>
@@ -791,6 +793,8 @@ export default function ProjectEditRoute() {
         projectId={project.id}
         shareLinks={shareLinks}
       />
+
+      <SettingsDrawer open={showSettings} onOpenChange={setShowSettings} />
     </div>
   );
 }
