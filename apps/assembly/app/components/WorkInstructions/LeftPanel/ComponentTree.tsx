@@ -1,5 +1,5 @@
 import { cn } from "@carbon/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BsBox,
   BsChevronDown,
@@ -7,6 +7,17 @@ import {
   BsCollection
 } from "react-icons/bs";
 import type { AssemblyTreeNode } from "~/types/assembly.types";
+
+/** Check if a node or any of its descendants has the given ID */
+function containsNodeId(node: AssemblyTreeNode, targetId: string): boolean {
+  if (node.id === targetId) return true;
+  if (node.children) {
+    for (const child of node.children) {
+      if (containsNodeId(child, targetId)) return true;
+    }
+  }
+  return false;
+}
 
 export interface ComponentTreeProps {
   tree: AssemblyTreeNode;
@@ -52,6 +63,19 @@ function ComponentTreeNode({
   // Show folder icon only for assemblies with multiple children
   const showAsFolderIcon =
     node.type === "assembly" && node.children && node.children.length > 1;
+
+  // Auto-expand when a descendant is selected (e.g., from viewer click)
+  useEffect(() => {
+    if (selectedNodeId && hasChildren && !isSelected) {
+      // Check if selected node is a descendant of this node
+      const hasSelectedDescendant = node.children?.some((child) =>
+        containsNodeId(child, selectedNodeId)
+      );
+      if (hasSelectedDescendant) {
+        setIsExpanded(true);
+      }
+    }
+  }, [selectedNodeId, hasChildren, isSelected, node.children]);
 
   return (
     <div>
