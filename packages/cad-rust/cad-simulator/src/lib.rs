@@ -8,9 +8,13 @@
 //! 5. Reverse for assembly sequence
 
 pub mod collision;
+pub mod contact_graph;
+pub mod dependency_graph;
 pub mod sequence;
 pub mod simulator;
 pub mod stability;
 
+pub use contact_graph::*;
+pub use dependency_graph::*;
 pub use sequence::*;
 pub use simulator::*;

@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Fixed model disappearing on zoom out** - Extended camera far clipping plane to 100000 (`XeokitCanvas.tsx`)
 - Added custom 3-point lighting setup for better metallic shine (key, fill, rim lights)
 
+#### Rust Physics Simulator (`packages/cad-rust/`)
+- Improved sequencing accuracy with panel-aware dependency rules, name/score-based part kinds, and disassembly prioritization
+- Improved removal feasibility by using contact-normal candidate directions and adaptive step sizing with clearance checks
+- Added helix-style removal paths for fasteners to better match screw/bolt insertions
+- Prevented zero-length contact normals from producing NaNs in the contact graph
+
 #### CAD Service (`packages/cad-service/`)
 - Fixed STEP file color extraction using official PythonOCC pattern (`GetInstanceColor` before `GetColor`)
 - Added recursion depth limit and cycle detection to XCAF parser to prevent hangs
