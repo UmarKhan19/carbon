@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   useAnimationPlayback,
   useXeokit,
@@ -61,14 +61,22 @@ export function WorkInstructionEditor({
     highlightParts,
     flyToObject
   } = useXeokit({
-    onPartSelected: (partId, partName) => {
-      console.log("Part selected:", partId, partName);
-      // When user clicks in 3D viewer, also update selected node
-      if (partId) {
-        setSelectedNodeId(partId);
-      }
+    onPartSelected: (partId, _partName) => {
+      console.log("Part selected in viewer:", partId);
+      // When user clicks in 3D viewer, update selection AND highlight the part
+      setSelectedNodeId(partId);
+      // Note: highlightParts will be called via useEffect below when selectedNodeId changes
     }
   });
+
+  // Sync highlighting when selectedNodeId changes (from either tree click or viewer click)
+  useEffect(() => {
+    if (selectedNodeId && isModelLoaded) {
+      highlightParts([selectedNodeId]);
+    } else if (!selectedNodeId && isModelLoaded) {
+      highlightParts([]);
+    }
+  }, [selectedNodeId, isModelLoaded, highlightParts]);
 
   // Animation playback engine
   const {
@@ -129,14 +137,14 @@ export function WorkInstructionEditor({
     handleStepSelect(steps.length - 1);
   }, [steps.length, handleStepSelect]);
 
-  // Handle tree node selection (parts highlighting)
+  // Handle tree node selection (parts highlighting + fly to)
   const handleNodeSelect = useCallback(
     (nodeId: string) => {
       setSelectedNodeId(nodeId);
-      highlightParts([nodeId]);
+      // highlightParts is called automatically via useEffect when selectedNodeId changes
       flyToObject(nodeId, 0.5);
     },
-    [highlightParts, flyToObject]
+    [flyToObject]
   );
 
   // Handle step update

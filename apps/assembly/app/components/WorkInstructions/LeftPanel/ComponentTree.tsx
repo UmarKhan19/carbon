@@ -49,7 +49,9 @@ function ComponentTreeNode({
   const [isExpanded, setIsExpanded] = useState(depth < 2); // Auto-expand first 2 levels
   const hasChildren = node.children && node.children.length > 0;
   const isSelected = selectedNodeId === node.id;
-  const isAssembly = node.type === "assembly";
+  // Show folder icon only for assemblies with multiple children
+  const showAsFolderIcon =
+    node.type === "assembly" && node.children && node.children.length > 1;
 
   return (
     <div>
@@ -80,8 +82,8 @@ function ComponentTreeNode({
           <span className="w-3" /> // Spacer for alignment
         )}
 
-        {/* Type icon */}
-        {isAssembly ? (
+        {/* Type icon - folder for assemblies with >1 children, box for single parts */}
+        {showAsFolderIcon ? (
           <BsCollection className="w-4 h-4 flex-shrink-0 text-yellow-500" />
         ) : (
           <BsBox className="w-4 h-4 flex-shrink-0 text-blue-500" />
