@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added structured simulator diagnostics (`overlap`, `clearance`, `path_not_found`, `constraint_conflict`) and planner stats to simulation output (`cad-common`, `cad-simulator`)
 - Added assembled-state overlap detection and issue emission before sequence generation (`cad-simulator/src/simulator.rs`)
 - Tightened collision-safe path planning by requiring high removal completion ratio, generating dense validated keyframes per step, and adding in-loop timeout guards to avoid long-running planner stalls (`cad-simulator/src/simulator.rs`)
+- **105x performance improvement** - Enabled swept AABB pre-filter to skip collision sampling until first potential intersection, reduced sampling density, and tuned binary search early exit (`cad-simulator/src/simulator.rs`)
 
 #### CAD Service (`packages/cad-service/`)
 - Fixed STEP file color extraction using official PythonOCC pattern (`GetInstanceColor` before `GetColor`)

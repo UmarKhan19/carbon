@@ -140,7 +140,7 @@ struct MotionTrace {
 }
 
 const MIN_REMOVAL_RATIO: f32 = 0.90;
-const MAX_MOTION_SAMPLING_STEPS: f32 = 220.0;
+const MAX_MOTION_SAMPLING_STEPS: f32 = 100.0;
 
 impl AssemblySimulator {
     /// Create a new simulator with the given configuration.
@@ -1007,7 +1007,53 @@ impl AssemblySimulator {
         let mut min_clearance = f32::MAX;
         let mut last_safe = 0.0_f32;
 
-        for step in 1..=steps {
+        // Use swept AABB to find earliest potential collision point
+        // This lets us skip sampling until we get close to a neighbor
+        let velocity = match &path.motion {
+            RemovalMotion::Linear => {
+                let dir = if path.direction.norm_squared() > 1.0e-8 {
+                    path.direction.normalize()
+                } else {
+                    Vector3::x()
+                };
+                dir * required_distance
+            }
+            RemovalMotion::Helix { axis, .. } => {
+                let ax = if axis.norm_squared() > 1.0e-8 {
+                    axis.normalize()
+                } else {
+                    Vector3::z()
+                };
+                ax * required_distance
+            }
+        };
+
+        let (part_aabb_min, part_aabb_max) =
+            compute_world_aabb(&part.bbox_min, &part.bbox_max, &part.transform);
+
+        let mut earliest_entry = 1.0_f32;
+        for neighbor in &neighbors {
+            if neighbor.baseline_intersecting {
+                earliest_entry = 0.0;
+                break;
+            }
+            if let Some(t) = swept_aabb_entry_time(
+                &part_aabb_min,
+                &part_aabb_max,
+                &neighbor.part.world_aabb_min,
+                &neighbor.part.world_aabb_max,
+                &velocity,
+                clearance,
+            ) {
+                earliest_entry = earliest_entry.min(t);
+            }
+        }
+
+        // Start sampling a bit before the earliest potential collision
+        let start_fraction = (earliest_entry - 0.05).max(0.0);
+        let start_step = ((start_fraction * steps as f32) as u32).saturating_sub(1);
+
+        for step in start_step.max(1)..=steps {
             if Instant::now() >= deadline {
                 break;
             }
@@ -1081,14 +1127,14 @@ impl AssemblySimulator {
             .x
             .min(part.bounding_box_size.y.min(part.bounding_box_size.z))
             .max(0.001);
-        let max_step = (min_dim * 0.25).max(0.001);
+        let max_step = (min_dim * 0.4).max(0.001);
 
         let mut steps = (required_distance / max_step)
             .ceil()
             .max(self.config.removal_steps as f32);
 
         if let RemovalMotion::Helix { turns, .. } = &path.motion {
-            steps = steps.max(turns.abs() * 20.0);
+            steps = steps.max(turns.abs() * 16.0);
         }
 
         steps.clamp(4.0, MAX_MOTION_SAMPLING_STEPS) as u32
@@ -1247,11 +1293,11 @@ impl AssemblySimulator {
         let mut low = safe_distance;
         let mut high = colliding_distance;
 
-        for _ in 0..10 {
+        for _ in 0..6 {
             if Instant::now() >= deadline {
                 break;
             }
-            if (high - low).abs() < 1.0e-5 {
+            if (high - low).abs() < 1.0e-4 {
                 break;
             }
 
@@ -1509,7 +1555,8 @@ fn aabb_overlap_volume(
     overlap_x * overlap_y * overlap_z
 }
 
-#[cfg(test)]
+/// Compute the time (0..1) when moving AABB first enters another AABB.
+/// Returns None if they never intersect along the velocity vector.
 fn swept_aabb_entry_time(
     a_min: &Point3<f32>,
     a_max: &Point3<f32>,
