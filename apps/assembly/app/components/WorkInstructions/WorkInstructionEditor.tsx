@@ -11,6 +11,7 @@ import type {
   StandardNote,
   Tool
 } from "~/types/assembly.types";
+
 import { PlaybackControls } from "./CenterViewer/PlaybackControls";
 import { StepNavigation } from "./CenterViewer/StepNavigation";
 import { ViewerToolbar } from "./CenterViewer/ViewerToolbar";
@@ -41,6 +42,7 @@ export function WorkInstructionEditor({
   onSave
 }: WorkInstructionEditorProps) {
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [rightPanelTab, setRightPanelTab] = useState<
     "supplements" | "tools" | "notes" | "standardNotes" | "media"
   >("supplements");
@@ -48,15 +50,23 @@ export function WorkInstructionEditor({
   const {
     viewer,
     viewerState,
+    isModelLoaded,
     handleViewerReady,
+    handleModelLoaded,
     handlePartSelected,
     setView,
     fitToView,
     setExplodedView,
-    goToStep
+    goToStep,
+    highlightParts,
+    flyToObject
   } = useXeokit({
     onPartSelected: (partId, partName) => {
       console.log("Part selected:", partId, partName);
+      // When user clicks in 3D viewer, also update selected node
+      if (partId) {
+        setSelectedNodeId(partId);
+      }
     }
   });
 
@@ -68,6 +78,7 @@ export function WorkInstructionEditor({
     pause: animPause
   } = useAnimationPlayback({
     viewer,
+    isModelLoaded,
     steps,
     selectedStepIndex,
     onStepChange: (index) => {
@@ -118,6 +129,16 @@ export function WorkInstructionEditor({
     handleStepSelect(steps.length - 1);
   }, [steps.length, handleStepSelect]);
 
+  // Handle tree node selection (parts highlighting)
+  const handleNodeSelect = useCallback(
+    (nodeId: string) => {
+      setSelectedNodeId(nodeId);
+      highlightParts([nodeId]);
+      flyToObject(nodeId, 0.5);
+    },
+    [highlightParts, flyToObject]
+  );
+
   // Handle step update
   const handleStepFieldUpdate = useCallback(
     (field: keyof AssemblyStep, value: unknown) => {
@@ -141,6 +162,8 @@ export function WorkInstructionEditor({
           selectedStepIndex={selectedStepIndex}
           onStepSelect={handleStepSelect}
           onStepsReorder={onStepsReorder}
+          onNodeSelect={handleNodeSelect}
+          selectedNodeId={selectedNodeId}
         />
 
         {/* Viewer Toolbar */}
@@ -157,6 +180,7 @@ export function WorkInstructionEditor({
             modelUrl={modelUrl}
             modelFormat="gltf"
             onViewerReady={handleViewerReady}
+            onModelLoaded={handleModelLoaded}
             onPartSelected={handlePartSelected}
             highlightedPartIds={viewerState.highlightedPartIds}
             hiddenPartIds={[

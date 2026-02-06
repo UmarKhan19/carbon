@@ -24,6 +24,8 @@ interface XeokitEntity {
 export interface UseAnimationPlaybackOptions {
   /** xeokit Viewer instance (null until ready). */
   viewer: Viewer | null;
+  /** Whether the 3D model has finished loading. */
+  isModelLoaded?: boolean;
   /** All assembly steps in order. */
   steps: AssemblyStep[];
   /** Currently selected step index (from manual navigation). */
@@ -49,14 +51,19 @@ export interface AnimationPlaybackState {
   stop: () => void;
 }
 
-/** Safely get a xeokit entity with offset/visible support. */
+/**
+ * Safely get a xeokit entity with offset/visible support.
+ * xeokit entity IDs are UUIDs that match the partIds from the database.
+ */
 function getEntity(viewer: Viewer | null, partId: string): XeokitEntity | null {
-  if (!viewer) return null;
+  if (!viewer?.scene?.objects) return null;
+  // Direct lookup - partId IS the entity ID (both are UUIDs)
   return (viewer.scene.objects[partId] as unknown as XeokitEntity) ?? null;
 }
 
 export function useAnimationPlayback({
   viewer,
+  isModelLoaded = false,
   steps,
   selectedStepIndex,
   onStepChange,
@@ -115,29 +122,73 @@ export function useAnimationPlayback({
 
       const keyframes = step.animationData?.keyframes;
 
+      // Debug: Log keyframe data on first tick
+      if (t < 0.02) {
+        console.log("[ANIM] interpolateStep:", {
+          stepIdx,
+          partIds: step.partIds,
+          keyframeCount: keyframes?.length,
+          keyframes
+        });
+      }
+
       for (const partId of step.partIds) {
         const entity = getEntity(viewer, partId);
-        if (!entity) continue;
+        if (!entity) {
+          if (t < 0.02) {
+            const availableIds = viewer?.scene?.objects
+              ? Object.keys(viewer.scene.objects).slice(0, 5)
+              : [];
+            console.warn("[ANIM] Entity not found:", {
+              partId,
+              availableEntityIds: availableIds,
+              totalEntities: viewer?.scene?.objects
+                ? Object.keys(viewer.scene.objects).length
+                : 0
+            });
+          }
+          continue;
+        }
 
         // Find this part's keyframes (there may be one partId or many)
         const partKfs = keyframes?.filter((kf) => kf.partId === partId);
         if (partKfs && partKfs.length >= 2) {
           const start = partKfs[0];
           const end = partKfs[partKfs.length - 1];
-          entity.offset = [
+          const offset = [
             start.position.x * (1 - t) + end.position.x * t,
             start.position.y * (1 - t) + end.position.y * t,
             start.position.z * (1 - t) + end.position.z * t
           ];
+          entity.offset = offset;
+          if (t < 0.02) {
+            console.log("[ANIM] Applied 2-keyframe offset:", {
+              partId,
+              offset
+            });
+          }
         } else if (partKfs && partKfs.length === 1) {
           // Single keyframe → just use its offset scaled by (1-t)
-          entity.offset = [
+          const offset = [
             partKfs[0].position.x * (1 - t),
             partKfs[0].position.y * (1 - t),
             partKfs[0].position.z * (1 - t)
           ];
+          entity.offset = offset;
+          if (t < 0.02) {
+            console.log("[ANIM] Applied 1-keyframe offset:", {
+              partId,
+              offset
+            });
+          }
         } else {
           entity.offset = [0, 0, 0];
+          if (t < 0.02) {
+            console.log(
+              "[ANIM] No keyframes for part, offset=[0,0,0]:",
+              partId
+            );
+          }
         }
       }
     },
@@ -212,6 +263,17 @@ export function useAnimationPlayback({
   const play = useCallback(() => {
     if (!viewer || steps.length === 0) return;
 
+    // Wait for model to load
+    if (!isModelLoaded) {
+      console.warn("[ANIM] Cannot play - model not loaded yet");
+      return;
+    }
+
+    const entityCount = viewer?.scene?.objects
+      ? Object.keys(viewer.scene.objects).length
+      : 0;
+    console.log("[ANIM] Starting playback with", entityCount, "entities");
+
     playingStepRef.current = selectedStepIndex;
     startTimeRef.current = 0;
 
@@ -239,7 +301,7 @@ export function useAnimationPlayback({
 
     setIsPlaying(true);
     rafRef.current = requestAnimationFrame(tick);
-  }, [viewer, steps, selectedStepIndex, collectPartIds, tick]);
+  }, [viewer, isModelLoaded, steps, selectedStepIndex, collectPartIds, tick]);
 
   const pause = useCallback(() => {
     setIsPlaying(false);
@@ -259,7 +321,12 @@ export function useAnimationPlayback({
   // ── Sync with manual step navigation ─────────────────────────────────
 
   useEffect(() => {
-    if (!isPlaying && viewer) {
+    // Only apply snapshot when viewer is ready AND has objects loaded
+    if (
+      !isPlaying &&
+      viewer?.scene?.objects &&
+      Object.keys(viewer.scene.objects).length > 0
+    ) {
       applySnapshot(selectedStepIndex);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

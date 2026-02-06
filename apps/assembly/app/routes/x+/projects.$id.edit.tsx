@@ -27,6 +27,7 @@ import { SettingsDrawer } from "~/components/WorkInstructions/SettingsDrawer";
 import type {
   AssemblyStep,
   AssemblyTreeNode,
+  CameraState,
   Position3D,
   StandardNote,
   StepKeyframe,
@@ -136,48 +137,57 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   // Convert database steps to typed steps, or use mock data
   const steps: AssemblyStep[] = dbSteps?.length
-    ? dbSteps.map((s) => ({
-        id: s.id,
-        projectId: s.projectId,
-        stepNumber: String(s.stepNumber),
-        parentStepId: s.groupId ?? undefined,
-        partIds: Array.isArray(s.partIds) ? s.partIds : [],
-        partNames: Array.isArray(s.partNames) ? s.partNames : [],
-        animationData: s.animationPath
-          ? {
-              keyframes: convertAnimationPath(
-                s.animationPath as unknown as RustAnimationKeyframe[],
-                Array.isArray(s.partIds) ? String(s.partIds[0]) : ""
-              )
-            }
-          : undefined,
-        duration: s.duration ?? 1000,
-        cameraPreset: s.cameraPosition ?? undefined,
-        title: s.title ?? "",
-        instruction: s.instruction ?? "",
-        notes: s.notes ?? undefined,
-        tools: Array.isArray(s.toolIds)
-          ? s.toolIds.map((toolId: string) => {
-              const tool = dbTools?.find((t) => t.id === toolId);
-              return {
-                toolId,
-                name: tool?.name ?? toolId,
-                category: tool?.category,
-                imageUrl: tool?.imageUrl
-              };
-            })
-          : [],
-        standardNoteIds: [],
-        mediaIds: [],
-        warnings: Array.isArray(s.warnings)
-          ? s.warnings.map((w: string) => ({
-              type: "caution" as const,
-              message: w
-            }))
-          : [],
-        groupId: s.groupId ?? undefined,
-        groupLabel: undefined
-      }))
+    ? dbSteps.map((s) => {
+        // Cast Json[] to string[] early to fix type issues
+        const partIds = (Array.isArray(s.partIds) ? s.partIds : []) as string[];
+        const partNames = (
+          Array.isArray(s.partNames) ? s.partNames : []
+        ) as string[];
+        const firstPartId = partIds.length > 0 ? partIds[0] : "";
+
+        return {
+          id: s.id,
+          projectId: s.projectId,
+          stepNumber: String(s.stepNumber),
+          parentStepId: s.groupId ?? undefined,
+          partIds,
+          partNames,
+          animationData: s.animationPath
+            ? {
+                keyframes: convertAnimationPath(
+                  s.animationPath as unknown as RustAnimationKeyframe[],
+                  firstPartId
+                )
+              }
+            : undefined,
+          duration: s.duration ?? 1000,
+          cameraPreset: (s.cameraPosition as CameraState | null) ?? undefined,
+          title: s.title ?? "",
+          instruction: s.instruction ?? "",
+          notes: s.notes ?? undefined,
+          tools: Array.isArray(s.toolIds)
+            ? (s.toolIds as string[]).map((toolId) => {
+                const tool = dbTools?.find((t) => t.id === toolId);
+                return {
+                  toolId,
+                  name: tool?.name ?? toolId,
+                  category: tool?.category,
+                  imageUrl: tool?.imageUrl
+                };
+              })
+            : [],
+          standardNoteIds: [],
+          mediaIds: [],
+          warnings: Array.isArray(s.warnings)
+            ? (s.warnings as string[]).map((w) => ({
+                type: "caution" as const,
+                message: w
+              }))
+            : [],
+          groupId: s.groupId ?? undefined,
+          groupLabel: undefined
+        };
+      })
     : mockSteps;
 
   // Convert tools

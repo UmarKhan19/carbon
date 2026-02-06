@@ -18,6 +18,7 @@ export interface XeokitCanvasProps {
   modelUrl?: string;
   modelFormat?: "xkt" | "gltf";
   onViewerReady?: (viewer: Viewer) => void;
+  onModelLoaded?: () => void;
   onPartSelected?: (partId: string | null, partName: string | null) => void;
   highlightedPartIds?: string[];
   hiddenPartIds?: string[];
@@ -30,6 +31,7 @@ export function XeokitCanvas({
   modelUrl,
   modelFormat = "gltf",
   onViewerReady,
+  onModelLoaded,
   onPartSelected,
   highlightedPartIds = [],
   hiddenPartIds = [],
@@ -44,6 +46,15 @@ export function XeokitCanvas({
   const annotationsRef = useRef<XeokitAnnotationsPlugin | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [isViewerReady, setIsViewerReady] = useState(false);
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+
+  // Use refs for callbacks to avoid infinite re-render loops
+  const onModelLoadedRef = useRef(onModelLoaded);
+  onModelLoadedRef.current = onModelLoaded;
+  const onViewerReadyRef = useRef(onViewerReady);
+  onViewerReadyRef.current = onViewerReady;
+  const onPartSelectedRef = useRef(onPartSelected);
+  onPartSelectedRef.current = onPartSelected;
 
   // Check if we're on the client
   useEffect(() => {
@@ -55,8 +66,16 @@ export function XeokitCanvas({
     if (!isClient) return;
     if (viewerRef.current) return;
 
+    // Track if effect was cleaned up (for React Strict Mode double-mount)
+    let cancelled = false;
+
     // Dynamically import xeokit-sdk only on client
     import("@xeokit/xeokit-sdk").then((xeokit) => {
+      // Bail out if effect was cleaned up during async import
+      if (cancelled) {
+        console.log("[VIEWER] Skipping setup - effect was cleaned up");
+        return;
+      }
       const {
         Viewer,
         NavCubePlugin,
@@ -216,32 +235,38 @@ export function XeokitCanvas({
         if (hit && hit.entity) {
           const entityId = hit.entity.id;
           console.log("[VIEWER] Clicked entity:", entityId);
-          onPartSelected?.(entityId, entityId);
+          onPartSelectedRef.current?.(entityId, entityId);
         } else {
           console.log("[VIEWER] Clicked empty space");
-          onPartSelected?.(null, null);
+          onPartSelectedRef.current?.(null, null);
         }
       });
 
       viewerRef.current = viewer;
       setIsViewerReady(true);
-      onViewerReady?.(viewer);
+      onViewerReadyRef.current?.(viewer);
     });
 
     return () => {
+      cancelled = true;
       if (viewerRef.current) {
         viewerRef.current.destroy();
         viewerRef.current = null;
         setIsViewerReady(false);
+        setIsModelLoaded(false);
       }
     };
-  }, [isClient, canvasId, navCubeCanvasId, onViewerReady, onPartSelected]);
+    // Note: Callbacks use refs to avoid re-creating viewer on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient, canvasId, navCubeCanvasId]);
 
   // Load model when URL changes or viewer becomes ready
   useEffect(() => {
     if (!modelUrl || !isViewerReady || !viewerRef.current) return;
 
     const viewer = viewerRef.current;
+    let cancelled = false;
+    setIsModelLoaded(false);
 
     // Clear existing models
     const existingModels = Object.keys(viewer.scene.models);
@@ -250,32 +275,73 @@ export function XeokitCanvas({
     });
 
     // Load new model
+    let sceneModel: ReturnType<typeof gltfLoaderRef.current.load> | null = null;
+
     if (modelFormat === "xkt" && xktLoaderRef.current) {
-      xktLoaderRef.current.load({
+      sceneModel = xktLoaderRef.current.load({
         id: "assembly",
         src: modelUrl,
         edges: true
       });
     } else if (modelFormat === "gltf" && gltfLoaderRef.current) {
-      gltfLoaderRef.current.load({
+      sceneModel = gltfLoaderRef.current.load({
         id: "assembly",
         src: modelUrl,
         edges: true
       });
     }
 
-    // Fit to view after load
-    setTimeout(() => {
-      viewer.cameraFlight.flyTo({
-        aabb: viewer.scene.aabb,
-        duration: 0.5
+    // Wait for model to finish loading
+    if (sceneModel) {
+      console.log("[VIEWER] Loading model from:", modelUrl);
+
+      sceneModel.on("loaded", () => {
+        // Bail out if effect was cleaned up during load
+        if (cancelled) {
+          console.log(
+            "[VIEWER] Model loaded but effect was cleaned up - skipping"
+          );
+          return;
+        }
+        const entityCount = Object.keys(viewer.scene.objects).length;
+        console.log("[VIEWER] Model loaded with", entityCount, "entities");
+        console.log(
+          "[VIEWER] Entity IDs:",
+          Object.keys(viewer.scene.objects).slice(0, 10)
+        );
+        setIsModelLoaded(true);
+        onModelLoadedRef.current?.();
+        // Fit to view after load
+        viewer.cameraFlight.flyTo({
+          aabb: viewer.scene.aabb,
+          duration: 0.5
+        });
       });
-    }, 500);
+
+      sceneModel.on("error", (err: unknown) => {
+        console.error("[VIEWER] Model load error:", err);
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      // Destroy the model when effect cleans up
+      if (sceneModel) {
+        try {
+          sceneModel.destroy();
+        } catch {
+          // Ignore errors during cleanup
+        }
+      }
+    };
+    // Note: onModelLoaded is intentionally NOT in deps to prevent infinite loops.
+    // The callback is captured at effect creation time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelUrl, modelFormat, isViewerReady]);
 
   // Update highlighted parts
   useEffect(() => {
-    if (!isViewerReady || !viewerRef.current) return;
+    if (!isModelLoaded || !viewerRef.current) return;
     const viewer = viewerRef.current;
 
     // Reset all highlights
@@ -285,21 +351,30 @@ export function XeokitCanvas({
     if (highlightedPartIds.length > 0) {
       viewer.scene.setObjectsHighlighted(highlightedPartIds, true);
     }
-  }, [highlightedPartIds, isViewerReady]);
+  }, [highlightedPartIds, isModelLoaded]);
 
   // Update hidden parts
+  const prevHiddenRef = useRef<string[]>([]);
   useEffect(() => {
-    if (!isViewerReady || !viewerRef.current) return;
+    if (!isModelLoaded || !viewerRef.current) return;
     const viewer = viewerRef.current;
 
-    // Show all first
-    viewer.scene.setObjectsVisible(viewer.scene.objectIds, true);
+    // Only update visibility for parts that changed (avoid showing ALL then hiding)
+    const nowHidden = new Set(hiddenPartIds);
 
-    // Hide specified parts
+    // Show parts that were hidden but are now visible
+    const toShow = prevHiddenRef.current.filter((id) => !nowHidden.has(id));
+    if (toShow.length > 0) {
+      viewer.scene.setObjectsVisible(toShow, true);
+    }
+
+    // Hide parts that are now hidden
     if (hiddenPartIds.length > 0) {
       viewer.scene.setObjectsVisible(hiddenPartIds, false);
     }
-  }, [hiddenPartIds, isViewerReady]);
+
+    prevHiddenRef.current = hiddenPartIds;
+  }, [hiddenPartIds, isModelLoaded]);
 
   return (
     <div className={`relative w-full h-full ${className ?? ""}`}>

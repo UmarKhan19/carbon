@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 
 // Type-only import for xeokit Viewer
 type Viewer = import("@xeokit/xeokit-sdk").Viewer;
+
 import type { CameraState, ViewerState } from "~/types/assembly.types";
 import { flyToEntity, flyToViewpoint, setViewPreset } from "./XeokitCanvas";
 
@@ -12,6 +13,7 @@ export interface UseXeokitOptions {
 export function useXeokit(options: UseXeokitOptions = {}) {
   const viewerRef = useRef<Viewer | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
   const [viewerState, setViewerState] = useState<ViewerState>({
     selectedStepId: null,
@@ -27,6 +29,12 @@ export function useXeokit(options: UseXeokitOptions = {}) {
   const handleViewerReady = useCallback((viewer: Viewer) => {
     viewerRef.current = viewer;
     setIsReady(true);
+    setIsModelLoaded(false); // Reset model loaded when viewer changes
+  }, []);
+
+  const handleModelLoaded = useCallback(() => {
+    setIsModelLoaded(true);
+    console.log("[useXeokit] Model loaded, entities ready");
   }, []);
 
   const handlePartSelected = useCallback(
@@ -195,11 +203,13 @@ export function useXeokit(options: UseXeokitOptions = {}) {
     // Refs
     viewer: viewerRef.current,
     isReady,
+    isModelLoaded,
     selectedPartId,
     viewerState,
 
     // Event handlers for XeokitCanvas
     handleViewerReady,
+    handleModelLoaded,
     handlePartSelected,
 
     // Camera controls
