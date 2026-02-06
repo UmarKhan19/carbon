@@ -46,6 +46,13 @@ interface RustAnimationKeyframe {
   transform: number[][] | number[];
 }
 
+interface StoredStepKeyframeLike {
+  partId: string;
+  timestamp: number;
+  position: Position3D;
+  rotation: Position3D;
+}
+
 /** Extract [tx, ty, tz] from a serialised nalgebra Matrix4. */
 function extractTranslation(
   transform: number[][] | number[]
@@ -60,6 +67,80 @@ function extractTranslation(
   return [flat[12], flat[13], flat[14]];
 }
 
+/** Convert nested/flat matrix to flat column-major 16-element array. */
+function toFlatMatrix(transform: number[][] | number[]): number[] {
+  if (Array.isArray(transform[0])) {
+    const cols = transform as number[][];
+    return [
+      cols[0][0],
+      cols[0][1],
+      cols[0][2],
+      cols[0][3],
+      cols[1][0],
+      cols[1][1],
+      cols[1][2],
+      cols[1][3],
+      cols[2][0],
+      cols[2][1],
+      cols[2][2],
+      cols[2][3],
+      cols[3][0],
+      cols[3][1],
+      cols[3][2],
+      cols[3][3]
+    ];
+  }
+  return transform as number[];
+}
+
+/** Extract Euler rotation in degrees from a column-major 4x4 matrix. */
+function extractEulerDegrees(transform: number[][] | number[]): Position3D {
+  const m = toFlatMatrix(transform);
+  if (m.length < 16) {
+    return { x: 0, y: 0, z: 0 };
+  }
+
+  // Convert column-major to row-major 3x3 entries.
+  const m00 = m[0];
+  const m10 = m[1];
+  const m11 = m[5];
+  const m12 = m[9];
+  const m20 = m[2];
+  const m21 = m[6];
+  const m22 = m[10];
+
+  const sy = Math.sqrt(m00 * m00 + m10 * m10);
+  const singular = sy < 1e-6;
+
+  let x = 0;
+  let y = 0;
+  let z = 0;
+
+  if (!singular) {
+    x = Math.atan2(m21, m22);
+    y = Math.atan2(-m20, sy);
+    z = Math.atan2(m10, m00);
+  } else {
+    x = Math.atan2(-m12, m11);
+    y = Math.atan2(-m20, sy);
+    z = 0;
+  }
+
+  const toDeg = (v: number) => (v * 180) / Math.PI;
+  return { x: toDeg(x), y: toDeg(y), z: toDeg(z) };
+}
+
+function isStoredStepKeyframe(value: unknown): value is StoredStepKeyframeLike {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return (
+    typeof record.partId === "string" &&
+    typeof record.timestamp === "number" &&
+    typeof record.position === "object" &&
+    typeof record.rotation === "object"
+  );
+}
+
 /**
  * Convert Rust simulator AnimationKeyframes to frontend StepKeyframes.
  *
@@ -72,27 +153,41 @@ function extractTranslation(
  *   position = {x:d, …}         →  part is displaced by d along X
  */
 function convertAnimationPath(
-  raw: RustAnimationKeyframe[],
+  raw: RustAnimationKeyframe[] | StepKeyframe[],
   partId: string
 ): StepKeyframe[] {
-  if (!raw || raw.length < 2) return [];
+  if (!raw || raw.length === 0) return [];
+
+  // Preserve frontend-authored keyframes as-is.
+  if (isStoredStepKeyframe(raw[0])) {
+    return (raw as StepKeyframe[])
+      .filter((kf) => kf.partId === partId || !partId)
+      .sort((a, b) => a.timestamp - b.timestamp);
+  }
+
+  const rustKeyframes = raw as RustAnimationKeyframe[];
+  if (rustKeyframes.length < 2) return [];
 
   // The last keyframe (time ≈ 1.0) is the rest/assembled position
-  const restT = extractTranslation(raw[raw.length - 1].transform);
+  const restT = extractTranslation(
+    rustKeyframes[rustKeyframes.length - 1].transform
+  );
 
-  return raw.map((kf) => {
-    const t = extractTranslation(kf.transform);
-    return {
-      partId,
-      timestamp: kf.time,
-      position: {
-        x: t[0] - restT[0],
-        y: t[1] - restT[1],
-        z: t[2] - restT[2]
-      } as Position3D,
-      rotation: { x: 0, y: 0, z: 0 } as Position3D
-    };
-  });
+  return rustKeyframes
+    .map((kf) => {
+      const t = extractTranslation(kf.transform);
+      return {
+        partId,
+        timestamp: kf.time,
+        position: {
+          x: t[0] - restT[0],
+          y: t[1] - restT[1],
+          z: t[2] - restT[2]
+        } as Position3D,
+        rotation: extractEulerDegrees(kf.transform)
+      };
+    })
+    .sort((a, b) => a.timestamp - b.timestamp);
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -143,8 +238,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         const partNames = (
           Array.isArray(s.partNames) ? s.partNames : []
         ) as string[];
-        const firstPartId = partIds.length > 0 ? partIds[0] : "";
-
         return {
           id: s.id,
           projectId: s.projectId,
@@ -154,10 +247,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           partNames,
           animationData: s.animationPath
             ? {
-                keyframes: convertAnimationPath(
-                  s.animationPath as unknown as RustAnimationKeyframe[],
-                  firstPartId
-                )
+                keyframes:
+                  partIds.length > 0
+                    ? partIds.flatMap((partId) =>
+                        convertAnimationPath(
+                          s.animationPath as unknown as RustAnimationKeyframe[],
+                          partId
+                        )
+                      )
+                    : convertAnimationPath(
+                        s.animationPath as unknown as RustAnimationKeyframe[],
+                        ""
+                      )
               }
             : undefined,
           duration: s.duration ?? 1000,

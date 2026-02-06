@@ -252,9 +252,55 @@ export interface AssemblyProject {
 }
 
 export interface SimulationResult {
-  sequence: SimulationStep[];
-  totalDuration: number;
+  // Rust simulator response (current)
+  steps?: SimulationRustStep[];
+  stuck_parts?: string[];
+  simulation_time_ms?: number;
+  success?: boolean;
+  error?: string | null;
+  issues?: SimulationIssue[];
+  planner_stats?: PlannerStats;
+
+  // Legacy editor schema (kept for compatibility)
+  sequence?: SimulationStep[];
+  totalDuration?: number;
   warnings?: string[];
+}
+
+export interface SimulationRustStep {
+  step_number: number;
+  part_ids: string[];
+  part_names: string[];
+  assembly_direction: [number, number, number];
+  animation_path: unknown[];
+  suggested_duration_ms: number;
+  motion_type?: string;
+  min_clearance?: number;
+  planner_score?: number;
+}
+
+export type SimulationIssueKind =
+  | "overlap"
+  | "clearance"
+  | "path_not_found"
+  | "constraint_conflict";
+
+export type SimulationIssueSeverity = "error" | "warning";
+
+export interface SimulationIssue {
+  kind: SimulationIssueKind;
+  severity: SimulationIssueSeverity;
+  part_ids: string[];
+  message: string;
+  metrics?: Record<string, unknown>;
+}
+
+export interface PlannerStats {
+  contact_edges: number;
+  dependency_edges: number;
+  candidate_paths_evaluated: number;
+  collision_checks: number;
+  overlap_issue_count: number;
 }
 
 export interface SimulationStep {

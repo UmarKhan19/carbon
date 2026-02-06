@@ -164,7 +164,10 @@ pub struct PartClassificationInput<'a> {
 ///
 /// # Returns
 /// Classification scores for fastener, structural, and panel categories.
-pub fn classify_part(input: &PartClassificationInput, rules: &SequencingRules) -> PartClassification {
+pub fn classify_part(
+    input: &PartClassificationInput,
+    rules: &SequencingRules,
+) -> PartClassification {
     let name_lower = input.name.to_lowercase();
 
     // Sort bbox dimensions to get [min, mid, max]
@@ -251,17 +254,18 @@ pub fn infer_part_kind(
         return PartKind::Panel;
     }
 
-    let max_score = classification
-        .fastener_score
-        .max(classification.structural_score.max(classification.panel_score));
+    let max_score = classification.fastener_score.max(
+        classification
+            .structural_score
+            .max(classification.panel_score),
+    );
 
     if max_score < 0.35 {
         return PartKind::Unknown;
     }
 
     let margin = 0.05;
-    if classification.fastener_score >= 0.45
-        && classification.fastener_score >= max_score - margin
+    if classification.fastener_score >= 0.45 && classification.fastener_score >= max_score - margin
     {
         return PartKind::Fastener;
     }
@@ -286,9 +290,7 @@ pub fn disassembly_priority(kind: PartKind, classification: &PartClassification)
         PartKind::Unknown => 1.5,
     };
 
-    base * 10.0
-        + classification.fastener_score * 2.0
-        + classification.panel_score
+    base * 10.0 + classification.fastener_score * 2.0 + classification.panel_score
         - classification.structural_score
 }
 
@@ -366,10 +368,10 @@ fn extract_base_name(name: &str) -> String {
 
     // Remove common suffixes
     let patterns = [
-        r"_\d+$",      // _001, _1
-        r"\s*x\d+$",   // x4, x 4
+        r"_\d+$",       // _001, _1
+        r"\s*x\d+$",    // x4, x 4
         r"\s*\(\d+\)$", // (1), (4)
-        r"\s*#\d+$",   // #1, #4
+        r"\s*#\d+$",    // #1, #4
     ];
 
     let mut result = name.to_string();
@@ -416,13 +418,16 @@ mod tests {
         let input = PartClassificationInput {
             name: "M6x20_Socket_Head_Screw",
             bbox_dims: Vector3::new(0.006, 0.006, 0.020), // Small screw-like dims
-            relative_volume: 0.001, // Very small
+            relative_volume: 0.001,                       // Very small
             contact_degree: 2,
         };
 
         let class = classify_part(&input, &rules);
 
-        assert!(class.fastener_score > 0.5, "Screw should score high as fastener");
+        assert!(
+            class.fastener_score > 0.5,
+            "Screw should score high as fastener"
+        );
         assert!(class.is_fastener(0.5), "Should be classified as fastener");
         assert_eq!(class.dominant_category(), "fastener");
     }
@@ -433,14 +438,20 @@ mod tests {
         let input = PartClassificationInput {
             name: "Main_Frame_Assembly",
             bbox_dims: Vector3::new(100.0, 50.0, 200.0), // Large structural dims
-            relative_volume: 0.35, // 35% of assembly
-            contact_degree: 8, // Many parts attach to it
+            relative_volume: 0.35,                       // 35% of assembly
+            contact_degree: 8,                           // Many parts attach to it
         };
 
         let class = classify_part(&input, &rules);
 
-        assert!(class.structural_score > 0.5, "Frame should score high as structural");
-        assert!(class.is_structural(0.5), "Should be classified as structural");
+        assert!(
+            class.structural_score > 0.5,
+            "Frame should score high as structural"
+        );
+        assert!(
+            class.is_structural(0.5),
+            "Should be classified as structural"
+        );
         assert_eq!(class.dominant_category(), "structural");
     }
 
@@ -450,7 +461,7 @@ mod tests {
 
         // Small, elongated part with few contacts (fastener-like)
         let fastener_input = PartClassificationInput {
-            name: "Part_001", // Generic name, no keywords
+            name: "Part_001",                             // Generic name, no keywords
             bbox_dims: Vector3::new(0.005, 0.005, 0.025), // 5:1 aspect ratio
             relative_volume: 0.001,
             contact_degree: 2,
@@ -482,7 +493,7 @@ mod tests {
         let input = PartClassificationInput {
             name: "Cover_Plate",
             bbox_dims: Vector3::new(100.0, 100.0, 2.0), // Flat plate
-            relative_volume: 0.08, // Medium volume
+            relative_volume: 0.08,                      // Medium volume
             contact_degree: 4,
         };
 

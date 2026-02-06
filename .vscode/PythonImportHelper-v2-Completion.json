@@ -251,6 +251,30 @@
         "documentation": {}
     },
     {
+        "label": "XCAFDoc_ColorSurf",
+        "importPath": "OCC.Core.XCAFDoc",
+        "description": "OCC.Core.XCAFDoc",
+        "isExtraImport": true,
+        "detail": "OCC.Core.XCAFDoc",
+        "documentation": {}
+    },
+    {
+        "label": "XCAFDoc_ColorCurv",
+        "importPath": "OCC.Core.XCAFDoc",
+        "description": "OCC.Core.XCAFDoc",
+        "isExtraImport": true,
+        "detail": "OCC.Core.XCAFDoc",
+        "documentation": {}
+    },
+    {
+        "label": "XCAFDoc_ColorGen",
+        "importPath": "OCC.Core.XCAFDoc",
+        "description": "OCC.Core.XCAFDoc",
+        "isExtraImport": true,
+        "detail": "OCC.Core.XCAFDoc",
+        "documentation": {}
+    },
+    {
         "label": "TDF_LabelSequence",
         "importPath": "OCC.Core.TDF",
         "description": "OCC.Core.TDF",

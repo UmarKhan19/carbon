@@ -77,8 +77,8 @@ impl ContactGraph {
                 let (id_b, mesh_b, transform_b) = parts_vec[j];
 
                 // Compute minimum distance between meshes
-                let dist = query::distance(transform_a, mesh_a, transform_b, mesh_b)
-                    .unwrap_or(f32::MAX);
+                let dist =
+                    query::distance(transform_a, mesh_a, transform_b, mesh_b).unwrap_or(f32::MAX);
 
                 if dist < threshold {
                     // Get closest points for contact location and normal
@@ -98,10 +98,7 @@ impl ContactGraph {
                     adjacency.get_mut(id_a).unwrap().push(edge_idx);
                     adjacency.get_mut(id_b).unwrap().push(edge_idx);
 
-                    debug!(
-                        "Contact: {} <-> {} (dist={:.4})",
-                        id_a, id_b, dist
-                    );
+                    debug!("Contact: {} <-> {} (dist={:.4})", id_a, id_b, dist);
                 }
             }
         }
@@ -213,12 +210,18 @@ mod tests {
             Point3::new(-0.5, 0.5, 0.5),
         ];
         let indices = vec![
-            [0, 2, 1], [0, 3, 2], // front
-            [4, 5, 6], [4, 6, 7], // back
-            [0, 1, 5], [0, 5, 4], // bottom
-            [2, 3, 7], [2, 7, 6], // top
-            [0, 4, 7], [0, 7, 3], // left
-            [1, 2, 6], [1, 6, 5], // right
+            [0, 2, 1],
+            [0, 3, 2], // front
+            [4, 5, 6],
+            [4, 6, 7], // back
+            [0, 1, 5],
+            [0, 5, 4], // bottom
+            [2, 3, 7],
+            [2, 7, 6], // top
+            [0, 4, 7],
+            [0, 7, 3], // left
+            [1, 2, 6],
+            [1, 6, 5], // right
         ];
         TriMesh::new(vertices, indices)
     }

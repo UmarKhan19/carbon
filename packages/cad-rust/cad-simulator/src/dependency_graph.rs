@@ -120,10 +120,7 @@ impl DependencyGraph {
 
                     // neighbor must be assembled BEFORE this fastener
                     graph.add_edge(neighbor, part_id);
-                    debug!(
-                        "Dependency: {} → {} (fastener rule)",
-                        neighbor, part_id
-                    );
+                    debug!("Dependency: {} → {} (fastener rule)", neighbor, part_id);
                 }
             }
         }
@@ -139,10 +136,7 @@ impl DependencyGraph {
 
                     // This structural part must be assembled BEFORE its neighbor
                     graph.add_edge(part_id, neighbor);
-                    debug!(
-                        "Dependency: {} → {} (structural rule)",
-                        part_id, neighbor
-                    );
+                    debug!("Dependency: {} → {} (structural rule)", part_id, neighbor);
                 }
             }
         }
@@ -154,10 +148,7 @@ impl DependencyGraph {
                     if is_fastener(neighbor) {
                         // Panels should be assembled before fasteners.
                         graph.add_edge(part_id, neighbor);
-                        debug!(
-                            "Dependency: {} → {} (panel → fastener)",
-                            part_id, neighbor
-                        );
+                        debug!("Dependency: {} → {} (panel → fastener)", part_id, neighbor);
                     } else if is_structural(neighbor) {
                         // Structural parts should be assembled before panels.
                         graph.add_edge(neighbor, part_id);
@@ -278,7 +269,10 @@ impl DependencyGraph {
         if result.len() < self.parts.len() {
             // Find cycles using Tarjan's algorithm
             let cycles = self.find_cycles(&result);
-            warn!("Dependency graph has {} cycles (sub-assemblies)", cycles.len());
+            warn!(
+                "Dependency graph has {} cycles (sub-assemblies)",
+                cycles.len()
+            );
             Err(cycles)
         } else {
             Ok(result)
@@ -374,12 +368,18 @@ mod tests {
             Point3::new(-0.5, 0.5, 0.5),
         ];
         let indices = vec![
-            [0, 2, 1], [0, 3, 2],
-            [4, 5, 6], [4, 6, 7],
-            [0, 1, 5], [0, 5, 4],
-            [2, 3, 7], [2, 7, 6],
-            [0, 4, 7], [0, 7, 3],
-            [1, 2, 6], [1, 6, 5],
+            [0, 2, 1],
+            [0, 3, 2],
+            [4, 5, 6],
+            [4, 6, 7],
+            [0, 1, 5],
+            [0, 5, 4],
+            [2, 3, 7],
+            [2, 7, 6],
+            [0, 4, 7],
+            [0, 7, 3],
+            [1, 2, 6],
+            [1, 6, 5],
         ];
         TriMesh::new(vertices, indices)
     }
@@ -402,39 +402,48 @@ mod tests {
 
         // Classify: bolt is fastener, plates are structural
         let mut classifications = HashMap::new();
-        classifications.insert("plate_a".to_string(), PartClassification {
-            fastener_score: 0.0,
-            structural_score: 0.8,
-            panel_score: 0.0,
-        });
-        classifications.insert("bolt".to_string(), PartClassification {
-            fastener_score: 0.9,
-            structural_score: 0.0,
-            panel_score: 0.0,
-        });
-        classifications.insert("plate_b".to_string(), PartClassification {
-            fastener_score: 0.0,
-            structural_score: 0.8,
-            panel_score: 0.0,
-        });
+        classifications.insert(
+            "plate_a".to_string(),
+            PartClassification {
+                fastener_score: 0.0,
+                structural_score: 0.8,
+                panel_score: 0.0,
+            },
+        );
+        classifications.insert(
+            "bolt".to_string(),
+            PartClassification {
+                fastener_score: 0.9,
+                structural_score: 0.0,
+                panel_score: 0.0,
+            },
+        );
+        classifications.insert(
+            "plate_b".to_string(),
+            PartClassification {
+                fastener_score: 0.0,
+                structural_score: 0.8,
+                panel_score: 0.0,
+            },
+        );
 
         let mut kinds = HashMap::new();
         kinds.insert("plate_a".to_string(), PartKind::Structural);
         kinds.insert("bolt".to_string(), PartKind::Fastener);
         kinds.insert("plate_b".to_string(), PartKind::Structural);
 
-        let dep_graph = DependencyGraph::build(
-            &contact_graph,
-            &classifications,
-            &kinds,
-            0.5,
-            0.7,
-        );
+        let dep_graph = DependencyGraph::build(&contact_graph, &classifications, &kinds, 0.5, 0.7);
 
         // Bolt should depend on its neighbors (plate_a and plate_b)
         let bolt_deps = dep_graph.dependencies("bolt");
-        assert!(bolt_deps.contains(&"plate_a".to_string()), "Bolt should depend on plate_a");
-        assert!(bolt_deps.contains(&"plate_b".to_string()), "Bolt should depend on plate_b");
+        assert!(
+            bolt_deps.contains(&"plate_a".to_string()),
+            "Bolt should depend on plate_a"
+        );
+        assert!(
+            bolt_deps.contains(&"plate_b".to_string()),
+            "Bolt should depend on plate_b"
+        );
     }
 
     #[test]
@@ -453,44 +462,51 @@ mod tests {
         let contact_graph = ContactGraph::build(parts, 0.1);
 
         let mut classifications = HashMap::new();
-        classifications.insert("frame".to_string(), PartClassification {
-            fastener_score: 0.0,
-            structural_score: 0.9,
-            panel_score: 0.0,
-        });
-        classifications.insert("cover".to_string(), PartClassification {
-            fastener_score: 0.0,
-            structural_score: 0.1,
-            panel_score: 0.7,
-        });
-        classifications.insert("bolt".to_string(), PartClassification {
-            fastener_score: 0.9,
-            structural_score: 0.0,
-            panel_score: 0.0,
-        });
+        classifications.insert(
+            "frame".to_string(),
+            PartClassification {
+                fastener_score: 0.0,
+                structural_score: 0.9,
+                panel_score: 0.0,
+            },
+        );
+        classifications.insert(
+            "cover".to_string(),
+            PartClassification {
+                fastener_score: 0.0,
+                structural_score: 0.1,
+                panel_score: 0.7,
+            },
+        );
+        classifications.insert(
+            "bolt".to_string(),
+            PartClassification {
+                fastener_score: 0.9,
+                structural_score: 0.0,
+                panel_score: 0.0,
+            },
+        );
 
         let mut kinds = HashMap::new();
         kinds.insert("frame".to_string(), PartKind::Structural);
         kinds.insert("cover".to_string(), PartKind::Panel);
         kinds.insert("bolt".to_string(), PartKind::Fastener);
 
-        let dep_graph = DependencyGraph::build(
-            &contact_graph,
-            &classifications,
-            &kinds,
-            0.5,
-            0.7,
-        );
+        let dep_graph = DependencyGraph::build(&contact_graph, &classifications, &kinds, 0.5, 0.7);
 
         // Structural should come before panel
         assert!(
-            dep_graph.dependencies("cover").contains(&"frame".to_string()),
+            dep_graph
+                .dependencies("cover")
+                .contains(&"frame".to_string()),
             "Panel should depend on structural part"
         );
 
         // Panel should come before fastener
         assert!(
-            dep_graph.dependencies("bolt").contains(&"cover".to_string()),
+            dep_graph
+                .dependencies("bolt")
+                .contains(&"cover".to_string()),
             "Fastener should depend on panel"
         );
     }
@@ -560,7 +576,7 @@ mod tests {
         graph.reverse.insert("b".to_string(), vec![]);
 
         graph.add_edge("a", "b"); // a must come before b in assembly
-        // So in disassembly: b must be removed before a
+                                  // So in disassembly: b must be removed before a
 
         let mut removed = HashSet::new();
 

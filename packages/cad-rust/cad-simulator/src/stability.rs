@@ -104,7 +104,9 @@ pub fn check_stability(
     let mut unstable_parts = Vec::new();
 
     for (i, (part_id, _, _)) in parts.iter().enumerate() {
-        if let Some(body_handle) = rigid_body_set.get_mut(RigidBodyHandle::from_raw_parts(i as u32, 0)) {
+        if let Some(body_handle) =
+            rigid_body_set.get_mut(RigidBodyHandle::from_raw_parts(i as u32, 0))
+        {
             let current_pos: Point3<f32> = (*body_handle.translation()).into();
             if let Some(initial_pos) = initial_positions.get(part_id) {
                 let displacement = (current_pos - initial_pos).norm();

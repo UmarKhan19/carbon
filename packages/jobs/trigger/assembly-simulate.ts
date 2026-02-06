@@ -20,7 +20,7 @@ interface AssemblyNode {
  */
 interface AnimationKeyframe {
   time: number;
-  transform: number[];
+  transform: number[] | number[][];
 }
 
 /**
@@ -33,6 +33,33 @@ interface SimulatorStep {
   assembly_direction: [number, number, number];
   animation_path: AnimationKeyframe[];
   suggested_duration_ms: number;
+  motion_type?: string;
+  min_clearance?: number;
+  planner_score?: number;
+}
+
+type SimulationIssueKind =
+  | "overlap"
+  | "clearance"
+  | "path_not_found"
+  | "constraint_conflict";
+
+type SimulationIssueSeverity = "error" | "warning";
+
+interface SimulationIssue {
+  kind: SimulationIssueKind;
+  severity: SimulationIssueSeverity;
+  part_ids: string[];
+  message: string;
+  metrics?: Record<string, unknown>;
+}
+
+interface PlannerStats {
+  contact_edges: number;
+  dependency_edges: number;
+  candidate_paths_evaluated: number;
+  collision_checks: number;
+  overlap_issue_count: number;
 }
 
 /**
@@ -44,6 +71,8 @@ interface SimulationResult {
   simulation_time_ms: number;
   success: boolean;
   error?: string;
+  issues?: SimulationIssue[];
+  planner_stats?: PlannerStats;
 }
 
 /**
@@ -53,6 +82,83 @@ interface SimulateResponse {
   success: boolean;
   result?: SimulationResult;
   error?: string;
+}
+
+function summarizeBody(body: string, max = 500): string {
+  const normalized = body.replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+  return normalized.length > max
+    ? `${normalized.slice(0, max)}...`
+    : normalized;
+}
+
+function formatSimulatorHttpError(
+  status: number,
+  body: string,
+  cadServerUrl: string
+): string {
+  const trimmed = body.trim();
+
+  if (
+    body.includes("ERR_NGROK_8012") ||
+    body.includes("Traffic was successfully tunneled")
+  ) {
+    return [
+      `Simulator tunnel reachable but upstream service is unavailable (${status}).`,
+      `CAD_SERVER_URL=${cadServerUrl}`,
+      "ngrok reports ERR_NGROK_8012 (upstream connection refused).",
+      "Start cad-server on the forwarded port (usually 8080) or point ngrok/CAD_SERVER_URL to the correct port."
+    ].join(" ");
+  }
+
+  if (trimmed.startsWith("<!DOCTYPE html") || trimmed.startsWith("<html")) {
+    return [
+      `Simulator returned HTML error page (${status}) instead of JSON.`,
+      `CAD_SERVER_URL=${cadServerUrl}`,
+      `Body: ${summarizeBody(body)}`
+    ].join(" ");
+  }
+
+  return `Simulator error (${status}): ${summarizeBody(body)}`;
+}
+
+function parseSimulatorResponse(
+  rawBody: string,
+  contentType: string,
+  cadServerUrl: string
+): SimulateResponse {
+  try {
+    return JSON.parse(rawBody) as SimulateResponse;
+  } catch {
+    const trimmed = rawBody.trim();
+    if (
+      rawBody.includes("ERR_NGROK_8012") ||
+      rawBody.includes("Traffic was successfully tunneled")
+    ) {
+      throw new Error(
+        [
+          "Simulator returned ngrok upstream error page instead of JSON.",
+          `CAD_SERVER_URL=${cadServerUrl}`,
+          "ERR_NGROK_8012 indicates cad-server is not reachable on the forwarded local port."
+        ].join(" ")
+      );
+    }
+
+    if (trimmed.startsWith("<!DOCTYPE html") || trimmed.startsWith("<html")) {
+      throw new Error(
+        [
+          "Simulator returned HTML instead of JSON.",
+          `CAD_SERVER_URL=${cadServerUrl}`,
+          `content-type=${contentType || "unknown"}`,
+          `Body: ${summarizeBody(rawBody)}`
+        ].join(" ")
+      );
+    }
+
+    throw new Error(
+      `Simulator returned invalid JSON. Body: ${summarizeBody(rawBody)}`
+    );
+  }
 }
 
 /**
@@ -185,12 +291,20 @@ export const assemblySimulateTask = task({
         }),
       });
 
+      const responseContentType = response.headers.get("content-type") || "";
+      const responseBody = await response.text();
+
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Simulator error (${response.status}): ${errorText}`);
+        throw new Error(
+          formatSimulatorHttpError(response.status, responseBody, cadServerUrl)
+        );
       }
 
-      const result: SimulateResponse = await response.json();
+      const result = parseSimulatorResponse(
+        responseBody,
+        responseContentType,
+        cadServerUrl
+      );
 
       if (!result.success || !result.result) {
         throw new Error(result.error || "Simulation failed");
@@ -200,6 +314,7 @@ export const assemblySimulateTask = task({
         stepCount: result.result.steps.length,
         stuckParts: result.result.stuck_parts.length,
         timeMs: result.result.simulation_time_ms,
+        issueCount: result.result.issues?.length ?? 0,
       });
 
       await metadata.set("status", "creating_steps");
@@ -274,6 +389,8 @@ export const assemblySimulateTask = task({
         projectId,
         stepCount: stepsToInsert.length,
         stuckParts: result.result.stuck_parts,
+        issueCount: result.result.issues?.length ?? 0,
+        plannerStats: result.result.planner_stats ?? null,
       });
 
       return {

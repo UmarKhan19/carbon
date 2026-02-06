@@ -22,8 +22,8 @@ pub fn check_mesh_collision(
     mesh_b: &TriMesh,
     transform_b: &Isometry3<f32>,
 ) -> CollisionResult {
-    let colliding = query::intersection_test(transform_a, mesh_a, transform_b, mesh_b)
-        .unwrap_or(false);
+    let colliding =
+        query::intersection_test(transform_a, mesh_a, transform_b, mesh_b).unwrap_or(false);
 
     CollisionResult {
         colliding,

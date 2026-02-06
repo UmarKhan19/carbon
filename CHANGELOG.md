@@ -13,12 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed race condition where CAD model wouldn't load on page refresh/navigation. Added `isViewerReady` state to ensure model loads only after xeokit viewer is initialized (`Viewer/XeokitCanvas.tsx`)
 - **Fixed model disappearing on zoom out** - Extended camera far clipping plane to 100000 (`XeokitCanvas.tsx`)
 - Added custom 3-point lighting setup for better metallic shine (key, fill, rim lights)
+- Fixed animation playback to respect full sampled keyframe trajectories instead of only first/last keyframes (`components/Viewer/useAnimationPlayback.ts`)
+- Fixed animation path conversion to preserve rotation metadata and handle both Rust matrix keyframes and previously saved frontend keyframes (`routes/x+/projects.$id.edit.tsx`)
 
 #### Rust Physics Simulator (`packages/cad-rust/`)
 - Improved sequencing accuracy with panel-aware dependency rules, name/score-based part kinds, and disassembly prioritization
 - Improved removal feasibility by using contact-normal candidate directions and adaptive step sizing with clearance checks
 - Added helix-style removal paths for fasteners to better match screw/bolt insertions
 - Prevented zero-length contact normals from producing NaNs in the contact graph
+- Improved collision-free motion selection with swept AABB prefiltering, clearance ratio scoring, and higher-resolution path sampling
+- Added AABB-based broad-phase filtering and new unit test coverage for swept overlap timing
+- Added structured simulator diagnostics (`overlap`, `clearance`, `path_not_found`, `constraint_conflict`) and planner stats to simulation output (`cad-common`, `cad-simulator`)
+- Added assembled-state overlap detection and issue emission before sequence generation (`cad-simulator/src/simulator.rs`)
+- Tightened collision-safe path planning by requiring high removal completion ratio, generating dense validated keyframes per step, and adding in-loop timeout guards to avoid long-running planner stalls (`cad-simulator/src/simulator.rs`)
 
 #### CAD Service (`packages/cad-service/`)
 - Fixed STEP file color extraction using official PythonOCC pattern (`GetInstanceColor` before `GetColor`)

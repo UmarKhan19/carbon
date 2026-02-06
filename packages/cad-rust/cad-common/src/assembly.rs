@@ -2,6 +2,7 @@
 
 use crate::types::{BoundingBox, Transform4x4, TriangleMesh};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use uuid::Uuid;
 
 /// Node type in the assembly tree.
@@ -157,6 +158,15 @@ pub struct AssemblyStep {
     pub animation_path: Vec<AnimationKeyframe>,
     /// Suggested duration in milliseconds.
     pub suggested_duration_ms: u32,
+    /// Motion archetype used by the planner (optional metadata).
+    #[serde(default)]
+    pub motion_type: Option<String>,
+    /// Minimum observed clearance along the path, in model units.
+    #[serde(default)]
+    pub min_clearance: Option<f32>,
+    /// Planner quality score for this step (higher is better).
+    #[serde(default)]
+    pub planner_score: Option<f32>,
 }
 
 /// A keyframe in an assembly animation.
@@ -166,6 +176,55 @@ pub struct AnimationKeyframe {
     pub time: f32,
     /// Transform at this keyframe.
     pub transform: Transform4x4,
+}
+
+/// Simulation issue category.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SimulationIssueKind {
+    Overlap,
+    Clearance,
+    PathNotFound,
+    ConstraintConflict,
+}
+
+/// Simulation issue severity.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum SimulationIssueSeverity {
+    Error,
+    Warning,
+}
+
+/// Structured issue emitted by the simulator.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SimulationIssue {
+    /// Category of issue.
+    pub kind: SimulationIssueKind,
+    /// Severity of issue.
+    pub severity: SimulationIssueSeverity,
+    /// Involved part IDs.
+    pub part_ids: Vec<String>,
+    /// Human-readable explanation.
+    pub message: String,
+    /// Optional issue-specific numeric/debug metrics.
+    #[serde(default)]
+    pub metrics: Option<Value>,
+}
+
+/// Planner statistics for debugging and monitoring.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlannerStats {
+    /// Contact graph edge count.
+    pub contact_edges: usize,
+    /// Dependency graph edge count.
+    pub dependency_edges: usize,
+    /// Number of candidate paths evaluated.
+    pub candidate_paths_evaluated: u64,
+    /// Number of collision checks performed.
+    pub collision_checks: u64,
+    /// Number of overlap issues detected in the assembled state.
+    pub overlap_issue_count: usize,
 }
 
 /// Result of running the assembly sequence simulation.
@@ -181,4 +240,10 @@ pub struct SimulationResult {
     pub success: bool,
     /// Error message if simulation failed.
     pub error: Option<String>,
+    /// Structured issues discovered by the planner.
+    #[serde(default)]
+    pub issues: Vec<SimulationIssue>,
+    /// Planner statistics for observability.
+    #[serde(default)]
+    pub planner_stats: Option<PlannerStats>,
 }
