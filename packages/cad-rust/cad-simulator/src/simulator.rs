@@ -919,11 +919,13 @@ impl AssemblySimulator {
             None => return None,
         };
 
-        // Get other non-removed parts
+        // Check collisions against ALL parts (not just non-removed).
+        // This ensures paths are valid for assembly, where we need to avoid
+        // parts that will be placed later, not just parts already in place.
         let other_parts: Vec<&PartData> = self
             .parts
             .iter()
-            .filter(|p| p.id != part_id && !self.removed_parts.contains(&p.id))
+            .filter(|p| p.id != part_id)
             .collect();
 
         let min_dim = part
