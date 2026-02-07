@@ -212,16 +212,6 @@ npm run novu:sync
 
 This command syncs your Novu workflows with the Carbon application using the bridge URL.
 
-**Variables by Package Location:**
-
-| Variable              | Location                  | Notes                                                       |
-| --------------------- | ------------------------- | ----------------------------------------------------------- |
-| `RESEND_API_KEY`      | Backend (all apps)        | Required for sending emails                                 |
-| `RESEND_DOMAIN`       | Backend (all apps)        | Email sender domain                                         |
-| `RESEND_AUDIENCE_ID`  | `packages/jobs` (Trigger) | Optional - only needed for contact creation in `onboard.ts` |
-| `NOVU_APPLICATION_ID` | Frontend + Backend        | Used in `apps/erp/app/root.tsx` for Novu initialization     |
-| `NOVU_SECRET_KEY`     | Backend only              | Server-side authentication for Novu API                     |
-
 8. Signing in requires you to setup one of two methods:
    - Email requires a Resend API key (configured in step 6 above)
    - Sign-in with Google requires a [Google auth client](https://supabase.com/docs/guides/auth/social-login/auth-google) with these variables:
