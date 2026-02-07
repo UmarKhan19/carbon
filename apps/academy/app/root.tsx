@@ -250,7 +250,7 @@ export default function App() {
           <header className="flex select-none items-center py-4 pl-5 pr-2 h-[var(--header-height)]">
             <div className="max-w-5xl mx-auto px-4 flex items-center justify-between gap-2 z-logo text-foreground w-full">
               <a
-                href="https://app.carbon.ms"
+                href="https://carbon.ms"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="cursor-pointer inline-flex flex-row items-end gap-2 flex-shrink-0 font-display"
