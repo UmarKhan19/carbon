@@ -126,6 +126,7 @@ const SupplierProcessForm = ({
                 <Number
                   name="leadTime"
                   label="Standard Lead Time"
+                  helperText="Calendar days not business days"
                   minValue={0}
                 />
 

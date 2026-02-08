@@ -18,12 +18,15 @@ import {
   Td,
   Th,
   Thead,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   Tr,
   VStack
 } from "@carbon/react";
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { LuImage } from "react-icons/lu";
+import { LuImage, LuInfo } from "react-icons/lu";
 import { Form, useNavigation, useParams } from "react-router";
 import type { z } from "zod";
 import { useUser } from "~/hooks";
@@ -302,7 +305,19 @@ const LinePricingOptions = ({
               <Th>Quantity</Th>
               <Th>Unit Price</Th>
               <Th>Shipping</Th>
-              <Th>Lead Time</Th>
+              <Th>
+                <span className="flex items-center justify-start gap-2">
+                  Lead Time
+                  <Tooltip>
+                    <TooltipTrigger tabIndex={-1}>
+                      <LuInfo className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Calendar days not business days
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+              </Th>
               <Th>Tax</Th>
               <Th>Total Price</Th>
             </Tr>

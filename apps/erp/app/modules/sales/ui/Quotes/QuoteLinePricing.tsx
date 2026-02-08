@@ -477,7 +477,17 @@ const QuoteLinePricing = ({
             <Tr>
               <Td className="border-r border-border group-hover:bg-muted/50">
                 <HStack className="w-full justify-between ">
-                  <span>Lead Time</span>
+                  <span className="flex items-center justify-start gap-2">
+                    Lead Time
+                    <Tooltip>
+                      <TooltipTrigger tabIndex={-1}>
+                        <LuInfo className="w-4 h-4" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Calendar days not business days
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
                 </HStack>
               </Td>
               {quantities.map((quantity) => {

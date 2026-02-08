@@ -110,6 +110,7 @@ const QuoteShipmentForm = forwardRef<
             <Number
               name="leadTime"
               label="Lead Time"
+              helperText="Calendar days not business days"
               formatOptions={{
                 style: "unit",
                 unit: "day",

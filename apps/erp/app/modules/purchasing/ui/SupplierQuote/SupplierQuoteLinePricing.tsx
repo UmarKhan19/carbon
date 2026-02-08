@@ -12,11 +12,15 @@ import {
   Td,
   Th,
   Thead,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   Tr,
   toast,
   VStack
 } from "@carbon/react";
 import { useCallback, useEffect, useState } from "react";
+import { LuInfo } from "react-icons/lu";
 import { useParams } from "react-router";
 import { Enumerable } from "~/components/Enumerable";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
@@ -165,7 +169,17 @@ const SupplierQuoteLinePricing = ({
             <Tr>
               <Td className="border-r border-border group-hover:bg-muted/50">
                 <HStack className="w-full justify-between ">
-                  <span>Lead Time</span>
+                  <span className="flex items-center justify-start gap-2">
+                    Lead Time
+                    <Tooltip>
+                      <TooltipTrigger tabIndex={-1}>
+                        <LuInfo className="w-4 h-4" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Calendar days not business days
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
                 </HStack>
               </Td>
               {quantities.map((quantity) => {

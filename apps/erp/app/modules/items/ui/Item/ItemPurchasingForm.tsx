@@ -77,7 +77,11 @@ const ItemPurchasingForm = ({
               label="Preferred Supplier"
               options={allowedSuppliersOptions}
             />
-            <Number name="leadTime" label="Lead Time (Days)" />
+            <Number
+              name="leadTime"
+              label="Lead Time (Days)"
+              helperText="Calendar days not business days"
+            />
             <UnitOfMeasure
               name="purchasingUnitOfMeasureCode"
               label="Purchasing Unit of Measure"

@@ -23,6 +23,9 @@ import {
   Td,
   Th,
   Thead,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   Tr,
   toast,
   VStack
@@ -37,6 +40,7 @@ import {
   LuChevronDown,
   LuCreditCard,
   LuImage,
+  LuInfo,
   LuSquareUser,
   LuTrash,
   LuTruck,
@@ -555,7 +559,19 @@ const LinePricingOptions = ({
               <Th>Unit Price</Th>
               <Th>Shipping</Th>
               <Th>Add-Ons</Th>
-              <Th>Lead Time</Th>
+              <Th>
+                <span className="flex items-center justify-start gap-2">
+                  Lead Time
+                  <Tooltip>
+                    <TooltipTrigger tabIndex={-1}>
+                      <LuInfo className="w-4 h-4" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Calendar days not business days
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+              </Th>
               <Th>Total Price</Th>
             </Tr>
           </Thead>
