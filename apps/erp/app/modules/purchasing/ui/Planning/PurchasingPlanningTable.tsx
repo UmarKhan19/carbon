@@ -290,7 +290,7 @@ const PlanningTable = memo(
       return [
         {
           accessorKey: "readableIdWithRevision",
-          header: "Part ID",
+          header: "Item ID",
           cell: ({ row }) => (
             <HStack
               className="py-1 cursor-pointer"
