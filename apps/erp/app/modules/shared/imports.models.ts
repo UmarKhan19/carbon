@@ -805,6 +805,105 @@ export const fieldMappings = {
         default: "EA"
       }
     }
+  },
+  workCenter: {
+    id: {
+      label: "Unique ID",
+      required: true,
+      type: "string"
+    },
+    name: {
+      label: "Name",
+      required: true,
+      type: "string"
+    },
+    description: {
+      label: "Description",
+      required: true,
+      type: "string"
+    },
+    defaultStandardFactor: {
+      label: "Standard Factor",
+      required: true,
+      type: "enum",
+      enumData: {
+        description: "The standard factor unit for time tracking",
+        options: ["Hours", "Minutes", "Seconds"],
+        default: "Hours"
+      }
+    },
+    laborRate: {
+      label: "Labor Rate",
+      required: true,
+      type: "number"
+    },
+    machineRate: {
+      label: "Machine Rate",
+      required: true,
+      type: "number"
+    },
+    overheadRate: {
+      label: "Overhead Rate",
+      required: true,
+      type: "number"
+    },
+    locationId: {
+      label: "Location",
+      required: true,
+      type: "enum",
+      enumData: {
+        description: "The location of the work center",
+        fetcher: async (
+          client: SupabaseClient<Database>,
+          companyId: string
+        ) => {
+          return client
+            .from("location")
+            .select("id, name")
+            .eq("companyId", companyId)
+            .order("name");
+        }
+      }
+    }
+  },
+  process: {
+    id: {
+      label: "Unique ID",
+      required: true,
+      type: "string"
+    },
+    name: {
+      label: "Name",
+      required: true,
+      type: "string"
+    },
+    processType: {
+      label: "Process Type",
+      required: true,
+      type: "enum",
+      enumData: {
+        description:
+          "Whether the process is Inside (in-house) or Outside (outsourced)",
+        options: ["Inside", "Outside"],
+        default: "Inside"
+      }
+    },
+    defaultStandardFactor: {
+      label: "Standard Factor",
+      required: false,
+      type: "enum",
+      enumData: {
+        description:
+          "The standard factor unit for time tracking (required for Inside processes)",
+        options: ["Hours", "Minutes", "Seconds"],
+        default: "Hours"
+      }
+    },
+    completeAllOnScan: {
+      label: "Complete All On Scan",
+      required: false,
+      type: "boolean"
+    }
   }
 } as const;
 
@@ -818,7 +917,9 @@ export const importPermissions: Record<keyof typeof fieldMappings, string> = {
   methodMaterial: "parts",
   tool: "parts",
   fixture: "parts",
-  consumable: "parts"
+  consumable: "parts",
+  workCenter: "production",
+  process: "production"
 };
 
 export const importSchemas: Record<
@@ -1191,5 +1292,58 @@ export const importSchemas: Record<
       .string()
       .optional()
       .describe("The unit of measure of the part")
+  }),
+  workCenter: z.object({
+    id: z
+      .string()
+      .min(1, { message: "ID is required" })
+      .describe("The unique ID of the work center"),
+    name: z
+      .string()
+      .min(1, { message: "Name is required" })
+      .describe("The name of the work center"),
+    description: z
+      .string()
+      .min(1, { message: "Description is required" })
+      .describe("The description of the work center"),
+    defaultStandardFactor: z
+      .enum(["Hours", "Minutes", "Seconds"], {
+        errorMap: () => ({ message: "Standard factor is required" })
+      })
+      .describe("The standard factor unit for time tracking"),
+    laborRate: z.string().describe("The labor rate for the work center"),
+    machineRate: z.string().describe("The machine rate for the work center"),
+    overheadRate: z.string().describe("The overhead rate for the work center"),
+    locationId: z
+      .string()
+      .min(1, { message: "Location is required" })
+      .describe("The location ID of the work center")
+  }),
+  process: z.object({
+    id: z
+      .string()
+      .min(1, { message: "ID is required" })
+      .describe("The unique ID of the process"),
+    name: z
+      .string()
+      .min(1, { message: "Name is required" })
+      .describe("The name of the process"),
+    processType: z
+      .enum(["Inside", "Outside"], {
+        errorMap: () => ({ message: "Process type is required" })
+      })
+      .describe(
+        "Whether the process is Inside (in-house) or Outside (outsourced)"
+      ),
+    defaultStandardFactor: z
+      .enum(["Hours", "Minutes", "Seconds"])
+      .optional()
+      .describe(
+        "The standard factor unit for time tracking (required for Inside processes)"
+      ),
+    completeAllOnScan: z
+      .string()
+      .optional()
+      .describe("Whether to complete all on scan")
   })
 } as const;
