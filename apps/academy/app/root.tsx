@@ -195,7 +195,7 @@ export default function App() {
   const env = loaderData?.env ?? {};
   const result = loaderData?.result;
   const prefs = loaderData?.preferences;
-  const theme = "blue";
+  const theme = "zinc";
 
   const challengeAttempts = loaderData?.challengeAttempts ?? [];
 

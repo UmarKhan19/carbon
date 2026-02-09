@@ -127,7 +127,7 @@ export function Document({
   children,
   title = "Carbon",
   mode = "light",
-  theme = "blue"
+  theme = "zinc"
 }: {
   children: React.ReactNode;
   title?: string;
@@ -191,7 +191,7 @@ export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const env = loaderData?.env ?? {};
   const result = loaderData?.result;
-  const theme = loaderData?.theme ?? "blue";
+  const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
   const mode = useMode();
 
