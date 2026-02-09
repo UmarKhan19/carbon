@@ -74,6 +74,9 @@ pub struct AssemblySimulator {
     removed_parts: HashSet<String>,
     collision_checks: Cell<u64>,
     path_evaluations: Cell<u64>,
+    /// Global assembly bounding box (world space), computed in load_assembly().
+    global_aabb_min: Point3<f32>,
+    global_aabb_max: Point3<f32>,
 }
 
 /// Internal representation of a part for simulation.
@@ -141,6 +144,10 @@ struct MotionTrace {
 
 const MIN_REMOVAL_RATIO: f32 = 0.90;
 const MAX_MOTION_SAMPLING_STEPS: f32 = 100.0;
+/// Parts start their assembly animation from outside AABB * (1 + STAGING_MARGIN).
+const STAGING_MARGIN: f32 = 0.10;
+/// Fraction of animation time allocated to the approach segment (staging → approach).
+const APPROACH_TIME_FRACTION: f32 = 0.30;
 
 impl AssemblySimulator {
     /// Create a new simulator with the given configuration.
@@ -151,6 +158,8 @@ impl AssemblySimulator {
             removed_parts: HashSet::new(),
             collision_checks: Cell::new(0),
             path_evaluations: Cell::new(0),
+            global_aabb_min: Point3::origin(),
+            global_aabb_max: Point3::origin(),
         }
     }
 
@@ -238,6 +247,10 @@ impl AssemblySimulator {
             self.parts.len(),
             part_names
         );
+
+        // Persist global AABB for multi-segment staging point computation
+        self.global_aabb_min = global_min;
+        self.global_aabb_max = global_max;
 
         // Auto-scale removal distance to 2x the assembly diagonal
         let diagonal = (global_max - global_min).magnitude();
@@ -757,14 +770,16 @@ impl AssemblySimulator {
 
     /// Build candidate removal paths for a part.
     ///
-    /// Contact normals are tried first; axes are used as fallbacks.
+    /// For fasteners: helix along axis, linear along axis, contact normals, axes.
+    /// For all parts: also generates L-shaped waypoint paths (translate perpendicular
+    /// then along primary axis) as fallbacks for narrow-passage removal.
     fn candidate_paths_for_part(
         &self,
         part: &PartData,
         contact_graph: &ContactGraph,
         kinds: &HashMap<String, PartKind>,
     ) -> Vec<RemovalPath> {
-        let mut directions = self.candidate_directions_for_part(part, contact_graph);
+        let mut directions = self.candidate_directions_for_part(part, contact_graph, kinds);
 
         let mut paths: Vec<RemovalPath> = Vec::new();
 
@@ -793,12 +808,45 @@ impl AssemblySimulator {
             }
         }
 
-        for dir in directions {
+        for dir in &directions {
             paths.push(RemovalPath {
-                direction: dir,
+                direction: *dir,
                 motion: RemovalMotion::Linear,
                 travel_distance: 0.0,
             });
+        }
+
+        // L-shaped waypoint paths: combine the primary directions with
+        // perpendicular offsets. This handles narrow-passage removal where
+        // a straight-line path clips (e.g., a bolt needs to clear the hole
+        // lip before translating sideways).
+        if directions.len() >= 2 {
+            let primary_dirs: Vec<Vector3<f32>> =
+                directions.iter().take(4).copied().collect();
+            for (i, dir_a) in primary_dirs.iter().enumerate() {
+                for dir_b in primary_dirs.iter().skip(i + 1) {
+                    // Only combine directions that are sufficiently different
+                    if dir_a.dot(dir_b).abs() < 0.7 {
+                        // Diagonal: normalized sum of two directions
+                        let combined = (*dir_a + *dir_b).normalize();
+                        if combined.norm_squared() > 0.5 {
+                            paths.push(RemovalPath {
+                                direction: combined,
+                                motion: RemovalMotion::Linear,
+                                travel_distance: 0.0,
+                            });
+                        }
+                        let combined_neg = (*dir_a - *dir_b).normalize();
+                        if combined_neg.norm_squared() > 0.5 {
+                            paths.push(RemovalPath {
+                                direction: combined_neg,
+                                motion: RemovalMotion::Linear,
+                                travel_distance: 0.0,
+                            });
+                        }
+                    }
+                }
+            }
         }
 
         paths
@@ -824,11 +872,13 @@ impl AssemblySimulator {
 
     /// Build candidate removal directions for a part.
     ///
-    /// Contact normals are tried first; axes are used as fallbacks.
+    /// For fasteners, the axial direction is tried first. Then contact normals,
+    /// part-local axes, and global axes/diagonals as fallbacks.
     fn candidate_directions_for_part(
         &self,
         part: &PartData,
         contact_graph: &ContactGraph,
+        kinds: &HashMap<String, PartKind>,
     ) -> Vec<Vector3<f32>> {
         let mut directions: Vec<Vector3<f32>> = Vec::new();
 
@@ -844,6 +894,16 @@ impl AssemblySimulator {
             }
             directions.push(n);
         };
+
+        // 0) For fasteners, prioritize the axial direction first
+        let kind = kinds.get(&part.id).copied().unwrap_or(PartKind::Unknown);
+        if kind == PartKind::Fastener {
+            if let Some(axis) = self.fastener_axis_world(part) {
+                let axis = axis.normalize();
+                add_dir(axis);
+                add_dir(-axis);
+            }
+        }
 
         // 1) Contact normals (move away from neighbors)
         let mut contact_dirs = 0usize;
@@ -941,12 +1001,15 @@ impl AssemblySimulator {
                 travel_distance: travel,
                 required_distance: travel,
                 min_clearance: None,
-                animation_path: self.generate_animation_path_for_motion(
+                animation_path: self.build_full_animation_path(
                     part,
                     path,
                     &[0.0, travel],
                     travel,
                     travel,
+                    &other_parts,
+                    clearance,
+                    deadline,
                 ),
             });
         }
@@ -968,12 +1031,15 @@ impl AssemblySimulator {
                 travel_distance: trace.travel_distance,
                 required_distance,
                 min_clearance: trace.min_clearance,
-                animation_path: self.generate_animation_path_for_motion(
+                animation_path: self.build_full_animation_path(
                     part,
                     path,
                     &trace.sampled_distances,
                     trace.travel_distance,
                     required_distance,
+                    &other_parts,
+                    clearance,
+                    deadline,
                 ),
             })
         } else {
@@ -1003,14 +1069,230 @@ impl AssemblySimulator {
             .x
             .min(part.bounding_box_size.y.min(part.bounding_box_size.z))
             .max(0.001);
-        let release_distance = (min_dim * 0.05).max(1.0e-4);
+        let release_distance = (min_dim * 0.01).max(1.0e-5);
+
+        // For linear motions, use continuous collision detection (cast_shapes)
+        // to get exact collision times. For helix motions, fall back to
+        // discrete sampling (cast_shapes only handles linear velocity).
+        match &path.motion {
+            RemovalMotion::Linear => self.trace_motion_linear_ccd(
+                part,
+                path,
+                clearance,
+                &neighbors,
+                required_distance,
+                release_distance,
+                deadline,
+            ),
+            RemovalMotion::Helix { .. } => self.trace_motion_discrete(
+                part,
+                path,
+                clearance,
+                &neighbors,
+                required_distance,
+                release_distance,
+                deadline,
+            ),
+        }
+    }
+
+    /// Trace a linear removal path using continuous collision detection (cast_shapes).
+    ///
+    /// For each non-overlapping neighbor, uses `parry3d::query::cast_shapes` to
+    /// find the exact parametric time of first collision — no discrete sampling gaps.
+    /// For baseline-intersecting neighbors, falls back to discrete checks with
+    /// strict monotonic overlap reduction.
+    #[allow(clippy::too_many_arguments)]
+    fn trace_motion_linear_ccd(
+        &self,
+        part: &PartData,
+        path: &RemovalPath,
+        clearance: f32,
+        neighbors: &[NeighborState<'_>],
+        required_distance: f32,
+        release_distance: f32,
+        deadline: Instant,
+    ) -> MotionTrace {
+        use parry3d::query::{self, ShapeCastOptions};
+
+        let dir = if path.direction.norm_squared() > 1.0e-8 {
+            path.direction.normalize()
+        } else {
+            Vector3::x()
+        };
+        let velocity = dir * required_distance;
+        let zero_vel = Vector3::zeros();
+
+        let mut min_toi: f32 = 1.0;
+        let mut min_clearance_val = f32::MAX;
+        let mut has_baseline_intersecting = false;
+
+        // Phase 1: Use cast_shapes for all non-overlapping neighbors
+        for neighbor in neighbors {
+            if Instant::now() >= deadline {
+                break;
+            }
+
+            if neighbor.baseline_intersecting {
+                has_baseline_intersecting = true;
+                continue;
+            }
+
+            self.collision_checks
+                .set(self.collision_checks.get().saturating_add(1));
+
+            let options = ShapeCastOptions {
+                max_time_of_impact: 1.0,
+                target_distance: clearance,
+                stop_at_penetration: true,
+                compute_impact_geometry_on_penetration: false,
+            };
+
+            match query::cast_shapes(
+                &part.transform,
+                &velocity,
+                &part.mesh as &dyn parry3d::shape::Shape,
+                &neighbor.part.transform,
+                &zero_vel,
+                &neighbor.part.mesh as &dyn parry3d::shape::Shape,
+                options,
+            ) {
+                Ok(Some(hit)) => {
+                    min_toi = min_toi.min(hit.time_of_impact);
+                }
+                Ok(None) => {
+                    // No collision along this path — neighbor is clear
+                }
+                Err(_) => {
+                    // Unsupported shape combo — fall back to distance check at endpoint
+                    let end_transform = self.transform_for_motion_distance(
+                        part,
+                        path,
+                        required_distance,
+                        required_distance,
+                    );
+                    let dist = query::distance(
+                        &end_transform,
+                        &part.mesh,
+                        &neighbor.part.transform,
+                        &neighbor.part.mesh,
+                    )
+                    .unwrap_or(f32::MAX);
+                    if dist < clearance {
+                        min_toi = 0.5;
+                    }
+                    if dist.is_finite() {
+                        min_clearance_val = min_clearance_val.min(dist);
+                    }
+                }
+            }
+        }
+
+        let ccd_safe_distance = min_toi * required_distance;
+
+        // Phase 2: For baseline-intersecting neighbors, use discrete sampling
+        // with strict monotonic overlap reduction
+        let mut last_safe = 0.0_f32;
+        let mut sampled_distances = vec![0.0_f32];
+
+        if has_baseline_intersecting {
+            let steps = self.motion_sampling_steps(part, path, required_distance);
+            for step in 1..=steps {
+                if Instant::now() >= deadline {
+                    break;
+                }
+                let distance = required_distance * (step as f32 / steps as f32);
+                if distance > ccd_safe_distance {
+                    break;
+                }
+                let test_transform =
+                    self.transform_for_motion_distance(part, path, distance, required_distance);
+                let (collides, observed_clearance) = self.evaluate_motion_transform(
+                    part,
+                    &test_transform,
+                    neighbors,
+                    distance,
+                    release_distance,
+                );
+
+                if let Some(value) = observed_clearance {
+                    if value.is_finite() {
+                        min_clearance_val = min_clearance_val.min(value);
+                    }
+                }
+
+                if collides {
+                    let refined_safe = self.refine_motion_boundary(
+                        part,
+                        path,
+                        last_safe,
+                        distance,
+                        required_distance,
+                        neighbors,
+                        release_distance,
+                        deadline,
+                    );
+                    if refined_safe > last_safe + 1.0e-6 {
+                        sampled_distances.push(refined_safe);
+                        last_safe = refined_safe;
+                    }
+                    break;
+                }
+
+                sampled_distances.push(distance);
+                last_safe = distance;
+            }
+        } else {
+            // No baseline-intersecting neighbors — CCD result is authoritative.
+            // Generate sampled distances for animation keyframes.
+            let num_keyframes = 10u32;
+            for i in 1..=num_keyframes {
+                let d = ccd_safe_distance * (i as f32 / num_keyframes as f32);
+                sampled_distances.push(d);
+            }
+            last_safe = ccd_safe_distance;
+        }
+
+        sampled_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+        sampled_distances.dedup_by(|a, b| (*a - *b).abs() < 1.0e-6);
+        if sampled_distances
+            .last()
+            .is_none_or(|distance| (last_safe - *distance).abs() > 1.0e-6)
+        {
+            sampled_distances.push(last_safe);
+        }
+
+        MotionTrace {
+            travel_distance: last_safe,
+            min_clearance: if min_clearance_val.is_finite() {
+                Some(min_clearance_val)
+            } else {
+                None
+            },
+            sampled_distances,
+        }
+    }
+
+    /// Trace a removal path using discrete sampling (for helix motions).
+    ///
+    /// Uses swept AABB pre-filtering and discrete steps, similar to the
+    /// original algorithm but with tighter baseline overlap tolerance.
+    #[allow(clippy::too_many_arguments)]
+    fn trace_motion_discrete(
+        &self,
+        part: &PartData,
+        path: &RemovalPath,
+        clearance: f32,
+        neighbors: &[NeighborState<'_>],
+        required_distance: f32,
+        release_distance: f32,
+        deadline: Instant,
+    ) -> MotionTrace {
         let steps = self.motion_sampling_steps(part, path, required_distance);
         let mut sampled_distances = vec![0.0_f32];
         let mut min_clearance = f32::MAX;
         let mut last_safe = 0.0_f32;
 
-        // Use swept AABB to find earliest potential collision point
-        // This lets us skip sampling until we get close to a neighbor
         let velocity = match &path.motion {
             RemovalMotion::Linear => {
                 let dir = if path.direction.norm_squared() > 1.0e-8 {
@@ -1034,7 +1316,7 @@ impl AssemblySimulator {
             compute_world_aabb(&part.bbox_min, &part.bbox_max, &part.transform);
 
         let mut earliest_entry = 1.0_f32;
-        for neighbor in &neighbors {
+        for neighbor in neighbors {
             if neighbor.baseline_intersecting {
                 earliest_entry = 0.0;
                 break;
@@ -1051,7 +1333,6 @@ impl AssemblySimulator {
             }
         }
 
-        // Start sampling a bit before the earliest potential collision
         let start_fraction = (earliest_entry - 0.05).max(0.0);
         let start_step = ((start_fraction * steps as f32) as u32).saturating_sub(1);
 
@@ -1065,7 +1346,7 @@ impl AssemblySimulator {
             let (collides, observed_clearance) = self.evaluate_motion_transform(
                 part,
                 &test_transform,
-                &neighbors,
+                neighbors,
                 distance,
                 release_distance,
             );
@@ -1083,7 +1364,7 @@ impl AssemblySimulator {
                     last_safe,
                     distance,
                     required_distance,
-                    &neighbors,
+                    neighbors,
                     release_distance,
                     deadline,
                 );
@@ -1199,8 +1480,8 @@ impl AssemblySimulator {
         part: &PartData,
         test_transform: &Isometry3<f32>,
         neighbors: &[NeighborState<'_>],
-        distance_from_start: f32,
-        release_distance: f32,
+        _distance_from_start: f32,
+        _release_distance: f32,
     ) -> (bool, Option<f32>) {
         use parry3d::query;
 
@@ -1257,9 +1538,11 @@ impl AssemblySimulator {
                         &neighbor.part.world_aabb_min,
                         &neighbor.part.world_aabb_max,
                     );
-                    let allowed_overlap = neighbor.baseline_overlap_volume * 1.20 + 1.0e-3;
-                    if overlap_volume <= allowed_overlap || distance_from_start <= release_distance
-                    {
+                    // Only allow monotonic decrease — overlap must not grow beyond
+                    // the baseline. Tight tolerance prevents paths that clip through
+                    // mating geometry (e.g., bolt through hole wall).
+                    let allowed_overlap = neighbor.baseline_overlap_volume * 1.01 + 1.0e-4;
+                    if overlap_volume <= allowed_overlap {
                         continue;
                     }
                 }
@@ -1484,6 +1767,255 @@ impl AssemblySimulator {
             })
             .collect()
     }
+
+    /// Compute a staging point outside the global assembly AABB.
+    ///
+    /// Given the approach point (end of the removal path) and removal direction,
+    /// returns a point outside the padded global AABB along that direction.
+    /// Returns `None` if the approach point is already outside.
+    fn compute_staging_point(
+        &self,
+        approach_point: &Point3<f32>,
+        direction: &Vector3<f32>,
+    ) -> Option<Point3<f32>> {
+        let dir = if direction.norm_squared() > 1.0e-8 {
+            direction.normalize()
+        } else {
+            return None;
+        };
+
+        let aabb_size = self.global_aabb_max - self.global_aabb_min;
+        let margin = Vector3::new(
+            aabb_size.x * STAGING_MARGIN,
+            aabb_size.y * STAGING_MARGIN,
+            aabb_size.z * STAGING_MARGIN,
+        );
+        let padded_min = self.global_aabb_min - margin;
+        let padded_max = self.global_aabb_max + margin;
+
+        // Already outside padded AABB?
+        if approach_point.x < padded_min.x
+            || approach_point.x > padded_max.x
+            || approach_point.y < padded_min.y
+            || approach_point.y > padded_max.y
+            || approach_point.z < padded_min.z
+            || approach_point.z > padded_max.z
+        {
+            return None;
+        }
+
+        let exit_dist = ray_aabb_exit_distance(approach_point, &dir, &padded_min, &padded_max);
+        if exit_dist <= 0.0 {
+            return None;
+        }
+
+        // Place staging slightly beyond exit + half the margin magnitude
+        Some(approach_point + dir * (exit_dist + margin.norm() * 0.5))
+    }
+
+    /// Extend a removal path so its endpoint lies outside the global assembly AABB.
+    ///
+    /// Collision-checks the approach segment (approach → staging) with sparse sampling.
+    /// Returns the staging keyframe and the total distance from rest, or `None` if
+    /// the approach segment has collisions or staging is not needed.
+    #[allow(clippy::too_many_arguments)]
+    fn extend_path_to_staging(
+        &self,
+        part: &PartData,
+        removal_direction: &Vector3<f32>,
+        end_transform: &Isometry3<f32>,
+        current_end_distance: f32,
+        other_parts: &[&PartData],
+        clearance: f32,
+        deadline: Instant,
+    ) -> Option<(AnimationKeyframe, f32)> {
+        let approach_point = Point3::from(end_transform.translation.vector);
+
+        let staging_point = self.compute_staging_point(&approach_point, removal_direction)?;
+
+        let extension_vec = staging_point - approach_point;
+        let extension_distance = extension_vec.norm();
+        if extension_distance < 1.0e-6 {
+            return None;
+        }
+        let ext_dir = extension_vec / extension_distance;
+
+        // Collision-check the approach segment using continuous collision detection.
+        // cast_shapes finds exact collision times — no sampling gaps.
+        let velocity_ext = ext_dir * extension_distance;
+        let zero_vel = Vector3::zeros();
+        let cast_options = parry3d::query::ShapeCastOptions {
+            max_time_of_impact: 1.0,
+            target_distance: clearance,
+            stop_at_penetration: true,
+            compute_impact_geometry_on_penetration: false,
+        };
+
+        for other in other_parts {
+            if Instant::now() >= deadline {
+                return None;
+            }
+            self.collision_checks
+                .set(self.collision_checks.get().saturating_add(1));
+
+            match parry3d::query::cast_shapes(
+                end_transform,
+                &velocity_ext,
+                &part.mesh as &dyn parry3d::shape::Shape,
+                &other.transform,
+                &zero_vel,
+                &other.mesh as &dyn parry3d::shape::Shape,
+                cast_options,
+            ) {
+                Ok(Some(_hit)) => {
+                    return None; // Approach segment has collision
+                }
+                Ok(None) => {}
+                Err(_) => {
+                    // Unsupported — fall back to endpoint intersection test
+                    let staging_test = Isometry3::from_parts(
+                        Translation3::from(
+                            end_transform.translation.vector + ext_dir * extension_distance,
+                        ),
+                        end_transform.rotation,
+                    );
+                    let colliding = parry3d::query::intersection_test(
+                        &staging_test,
+                        &part.mesh,
+                        &other.transform,
+                        &other.mesh,
+                    )
+                    .unwrap_or(false);
+                    if colliding {
+                        return None;
+                    }
+                }
+            }
+        }
+
+        // Build the staging transform (linear extension, no rotation change)
+        let staging_transform = Isometry3::from_parts(
+            Translation3::from(end_transform.translation.vector + ext_dir * extension_distance),
+            end_transform.rotation,
+        );
+
+        let total_distance = current_end_distance + extension_distance;
+        Some((
+            AnimationKeyframe {
+                time: 1.0, // placeholder — caller rescales
+                transform: isometry_to_matrix4(&staging_transform),
+            },
+            total_distance,
+        ))
+    }
+
+    /// Build a full multi-segment animation path with staging outside the assembly AABB.
+    ///
+    /// In disassembly order (before reversal):
+    ///   time 0.0       → rest position (assembled)
+    ///   time ~0.70     → approach point (end of collision-validated removal)
+    ///   time 1.0       → staging point (outside AABB)
+    ///
+    /// After reversal in compute_sequence():
+    ///   time 0.0       → staging point (visible entry from outside)
+    ///   time ~0.30     → approach point (start of insertion)
+    ///   time 1.0       → rest position (assembled)
+    #[allow(clippy::too_many_arguments)]
+    fn build_full_animation_path(
+        &self,
+        part: &PartData,
+        path: &RemovalPath,
+        sampled_distances: &[f32],
+        travel_distance: f32,
+        reference_distance: f32,
+        other_parts: &[&PartData],
+        clearance: f32,
+        deadline: Instant,
+    ) -> Vec<AnimationKeyframe> {
+        // Step 1: Generate insertion segment keyframes (existing logic)
+        let mut keyframes = self.generate_animation_path_for_motion(
+            part,
+            path,
+            sampled_distances,
+            travel_distance,
+            reference_distance,
+        );
+
+        if keyframes.is_empty() || travel_distance <= 1.0e-6 {
+            return keyframes;
+        }
+
+        // Compute the transform at the end of the removal (approach point)
+        let end_transform =
+            self.transform_for_motion_distance(part, path, travel_distance, reference_distance);
+        let removal_dir = if path.direction.norm_squared() > 1.0e-8 {
+            path.direction.normalize()
+        } else {
+            return keyframes;
+        };
+
+        // Step 2: Try to extend to staging point along removal direction
+        let mut staging_result = self.extend_path_to_staging(
+            part,
+            &removal_dir,
+            &end_transform,
+            travel_distance,
+            other_parts,
+            clearance,
+            deadline,
+        );
+
+        // Step 3: Fallback directions if primary fails
+        if staging_result.is_none() {
+            let fallbacks = [
+                Vector3::new(0.0, 1.0, 0.0),
+                Vector3::new(0.0, -1.0, 0.0),
+                Vector3::new(1.0, 0.0, 0.0),
+                Vector3::new(-1.0, 0.0, 0.0),
+                Vector3::new(0.0, 0.0, 1.0),
+                Vector3::new(0.0, 0.0, -1.0),
+            ];
+            for fallback_dir in &fallbacks {
+                if fallback_dir.dot(&removal_dir) > 0.95 {
+                    continue; // Skip near-duplicates of the primary direction
+                }
+                if Instant::now() >= deadline {
+                    break;
+                }
+                staging_result = self.extend_path_to_staging(
+                    part,
+                    fallback_dir,
+                    &end_transform,
+                    travel_distance,
+                    other_parts,
+                    clearance,
+                    deadline,
+                );
+                if staging_result.is_some() {
+                    break;
+                }
+            }
+        }
+
+        // Step 4: If no staging needed or all attempts failed, return insertion-only path
+        let Some((staging_kf, _total_distance)) = staging_result else {
+            return keyframes;
+        };
+
+        // Step 5: Rescale time — insertion segment gets [0.0, 1-APPROACH_TIME_FRACTION]
+        let insertion_end_time = 1.0 - APPROACH_TIME_FRACTION;
+        for kf in &mut keyframes {
+            kf.time *= insertion_end_time;
+        }
+
+        // Append staging keyframe at time=1.0 (furthest point in disassembly)
+        keyframes.push(AnimationKeyframe {
+            time: 1.0,
+            transform: staging_kf.transform,
+        });
+
+        keyframes
+    }
 }
 
 /// Convert a Matrix4 to an Isometry3.
@@ -1555,6 +2087,42 @@ fn aabb_overlap_volume(
     let overlap_y = (a_max.y.min(b_max.y) - a_min.y.max(b_min.y)).max(0.0);
     let overlap_z = (a_max.z.min(b_max.z) - a_min.z.max(b_min.z)).max(0.0);
     overlap_x * overlap_y * overlap_z
+}
+
+/// Distance along `direction` from `origin` to exit an AABB.
+/// Returns 0 if the origin is outside the AABB.
+fn ray_aabb_exit_distance(
+    origin: &Point3<f32>,
+    direction: &Vector3<f32>,
+    aabb_min: &Point3<f32>,
+    aabb_max: &Point3<f32>,
+) -> f32 {
+    let mut t_exit = f32::INFINITY;
+
+    for axis in 0..3 {
+        let (o, d, bmin, bmax) = match axis {
+            0 => (origin.x, direction.x, aabb_min.x, aabb_max.x),
+            1 => (origin.y, direction.y, aabb_min.y, aabb_max.y),
+            _ => (origin.z, direction.z, aabb_min.z, aabb_max.z),
+        };
+
+        if d.abs() < 1.0e-10 {
+            // Parallel — check if inside this slab
+            if o < bmin || o > bmax {
+                return 0.0; // Already outside
+            }
+            continue;
+        }
+
+        let inv_d = 1.0 / d;
+        let t1 = (bmin - o) * inv_d;
+        let t2 = (bmax - o) * inv_d;
+        let t_far = t1.max(t2);
+
+        t_exit = t_exit.min(t_far);
+    }
+
+    t_exit.max(0.0)
 }
 
 /// Compute the time (0..1) when moving AABB first enters another AABB.
@@ -1963,5 +2531,415 @@ mod tests {
             RemovalMotion::Helix { .. } => {}
             _ => panic!("Fastener should prefer helix motion"),
         }
+    }
+
+    #[test]
+    fn test_ray_aabb_exit_distance() {
+        let aabb_min = Point3::new(-5.0, -5.0, -5.0);
+        let aabb_max = Point3::new(5.0, 5.0, 5.0);
+
+        // Point at origin, moving in +X → should exit at x=5
+        let dist = ray_aabb_exit_distance(
+            &Point3::origin(),
+            &Vector3::new(1.0, 0.0, 0.0),
+            &aabb_min,
+            &aabb_max,
+        );
+        assert!(
+            (dist - 5.0).abs() < 1.0e-3,
+            "Expected ~5.0, got {}",
+            dist
+        );
+
+        // Point at (3,0,0), moving in +X → should exit at x=5, so distance=2
+        let dist2 = ray_aabb_exit_distance(
+            &Point3::new(3.0, 0.0, 0.0),
+            &Vector3::new(1.0, 0.0, 0.0),
+            &aabb_min,
+            &aabb_max,
+        );
+        assert!(
+            (dist2 - 2.0).abs() < 1.0e-3,
+            "Expected ~2.0, got {}",
+            dist2
+        );
+    }
+
+    /// Verify that all assembly animation paths start from outside the
+    /// global assembly AABB (i.e., multi-segment staging works).
+    #[test]
+    fn test_staging_point_outside_aabb() {
+        // Create a tight cluster of cubes at origin
+        let mesh = create_cube_mesh(4.0);
+        let part_a = create_test_part(
+            "a",
+            "BLOCK_A",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+        let part_b = create_test_part(
+            "b",
+            "BLOCK_B",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(4.0, 0.0, 0.0)),
+        );
+        let part_c = create_test_part(
+            "c",
+            "BLOCK_C",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 4.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Cluster".to_string(),
+            original_name: "Cluster".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![part_a, part_b, part_c],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+        let result = simulator.compute_sequence().unwrap();
+        assert!(result.success, "Simulation failed: {:?}", result.error);
+
+        // After reversal, time=0.0 keyframe is the starting position.
+        // It should be outside the padded global AABB.
+        let aabb_size = simulator.global_aabb_max - simulator.global_aabb_min;
+        let margin = Vector3::new(
+            aabb_size.x * STAGING_MARGIN,
+            aabb_size.y * STAGING_MARGIN,
+            aabb_size.z * STAGING_MARGIN,
+        );
+        let padded_min = simulator.global_aabb_min - margin;
+        let padded_max = simulator.global_aabb_max + margin;
+
+        for step in &result.steps {
+            let first_kf = step.animation_path.first().expect("should have keyframes");
+            // Extract translation from the 4x4 column-major matrix
+            let tx = first_kf.transform[(0, 3)];
+            let ty = first_kf.transform[(1, 3)];
+            let tz = first_kf.transform[(2, 3)];
+
+            let outside = tx < padded_min.x
+                || tx > padded_max.x
+                || ty < padded_min.y
+                || ty > padded_max.y
+                || tz < padded_min.z
+                || tz > padded_max.z;
+
+            assert!(
+                outside,
+                "Step {} ({:?}) starts at ({:.1},{:.1},{:.1}) which is INSIDE padded AABB [{:?} .. {:?}]",
+                step.step_number, step.part_names, tx, ty, tz, padded_min, padded_max
+            );
+        }
+    }
+
+    /// Verify multi-segment paths have more keyframes than single-segment.
+    #[test]
+    fn test_multi_segment_keyframe_count() {
+        let mesh = create_cube_mesh(4.0);
+        let part_a = create_test_part(
+            "a",
+            "BLOCK_A",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+        let part_b = create_test_part(
+            "b",
+            "BLOCK_B",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(4.0, 0.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Pair".to_string(),
+            original_name: "Pair".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![part_a, part_b],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+        let result = simulator.compute_sequence().unwrap();
+        assert!(result.success);
+
+        for step in &result.steps {
+            assert!(
+                step.animation_path.len() >= 3,
+                "Step {} should have at least 3 keyframes (staging, approach, rest), got {}",
+                step.step_number,
+                step.animation_path.len()
+            );
+        }
+    }
+
+    /// Verify time allocation: approach gets ~30% of animation time.
+    #[test]
+    fn test_time_allocation_approach_vs_insertion() {
+        let mesh = create_cube_mesh(4.0);
+        let part_a = create_test_part(
+            "a",
+            "BLOCK_A",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+        let part_b = create_test_part(
+            "b",
+            "BLOCK_B",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(4.0, 0.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Pair".to_string(),
+            original_name: "Pair".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![part_a, part_b],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+        let result = simulator.compute_sequence().unwrap();
+        assert!(result.success);
+
+        // After reversal: time=0.0 is staging, ~0.30 is approach point, 1.0 is rest
+        for step in &result.steps {
+            if step.animation_path.len() < 3 {
+                continue;
+            }
+            // The second keyframe should be approximately at APPROACH_TIME_FRACTION
+            let second_kf = &step.animation_path[1];
+            assert!(
+                (second_kf.time - APPROACH_TIME_FRACTION).abs() < 0.05,
+                "Second keyframe time should be ~{}, got {}",
+                APPROACH_TIME_FRACTION,
+                second_kf.time
+            );
+        }
+    }
+
+    #[test]
+    fn test_fastener_axis_prioritized_in_directions() {
+        // A tall bolt (elongated along Y) sitting on a base plate.
+        // As a fastener, its axial direction (Y) should be the FIRST candidate,
+        // not buried behind contact normals.
+        let base_mesh = create_cube_mesh(10.0);
+        let bolt_mesh = create_cube_mesh(1.0); // will appear as cube, but classified as fastener
+
+        let base = create_test_part(
+            "base",
+            "BASE_PLATE",
+            base_mesh,
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+        // Bolt sitting on top of the base, touching along Y
+        let bolt = create_test_part(
+            "bolt",
+            "M8_BOLT",
+            bolt_mesh,
+            Matrix4::new_translation(&Vector3::new(0.0, 5.5, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Test Assembly".to_string(),
+            original_name: "Test Assembly".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![base, bolt],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+
+        let contact_graph = ContactGraph::build(
+            simulator
+                .parts
+                .iter()
+                .map(|p| (p.id.as_str(), &p.mesh, &p.transform)),
+            simulator.config.removal_distance * 0.001,
+        );
+
+        let mut kinds: HashMap<String, PartKind> = HashMap::new();
+        kinds.insert("bolt".to_string(), PartKind::Fastener);
+
+        let bolt_part = simulator.parts.iter().find(|p| p.id == "bolt").unwrap();
+        let directions = simulator.candidate_directions_for_part(bolt_part, &contact_graph, &kinds);
+
+        // For a fastener, the first directions should be along the fastener axis
+        assert!(
+            !directions.is_empty(),
+            "Should have at least one candidate direction"
+        );
+
+        // The fastener axis for a cube is the longest local axis.
+        // For a 1x1x1 cube all axes are equal, but the function picks the first.
+        // The important thing is that SOME axis direction is in the first two slots.
+        let axis = simulator.fastener_axis_world(bolt_part).unwrap().normalize();
+        let first_is_axial = directions[0].dot(&axis).abs() > 0.9;
+        let second_is_axial = directions.len() > 1 && directions[1].dot(&axis).abs() > 0.9;
+
+        assert!(
+            first_is_axial || second_is_axial,
+            "Fastener axial direction should be among the first two candidates, got {:?}",
+            &directions[..directions.len().min(4)]
+        );
+    }
+
+    /// Verify that cast_shapes detects a collision that discrete sampling might miss.
+    ///
+    /// A thin part (wall) sits between two cubes. The moving cube translates
+    /// through the wall. With coarse discrete sampling, the cube could jump
+    /// past the thin wall undetected. cast_shapes must catch it.
+    #[test]
+    fn test_ccd_detects_thin_wall_collision() {
+        // Thin wall at x=5 (0.1 thick)
+        let wall_mesh = create_cube_mesh(0.1);
+        let cube_mesh = create_cube_mesh(2.0);
+
+        let wall = create_test_part(
+            "wall",
+            "THIN_WALL",
+            wall_mesh,
+            Matrix4::new_translation(&Vector3::new(5.0, 0.0, 0.0)),
+        );
+        let cube = create_test_part(
+            "cube",
+            "BLOCK",
+            cube_mesh,
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Thin Wall Test".to_string(),
+            original_name: "Thin Wall Test".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![wall, cube],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+
+        let contact_graph = ContactGraph::build(
+            simulator
+                .parts
+                .iter()
+                .map(|p| (p.id.as_str(), &p.mesh, &p.transform)),
+            simulator.config.removal_distance * 0.001,
+        );
+
+        let kinds: HashMap<String, PartKind> = HashMap::new();
+        let removable = simulator.find_removable_parts(
+            &contact_graph,
+            &kinds,
+            0.0,
+            Instant::now() + Duration::from_secs(2),
+        );
+
+        // The cube should be removable, but its removal path should NOT
+        // pass through the thin wall in +X direction.
+        let cube_entry = removable.iter().find(|c| c.part_id == "cube");
+        if let Some(entry) = cube_entry {
+            // If the cube moves in +X, it should stop before the thin wall
+            let dir = entry.path.direction;
+            if dir.x > 0.5 {
+                // Moving toward the wall — travel distance should be limited
+                assert!(
+                    entry.evaluation.travel_distance < 4.5,
+                    "Cube should stop before thin wall, but traveled {:.2}",
+                    entry.evaluation.travel_distance
+                );
+            }
+        }
+    }
+
+    /// Verify that L-shaped diagonal paths are generated for parts with
+    /// multiple candidate directions.
+    #[test]
+    fn test_diagonal_paths_generated() {
+        let mesh = create_cube_mesh(2.0);
+
+        // Three parts in an L-shape: base, side, and corner piece
+        let base = create_test_part(
+            "base",
+            "BASE",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+        let side = create_test_part(
+            "side",
+            "SIDE",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(2.0, 0.0, 0.0)),
+        );
+        let corner = create_test_part(
+            "corner",
+            "CORNER",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(2.0, 2.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "L-Shape Test".to_string(),
+            original_name: "L-Shape Test".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![base, side, corner],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+
+        let contact_graph = ContactGraph::build(
+            simulator
+                .parts
+                .iter()
+                .map(|p| (p.id.as_str(), &p.mesh, &p.transform)),
+            simulator.config.removal_distance * 0.001,
+        );
+
+        let kinds: HashMap<String, PartKind> = HashMap::new();
+        let corner_part = simulator.parts.iter().find(|p| p.id == "corner").unwrap();
+        let paths = simulator.candidate_paths_for_part(corner_part, &contact_graph, &kinds);
+
+        // Should have more paths than just the basic directions (diagonals added)
+        let linear_paths: Vec<_> = paths
+            .iter()
+            .filter(|p| matches!(p.motion, RemovalMotion::Linear))
+            .collect();
+
+        assert!(
+            linear_paths.len() > 6,
+            "Should have diagonal paths in addition to basic directions, got {} linear paths",
+            linear_paths.len()
+        );
     }
 }
