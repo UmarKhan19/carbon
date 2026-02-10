@@ -1,4 +1,4 @@
-import { assertIsPost } from "@carbon/auth";
+import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { destroyAuthSession } from "@carbon/auth/session.server";
 import { ValidatedForm, validationError, validator } from "@carbon/form";
@@ -36,7 +36,8 @@ export async function loader({ request }: ActionFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {});
+  const { userId } = await requirePermissions(request, {});
+  const serviceRole = getCarbonServiceRole();
 
   const validation = await validator(onboardingUserValidator).validate(
     await request.formData()
@@ -50,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   console.log("Updating user account:", { userId, firstName, lastName });
 
-  const updateAccount = await updatePublicAccount(client, {
+  const updateAccount = await updatePublicAccount(serviceRole, {
     id: userId,
     firstName,
     lastName
