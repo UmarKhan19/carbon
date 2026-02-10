@@ -96,7 +96,9 @@ export const unitOfMeasures = [
   { name: "Pound", code: "LB", createdBy: "system" },
   { name: "Ton", code: "TN", createdBy: "system" },
   { name: "Yard", code: "YD", createdBy: "system" },
-  { name: "Meter", code: "MT", createdBy: "system" }
+  { name: "Meter", code: "MT", createdBy: "system" },
+  { name: "Inch", code: "INCH", createdBy: "system" },
+  { name: "Foot", code: "FOOT", createdBy: "system" }
 ] as const;
 
 export const gaugeTypes = [
