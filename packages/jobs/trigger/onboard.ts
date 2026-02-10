@@ -209,6 +209,16 @@ export const onboardTask = task({
         const twentyId = user.data?.externalId?.twenty as string | undefined;
 
         try {
+          const userName = `${user.data?.firstName || ""} ${
+            user.data?.lastName || ""
+          }`.trim();
+          console.log("User data for Slack message:", {
+            firstName: user.data?.firstName,
+            lastName: user.data?.lastName,
+            email: user.data.email,
+            fullName: userName,
+          });
+
           slack.sendMessage({
             channel: "#sales",
             text: "New Customer 🔔",
@@ -220,7 +230,7 @@ export const onboardTask = task({
                   text:
                     `*New Signup* 🔔\n\n` +
                     `*Contact Information*\n` +
-                    `• Name: ${user.data?.firstName} ${user.data?.lastName}\n` +
+                    `• Name: ${userName}\n` +
                     `• Email: ${user.data.email}\n` +
                     `• Company: ${company.data?.name}\n\n` +
                     `• Plan: $${plan}\n\n`,
