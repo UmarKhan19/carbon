@@ -161,53 +161,53 @@ const QuoteHeader = () => {
           </HStack>
           <HStack>
             {routeData?.quote.externalLinkId &&
-            routeData?.quote.status === "Sent" ? (
-              <Button
-                onClick={shareModal.onOpen}
-                leftIcon={<LuShare2 />}
-                variant="secondary"
-              >
-                Share
-              </Button>
-            ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    leftIcon={<LuEye />}
-                    variant="secondary"
-                    rightIcon={<LuChevronDown />}
-                  >
-                    Preview
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {routeData?.quote.externalLinkId && (
-                    <DropdownMenuItem asChild>
-                      <a
-                        target="_blank"
-                        href={path.to.externalQuote(
-                          routeData.quote.externalLinkId
-                        )}
-                        rel="noreferrer"
-                      >
-                        <DropdownMenuIcon icon={<LuExternalLink />} />
-                        Digital Quote
-                      </a>
-                    </DropdownMenuItem>
-                  )}
+              routeData?.quote.status === "Sent" && (
+                <Button
+                  onClick={shareModal.onOpen}
+                  leftIcon={<LuShare2 />}
+                  variant="secondary"
+                >
+                  Share
+                </Button>
+              )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  leftIcon={<LuEye />}
+                  variant="secondary"
+                  rightIcon={<LuChevronDown />}
+                >
+                  Preview
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {routeData?.quote.externalLinkId && (
                   <DropdownMenuItem asChild>
                     <a
                       target="_blank"
-                      href={path.to.file.quote(quoteId)}
+                      href={path.to.externalQuote(
+                        routeData.quote.externalLinkId
+                      )}
                       rel="noreferrer"
                     >
-                      <DropdownMenuIcon icon={<LuFile />} />
-                      PDF
+                      <DropdownMenuIcon icon={<LuExternalLink />} />
+                      Digital Quote
                     </a>
                   </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+                )}
+                <DropdownMenuItem asChild>
+                  <a
+                    target="_blank"
+                    href={path.to.file.quote(quoteId)}
+                    rel="noreferrer"
+                  >
+                    <DropdownMenuIcon icon={<LuFile />} />
+                    PDF
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button
               onClick={finalizeModal.onOpen}
