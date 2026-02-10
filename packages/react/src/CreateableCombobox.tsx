@@ -25,6 +25,7 @@ export type CreatableComboboxProps = Omit<
     label: string | JSX.Element;
     value: string;
     helper?: string;
+    helperRight?: string;
   }[];
   selected?: string[];
   isClearable?: boolean;
@@ -289,11 +290,19 @@ function VirtualizedCommand({
                       </span>
                     </div>
                   ) : item.helper ? (
-                    <div className="flex flex-col min-w-0 flex-1">
+                    <div
+                      className={cn(
+                        "flex flex-col min-w-0 flex-1",
+                        isSelected || (item.value === value && "pr-2")
+                      )}
+                    >
                       <p className="truncate">{item.label}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {item.helper}
-                      </p>
+                      <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                        <span className="truncate flex-1">{item.helper}</span>
+                        <span className="flex-shrink-0">
+                          {item.helperRight}
+                        </span>
+                      </div>
                     </div>
                   ) : (
                     <span className="truncate flex-1">{item.label}</span>
@@ -304,7 +313,7 @@ function VirtualizedCommand({
                         "ml-auto h-4 w-4 flex-shrink-0",
                         isSelected || item.value === value
                           ? "opacity-100"
-                          : "opacity-0"
+                          : "opacity-0 hidden"
                       )}
                     />
                   )}

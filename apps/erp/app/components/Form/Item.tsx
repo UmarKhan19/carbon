@@ -106,7 +106,11 @@ const Item = ({
       .map((item) => ({
         value: item.id,
         label: item.readableIdWithRevision,
-        helper: item.name
+        helper: item.name,
+        helperRight:
+          item.quantityOnHand !== undefined
+            ? `${item.quantityOnHand} ${item.unitOfMeasureCode}`
+            : undefined
       }));
 
     if (props.whitelist) {

@@ -27,6 +27,7 @@ export type ComboboxProps = Omit<
     label: string | JSX.Element;
     value: string;
     helper?: string;
+    helperRight?: string;
   }[];
   isClearable?: boolean;
   isLoading?: boolean;
@@ -233,11 +234,17 @@ function VirtualizedCommand({
                 }}
               >
                 {item.helper ? (
-                  <div className="flex flex-col pr-2">
+                  <div
+                    className={cn(
+                      "flex flex-col min-w-0 flex-1",
+                      itemValue === value && "pr-2"
+                    )}
+                  >
                     <p className="line-clamp-1 w-full">{item.label}</p>
-                    <p className="text-xs text-muted-foreground line-clamp-1">
-                      {item.helper}
-                    </p>
+                    <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                      <span className="truncate flex-1">{item.helper}</span>
+                      <span className="flex-shrink-0">{item.helperRight}</span>
+                    </div>
                   </div>
                 ) : (
                   <span className="line-clamp-1 w-full pr-2">{item.label}</span>
@@ -245,7 +252,7 @@ function VirtualizedCommand({
                 <LuCheck
                   className={cn(
                     "ml-auto h-4 w-4",
-                    itemValue === value ? "opacity-100" : "opacity-0"
+                    itemValue === value ? "opacity-100" : "opacity-0 hidden"
                   )}
                 />
               </CommandItem>

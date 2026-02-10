@@ -28,6 +28,31 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
   const [, setCustomers] = useCustomers();
   const [, setPeople] = usePeople();
 
+  const fetchQuantities = async () => {
+    if (!carbon || !companyId) return;
+
+    const { data, error } = await carbon
+      .from("itemStockQuantities")
+      .select("itemId, quantityOnHand")
+      .eq("companyId", companyId);
+
+    if (error || !data) return;
+
+    const quantityMap = new Map<string, number>();
+    for (const row of data) {
+      if (row.itemId) {
+        quantityMap.set(row.itemId, Number(row.quantityOnHand) ?? 0);
+      }
+    }
+
+    setItems((currentItems) =>
+      currentItems.map((item) => ({
+        ...item,
+        quantityOnHand: quantityMap.get(item.id) ?? 0
+      }))
+    );
+  };
+
   const hydrate = async () => {
     const idb = (await import("localforage")).default;
     if (!hydratedFromIdb) {
@@ -122,12 +147,21 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
     idb.setItem("suppliers", suppliers.data);
     idb.setItem("customers", customers.data);
     idb.setItem("people", people.data);
+
+    fetchQuantities();
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     if (!companyId) return;
     hydrate();
+  }, [companyId]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
+  useEffect(() => {
+    if (!companyId) return;
+    const interval = setInterval(fetchQuantities, 10 * 60 * 1000);
+    return () => clearInterval(interval);
   }, [companyId]);
 
   useRealtimeChannel({
