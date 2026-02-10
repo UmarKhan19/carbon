@@ -48,6 +48,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { firstName, lastName, next } = validation.data;
 
+  console.log("Updating user account:", { userId, firstName, lastName });
+
   const updateAccount = await updatePublicAccount(client, {
     id: userId,
     firstName,
@@ -55,9 +57,24 @@ export async function action({ request }: ActionFunctionArgs) {
     // about: about ?? "",
   });
 
+  console.log("Update result:", {
+    error: updateAccount.error,
+    status: updateAccount.status,
+    count: updateAccount.count,
+    data: updateAccount.data
+  });
+
   if (updateAccount.error) {
-    console.error(updateAccount.error);
+    console.error("Update account error:", updateAccount.error);
     throw new Error("Fatal: failed to update account");
+  }
+
+  if (updateAccount.count === 0) {
+    console.warn("Warning: update returned 0 rows affected", {
+      userId,
+      firstName,
+      lastName
+    });
   }
 
   throw redirect(next);

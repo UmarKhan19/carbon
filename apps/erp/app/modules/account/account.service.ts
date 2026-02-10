@@ -136,7 +136,14 @@ export async function updatePublicAccount(
     about?: string;
   }
 ) {
-  return client.from("user").update(sanitize(account)).eq("id", account.id);
+  const sanitized = sanitize(account);
+  console.log("updatePublicAccount - sanitized data:", sanitized);
+  const result = await client
+    .from("user")
+    .update(sanitized)
+    .eq("id", account.id);
+  console.log("updatePublicAccount - result:", result);
+  return result;
 }
 
 export async function upsertUserAttributeValue(
