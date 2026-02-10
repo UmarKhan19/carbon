@@ -9,7 +9,7 @@ import { render } from "@react-email/components";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { task, wait } from "@trigger.dev/sdk";
 import { generateObject } from "ai";
-import { z } from 'zod/v3';
+import { z } from "zod/v3";
 
 export const onboardTask = task({
   id: "onboard",
@@ -220,8 +220,9 @@ export const onboardTask = task({
                   text:
                     `*New Signup* 🔔\n\n` +
                     `*Contact Information*\n` +
+                    `• Name: ${user.data?.firstName} ${user.data?.lastName}\n` +
+                    `• Email: ${user.data.email}\n` +
                     `• Company: ${company.data?.name}\n\n` +
-                    `• Email: ${user.data.email}\n\n` +
                     `• Plan: $${plan}\n\n`,
                 },
               },
