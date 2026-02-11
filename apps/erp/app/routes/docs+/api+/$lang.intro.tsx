@@ -4,7 +4,6 @@ import { Alert, AlertDescription, AlertTitle } from "@carbon/react";
 import { LuTriangleAlert } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link, useLoaderData } from "react-router";
-import { useUser } from "~/hooks";
 import { CodeSnippet, Snippets, useSelectedLang } from "~/modules/api";
 import { path } from "~/utils/path";
 
@@ -12,14 +11,23 @@ const { SUPABASE_URL } = getBrowserEnv();
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getAuthSession(request);
+  if (session) {
+    return {
+      isLoggedIn: true,
+      companyId: session.companyId,
+      publicKey: SUPABASE_ANON_KEY
+    };
+  }
+
   return {
-    isLoggedIn: !!session
+    isLoggedIn: false,
+    companyId: "<your-company-id>",
+    publicKey: "<public-key>"
   };
 }
 
 export default function Route() {
-  const { company } = useUser();
-  const { isLoggedIn } = useLoaderData<typeof loader>();
+  const { companyId, publicKey } = useLoaderData<typeof loader>();
   const selectedLang = useSelectedLang();
 
   return (
@@ -38,11 +46,9 @@ export default function Route() {
               snippet={Snippets.env({
                 appUrl: window.location.origin,
                 apiKey: "<your-api-key>",
-                publicKey: SUPABASE_ANON_KEY,
+                publicKey: publicKey,
                 apiUrl: SUPABASE_URL,
-                companyId: isLoggedIn
-                  ? (company?.id ?? "<your-company-id>")
-                  : "<your-company-id>"
+                companyId: companyId
               })}
             />
           </article>
