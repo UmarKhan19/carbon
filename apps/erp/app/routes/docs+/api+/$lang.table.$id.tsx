@@ -1,0 +1,19 @@
+import { getBrowserEnv } from "@carbon/auth";
+import { useParams } from "react-router";
+import { TableDocs, useSelectedLang } from "~/modules/api";
+
+const { SUPABASE_URL } = getBrowserEnv();
+
+export default function Route() {
+  const selectedLang = useSelectedLang();
+  const { id } = useParams();
+  if (!id) throw new Error("Table id not found");
+
+  return (
+    <TableDocs
+      endpoint={SUPABASE_URL}
+      selectedLang={selectedLang}
+      resourceId={id}
+    />
+  );
+}

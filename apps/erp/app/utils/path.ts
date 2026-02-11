@@ -86,7 +86,9 @@ export const path = {
       materialForms: `${api}/items/forms`,
       materials: (materialFormId?: string) =>
         generatePath(
-          `${api}/items/materials${materialFormId ? `?materialFormId=${materialFormId}` : ""}`
+          `${api}/items/materials${
+            materialFormId ? `?materialFormId=${materialFormId}` : ""
+          }`
         ),
       materialGrades: (substanceId: string) =>
         generatePath(`${api}/items/grades/${substanceId}`),
@@ -399,10 +401,10 @@ export const path = {
       generatePath(`${x}/quality/gauges/activate/${id}`),
     attribute: (id: string) => generatePath(`${x}/people/attribute/${id}`),
     attributes: `${x}/people/attributes`,
-    apiIntroduction: `${x}/api/js/intro`,
-    apiIntro: (lang: string) => generatePath(`${x}/api/${lang}/intro/`),
+    apiIntroduction: `/docs/api/js/intro`,
+    apiIntro: (lang: string) => generatePath(`/docs/api/${lang}/intro/`),
     apiTable: (lang: string, table: string) =>
-      generatePath(`${x}/api/${lang}/table/${table}`),
+      generatePath(`/docs/api/${lang}/table/${table}`),
     apiKey: (id: string) => generatePath(`${x}/settings/api-keys/${id}`),
     apiKeys: `${x}/settings/api-keys`,
     attributeCategory: (id: string) =>
