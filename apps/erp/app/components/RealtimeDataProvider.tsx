@@ -2,7 +2,7 @@
 
 import { useCarbon } from "@carbon/auth";
 import { fetchAllFromTable } from "@carbon/database";
-import { useRealtimeChannel } from "@carbon/react";
+import { useInterval, useRealtimeChannel } from "@carbon/react";
 import { useEffect } from "react";
 import { useUser } from "~/hooks";
 import { useCustomers, useItems, usePeople, useSuppliers } from "~/stores";
@@ -31,24 +31,39 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchQuantities = async () => {
     if (!carbon || !companyId) return;
 
-    const { data, error } = await carbon
-      .from("itemStockQuantities")
-      .select("itemId, quantityOnHand")
-      .eq("companyId", companyId);
+    const { data, error } = await fetchAllFromTable<{
+      itemId: string;
+      locationId: string;
+      quantityOnHand: number;
+    }>(
+      carbon,
+      // @ts-ignore -- itemStockQuantities is a materialized view
+      "itemStockQuantities",
+      "itemId, locationId, quantityOnHand",
+      (query) => query.eq("companyId", companyId)
+    );
 
     if (error || !data) return;
 
-    const quantityMap = new Map<string, number>();
+    const totalMap = new Map<string, number>();
+    const locationMap = new Map<string, Record<string, number>>();
+
     for (const row of data) {
-      if (row.itemId) {
-        quantityMap.set(row.itemId, Number(row.quantityOnHand) ?? 0);
-      }
+      if (!row.itemId) continue;
+      const qty = Number(row.quantityOnHand) || 0;
+      const locId = row.locationId || "";
+
+      totalMap.set(row.itemId, (totalMap.get(row.itemId) ?? 0) + qty);
+
+      if (!locationMap.has(row.itemId)) locationMap.set(row.itemId, {});
+      if (locId) locationMap.get(row.itemId)![locId] = qty;
     }
 
     setItems((currentItems) =>
       currentItems.map((item) => ({
         ...item,
-        quantityOnHand: quantityMap.get(item.id) ?? 0
+        quantityOnHand: totalMap.get(item.id) ?? 0,
+        quantityByLocation: locationMap.get(item.id) ?? {}
       }))
     );
   };
@@ -157,12 +172,7 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
     hydrate();
   }, [companyId]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
-  useEffect(() => {
-    if (!companyId) return;
-    const interval = setInterval(fetchQuantities, 10 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [companyId]);
+  useInterval(fetchQuantities, companyId ? 10 * 60 * 1000 : null);
 
   useRealtimeChannel({
     topic: `realtime:core`,

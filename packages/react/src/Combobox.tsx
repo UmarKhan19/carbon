@@ -243,7 +243,11 @@ function VirtualizedCommand({
                     <p className="line-clamp-1 w-full">{item.label}</p>
                     <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                       <span className="truncate flex-1">{item.helper}</span>
-                      <span className="flex-shrink-0">{item.helperRight}</span>
+                      {item.helperRight && (
+                        <span className="flex-shrink-0">
+                          {item.helperRight}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ) : (

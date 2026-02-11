@@ -12,6 +12,7 @@ export type Item = ListItem & {
   type: Database["public"]["Enums"]["itemType"];
   active: boolean;
   quantityOnHand?: number;
+  quantityByLocation?: Record<string, number>;
 };
 
 const $itemsStore = atom<Item[]>([]);

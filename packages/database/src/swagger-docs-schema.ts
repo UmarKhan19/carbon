@@ -17980,6 +17980,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemStockQuantities.companyId",
           },
           {
+            $ref: "#/parameters/rowFilter.itemStockQuantities.locationId",
+          },
+          {
             $ref: "#/parameters/rowFilter.itemStockQuantities.quantityOnHand",
           },
           {
@@ -65533,34 +65536,6 @@ export default {
         tags: ["(rpc) uuid_to_base58"],
       },
     },
-    "/rpc/refresh_item_stock_quantities": {
-      post: {
-        parameters: [
-          {
-            in: "body",
-            name: "args",
-            required: true,
-            schema: {
-              type: "object",
-            },
-          },
-          {
-            $ref: "#/parameters/preferParams",
-          },
-        ],
-        produces: [
-          "application/json",
-          "application/vnd.pgrst.object+json;nulls=stripped",
-          "application/vnd.pgrst.object+json",
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-          },
-        },
-        tags: ["(rpc) refresh_item_stock_quantities"],
-      },
-    },
     "/rpc/get_assigned_job_operations": {
       post: {
         parameters: [
@@ -76227,6 +76202,10 @@ export default {
         companyId: {
           description:
             "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        locationId: {
           format: "text",
           type: "string",
         },
@@ -107333,6 +107312,12 @@ export default {
     },
     "rowFilter.itemStockQuantities.companyId": {
       name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemStockQuantities.locationId": {
+      name: "locationId",
       required: false,
       in: "query",
       type: "string",
