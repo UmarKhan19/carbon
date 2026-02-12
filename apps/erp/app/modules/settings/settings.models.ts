@@ -216,3 +216,7 @@ export const webhookValidator = z
       path: ["onDelete"]
     }
   );
+
+export const jobTravelerSettingsValidator = z.object({
+  jobTravelerIncludeWorkInstructions: zfd.checkbox()
+});

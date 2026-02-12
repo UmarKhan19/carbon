@@ -589,6 +589,17 @@ export async function updateSalesPdfThumbnails(
     .eq("id", companyId);
 }
 
+export async function updateJobTravelerWorkInstructions(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  jobTravelerIncludeWorkInstructions: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
+    .eq("id", companyId);
+}
+
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,

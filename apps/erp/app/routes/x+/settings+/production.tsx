@@ -1,7 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Submit, ValidatedForm, validator } from "@carbon/form";
+import { Boolean, Submit, ValidatedForm, validator } from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -19,7 +19,12 @@ import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { Users } from "~/components/Form";
-import { getCompanySettings, jobCompletedValidator } from "~/modules/settings";
+import {
+  getCompanySettings,
+  jobCompletedValidator,
+  jobTravelerSettingsValidator,
+  updateJobTravelerWorkInstructions
+} from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -52,25 +57,53 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
-  const validation = await validator(jobCompletedValidator).validate(formData);
+  const intent = formData.get("intent");
 
-  if (validation.error) {
-    return { success: false, message: "Invalid form data" };
+  if (intent === "jobCompleted") {
+    const validation = await validator(jobCompletedValidator).validate(
+      formData
+    );
+
+    if (validation.error) {
+      return { success: false, message: "Invalid form data" };
+    }
+
+    const update = await client
+      .from("companySettings")
+      .update({
+        inventoryJobCompletedNotificationGroup:
+          validation.data.inventoryJobCompletedNotificationGroup ?? [],
+        salesJobCompletedNotificationGroup:
+          validation.data.salesJobCompletedNotificationGroup ?? []
+      })
+      .eq("id", companyId);
+
+    if (update.error) return { success: false, message: update.error.message };
+
+    return { success: true, message: "Job notification settings updated" };
   }
 
-  const update = await client
-    .from("companySettings")
-    .update({
-      inventoryJobCompletedNotificationGroup:
-        validation.data.inventoryJobCompletedNotificationGroup ?? [],
-      salesJobCompletedNotificationGroup:
-        validation.data.salesJobCompletedNotificationGroup ?? []
-    })
-    .eq("id", companyId);
+  if (intent === "jobTraveler") {
+    const validation = await validator(jobTravelerSettingsValidator).validate(
+      formData
+    );
 
-  if (update.error) return { success: false, message: update.error.message };
+    if (validation.error) {
+      return { success: false, message: "Invalid form data" };
+    }
 
-  return { success: true, message: "Job notification settings updated" };
+    const update = await updateJobTravelerWorkInstructions(
+      client,
+      companyId,
+      validation.data.jobTravelerIncludeWorkInstructions
+    );
+
+    if (update.error) return { success: false, message: update.error.message };
+
+    return { success: true, message: "Job traveler settings updated" };
+  }
+
+  return { success: false, message: "Unknown intent" };
 }
 
 export default function ProductionSettingsRoute() {
@@ -107,6 +140,7 @@ export default function ProductionSettingsRoute() {
             }}
             fetcher={fetcher}
           >
+            <input type="hidden" name="intent" value="jobCompleted" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 Completed Job Notifications
@@ -139,6 +173,47 @@ export default function ProductionSettingsRoute() {
               <Submit
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
+              >
+                Save
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={jobTravelerSettingsValidator}
+            defaultValues={{
+              jobTravelerIncludeWorkInstructions:
+                companySettings.jobTravelerIncludeWorkInstructions ?? false
+            }}
+            fetcher={fetcher}
+          >
+            <input type="hidden" name="intent" value="jobTraveler" />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Job Traveler
+              </CardTitle>
+              <CardDescription>
+                Configure the content displayed on job traveler PDFs.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2 max-w-[400px]">
+                <Boolean
+                  name="jobTravelerIncludeWorkInstructions"
+                  description="Include Work Instructions"
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={
+                  fetcher.state !== "idle" &&
+                  fetcher.formData?.get("intent") === "jobTraveler"
+                }
               >
                 Save
               </Submit>

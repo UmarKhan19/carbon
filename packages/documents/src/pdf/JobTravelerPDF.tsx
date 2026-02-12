@@ -25,6 +25,7 @@ interface JobTravelerProps extends PDF {
   bomId?: string;
   notes?: JSONContent;
   thumbnail?: string | null;
+  includeWorkInstructions?: boolean;
 }
 
 function getStartPath(operationId: string) {
@@ -251,7 +252,8 @@ export const JobTravelerPageContent = ({
   bomId,
   notes,
   thumbnail,
-  methodRevision
+  methodRevision,
+  includeWorkInstructions = false
 }: Omit<JobTravelerProps, "meta" | "title" | "locale" | "jobMakeMethod"> & {
   methodRevision?: string | null;
 }) => {
@@ -423,65 +425,69 @@ export const JobTravelerPageContent = ({
       </View>
 
       {/* Work Instructions and Procedure Steps Section */}
-      {/* {jobOperations
-        .sort((a, b) => a.order - b.order)
-        .map((operation) => {
-          const workInstruction = operation.workInstruction as
-            | JSONContent
-            | undefined;
-          const hasWorkInstruction =
-            workInstruction &&
-            typeof workInstruction === "object" &&
-            "content" in workInstruction &&
-            Array.isArray(workInstruction.content) &&
-            workInstruction.content.length > 0;
+      {includeWorkInstructions &&
+        jobOperations
+          .sort((a, b) => a.order - b.order)
+          .map((operation) => {
+            const workInstruction = operation.workInstruction as
+              | JSONContent
+              | undefined;
+            const hasWorkInstruction =
+              workInstruction &&
+              typeof workInstruction === "object" &&
+              "content" in workInstruction &&
+              Array.isArray(workInstruction.content) &&
+              workInstruction.content.length > 0;
 
-          const hasProcedureSteps =
-            operation.jobOperationStep && operation.jobOperationStep.length > 0;
+            const hasProcedureSteps =
+              operation.jobOperationStep &&
+              operation.jobOperationStep.length > 0;
 
-          if (!hasWorkInstruction && !hasProcedureSteps) {
-            return null;
-          }
+            if (!hasWorkInstruction && !hasProcedureSteps) {
+              return null;
+            }
 
-          return (
-            <View key={`instructions-${operation.id}`}>
-              {hasProcedureSteps && (
-                <View>
-                  {operation
-                    .jobOperationStep!.sort((a, b) => a.sortOrder - b.sortOrder)
-                    .map((step) => {
-                      const stepDescription = step.description as
-                        | JSONContent
-                        | undefined;
-                      const hasStepDescription =
-                        stepDescription &&
-                        typeof stepDescription === "object" &&
-                        "content" in stepDescription &&
-                        Array.isArray(stepDescription.content) &&
-                        stepDescription.content.length > 0;
+            return (
+              <View key={`instructions-${operation.id}`}>
+                {hasProcedureSteps && (
+                  <View>
+                    {operation
+                      .jobOperationStep!.sort(
+                        (a, b) => a.sortOrder - b.sortOrder
+                      )
+                      .map((step) => {
+                        const stepDescription = step.description as
+                          | JSONContent
+                          | undefined;
+                        const hasStepDescription =
+                          stepDescription &&
+                          typeof stepDescription === "object" &&
+                          "content" in stepDescription &&
+                          Array.isArray(stepDescription.content) &&
+                          stepDescription.content.length > 0;
 
-                      return (
-                        <View key={step.id}>
-                          {hasStepDescription && (
-                            <Note
-                              title="Procedure Step"
-                              content={stepDescription}
-                            />
-                          )}
-                          <Text style={tw("text-[8px]")}>{step.name}</Text>
-                        </View>
-                      );
-                    })}
-                </View>
-              )}
-              {hasWorkInstruction && (
-                <View>
-                  <Note title="Work Instructions" content={workInstruction} />
-                </View>
-              )}
-            </View>
-          );
-        })} */}
+                        return (
+                          <View key={step.id}>
+                            {hasStepDescription && (
+                              <Note
+                                title="Procedure Step"
+                                content={stepDescription}
+                              />
+                            )}
+                            <Text style={tw("text-[8px]")}>{step.name}</Text>
+                          </View>
+                        );
+                      })}
+                  </View>
+                )}
+                {hasWorkInstruction && (
+                  <View>
+                    <Note title="Work Instructions" content={workInstruction} />
+                  </View>
+                )}
+              </View>
+            );
+          })}
 
       {/* Notes Section */}
       {notes && (
@@ -505,7 +511,8 @@ const JobTravelerPDF = ({
   meta,
   notes,
   thumbnail,
-  title = "Job Traveler"
+  title = "Job Traveler",
+  includeWorkInstructions = false
 }: JobTravelerProps) => {
   return (
     <Template
@@ -527,6 +534,7 @@ const JobTravelerPDF = ({
         notes={notes}
         thumbnail={thumbnail}
         methodRevision={jobMakeMethod.version?.toString()}
+        includeWorkInstructions={includeWorkInstructions}
       />
     </Template>
   );

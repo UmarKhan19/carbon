@@ -12,7 +12,7 @@ import {
   getJobOperationsByMethodId,
   getTrackedEntityByJobId
 } from "~/modules/production/production.service";
-import { getCompany } from "~/modules/settings";
+import { getCompany, getCompanySettings } from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 import { getLocale } from "~/utils/request";
 
@@ -32,9 +32,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load job make method");
   }
 
-  const [company, job] = await Promise.all([
+  const [company, job, companySettings] = await Promise.all([
     getCompany(serviceRole, jobMakeMethod.data?.companyId ?? ""),
-    getJob(serviceRole, jobMakeMethod.data?.jobId ?? "")
+    getJob(serviceRole, jobMakeMethod.data?.jobId ?? ""),
+    getCompanySettings(serviceRole, jobMakeMethod.data?.companyId ?? "")
   ]);
 
   if (company.error) {
@@ -45,6 +46,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (job.error || !job.data) {
     console.error(job.error);
     throw new Error("Failed to load job");
+  }
+
+  if (companySettings.error) {
+    console.error(companySettings.error);
+    throw new Error("Failed to load company settings");
   }
 
   const [jobOperations, customer, item] = await Promise.all([
@@ -132,6 +138,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       notes={jobNotes}
       thumbnail={thumbnail}
       title="Job Traveler"
+      includeWorkInstructions={
+        companySettings.data?.jobTravelerIncludeWorkInstructions ?? false
+      }
     />
   );
 
