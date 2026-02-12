@@ -2,7 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
-import { Spinner, useDisclosure, useMount, VStack } from "@carbon/react";
+import { Spinner, useMount, VStack } from "@carbon/react";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
@@ -19,7 +19,6 @@ import {
   getProductionDataByOperations
 } from "~/modules/production";
 import {
-  GenerateFromAssemblyModal,
   JobBillOfMaterial,
   JobBillOfProcess,
   JobDocuments,
@@ -149,8 +148,6 @@ export default function JobMakeMethodRoute() {
   } = loaderData;
 
   const { setIsExplorerCollapsed, isExplorerCollapsed } = usePanels();
-  const generateModal = useDisclosure();
-
   useMount(() => {
     if (isExplorerCollapsed) {
       setIsExplorerCollapsed(false);
@@ -159,11 +156,7 @@ export default function JobMakeMethodRoute() {
 
   return (
     <VStack spacing={2} className="p-2">
-      <JobMakeMethodTools
-        makeMethod={makeMethod}
-        model={loaderData.model}
-        onGenerateFromAssembly={generateModal.onOpen}
-      />
+      <JobMakeMethodTools makeMethod={makeMethod} model={loaderData.model} />
 
       <JobBillOfMaterial
         key={`bom:${methodId}`}
@@ -230,19 +223,6 @@ export default function JobMakeMethodRoute() {
           !!(loaderData.model?.assemblyMetadata as AssemblyMetadata)?.isAssembly
         }
       />
-      {loaderData.model?.assemblyMetadata &&
-        (loaderData.model.assemblyMetadata as AssemblyMetadata).isAssembly &&
-        loaderData.model.parsingStatus === "completed" && (
-          <GenerateFromAssemblyModal
-            isOpen={generateModal.isOpen}
-            onClose={generateModal.onClose}
-            jobId={jobId}
-            modelUploadId={loaderData.model.id!}
-            assemblyMetadata={
-              loaderData.model.assemblyMetadata as AssemblyMetadata
-            }
-          />
-        )}
     </VStack>
   );
 }

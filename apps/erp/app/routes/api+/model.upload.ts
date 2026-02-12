@@ -1,7 +1,6 @@
 // import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { modelThumbnailTask } from "@carbon/jobs/trigger/model-thumbnail";
-import type { stepParserTask } from "@carbon/jobs/trigger/step-parser";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 
@@ -77,16 +76,6 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     modelId
   });
-
-  // Trigger STEP parsing for STEP files
-  const extension = name.split(".").pop()?.toLowerCase();
-  if (extension === "step" || extension === "stp") {
-    await tasks.trigger<typeof stepParserTask>("step-parser", {
-      companyId,
-      modelId,
-      modelPath
-    });
-  }
 
   return {
     success: true

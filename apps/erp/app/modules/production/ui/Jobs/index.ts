@@ -1,5 +1,4 @@
 import { getDeadlineIcon } from "./Deadline";
-import { GenerateFromAssemblyModal } from "./GenerateFromAssemblyModal";
 import JobBillOfMaterial from "./JobBillOfMaterial";
 import JobBillOfProcess from "./JobBillOfProcess";
 import JobBoMExplorer from "./JobBoMExplorer";
@@ -22,7 +21,6 @@ import ProductionQuantitiesTable from "./ProductionQuantitiesTable";
 import ProductionQuantityForm from "./ProductionQuantityForm";
 
 export {
-  GenerateFromAssemblyModal,
   getDeadlineIcon,
   JobBillOfMaterial,
   JobBillOfProcess,

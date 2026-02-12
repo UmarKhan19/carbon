@@ -228,30 +228,3 @@ export const stepParserOccTask = task({
     }
   },
 });
-
-/**
- * Health check task to verify CAD Service is available
- */
-export const cadServiceHealthTask = task({
-  id: "cad-service-health",
-  run: async () => {
-    const cadServiceUrl =
-      process.env.CAD_SERVICE_URL || "http://localhost:8000";
-
-    try {
-      const response = await fetch(`${cadServiceUrl}/health`);
-      const data = await response.json();
-
-      return {
-        available: response.ok && data.status === "ok",
-        version: data.version,
-        opencascadeVersion: data.opencascade_version,
-      };
-    } catch (error) {
-      return {
-        available: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
-    }
-  },
-});
