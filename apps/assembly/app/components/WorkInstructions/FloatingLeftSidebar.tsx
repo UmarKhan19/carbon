@@ -38,12 +38,12 @@ export function FloatingLeftSidebar({
   const geometryCounts = countGeometries(assemblyTree);
 
   return (
-    <div className="absolute left-0 top-0 bottom-0 z-20 flex">
+    <div className="flex-shrink-0 flex h-full">
       {/* Sidebar panel */}
       <div
         className={cn(
-          "w-80 bg-background/95 backdrop-blur-sm border-r border-border flex flex-col h-full shadow-lg transition-transform duration-300 ease-in-out",
-          isCollapsed ? "-translate-x-full" : "translate-x-0"
+          "bg-background border-r border-border flex flex-col h-full transition-[width] duration-200 ease-in-out overflow-hidden",
+          isCollapsed ? "w-0 border-r-0" : "w-72"
         )}
       >
         {/* Tab Headers */}
@@ -103,9 +103,9 @@ export function FloatingLeftSidebar({
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
-          "flex items-center justify-center w-6 h-12 self-center rounded-r-md transition-colors",
-          "bg-background/90 backdrop-blur-sm border border-l-0 border-border shadow-md",
-          "hover:bg-muted text-muted-foreground hover:text-foreground"
+          "flex items-center justify-center w-5 h-10 self-center rounded-r-md transition-colors",
+          "bg-muted border border-l-0 border-border",
+          "hover:bg-muted/80 text-muted-foreground hover:text-foreground"
         )}
         title={isCollapsed ? "Show sidebar" : "Hide sidebar"}
       >

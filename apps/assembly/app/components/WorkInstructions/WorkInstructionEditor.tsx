@@ -13,7 +13,6 @@ import type {
 } from "~/types/assembly.types";
 
 import { PlaybackControls } from "./CenterViewer/PlaybackControls";
-import { StepNavigation } from "./CenterViewer/StepNavigation";
 import { ViewerToolbar } from "./CenterViewer/ViewerToolbar";
 import { FloatingLeftSidebar } from "./FloatingLeftSidebar";
 import { RightPanel } from "./RightPanel";
@@ -161,29 +160,21 @@ export function WorkInstructionEditor({
 
   return (
     <div className="flex h-full w-full bg-background">
-      {/* Center Panel - 3D Viewer (full width, floating sidebar overlays) */}
-      <div className="flex-1 flex flex-col bg-[#1a1a2e] relative">
-        {/* Floating Left Sidebar — overlays the viewer */}
-        <FloatingLeftSidebar
-          steps={steps}
-          assemblyTree={assemblyTree}
-          selectedStepIndex={selectedStepIndex}
-          onStepSelect={handleStepSelect}
-          onStepsReorder={onStepsReorder}
-          onNodeSelect={handleNodeSelect}
-          selectedNodeId={selectedNodeId}
-        />
+      {/* Left Sidebar — docked, part of flex layout */}
+      <FloatingLeftSidebar
+        steps={steps}
+        assemblyTree={assemblyTree}
+        selectedStepIndex={selectedStepIndex}
+        onStepSelect={handleStepSelect}
+        onStepsReorder={onStepsReorder}
+        onNodeSelect={handleNodeSelect}
+        selectedNodeId={selectedNodeId}
+      />
 
-        {/* Viewer Toolbar */}
-        <ViewerToolbar
-          onFitToView={fitToView}
-          onSetView={setView}
-          onToggleExploded={() => setExplodedView(!viewerState.explodedView)}
-          isExploded={viewerState.explodedView}
-        />
-
-        {/* 3D Canvas */}
-        <div className="flex-1 relative">
+      {/* Center Panel - 3D Viewer */}
+      <div className="flex-1 flex flex-col bg-[#1a1a2e] min-w-0">
+        {/* Viewport area */}
+        <div className="flex-1 relative min-h-0">
           <XeokitCanvas
             modelUrl={modelUrl}
             modelFormat="gltf"
@@ -196,20 +187,20 @@ export function WorkInstructionEditor({
               ...animationHiddenIds
             ]}
           />
+
+          {/* Viewer Toolbar — floating over viewport */}
+          <ViewerToolbar
+            onFitToView={fitToView}
+            onSetView={setView}
+            onToggleExploded={() => setExplodedView(!viewerState.explodedView)}
+            isExploded={viewerState.explodedView}
+          />
         </div>
 
-        {/* Step Navigation Bar */}
-        <StepNavigation
-          currentStep={currentStep}
-          stepIndex={selectedStepIndex}
-          totalSteps={steps.length}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-        />
-
-        {/* Playback Controls */}
+        {/* Compact Playback Controls */}
         <PlaybackControls
           steps={steps}
+          currentStep={currentStep}
           selectedStepIndex={selectedStepIndex}
           isPlaying={isPlaying}
           onPlay={handlePlay}

@@ -3,6 +3,7 @@ import type { AssemblyStep } from "~/types/assembly.types";
 
 export interface PlaybackControlsProps {
   steps: AssemblyStep[];
+  currentStep?: AssemblyStep;
   selectedStepIndex: number;
   isPlaying: boolean;
   onPlay: () => void;
@@ -16,6 +17,7 @@ export interface PlaybackControlsProps {
 
 export function PlaybackControls({
   steps,
+  currentStep,
   selectedStepIndex,
   isPlaying,
   onPlay,
@@ -26,60 +28,35 @@ export function PlaybackControls({
   onNext,
   onStepSelect
 }: PlaybackControlsProps) {
-  return (
-    <div className="bg-card/95 backdrop-blur-sm border-t border-border p-3">
-      {/* Timeline */}
-      <div className="mb-3">
-        <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-          {/* Progress */}
-          <div
-            className="absolute left-0 top-0 bottom-0 bg-primary transition-all"
-            style={{
-              width: `${((selectedStepIndex + 1) / steps.length) * 100}%`
-            }}
-          />
+  const atStart = selectedStepIndex === 0;
+  const atEnd = selectedStepIndex === steps.length - 1;
+  const stepLabel = currentStep
+    ? currentStep.title || currentStep.partNames.join(", ")
+    : "";
 
-          {/* Step Markers */}
-          <div className="absolute inset-0 flex">
-            {steps.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => onStepSelect(index)}
-                className="flex-1 relative group"
-              >
-                <div
-                  className={cn(
-                    "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
-                    "w-3 h-3 rounded-full border-2 transition-all",
-                    index <= selectedStepIndex
-                      ? "bg-primary border-primary"
-                      : "bg-muted border-muted-foreground/30",
-                    index === selectedStepIndex && "ring-2 ring-primary/30"
-                  )}
-                />
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <div className="bg-popover text-popover-foreground text-xs rounded px-2 py-1 shadow-lg whitespace-nowrap">
-                    Step {index + 1}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
+  return (
+    <div className="bg-card border-t border-border px-3 py-1.5 flex items-center gap-3">
+      {/* Step info */}
+      <div className="text-xs text-muted-foreground whitespace-nowrap min-w-[80px]">
+        <span className="font-medium text-foreground">
+          {selectedStepIndex + 1}/{steps.length}
+        </span>
+        {stepLabel && (
+          <span className="ml-1.5 truncate max-w-[160px] inline-block align-bottom">
+            {stepLabel}
+          </span>
+        )}
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-2">
-        {/* Skip to Start */}
+      {/* Transport controls */}
+      <div className="flex items-center gap-0.5">
         <button
           type="button"
           onClick={onSkipToStart}
-          disabled={selectedStepIndex === 0}
+          disabled={atStart}
           className={cn(
-            "w-8 h-8 flex items-center justify-center rounded transition-colors",
-            selectedStepIndex === 0
+            "w-6 h-6 flex items-center justify-center rounded text-xs transition-colors",
+            atStart
               ? "text-muted-foreground/30 cursor-not-allowed"
               : "hover:bg-muted text-muted-foreground hover:text-foreground"
           )}
@@ -87,15 +64,13 @@ export function PlaybackControls({
         >
           ⏮
         </button>
-
-        {/* Previous */}
         <button
           type="button"
           onClick={onPrevious}
-          disabled={selectedStepIndex === 0}
+          disabled={atStart}
           className={cn(
-            "w-8 h-8 flex items-center justify-center rounded transition-colors",
-            selectedStepIndex === 0
+            "w-6 h-6 flex items-center justify-center rounded text-xs transition-colors",
+            atStart
               ? "text-muted-foreground/30 cursor-not-allowed"
               : "hover:bg-muted text-muted-foreground hover:text-foreground"
           )}
@@ -103,28 +78,24 @@ export function PlaybackControls({
         >
           ⏪
         </button>
-
-        {/* Play/Pause */}
         <button
           type="button"
           onClick={isPlaying ? onPause : onPlay}
           className={cn(
-            "w-12 h-12 flex items-center justify-center rounded-full transition-colors",
+            "w-7 h-7 flex items-center justify-center rounded-full transition-colors",
             "bg-primary text-primary-foreground hover:bg-primary/90"
           )}
           title={isPlaying ? "Pause" : "Play"}
         >
-          <span className="text-xl">{isPlaying ? "⏸" : "▶"}</span>
+          <span className="text-sm">{isPlaying ? "⏸" : "▶"}</span>
         </button>
-
-        {/* Next */}
         <button
           type="button"
           onClick={onNext}
-          disabled={selectedStepIndex === steps.length - 1}
+          disabled={atEnd}
           className={cn(
-            "w-8 h-8 flex items-center justify-center rounded transition-colors",
-            selectedStepIndex === steps.length - 1
+            "w-6 h-6 flex items-center justify-center rounded text-xs transition-colors",
+            atEnd
               ? "text-muted-foreground/30 cursor-not-allowed"
               : "hover:bg-muted text-muted-foreground hover:text-foreground"
           )}
@@ -132,15 +103,13 @@ export function PlaybackControls({
         >
           ⏩
         </button>
-
-        {/* Skip to End */}
         <button
           type="button"
           onClick={onSkipToEnd}
-          disabled={selectedStepIndex === steps.length - 1}
+          disabled={atEnd}
           className={cn(
-            "w-8 h-8 flex items-center justify-center rounded transition-colors",
-            selectedStepIndex === steps.length - 1
+            "w-6 h-6 flex items-center justify-center rounded text-xs transition-colors",
+            atEnd
               ? "text-muted-foreground/30 cursor-not-allowed"
               : "hover:bg-muted text-muted-foreground hover:text-foreground"
           )}
@@ -150,9 +119,44 @@ export function PlaybackControls({
         </button>
       </div>
 
-      {/* Step Counter */}
-      <div className="text-center mt-2 text-xs text-muted-foreground">
-        {selectedStepIndex + 1} / {steps.length} steps
+      {/* Timeline */}
+      <div className="flex-1 relative h-1.5 bg-muted rounded-full overflow-hidden">
+        {/* Progress */}
+        <div
+          className="absolute left-0 top-0 bottom-0 bg-primary transition-all"
+          style={{
+            width: `${((selectedStepIndex + 1) / steps.length) * 100}%`
+          }}
+        />
+
+        {/* Step Markers */}
+        <div className="absolute inset-0 flex">
+          {steps.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => onStepSelect(index)}
+              className="flex-1 relative group"
+            >
+              <div
+                className={cn(
+                  "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+                  "w-2 h-2 rounded-full border transition-all",
+                  index <= selectedStepIndex
+                    ? "bg-primary border-primary"
+                    : "bg-muted border-muted-foreground/30",
+                  index === selectedStepIndex && "ring-1 ring-primary/30"
+                )}
+              />
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-popover text-popover-foreground text-xs rounded px-2 py-1 shadow-lg whitespace-nowrap">
+                  Step {index + 1}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

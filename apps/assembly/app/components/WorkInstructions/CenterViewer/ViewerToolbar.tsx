@@ -84,54 +84,44 @@ export function ViewerToolbar({
   ];
 
   return (
-    <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-      {/* View Presets */}
-      <div className="bg-card/90 backdrop-blur-sm rounded-lg border border-border shadow-lg p-1">
-        <div className="text-[10px] text-muted-foreground uppercase tracking-wide px-2 py-1">
-          Views
-        </div>
-        <div className="flex flex-wrap gap-0.5">
-          {viewButtons.map((button) => (
-            <button
-              key={button.id}
-              type="button"
-              onClick={button.onClick}
-              title={button.label}
-              className={cn(
-                "w-8 h-8 flex items-center justify-center rounded text-sm transition-colors",
-                "hover:bg-muted text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {button.icon}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="absolute top-2 left-2 z-10">
+      <div className="bg-card border border-border rounded-md shadow-sm p-0.5 flex flex-col">
+        {/* View Presets */}
+        {viewButtons.map((button) => (
+          <button
+            key={button.id}
+            type="button"
+            onClick={button.onClick}
+            title={button.label}
+            className={cn(
+              "w-7 h-7 flex items-center justify-center rounded text-xs transition-colors",
+              "hover:bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {button.icon}
+          </button>
+        ))}
 
-      {/* Tools */}
-      <div className="bg-card/90 backdrop-blur-sm rounded-lg border border-border shadow-lg p-1">
-        <div className="text-[10px] text-muted-foreground uppercase tracking-wide px-2 py-1">
-          Tools
-        </div>
-        <div className="flex flex-col gap-0.5">
-          {toolButtons.map((button) => (
-            <button
-              key={button.id}
-              type="button"
-              onClick={button.onClick}
-              title={button.label}
-              className={cn(
-                "w-full px-2 py-1.5 flex items-center gap-2 rounded text-xs transition-colors",
-                button.isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <span className="w-4 text-center">{button.icon}</span>
-              <span>{button.label}</span>
-            </button>
-          ))}
-        </div>
+        {/* Divider */}
+        <div className="h-px bg-border mx-1 my-0.5" />
+
+        {/* Tools */}
+        {toolButtons.map((button) => (
+          <button
+            key={button.id}
+            type="button"
+            onClick={button.onClick}
+            title={button.label}
+            className={cn(
+              "w-7 h-7 flex items-center justify-center rounded text-xs transition-colors",
+              button.isActive
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {button.icon}
+          </button>
+        ))}
       </div>
     </div>
   );
