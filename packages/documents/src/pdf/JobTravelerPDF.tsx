@@ -448,7 +448,7 @@ export const JobTravelerPageContent = ({
             }
 
             return (
-              <View key={`instructions-${operation.id}`}>
+              <View key={`instructions-${operation.id}`} wrap={false}>
                 {hasProcedureSteps && (
                   <View>
                     {operation
