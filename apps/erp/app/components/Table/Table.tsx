@@ -67,6 +67,8 @@ import {
 } from "./components";
 import type { ColumnFilter } from "./components/Filter/types";
 import { useFilters } from "./components/Filter/useFilters";
+import { ResizeHandle } from "./components/ResizeHandle";
+import { useColumnResize } from "./hooks/useColumnResize";
 import type { ColumnSizeMap } from "./types";
 import { getAccessorKey, updateNestedProperty } from "./utils";
 
@@ -689,6 +691,9 @@ const Table = <T extends object>({
   );
   const [columnSizeMap, setColumnSizeMap] = useState<ColumnSizeMap>(new Map());
 
+  // Column resize functionality
+  const { columnSizes, handleColumnResize } = useColumnResize();
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     const calculateColumnWidths = () => {
@@ -922,13 +927,14 @@ const Table = <T extends object>({
                           colSpan={header.colSpan}
                           id={`header-${header.id}`}
                           className={cn(
-                            "px-4 py-3 whitespace-nowrap",
+                            "px-4 py-3 whitespace-nowrap relative",
                             editMode && "border-r-1 border-border",
                             sortable && "cursor-pointer"
                           )}
                           style={{
                             ...getPinnedStyles(header.column),
-                            width: header.getSize()
+                            width:
+                              columnSizes.get(header.id) ?? header.getSize()
                           }}
                         >
                           {!header.isPlaceholder &&
@@ -994,6 +1000,22 @@ const Table = <T extends object>({
                                 )}
                               </div>
                             ))}
+                          {/* Resize Handle */}
+                          {!header.isPlaceholder && (
+                            <ResizeHandle
+                              columnId={header.id}
+                              onResize={(columnId, delta) => {
+                                const currentWidth =
+                                  columnSizes.get(columnId) ?? header.getSize();
+                                handleColumnResize(
+                                  columnId,
+                                  delta,
+                                  currentWidth
+                                );
+                              }}
+                              disabled={header.column.getIsPinned() === "right"}
+                            />
+                          )}
                         </Th>
                       );
                     })}
@@ -1018,6 +1040,7 @@ const Table = <T extends object>({
                             selectedCell={selectedCell}
                             row={row}
                             rowIsSelected={selectedCell?.row === row.index}
+                            columnSizes={columnSizes}
                             getPinnedStyles={getPinnedStyles}
                             onCellClick={onCellClick}
                             onCellUpdate={onCellUpdate}
@@ -1041,6 +1064,7 @@ const Table = <T extends object>({
                       selectedCell={selectedCell}
                       row={row}
                       rowIsSelected={selectedCell?.row === row.index}
+                      columnSizes={columnSizes}
                       getPinnedStyles={getPinnedStyles}
                       onCellClick={onCellClick}
                       onCellUpdate={onCellUpdate}
@@ -1068,7 +1092,8 @@ const Table = <T extends object>({
                           )}
                           style={{
                             ...getPinnedStyles(footer.column),
-                            width: footer.getSize()
+                            width:
+                              columnSizes.get(footer.id) ?? footer.getSize()
                           }}
                         >
                           {!footer.isPlaceholder &&

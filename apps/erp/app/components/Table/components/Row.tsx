@@ -19,6 +19,7 @@ type RowProps<T> = ComponentProps<typeof Tr> & {
   selectedCell: Position;
   row: RowType<T>;
   rowIsSelected: boolean;
+  columnSizes: Map<string, number>;
   getPinnedStyles: (column: Column<any, unknown>) => CSSProperties;
   onCellClick: (row: number, column: number) => void;
   onCellUpdate: (row: number) => (updates: Record<string, unknown>) => void;
@@ -35,6 +36,7 @@ const Row = <T extends object>({
   row,
   rowIsSelected,
   selectedCell,
+  columnSizes,
   getPinnedStyles,
   onCellClick,
   onCellUpdate,
@@ -69,6 +71,7 @@ const Row = <T extends object>({
             isEditing={isEditing}
             isEditMode={isEditMode}
             pinnedColumns={pinnedColumns}
+            columnSizes={columnSizes}
             getPinnedStyles={getPinnedStyles}
             onClick={
               isEditMode

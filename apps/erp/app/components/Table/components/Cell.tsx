@@ -17,6 +17,7 @@ type CellProps<T> = {
   isRowSelected: boolean;
   isSelected: boolean;
   pinnedColumns: string;
+  columnSizes: Map<string, number>;
   getPinnedStyles: (column: Column<any, unknown>) => CSSProperties;
   onClick?: () => void;
   onUpdate?: (updates: Record<string, unknown>) => void;
@@ -31,6 +32,7 @@ const Cell = <T extends object>({
   isEditing,
   isEditMode,
   isSelected,
+  columnSizes,
   getPinnedStyles,
   onClick,
   onUpdate,
@@ -70,7 +72,7 @@ const Cell = <T extends object>({
       ref={ref}
       style={{
         ...getPinnedStyles(cell.column),
-        width: cell.column.getSize(),
+        width: columnSizes.get(cell.column.id) ?? cell.column.getSize(),
         margin: 0,
         borderSpacing: 0
       }}
