@@ -10,7 +10,7 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Policy & Procedure",
+  breadcrumb: "Quality Policies",
   to: path.to.qualityDocuments
 };
 
