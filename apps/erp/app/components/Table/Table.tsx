@@ -99,6 +99,49 @@ interface TableProps<T extends object> {
 
 type AggregateFunction = "sum" | "average" | "min" | "max" | "median" | "count";
 
+/**
+ * A wrapper around ContextMenuTrigger that prevents showing the custom context menu
+ * when right-clicking on links, allowing the browser's native context menu to appear.
+ */
+const LinkAwareContextMenuTrigger = ({ children }: { children: ReactNode }) => {
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!triggerRef.current) return;
+
+    const handleContextMenu = (event: MouseEvent) => {
+      // Check if the right-click target or any parent is a link (anchor tag)
+      let target = event.target as HTMLElement;
+      while (target && target !== triggerRef.current) {
+        if (target.tagName === "A") {
+          // For links, prevent the event from reaching the ContextMenuTrigger
+          // This allows the browser's default context menu to appear
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+        target = target.parentElement as HTMLElement;
+      }
+      // For non-link clicks, event propagates normally to show custom context menu
+    };
+
+    triggerRef.current.addEventListener("contextmenu", handleContextMenu, true);
+    return () => {
+      triggerRef.current?.removeEventListener(
+        "contextmenu",
+        handleContextMenu,
+        true
+      );
+    };
+  }, []);
+
+  return (
+    <ContextMenuTrigger asChild>
+      <div ref={triggerRef}>{children}</div>
+    </ContextMenuTrigger>
+  );
+};
+
 interface AggregateFunctionOption {
   value: AggregateFunction;
   label: string;
@@ -1005,7 +1048,7 @@ const Table = <T extends object>({
                   return renderContextMenu ? (
                     <Menu type="context" key={row.index}>
                       <ContextMenu>
-                        <ContextMenuTrigger asChild>
+                        <LinkAwareContextMenuTrigger>
                           <Row
                             editableComponents={editableComponents}
                             isEditing={isEditing}
@@ -1022,7 +1065,7 @@ const Table = <T extends object>({
                             onCellClick={onCellClick}
                             onCellUpdate={onCellUpdate}
                           />
-                        </ContextMenuTrigger>
+                        </LinkAwareContextMenuTrigger>
                         <ContextMenuContent className="w-128">
                           {renderContextMenu(row.original)}
                         </ContextMenuContent>
