@@ -121,6 +121,8 @@ pub struct SimulateRequest {
     pub assembly_tree: AssemblyNode,
     /// GLB file data as base64 (required for collision detection).
     pub glb_base64: Option<String>,
+    /// Optional timeout in milliseconds (default: 300000 = 5 minutes).
+    pub timeout_ms: Option<u64>,
 }
 
 /// Simulation response.
@@ -191,7 +193,10 @@ pub async fn run_simulation(
         warn!("No GLB data provided - simulation may fail if meshes are not pre-loaded");
     }
 
-    let simulator_config = state.simulator_config.clone();
+    let mut simulator_config = state.simulator_config.clone();
+    if let Some(timeout) = request.timeout_ms {
+        simulator_config.timeout_ms = timeout;
+    }
 
     // Run the CPU-intensive simulation on spawn_blocking so we don't
     // block the tokio runtime and starve other async tasks.

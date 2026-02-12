@@ -1,4 +1,12 @@
 import { cn } from "@carbon/react";
+import {
+  BsPauseFill,
+  BsPlayFill,
+  BsSkipBackwardFill,
+  BsSkipEndFill,
+  BsSkipForwardFill,
+  BsSkipStartFill
+} from "react-icons/bs";
 import type { AssemblyStep } from "~/types/assembly.types";
 
 export interface PlaybackControlsProps {
@@ -62,7 +70,7 @@ export function PlaybackControls({
           )}
           title="Skip to start"
         >
-          ⏮
+          <BsSkipStartFill />
         </button>
         <button
           type="button"
@@ -76,7 +84,7 @@ export function PlaybackControls({
           )}
           title="Previous step"
         >
-          ⏪
+          <BsSkipBackwardFill />
         </button>
         <button
           type="button"
@@ -87,7 +95,11 @@ export function PlaybackControls({
           )}
           title={isPlaying ? "Pause" : "Play"}
         >
-          <span className="text-sm">{isPlaying ? "⏸" : "▶"}</span>
+          {isPlaying ? (
+            <BsPauseFill className="text-sm" />
+          ) : (
+            <BsPlayFill className="text-sm" />
+          )}
         </button>
         <button
           type="button"
@@ -101,7 +113,7 @@ export function PlaybackControls({
           )}
           title="Next step"
         >
-          ⏩
+          <BsSkipForwardFill />
         </button>
         <button
           type="button"
@@ -115,7 +127,7 @@ export function PlaybackControls({
           )}
           title="Skip to end"
         >
-          ⏭
+          <BsSkipEndFill />
         </button>
       </div>
 

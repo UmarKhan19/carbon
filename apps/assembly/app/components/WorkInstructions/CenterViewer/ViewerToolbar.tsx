@@ -1,4 +1,17 @@
 import { cn } from "@carbon/react";
+import type { ReactNode } from "react";
+import {
+  BsArrowsAngleExpand,
+  BsChevronBarContract,
+  BsChevronBarExpand,
+  BsChevronBarUp,
+  BsDiamond,
+  BsFullscreen,
+  BsRulers,
+  BsScissors,
+  BsSquare,
+  BsSquareFill
+} from "react-icons/bs";
 
 export interface ViewerToolbarProps {
   onFitToView: () => void;
@@ -16,7 +29,7 @@ export interface ViewerToolbarProps {
 interface ToolbarButton {
   id: string;
   label: string;
-  icon: string;
+  icon: ReactNode;
   onClick: () => void;
   isActive?: boolean;
 }
@@ -35,27 +48,47 @@ export function ViewerToolbar({
     {
       id: "front",
       label: "Front",
-      icon: "▢",
+      icon: <BsSquare />,
       onClick: () => onSetView("front")
     },
-    { id: "back", label: "Back", icon: "▣", onClick: () => onSetView("back") },
-    { id: "top", label: "Top", icon: "⬓", onClick: () => onSetView("top") },
-    { id: "left", label: "Left", icon: "◧", onClick: () => onSetView("left") },
+    {
+      id: "back",
+      label: "Back",
+      icon: <BsSquareFill />,
+      onClick: () => onSetView("back")
+    },
+    {
+      id: "top",
+      label: "Top",
+      icon: <BsChevronBarUp />,
+      onClick: () => onSetView("top")
+    },
+    {
+      id: "left",
+      label: "Left",
+      icon: <BsChevronBarContract />,
+      onClick: () => onSetView("left")
+    },
     {
       id: "right",
       label: "Right",
-      icon: "◨",
+      icon: <BsChevronBarExpand />,
       onClick: () => onSetView("right")
     },
-    { id: "iso", label: "Iso", icon: "◇", onClick: () => onSetView("iso") }
+    {
+      id: "iso",
+      label: "Iso",
+      icon: <BsDiamond />,
+      onClick: () => onSetView("iso")
+    }
   ];
 
   const toolButtons: ToolbarButton[] = [
-    { id: "fit", label: "Fit", icon: "⊡", onClick: onFitToView },
+    { id: "fit", label: "Fit", icon: <BsFullscreen />, onClick: onFitToView },
     {
       id: "explode",
       label: "Explode",
-      icon: "✦",
+      icon: <BsArrowsAngleExpand />,
       onClick: onToggleExploded,
       isActive: isExploded
     },
@@ -64,7 +97,7 @@ export function ViewerToolbar({
           {
             id: "section",
             label: "Section",
-            icon: "◫",
+            icon: <BsScissors />,
             onClick: onToggleSectionPlane,
             isActive: isSectionPlaneActive
           }
@@ -75,7 +108,7 @@ export function ViewerToolbar({
           {
             id: "measure",
             label: "Measure",
-            icon: "↔",
+            icon: <BsRulers />,
             onClick: onToggleMeasure,
             isActive: isMeasureActive
           }

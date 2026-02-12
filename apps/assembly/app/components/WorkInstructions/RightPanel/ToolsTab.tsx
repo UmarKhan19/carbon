@@ -1,5 +1,6 @@
 import { cn } from "@carbon/react";
 import { useState } from "react";
+import { BsCheck2, BsWrench, BsX } from "react-icons/bs";
 import type { AssemblyStep, StepTool, Tool } from "~/types/assembly.types";
 
 export interface ToolsTabProps {
@@ -94,8 +95,8 @@ export function ToolsTab({ step, allTools, onStepUpdate }: ToolsTabProps) {
                     className="w-8 h-8 object-contain rounded"
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-muted rounded flex items-center justify-center">
-                    🔧
+                  <div className="w-8 h-8 bg-muted rounded flex items-center justify-center text-muted-foreground">
+                    <BsWrench />
                   </div>
                 )}
                 <span className="flex-1 truncate">{tool.name}</span>
@@ -116,7 +117,7 @@ export function ToolsTab({ step, allTools, onStepUpdate }: ToolsTabProps) {
                   onClick={() => handleRemoveTool(tool.toolId)}
                   className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity p-1"
                 >
-                  ✕
+                  <BsX />
                 </button>
               </li>
             ))}
@@ -168,13 +169,13 @@ export function ToolsTab({ step, allTools, onStepUpdate }: ToolsTabProps) {
                             className="w-6 h-6 object-contain rounded"
                           />
                         ) : (
-                          <div className="w-6 h-6 bg-muted rounded flex items-center justify-center text-xs">
-                            🔧
+                          <div className="w-6 h-6 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
+                            <BsWrench />
                           </div>
                         )}
                         <span className="flex-1 truncate">{tool.name}</span>
                         {isAssigned && (
-                          <span className="text-xs text-primary">✓</span>
+                          <BsCheck2 className="text-xs text-primary" />
                         )}
                       </button>
                     </li>

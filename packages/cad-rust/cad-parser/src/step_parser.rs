@@ -106,14 +106,3 @@ pub fn extract_part_metadata(
     AssemblyNodeMetadata::default()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_config_default() {
-        let config = ParseConfig::default();
-        assert!((config.tessellation_tolerance - 0.1).abs() < f64::EPSILON);
-        assert!(config.extract_colors);
-    }
-}

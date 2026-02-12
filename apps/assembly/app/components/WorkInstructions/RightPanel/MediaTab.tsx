@@ -1,5 +1,6 @@
 import { cn } from "@carbon/react";
 import { useCallback, useRef, useState } from "react";
+import { BsCloudUpload, BsImage, BsX } from "react-icons/bs";
 import type { AssemblyStep, StepMedia } from "~/types/assembly.types";
 
 export interface MediaTabProps {
@@ -119,7 +120,7 @@ export function MediaTab({ step, onStepUpdate, onUploadMedia }: MediaTabProps) {
           </div>
         ) : (
           <>
-            <div className="text-2xl mb-2">📁</div>
+            <BsCloudUpload className="text-2xl mb-2 mx-auto" />
             <div className="text-sm text-muted-foreground">
               Drop files here or click to upload
             </div>
@@ -140,8 +141,8 @@ export function MediaTab({ step, onStepUpdate, onUploadMedia }: MediaTabProps) {
                 className="relative aspect-square bg-muted rounded-lg overflow-hidden group"
               >
                 {/* Placeholder - in real implementation, fetch media details */}
-                <div className="absolute inset-0 flex items-center justify-center text-3xl">
-                  🖼️
+                <div className="absolute inset-0 flex items-center justify-center text-3xl text-muted-foreground">
+                  <BsImage />
                 </div>
 
                 {/* Remove button */}
@@ -150,7 +151,7 @@ export function MediaTab({ step, onStepUpdate, onUploadMedia }: MediaTabProps) {
                   onClick={() => handleRemoveMedia(mediaId)}
                   className="absolute top-1 right-1 w-6 h-6 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs"
                 >
-                  ✕
+                  <BsX />
                 </button>
 
                 {/* Media ID label */}

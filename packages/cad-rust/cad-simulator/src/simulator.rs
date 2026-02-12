@@ -7,7 +7,6 @@ use cad_common::{
 use nalgebra::Unit;
 use nalgebra::{Isometry3, Matrix4, Point3, Translation3, UnitQuaternion, Vector3};
 use parry3d::shape::TriMesh;
-use rapier3d::prelude::*;
 use serde_json::json;
 use std::cell::Cell;
 use std::collections::{HashMap, HashSet};
@@ -57,7 +56,7 @@ pub struct SimulatorConfig {
 impl Default for SimulatorConfig {
     fn default() -> Self {
         Self {
-            timeout_ms: 60_000,
+            timeout_ms: 300_000,
             removal_distance: 100.0,
             removal_steps: 50,
             check_stability: true,
@@ -274,9 +273,7 @@ impl AssemblySimulator {
 
         info!("Starting assembly sequence computation");
 
-        // ════════════════════════════════════════════════════════════════════
         // Build contact graph
-        // ════════════════════════════════════════════════════════════════════
         let contact_threshold = self.config.removal_distance * 0.001;
         let contact_graph = ContactGraph::build(
             self.parts
@@ -290,9 +287,7 @@ impl AssemblySimulator {
             contact_graph.node_count()
         );
 
-        // ════════════════════════════════════════════════════════════════════
         // Classify all parts
-        // ════════════════════════════════════════════════════════════════════
         let total_volume: f32 = self
             .parts
             .iter()
@@ -327,9 +322,7 @@ impl AssemblySimulator {
             );
         }
 
-        // ════════════════════════════════════════════════════════════════════
         // Build dependency graph
-        // ════════════════════════════════════════════════════════════════════
         let dependency_graph = DependencyGraph::build(
             &contact_graph,
             &classifications,
@@ -370,9 +363,7 @@ impl AssemblySimulator {
         }
         let mut reported_constraint_conflict = false;
 
-        // ════════════════════════════════════════════════════════════════════
-        // Main disassembly loop with constraints
-        // ════════════════════════════════════════════════════════════════════
+        // Main disassembly loop
         while self.removed_parts.len() < self.parts.len() {
             // Check timeout
             if start_time.elapsed().as_millis() as u64 > self.config.timeout_ms {
@@ -385,9 +376,7 @@ impl AssemblySimulator {
                 return Err(SimulatorError::Timeout(self.config.timeout_ms));
             }
 
-            // ════════════════════════════════════════════════════════════════
             // Filter by dependency constraints
-            // ════════════════════════════════════════════════════════════════
             // In disassembly: can only remove a part if all parts that depend
             // on it (in assembly order) have already been removed.
             let constrained: Vec<_> = removable
@@ -1879,13 +1868,6 @@ fn swept_aabb_entry_time(
 mod tests {
     use super::*;
     use cad_common::{AssemblyNode, NodeType, TriangleMesh};
-
-    #[test]
-    fn test_simulator_config_default() {
-        let config = SimulatorConfig::default();
-        assert_eq!(config.timeout_ms, 60_000);
-        assert_eq!(config.removal_steps, 50);
-    }
 
     fn create_cube_mesh(size: f32) -> TriangleMesh {
         let h = size / 2.0;

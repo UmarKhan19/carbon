@@ -1,4 +1,12 @@
 import { cn } from "@carbon/react";
+import type { ReactNode } from "react";
+import {
+  BsClipboardCheck,
+  BsImage,
+  BsPencilSquare,
+  BsStarFill,
+  BsWrench
+} from "react-icons/bs";
 import type { AssemblyStep, StandardNote, Tool } from "~/types/assembly.types";
 import { MediaTab } from "./MediaTab";
 import { NotesTab } from "./NotesTab";
@@ -22,12 +30,12 @@ export interface RightPanelProps {
   onStepUpdate?: (field: keyof AssemblyStep, value: unknown) => void;
 }
 
-const tabs: { id: RightPanelTab; label: string; icon: string }[] = [
-  { id: "supplements", label: "★", icon: "★" },
-  { id: "tools", label: "Tools", icon: "🔧" },
-  { id: "notes", label: "Notes", icon: "📝" },
-  { id: "standardNotes", label: "Std Notes", icon: "📋" },
-  { id: "media", label: "Media", icon: "🖼️" }
+const tabs: { id: RightPanelTab; label: string; icon: ReactNode }[] = [
+  { id: "supplements", label: "Supplements", icon: <BsStarFill /> },
+  { id: "tools", label: "Tools", icon: <BsWrench /> },
+  { id: "notes", label: "Notes", icon: <BsPencilSquare /> },
+  { id: "standardNotes", label: "Std Notes", icon: <BsClipboardCheck /> },
+  { id: "media", label: "Media", icon: <BsImage /> }
 ];
 
 export function RightPanel({
@@ -55,7 +63,10 @@ export function RightPanel({
                 : "text-muted-foreground"
             )}
           >
-            {tab.id === "supplements" ? tab.icon : tab.label}
+            <span className="flex items-center justify-center gap-1">
+              {tab.icon}
+              <span>{tab.label}</span>
+            </span>
           </button>
         ))}
       </div>

@@ -1,5 +1,6 @@
 import { cn } from "@carbon/react";
 import { useState } from "react";
+import { BsChevronDown, BsChevronRight, BsX } from "react-icons/bs";
 import type { AssemblyStep, StandardNote } from "~/types/assembly.types";
 
 export interface StandardNotesTabProps {
@@ -89,7 +90,7 @@ export function StandardNotesTab({
                   onClick={() => handleToggleNote(note.id)}
                   className="text-muted-foreground hover:text-destructive transition-colors p-1"
                 >
-                  ✕
+                  <BsX />
                 </button>
               </li>
             ))}
@@ -153,7 +154,7 @@ export function StandardNotesTab({
                           }}
                           className="text-muted-foreground hover:text-foreground p-1"
                         >
-                          {isExpanded ? "▼" : "▶"}
+                          {isExpanded ? <BsChevronDown /> : <BsChevronRight />}
                         </button>
                       </button>
 

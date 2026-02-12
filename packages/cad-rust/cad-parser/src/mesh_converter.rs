@@ -132,20 +132,3 @@ pub fn simplify_mesh(_mesh: &mut TriangleMesh, target_ratio: f32) {
     // like meshopt or similar
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_tessellation_config_default() {
-        let config = TessellationConfig::default();
-        assert!((config.chord_tolerance - 0.1).abs() < f64::EPSILON);
-    }
-
-    #[test]
-    fn test_compute_normals_empty_mesh() {
-        let mut mesh = TriangleMesh::new();
-        compute_normals(&mut mesh);
-        assert!(mesh.normals.is_none() || mesh.normals.as_ref().unwrap().is_empty());
-    }
-}

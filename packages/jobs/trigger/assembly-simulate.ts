@@ -278,18 +278,29 @@ export const assemblySimulateTask = task({
       // 3. Normalize the tree format and call the simulator with GLB data
       const normalizedTree = normalizeAssemblyTree(project.assemblyTree as AssemblyNode);
 
-      logger.info("Calling Rust simulator", { cadServerUrl });
+      // Scale timeout based on GLB size: 5 minutes base + 1 minute per 10MB
+      const glbSizeMB = glbArrayBuffer.byteLength / (1024 * 1024);
+      const timeoutMs = Math.max(300_000, Math.round(300_000 + (glbSizeMB / 10) * 60_000));
+
+      logger.info("Calling simulator", { cadServerUrl, timeoutMs, glbSizeMB: Math.round(glbSizeMB) });
+
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), timeoutMs + 30_000);
 
       const response = await fetch(`${cadServerUrl}/simulate`, {
         method: "POST",
+        signal: controller.signal,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           assembly_tree: normalizedTree,
           glb_base64: glbBase64,
+          timeout_ms: timeoutMs,
         }),
       });
+
+      clearTimeout(fetchTimeout);
 
       const responseContentType = response.headers.get("content-type") || "";
       const responseBody = await response.text();

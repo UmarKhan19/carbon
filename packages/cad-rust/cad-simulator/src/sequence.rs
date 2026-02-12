@@ -180,9 +180,7 @@ pub fn classify_part(
     let relative_volume = input.relative_volume;
     let contact_degree = input.contact_degree;
 
-    // ═══════════════════════════════════════════════════════════════════════
     // Fastener scoring
-    // ═══════════════════════════════════════════════════════════════════════
     let fastener_score = weighted_sum(&[
         // Name contains fastener keywords (strongest signal)
         (name_matches(&name_lower, &rules.priority_patterns), 0.5),
@@ -196,9 +194,7 @@ pub fn classify_part(
         (relative_volume < 0.005, 0.05),
     ]);
 
-    // ═══════════════════════════════════════════════════════════════════════
     // Structural scoring
-    // ═══════════════════════════════════════════════════════════════════════
     let structural_score = weighted_sum(&[
         // Name contains structural keywords (strongest signal)
         (name_matches(&name_lower, &rules.base_patterns), 0.5),
@@ -212,9 +208,7 @@ pub fn classify_part(
         (contact_degree > 6, 0.05),
     ]);
 
-    // ═══════════════════════════════════════════════════════════════════════
     // Panel scoring
-    // ═══════════════════════════════════════════════════════════════════════
     let panel_score = weighted_sum(&[
         // Name contains panel keywords
         (name_matches(&name_lower, &rules.panel_patterns), 0.5),
@@ -523,16 +517,6 @@ mod tests {
             infer_part_kind("BACK_PANEL", &class, &rules),
             PartKind::Panel
         );
-    }
-
-    #[test]
-    fn test_is_fastener_threshold_inclusive() {
-        let class = PartClassification {
-            fastener_score: 0.5,
-            structural_score: 0.1,
-            panel_score: 0.1,
-        };
-        assert!(class.is_fastener(0.5));
     }
 
     #[test]

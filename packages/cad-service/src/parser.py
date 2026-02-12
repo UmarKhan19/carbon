@@ -46,7 +46,6 @@ from OCC.Core.ShapeFix import ShapeFix_Shape
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class Mesh:
     """Triangle mesh data for a single part"""
@@ -59,7 +58,6 @@ class Mesh:
     color: Optional[list[float]] = None  # RGBA
     transform: Optional[list[float]] = None  # 4x4 matrix
 
-
 @dataclass
 class HierarchyNode:
     """Node in assembly hierarchy"""
@@ -70,7 +68,6 @@ class HierarchyNode:
     children: list["HierarchyNode"] = field(default_factory=list)
     transform: Optional[list[float]] = None
     color: Optional[list[float]] = None
-
 
 class StepParser:
     """
@@ -105,36 +102,27 @@ class StepParser:
         Tries XCAF first (has names, colors, hierarchy), falls back to simple.
         """
         logger.info(f"Starting parse of: {step_path}")
-        print(f"[PARSE] Starting parse of: {step_path}")
 
         # Try XCAF FIRST (preserves hierarchy, colors, names)
         try:
-            print("[PARSE] Attempting XCAF parsing for names/colors/hierarchy...")
             logger.info("Attempting XCAF parsing for assembly support...")
             result = self._parse_with_xcaf(step_path)
             if result["success"]:
                 logger.info(f"XCAF parsing successful: {result['part_count']} parts")
-                print(f"[PARSE] XCAF SUCCESS: {result['part_count']} parts")
                 return result
-            print(f"[PARSE] XCAF failed: {result.get('error')}")
             logger.debug(f"XCAF parsing failed: {result.get('error')}")
         except Exception as e:
-            print(f"[PARSE] XCAF exception: {e}")
             logger.warning(f"XCAF parsing exception: {e}")
 
         # Fall back to simple reader (more robust but no names/colors)
         try:
-            print("[PARSE] Falling back to simple STEPControl_Reader...")
             logger.debug("Attempting simple STEPControl_Reader (robust mode)...")
             result = self._parse_simple(step_path)
             if result["success"]:
                 logger.info(f"Simple parsing successful: {result['part_count']} parts")
-                print(f"[PARSE] Simple SUCCESS: {result['part_count']} parts")
                 return result
-            print(f"[PARSE] Simple failed: {result.get('error')}")
             logger.debug(f"Simple parsing failed: {result.get('error')}")
         except Exception as e:
-            print(f"[PARSE] Simple exception: {e}")
             logger.warning(f"Simple parsing exception: {e}")
 
         return {
@@ -311,93 +299,65 @@ class StepParser:
 
         Preserves hierarchy, names, colors, and transforms.
         """
-        print("[XCAF] Starting XCAF parse...", flush=True)
         self._meshes = []
         self._part_count = 0
 
         # Create XCAF document
         # NOTE: Use plain string, not TCollection_ExtendedString (official PythonOCC pattern)
-        print("[XCAF] Creating document...", flush=True)
         try:
             doc = TDocStd_Document("pythonocc-doc-step-import")
-            print("[XCAF] Document created OK", flush=True)
         except Exception as doc_err:
-            print(f"[XCAF] Document creation FAILED: {doc_err}", flush=True)
             return {"success": False, "error": f"Failed to create document: {doc_err}"}
 
         # Create STEP reader with extended CAD support
-        print("[XCAF] Creating reader...", flush=True)
         try:
             reader = STEPCAFControl_Reader()
-            print("[XCAF] Reader created OK", flush=True)
         except Exception as reader_err:
-            print(f"[XCAF] Reader creation FAILED: {reader_err}", flush=True)
             return {"success": False, "error": f"Failed to create reader: {reader_err}"}
 
-        print("[XCAF] Setting reader modes...", flush=True)
         reader.SetColorMode(True)
         reader.SetNameMode(True)
         reader.SetLayerMode(True)
-        print("[XCAF] Reader modes set OK", flush=True)
 
         # Read STEP file
-        print(f"[XCAF] Reading file: {step_path}", flush=True)
         status = reader.ReadFile(step_path)
         if status != IFSelect_RetDone:
-            print(f"[XCAF] ReadFile FAILED with status: {status}", flush=True)
             return {
                 "success": False,
                 "error": f"Failed to read STEP file (status: {status})",
             }
-        print("[XCAF] ReadFile OK", flush=True)
 
         # Transfer to document
-        print("[XCAF] Transferring to document...", flush=True)
         try:
             transfer_result = reader.Transfer(doc)
-            print(f"[XCAF] Transfer returned: {transfer_result}", flush=True)
         except Exception as transfer_err:
-            print(f"[XCAF] Transfer EXCEPTION: {transfer_err}", flush=True)
             return {"success": False, "error": f"Transfer failed: {transfer_err}"}
 
         if not transfer_result:
-            print("[XCAF] Transfer FAILED (returned False)", flush=True)
             return {
                 "success": False,
                 "error": "Failed to transfer STEP data to document",
             }
-        print("[XCAF] Transfer OK", flush=True)
 
         # Get shape and color tools
-        print("[XCAF] Getting shape/color tools...", flush=True)
         try:
             shape_tool = XCAFDoc_DocumentTool.ShapeTool(doc.Main())
-            print("[XCAF] shape_tool obtained", flush=True)
             color_tool = XCAFDoc_DocumentTool.ColorTool(doc.Main())
-            print("[XCAF] color_tool obtained", flush=True)
             if shape_tool is None:
-                print("[XCAF] ERROR: shape_tool is None!", flush=True)
                 return {"success": False, "error": "Failed to get shape tool"}
             if color_tool is None:
-                print("[XCAF] WARNING: color_tool is None, colors will not be extracted", flush=True)
-            print("[XCAF] Tools OK", flush=True)
+                logger.warning("color_tool is None, colors will not be extracted")
         except Exception as tool_err:
-            print(f"[XCAF] ERROR getting tools: {tool_err}", flush=True)
             return {"success": False, "error": f"Failed to get document tools: {tool_err}"}
 
         # Get root shapes (top-level assemblies/parts)
-        print("[XCAF] Getting root shapes...", flush=True)
         try:
             root_labels = TDF_LabelSequence()
-            print("[XCAF] TDF_LabelSequence created", flush=True)
             shape_tool.GetFreeShapes(root_labels)
-            print("[XCAF] GetFreeShapes completed", flush=True)
         except Exception as root_err:
-            print(f"[XCAF] GetFreeShapes EXCEPTION: {root_err}", flush=True)
             return {"success": False, "error": f"Failed to get root shapes: {root_err}"}
 
         num_roots = root_labels.Length()
-        print(f"[XCAF] Found {num_roots} root shapes", flush=True)
 
         if num_roots == 0:
             return {
@@ -408,20 +368,16 @@ class StepParser:
         # Limit roots for safety
         max_roots = 1000
         if num_roots > max_roots:
-            print(f"[XCAF] WARNING: Limiting roots from {num_roots} to {max_roots}")
             num_roots = max_roots
 
         # Build hierarchy from root shapes
-        print("[XCAF] Processing root labels...")
         root_nodes = []
         for i in range(1, num_roots + 1):
-            print(f"[XCAF] Processing root {i}/{num_roots}...")
             label = root_labels.Value(i)
             # Fresh visited set per root
             node = self._process_label(label, shape_tool, color_tool, depth=0, visited=set())
             if node:
                 root_nodes.append(node)
-                print(f"[XCAF] Root {i} processed: {node.name}")
 
         if not root_nodes:
             return {
@@ -459,7 +415,6 @@ class StepParser:
         try:
             # Safety: depth limit to prevent infinite recursion
             if depth > 50:
-                print(f"[XCAF] WARNING: Depth limit exceeded at {depth}")
                 logger.warning(f"XCAF recursion depth exceeded at {depth}")
                 return None
 
@@ -475,7 +430,6 @@ class StepParser:
             try:
                 label_entry = label.EntryDumpToString()
                 if label_entry in visited:
-                    print(f"[XCAF] Skipping already visited label: {label_entry}")
                     return None
                 visited.add(label_entry)
             except Exception:
@@ -488,18 +442,14 @@ class StepParser:
 
             node_id = str(uuid.uuid4())
 
-            print(f"[XCAF] Processing label depth={depth}: {name}")
-
             # Check if this is an assembly or part
             # Wrap in try/except - IsAssembly can throw C++ exceptions
             try:
                 is_assembly = shape_tool.IsAssembly(label)
             except Exception as asm_err:
-                print(f"[XCAF]   -> IsAssembly check failed: {asm_err}")
                 return None
 
             if is_assembly:
-                print(f"[XCAF]   -> IsAssembly: {name}")
                 # Get child components
                 children = []
                 child_labels = TDF_LabelSequence()
@@ -507,7 +457,6 @@ class StepParser:
                 try:
                     shape_tool.GetComponents(label, child_labels)
                 except Exception as comp_err:
-                    print(f"[XCAF]   -> GetComponents failed: {comp_err}")
                     # Return empty assembly rather than failing
                     return HierarchyNode(
                         id=node_id,
@@ -517,12 +466,10 @@ class StepParser:
                     )
 
                 num_children = child_labels.Length()
-                print(f"[XCAF]   -> {num_children} children")
 
                 # Safety: limit children
                 max_children = 10000
                 if num_children > max_children:
-                    print(f"[XCAF] WARNING: Limiting children from {num_children} to {max_children}")
                     num_children = max_children
 
                 for i in range(1, num_children + 1):
@@ -543,7 +490,6 @@ class StepParser:
                         try:
                             is_ref = shape_tool.IsReference(child_label)
                         except Exception as ref_err:
-                            print(f"[XCAF]   -> IsReference failed for child {i}: {ref_err}")
                             is_ref = False
 
                         if is_ref:
@@ -554,7 +500,6 @@ class StepParser:
                             try:
                                 shape_tool.GetReferredShape(child_label, ref_label)
                             except Exception as get_ref_err:
-                                print(f"[XCAF]   -> GetReferredShape failed for child {i}: {get_ref_err}")
                                 continue
 
                             if ref_label is None:
@@ -569,7 +514,6 @@ class StepParser:
 
                             # If reference had a name, use it (instance names take priority)
                             if child_node and ref_instance_name:
-                                print(f"[NAME] Using reference instance name: '{ref_instance_name}' (was '{child_node.name}')", flush=True)
                                 child_node.name = ref_instance_name
                         else:
                             child_node = self._process_label(child_label, shape_tool, color_tool, depth + 1, visited)
@@ -581,11 +525,8 @@ class StepParser:
                                 child_node.transform = transform
                             children.append(child_node)
                     except Exception as child_err:
-                        print(f"[XCAF] ERROR processing child {i}: {child_err}")
                         logger.warning(f"Error processing child component: {child_err}")
                         continue
-
-                print(f"[XCAF]   -> Assembly {name} done with {len(children)} children")
 
                 # IMPORTANT: Flatten single-child assemblies
                 # XCAF wraps each part instance in its own assembly - unwrap it
@@ -595,7 +536,6 @@ class StepParser:
                     # Use the assembly name if child has generic name
                     if single_child.name.startswith("Part_") and not name.startswith("Part_"):
                         single_child.name = name
-                    print(f"[XCAF]   -> Flattened single-part assembly to: {single_child.name}")
                     return single_child
 
                 # Only return assembly if it has multiple children or sub-assemblies
@@ -607,41 +547,32 @@ class StepParser:
                 )
 
             else:
-                print(f"[XCAF]   -> IsPart: {name}")
                 # This is a part - tessellate it
                 # Wrap GetShape in try/except - it can throw C++ exceptions
                 try:
                     shape = shape_tool.GetShape(label)
                 except Exception as shape_err:
-                    print(f"[XCAF]   -> GetShape threw exception for {name}: {shape_err}")
                     return None
 
                 # Check shape validity carefully
                 if shape is None:
-                    print(f"[XCAF]   -> Shape is None for {name}")
                     return None
 
                 try:
                     if shape.IsNull():
-                        print(f"[XCAF]   -> Shape.IsNull() for {name}")
                         return None
                 except Exception as null_check_err:
-                    print(f"[XCAF]   -> IsNull() check failed for {name}: {null_check_err}")
                     return None
 
                 # Get color using the shape (for GetInstanceColor)
                 # This is wrapped in defensive code to prevent C++ crashes
                 color = self._get_shape_color(label, shape, color_tool)
-                if color:
-                    print(f"[XCAF]   -> Color found: {color[:3]}")
 
                 # Tessellate the shape
-                print(f"[XCAF]   -> Tessellating {name}...")
                 mesh = self._tessellate_shape(shape, node_id, name, color)
                 if mesh:
                     self._meshes.append(mesh)
                     self._part_count += 1
-                    print(f"[XCAF]   -> Tessellation OK for {name}")
 
                     return HierarchyNode(
                         id=node_id,
@@ -649,18 +580,15 @@ class StepParser:
                         type="part",
                         color=color,
                     )
-                else:
-                    print(f"[XCAF]   -> Tessellation FAILED for {name}")
 
             return None
 
         except Exception as e:
-            print(f"[XCAF] EXCEPTION processing label: {e}")
             logger.warning(f"Error processing label: {e}")
             return None
 
     def _get_label_name(self, label: TDF_Label) -> Optional[str]:
-        """Get the name from a label with detailed logging"""
+        """Get the name from a label"""
         try:
             # Use the static Get method which returns the name directly
             # This is the correct PythonOCC pattern for TDataStd_Name
@@ -668,21 +596,9 @@ class StepParser:
             if name:
                 name_str = name.Get().ToExtString()
                 if name_str and name_str.strip():
-                    print(f"[NAME] Found: '{name_str}'", flush=True)
                     return name_str.strip()
-                else:
-                    print(f"[NAME] Empty name attribute", flush=True)
         except Exception as e:
             # Expected when no name attribute exists - don't log every one
-            pass
-
-        # Log the label entry for debugging (only when no name found)
-        try:
-            entry = label.EntryDumpToString()
-            # Only log the first few for debugging, not every single one
-            if self._part_count < 5:
-                print(f"[NAME] No name found, label entry: {entry}", flush=True)
-        except Exception:
             pass
 
         return None
@@ -711,24 +627,8 @@ class StepParser:
         return matrix_4x4.T.flatten().tolist()
 
     def _get_shape_color(self, label: TDF_Label, shape, color_tool) -> Optional[list[float]]:
-        """
-        Get the color assigned to a shape.
-
-        Uses the official PythonOCC pattern: try GetInstanceColor on shape first,
-        then fall back to GetColor on label.
-
-        Color types:
-        - 0 = XCAFDoc_ColorSurf (surface color)
-        - 1 = XCAFDoc_ColorCurv (curve color)
-        - 2 = XCAFDoc_ColorGen (generic color)
-
-        NOTE: Must be very careful with null checks here - OpenCascade throws
-        C++ Standard_NullObject exceptions that Python can't catch!
-        """
-        # Validate inputs BEFORE calling any OCC methods
-        # C++ exceptions like Standard_NullObject will crash the process!
+        """Get the color assigned to a shape via instance color or label fallback."""
         if color_tool is None:
-            print("[COLOR] color_tool is None, skipping")
             return None
 
         try:
@@ -755,13 +655,12 @@ class StepParser:
                             try:
                                 if color_tool.GetInstanceColor(shape, color_type, color):
                                     color_set = True
-                                    print(f"[COLOR] Found instance color ({type_name}): R={color.Red():.2f} G={color.Green():.2f} B={color.Blue():.2f}", flush=True)
                                     break
                             except Exception as inner_e:
                                 # Don't log every failure - too verbose
                                 continue
                 except Exception as shape_e:
-                    print(f"[COLOR] Shape access error: {shape_e}", flush=True)
+                    pass
 
             # SECOND: Fall back to label colors
             if not color_set and label is not None:
@@ -772,19 +671,18 @@ class StepParser:
                             try:
                                 if color_tool.GetColor(label, color_type, color):
                                     color_set = True
-                                    print(f"[COLOR] Found label color ({type_name}): R={color.Red():.2f} G={color.Green():.2f} B={color.Blue():.2f}", flush=True)
                                     break
                             except Exception as inner_e:
                                 # Don't log every failure - too verbose
                                 continue
                 except Exception as label_e:
-                    print(f"[COLOR] Label access error: {label_e}", flush=True)
+                    pass
 
             if color_set:
                 return [color.Red(), color.Green(), color.Blue(), 1.0]
 
         except Exception as e:
-            print(f"[COLOR] Exception getting color: {e}")
+            pass
 
         return None
 

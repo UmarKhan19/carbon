@@ -59,8 +59,6 @@ export const stepParserOccTask = task({
     const cadServiceUrl =
       process.env.CAD_SERVICE_URL || "http://localhost:8000";
 
-    console.log(" CAD Service", { cadServiceUrl });
-
     // Update status to processing
     await metadata.set("status", "downloading");
     await metadata.set("progress", 10);

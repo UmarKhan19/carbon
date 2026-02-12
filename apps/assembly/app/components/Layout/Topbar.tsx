@@ -1,5 +1,5 @@
 import { Button } from "@carbon/react";
-import { BsBoxSeam, BsGear } from "react-icons/bs";
+import { BsGear, BsHammer } from "react-icons/bs";
 import { Link, useLoaderData } from "react-router";
 import { path } from "~/utils/path";
 
@@ -16,8 +16,8 @@ export function Topbar() {
   return (
     <header className="flex items-center justify-between h-[49px] px-4 border-b bg-background">
       <Link to={path.to.dashboard} className="flex items-center gap-2">
-        <BsBoxSeam className="w-5 h-5 text-primary" />
-        <span className="font-semibold text-lg">Assembly</span>
+        <BsHammer className="w-5 h-5 text-primary" />
+        <span className="font-semibold text-lg">Smithy</span>
         {company?.name && (
           <>
             <span className="text-muted-foreground/40 mx-1">/</span>

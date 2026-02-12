@@ -1,4 +1,5 @@
 import { cn } from "@carbon/react";
+import { BsWrench } from "react-icons/bs";
 import type { AssemblyStep, StandardNote, Tool } from "~/types/assembly.types";
 
 export interface SupplementsTabProps {
@@ -60,8 +61,8 @@ export function SupplementsTab({
                     className="w-6 h-6 object-contain rounded"
                   />
                 ) : (
-                  <div className="w-6 h-6 bg-muted rounded flex items-center justify-center text-xs">
-                    🔧
+                  <div className="w-6 h-6 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
+                    <BsWrench />
                   </div>
                 )}
                 <span className="flex-1 truncate">{tool.name}</span>

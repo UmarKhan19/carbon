@@ -18,7 +18,6 @@ authors = ["Carbon Team"]
 # Math and geometry
 nalgebra = { version = "0.33", features = ["serde-serialize"] }
 parry3d = "0.17"
-rapier3d = "0.22"
 
 # CAD file parsing (truck ecosystem)
 truck-stepio = "0.4"
