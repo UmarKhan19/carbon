@@ -74,9 +74,6 @@ pub struct AssemblySimulator {
     removed_parts: HashSet<String>,
     collision_checks: Cell<u64>,
     path_evaluations: Cell<u64>,
-    /// Global assembly bounding box (world space), computed in load_assembly().
-    global_aabb_min: Point3<f32>,
-    global_aabb_max: Point3<f32>,
 }
 
 /// Internal representation of a part for simulation.
@@ -144,10 +141,6 @@ struct MotionTrace {
 
 const MIN_REMOVAL_RATIO: f32 = 0.90;
 const MAX_MOTION_SAMPLING_STEPS: f32 = 100.0;
-/// Parts start their assembly animation from outside AABB * (1 + STAGING_MARGIN).
-const STAGING_MARGIN: f32 = 0.10;
-/// Fraction of animation time allocated to the approach segment (staging → approach).
-const APPROACH_TIME_FRACTION: f32 = 0.30;
 
 impl AssemblySimulator {
     /// Create a new simulator with the given configuration.
@@ -158,8 +151,6 @@ impl AssemblySimulator {
             removed_parts: HashSet::new(),
             collision_checks: Cell::new(0),
             path_evaluations: Cell::new(0),
-            global_aabb_min: Point3::origin(),
-            global_aabb_max: Point3::origin(),
         }
     }
 
@@ -247,10 +238,6 @@ impl AssemblySimulator {
             self.parts.len(),
             part_names
         );
-
-        // Persist global AABB for multi-segment staging point computation
-        self.global_aabb_min = global_min;
-        self.global_aabb_max = global_max;
 
         // Auto-scale removal distance to 2x the assembly diagonal
         let diagonal = (global_max - global_min).magnitude();
@@ -519,6 +506,7 @@ impl AssemblySimulator {
                     } else {
                         1.0
                     }),
+                    motion_distance: Some(evaluation.travel_distance),
                 };
 
                 steps.push(step);
@@ -1001,15 +989,12 @@ impl AssemblySimulator {
                 travel_distance: travel,
                 required_distance: travel,
                 min_clearance: None,
-                animation_path: self.build_full_animation_path(
+                animation_path: self.generate_animation_path_for_motion(
                     part,
                     path,
                     &[0.0, travel],
                     travel,
                     travel,
-                    &other_parts,
-                    clearance,
-                    deadline,
                 ),
             });
         }
@@ -1031,15 +1016,12 @@ impl AssemblySimulator {
                 travel_distance: trace.travel_distance,
                 required_distance,
                 min_clearance: trace.min_clearance,
-                animation_path: self.build_full_animation_path(
+                animation_path: self.generate_animation_path_for_motion(
                     part,
                     path,
                     &trace.sampled_distances,
                     trace.travel_distance,
                     required_distance,
-                    &other_parts,
-                    clearance,
-                    deadline,
                 ),
             })
         } else {
@@ -1768,254 +1750,6 @@ impl AssemblySimulator {
             .collect()
     }
 
-    /// Compute a staging point outside the global assembly AABB.
-    ///
-    /// Given the approach point (end of the removal path) and removal direction,
-    /// returns a point outside the padded global AABB along that direction.
-    /// Returns `None` if the approach point is already outside.
-    fn compute_staging_point(
-        &self,
-        approach_point: &Point3<f32>,
-        direction: &Vector3<f32>,
-    ) -> Option<Point3<f32>> {
-        let dir = if direction.norm_squared() > 1.0e-8 {
-            direction.normalize()
-        } else {
-            return None;
-        };
-
-        let aabb_size = self.global_aabb_max - self.global_aabb_min;
-        let margin = Vector3::new(
-            aabb_size.x * STAGING_MARGIN,
-            aabb_size.y * STAGING_MARGIN,
-            aabb_size.z * STAGING_MARGIN,
-        );
-        let padded_min = self.global_aabb_min - margin;
-        let padded_max = self.global_aabb_max + margin;
-
-        // Already outside padded AABB?
-        if approach_point.x < padded_min.x
-            || approach_point.x > padded_max.x
-            || approach_point.y < padded_min.y
-            || approach_point.y > padded_max.y
-            || approach_point.z < padded_min.z
-            || approach_point.z > padded_max.z
-        {
-            return None;
-        }
-
-        let exit_dist = ray_aabb_exit_distance(approach_point, &dir, &padded_min, &padded_max);
-        if exit_dist <= 0.0 {
-            return None;
-        }
-
-        // Place staging slightly beyond exit + half the margin magnitude
-        Some(approach_point + dir * (exit_dist + margin.norm() * 0.5))
-    }
-
-    /// Extend a removal path so its endpoint lies outside the global assembly AABB.
-    ///
-    /// Collision-checks the approach segment (approach → staging) with sparse sampling.
-    /// Returns the staging keyframe and the total distance from rest, or `None` if
-    /// the approach segment has collisions or staging is not needed.
-    #[allow(clippy::too_many_arguments)]
-    fn extend_path_to_staging(
-        &self,
-        part: &PartData,
-        removal_direction: &Vector3<f32>,
-        end_transform: &Isometry3<f32>,
-        current_end_distance: f32,
-        other_parts: &[&PartData],
-        clearance: f32,
-        deadline: Instant,
-    ) -> Option<(AnimationKeyframe, f32)> {
-        let approach_point = Point3::from(end_transform.translation.vector);
-
-        let staging_point = self.compute_staging_point(&approach_point, removal_direction)?;
-
-        let extension_vec = staging_point - approach_point;
-        let extension_distance = extension_vec.norm();
-        if extension_distance < 1.0e-6 {
-            return None;
-        }
-        let ext_dir = extension_vec / extension_distance;
-
-        // Collision-check the approach segment using continuous collision detection.
-        // cast_shapes finds exact collision times — no sampling gaps.
-        let velocity_ext = ext_dir * extension_distance;
-        let zero_vel = Vector3::zeros();
-        let cast_options = parry3d::query::ShapeCastOptions {
-            max_time_of_impact: 1.0,
-            target_distance: clearance,
-            stop_at_penetration: true,
-            compute_impact_geometry_on_penetration: false,
-        };
-
-        for other in other_parts {
-            if Instant::now() >= deadline {
-                return None;
-            }
-            self.collision_checks
-                .set(self.collision_checks.get().saturating_add(1));
-
-            match parry3d::query::cast_shapes(
-                end_transform,
-                &velocity_ext,
-                &part.mesh as &dyn parry3d::shape::Shape,
-                &other.transform,
-                &zero_vel,
-                &other.mesh as &dyn parry3d::shape::Shape,
-                cast_options,
-            ) {
-                Ok(Some(_hit)) => {
-                    return None; // Approach segment has collision
-                }
-                Ok(None) => {}
-                Err(_) => {
-                    // Unsupported — fall back to endpoint intersection test
-                    let staging_test = Isometry3::from_parts(
-                        Translation3::from(
-                            end_transform.translation.vector + ext_dir * extension_distance,
-                        ),
-                        end_transform.rotation,
-                    );
-                    let colliding = parry3d::query::intersection_test(
-                        &staging_test,
-                        &part.mesh,
-                        &other.transform,
-                        &other.mesh,
-                    )
-                    .unwrap_or(false);
-                    if colliding {
-                        return None;
-                    }
-                }
-            }
-        }
-
-        // Build the staging transform (linear extension, no rotation change)
-        let staging_transform = Isometry3::from_parts(
-            Translation3::from(end_transform.translation.vector + ext_dir * extension_distance),
-            end_transform.rotation,
-        );
-
-        let total_distance = current_end_distance + extension_distance;
-        Some((
-            AnimationKeyframe {
-                time: 1.0, // placeholder — caller rescales
-                transform: isometry_to_matrix4(&staging_transform),
-            },
-            total_distance,
-        ))
-    }
-
-    /// Build a full multi-segment animation path with staging outside the assembly AABB.
-    ///
-    /// In disassembly order (before reversal):
-    ///   time 0.0       → rest position (assembled)
-    ///   time ~0.70     → approach point (end of collision-validated removal)
-    ///   time 1.0       → staging point (outside AABB)
-    ///
-    /// After reversal in compute_sequence():
-    ///   time 0.0       → staging point (visible entry from outside)
-    ///   time ~0.30     → approach point (start of insertion)
-    ///   time 1.0       → rest position (assembled)
-    #[allow(clippy::too_many_arguments)]
-    fn build_full_animation_path(
-        &self,
-        part: &PartData,
-        path: &RemovalPath,
-        sampled_distances: &[f32],
-        travel_distance: f32,
-        reference_distance: f32,
-        other_parts: &[&PartData],
-        clearance: f32,
-        deadline: Instant,
-    ) -> Vec<AnimationKeyframe> {
-        // Step 1: Generate insertion segment keyframes (existing logic)
-        let mut keyframes = self.generate_animation_path_for_motion(
-            part,
-            path,
-            sampled_distances,
-            travel_distance,
-            reference_distance,
-        );
-
-        if keyframes.is_empty() || travel_distance <= 1.0e-6 {
-            return keyframes;
-        }
-
-        // Compute the transform at the end of the removal (approach point)
-        let end_transform =
-            self.transform_for_motion_distance(part, path, travel_distance, reference_distance);
-        let removal_dir = if path.direction.norm_squared() > 1.0e-8 {
-            path.direction.normalize()
-        } else {
-            return keyframes;
-        };
-
-        // Step 2: Try to extend to staging point along removal direction
-        let mut staging_result = self.extend_path_to_staging(
-            part,
-            &removal_dir,
-            &end_transform,
-            travel_distance,
-            other_parts,
-            clearance,
-            deadline,
-        );
-
-        // Step 3: Fallback directions if primary fails
-        if staging_result.is_none() {
-            let fallbacks = [
-                Vector3::new(0.0, 1.0, 0.0),
-                Vector3::new(0.0, -1.0, 0.0),
-                Vector3::new(1.0, 0.0, 0.0),
-                Vector3::new(-1.0, 0.0, 0.0),
-                Vector3::new(0.0, 0.0, 1.0),
-                Vector3::new(0.0, 0.0, -1.0),
-            ];
-            for fallback_dir in &fallbacks {
-                if fallback_dir.dot(&removal_dir) > 0.95 {
-                    continue; // Skip near-duplicates of the primary direction
-                }
-                if Instant::now() >= deadline {
-                    break;
-                }
-                staging_result = self.extend_path_to_staging(
-                    part,
-                    fallback_dir,
-                    &end_transform,
-                    travel_distance,
-                    other_parts,
-                    clearance,
-                    deadline,
-                );
-                if staging_result.is_some() {
-                    break;
-                }
-            }
-        }
-
-        // Step 4: If no staging needed or all attempts failed, return insertion-only path
-        let Some((staging_kf, _total_distance)) = staging_result else {
-            return keyframes;
-        };
-
-        // Step 5: Rescale time — insertion segment gets [0.0, 1-APPROACH_TIME_FRACTION]
-        let insertion_end_time = 1.0 - APPROACH_TIME_FRACTION;
-        for kf in &mut keyframes {
-            kf.time *= insertion_end_time;
-        }
-
-        // Append staging keyframe at time=1.0 (furthest point in disassembly)
-        keyframes.push(AnimationKeyframe {
-            time: 1.0,
-            transform: staging_kf.transform,
-        });
-
-        keyframes
-    }
 }
 
 /// Convert a Matrix4 to an Isometry3.
@@ -2087,42 +1821,6 @@ fn aabb_overlap_volume(
     let overlap_y = (a_max.y.min(b_max.y) - a_min.y.max(b_min.y)).max(0.0);
     let overlap_z = (a_max.z.min(b_max.z) - a_min.z.max(b_min.z)).max(0.0);
     overlap_x * overlap_y * overlap_z
-}
-
-/// Distance along `direction` from `origin` to exit an AABB.
-/// Returns 0 if the origin is outside the AABB.
-fn ray_aabb_exit_distance(
-    origin: &Point3<f32>,
-    direction: &Vector3<f32>,
-    aabb_min: &Point3<f32>,
-    aabb_max: &Point3<f32>,
-) -> f32 {
-    let mut t_exit = f32::INFINITY;
-
-    for axis in 0..3 {
-        let (o, d, bmin, bmax) = match axis {
-            0 => (origin.x, direction.x, aabb_min.x, aabb_max.x),
-            1 => (origin.y, direction.y, aabb_min.y, aabb_max.y),
-            _ => (origin.z, direction.z, aabb_min.z, aabb_max.z),
-        };
-
-        if d.abs() < 1.0e-10 {
-            // Parallel — check if inside this slab
-            if o < bmin || o > bmax {
-                return 0.0; // Already outside
-            }
-            continue;
-        }
-
-        let inv_d = 1.0 / d;
-        let t1 = (bmin - o) * inv_d;
-        let t2 = (bmax - o) * inv_d;
-        let t_far = t1.max(t2);
-
-        t_exit = t_exit.min(t_far);
-    }
-
-    t_exit.max(0.0)
 }
 
 /// Compute the time (0..1) when moving AABB first enters another AABB.
@@ -2533,116 +2231,16 @@ mod tests {
         }
     }
 
+    /// Verify animation paths use the validated removal motion directly.
+    ///
+    /// After reversal for assembly order:
+    ///   time=0.0 → removal endpoint (displaced from rest)
+    ///   time=1.0 → rest position (assembled)
+    ///
+    /// The displacement at time=0 should match motion_distance along the
+    /// assembly_direction (negated removal direction).
     #[test]
-    fn test_ray_aabb_exit_distance() {
-        let aabb_min = Point3::new(-5.0, -5.0, -5.0);
-        let aabb_max = Point3::new(5.0, 5.0, 5.0);
-
-        // Point at origin, moving in +X → should exit at x=5
-        let dist = ray_aabb_exit_distance(
-            &Point3::origin(),
-            &Vector3::new(1.0, 0.0, 0.0),
-            &aabb_min,
-            &aabb_max,
-        );
-        assert!(
-            (dist - 5.0).abs() < 1.0e-3,
-            "Expected ~5.0, got {}",
-            dist
-        );
-
-        // Point at (3,0,0), moving in +X → should exit at x=5, so distance=2
-        let dist2 = ray_aabb_exit_distance(
-            &Point3::new(3.0, 0.0, 0.0),
-            &Vector3::new(1.0, 0.0, 0.0),
-            &aabb_min,
-            &aabb_max,
-        );
-        assert!(
-            (dist2 - 2.0).abs() < 1.0e-3,
-            "Expected ~2.0, got {}",
-            dist2
-        );
-    }
-
-    /// Verify that all assembly animation paths start from outside the
-    /// global assembly AABB (i.e., multi-segment staging works).
-    #[test]
-    fn test_staging_point_outside_aabb() {
-        // Create a tight cluster of cubes at origin
-        let mesh = create_cube_mesh(4.0);
-        let part_a = create_test_part(
-            "a",
-            "BLOCK_A",
-            mesh.clone(),
-            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
-        );
-        let part_b = create_test_part(
-            "b",
-            "BLOCK_B",
-            mesh.clone(),
-            Matrix4::new_translation(&Vector3::new(4.0, 0.0, 0.0)),
-        );
-        let part_c = create_test_part(
-            "c",
-            "BLOCK_C",
-            mesh.clone(),
-            Matrix4::new_translation(&Vector3::new(0.0, 4.0, 0.0)),
-        );
-
-        let root = AssemblyNode {
-            id: "root".to_string(),
-            name: "Cluster".to_string(),
-            original_name: "Cluster".to_string(),
-            node_type: NodeType::Assembly,
-            transform: Matrix4::identity(),
-            bounding_box: None,
-            mesh: None,
-            children: vec![part_a, part_b, part_c],
-            metadata: Default::default(),
-        };
-
-        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
-        simulator.load_assembly(&root).unwrap();
-        let result = simulator.compute_sequence().unwrap();
-        assert!(result.success, "Simulation failed: {:?}", result.error);
-
-        // After reversal, time=0.0 keyframe is the starting position.
-        // It should be outside the padded global AABB.
-        let aabb_size = simulator.global_aabb_max - simulator.global_aabb_min;
-        let margin = Vector3::new(
-            aabb_size.x * STAGING_MARGIN,
-            aabb_size.y * STAGING_MARGIN,
-            aabb_size.z * STAGING_MARGIN,
-        );
-        let padded_min = simulator.global_aabb_min - margin;
-        let padded_max = simulator.global_aabb_max + margin;
-
-        for step in &result.steps {
-            let first_kf = step.animation_path.first().expect("should have keyframes");
-            // Extract translation from the 4x4 column-major matrix
-            let tx = first_kf.transform[(0, 3)];
-            let ty = first_kf.transform[(1, 3)];
-            let tz = first_kf.transform[(2, 3)];
-
-            let outside = tx < padded_min.x
-                || tx > padded_max.x
-                || ty < padded_min.y
-                || ty > padded_max.y
-                || tz < padded_min.z
-                || tz > padded_max.z;
-
-            assert!(
-                outside,
-                "Step {} ({:?}) starts at ({:.1},{:.1},{:.1}) which is INSIDE padded AABB [{:?} .. {:?}]",
-                step.step_number, step.part_names, tx, ty, tz, padded_min, padded_max
-            );
-        }
-    }
-
-    /// Verify multi-segment paths have more keyframes than single-segment.
-    #[test]
-    fn test_multi_segment_keyframe_count() {
+    fn test_animation_uses_validated_path() {
         let mesh = create_cube_mesh(4.0);
         let part_a = create_test_part(
             "a",
@@ -2675,61 +2273,54 @@ mod tests {
         assert!(result.success);
 
         for step in &result.steps {
+            // Each step must have at least 2 keyframes (start + end)
             assert!(
-                step.animation_path.len() >= 3,
-                "Step {} should have at least 3 keyframes (staging, approach, rest), got {}",
+                step.animation_path.len() >= 2,
+                "Step {} should have at least 2 keyframes, got {}",
                 step.step_number,
                 step.animation_path.len()
             );
-        }
-    }
 
-    /// Verify time allocation: approach gets ~30% of animation time.
-    #[test]
-    fn test_time_allocation_approach_vs_insertion() {
-        let mesh = create_cube_mesh(4.0);
-        let part_a = create_test_part(
-            "a",
-            "BLOCK_A",
-            mesh.clone(),
-            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
-        );
-        let part_b = create_test_part(
-            "b",
-            "BLOCK_B",
-            mesh.clone(),
-            Matrix4::new_translation(&Vector3::new(4.0, 0.0, 0.0)),
-        );
-
-        let root = AssemblyNode {
-            id: "root".to_string(),
-            name: "Pair".to_string(),
-            original_name: "Pair".to_string(),
-            node_type: NodeType::Assembly,
-            transform: Matrix4::identity(),
-            bounding_box: None,
-            mesh: None,
-            children: vec![part_a, part_b],
-            metadata: Default::default(),
-        };
-
-        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
-        simulator.load_assembly(&root).unwrap();
-        let result = simulator.compute_sequence().unwrap();
-        assert!(result.success);
-
-        // After reversal: time=0.0 is staging, ~0.30 is approach point, 1.0 is rest
-        for step in &result.steps {
-            if step.animation_path.len() < 3 {
-                continue;
-            }
-            // The second keyframe should be approximately at APPROACH_TIME_FRACTION
-            let second_kf = &step.animation_path[1];
+            // motion_distance should be populated
             assert!(
-                (second_kf.time - APPROACH_TIME_FRACTION).abs() < 0.05,
-                "Second keyframe time should be ~{}, got {}",
-                APPROACH_TIME_FRACTION,
-                second_kf.time
+                step.motion_distance.is_some(),
+                "Step {} should have motion_distance",
+                step.step_number
+            );
+
+            // First keyframe time ≈ 0.0, last ≈ 1.0
+            let first_kf = step.animation_path.first().unwrap();
+            let last_kf = step.animation_path.last().unwrap();
+            assert!(
+                first_kf.time.abs() < 0.01,
+                "First keyframe time should be ~0.0, got {}",
+                first_kf.time
+            );
+            assert!(
+                (last_kf.time - 1.0).abs() < 0.01,
+                "Last keyframe time should be ~1.0, got {}",
+                last_kf.time
+            );
+
+            // Last keyframe (rest) should match the part's assembled position
+            // First keyframe should be displaced from rest along the removal direction
+            let rest_tx = last_kf.transform[(0, 3)];
+            let rest_ty = last_kf.transform[(1, 3)];
+            let rest_tz = last_kf.transform[(2, 3)];
+            let start_tx = first_kf.transform[(0, 3)];
+            let start_ty = first_kf.transform[(1, 3)];
+            let start_tz = first_kf.transform[(2, 3)];
+
+            let displacement = Vector3::new(
+                start_tx - rest_tx,
+                start_ty - rest_ty,
+                start_tz - rest_tz,
+            );
+            assert!(
+                displacement.norm() > 0.1,
+                "Step {} should have non-zero displacement, got {:.4}",
+                step.step_number,
+                displacement.norm()
             );
         }
     }

@@ -167,6 +167,9 @@ pub struct AssemblyStep {
     /// Planner quality score for this step (higher is better).
     #[serde(default)]
     pub planner_score: Option<f32>,
+    /// Distance the part travels along assembly_direction (model units).
+    #[serde(default)]
+    pub motion_distance: Option<f32>,
 }
 
 /// A keyframe in an assembly animation.

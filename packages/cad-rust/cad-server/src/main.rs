@@ -1,6 +1,7 @@
 //! CAD Server - HTTP API for assembly simulation.
 
 use axum::{
+    extract::DefaultBodyLimit,
     routing::{get, post},
     Router,
 };
@@ -42,7 +43,8 @@ async fn main() {
                 .allow_methods(Any)
                 .allow_headers(Any),
         )
-        .layer(TraceLayer::new_for_http());
+        .layer(TraceLayer::new_for_http())
+        .layer(DefaultBodyLimit::max(256 * 1024 * 1024)); // 256 MB
 
     // Start server
     let port = std::env::var("PORT")
