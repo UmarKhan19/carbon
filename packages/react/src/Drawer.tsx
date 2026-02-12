@@ -12,6 +12,7 @@ import { forwardRef } from "react";
 
 import { LuX } from "react-icons/lu";
 import { ClientOnly } from "./ClientOnly";
+import { ModalContextWrapper } from "./hooks/useModalContext";
 import { cn } from "./utils/cn";
 
 const Drawer = DialogPrimitive.Root;
@@ -191,9 +192,12 @@ const DrawerContent = forwardRef<
           <DialogPrimitive.Content
             ref={ref}
             className={cn(sheetVariants({ position, size }), className)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+            }}
             {...props}
           >
-            {children}
+            <ModalContextWrapper>{children}</ModalContextWrapper>
             <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
               <LuX className="h-6 w-6" />
               <span className="sr-only">Close</span>

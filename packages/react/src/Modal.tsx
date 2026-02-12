@@ -12,6 +12,7 @@ import { forwardRef } from "react";
 
 import { LuX } from "react-icons/lu";
 import { ClientOnly } from "./ClientOnly";
+import { ModalContextWrapper } from "./hooks/useModalContext";
 import { cn } from "./utils/cn";
 
 const Modal = DialogPrimitive.Root;
@@ -85,9 +86,12 @@ const ModalContent = forwardRef<
           <DialogPrimitive.Content
             ref={ref}
             className={cn(ModalContentVariants({ size }), className)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+            }}
             {...props}
           >
-            {children}
+            <ModalContextWrapper>{children}</ModalContextWrapper>
             {withCloseButton && (
               <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-foreground-muted p-2 hover:bg-accent/80">
                 <LuX className="h-4 w-4" />

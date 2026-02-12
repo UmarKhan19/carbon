@@ -8,6 +8,7 @@ import useIsMobile from "./useIsMobile";
 import { useIsomorphicLayoutEffect } from "./useIsomorphicLayoutEffect";
 import useKeyboardShortcuts from "./useKeyboardShortcuts";
 import useLocalStorage from "./useLocalStorage";
+import { ModalContextWrapper, useIsInModal } from "./useModalContext";
 import useMount from "./useMount";
 import useOutsideClick from "./useOutsideClick";
 import { usePrettifyShortcut } from "./usePrettifyShortcut";
@@ -25,6 +26,8 @@ export {
   useInterval,
   useIsMobile,
   useIsomorphicLayoutEffect,
+  useIsInModal,
+  ModalContextWrapper,
   useKeyboardShortcuts,
   useLocalStorage,
   useMount,
