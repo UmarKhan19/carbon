@@ -1,6 +1,6 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { formatCityStatePostalCode } from "@carbon/utils";
+import { formatCityStatePostalCode, pluralize } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
@@ -388,7 +388,7 @@ const QuotePDF = ({
                               `${colWidth} text-right text-gray-600 pr-3`
                             )}
                           >
-                            {leadTime > 0 ? `${leadTime} days` : "-"}
+                            {leadTime > 0 ? `${leadTime} ${pluralize(leadTime, "day")}` : "-"}
                           </Text>
                         )}
                         <Text
@@ -506,7 +506,7 @@ const QuotePDF = ({
             <View style={tw("flex flex-row")}>
               <Text style={tw("font-bold text-gray-800")}>Max Lead Time: </Text>
               <Text style={tw("text-gray-600")}>
-                {maxLeadTime} {maxLeadTime === 1 ? "day" : "days"}
+                {maxLeadTime} {pluralize(maxLeadTime, "day")}
               </Text>
             </View>
           )}

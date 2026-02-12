@@ -21,6 +21,7 @@ import {
   Tr,
   VStack
 } from "@carbon/react";
+import { pluralize } from "@carbon/utils";
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { LuImage } from "react-icons/lu";
@@ -342,7 +343,7 @@ const LinePricingOptions = ({
                           option.supplierShippingCost ?? 0
                         )}
                       </Td>
-                      <Td>{option.leadTime} days</Td>
+                      <Td>{option.leadTime} {pluralize(option.leadTime, "day")}</Td>
                       <Td>
                         {presentationCurrencyFormatter.format(
                           option.supplierTaxAmount ?? 0

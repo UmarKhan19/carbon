@@ -27,7 +27,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+import { formatDate, pluralize } from "@carbon/utils";
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -595,7 +595,7 @@ const LinePricingOptions = ({
                           convertedAdditionalChargesByQuantity[option.quantity]
                         )}
                       </Td>
-                      <Td>{option.leadTime} days</Td>
+                      <Td>{option.leadTime} {pluralize(option.leadTime, "day")}</Td>
                       <Td>
                         {formatter.format(
                           (option.convertedNetExtendedPrice ?? 0) +
