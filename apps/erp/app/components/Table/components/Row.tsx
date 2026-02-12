@@ -42,6 +42,21 @@ const Row = <T extends object>({
 }: RowProps<T>) => {
   const onUpdate = isEditMode ? onCellUpdate(row.index) : undefined;
 
+  const handleContextMenu = (event: React.MouseEvent<HTMLTableRowElement>) => {
+    // Check if the right-click target or any parent is a link (anchor tag)
+    let target = event.target as HTMLElement;
+    while (target && target !== event.currentTarget) {
+      if (target.tagName === "A") {
+        // For links, stop propagation so ContextMenuTrigger doesn't show custom menu
+        // This allows the browser's default context menu to appear
+        event.stopPropagation();
+        return;
+      }
+      target = target.parentElement as HTMLElement;
+    }
+    // For non-link clicks, event propagates normally to show custom context menu
+  };
+
   return (
     <Tr
       key={row.id}
@@ -49,6 +64,7 @@ const Row = <T extends object>({
         "border-b border-border transition-colors",
         isFrozenColumn && "bg-card"
       )}
+      onContextMenu={handleContextMenu}
       {...props}
     >
       {row.getVisibleCells().map((cell, columnIndex) => {
