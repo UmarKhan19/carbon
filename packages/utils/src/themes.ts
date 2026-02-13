@@ -426,7 +426,7 @@ export const themes = [
   },
   {
     name: "violet",
-    label: "Lavendar",
+    label: "Lavender",
     activeColor: {
       light: "238 57% 50%",
       dark: "253.4 70% 40.4%"
