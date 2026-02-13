@@ -279,6 +279,35 @@ export default function LoginRoute() {
                 </Alert>
               )}
 
+              {hasGoogleAuth && (
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-full"
+                  onClick={onSignInWithGoogle}
+                  isDisabled={fetcher.state !== "idle"}
+                  variant="secondary"
+                  leftIcon={<GoogleIcon />}
+                >
+                  Sign in with Google
+                </Button>
+              )}
+              {hasOutlookAuth && (
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-full"
+                  onClick={onSignInWithAzure}
+                  isDisabled={fetcher.state !== "idle"}
+                  variant="secondary"
+                  leftIcon={<OutlookIcon className="size-6" />}
+                >
+                  Sign in with Outlook
+                </Button>
+              )}
+
+              {(hasGoogleAuth || hasOutlookAuth) && <Separator />}
+
               <Input name="email" label="" placeholder="Email Address" />
 
               <Submit
