@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
   Combobox,
-  cn,
   DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
@@ -617,15 +616,7 @@ export default function SalesDashboard() {
                   />
                   <Bar
                     dataKey="value"
-                    className={cn(
-                      ["salesOrderRevenue", "salesOrderCount"].includes(
-                        selectedKpiData.key
-                      ) && "fill-teal-400",
-                      ["quoteCount"].includes(selectedKpiData.key) &&
-                        "fill-blue-600",
-                      ["rfqCount"].includes(selectedKpiData.key) &&
-                        "fill-violet-600"
-                    )}
+                    fill="hsl(var(--primary))"
                     radius={2}
                   />
                 </BarChart>

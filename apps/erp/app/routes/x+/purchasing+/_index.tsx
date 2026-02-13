@@ -589,7 +589,7 @@ export default function PurchaseDashboard() {
                     />
                   }
                 />
-                <Bar dataKey="value" className="fill-violet-600" radius={2} />
+                <Bar dataKey="value" fill="hsl(var(--primary))" radius={2} />
               </BarChart>
             </ChartContainer>
           </Loading>

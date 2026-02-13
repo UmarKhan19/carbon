@@ -566,7 +566,7 @@ export default function MaintenanceDashboard() {
                       />
                     }
                   />
-                  <Bar dataKey="value" className="fill-red-500" radius={2} />
+                  <Bar dataKey="value" fill="hsl(var(--primary))" radius={2} />
                 </BarChart>
               </ChartContainer>
             ) : (
@@ -639,15 +639,7 @@ export default function MaintenanceDashboard() {
                   />
                   <Bar
                     dataKey="value"
-                    className={
-                      ["mttr", "mtbf"].includes(selectedKpiData.key)
-                        ? "fill-blue-500"
-                        : ["sparePartCost", "sparePartConsumption"].includes(
-                              selectedKpiData.key
-                            )
-                          ? "fill-amber-500"
-                          : "fill-teal-500"
-                    }
+                    fill="hsl(var(--primary))"
                     radius={2}
                   />
                 </BarChart>
