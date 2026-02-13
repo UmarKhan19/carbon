@@ -816,3 +816,4 @@ function PurchaseInvoiceRow({ doc }: { doc: PurchaseInvoice }) {
     </Tr>
   );
 }
+ 
