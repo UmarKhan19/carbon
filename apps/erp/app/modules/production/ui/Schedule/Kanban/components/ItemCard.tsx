@@ -142,7 +142,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "max-w-[330px] shadow-sm dark:shadow-sm",
+        "max-w-[330px]",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
           status: status,

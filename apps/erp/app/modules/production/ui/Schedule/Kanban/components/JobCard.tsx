@@ -141,7 +141,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "max-w-[330px] shadow-sm dark:shadow-sm",
+        "max-w-[330px]",
         item.hasConflict && "border-red-500 border-2",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,

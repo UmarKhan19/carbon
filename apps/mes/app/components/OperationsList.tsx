@@ -99,7 +99,7 @@ function OperationCard({
   return (
     <Card
       className={cn(
-        "shadow-sm dark:shadow-sm h-full flex flex-col",
+        "h-full flex flex-col",
         cardVariants({
           status: operation.operationStatus
         })
