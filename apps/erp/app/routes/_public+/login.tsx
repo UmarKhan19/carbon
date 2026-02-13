@@ -22,6 +22,7 @@ import {
   AlertTitle,
   Button,
   Heading,
+  Separator,
   toast,
   VStack
 } from "@carbon/react";
@@ -289,6 +290,7 @@ export default function LoginRoute() {
                 size="lg"
                 className="w-full"
                 withBlocker={false}
+                variant="secondary"
               >
                 Sign in with Email
               </Submit>
