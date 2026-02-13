@@ -6,29 +6,12 @@ import {
   carbonClient,
   error,
   magicLinkValidator,
-  passwordLoginValidator,
   RATE_LIMIT
 } from "@carbon/auth";
-import {
-  sendMagicLink,
-  signInWithEmail,
-  verifyAuthSession
-} from "@carbon/auth/auth.server";
-import { setCompanyId } from "@carbon/auth/company.server";
-import {
-  flash,
-  getAuthSession,
-  setAuthSession
-} from "@carbon/auth/session.server";
+import { sendMagicLink, verifyAuthSession } from "@carbon/auth/auth.server";
+import { flash, getAuthSession } from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
-import {
-  Hidden,
-  Input,
-  Password,
-  Submit,
-  ValidatedForm,
-  validator
-} from "@carbon/form";
+import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
 import { redis } from "@carbon/kv";
 import {
   Alert,
@@ -93,40 +76,6 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const providers = AUTH_PROVIDERS.split(",");
-  const isPasswordAuth = providers.includes("password");
-
-  if (isPasswordAuth) {
-    const validation = await validator(passwordLoginValidator).validate(
-      await request.formData()
-    );
-
-    if (validation.error) {
-      return error(validation.error, "Invalid login");
-    }
-
-    const { email, password } = validation.data;
-    const authSession = await signInWithEmail(email, password);
-
-    if (!authSession) {
-      return data(
-        { success: false, message: "Invalid email/password combination" },
-        await flash(request, error(null, "Invalid email/password combination"))
-      );
-    }
-
-    const redirectTo = validation.data.redirectTo;
-    const sessionCookie = await setAuthSession(request, { authSession });
-    const companyIdCookie = setCompanyId(authSession.companyId);
-
-    return redirect(redirectTo || path.to.authenticatedRoot, {
-      headers: [
-        ["Set-Cookie", sessionCookie],
-        ["Set-Cookie", companyIdCookie]
-      ]
-    });
-  }
-
   const validation = await validator(magicLinkValidator).validate(
     await request.formData()
   );
@@ -161,7 +110,6 @@ export default function LoginRoute() {
   const { providers } = useLoaderData<typeof loader>();
   const hasOutlookAuth = providers.includes("azure");
   const hasGoogleAuth = providers.includes("google");
-  const hasPasswordAuth = providers.includes("password");
 
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
@@ -211,7 +159,7 @@ export default function LoginRoute() {
         />
       </div>
       <div className="rounded-lg md:bg-card md:border md:border-border md:shadow-lg p-8 w-[380px]">
-        {!hasPasswordAuth && fetcher.data?.success === true ? (
+        {fetcher.data?.success === true ? (
           <>
             <VStack spacing={4} className="items-center justify-center">
               <Heading size="h3">Check your email</Heading>
@@ -220,64 +168,6 @@ export default function LoginRoute() {
               </p>
             </VStack>
           </>
-        ) : hasPasswordAuth ? (
-          <ValidatedForm
-            fetcher={fetcher}
-            validator={passwordLoginValidator}
-            defaultValues={{ redirectTo }}
-            method="post"
-          >
-            <Hidden name="redirectTo" value={redirectTo} type="hidden" />
-            <VStack spacing={2}>
-              {fetcher.data?.success === false && fetcher.data?.message && (
-                <Alert variant="destructive">
-                  <LuCircleAlert className="w-4 h-4" />
-                  <AlertTitle>Authentication Error</AlertTitle>
-                  <AlertDescription>{fetcher.data?.message}</AlertDescription>
-                </Alert>
-              )}
-
-              <Input name="email" label="" placeholder="Email Address" />
-              <Password name="password" label="" placeholder="Password" />
-
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={fetcher.state === "submitting"}
-                size="lg"
-                className="w-full"
-                withBlocker={false}
-              >
-                Sign In
-              </Submit>
-
-              {hasGoogleAuth && (
-                <Button
-                  type="button"
-                  size="lg"
-                  className="w-full"
-                  onClick={onSignInWithGoogle}
-                  isDisabled={fetcher.state !== "idle"}
-                  variant="secondary"
-                  leftIcon={<GoogleIcon />}
-                >
-                  Sign in with Google
-                </Button>
-              )}
-              {hasOutlookAuth && (
-                <Button
-                  type="button"
-                  size="lg"
-                  className="w-full"
-                  onClick={onSignInWithAzure}
-                  isDisabled={fetcher.state !== "idle"}
-                  variant="secondary"
-                  leftIcon={<OutlookIcon className="size-6" />}
-                >
-                  Sign in with Outlook
-                </Button>
-              )}
-            </VStack>
-          </ValidatedForm>
         ) : (
           <ValidatedForm
             fetcher={fetcher}
