@@ -202,7 +202,7 @@ const GaugeCalibrationRecordForm = ({
               <Hidden name="notes" value={JSON.stringify(notes)} />
 
               <VStack spacing={4}>
-                <Card className="p-2">
+                <Card>
                   <Loading isLoading={loading}>
                     <HStack className="w-full justify-between">
                       <CardHeader>

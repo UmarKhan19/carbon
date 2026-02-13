@@ -5,7 +5,7 @@ export const themes = [
     name: "zinc",
     label: "Modern",
     activeColor: {
-      light: "220 5.9% 10%",
+      light: "220 5.9% 2%",
       dark: "220 5.2% 33.9%"
     },
     cssVars: {
