@@ -22,7 +22,6 @@ import {
   CustomerStatus,
   CustomerType,
   CustomFormFields,
-  EmailRecipients,
   Employee,
   Hidden,
   Input,
@@ -147,7 +146,7 @@ const CustomerForm = ({
                       />
                     </>
                   )}
-                  <EmailRecipients name="defaultCc" label="Default CC" />
+                  {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}
                   <CustomFormFields table="customer" />
                 </div>
               </ModalCardBody>

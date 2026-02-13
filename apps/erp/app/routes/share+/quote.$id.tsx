@@ -365,8 +365,8 @@ const Header = ({
   customer: QuoteData["customerDetails"];
   strings: (typeof translations)["en"];
 }) => (
-  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-start justify-between space-y-4 sm:space-y-2 pb-7">
-    <div className="flex items-center space-x-4">
+  <div className="flex justify-between">
+    <div className="flex items-center space-x-4 tracking-tight">
       <div>
         <CardTitle className="text-3xl">{company?.name ?? ""}</CardTitle>
         {quote?.quoteId && (
@@ -411,7 +411,7 @@ const Header = ({
         </div>
       )}
     </div>
-  </CardHeader>
+  </div>
 );
 
 type SelectedLine = {
@@ -1193,18 +1193,21 @@ const Quote = ({
         />
       )}
       <Card className="w-full max-w-5xl mx-auto">
-        <div className="w-full text-center">
-          {!["Sent", "Lost"].includes(quote.status) && (
-            <QuoteStatus status={quote.status} />
-          )}
-          {quote?.status === "Lost" && <Badge variant="red">Rejected</Badge>}
-        </div>
-        <Header
-          company={company}
-          quote={quote}
-          customer={customerDetails}
-          strings={strings}
-        />
+        <CardHeader>
+          <div className="w-full text-center">
+            {!["Sent", "Lost"].includes(quote.status) && (
+              <QuoteStatus status={quote.status} />
+            )}
+            {quote?.status === "Lost" && <Badge variant="red">Rejected</Badge>}
+          </div>
+
+          <Header
+            company={company}
+            quote={quote}
+            customer={customerDetails}
+            strings={strings}
+          />
+        </CardHeader>
         <CardContent>
           <LineItems
             currencyCode={quote.currencyCode ?? "USD"}
