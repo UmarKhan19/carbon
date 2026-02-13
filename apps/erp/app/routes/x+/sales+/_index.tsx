@@ -78,7 +78,11 @@ const OPEN_SALES_ORDER_STATUSES = [
   "Draft"
 ] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -616,7 +620,7 @@ export default function SalesDashboard() {
                   />
                   <Bar
                     dataKey="value"
-                    fill="hsl(var(--primary))"
+                    fill="var(--color-value)"
                     radius={2}
                   />
                 </BarChart>

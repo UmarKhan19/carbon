@@ -92,7 +92,11 @@ const OPEN_PURCHASE_ORDER_STATUSES = [
   "To Invoice"
 ] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -589,7 +593,7 @@ export default function PurchaseDashboard() {
                     />
                   }
                 />
-                <Bar dataKey="value" fill="hsl(var(--primary))" radius={2} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={2} />
               </BarChart>
             </ChartContainer>
           </Loading>
