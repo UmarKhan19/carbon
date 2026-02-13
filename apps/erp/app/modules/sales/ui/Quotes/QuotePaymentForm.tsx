@@ -46,7 +46,7 @@ const QuotePaymentForm = ({ initialValues }: QuotePaymentFormProps) => {
   const isDisabled = !isEditable || !permissions.can("update", "sales");
 
   return (
-    <Card isCollapsible defaultCollapsed>
+    <Card>
       <ValidatedForm
         method="post"
         action={path.to.quotePayment(initialValues.id)}

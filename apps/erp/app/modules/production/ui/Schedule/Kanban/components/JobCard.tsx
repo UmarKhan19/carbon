@@ -81,28 +81,6 @@ const cardVariants = cva(
   }
 );
 
-const cardHeaderVariants = cva(
-  "-mx-4  relative border-b border-border/50 pt-4 pl-4 pr-6 rounded-t-lg",
-  {
-    variants: {
-      status: {
-        Draft: "",
-        Planned: "",
-        Ready: "",
-        "In Progress": "",
-        Paused: "",
-        Completed: "",
-        Cancelled: "",
-        Overdue: "",
-        "Due Today": ""
-      }
-    },
-    defaultVariants: {
-      status: "Planned"
-    }
-  }
-);
-
 type JobCardProps = {
   item: JobItem;
   isOverlay?: boolean;
@@ -163,7 +141,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "max-w-[330px] shadow-sm dark:shadow-sm py-0",
+        "max-w-[330px] shadow-sm dark:shadow-sm",
         item.hasConflict && "border-red-500 border-2",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
@@ -172,13 +150,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
         })
       )}
     >
-      <CardHeader
-        className={cn(
-          cardHeaderVariants({
-            status: status
-          })
-        )}
-      >
+      <CardHeader className="flex flex-col justify-between relative gap-2">
         <div className="flex w-full max-w-full justify-between items-start gap-0">
           <div className="flex flex-col gap-0.5 space-y-0 min-w-0">
             {item.itemReadableId && (
@@ -273,7 +245,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
             </HStack>
           )}
       </CardHeader>
-      <CardContent className="pt-3 px-1 gap-2 text-left whitespace-pre-wrap text-sm">
+      <CardContent className="gap-2 text-left whitespace-pre-wrap text-sm">
         {displaySettings.showThumbnail && item.thumbnailPath && (
           <div className="flex justify-center">
             <img
@@ -361,7 +333,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
             </HStack>
           )}
       </CardContent>
-      <CardFooter className="bg-accent/50 -mx-4 border-t px-4 py-2 items-center justify-between rounded-b-lg">
+      <CardFooter className="items-center justify-between text-xs flex-wrap">
         <HStack className="justify-start gap-2 w-full">
           <Assignee
             table="job"

@@ -130,9 +130,6 @@ export function MaintenanceDispatchFilesSkeleton() {
     <Card>
       <CardHeader>
         <CardTitle>Files</CardTitle>
-        <CardDescription>
-          Attachments and documents related to this dispatch
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-2">
@@ -160,9 +157,6 @@ export function MaintenanceDispatchFiles({
     <Card>
       <CardHeader>
         <CardTitle>Files</CardTitle>
-        <CardDescription>
-          Attachments and documents related to this dispatch
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <Suspense fallback={<MaintenanceDispatchFilesSkeleton />}>

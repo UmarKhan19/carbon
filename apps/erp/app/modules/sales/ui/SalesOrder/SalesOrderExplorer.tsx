@@ -475,7 +475,7 @@ function RelatedItemTreeNode({
   return (
     <>
       <button
-        className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-muted/90 w-full font-medium"
+        className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-accent w-full font-medium"
         onClick={(e) => {
           e.stopPropagation();
           setIsExpanded(!isExpanded);
@@ -548,7 +548,7 @@ function RelatedItemLink({
   return (
     <Hyperlink
       to={getLinkForItem()}
-      className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-muted/90 w-full font-medium whitespace-nowrap"
+      className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-accent w-full font-medium whitespace-nowrap"
     >
       <LevelLine isSelected={false} className="mr-2" />
       <div className="mr-2">{getIcon()}</div>

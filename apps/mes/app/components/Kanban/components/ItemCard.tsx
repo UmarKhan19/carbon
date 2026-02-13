@@ -110,13 +110,13 @@ export function ItemCard({
     <Link to={path.to.operation(item.id)}>
       <Card
         className={cn(
-          "max-w-[330px] shadow-sm dark:shadow-sm py-0",
+          "max-w-[330px] shadow-sm dark:shadow-sm",
           cardVariants({
             status: status
           })
         )}
       >
-        <CardHeader className="-mx-4 flex flex-col justify-between relative border-b py-3 px-4 rounded-t-lg gap-2">
+        <CardHeader className="flex flex-col justify-between relative gap-2">
           <div className="flex w-full max-w-full justify-between items-start gap-2">
             <div className="flex flex-col space-y-0 min-w-0">
               {item.itemReadableId && (
@@ -187,7 +187,7 @@ export function ItemCard({
             )}
         </CardHeader>
 
-        <CardContent className="pt-3 px-1 gap-2 text-left whitespace-pre-wrap text-sm">
+        <CardContent className="gap-2 text-left whitespace-pre-wrap text-sm">
           {showThumbnail && item.thumbnailPath && (
             <div className="flex justify-center">
               <img
@@ -290,7 +290,7 @@ export function ItemCard({
           )}
         </CardContent>
         {(item.assignee || (item.tags && item.tags.length > 0)) && (
-          <CardFooter className="bg-accent/50 -mx-4 border-t px-4 py-2 items-center justify-start space-2 rounded-b-lg text-xs flex-wrap">
+          <CardFooter className="items-center justify-start space-2 text-xs flex-wrap">
             {item.assignee && (
               <EmployeeAvatar size="xs" employeeId={item.assignee} />
             )}

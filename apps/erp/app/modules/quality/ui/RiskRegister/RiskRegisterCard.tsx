@@ -112,7 +112,7 @@ export default function RiskRegisterCard({
             <Loading isLoading={true} />
           </div>
         ) : risks.length === 0 ? (
-          <Empty className="pb-8">No risks registered</Empty>
+          <Empty className="py-8" />
         ) : (
           <div className="flex flex-col gap-4 p-4">
             {risks.map((risk) => (

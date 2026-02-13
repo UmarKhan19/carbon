@@ -403,7 +403,7 @@ export const OnshapeSync = ({
                 <div
                   key={row.index}
                   className={cn(
-                    "flex min-h-8 cursor-pointer items-center overflow-hidden rounded-sm pr-2 w-full gap-1 hover:bg-muted/90"
+                    "flex min-h-8 cursor-pointer items-center overflow-hidden rounded-sm pr-2 w-full gap-1 hover:bg-accent"
                   )}
                   style={{
                     paddingLeft: `${row.level * 12}px`

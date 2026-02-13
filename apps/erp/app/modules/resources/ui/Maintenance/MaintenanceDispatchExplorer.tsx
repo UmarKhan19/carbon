@@ -228,7 +228,7 @@ function MaintenanceExplorerItem({
 
   return (
     <>
-      <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-muted/90">
+      <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-accent">
         <button
           className="flex flex-grow cursor-pointer items-center overflow-hidden font-medium"
           onClick={(e) => {
@@ -323,7 +323,7 @@ function MaintenanceExplorerChildItem({
   const permissions = usePermissions();
 
   const content = (
-    <div className="flex pr-7 h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-muted/90 w-full font-medium whitespace-nowrap">
+    <div className="flex pr-7 h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-accent w-full font-medium whitespace-nowrap">
       <LevelLine isSelected={false} />
       <div className="flex flex-grow items-center gap-2">
         {icon}

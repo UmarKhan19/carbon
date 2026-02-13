@@ -187,8 +187,8 @@ const QuoteBoMExplorer = ({
                     className={cn(
                       "flex h-8 cursor-pointer items-center overflow-hidden rounded-sm pr-2 gap-1 group/node",
                       state.selected
-                        ? "bg-muted hover:bg-muted/90"
-                        : "bg-transparent hover:bg-muted/90"
+                        ? "bg-muted hover:bg-accent"
+                        : "bg-transparent hover:bg-accent"
                     )}
                     onClick={(e) => {
                       selectNode(node.id);
@@ -245,7 +245,7 @@ const QuoteBoMExplorer = ({
                     <div className="flex w-full items-center justify-between gap-2">
                       <div className="flex items-center gap-2 overflow-x-hidden">
                         {bomIdMap.get(node.id) && (
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="flex-shrink-0">
                             {bomIdMap.get(node.id)}
                           </Badge>
                         )}

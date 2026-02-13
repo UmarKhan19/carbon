@@ -42,7 +42,7 @@ export type SalesOrderShipmentFormRef = {
 const SalesOrderShipmentForm = forwardRef<
   SalesOrderShipmentFormRef,
   SalesOrderShipmentFormProps
->(({ initialValues, defaultCollapsed = true }, ref) => {
+>(({ initialValues, defaultCollapsed = false }, ref) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<typeof action>();
   const [dropShip, setDropShip] = useState<boolean>(

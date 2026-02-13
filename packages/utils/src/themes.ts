@@ -3,7 +3,7 @@ import template from "lodash.template";
 export const themes = [
   {
     name: "zinc",
-    label: "Zinc",
+    label: "Modern",
     activeColor: {
       light: "220 5.9% 10%",
       dark: "220 5.2% 33.9%"
@@ -48,7 +48,7 @@ export const themes = [
         "active-foreground": "0 0% 100%",
         secondary: "0 0% 7%",
         "secondary-foreground": "0 0% 93%",
-        muted: "0 0% 7%",
+        muted: "0 0% 15%",
         "muted-foreground": "0 0% 63%",
         accent: "0 0% 10%",
         "accent-foreground": "0 0% 93%",
@@ -64,7 +64,7 @@ export const themes = [
   },
   {
     name: "neutral",
-    label: "Neutral",
+    label: "Brutal",
     activeColor: {
       light: "0 0% 45.1%",
       dark: "0 0% 32.2%"
@@ -124,7 +124,7 @@ export const themes = [
   },
   {
     name: "red",
-    label: "Red",
+    label: "Cherry",
     activeColor: {
       light: "0 72.2% 50.6%",
       dark: "0 72.2% 50.6%"
@@ -185,10 +185,10 @@ export const themes = [
   },
   {
     name: "orange",
-    label: "Orange",
+    label: "Apricot",
     activeColor: {
-      light: "24.6 95% 53.1%",
-      dark: "20.5 90.2% 48.2%"
+      light: "17 96% 57%",
+      dark: "17 96% 57%"
     },
     cssVars: {
       light: {
@@ -198,7 +198,7 @@ export const themes = [
         "card-foreground": "20 14.3% 4.1%",
         popover: "0 0% 100%",
         "popover-foreground": "20 14.3% 4.1%",
-        primary: "24.6 95% 53.1%",
+        primary: "17 96% 57%",
         "primary-foreground": "60 9.1% 97.8%",
         active: "20 5% 96%",
         "active-foreground": "20 5.3% 6%",
@@ -212,7 +212,7 @@ export const themes = [
         "destructive-foreground": "60 9.1% 97.8%",
         border: "20 5.9% 90%",
         input: "20 5.9% 90%",
-        ring: "24.6 95% 53.1%",
+        ring: "17 96% 57%",
         success: "142 70% 45%",
         "success-foreground": "0 0% 98%"
       },
@@ -223,8 +223,8 @@ export const themes = [
         "card-foreground": "60 9.1% 97.8%",
         popover: "20 14.3% 8.9%",
         "popover-foreground": "60 9.1% 97.8%",
-        primary: "20.5 90.2% 48.2%",
-        "primary-foreground": "60 9.1% 97.8%",
+        primary: "17 96% 57%",
+        "primary-foreground": "60 9.1% 3.8%",
         active: "20 24.3% 14.1%",
         "active-foreground": "0 0% 98%",
         secondary: "12 6.5% 15.1%",
@@ -237,7 +237,7 @@ export const themes = [
         "destructive-foreground": "60 9.1% 97.8%",
         border: "12 6.5% 15.1%",
         input: "12 6.5% 15.1%",
-        ring: "20.5 90.2% 48.2%",
+        ring: "17 96% 57%",
         success: "142 70% 45%",
         "success-foreground": "0 0% 98%"
       }
@@ -245,7 +245,7 @@ export const themes = [
   },
   {
     name: "yellow",
-    label: "Yellow",
+    label: "Lemon",
     activeColor: {
       light: "47.9 95.8% 53.1%",
       dark: "61 100% 50%"
@@ -306,10 +306,10 @@ export const themes = [
 
   {
     name: "green",
-    label: "Green",
+    label: "Mint",
     activeColor: {
       light: "171 62% 41%",
-      dark: "142.1 70.6% 45.3%"
+      dark: "171 98% 59%"
     },
     cssVars: {
       light: {
@@ -344,10 +344,10 @@ export const themes = [
         "popover-foreground": "151 0% 95%",
         card: "151 0% 9%",
         "card-foreground": "151 0% 95%",
-        primary: "142.1 87.6% 63.3%",
+        primary: "171 98% 59%",
         "primary-foreground": "144.9 80.4% 10%",
         active: "137 18% 15%",
-        "active-foreground": "142.1 87.6% 63.3%",
+        "active-foreground": "171 98% 59%",
         secondary: "151 3.7% 15.9%",
         "secondary-foreground": "0 0% 98%",
         muted: "151 0% 15%",
@@ -366,7 +366,7 @@ export const themes = [
   },
   {
     name: "blue",
-    label: "Blue",
+    label: "Blueberry",
     activeColor: {
       light: "237 57% 30%",
       dark: "216 98% 52%"
@@ -426,7 +426,7 @@ export const themes = [
   },
   {
     name: "violet",
-    label: "Violet",
+    label: "Plum",
     activeColor: {
       light: "252.1 83.3% 47.8%",
       dark: "253.4 70% 40.4%"

@@ -177,7 +177,7 @@ export default function SalesInvoiceBasicRoute() {
         ref={shipmentFormRef}
         initialValues={shipmentInitialValues}
         currencyCode={initialValues.currencyCode || company.baseCurrencyCode}
-        defaultCollapsed={true}
+        defaultCollapsed={false}
       />
     </Fragment>
   );

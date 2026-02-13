@@ -90,27 +90,6 @@ const cardVariants = cva(
   }
 );
 
-const cardHeaderVariants = cva(
-  "-mx-4  relative border-b border-border/50 pt-4 pl-4 pr-6 rounded-t-lg",
-  {
-    variants: {
-      status: {
-        "In Progress": "",
-        Ready: "",
-        Done: "",
-        Todo: "",
-        Paused: "",
-        Canceled: "",
-        Cancelled: "",
-        Waiting: ""
-      }
-    },
-    defaultVariants: {
-      status: "Todo"
-    }
-  }
-);
-
 type ItemCardProps = {
   item: Item;
   isOverlay?: boolean;
@@ -163,7 +142,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "max-w-[330px] shadow-sm dark:shadow-sm py-0",
+        "max-w-[330px] shadow-sm dark:shadow-sm",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
           status: status,
@@ -171,13 +150,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
         })
       )}
     >
-      <CardHeader
-        className={cn(
-          cardHeaderVariants({
-            status: status
-          })
-        )}
-      >
+      <CardHeader className="flex flex-col justify-between relative gap-2">
         <div className="flex w-full max-w-full justify-between items-start gap-0">
           <div className="flex flex-col space-y-0 min-w-0">
             {item.itemReadableId && (
@@ -296,7 +269,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             </HStack>
           )}
       </CardHeader>
-      <CardContent className="pt-3 px-1 gap-2 text-left whitespace-pre-wrap text-sm">
+      <CardContent className="gap-2 text-left whitespace-pre-wrap text-sm">
         {displaySettings.showThumbnail && item.thumbnailPath && (
           <div className="flex justify-center">
             <img
@@ -406,7 +379,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           </HStack>
         )}
       </CardContent>
-      <CardFooter className="bg-accent/50 -mx-4 border-t px-4 py-2 items-center justify-between rounded-b-lg">
+      <CardFooter className="items-center justify-between text-xs flex-wrap">
         <HStack>
           <Assignee
             table="jobOperation"

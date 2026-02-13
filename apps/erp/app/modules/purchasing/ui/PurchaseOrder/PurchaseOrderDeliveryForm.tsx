@@ -46,7 +46,7 @@ export type PurchaseOrderDeliveryFormRef = {
 const PurchaseOrderDeliveryForm = forwardRef<
   PurchaseOrderDeliveryFormRef,
   PurchaseOrderDeliveryFormProps
->(({ initialValues, currencyCode, defaultCollapsed = true }, ref) => {
+>(({ initialValues, currencyCode, defaultCollapsed = false }, ref) => {
   const { orderId } = useParams();
   if (!orderId) {
     throw new Error("orderId not found");

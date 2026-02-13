@@ -64,7 +64,7 @@ const DrawerBody = ({
 }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col flex-1 items-start justify-start overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full px-6 py-4",
+      "flex flex-col flex-1 items-start justify-start overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full p-6 bg-card dark:bg-muted/40 rounded-2xl border border-border",
       className
     )}
     {...props}
@@ -73,7 +73,7 @@ const DrawerBody = ({
 DrawerBody.displayName = "DrawerBody";
 
 const sheetVariants = cva(
-  "fixed flex flex-col z-50 scale-100 bg-card opacity-100 shadow-lg border border-border transition-all duration-100 focus-visible:outline-none focus-visible:ring-0",
+  "fixed flex flex-col z-50 scale-100 bg-accent dark:bg-card opacity-100 shadow-button-base dark:shadow-[inset_0_0.5px_0_rgb(255_255_255_/_0.08),_inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)] border border-border transition-all duration-100 focus-visible:outline-none focus-visible:ring-0",
   {
     variants: {
       position: {
@@ -194,7 +194,7 @@ const DrawerContent = forwardRef<
             {...props}
           >
             {children}
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+            <DialogPrimitive.Close className="absolute right-4 top-3 rounded-full opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
               <LuX className="h-6 w-6" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
@@ -212,7 +212,7 @@ const DrawerHeader = ({
 }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col flex-0 space-y-1 text-left px-6 py-8 border-b border-border",
+      "flex flex-col flex-0 gap-1 text-left px-6 py-4 text-muted-foreground",
       className
     )}
     {...props}
@@ -226,7 +226,7 @@ const DrawerFooter = ({
 }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-0 sm:flex-row border-t border-border flex-col-reverse px-6 py-4 sm:justify-end sm:space-x-2",
+      "flex flex-0 sm:flex-row flex-col-reverse px-6 py-4 sm:justify-end sm:space-x-2",
       className
     )}
     {...props}
@@ -241,7 +241,7 @@ const DrawerTitle = forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-xl font-semibold font-headline leading-none tracking-tight text-foreground line-clamp-1",
+      "text-base font-medium font-headline leading-none tracking-tight text-foreground/90 line-clamp-1",
       className
     )}
     {...props}
@@ -257,7 +257,7 @@ const DrawerDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-xs text-muted-foreground", className)}
     {...props}
   />
 ));

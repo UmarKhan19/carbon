@@ -844,7 +844,7 @@ const Table = <T extends object>({
                         <Th
                           key={colIndex}
                           className={cn(
-                            "h-[44px] w-[200px]",
+                            "h-[44px] w-[200px] bg-card",
                             colIndex === 0 && "border-r border-border"
                           )}
                         >
@@ -922,7 +922,7 @@ const Table = <T extends object>({
                           colSpan={header.colSpan}
                           id={`header-${header.id}`}
                           className={cn(
-                            "px-4 py-3 whitespace-nowrap",
+                            "px-4 py-3 whitespace-nowrap bg-card",
                             editMode && "border-r-1 border-border",
                             sortable && "cursor-pointer"
                           )}
@@ -1063,7 +1063,7 @@ const Table = <T extends object>({
                           colSpan={footer.colSpan}
                           id={`header-${footer.id}`}
                           className={cn(
-                            "px-4 py-3 whitespace-nowrap",
+                            "px-4 py-3 whitespace-nowrap bg-card",
                             editMode && "border-r-1 border-border"
                           )}
                           style={{

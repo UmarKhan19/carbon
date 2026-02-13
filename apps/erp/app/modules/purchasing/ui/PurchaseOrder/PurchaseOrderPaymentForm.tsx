@@ -45,7 +45,7 @@ const PurchaseOrderPaymentForm = ({
   );
 
   return (
-    <Card isCollapsible defaultCollapsed>
+    <Card>
       <ValidatedForm
         method="post"
         action={path.to.purchaseOrderPayment(orderId)}

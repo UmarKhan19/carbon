@@ -12,7 +12,6 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Switch,
   Table,
   Tabs,
   TabsContent,
@@ -28,7 +27,6 @@ import {
   TooltipTrigger,
   Tr,
   toast,
-  useDisclosure,
   VStack
 } from "@carbon/react";
 import { formatDurationMilliseconds, getItemReadableId } from "@carbon/utils";
@@ -101,7 +99,6 @@ const JobEstimatesVsActuals = ({
   const [items] = useItems();
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
-  const detailsDisclosure = useDisclosure();
 
   const [currentUnitCosts, setCurrentUnitCosts] = useState<
     Record<string, number>
@@ -264,20 +261,6 @@ const JobEstimatesVsActuals = ({
               <TabsTrigger value="processes">Processes</TabsTrigger>
               <TabsTrigger value="materials">Material</TabsTrigger>
             </TabsList>
-            <div className="flex items-center justify-start flex-row-reverse gap-2">
-              <Switch
-                variant="small"
-                checked={detailsDisclosure.isOpen}
-                onCheckedChange={detailsDisclosure.onToggle}
-                id="cost-details"
-              />
-              <label
-                className="text-xs text-muted-foreground"
-                htmlFor="cost-details"
-              >
-                Show Details
-              </label>
-            </div>
           </CardAction>
         </HStack>
         <CardContent>
@@ -404,115 +387,112 @@ const JobEstimatesVsActuals = ({
                           </HStack>
                         </Td>
                       </Tr>
-                      {detailsDisclosure.isOpen && (
-                        <>
-                          {timeTypes.map((type) => {
-                            if (
-                              estimated[
-                                type.toLowerCase() as keyof typeof estimated
-                              ] === 0
-                            ) {
-                              return null;
-                            }
-                            const employeeIds = getEmployeeIds(operation, type);
-                            const notes = getNotes(operation, type);
-                            return (
-                              <Tr key={type} className="border-b border-border">
-                                <Td className="border-r border-border pl-10">
-                                  <HStack className="justify-between w-full">
-                                    <HStack>
-                                      <TimeTypeIcon type={type} />
-                                      <span>{type}</span>
-                                    </HStack>
-                                    {employeeIds.length > 0 && (
-                                      <EmployeeAvatarGroup
-                                        employeeIds={employeeIds}
-                                        size="xs"
-                                        limit={3}
-                                      />
-                                    )}
-                                  </HStack>
-                                </Td>
-                                <Td className="px-2">
-                                  {formatDurationMilliseconds(
-                                    estimated[
-                                      type.toLowerCase() as keyof typeof estimated
-                                    ]
-                                  )}
-                                </Td>
-                                <Td className="px-2">
-                                  {formatDurationMilliseconds(
-                                    actual[
-                                      type.toLowerCase() as keyof typeof actual
-                                    ]
-                                  )}
-                                </Td>
-                                <Td className="px-2">
-                                  {percentFormatter.format(
-                                    actual[
-                                      type.toLowerCase() as keyof typeof actual
-                                    ] /
-                                      estimated[
-                                        type.toLowerCase() as keyof typeof estimated
-                                      ]
-                                  )}
-                                </Td>
-                                <Td className="px-2" />
-                                <Td className="px-2" />
-                                <Td className="px-2">
-                                  <HStack spacing={0} className="justify-end">
-                                    {notes && notes.length > 0 && (
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <IconButton
-                                            variant="ghost"
-                                            icon={<LuNotebook />}
-                                            aria-label="Notes"
-                                          />
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-96 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-gray-300">
-                                          <div className="flex flex-col gap-3 p-2">
-                                            {notes.map((note, index) => (
-                                              <div
-                                                key={index}
-                                                className="flex gap-2 items-center"
-                                              >
-                                                <div className="flex-shrink-0">
-                                                  <EmployeeAvatar
-                                                    employeeId={note.employeeId}
-                                                    size="sm"
-                                                    withName={false}
-                                                  />
-                                                </div>
-                                                <div className="flex-1 rounded-lg bg-muted p-2 text-sm">
-                                                  {note.notes}
-                                                </div>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </PopoverContent>
-                                      </Popover>
-                                    )}
-                                    <Link
-                                      to={`${path.to.jobProductionEvents(
-                                        jobId
-                                      )}?filter=jobOperationId:eq:${
-                                        operation.id
-                                      }&filter=type:eq:${type}`}
-                                    >
+
+                      {timeTypes.map((type) => {
+                        if (
+                          estimated[
+                            type.toLowerCase() as keyof typeof estimated
+                          ] === 0
+                        ) {
+                          return null;
+                        }
+                        const employeeIds = getEmployeeIds(operation, type);
+                        const notes = getNotes(operation, type);
+                        return (
+                          <Tr key={type} className="border-b border-border">
+                            <Td className="border-r border-border pl-10">
+                              <HStack className="justify-between w-full">
+                                <HStack>
+                                  <TimeTypeIcon type={type} />
+                                  <span>{type}</span>
+                                </HStack>
+                                {employeeIds.length > 0 && (
+                                  <EmployeeAvatarGroup
+                                    employeeIds={employeeIds}
+                                    size="xs"
+                                    limit={3}
+                                  />
+                                )}
+                              </HStack>
+                            </Td>
+                            <Td className="px-2">
+                              {formatDurationMilliseconds(
+                                estimated[
+                                  type.toLowerCase() as keyof typeof estimated
+                                ]
+                              )}
+                            </Td>
+                            <Td className="px-2">
+                              {formatDurationMilliseconds(
+                                actual[
+                                  type.toLowerCase() as keyof typeof actual
+                                ]
+                              )}
+                            </Td>
+                            <Td className="px-2">
+                              {percentFormatter.format(
+                                actual[
+                                  type.toLowerCase() as keyof typeof actual
+                                ] /
+                                  estimated[
+                                    type.toLowerCase() as keyof typeof estimated
+                                  ]
+                              )}
+                            </Td>
+                            <Td className="px-2" />
+                            <Td className="px-2" />
+                            <Td className="px-2">
+                              <HStack spacing={0} className="justify-end">
+                                {notes && notes.length > 0 && (
+                                  <Popover>
+                                    <PopoverTrigger asChild>
                                       <IconButton
                                         variant="ghost"
-                                        icon={<LuCircleChevronRight />}
-                                        aria-label="View Production Events"
+                                        icon={<LuNotebook />}
+                                        aria-label="Notes"
                                       />
-                                    </Link>
-                                  </HStack>
-                                </Td>
-                              </Tr>
-                            );
-                          })}
-                        </>
-                      )}
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-96 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-gray-300">
+                                      <div className="flex flex-col gap-3 p-2">
+                                        {notes.map((note, index) => (
+                                          <div
+                                            key={index}
+                                            className="flex gap-2 items-center"
+                                          >
+                                            <div className="flex-shrink-0">
+                                              <EmployeeAvatar
+                                                employeeId={note.employeeId}
+                                                size="sm"
+                                                withName={false}
+                                              />
+                                            </div>
+                                            <div className="flex-1 rounded-lg bg-muted p-2 text-sm">
+                                              {note.notes}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                )}
+                                <Link
+                                  to={`${path.to.jobProductionEvents(
+                                    jobId
+                                  )}?filter=jobOperationId:eq:${
+                                    operation.id
+                                  }&filter=type:eq:${type}`}
+                                >
+                                  <IconButton
+                                    variant="ghost"
+                                    icon={<LuCircleChevronRight />}
+                                    aria-label="View Production Events"
+                                  />
+                                </Link>
+                              </HStack>
+                            </Td>
+                          </Tr>
+                        );
+                      })}
                     </>
                   );
                 })}
@@ -537,12 +517,9 @@ const JobEstimatesVsActuals = ({
                   <Th>Estimated</Th>
                   <Th>Actual</Th>
                   <Th>%</Th>
-                  {detailsDisclosure.isOpen && (
-                    <>
-                      <Th>Estimated</Th>
-                      <Th>Actual</Th>
-                    </>
-                  )}
+
+                  <Th>Estimated</Th>
+                  <Th>Actual</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -560,101 +537,81 @@ const JobEstimatesVsActuals = ({
                     (material.quantityIssued ?? 0) * currentUnitCost;
 
                   return (
-                    <>
-                      <Tr key={material.id} className="border-b border-border">
-                        <Td className="border-r border-border">
-                          <HStack className="w-full justify-start">
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <MethodIcon type={material.methodType} />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {material.methodType}
-                              </TooltipContent>
-                            </Tooltip>
-                            <span>
-                              {getItemReadableId(items, material.itemId)}
-                            </span>
-                          </HStack>
-                        </Td>
-                        <Td>{material.estimatedQuantity}</Td>
-                        <Td className={cn(exceedsEstimate && "text-red-500")}>
-                          {material.methodType === "Make" ? (
-                            <MethodIcon type="Make" />
-                          ) : (
-                            material.quantityIssued
-                          )}
-                        </Td>
-
-                        <Td className={cn(exceedsEstimate && "text-red-500")}>
-                          {material.methodType !== "Make" &&
-                          material.estimatedQuantity &&
+                    <Tr key={material.id} className="border-b border-border">
+                      <Td className="border-r border-border">
+                        <HStack className="w-full justify-start">
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <MethodIcon type={material.methodType} />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {material.methodType}
+                            </TooltipContent>
+                          </Tooltip>
+                          <span>
+                            {getItemReadableId(items, material.itemId)}
+                          </span>
+                        </HStack>
+                      </Td>
+                      <Td>{material.estimatedQuantity}</Td>
+                      <Td className={cn(exceedsEstimate && "text-red-500")}>
+                        {material.methodType === "Make" ? (
+                          <MethodIcon type="Make" />
+                        ) : (
                           material.quantityIssued
-                            ? percentFormatter.format(
-                                material.quantityIssued /
-                                  material.estimatedQuantity
-                              )
-                            : null}
-                        </Td>
-                        {detailsDisclosure.isOpen && (
-                          <>
-                            <Td>
-                              {material.methodType === "Make" ? null : (
-                                <VStack spacing={0} className="py-1">
-                                  <span className="text-sm">
-                                    {currencyFormatter.format(
-                                      estimatedTotalCost
-                                    )}
-                                  </span>
-                                  <span className="text-xxs">
-                                    {currencyFormatter.format(
-                                      material.unitCost ?? 0
-                                    )}
-                                  </span>
-                                </VStack>
-                              )}
-                            </Td>
-                            <Td>
-                              {material.methodType === "Make" ? null : (
-                                <VStack spacing={0} className="py-1">
-                                  <span
-                                    className={cn(
-                                      "text-sm",
-                                      actualTotalCost > estimatedTotalCost &&
-                                        "text-red-500"
-                                    )}
-                                  >
-                                    {currencyFormatter.format(actualTotalCost)}
-                                  </span>
-                                  <span
-                                    className={cn(
-                                      "text-xxs",
-                                      currentUnitCost > material.unitCost &&
-                                        "text-red-500"
-                                    )}
-                                  >
-                                    {currencyFormatter.format(currentUnitCost)}
-                                  </span>
-                                </VStack>
-                              )}
-                            </Td>
-                          </>
                         )}
-                      </Tr>
-                    </>
+                      </Td>
+
+                      <Td className={cn(exceedsEstimate && "text-red-500")}>
+                        {material.methodType !== "Make" &&
+                        material.estimatedQuantity &&
+                        material.quantityIssued
+                          ? percentFormatter.format(
+                              material.quantityIssued /
+                                material.estimatedQuantity
+                            )
+                          : null}
+                      </Td>
+                      <Td>
+                        {material.methodType === "Make" ? null : (
+                          <VStack spacing={0} className="py-1">
+                            <span className="text-sm">
+                              {currencyFormatter.format(estimatedTotalCost)}
+                            </span>
+                            <span className="text-xxs">
+                              {currencyFormatter.format(material.unitCost ?? 0)}
+                            </span>
+                          </VStack>
+                        )}
+                      </Td>
+                      <Td>
+                        {material.methodType === "Make" ? null : (
+                          <VStack spacing={0} className="py-1">
+                            <span
+                              className={cn(
+                                "text-sm",
+                                actualTotalCost > estimatedTotalCost &&
+                                  "text-red-500"
+                              )}
+                            >
+                              {currencyFormatter.format(actualTotalCost)}
+                            </span>
+                            <span
+                              className={cn(
+                                "text-xxs",
+                                currentUnitCost > material.unitCost &&
+                                  "text-red-500"
+                              )}
+                            >
+                              {currencyFormatter.format(currentUnitCost)}
+                            </span>
+                          </VStack>
+                        )}
+                      </Td>
+                    </Tr>
                   );
                 })}
               </Tbody>
-              <Tfoot>
-                {/* <Tr className="font-bold">
-              <Td className="border-r border-border" />
-              {types.map((type) => (
-                <Td key={type}>
-                  <Button variant="secondary">Add</Button>
-                </Td>
-              ))}
-            </Tr> */}
-              </Tfoot>
             </Table>
           </TabsContent>
         </CardContent>

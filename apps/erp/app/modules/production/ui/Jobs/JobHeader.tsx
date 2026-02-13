@@ -652,12 +652,6 @@ export function JobStartModal({
       >
         <ModalHeader>
           <ModalTitle>Release Job {job?.jobId}</ModalTitle>
-          {eachAssemblyHasAnOperation && eachOutsideOperationHasASupplier && (
-            <ModalDescription>
-              Are you sure you want to release this job? It will become
-              available to the shop floor, and drive purchasing and production.
-            </ModalDescription>
-          )}
         </ModalHeader>
         {loading ? (
           <ModalBody>
@@ -670,6 +664,14 @@ export function JobStartModal({
           <>
             <ModalBody>
               <VStack>
+                {eachAssemblyHasAnOperation &&
+                  eachOutsideOperationHasASupplier && (
+                    <p className="text-sm">
+                      Are you sure you want to release this job? It will become
+                      available to the shop floor, and drive purchasing and
+                      production.
+                    </p>
+                  )}
                 {hasOutsideOperations && eachOutsideOperationHasASupplier && (
                   <>
                     <Alert>

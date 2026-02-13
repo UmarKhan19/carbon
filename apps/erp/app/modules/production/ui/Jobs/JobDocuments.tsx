@@ -3,7 +3,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   DropdownMenu,
@@ -377,7 +376,6 @@ const JobDocuments = ({
         <HStack className="justify-between items-start">
           <CardHeader>
             <CardTitle>Files</CardTitle>
-            <CardDescription>Job documents</CardDescription>
           </CardHeader>
           <CardAction>
             <JobDocumentForm jobId={jobId} itemId={itemId} bucket={bucket} />

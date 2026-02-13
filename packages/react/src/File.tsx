@@ -32,6 +32,7 @@ const File = ({
       <Button
         className={className}
         {...props}
+        variant={props.variant ?? "secondary"}
         onClick={() => {
           if (fileInputRef.current) fileInputRef.current.click();
         }}

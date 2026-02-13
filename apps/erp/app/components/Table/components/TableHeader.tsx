@@ -150,7 +150,7 @@ const TableHeader = <T extends object>({
           defaultValues={currentView ?? {}}
           fetcher={fetcher}
         >
-          <Card className="my-4 p-0">
+          <Card className="my-4">
             <Hidden name="id" value={currentView?.id} />
             <Hidden
               name="state"
@@ -164,7 +164,7 @@ const TableHeader = <T extends object>({
             />
             <Hidden name="table" value={table} />
             <Hidden name="type" value="Private" />
-            <CardContent className="flex flex-col gap-0 p-4">
+            <CardContent>
               <Input
                 autoFocus
                 name="name"
@@ -181,7 +181,7 @@ const TableHeader = <T extends object>({
                 borderless
               />
             </CardContent>
-            <CardFooter className="border-t bg-muted/30 p-4">
+            <CardFooter>
               <Button variant="secondary" onClick={savedViewDisclosure.onClose}>
                 Cancel
               </Button>

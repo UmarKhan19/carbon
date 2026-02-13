@@ -99,7 +99,7 @@ function OperationCard({
   return (
     <Card
       className={cn(
-        "shadow-sm dark:shadow-sm py-0 h-full flex flex-col",
+        "shadow-sm dark:shadow-sm h-full flex flex-col",
         cardVariants({
           status: operation.operationStatus
         })
@@ -109,7 +109,7 @@ function OperationCard({
         to={path.to.operation(operation.id)}
         className="flex flex-col flex-1"
       >
-        <CardHeader className="-mx-4 relative border-b py-3 px-4 rounded-t-lg">
+        <CardHeader className="flex flex-col justify-between relative gap-2">
           <div className="flex w-full max-w-full justify-between items-start gap-2">
             <div className="flex flex-col space-y-0 min-w-0">
               {operation.itemReadableId && (
@@ -126,7 +126,7 @@ function OperationCard({
             </Heading>
           </div>
         </CardHeader>
-        <CardContent className="pt-3 px-1 gap-2 text-left whitespace-pre-wrap text-sm flex-grow">
+        <CardContent className="gap-2 text-left whitespace-pre-wrap text-sm flex-grow">
           {showThumbnail && operation.thumbnailPath && (
             <div className="flex justify-center">
               <img
@@ -206,7 +206,7 @@ function OperationCard({
         </CardContent>
         {(operation.assignee ||
           (operation.tags && operation.tags.length > 0)) && (
-          <CardFooter className="bg-accent/50 -mx-4 border-t px-4 py-2 items-center justify-start space-2 rounded-b-lg text-xs flex-wrap mt-auto">
+          <CardFooter className="items-center justify-start text-xs flex-wrap mt-auto">
             {operation.assignee && (
               <EmployeeAvatar size="xs" employeeId={operation.assignee} />
             )}

@@ -127,7 +127,7 @@ const LineItems = ({
     routeData?.quote.currencyCode !== company?.baseCurrencyCode;
 
   return (
-    <VStack spacing={8} className="w-full overflow-hidden">
+    <VStack spacing={8} className="w-full overflow-hidden tracking-tight">
       {routeData?.lines?.map((line) => {
         const prices = pricingByLine[line.id!];
 

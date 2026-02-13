@@ -1,11 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "@carbon/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@carbon/react";
 import { useState } from "react";
 import type { z } from "zod";
 import {
@@ -38,7 +32,7 @@ const PersonJob = ({ initialValues }: PersonJobProps) => {
         <CardHeader>
           <CardTitle>Job</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input name="title" label="Title" />
             <DatePicker name="startDate" label="Start Date" />
@@ -56,10 +50,10 @@ const PersonJob = ({ initialValues }: PersonJobProps) => {
             <Hidden name="intent" value="job" />
             <CustomFormFields table="employeeJob" />
           </div>
+          <div>
+            <Submit>Save</Submit>
+          </div>
         </CardContent>
-        <CardFooter>
-          <Submit>Save</Submit>
-        </CardFooter>
       </Card>
     </ValidatedForm>
   );

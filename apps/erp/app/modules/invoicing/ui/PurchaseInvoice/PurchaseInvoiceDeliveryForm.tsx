@@ -37,7 +37,7 @@ export type PurchaseInvoiceDeliveryFormRef = {
 const PurchaseInvoiceDeliveryForm = forwardRef<
   PurchaseInvoiceDeliveryFormRef,
   PurchaseInvoiceDeliveryFormProps
->(({ initialValues, currencyCode, defaultCollapsed = true }, ref) => {
+>(({ initialValues, currencyCode, defaultCollapsed = false }, ref) => {
   const { invoiceId } = useParams();
   if (!invoiceId) {
     throw new Error("invoiceId not found");

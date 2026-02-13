@@ -66,7 +66,7 @@ const QuoteLinePricingHistory = ({
   const [customers] = useCustomers();
 
   return (
-    <Card isCollapsible defaultCollapsed>
+    <Card>
       <CardHeader>
         <CardTitle>History</CardTitle>
         <CardDescription>

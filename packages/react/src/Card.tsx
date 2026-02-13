@@ -46,7 +46,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
         <div
           ref={ref}
           className={cn(
-            "relative flex flex-col rounded-lg border border-border dark:border-none dark:shadow-[inset_0_0.5px_0_rgb(255_255_255_/_0.08),_inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)] bg-card dark:bg-gradient-to-bl dark:from-card dark:from-50% dark:via-card dark:to-background text-card-foreground p-4  w-full",
+            "relative flex flex-col rounded-2xl shadow-button-base dark:shadow-[inset_0_0.5px_0_rgb(255_255_255_/_0.08),_inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)]  bg-accent dark:bg-card text-card-foreground p-0 w-full",
             className
           )}
           {...props}
@@ -56,7 +56,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
               aria-label={isCollapsed ? "Expand" : "Collapse"}
               variant="ghost"
               onClick={toggle}
-              className="absolute right-8 top-8"
+              className="absolute right-2 top-2"
               icon={
                 isCollapsed ? (
                   <LuChevronDown className="size-6" />
@@ -78,7 +78,7 @@ const CardAction = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("flex flex-col py-4 px-6", className)}
+      className={cn("flex flex-col py-2 px-4", className)}
       {...props}
     />
   )
@@ -149,7 +149,7 @@ const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
       <div
         ref={ref}
         className={cn(
-          "flex flex-col space-y-1.5 p-6",
+          "flex flex-col gap-1 px-6 py-4 text-muted-foreground",
           context?.isCollapsed && "cursor-pointer",
           className
         )}
@@ -168,7 +168,7 @@ const CardTitle = forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-xl font-semibold font-headline leading-none tracking-tight text-foreground line-clamp-2",
+      "text-base font-medium font-headline leading-none tracking-tight text-foreground/90 line-clamp-2",
       className
     )}
     {...props}
@@ -182,7 +182,7 @@ const CardDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground tracking-tight", className)}
+    className={cn("text-xs text-muted-foreground tracking-tight", className)}
     {...props}
   />
 ));
@@ -197,7 +197,10 @@ const CardContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
     return (
       <div
         ref={ref}
-        className={cn("flex flex-col flex-1 p-6 pt-0", className)}
+        className={cn(
+          "flex flex-col flex-1 p-6 rounded-2xl border border-border bg-card dark:bg-muted/40",
+          className
+        )}
         {...props}
       />
     );
@@ -214,7 +217,7 @@ const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
     return (
       <div
         ref={ref}
-        className={cn("flex items-center p-6 pt-0 gap-2", className)}
+        className={cn("flex items-center py-4 px-6 gap-2", className)}
         {...props}
       />
     );

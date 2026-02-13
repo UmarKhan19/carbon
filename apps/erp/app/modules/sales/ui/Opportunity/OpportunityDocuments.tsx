@@ -4,7 +4,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   DropdownMenu,
@@ -93,7 +92,6 @@ const OpportunityDocuments = ({
         <HStack className="justify-between items-start">
           <CardHeader>
             <CardTitle>Files</CardTitle>
-            <CardDescription>Opportunity documents</CardDescription>
           </CardHeader>
           <CardAction>
             <OpportunityDocumentForm

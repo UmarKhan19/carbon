@@ -38,7 +38,7 @@ const SalesOrderPaymentForm = ({
   const isDisabled = !permissions.can("update", "sales");
 
   return (
-    <Card isCollapsible defaultCollapsed>
+    <Card>
       <ValidatedForm
         method="post"
         action={path.to.salesOrderPayment(initialValues.id)}

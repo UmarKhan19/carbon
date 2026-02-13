@@ -73,7 +73,7 @@ const NavigationIconLink = forwardRef<
   NavigationIconButtonProps
 >(({ link, isActive = false, isOpen = false, onClick, ...props }, ref) => {
   const iconClasses = [
-    "absolute left-3 top-3 flex rounded-md items-center items-center justify-center" // Layout
+    "absolute left-3 top-3 flex items-center items-center justify-center" // Layout
   ];
 
   const classes = [

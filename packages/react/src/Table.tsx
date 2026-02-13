@@ -35,7 +35,7 @@ const Thead = forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn("bg-card [&_tr]:border-b border-border", className)}
+    className={cn("bg-transparent [&_tr]:border-b border-border", className)}
     {...props}
   />
 ));
@@ -82,7 +82,7 @@ const Th = forwardRef<
   <th
     ref={ref}
     className={cn(
-      "group-hover:bg-muted h-11 px-6 text-left align-middle text-foreground/80 bg-card font-medium text-sm [&:has([role=checkbox])]:pr-0",
+      "group-hover:bg-muted h-11 px-6 text-left align-middle text-foreground/80 bg-transparent font-medium text-sm [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}
@@ -97,7 +97,7 @@ const Td = forwardRef<
   <td
     ref={ref}
     className={cn(
-      "group-hover:bg-muted text-foreground/80 px-6 bg-card align-middle [&:has([role=checkbox])]:pr-0 h-11",
+      "group-hover:bg-muted text-foreground/80 px-6 bg-transparent align-middle [&:has([role=checkbox])]:pr-0 h-11",
       className
     )}
     {...props}

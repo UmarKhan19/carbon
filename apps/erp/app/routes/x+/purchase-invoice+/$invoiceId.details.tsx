@@ -183,7 +183,7 @@ export default function PurchaseInvoiceBasicRoute() {
         ref={deliveryFormRef}
         initialValues={deliveryInitialValues}
         currencyCode={initialValues.currencyCode || company.baseCurrencyCode}
-        defaultCollapsed={true}
+        defaultCollapsed={false}
       />
     </Fragment>
   );

@@ -28,7 +28,9 @@ const PersonHeader = () => {
     <Card>
       <HStack className="justify-between items-center p-6 pl-0">
         <CardHeader className="pt-0">
-          <CardTitle>{routeData?.employeeSummary?.name}</CardTitle>
+          <CardTitle className="text-2xl">
+            {routeData?.employeeSummary?.name}
+          </CardTitle>
           <CardDescription>{routeData?.employeeSummary?.title}</CardDescription>
         </CardHeader>
         <Avatar

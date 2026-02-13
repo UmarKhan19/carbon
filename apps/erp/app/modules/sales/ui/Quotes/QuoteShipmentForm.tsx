@@ -35,7 +35,7 @@ export type QuoteShipmentFormRef = {
 const QuoteShipmentForm = forwardRef<
   QuoteShipmentFormRef,
   QuoteShipmentFormProps
->(({ initialValues, defaultCollapsed = true }, ref) => {
+>(({ initialValues, defaultCollapsed = false }, ref) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<{}>();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
