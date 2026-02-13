@@ -445,7 +445,7 @@ const SearchButton = () => {
   });
 
   return (
-    <div className="hidden sm:block">
+    <div>
       <Button
         leftIcon={<LuSearch />}
         variant="secondary"
@@ -454,7 +454,7 @@ const SearchButton = () => {
       >
         <HStack className="w-full">
           <div className="flex flex-grow">Search</div>
-          <ShortcutKey variant="small" shortcut={shortcut} />
+          <ShortcutKey variant="small" shortcut={shortcut} className="hidden sm:grid" />
         </HStack>
       </Button>
       <SearchModal />
