@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
   Combobox,
-  cn,
   DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
@@ -79,7 +78,11 @@ const OPEN_SALES_ORDER_STATUSES = [
   "Draft"
 ] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -617,15 +620,7 @@ export default function SalesDashboard() {
                   />
                   <Bar
                     dataKey="value"
-                    className={cn(
-                      ["salesOrderRevenue", "salesOrderCount"].includes(
-                        selectedKpiData.key
-                      ) && "fill-teal-400",
-                      ["quoteCount"].includes(selectedKpiData.key) &&
-                        "fill-blue-600",
-                      ["rfqCount"].includes(selectedKpiData.key) &&
-                        "fill-violet-600"
-                    )}
+                    fill="var(--color-value)"
                     radius={2}
                   />
                 </BarChart>

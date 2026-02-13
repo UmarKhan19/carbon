@@ -63,7 +63,11 @@ import { path } from "~/utils/path";
 
 const OPEN_STATUSES = ["Open", "Assigned", "In Progress"] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -566,7 +570,7 @@ export default function MaintenanceDashboard() {
                       />
                     }
                   />
-                  <Bar dataKey="value" className="fill-red-500" radius={2} />
+                  <Bar dataKey="value" fill="var(--color-value)" radius={2} />
                 </BarChart>
               </ChartContainer>
             ) : (
@@ -639,15 +643,7 @@ export default function MaintenanceDashboard() {
                   />
                   <Bar
                     dataKey="value"
-                    className={
-                      ["mttr", "mtbf"].includes(selectedKpiData.key)
-                        ? "fill-blue-500"
-                        : ["sparePartCost", "sparePartConsumption"].includes(
-                              selectedKpiData.key
-                            )
-                          ? "fill-amber-500"
-                          : "fill-teal-500"
-                    }
+                    fill="var(--color-value)"
                     radius={2}
                   />
                 </BarChart>

@@ -43,19 +43,22 @@ const AvatarMenu = () => {
   const edition = useEdition();
 
   const mode = useMode();
-  const theme = useTheme();
+  const serverTheme = useTheme();
 
   const nextMode = mode === "dark" ? "light" : "dark";
   const modeSubmitRef = useRef<HTMLButtonElement>(null);
 
   const fetcher = useFetcher<typeof action>();
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
   const onThemeChange = (t: string) => {
     const newTheme = themes.find((theme) => theme.name === t);
     if (!newTheme) return;
     const variables =
       mode === "dark" ? newTheme.cssVars.dark : newTheme.cssVars.light;
+
+    setSelectedTheme(t);
 
     const formData = new FormData();
     formData.append("theme", t);
@@ -66,8 +69,7 @@ const AvatarMenu = () => {
     });
   };
 
-  const optimisticTheme =
-    (fetcher?.formData?.get("theme") as string | null) ?? theme;
+  const optimisticTheme = selectedTheme ?? serverTheme;
 
   const itarDisclosure = useDisclosure();
 
