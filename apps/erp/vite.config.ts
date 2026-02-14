@@ -32,7 +32,7 @@ export default defineConfig(({ isSsrBuild, mode }) => ({
   },
   server: {
     port: 3000,
-    allowedHosts: [".ngrok-free.app", ".w.modal.host", ".w.modal.dev"],
+    allowedHosts: [".ngrok-free.app", ".ngrok-free.dev"],
   },
   plugins: [reactRouter(), tsconfigPaths()] as PluginOption[],
   resolve: {
