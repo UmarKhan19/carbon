@@ -955,6 +955,8 @@ export const path = {
       generatePath(`${x}/material/${id}/inventory`),
     materialInventoryLocation: (id: string, locationId: string) =>
       generatePath(`${x}/material/${id}/inventory?location=${locationId}`),
+    materialStock: (id: string) =>
+      generatePath(`${x}/material/${id}/stock`),
     materialPlanning: (id: string) =>
       generatePath(`${x}/material/${id}/planning`),
     materialPlanningLocation: (id: string, locationId: string) =>
@@ -1338,6 +1340,7 @@ export const path = {
     receiptLines: (id: string) => generatePath(`${x}/receipt/${id}/lines`),
     receiptLinesTracking: (id: string) =>
       generatePath(`${x}/receipt/lines/tracking`),
+    receiptLinesStockDimensions: `${x}/receipt/lines/stock-dimensions`,
     receipts: `${x}/inventory/receipts`,
     receiptPost: (id: string) => generatePath(`${x}/receipt/${id}/post`),
     receiptRoot: `${x}/receipt`,

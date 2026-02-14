@@ -2,11 +2,15 @@ import { useCarbon } from "@carbon/auth";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Number, Submit, ValidatedForm } from "@carbon/form";
 import {
+  Badge,
   Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   CreatableCombobox,
   cn,
   DropdownMenu,
@@ -25,8 +29,17 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  NumberDecrementStepper,
   NumberField,
+  NumberIncrementStepper,
   NumberInput,
+  NumberInputGroup,
+  NumberInputStepper,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   SplitButton,
   Tooltip,
   TooltipContent,
@@ -35,15 +48,19 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { formatStockDimensions } from "@carbon/utils";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
+  LuChevronDown,
+  LuChevronUp,
   LuCircleAlert,
   LuEllipsisVertical,
   LuGroup,
   LuQrCode,
+  LuRuler,
   LuSplit,
   LuTrash,
   LuX
@@ -543,6 +560,13 @@ function ReceiptLineItem({
             />
           )}
         </>
+      )}
+      {item?.type === "Material" && !isReadOnly && receipt && (
+        <StockDimensionsForm
+          receipt={receipt}
+          line={line}
+          receivedQuantity={line.receivedQuantity ?? 0}
+        />
       )}
     </div>
   );
@@ -1181,4 +1205,241 @@ function useReceiptFiles(receiptId: string) {
   );
 
   return { upload, deleteFile, getPath };
+}
+
+function StockDimensionsForm({
+  receipt,
+  line,
+  receivedQuantity
+}: {
+  receipt: Receipt;
+  line: ReceiptLine;
+  receivedQuantity: number;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [stockType, setStockType] = useState<"linear" | "sheet" | "block">(
+    "linear"
+  );
+  const [length, setLength] = useState<number>(0);
+  const [width, setWidth] = useState<number>(0);
+  const [height, setHeight] = useState<number>(0);
+  const [unit, setUnit] = useState<string>("IN");
+  const [qty, setQty] = useState<number>(receivedQuantity || 1);
+  const [savedDimensions, setSavedDimensions] = useState<string[]>([]);
+
+  const fetcher = useFetcher<{
+    success?: boolean;
+    message?: string;
+    error?: string;
+    createdIds?: string[];
+  }>();
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      toast.success(fetcher.data.message || "Stock dimensions saved");
+      if (fetcher.data.createdIds) {
+        setSavedDimensions((prev) => [
+          ...prev,
+          ...fetcher.data!.createdIds!
+        ]);
+      }
+      setLength(0);
+      setWidth(0);
+      setHeight(0);
+      setQty(1);
+    } else if (fetcher.data?.error) {
+      toast.error(fetcher.data.error);
+    }
+  }, [fetcher.data]);
+
+  const handleSubmit = () => {
+    let stockDimensions:
+      | { type: "linear"; length: number }
+      | { type: "sheet"; width: number; height: number }
+      | { type: "block"; length: number; width: number; height: number };
+
+    switch (stockType) {
+      case "linear":
+        if (length <= 0) {
+          toast.error("Length must be greater than 0");
+          return;
+        }
+        stockDimensions = { type: "linear", length };
+        break;
+      case "sheet":
+        if (width <= 0 || height <= 0) {
+          toast.error("Width and height must be greater than 0");
+          return;
+        }
+        stockDimensions = { type: "sheet", width, height };
+        break;
+      case "block":
+        if (length <= 0 || width <= 0 || height <= 0) {
+          toast.error("All dimensions must be greater than 0");
+          return;
+        }
+        stockDimensions = { type: "block", length, width, height };
+        break;
+    }
+
+    fetcher.submit(
+      JSON.stringify({
+        receiptId: receipt.id,
+        receiptLineId: line.id,
+        itemId: line.itemId,
+        stockDimensions,
+        stockUnit: unit,
+        quantity: qty
+      }),
+      {
+        method: "post",
+        action: path.to.receiptLinesStockDimensions,
+        encType: "application/json"
+      }
+    );
+  };
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" size="sm" className="gap-2">
+          <LuRuler className="h-4 w-4" />
+          Stock Dimensions
+          {savedDimensions.length > 0 && (
+            <Badge variant="secondary">{savedDimensions.length} added</Badge>
+          )}
+          {isOpen ? (
+            <LuChevronUp className="h-3 w-3" />
+          ) : (
+            <LuChevronDown className="h-3 w-3" />
+          )}
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="flex flex-col gap-3 pt-3 pl-6 border-l-2 border-muted ml-3">
+          <p className="text-xs text-muted-foreground">
+            Track physical dimensions for this material. Stock entities will be
+            created when the receipt is posted.
+          </p>
+          <div className="grid grid-cols-4 gap-2">
+            <div>
+              <label className="block text-xs font-medium mb-1">Type</label>
+              <Select
+                value={stockType}
+                onValueChange={(v) =>
+                  setStockType(v as "linear" | "sheet" | "block")
+                }
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="linear">Linear</SelectItem>
+                  <SelectItem value="sheet">Sheet</SelectItem>
+                  <SelectItem value="block">Block</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {stockType === "linear" && (
+              <div>
+                <label className="block text-xs font-medium mb-1">
+                  Length
+                </label>
+                <NumberField
+                  value={length}
+                  onChange={setLength}
+                  minValue={0.01}
+                >
+                  <NumberInput className="h-8 text-xs" size="sm" />
+                </NumberField>
+              </div>
+            )}
+            {(stockType === "sheet" || stockType === "block") && (
+              <>
+                <div>
+                  <label className="block text-xs font-medium mb-1">
+                    Width
+                  </label>
+                  <NumberField
+                    value={width}
+                    onChange={setWidth}
+                    minValue={0.01}
+                  >
+                    <NumberInput className="h-8 text-xs" size="sm" />
+                  </NumberField>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">
+                    Height
+                  </label>
+                  <NumberField
+                    value={height}
+                    onChange={setHeight}
+                    minValue={0.01}
+                  >
+                    <NumberInput className="h-8 text-xs" size="sm" />
+                  </NumberField>
+                </div>
+              </>
+            )}
+            {stockType === "block" && (
+              <div>
+                <label className="block text-xs font-medium mb-1">
+                  Length
+                </label>
+                <NumberField
+                  value={length}
+                  onChange={setLength}
+                  minValue={0.01}
+                >
+                  <NumberInput className="h-8 text-xs" size="sm" />
+                </NumberField>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            <div>
+              <label className="block text-xs font-medium mb-1">Unit</label>
+              <Select value={unit} onValueChange={setUnit}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="IN">Inches</SelectItem>
+                  <SelectItem value="FT">Feet</SelectItem>
+                  <SelectItem value="MM">mm</SelectItem>
+                  <SelectItem value="CM">cm</SelectItem>
+                  <SelectItem value="M">Meters</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">
+                Pieces
+              </label>
+              <NumberField value={qty} onChange={setQty} minValue={1}>
+                <NumberInput className="h-8 text-xs" size="sm" />
+              </NumberField>
+            </div>
+            <div className="col-span-2 flex items-end">
+              <Button
+                size="sm"
+                onClick={handleSubmit}
+                isLoading={fetcher.state !== "idle"}
+              >
+                Add Dimensions
+              </Button>
+            </div>
+          </div>
+          {savedDimensions.length > 0 && (
+            <div className="text-xs text-muted-foreground">
+              {savedDimensions.length} stock piece
+              {savedDimensions.length !== 1 ? "s" : ""} created for this receipt
+              line
+            </div>
+          )}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
 }

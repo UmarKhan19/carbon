@@ -2,6 +2,7 @@ import {
   LuBox,
   LuChartLine,
   LuFileText,
+  LuRuler,
   LuShoppingCart,
   LuTags
 } from "react-icons/lu";
@@ -62,6 +63,14 @@ export function useMaterialNavigation() {
       role: ["employee", "supplier"],
       icon: LuBox,
       shortcut: "Command+Shift+i"
+    },
+    {
+      name: "Stock",
+      to: path.to.materialStock(itemId),
+      isDisabled: itemTrackingType === "Non-Inventory",
+      role: ["employee"],
+      icon: LuRuler,
+      shortcut: "Command+Shift+s"
     }
   ].filter(
     (item) =>

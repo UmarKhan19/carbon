@@ -13,6 +13,7 @@ export * from "./items";
 export * from "./keyboard";
 export * from "./labels";
 export * from "./llm";
+export * from "./materialStock";
 export * from "./math";
 export * from "./object";
 export * from "./ssr";

@@ -18,6 +18,13 @@ import type {
   stepRecordValidator
 } from "./models";
 import type { BaseOperationWithDetails, Job, StorageItem } from "./types";
+import type {
+  MaterialStockAttributes,
+  MaterialStockPiece,
+  RecordCutParams,
+  RecordCutResult,
+  StockDimensions
+} from "~/types/materialStock.types";
 
 export async function deleteAttributeRecord(
   client: SupabaseClient<Database>,
@@ -956,4 +963,270 @@ export async function getJobMethodBomIdMap(
   });
 
   return bomIdMap;
+}
+
+// ============================================================================
+// Material Stock Management Functions
+// ============================================================================
+
+/**
+ * Get available material stock pieces for a given material.
+ * Returns tracked entities that have stock dimensions and are available.
+ *
+ * Note: companyId filtering is handled by RLS on trackedEntity.
+ */
+export async function getAvailableMaterialStock(
+  client: SupabaseClient<Database>,
+  materialId: string
+): Promise<MaterialStockPiece[]> {
+  // Query trackedEntity where:
+  // - attributes->materialId matches
+  // - status = 'Available'
+  // - attributes->stockDimensions exists
+  // (RLS handles company filtering)
+  const result = await client
+    .from("trackedEntity")
+    .select("*")
+    .eq("status", "Available")
+    .eq("attributes->>materialId", materialId)
+    .not("attributes->stockDimensions", "is", null);
+
+  if (result.error || !result.data) {
+    return [];
+  }
+
+  return result.data.map((entity) => {
+    const attributes = entity.attributes as unknown as MaterialStockAttributes;
+    return {
+      trackedEntityId: entity.id,
+      stockDimensions: attributes.stockDimensions,
+      stockUnit: attributes.stockUnit,
+      status: entity.status as "Available" | "Reserved" | "On Hold",
+      shelfId: null,
+      locationId: null,
+      parentStockId: attributes.parentStockId ?? null
+    };
+  });
+}
+
+/**
+ * Record a cut operation that consumes material from stock and creates a remnant.
+ *
+ * This function:
+ * 1. Creates a trackedActivity of type "Cut"
+ * 2. Links the source stock as input
+ * 3. Creates a new trackedEntity for the remnant (if any remaining)
+ * 4. Updates the source entity status to "Consumed"
+ * 5. Creates item ledger entry for audit trail
+ */
+export async function recordCut(
+  client: SupabaseClient<Database>,
+  params: RecordCutParams
+): Promise<RecordCutResult> {
+  const { sourceStockId, consumedAmount, jobMaterialId, companyId, userId } =
+    params;
+
+  // 1. Get source stock entity
+  const sourceResult = await client
+    .from("trackedEntity")
+    .select("*")
+    .eq("id", sourceStockId)
+    .single();
+
+  if (sourceResult.error || !sourceResult.data) {
+    throw new Error(`Source stock entity not found: ${sourceStockId}`);
+  }
+
+  const sourceStock = sourceResult.data;
+  const attributes = sourceStock.attributes as unknown as MaterialStockAttributes;
+
+  if (!attributes.stockDimensions) {
+    throw new Error("Source stock does not have stock dimensions");
+  }
+
+  // 2. Create trackedActivity type="Cut"
+  const activityId = nanoid();
+  const activityResult = await client
+    .from("trackedActivity")
+    .insert({
+      id: activityId,
+      type: "Cut",
+      sourceDocument: jobMaterialId ? "Job Material" : "Manual",
+      sourceDocumentId: jobMaterialId ?? null,
+      attributes: {
+        consumedAmount,
+        unit: attributes.stockUnit,
+        "Job Material": jobMaterialId
+      },
+      companyId,
+      createdBy: userId
+    })
+    .select("id")
+    .single();
+
+  if (activityResult.error) {
+    throw new Error(`Failed to create cut activity: ${activityResult.error.message}`);
+  }
+
+  // 3. Link source stock as input
+  const inputResult = await client.from("trackedActivityInput").insert({
+    trackedActivityId: activityId,
+    trackedEntityId: sourceStockId,
+    quantity: consumedAmount,
+    companyId,
+    createdBy: userId
+  });
+
+  if (inputResult.error) {
+    throw new Error(`Failed to link input: ${inputResult.error.message}`);
+  }
+
+  // 4. Calculate remaining dimensions
+  const remaining = calculateRemainingDimensions(
+    attributes.stockDimensions,
+    consumedAmount
+  );
+
+  let remnantId: string | undefined;
+
+  // 5. If remnant > 0: Create new trackedEntity for remnant
+  if (remaining > 0) {
+    remnantId = nanoid();
+    const newDimensions = updateStockDimensions(
+      attributes.stockDimensions,
+      remaining
+    );
+
+    const remnantResult = await client
+      .from("trackedEntity")
+      .insert({
+        id: remnantId,
+        quantity: 1,
+        status: "Available",
+        sourceDocument: "Cut",
+        sourceDocumentId: activityId,
+        attributes: {
+          materialId: attributes.materialId,
+          parentStockId: sourceStockId,
+          stockDimensions: newDimensions,
+          stockUnit: attributes.stockUnit,
+          cutHistory: [
+            ...(attributes.cutHistory ?? []),
+            {
+              cutAt: new Date().toISOString(),
+              cutBy: userId,
+              consumed: consumedAmount,
+              jobId: jobMaterialId
+            }
+          ]
+        },
+        companyId,
+        createdBy: userId
+      })
+      .select("id")
+      .single();
+
+    if (remnantResult.error) {
+      throw new Error(`Failed to create remnant: ${remnantResult.error.message}`);
+    }
+
+    // Link remnant as output
+    const outputResult = await client.from("trackedActivityOutput").insert({
+      trackedActivityId: activityId,
+      trackedEntityId: remnantId,
+      quantity: 1,
+      companyId,
+      createdBy: userId
+    });
+
+    if (outputResult.error) {
+      throw new Error(`Failed to link output: ${outputResult.error.message}`);
+    }
+  }
+
+  // 6. Update source entity status to "Consumed"
+  const updateResult = await client
+    .from("trackedEntity")
+    .update({ status: "Consumed" })
+    .eq("id", sourceStockId);
+
+  if (updateResult.error) {
+    throw new Error(`Failed to update source status: ${updateResult.error.message}`);
+  }
+
+  // 7. Create item ledger entry for audit trail
+  const ledgerResult = await client.from("itemLedger").insert({
+    postingDate: new Date().toISOString(),
+    entryType: "Consumption",
+    documentType: "Job",
+    documentId: jobMaterialId,
+    itemId: attributes.materialId,
+    quantity: -consumedAmount,
+    trackedEntityId: sourceStockId,
+    companyId,
+    createdBy: userId
+  });
+
+  if (ledgerResult.error) {
+    console.warn(`Failed to create item ledger entry: ${ledgerResult.error.message}`);
+    // Don't throw - this is a non-critical operation
+  }
+
+  return {
+    success: true,
+    activityId,
+    remnantId,
+    consumedEntityId: sourceStockId
+  };
+}
+
+/**
+ * Calculate the remaining value after consuming from stock dimensions.
+ */
+function calculateRemainingDimensions(
+  dimensions: StockDimensions,
+  consumed: number
+): number {
+  switch (dimensions.type) {
+    case "linear":
+      return dimensions.length - consumed;
+    case "sheet":
+      // For sheets, consumed is treated as area
+      const currentArea = dimensions.width * dimensions.height;
+      return currentArea - consumed;
+    case "block":
+      // For blocks, consumed is treated as volume or single dimension
+      // depending on use case - for now treating as single dimension (depth)
+      return dimensions.length - consumed;
+  }
+}
+
+/**
+ * Update stock dimensions with the remaining value.
+ */
+function updateStockDimensions(
+  dimensions: StockDimensions,
+  remaining: number
+): StockDimensions {
+  switch (dimensions.type) {
+    case "linear":
+      return {
+        ...dimensions,
+        length: remaining
+      };
+    case "sheet":
+      // For sheets, we need to decide how to handle partial cuts
+      // For now, keeping original dimensions ratio
+      const ratio = remaining / (dimensions.width * dimensions.height);
+      return {
+        ...dimensions,
+        width: dimensions.width * Math.sqrt(ratio),
+        height: dimensions.height * Math.sqrt(ratio)
+      };
+    case "block":
+      return {
+        ...dimensions,
+        length: remaining
+      };
+  }
 }
