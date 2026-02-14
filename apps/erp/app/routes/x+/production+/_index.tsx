@@ -26,7 +26,8 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  useRealtimeChannel
+  useRealtimeChannel,
+  VStack
 } from "@carbon/react";
 import type { ChartConfig } from "@carbon/react/Chart";
 import {
@@ -175,52 +176,63 @@ export default function ProductionDashboard() {
     setInterval(value);
   };
 
-  const getTotal = (
-    key: string,
-    data?: { value: number }[] | { actual: number; estimate: number }[]
-  ) => {
-    if (!data) return 0;
-    switch (key) {
-      case "utilization":
-        return data.reduce((acc, item) => {
-          // @ts-expect-error
-          return acc + item.value;
-        }, 0);
-      case "completionTime":
-        return data.length === 0
-          ? 0
-          : data.reduce((acc, item) => {
-              // @ts-expect-error
-              return acc + item.value;
-            }, 0) / data.length;
-      case "estimate":
-        return data.reduce((acc, item) => {
-          // @ts-expect-error
-          return acc + item.estimate;
-        }, 0);
-      case "actual":
-        return data.reduce((acc, item) => {
-          // @ts-expect-error
-          return acc + item.actual;
-        }, 0);
-      default:
-        return 0;
+  const totalData = useMemo(() => {
+    if (!kpiFetcher.data?.data) return null;
+    const data = kpiFetcher.data.data;
+
+    if (selectedKpi === "utilization") {
+      return {
+        // @ts-expect-error
+        value: data.reduce((acc, item) => acc + item.value, 0)
+      };
     }
-  };
+    if (selectedKpi === "completionTime") {
+      if (data.length === 0) return { value: 0 };
+      return {
+        // @ts-expect-error
+        value: data.reduce((acc, item) => acc + item.value, 0) / data.length
+      };
+    }
+    if (selectedKpi === "estimatesVsActuals") {
+      return {
+        // @ts-expect-error
+        value: data.reduce((acc, item) => acc + item.actual, 0)
+      };
+    }
+    return { value: 0 };
+  }, [kpiFetcher.data?.data, selectedKpi]);
 
-  const total = getTotal(
-    selectedKpi === "estimatesVsActuals" ? "actual" : selectedKpi,
-    kpiFetcher.data?.data
-  );
+  const previousTotalData = useMemo(() => {
+    if (selectedKpi === "estimatesVsActuals") {
+      if (!kpiFetcher.data?.data) return null;
+      return {
+        // @ts-expect-error
+        value: kpiFetcher.data.data.reduce(
+          (acc, item) => acc + item.estimate,
+          0
+        )
+      };
+    }
 
-  const previousTotal = getTotal(
-    selectedKpi === "estimatesVsActuals" ? "estimate" : selectedKpi,
-    selectedKpi === "estimatesVsActuals"
-      ? kpiFetcher.data?.data
-      : (kpiFetcher.data?.previousPeriodData as {
-          value: number;
-        }[])
-  );
+    if (!kpiFetcher.data?.previousPeriodData) return null;
+    const data = kpiFetcher.data.previousPeriodData as { value: number }[];
+
+    if (selectedKpi === "utilization") {
+      return {
+        value: data.reduce((acc, item) => acc + item.value, 0)
+      };
+    }
+    if (selectedKpi === "completionTime") {
+      if (data.length === 0) return { value: 0 };
+      return {
+        value: data.reduce((acc, item) => acc + item.value, 0) / data.length
+      };
+    }
+    return { value: 0 };
+  }, [kpiFetcher.data?.data, kpiFetcher.data?.previousPeriodData, selectedKpi]);
+
+  const total = totalData?.value ?? 0;
+  const previousTotal = previousTotalData?.value ?? 0;
 
   const percentageChange =
     previousTotal === 0
@@ -228,6 +240,10 @@ export default function ProductionDashboard() {
         ? 100
         : 0
       : ((total - previousTotal) / previousTotal) * 100;
+
+  const formatValue = (value: number) => {
+    return formatDurationMilliseconds(value);
+  };
 
   const csvData = useMemo(() => {
     if (!kpiFetcher.data?.data) return [];
@@ -281,7 +297,7 @@ export default function ProductionDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {activeJobs}
               </h3>
               <Button
@@ -308,7 +324,7 @@ export default function ProductionDashboard() {
 
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {assignedJobs}
               </h3>
               <Button
@@ -414,15 +430,17 @@ export default function ProductionDashboard() {
             </CardAction>
           </HStack>
           <CardContent className="max-h-[600px] min-h-[320px] flex-col gap-4">
-            <HStack className="pl-[3px] pt-1">
+            <VStack className="pl-[3px]" spacing={0}>
               {isFetching ? (
-                <Skeleton className="h-8 w-1/2" />
+                <div className="flex flex-col gap-0.5 w-full">
+                  <Skeleton className="h-8 w-[120px]" />
+                  <Skeleton className="h-4 w-[50px]" />
+                </div>
               ) : (
                 <>
-                  <p className="text-xl font-semibold tracking-tight">
-                    {formatDurationMilliseconds(total)}
+                  <p className="text-3xl font-medium tracking-tighter">
+                    {formatValue(total)}
                   </p>
-
                   {percentageChange >= 0 ? (
                     <Badge variant="green">
                       +{percentageChange.toFixed(0)}%
@@ -432,7 +450,7 @@ export default function ProductionDashboard() {
                   )}
                 </>
               )}
-            </HStack>
+            </VStack>
             {kpiFetcher.state === "idle" &&
             kpiFetcher.data?.data?.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">

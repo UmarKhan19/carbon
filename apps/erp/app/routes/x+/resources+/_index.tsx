@@ -25,7 +25,8 @@ import {
   Td,
   Th,
   Thead,
-  Tr
+  Tr,
+  VStack
 } from "@carbon/react";
 import type { ChartConfig } from "@carbon/react/Chart";
 import {
@@ -63,7 +64,11 @@ import { path } from "~/utils/path";
 
 const OPEN_STATUSES = ["Open", "Assigned", "In Progress"] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -279,7 +284,7 @@ export default function MaintenanceDashboard() {
   const formatValue = (value: number) => {
     // Time-based KPIs (MTTR, MTBF) - value is in seconds
     if (selectedKpi === "mttr" || selectedKpi === "mtbf") {
-      return formatDurationMilliseconds(value * 1000);
+      return formatDurationMilliseconds(value * 1000, { style: "short" });
     }
     // Cost-based KPIs
     if (selectedKpi === "sparePartCost") {
@@ -341,7 +346,7 @@ export default function MaintenanceDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openDispatches}
               </h3>
               <Button
@@ -367,7 +372,7 @@ export default function MaintenanceDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openScheduled}
               </h3>
               <Button
@@ -393,7 +398,7 @@ export default function MaintenanceDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openReactive}
               </h3>
               <Button
@@ -511,12 +516,15 @@ export default function MaintenanceDashboard() {
           </CardAction>
         </HStack>
         <CardContent className="flex-col gap-4">
-          <HStack className="pl-[3px] pt-1">
+          <VStack className="pl-[3px]" spacing={0}>
             {isFetching ? (
-              <Skeleton className="h-8 w-1/2" />
+              <div className="flex flex-col gap-0.5 w-full">
+                <Skeleton className="h-8 w-[120px]" />
+                <Skeleton className="h-4 w-[50px]" />
+              </div>
             ) : (
               <>
-                <p className="text-xl font-semibold tracking-tight">
+                <p className="text-3xl font-medium tracking-tighter">
                   {formatValue(total)}
                 </p>
                 {isBadgePositive ? (
@@ -532,7 +540,7 @@ export default function MaintenanceDashboard() {
                 )}
               </>
             )}
-          </HStack>
+          </VStack>
           <Loading
             isLoading={isFetching}
             className="h-[30dvw] md:h-[23dvw] w-full"
@@ -566,7 +574,7 @@ export default function MaintenanceDashboard() {
                       />
                     }
                   />
-                  <Bar dataKey="value" className="fill-red-500" radius={2} />
+                  <Bar dataKey="value" fill="var(--color-value)" radius={2} />
                 </BarChart>
               </ChartContainer>
             ) : (
@@ -637,19 +645,7 @@ export default function MaintenanceDashboard() {
                       />
                     }
                   />
-                  <Bar
-                    dataKey="value"
-                    className={
-                      ["mttr", "mtbf"].includes(selectedKpiData.key)
-                        ? "fill-blue-500"
-                        : ["sparePartCost", "sparePartConsumption"].includes(
-                              selectedKpiData.key
-                            )
-                          ? "fill-amber-500"
-                          : "fill-teal-500"
-                    }
-                    radius={2}
-                  />
+                  <Bar dataKey="value" fill="var(--color-value)" radius={2} />
                 </BarChart>
               </ChartContainer>
             )}

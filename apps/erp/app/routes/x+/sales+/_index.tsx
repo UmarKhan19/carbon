@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
   Combobox,
-  cn,
   DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +25,8 @@ import {
   Td,
   Th,
   Thead,
-  Tr
+  Tr,
+  VStack
 } from "@carbon/react";
 import type { ChartConfig } from "@carbon/react/Chart";
 import {
@@ -79,7 +79,11 @@ const OPEN_SALES_ORDER_STATUSES = [
   "Draft"
 ] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -307,6 +311,13 @@ export default function SalesDashboard() {
         : 0
       : ((total - previousTotal) / previousTotal) * 100;
 
+  const formatValue = (value: number) => {
+    if (["salesOrderRevenue", "salesFunnel"].includes(selectedKpiData.key)) {
+      return currencyFormatter.format(value);
+    }
+    return numberFormatter.format(value);
+  };
+
   const csvData = useMemo(() => {
     if (!kpiFetcher.data?.data) return [];
 
@@ -360,7 +371,7 @@ export default function SalesDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openRFQs.count ?? 0}
               </h3>
               <Button
@@ -386,7 +397,7 @@ export default function SalesDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openQuotes.count ?? 0}
               </h3>
               <Button
@@ -412,7 +423,7 @@ export default function SalesDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openSalesOrders.count ?? 0}
               </h3>
               <Button
@@ -530,17 +541,16 @@ export default function SalesDashboard() {
           </CardAction>
         </HStack>
         <CardContent className="flex-col gap-4">
-          <HStack className="pl-[3px] pt-1">
+          <VStack className="pl-[3px]" spacing={0}>
             {isFetching ? (
-              <Skeleton className="h-8 w-1/2" />
+              <div className="flex flex-col gap-0.5 w-full">
+                <Skeleton className="h-8 w-[120px]" />
+                <Skeleton className="h-4 w-[50px]" />
+              </div>
             ) : (
               <>
-                <p className="text-xl font-semibold tracking-tight">
-                  {["salesOrderRevenue", "salesFunnel"].includes(
-                    selectedKpiData.key
-                  )
-                    ? currencyFormatter.format(total)
-                    : numberFormatter.format(total)}
+                <p className="text-3xl font-medium tracking-tighter">
+                  {formatValue(total)}
                 </p>
                 {percentageChange >= 0 ? (
                   <Badge variant="green">+{percentageChange.toFixed(0)}%</Badge>
@@ -549,7 +559,7 @@ export default function SalesDashboard() {
                 )}
               </>
             )}
-          </HStack>
+          </VStack>
           <Loading
             isLoading={isFetching}
             className="h-[30dvw] md:h-[23dvw] w-full"
@@ -615,19 +625,7 @@ export default function SalesDashboard() {
                       />
                     }
                   />
-                  <Bar
-                    dataKey="value"
-                    className={cn(
-                      ["salesOrderRevenue", "salesOrderCount"].includes(
-                        selectedKpiData.key
-                      ) && "fill-teal-400",
-                      ["quoteCount"].includes(selectedKpiData.key) &&
-                        "fill-blue-600",
-                      ["rfqCount"].includes(selectedKpiData.key) &&
-                        "fill-violet-600"
-                    )}
-                    radius={2}
-                  />
+                  <Bar dataKey="value" fill="var(--color-value)" radius={2} />
                 </BarChart>
               </ChartContainer>
             )}

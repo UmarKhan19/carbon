@@ -26,7 +26,8 @@ import {
   Td,
   Th,
   Thead,
-  Tr
+  Tr,
+  VStack
 } from "@carbon/react";
 import type { ChartConfig } from "@carbon/react/Chart";
 import {
@@ -92,7 +93,11 @@ const OPEN_PURCHASE_ORDER_STATUSES = [
   "To Invoice"
 ] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -295,19 +300,43 @@ export default function PurchaseDashboard() {
     setInterval(value);
   };
 
-  const total =
-    kpiFetcher.data?.data.reduce((acc, curr) => acc + curr.value, 0) ?? 0;
-  const previousTotal =
-    kpiFetcher.data?.previousPeriodData.reduce(
-      (acc, curr) => acc + curr.value,
-      0
-    ) ?? 0;
+  const totalData = useMemo(() => {
+    if (!kpiFetcher.data?.data) return null;
+    return {
+      value: kpiFetcher.data.data.reduce((acc, curr) => acc + curr.value, 0)
+    };
+  }, [kpiFetcher.data?.data]);
+
+  const previousTotalData = useMemo(() => {
+    if (!kpiFetcher.data?.previousPeriodData) return null;
+    return {
+      value: kpiFetcher.data.previousPeriodData.reduce(
+        (acc, curr) => acc + curr.value,
+        0
+      )
+    };
+  }, [kpiFetcher.data?.previousPeriodData]);
+
+  const total = totalData?.value ?? 0;
+  const previousTotal = previousTotalData?.value ?? 0;
+
   const percentageChange =
     previousTotal === 0
       ? total > 0
         ? 100
         : 0
       : ((total - previousTotal) / previousTotal) * 100;
+
+  const formatValue = (value: number) => {
+    if (
+      ["purchaseOrderAmount", "purchaseInvoiceAmount"].includes(
+        selectedKpiData.key
+      )
+    ) {
+      return currencyFormatter.format(value);
+    }
+    return numberFormatter.format(value);
+  };
 
   const csvData = useMemo(() => {
     if (!kpiFetcher.data?.data) return [];
@@ -335,7 +364,7 @@ export default function PurchaseDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openSupplierQuotes.count ?? 0}
               </h3>
               <Button
@@ -361,7 +390,7 @@ export default function PurchaseDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openPurchaseOrders.count ?? 0}
               </h3>
               <Button
@@ -387,7 +416,7 @@ export default function PurchaseDashboard() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tight">
+              <h3 className="text-5xl font-medium tracking-tighter">
                 {openPurchaseInvoices.count ?? 0}
               </h3>
               <Button
@@ -505,17 +534,16 @@ export default function PurchaseDashboard() {
           </CardAction>
         </HStack>
         <CardContent className="flex-col gap-4">
-          <HStack className="pl-[3px] pt-1">
+          <VStack className="pl-[3px]" spacing={0}>
             {isFetching ? (
-              <Skeleton className="h-8 w-1/2" />
+              <div className="flex flex-col gap-0.5 w-full">
+                <Skeleton className="h-8 w-[120px]" />
+                <Skeleton className="h-4 w-[50px]" />
+              </div>
             ) : (
               <>
-                <p className="text-xl font-semibold tracking-tight">
-                  {["purchaseOrderAmount", "purchaseInvoiceAmount"].includes(
-                    selectedKpiData.key
-                  )
-                    ? currencyFormatter.format(total)
-                    : numberFormatter.format(total)}
+                <p className="text-3xl font-medium tracking-tighter">
+                  {formatValue(total)}
                 </p>
                 {percentageChange >= 0 ? (
                   <Badge variant="green">+{percentageChange.toFixed(0)}%</Badge>
@@ -524,7 +552,7 @@ export default function PurchaseDashboard() {
                 )}
               </>
             )}
-          </HStack>
+          </VStack>
           <Loading
             isLoading={isFetching}
             className="h-[30dvw] md:h-[23dvw] w-full"
@@ -589,7 +617,7 @@ export default function PurchaseDashboard() {
                     />
                   }
                 />
-                <Bar dataKey="value" className="fill-violet-600" radius={2} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={2} />
               </BarChart>
             </ChartContainer>
           </Loading>
@@ -816,3 +844,4 @@ function PurchaseInvoiceRow({ doc }: { doc: PurchaseInvoice }) {
     </Tr>
   );
 }
+ 

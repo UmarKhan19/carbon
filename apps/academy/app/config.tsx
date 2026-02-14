@@ -1098,11 +1098,11 @@ export const modules: Config = [
               {
                 id: "purchasing-overview",
                 loomUrl:
-                  "https://www.loom.com/share/51e0c6dd053b4a3e904fc795d4fc298f?sid=0bb2081d-6bc4-4efb-8361-d2717dda9781",
+                  "https://www.loom.com/embed/6b452f942ac546aebc0b9ca96300c522",
                 name: "Purchasing Overview",
                 description:
                   "Learn about the complete purchasing process from supplier selection to payment.",
-                duration: 0
+                duration: 240
               },
               {
                 id: "supplier-quotes",
