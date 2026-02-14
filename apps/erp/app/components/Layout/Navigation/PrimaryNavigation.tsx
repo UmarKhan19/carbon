@@ -94,7 +94,7 @@ const NavigationIconLink = forwardRef<
     // Hover state (non-active items)
     !isActive && "hover:bg-accent hover:text-accent-foreground",
     // Active/selected state - solid background, no gradient overlay
-    isActive && "bg-active text-active-foreground shadow-button-base",
+    isActive && "bg-active text-active-foreground dark:shadow-button-base",
     "group/item"
   ];
 
