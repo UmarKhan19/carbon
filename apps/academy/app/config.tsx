@@ -1107,11 +1107,11 @@ export const modules: Config = [
               {
                 id: "supplier-quotes",
                 loomUrl:
-                  "https://www.loom.com/share/51e0c6dd053b4a3e904fc795d4fc298f?sid=0bb2081d-6bc4-4efb-8361-d2717dda9781",
+                  "https://www.loom.com/embed/93b1b102e27242d3a74dcec91b91f74c",
                 name: "Supplier Quotes",
                 description:
                   "Learn how to manage supplier quotes and compare pricing effectively.",
-                duration: 0
+                duration: 348
               },
               {
                 id: "purchase-orders",
