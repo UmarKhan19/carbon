@@ -184,7 +184,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     console.error(error);
     return {
       data: [],
-      error: error
+      error: error instanceof Error ? error.message : String(error)
     };
   }
 }

@@ -9,6 +9,7 @@ declare global {
       CONTROLLED_ENVIRONMENT: string;
       ERP_URL: string;
       MES_URL: string;
+      ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;
       SUPABASE_URL: string;
@@ -340,6 +341,7 @@ export function getBrowserEnv() {
     POSTHOG_PROJECT_PUBLIC_KEY,
     NODE_ENV,
     NOVU_APPLICATION_ID,
+    ONSHAPE_CLIENT_ID,
     QUICKBOOKS_CLIENT_ID,
     SUPABASE_URL,
     SUPABASE_ANON_KEY,
