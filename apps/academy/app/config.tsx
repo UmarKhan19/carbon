@@ -1125,11 +1125,11 @@ export const modules: Config = [
               {
                 id: "receiving-purchase-order",
                 loomUrl:
-                  "https://www.loom.com/share/51e0c6dd053b4a3e904fc795d4fc298f?sid=0bb2081d-6bc4-4efb-8361-d2717dda9781",
+                  "https://www.loom.com/embed/efc8217dc35a46589c64ca4b0b7bbb05",
                 name: "Receiving a Purchase Order",
                 description:
                   "Learn how to receive and inspect purchased goods properly.",
-                duration: 0
+                duration: 134
               }
             ]
           }
