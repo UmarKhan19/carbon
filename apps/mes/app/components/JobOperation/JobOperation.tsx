@@ -83,6 +83,7 @@ import {
   FilePreview,
   OperationStatusIcon
 } from "~/components";
+import { StockAvailabilityBadge } from "~/components/StockAvailability";
 import {
   MethodIcon,
   MethodItemTypeIcon,
@@ -1081,6 +1082,12 @@ export const JobOperation = ({
                                                 ? "WIP"
                                                 : "Default Shelf")}
                                           </Badge>
+                                          {material.itemType === "Material" && (
+                                            <StockAvailabilityBadge
+                                              materialId={material.itemId}
+                                              requiresDimensionTracking={(material as unknown as { requiresDimensionTracking?: boolean }).requiresDimensionTracking}
+                                            />
+                                          )}
                                         </Td>
 
                                         <Td>

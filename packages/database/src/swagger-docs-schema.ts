@@ -8980,6 +8980,9 @@ export default {
             $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.kit",
           },
           {
+            $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.itemScrapPercentage",
+          },
+          {
             $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.shelfName",
           },
           {
@@ -8993,6 +8996,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.itemReadableIdWithoutRevision",
+          },
+          {
+            $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.requiresDimensionTracking",
           },
           {
             $ref: "#/parameters/select",
@@ -41935,7 +41941,7 @@ export default {
             $ref: "#/parameters/rowFilter.materials.itemPostingGroupId",
           },
           {
-            $ref: "#/parameters/rowFilter.materials.externalId",
+            $ref: "#/parameters/rowFilter.materials.requiresDimensionTracking",
           },
           {
             $ref: "#/parameters/rowFilter.materials.createdBy",
@@ -56182,6 +56188,9 @@ export default {
             $ref: "#/parameters/rowFilter.item.readableIdWithRevision",
           },
           {
+            $ref: "#/parameters/rowFilter.item.requiresDimensionTracking",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -56310,6 +56319,9 @@ export default {
             $ref: "#/parameters/rowFilter.item.readableIdWithRevision",
           },
           {
+            $ref: "#/parameters/rowFilter.item.requiresDimensionTracking",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -56390,6 +56402,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.item.readableIdWithRevision",
+          },
+          {
+            $ref: "#/parameters/rowFilter.item.requiresDimensionTracking",
           },
           {
             $ref: "#/parameters/body.item",
@@ -71922,6 +71937,10 @@ export default {
           format: "boolean",
           type: "boolean",
         },
+        itemScrapPercentage: {
+          format: "numeric",
+          type: "number",
+        },
         shelfName: {
           format: "text",
           type: "string",
@@ -71942,6 +71961,10 @@ export default {
         itemReadableIdWithoutRevision: {
           format: "text",
           type: "string",
+        },
+        requiresDimensionTracking: {
+          format: "boolean",
+          type: "boolean",
         },
       },
       type: "object",
@@ -87437,8 +87460,9 @@ export default {
           format: "text",
           type: "string",
         },
-        externalId: {
-          format: "jsonb",
+        requiresDimensionTracking: {
+          format: "boolean",
+          type: "boolean",
         },
         createdBy: {
           description:
@@ -94454,6 +94478,7 @@ export default {
         "active",
         "createdBy",
         "createdAt",
+        "requiresDimensionTracking",
       ],
       properties: {
         id: {
@@ -94574,6 +94599,13 @@ export default {
         readableIdWithRevision: {
           format: "text",
           type: "string",
+        },
+        requiresDimensionTracking: {
+          default: false,
+          description:
+            "When true, issuing this item requires selecting from tracked stock pieces with dimensions (length/width/height). Used for materials like bars, sheets, and blocks that are cut to size.",
+          format: "boolean",
+          type: "boolean",
         },
       },
       type: "object",
@@ -102474,6 +102506,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.jobMaterialWithMakeMethodId.itemScrapPercentage": {
+      name: "itemScrapPercentage",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.jobMaterialWithMakeMethodId.shelfName": {
       name: "shelfName",
       required: false,
@@ -102500,6 +102538,12 @@ export default {
     },
     "rowFilter.jobMaterialWithMakeMethodId.itemReadableIdWithoutRevision": {
       name: "itemReadableIdWithoutRevision",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobMaterialWithMakeMethodId.requiresDimensionTracking": {
+      name: "requiresDimensionTracking",
       required: false,
       in: "query",
       type: "string",
@@ -120081,8 +120125,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.materials.externalId": {
-      name: "externalId",
+    "rowFilter.materials.requiresDimensionTracking": {
+      name: "requiresDimensionTracking",
       required: false,
       in: "query",
       type: "string",
@@ -128032,6 +128076,14 @@ export default {
     },
     "rowFilter.item.readableIdWithRevision": {
       name: "readableIdWithRevision",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.item.requiresDimensionTracking": {
+      name: "requiresDimensionTracking",
+      description:
+        "When true, issuing this item requires selecting from tracked stock pieces with dimensions (length/width/height). Used for materials like bars, sheets, and blocks that are cut to size.",
       required: false,
       in: "query",
       type: "string",

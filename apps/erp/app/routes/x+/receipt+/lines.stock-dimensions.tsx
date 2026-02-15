@@ -44,7 +44,7 @@ const stockDimensionsValidator = z.object({
  * with matching receipt attributes).
  */
 export async function action({ request }: ActionFunctionArgs) {
-  const { companyId } = await requirePermissions(request, {
+  const { companyId, userId } = await requirePermissions(request, {
     create: "inventory"
   });
 
@@ -102,7 +102,7 @@ export async function action({ request }: ActionFunctionArgs) {
           sourceDocumentId: itemId,
           attributes: attributes as unknown as Record<string, unknown>,
           companyId,
-          createdBy: companyId // will be overridden by post-receipt
+          createdBy: userId
         })
         .select("id")
         .single();

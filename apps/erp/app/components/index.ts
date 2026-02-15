@@ -28,6 +28,7 @@ import New from "./New";
 import RealtimeDataProvider from "./RealtimeDataProvider";
 import SearchFilter from "./SearchFilter";
 import Select from "./Select";
+import { StockAvailability, StockAvailabilityInline } from "./StockAvailability";
 import SupplierAvatar from "./SupplierAvatar";
 import Table from "./Table";
 
@@ -60,6 +61,8 @@ export {
   RealtimeDataProvider,
   SearchFilter,
   Select,
+  StockAvailability,
+  StockAvailabilityInline,
   SupplierAvatar,
   Table,
   TimeTypeIcon,

@@ -25,6 +25,7 @@ import {
   LuMaximize2,
   LuMinus,
   LuRefreshCcwDot,
+  LuRuler,
   LuShoppingCart,
   LuTrash2,
   LuTruck,
@@ -49,6 +50,7 @@ import {
   useTransferItems
 } from "~/stores/stock-transfer";
 import { path } from "~/utils/path";
+import { StockAvailability } from "~/components/StockAvailability";
 import type { Job, JobMaterial } from "../../types";
 
 type JobMaterialsTableProps = {
@@ -315,6 +317,25 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
         },
         meta: {
           icon: <LuHash />
+        }
+      },
+      {
+        id: "stock",
+        header: "Stock",
+        cell: ({ row }) => {
+          // Only show for Material type items
+          const item = items.find((i) => i.id === row.original.itemId);
+          if (item?.type !== "Material") return null;
+          return (
+            <StockAvailability
+              materialId={row.original.itemId}
+              showPopover={false}
+              requiresDimensionTracking={item?.requiresDimensionTracking}
+            />
+          );
+        },
+        meta: {
+          icon: <LuRuler />
         }
       },
       {

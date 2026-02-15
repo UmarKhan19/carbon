@@ -43,6 +43,7 @@ import {
   LuGitPullRequestCreate,
   LuGitPullRequestCreateArrow,
   LuLock,
+  LuRuler,
   LuSettings2,
   LuSquareFunction,
   LuX
@@ -85,6 +86,7 @@ import type { Item as ItemType } from "~/stores";
 import { useItems } from "~/stores";
 
 import { path } from "~/utils/path";
+import { StockAvailabilityInline } from "~/components/StockAvailability";
 import type { methodOperationValidator } from "../../items.models";
 import { methodMaterialValidator } from "../../items.models";
 import type {
@@ -628,6 +630,7 @@ function MaterialForm({
   }, [item.id, methodMaterialFetcher.data, setTemporaryItems, onSubmit]);
 
   const [itemType, setItemType] = useState<MethodItemType>(item.data.itemType);
+  const [requiresDimensionTracking, setRequiresDimensionTracking] = useState(false);
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: MethodType;
@@ -674,7 +677,7 @@ function MaterialForm({
     const item = await carbon
       .from("item")
       .select(
-        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType"
+        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, requiresDimensionTracking"
       )
       .eq("id", itemId)
       .eq("companyId", company.id)
@@ -696,6 +699,7 @@ function MaterialForm({
     if (item.data?.type) {
       setItemType(item.data.type as MethodItemType);
     }
+    setRequiresDimensionTracking(item.data?.requiresDimensionTracking ?? false);
   };
 
   const key = (field: string) => getFieldKey(field, item.id);
@@ -798,6 +802,41 @@ function MaterialForm({
           }
         />
       </div>
+      {itemType === "Material" && requiresDimensionTracking && (
+        <>
+          <Label className="text-sm font-medium flex items-center gap-2 mt-4">
+            <LuRuler className="h-4 w-4" />
+            Required Dimensions
+          </Label>
+          <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
+            <Number
+              name="requiredLength"
+              label="Length"
+            />
+            <Number
+              name="requiredWidth"
+              label="Width"
+            />
+            <Number
+              name="requiredHeight"
+              label="Height"
+            />
+          </div>
+        </>
+      )}
+      {itemType === "Material" && itemData.itemId && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+          <LuRuler className="h-4 w-4" />
+          <span>Stock with dimensions:</span>
+          <StockAvailabilityInline 
+            materialId={itemData.itemId}
+            requiresDimensionTracking={requiresDimensionTracking}
+            requiredLength={item.data.requiredLength}
+            requiredWidth={item.data.requiredWidth}
+            requiredHeight={item.data.requiredHeight}
+          />
+        </div>
+      )}
       <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
         <HStack
           className="w-full justify-between cursor-pointer"
@@ -1133,6 +1172,24 @@ function makeItem(
           </TooltipTrigger>
           <TooltipContent>{material.itemType}</TooltipContent>
         </Tooltip>
+
+        {(material.requiredLength || material.requiredWidth || material.requiredHeight) && (
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant="secondary" className="gap-1">
+                <LuRuler className="h-3 w-3" />
+                {[
+                  material.requiredLength && `L:${material.requiredLength}`,
+                  material.requiredWidth && `W:${material.requiredWidth}`,
+                  material.requiredHeight && `H:${material.requiredHeight}`
+                ]
+                  .filter(Boolean)
+                  .join(" × ")}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>Required Dimensions</TooltipContent>
+          </Tooltip>
+        )}
       </HStack>
     ),
     data: {

@@ -125,7 +125,8 @@ const MaterialProperties = () => {
         | "dimensionId"
         | "finishId"
         | "materialTypeId"
-        | "materialId",
+        | "materialId"
+        | "requiresDimensionTracking",
       value: string | null
     ) => {
       const formData = new FormData();
@@ -158,7 +159,8 @@ const MaterialProperties = () => {
         | "dimensionId"
         | "finishId"
         | "materialTypeId"
-        | "materialId",
+        | "materialId"
+        | "requiresDimensionTracking",
       value: string | null
     ) => {
       if (
@@ -429,6 +431,27 @@ const MaterialProperties = () => {
             }))}
             onChange={(value) => {
               onUpdate("itemTrackingType", value?.value ?? null);
+            }}
+          />
+        </ValidatedForm>
+
+        <ValidatedForm
+          defaultValues={{
+            requiresDimensionTracking:
+              routeData?.materialSummary?.requiresDimensionTracking ?? false
+          }}
+          validator={z.object({
+            requiresDimensionTracking: zfd.checkbox()
+          })}
+          className="w-full"
+        >
+          <Boolean
+            label="Requires Dimension Tracking"
+            name="requiresDimensionTracking"
+            variant="small"
+            description="When enabled, operators must select from stock pieces with dimensions when issuing this material"
+            onChange={(value) => {
+              onUpdate("requiresDimensionTracking", value ? "on" : "off");
             }}
           />
         </ValidatedForm>

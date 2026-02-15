@@ -9,25 +9,8 @@
  * which describe the cross-section/shape and never change.
  */
 
-// For bars, rods, tubes, angles - single dimension (length)
-export type LinearStock = {
-  type: "linear";
-  length: number;
-  originalLength: number;
-};
-
-// For sheets, plates - two dimensions (width x height)
-export type SheetStock = {
-  type: "sheet";
-  width: number;
-  height: number;
-  originalWidth: number;
-  originalHeight: number;
-};
-
-// For blocks, thick plates - three dimensions (length x width x height)
-export type BlockStock = {
-  type: "block";
+// Stock dimensions - always block with three dimensions (length x width x height)
+export type StockDimensions = {
   length: number;
   width: number;
   height: number;
@@ -35,8 +18,6 @@ export type BlockStock = {
   originalWidth: number;
   originalHeight: number;
 };
-
-export type StockDimensions = LinearStock | SheetStock | BlockStock;
 
 export type CutRecord = {
   cutAt: string;
@@ -57,7 +38,7 @@ export type MaterialStockPiece = {
   trackedEntityId: string;
   stockDimensions: StockDimensions;
   stockUnit: string;
-  status: "Available" | "Reserved" | "On Hold";
+  status: "Available" | "Reserved" | "On Hold" | "Consumed";
   shelfId?: string | null;
   locationId?: string | null;
   parentStockId?: string | null;
@@ -66,6 +47,11 @@ export type MaterialStockPiece = {
 export type RecordCutParams = {
   sourceStockId: string;
   consumedAmount: number;
+  remnantDimensions?: {
+    length: number;
+    width: number;
+    height: number;
+  };
   jobMaterialId?: string;
   companyId: string;
   userId: string;
@@ -88,28 +74,16 @@ export type CreateMaterialStockParams = {
 };
 
 export function getStockRemaining(dimensions: StockDimensions): number {
-  switch (dimensions.type) {
-    case "linear":
-      return dimensions.length;
-    case "sheet":
-      return dimensions.width * dimensions.height;
-    case "block":
-      return dimensions.length * dimensions.width * dimensions.height;
-  }
+  // Simplified model: always calculate volume (L x W x H)
+  return dimensions.length * dimensions.width * dimensions.height;
 }
 
 export function formatStockDimensions(
   dimensions: StockDimensions,
   unit: string
 ): string {
-  switch (dimensions.type) {
-    case "linear":
-      return `${dimensions.length} ${unit}`;
-    case "sheet":
-      return `${dimensions.width} x ${dimensions.height} ${unit}`;
-    case "block":
-      return `${dimensions.length} x ${dimensions.width} x ${dimensions.height} ${unit}`;
-  }
+  // Simplified model: always display as L x W x H
+  return `${dimensions.length} x ${dimensions.width} x ${dimensions.height} ${unit}`;
 }
 
 /**

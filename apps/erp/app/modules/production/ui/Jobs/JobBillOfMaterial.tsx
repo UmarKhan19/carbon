@@ -40,12 +40,13 @@ import {
   LuGitPullRequest,
   LuGitPullRequestCreate,
   LuGitPullRequestCreateArrow,
+  LuRuler,
   LuSettings2,
   LuX
 } from "react-icons/lu";
 import { Link, useFetcher, useFetchers, useParams } from "react-router";
 import type { z } from "zod";
-import { MethodIcon, MethodItemTypeIcon, TrackingTypeIcon } from "~/components";
+import { MethodIcon, MethodItemTypeIcon, StockAvailabilityInline, TrackingTypeIcon } from "~/components";
 import {
   DefaultMethodType,
   Hidden,
@@ -81,6 +82,7 @@ import type { Job } from "../../types";
 type Material = z.infer<typeof jobMaterialValidator> & {
   requiresBatchTracking: boolean;
   requiresSerialTracking: boolean;
+  requiresDimensionTracking?: boolean;
 };
 
 type Operation = z.infer<typeof jobOperationValidator>;
@@ -661,6 +663,9 @@ function MaterialForm({
   }, [item.id, methodMaterialFetcher.data, setTemporaryItems, onSubmit]);
 
   const [itemType, setItemType] = useState<MethodItemType>(item.data.itemType);
+  const [requiresDimensionTracking, setRequiresDimensionTracking] = useState(
+    item.data.requiresDimensionTracking ?? false
+  );
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: MethodType;
@@ -717,7 +722,7 @@ function MaterialForm({
       carbon
         .from("item")
         .select(
-          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, itemTrackingType"
+          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, itemTrackingType, requiresDimensionTracking"
         )
         .eq("id", itemId)
         .eq("companyId", company.id)
@@ -736,6 +741,8 @@ function MaterialForm({
       toast.error("Failed to load item details");
       return;
     }
+
+    setRequiresDimensionTracking(item.data?.requiresDimensionTracking ?? false);
 
     setItemData((d) => ({
       ...d,
@@ -848,6 +855,42 @@ function MaterialForm({
           />
         )}
       </div>
+
+      {itemType === "Material" && requiresDimensionTracking && (
+        <>
+          <Label className="text-sm font-medium flex items-center gap-2 mt-4">
+            <LuRuler className="h-4 w-4" />
+            Required Dimensions
+          </Label>
+          <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
+            <Number
+              name="requiredLength"
+              label="Length"
+            />
+            <Number
+              name="requiredWidth"
+              label="Width"
+            />
+            <Number
+              name="requiredHeight"
+              label="Height"
+            />
+          </div>
+        </>
+      )}
+      {itemType === "Material" && itemData.itemId && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+          <LuRuler className="h-4 w-4" />
+          <span>Stock with dimensions:</span>
+          <StockAvailabilityInline 
+            materialId={itemData.itemId}
+            requiresDimensionTracking={requiresDimensionTracking}
+            requiredLength={item.data.requiredLength}
+            requiredWidth={item.data.requiredWidth}
+            requiredHeight={item.data.requiredHeight}
+          />
+        </div>
+      )}
 
       <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
         <HStack

@@ -7,13 +7,18 @@ import { recordCut } from "~/services/operations.service";
 
 const issueFromStockValidator = z.object({
   sourceStockId: z.string().min(1, "Source stock ID is required"),
-  consumedAmount: z.number().positive("Consumed amount must be positive"),
+  consumedAmount: z.number().nonnegative("Consumed amount cannot be negative"),
+  remnantDimensions: z.object({
+    length: z.number().nonnegative(),
+    width: z.number().nonnegative(),
+    height: z.number().nonnegative()
+  }).optional(),
   jobMaterialId: z.string().optional()
 });
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { userId, companyId, carbon } = await requirePermissions(request, {});
+  const { userId, companyId, client } = await requirePermissions(request, {});
 
   let body: unknown;
   try {
@@ -37,12 +42,13 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const { sourceStockId, consumedAmount, jobMaterialId } = validation.data;
+  const { sourceStockId, consumedAmount, remnantDimensions, jobMaterialId } = validation.data;
 
   try {
-    const result = await recordCut(carbon, {
+    const result = await recordCut(client, {
       sourceStockId,
       consumedAmount,
+      remnantDimensions,
       jobMaterialId,
       companyId,
       userId
@@ -51,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
     // If there's a jobMaterialId, update the quantityIssued on the job material
     if (jobMaterialId) {
       // Get current quantity issued
-      const { data: currentMaterial, error: fetchError } = await carbon
+      const { data: currentMaterial, error: fetchError } = await client
         .from("jobMaterial")
         .select("quantityIssued")
         .eq("id", jobMaterialId)
@@ -65,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
         const newQuantityIssued =
           (currentMaterial?.quantityIssued ?? 0) + consumedAmount;
 
-        const { error: updateError } = await carbon
+        const { error: updateError } = await client
           .from("jobMaterial")
           .update({ quantityIssued: newQuantityIssued })
           .eq("id", jobMaterialId);

@@ -210,16 +210,38 @@ export function IssueMaterialModal({
   } = useMaterialStock(
     material?.itemType === "Material" ? selectedItemId : undefined
   );
+  
+  // Debug: Log when materialStockPieces changes
+  useEffect(() => {
+    console.log("materialStockPieces updated:", materialStockPieces?.length ?? 0, "pieces");
+  }, [materialStockPieces]);
   const [selectedStockId, setSelectedStockId] = useState<string>("");
   const [stockCutAmount, setStockCutAmount] = useState<number>(initialQuantity);
+  const [remnantLength, setRemnantLength] = useState<number>(0);
+  const [remnantWidth, setRemnantWidth] = useState<number>(0);
+  const [remnantHeight, setRemnantHeight] = useState<number>(0);
   const hasStockPieces = (materialStockPieces?.length ?? 0) > 0;
   const isMaterial = material?.itemType === "Material";
+  const requiresDimensionTracking = (material as unknown as { requiresDimensionTracking?: boolean })?.requiresDimensionTracking ?? false;
+
+  // Auto-populate remnant dimensions from selected stock
+  useEffect(() => {
+    if (selectedStockId && materialStockPieces) {
+      const selectedStock = materialStockPieces.find(
+        (s) => s.trackedEntityId === selectedStockId
+      );
+      if (selectedStock) {
+        // Initialize remnant dimensions to match the stock
+        // User can then reduce them as needed
+        setRemnantLength(selectedStock.stockDimensions.length);
+        setRemnantWidth(selectedStock.stockDimensions.width);
+        setRemnantHeight(selectedStock.stockDimensions.height);
+      }
+    }
+  }, [selectedStockId, materialStockPieces]);
 
   // Add stock form state
   const [showAddStock, setShowAddStock] = useState(false);
-  const [newStockType, setNewStockType] = useState<
-    "linear" | "sheet" | "block"
-  >("linear");
   const [newStockLength, setNewStockLength] = useState<number>(0);
   const [newStockWidth, setNewStockWidth] = useState<number>(0);
   const [newStockHeight, setNewStockHeight] = useState<number>(0);
@@ -680,11 +702,6 @@ export function IssueMaterialModal({
       return;
     }
 
-    if (stockCutAmount <= 0) {
-      toast.error("Cut amount must be greater than 0");
-      return;
-    }
-
     const selectedStock = materialStockPieces?.find(
       (s) => s.trackedEntityId === selectedStockId
     );
@@ -693,25 +710,45 @@ export function IssueMaterialModal({
       return;
     }
 
-    // Validate cut amount doesn't exceed available stock
-    const availableAmount =
-      selectedStock.stockDimensions.type === "linear"
-        ? selectedStock.stockDimensions.length
-        : selectedStock.stockDimensions.type === "sheet"
-          ? selectedStock.stockDimensions.width *
-            selectedStock.stockDimensions.height
-          : selectedStock.stockDimensions.length;
+    const { length: availLength, width: availWidth, height: availHeight } = selectedStock.stockDimensions;
 
-    if (stockCutAmount > availableAmount) {
+    // Validate remnant dimensions are not negative
+    if (remnantLength < 0 || remnantWidth < 0 || remnantHeight < 0) {
+      toast.error("Remnant dimensions cannot be negative");
+      return;
+    }
+
+    // Validate remnant dimensions don't exceed original stock
+    if (remnantLength > availLength) {
       toast.error(
-        `Cut amount cannot exceed available stock (${availableAmount} ${selectedStock.stockUnit})`
+        `Remnant length (${remnantLength}) cannot exceed original stock length (${availLength} ${selectedStock.stockUnit})`
+      );
+      return;
+    }
+    if (remnantWidth > availWidth) {
+      toast.error(
+        `Remnant width (${remnantWidth}) cannot exceed original stock width (${availWidth} ${selectedStock.stockUnit})`
+      );
+      return;
+    }
+    if (remnantHeight > availHeight) {
+      toast.error(
+        `Remnant height (${remnantHeight}) cannot exceed original stock height (${availHeight} ${selectedStock.stockUnit})`
       );
       return;
     }
 
+    // Calculate consumed amount (we'll use the reduction in length for the ledger)
+    const consumedLength = availLength - remnantLength;
+
     const payload = {
       sourceStockId: selectedStockId,
-      consumedAmount: stockCutAmount,
+      consumedAmount: consumedLength,
+      remnantDimensions: {
+        length: remnantLength,
+        width: remnantWidth,
+        height: remnantHeight
+      },
       jobMaterialId: material?.id
     };
 
@@ -722,7 +759,9 @@ export function IssueMaterialModal({
     });
   }, [
     selectedStockId,
-    stockCutAmount,
+    remnantLength,
+    remnantWidth,
+    remnantHeight,
     materialStockPieces,
     material?.id,
     stockFetcher
@@ -730,43 +769,19 @@ export function IssueMaterialModal({
 
   // Submit handler for adding new stock
   const handleAddStock = useCallback(() => {
-    let stockDimensions:
-      | { type: "linear"; length: number }
-      | { type: "sheet"; width: number; height: number }
-      | { type: "block"; length: number; width: number; height: number };
-
-    switch (newStockType) {
-      case "linear":
-        if (newStockLength <= 0) {
-          toast.error("Length must be greater than 0");
-          return;
-        }
-        stockDimensions = { type: "linear", length: newStockLength };
-        break;
-      case "sheet":
-        if (newStockWidth <= 0 || newStockHeight <= 0) {
-          toast.error("Width and height must be greater than 0");
-          return;
-        }
-        stockDimensions = {
-          type: "sheet",
-          width: newStockWidth,
-          height: newStockHeight
-        };
-        break;
-      case "block":
-        if (newStockLength <= 0 || newStockWidth <= 0 || newStockHeight <= 0) {
-          toast.error("All dimensions must be greater than 0");
-          return;
-        }
-        stockDimensions = {
-          type: "block",
-          length: newStockLength,
-          width: newStockWidth,
-          height: newStockHeight
-        };
-        break;
+    if (newStockLength <= 0 || newStockWidth <= 0 || newStockHeight <= 0) {
+      toast.error("All dimensions (L, W, H) must be greater than 0");
+      return;
     }
+
+    const stockDimensions = {
+      length: newStockLength,
+      width: newStockWidth,
+      height: newStockHeight,
+      originalLength: newStockLength,
+      originalWidth: newStockWidth,
+      originalHeight: newStockHeight
+    };
 
     const payload = {
       materialId: selectedItemId,
@@ -781,7 +796,6 @@ export function IssueMaterialModal({
       encType: "application/json"
     });
   }, [
-    newStockType,
     newStockLength,
     newStockWidth,
     newStockHeight,
@@ -853,11 +867,17 @@ export function IssueMaterialModal({
           `Remnant created: ${stockFetcher.data.remnantId.slice(0, 10)}...`
         );
       }
-      onClose();
+      // Refresh stock list after a delay to ensure database transaction completes
+      setTimeout(() => {
+        console.log("Refreshing stock list after cut...");
+        refreshStock();
+        // Reset selection so user can select the remnant for next cut
+        setSelectedStockId("");
+      }, 1000);
     } else if (stockFetcher.data?.message && !stockFetcher.data?.success) {
       toast.error(stockFetcher.data.message);
     }
-  }, [stockFetcher.data, onClose]);
+  }, [stockFetcher.data, refreshStock]);
 
   useEffect(() => {
     if (addStockFetcher.data?.success) {
@@ -1024,11 +1044,11 @@ export function IssueMaterialModal({
 
                   {showContent && trackingType === "Inventory" && (
                     <>
-                      {/* Show stock selection for Material-type items */}
-                      {isMaterial && (hasStockPieces || showAddStock) ? (
+                      {/* Show stock selection for Material-type items with dimension tracking */}
+                      {(isMaterial && (hasStockPieces || showAddStock)) || (requiresDimensionTracking && isMaterial) ? (
                         <div className="flex flex-col gap-4">
                           {/* Stock list + add button */}
-                          {!showAddStock ? (
+                          {!showAddStock && hasStockPieces ? (
                             <>
                               <div>
                                 <div className="flex items-center justify-between mb-2">
@@ -1113,46 +1133,66 @@ export function IssueMaterialModal({
                               </div>
                               <div>
                                 <label className="block text-sm font-medium mb-1">
-                                  Amount to Cut
+                                  Remnant Dimensions (after cut)
                                 </label>
-                                <div className="flex items-center gap-2">
-                                  <div className="flex-1">
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  Enter the dimensions of the remaining piece. Each must be ≤ original.
+                                </p>
+                                <div className="grid grid-cols-3 gap-2">
+                                  <div>
+                                    <label className="block text-xs text-muted-foreground mb-1">
+                                      Length
+                                    </label>
                                     <NumberField
-                                      value={stockCutAmount}
-                                      onChange={setStockCutAmount}
-                                      minValue={0.01}
+                                      value={remnantLength}
+                                      onChange={setRemnantLength}
+                                      minValue={0}
                                     >
                                       <NumberInputGroup className="relative">
                                         <NumberInput />
-                                        <NumberInputStepper>
-                                          <NumberIncrementStepper>
-                                            <LuChevronUp
-                                              size="1em"
-                                              strokeWidth="3"
-                                            />
-                                          </NumberIncrementStepper>
-                                          <NumberDecrementStepper>
-                                            <LuChevronDown
-                                              size="1em"
-                                              strokeWidth="3"
-                                            />
-                                          </NumberDecrementStepper>
-                                        </NumberInputStepper>
                                       </NumberInputGroup>
                                     </NumberField>
                                   </div>
-                                  {selectedStockId && (
-                                    <span className="text-sm text-muted-foreground">
-                                      {
-                                        materialStockPieces?.find(
-                                          (s) =>
-                                            s.trackedEntityId ===
-                                            selectedStockId
-                                        )?.stockUnit
-                                      }
-                                    </span>
-                                  )}
+                                  <div>
+                                    <label className="block text-xs text-muted-foreground mb-1">
+                                      Width
+                                    </label>
+                                    <NumberField
+                                      value={remnantWidth}
+                                      onChange={setRemnantWidth}
+                                      minValue={0}
+                                    >
+                                      <NumberInputGroup className="relative">
+                                        <NumberInput />
+                                      </NumberInputGroup>
+                                    </NumberField>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-muted-foreground mb-1">
+                                      Height
+                                    </label>
+                                    <NumberField
+                                      value={remnantHeight}
+                                      onChange={setRemnantHeight}
+                                      minValue={0}
+                                    >
+                                      <NumberInputGroup className="relative">
+                                        <NumberInput />
+                                      </NumberInputGroup>
+                                    </NumberField>
+                                  </div>
                                 </div>
+                                {selectedStockId && (
+                                  <span className="text-xs text-muted-foreground mt-1">
+                                    Unit: {
+                                      materialStockPieces?.find(
+                                        (s) =>
+                                          s.trackedEntityId ===
+                                          selectedStockId
+                                      )?.stockUnit
+                                    }
+                                  </span>
+                                )}
                               </div>
                             </>
                           ) : (
@@ -1172,35 +1212,7 @@ export function IssueMaterialModal({
                                   </Button>
                                 )}
                               </div>
-                              <div>
-                                <label className="block text-sm font-medium mb-1">
-                                  Dimension Type
-                                </label>
-                                <Select
-                                  value={newStockType}
-                                  onValueChange={(v) =>
-                                    setNewStockType(
-                                      v as "linear" | "sheet" | "block"
-                                    )
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="linear">
-                                      Linear (Length)
-                                    </SelectItem>
-                                    <SelectItem value="sheet">
-                                      Sheet (Width x Height)
-                                    </SelectItem>
-                                    <SelectItem value="block">
-                                      Block (L x W x H)
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              {newStockType === "linear" && (
+                              <div className="grid grid-cols-3 gap-2">
                                 <div>
                                   <label className="block text-sm font-medium mb-1">
                                     Length
@@ -1212,87 +1224,38 @@ export function IssueMaterialModal({
                                   >
                                     <NumberInputGroup className="relative">
                                       <NumberInput />
-                                      <NumberInputStepper>
-                                        <NumberIncrementStepper>
-                                          <LuChevronUp
-                                            size="1em"
-                                            strokeWidth="3"
-                                          />
-                                        </NumberIncrementStepper>
-                                        <NumberDecrementStepper>
-                                          <LuChevronDown
-                                            size="1em"
-                                            strokeWidth="3"
-                                          />
-                                        </NumberDecrementStepper>
-                                      </NumberInputStepper>
                                     </NumberInputGroup>
                                   </NumberField>
                                 </div>
-                              )}
-                              {(newStockType === "sheet" ||
-                                newStockType === "block") && (
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <label className="block text-sm font-medium mb-1">
-                                      Width
-                                    </label>
-                                    <NumberField
-                                      value={newStockWidth}
-                                      onChange={setNewStockWidth}
-                                      minValue={0.01}
-                                    >
-                                      <NumberInputGroup className="relative">
-                                        <NumberInput />
-                                      </NumberInputGroup>
-                                    </NumberField>
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-medium mb-1">
-                                      Height
-                                    </label>
-                                    <NumberField
-                                      value={newStockHeight}
-                                      onChange={setNewStockHeight}
-                                      minValue={0.01}
-                                    >
-                                      <NumberInputGroup className="relative">
-                                        <NumberInput />
-                                      </NumberInputGroup>
-                                    </NumberField>
-                                  </div>
-                                </div>
-                              )}
-                              {newStockType === "block" && (
                                 <div>
                                   <label className="block text-sm font-medium mb-1">
-                                    Length / Depth
+                                    Width
                                   </label>
                                   <NumberField
-                                    value={newStockLength}
-                                    onChange={setNewStockLength}
+                                    value={newStockWidth}
+                                    onChange={setNewStockWidth}
                                     minValue={0.01}
                                   >
                                     <NumberInputGroup className="relative">
                                       <NumberInput />
-                                      <NumberInputStepper>
-                                        <NumberIncrementStepper>
-                                          <LuChevronUp
-                                            size="1em"
-                                            strokeWidth="3"
-                                          />
-                                        </NumberIncrementStepper>
-                                        <NumberDecrementStepper>
-                                          <LuChevronDown
-                                            size="1em"
-                                            strokeWidth="3"
-                                          />
-                                        </NumberDecrementStepper>
-                                      </NumberInputStepper>
                                     </NumberInputGroup>
                                   </NumberField>
                                 </div>
-                              )}
+                                <div>
+                                  <label className="block text-sm font-medium mb-1">
+                                    Height
+                                  </label>
+                                  <NumberField
+                                    value={newStockHeight}
+                                    onChange={setNewStockHeight}
+                                    minValue={0.01}
+                                  >
+                                    <NumberInputGroup className="relative">
+                                      <NumberInput />
+                                    </NumberInputGroup>
+                                  </NumberField>
+                                </div>
+                              </div>
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
                                   <label className="block text-sm font-medium mb-1">
@@ -1346,13 +1309,22 @@ export function IssueMaterialModal({
                             </div>
                           )}
                         </div>
-                      ) : isMaterial && !hasStockPieces && !isLoadingStock ? (
+                      ) : isMaterial && !hasStockPieces && !isLoadingStock && !showAddStock ? (
                         /* No stock pieces yet for this material - show add stock prompt */
                         <div className="flex flex-col gap-4">
-                          <div className="text-sm text-muted-foreground text-center py-4">
-                            No stock pieces with dimensions found for this
-                            material.
-                          </div>
+                          {requiresDimensionTracking ? (
+                            <Alert variant="warning">
+                              <AlertTitle>Dimension Tracking Required</AlertTitle>
+                              <AlertDescription>
+                                This material requires dimension tracking. You must add stock with dimensions before issuing.
+                              </AlertDescription>
+                            </Alert>
+                          ) : (
+                            <div className="text-sm text-muted-foreground text-center py-4">
+                              No stock pieces with dimensions found for this
+                              material.
+                            </div>
+                          )}
                           <Button
                             variant="secondary"
                             leftIcon={<LuCirclePlus />}
@@ -1360,6 +1332,111 @@ export function IssueMaterialModal({
                           >
                             Add Stock with Dimensions
                           </Button>
+                        </div>
+                      ) : (showAddStock && requiresDimensionTracking && !hasStockPieces) ? (
+                        /* Show Add Stock form when dimension tracking required and no stock */
+                        <div className="flex flex-col gap-4">
+                          <Alert variant="warning">
+                            <AlertTitle>Dimension Tracking Required</AlertTitle>
+                            <AlertDescription>
+                              Add stock with dimensions to issue this material.
+                            </AlertDescription>
+                          </Alert>
+                          {/* Add Stock Form - Block dimensions (L × W × H) */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <label className="block text-sm font-medium mb-1">
+                                Length
+                              </label>
+                              <NumberField
+                                value={newStockLength}
+                                onChange={setNewStockLength}
+                                minValue={0.01}
+                              >
+                                <NumberInputGroup className="relative">
+                                  <NumberInput />
+                                </NumberInputGroup>
+                              </NumberField>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium mb-1">
+                                Width
+                              </label>
+                              <NumberField
+                                value={newStockWidth}
+                                onChange={setNewStockWidth}
+                                minValue={0.01}
+                              >
+                                <NumberInputGroup className="relative">
+                                  <NumberInput />
+                                </NumberInputGroup>
+                              </NumberField>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium mb-1">
+                                Height
+                              </label>
+                              <NumberField
+                                value={newStockHeight}
+                                onChange={setNewStockHeight}
+                                minValue={0.01}
+                              >
+                                <NumberInputGroup className="relative">
+                                  <NumberInput />
+                                </NumberInputGroup>
+                              </NumberField>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-sm font-medium mb-1">
+                                Unit
+                              </label>
+                              <Select
+                                value={newStockUnit}
+                                onValueChange={setNewStockUnit}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="IN">Inches</SelectItem>
+                                  <SelectItem value="FT">Feet</SelectItem>
+                                  <SelectItem value="MM">mm</SelectItem>
+                                  <SelectItem value="CM">cm</SelectItem>
+                                  <SelectItem value="M">Meters</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium mb-1">
+                                Qty (pieces)
+                              </label>
+                              <NumberField
+                                value={newStockQty}
+                                onChange={setNewStockQty}
+                                minValue={1}
+                              >
+                                <NumberInputGroup className="relative">
+                                  <NumberInput />
+                                  <NumberInputStepper>
+                                    <NumberIncrementStepper>
+                                      <LuChevronUp
+                                        size="1em"
+                                        strokeWidth="3"
+                                      />
+                                    </NumberIncrementStepper>
+                                    <NumberDecrementStepper>
+                                      <LuChevronDown
+                                        size="1em"
+                                        strokeWidth="3"
+                                      />
+                                    </NumberDecrementStepper>
+                                  </NumberInputStepper>
+                                </NumberInputGroup>
+                              </NumberField>
+                            </div>
+                          </div>
                         </div>
                       ) : (
                         <>
@@ -1436,10 +1513,21 @@ export function IssueMaterialModal({
                     isDisabled={
                       stockFetcher.state !== "idle" ||
                       !selectedStockId ||
-                      stockCutAmount <= 0
+                      remnantLength < 0 ||
+                      remnantWidth < 0 ||
+                      remnantHeight < 0
                     }
                   >
                     Issue from Stock
+                  </Button>
+                ) : requiresDimensionTracking && isMaterial && !hasStockPieces ? (
+                  /* Block issue when dimension tracking required but no stock */
+                  <Button
+                    variant="primary"
+                    isDisabled
+                    title="Add stock with dimensions first"
+                  >
+                    Issue (Stock Required)
                   </Button>
                 ) : (
                   <Button
@@ -2282,6 +2370,7 @@ function useMaterialStock(materialId?: string) {
       const result = await getAvailableMaterialStock(carbon, materialId);
 
       if (!cancelled) {
+        console.log("Setting stock data:", result.length, "pieces");
         setData(result);
         setIsLoading(false);
       }

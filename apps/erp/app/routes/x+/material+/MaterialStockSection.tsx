@@ -26,6 +26,10 @@ import {
   SelectTrigger,
   SelectValue,
   Table,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Tbody,
   Td,
   Th,
@@ -47,7 +51,7 @@ import { useFetcher, useLoaderData } from "react-router";
 import type { loader } from "./$itemId.stock";
 
 export function MaterialStockSection() {
-  const { stockPieces, itemId } = useLoaderData<typeof loader>();
+  const { stockPieces, consumedStockPieces, itemId } = useLoaderData<typeof loader>();
   const addModal = useDisclosure();
   const fetcher = useFetcher();
 
@@ -132,59 +136,123 @@ export function MaterialStockSection() {
           </CardAction>
         </HStack>
         <CardContent>
-          {stockPieces.length === 0 ? (
-            <div className="text-sm text-muted-foreground text-center py-8">
-              No stock pieces with dimensions. Add stock to start tracking
-              material dimensions.
-            </div>
-          ) : (
-            <Table className="table-fixed">
-              <Thead>
-                <Tr>
-                  <Th>Dimensions</Th>
-                  <Th>Remaining</Th>
-                  <Th>Unit</Th>
-                  <Th>Status</Th>
-                  <Th>ID</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {stockPieces.map((piece) => (
-                  <Tr key={piece.trackedEntityId}>
-                    <Td>
-                      <span className="font-medium">
-                        {formatStockDimensions(
-                          piece.stockDimensions,
-                          piece.stockUnit
-                        )}
-                      </span>
-                    </Td>
-                    <Td>{getStockRemaining(piece.stockDimensions)}</Td>
-                    <Td>{piece.stockUnit}</Td>
-                    <Td>
-                      <Badge
-                        variant={
-                          piece.status === "Available"
-                            ? "default"
-                            : "secondary"
-                        }
-                      >
-                        {piece.status}
-                      </Badge>
-                      {piece.parentStockId && (
-                        <Badge variant="outline" className="ml-1">
-                          Remnant
-                        </Badge>
-                      )}
-                    </Td>
-                    <Td className="font-mono text-xs text-muted-foreground">
-                      {piece.trackedEntityId.slice(0, 12)}...
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          )}
+          <Tabs defaultValue="available" className="w-full">
+            <TabsList>
+              <TabsTrigger value="available">
+                Available ({stockPieces.length})
+              </TabsTrigger>
+              <TabsTrigger value="consumed">
+                Consumed ({consumedStockPieces.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="available">
+              {stockPieces.length === 0 ? (
+                <div className="text-sm text-muted-foreground text-center py-8">
+                  No stock pieces with dimensions. Add stock to start tracking
+                  material dimensions.
+                </div>
+              ) : (
+                <Table className="table-fixed">
+                  <Thead>
+                    <Tr>
+                      <Th>Dimensions</Th>
+                      <Th>Remaining</Th>
+                      <Th>Unit</Th>
+                      <Th>Status</Th>
+                      <Th>ID</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {stockPieces.map((piece) => (
+                      <Tr key={piece.trackedEntityId}>
+                        <Td>
+                          <span className="font-medium">
+                            {formatStockDimensions(
+                              piece.stockDimensions,
+                              piece.stockUnit
+                            )}
+                          </span>
+                        </Td>
+                        <Td>{getStockRemaining(piece.stockDimensions)}</Td>
+                        <Td>{piece.stockUnit}</Td>
+                        <Td>
+                          <Badge
+                            variant={
+                              piece.status === "Available"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {piece.status}
+                          </Badge>
+                          {piece.parentStockId && (
+                            <Badge variant="outline" className="ml-1">
+                              Remnant
+                            </Badge>
+                          )}
+                        </Td>
+                        <Td className="font-mono text-xs text-muted-foreground">
+                          {piece.trackedEntityId.slice(0, 12)}...
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              )}
+            </TabsContent>
+
+            <TabsContent value="consumed">
+              {consumedStockPieces.length === 0 ? (
+                <div className="text-sm text-muted-foreground text-center py-8">
+                  No consumed stock pieces yet.
+                </div>
+              ) : (
+                <Table className="table-fixed">
+                  <Thead>
+                    <Tr>
+                      <Th>Original Dimensions</Th>
+                      <Th>Original Volume</Th>
+                      <Th>Unit</Th>
+                      <Th>Status</Th>
+                      <Th>ID</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {consumedStockPieces.map((piece) => (
+                      <Tr key={piece.trackedEntityId}>
+                        <Td>
+                          <span className="font-medium text-muted-foreground line-through">
+                            {formatStockDimensions(
+                              piece.stockDimensions,
+                              piece.stockUnit
+                            )}
+                          </span>
+                        </Td>
+                        <Td className="text-muted-foreground">
+                          {getStockRemaining(piece.stockDimensions)}
+                        </Td>
+                        <Td className="text-muted-foreground">{piece.stockUnit}</Td>
+                        <Td>
+                          <Badge variant="secondary">
+                            Consumed
+                          </Badge>
+                          {piece.parentStockId && (
+                            <Badge variant="outline" className="ml-1">
+                              Was Remnant
+                            </Badge>
+                          )}
+                        </Td>
+                        <Td className="font-mono text-xs text-muted-foreground">
+                          {piece.trackedEntityId.slice(0, 12)}...
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 

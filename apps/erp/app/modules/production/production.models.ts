@@ -628,7 +628,10 @@ const baseMaterialValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  shelfId: zfd.text(z.string().optional())
+  shelfId: zfd.text(z.string().optional()),
+  requiredLength: zfd.numeric(z.number().optional()),
+  requiredWidth: zfd.numeric(z.number().optional()),
+  requiredHeight: zfd.numeric(z.number().optional())
 });
 
 export const jobMaterialValidator = baseMaterialValidator

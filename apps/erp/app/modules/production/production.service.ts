@@ -1044,7 +1044,7 @@ export async function getJobMaterialsByMethodId(
 ) {
   return client
     .from("jobMaterial")
-    .select("*")
+    .select("*, item!inner(requiresDimensionTracking)")
     .eq("jobMakeMethodId", jobMakeMethodId)
     .order("order", { ascending: true });
 }

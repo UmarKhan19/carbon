@@ -989,12 +989,15 @@ export async function getAvailableMaterialStock(
     .select("*")
     .eq("status", "Available")
     .eq("attributes->>materialId", materialId)
-    .not("attributes->stockDimensions", "is", null);
+    .not("attributes->stockDimensions", "is", null)
+    .order("createdAt", { ascending: false }); // Order by newest first to show remnants at top
 
   if (result.error || !result.data) {
+    console.error("Error fetching material stock:", result.error);
     return [];
   }
 
+  console.log(`Found ${result.data.length} available stock pieces for material ${materialId}`);
   return result.data.map((entity) => {
     const attributes = entity.attributes as unknown as MaterialStockAttributes;
     return {
@@ -1023,7 +1026,7 @@ export async function recordCut(
   client: SupabaseClient<Database>,
   params: RecordCutParams
 ): Promise<RecordCutResult> {
-  const { sourceStockId, consumedAmount, jobMaterialId, companyId, userId } =
+  const { sourceStockId, consumedAmount, remnantDimensions, jobMaterialId, companyId, userId } =
     params;
 
   // 1. Get source stock entity
@@ -1081,21 +1084,61 @@ export async function recordCut(
     throw new Error(`Failed to link input: ${inputResult.error.message}`);
   }
 
-  // 4. Calculate remaining dimensions
-  const remaining = calculateRemainingDimensions(
-    attributes.stockDimensions,
-    consumedAmount
-  );
+  // 4. Determine remnant dimensions
+  let newDimensions: StockDimensions | null = null;
+  
+  if (remnantDimensions) {
+    // Use user-provided remnant dimensions
+    newDimensions = {
+      length: remnantDimensions.length,
+      width: remnantDimensions.width,
+      height: remnantDimensions.height,
+      originalLength: attributes.stockDimensions.originalLength,
+      originalWidth: attributes.stockDimensions.originalWidth,
+      originalHeight: attributes.stockDimensions.originalHeight
+    };
+  } else {
+    // Fall back to old logic: only reduce length
+    const remaining = calculateRemainingDimensions(
+      attributes.stockDimensions,
+      consumedAmount
+    );
+    if (remaining > 0) {
+      newDimensions = updateStockDimensions(
+        attributes.stockDimensions,
+        remaining
+      );
+    }
+  }
 
   let remnantId: string | undefined;
 
-  // 5. If remnant > 0: Create new trackedEntity for remnant
-  if (remaining > 0) {
+  // 5. If remnant exists and has non-zero volume: Create new trackedEntity for remnant
+  const hasRemnant = newDimensions && 
+    (newDimensions.length > 0 && newDimensions.width > 0 && newDimensions.height > 0);
+  
+  if (hasRemnant) {
     remnantId = nanoid();
-    const newDimensions = updateStockDimensions(
-      attributes.stockDimensions,
-      remaining
-    );
+    
+    console.log("Creating remnant with dimensions:", JSON.stringify(newDimensions));
+    
+    const remnantAttributes = {
+      materialId: attributes.materialId,
+      parentStockId: sourceStockId,
+      stockDimensions: newDimensions,
+      stockUnit: attributes.stockUnit,
+      cutHistory: [
+        ...(attributes.cutHistory ?? []),
+        {
+          cutAt: new Date().toISOString(),
+          cutBy: userId,
+          consumed: consumedAmount,
+          jobId: jobMaterialId
+        }
+      ]
+    };
+    
+    console.log("Remnant attributes:", JSON.stringify(remnantAttributes));
 
     const remnantResult = await client
       .from("trackedEntity")
@@ -1105,30 +1148,20 @@ export async function recordCut(
         status: "Available",
         sourceDocument: "Cut",
         sourceDocumentId: activityId,
-        attributes: {
-          materialId: attributes.materialId,
-          parentStockId: sourceStockId,
-          stockDimensions: newDimensions,
-          stockUnit: attributes.stockUnit,
-          cutHistory: [
-            ...(attributes.cutHistory ?? []),
-            {
-              cutAt: new Date().toISOString(),
-              cutBy: userId,
-              consumed: consumedAmount,
-              jobId: jobMaterialId
-            }
-          ]
-        },
+        attributes: remnantAttributes as unknown as Record<string, unknown>,
         companyId,
         createdBy: userId
       })
-      .select("id")
+      .select("*")
       .single();
 
     if (remnantResult.error) {
+      console.error("Failed to create remnant:", remnantResult.error);
       throw new Error(`Failed to create remnant: ${remnantResult.error.message}`);
     }
+    
+    console.log("Remnant created successfully:", remnantId);
+    console.log("Remnant data from DB:", JSON.stringify(remnantResult.data));
 
     // Link remnant as output
     const outputResult = await client.from("trackedActivityOutput").insert({
@@ -1145,20 +1178,24 @@ export async function recordCut(
   }
 
   // 6. Update source entity status to "Consumed"
+  console.log(`Marking source stock ${sourceStockId} as Consumed`);
   const updateResult = await client
     .from("trackedEntity")
     .update({ status: "Consumed" })
     .eq("id", sourceStockId);
 
   if (updateResult.error) {
+    console.error("Failed to update source status:", updateResult.error);
     throw new Error(`Failed to update source status: ${updateResult.error.message}`);
   }
+  
+  console.log("Source stock marked as Consumed successfully");
 
   // 7. Create item ledger entry for audit trail
   const ledgerResult = await client.from("itemLedger").insert({
     postingDate: new Date().toISOString(),
     entryType: "Consumption",
-    documentType: "Job",
+    documentType: "Job Consumption",
     documentId: jobMaterialId,
     itemId: attributes.materialId,
     quantity: -consumedAmount,
@@ -1187,18 +1224,8 @@ function calculateRemainingDimensions(
   dimensions: StockDimensions,
   consumed: number
 ): number {
-  switch (dimensions.type) {
-    case "linear":
-      return dimensions.length - consumed;
-    case "sheet":
-      // For sheets, consumed is treated as area
-      const currentArea = dimensions.width * dimensions.height;
-      return currentArea - consumed;
-    case "block":
-      // For blocks, consumed is treated as volume or single dimension
-      // depending on use case - for now treating as single dimension (depth)
-      return dimensions.length - consumed;
-  }
+  // For blocks, consumed is treated as length reduction
+  return dimensions.length - consumed;
 }
 
 /**
@@ -1208,25 +1235,8 @@ function updateStockDimensions(
   dimensions: StockDimensions,
   remaining: number
 ): StockDimensions {
-  switch (dimensions.type) {
-    case "linear":
-      return {
-        ...dimensions,
-        length: remaining
-      };
-    case "sheet":
-      // For sheets, we need to decide how to handle partial cuts
-      // For now, keeping original dimensions ratio
-      const ratio = remaining / (dimensions.width * dimensions.height);
-      return {
-        ...dimensions,
-        width: dimensions.width * Math.sqrt(ratio),
-        height: dimensions.height * Math.sqrt(ratio)
-      };
-    case "block":
-      return {
-        ...dimensions,
-        length: remaining
-      };
-  }
+  return {
+    ...dimensions,
+    length: remaining
+  };
 }

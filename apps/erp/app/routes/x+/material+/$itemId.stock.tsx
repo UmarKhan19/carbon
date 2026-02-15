@@ -22,40 +22,69 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  const result = await client
-    .from("trackedEntity")
-    .select("*")
-    .eq("status", "Available")
-    .eq("attributes->>materialId", itemId)
-    .not("attributes->stockDimensions", "is", null);
+  // Fetch both available and consumed stock
+  const [availableResult, consumedResult] = await Promise.all([
+    client
+      .from("trackedEntity")
+      .select("*")
+      .eq("status", "Available")
+      .eq("attributes->>materialId", itemId)
+      .not("attributes->stockDimensions", "is", null),
+    client
+      .from("trackedEntity")
+      .select("*")
+      .eq("status", "Consumed")
+      .eq("attributes->>materialId", itemId)
+      .not("attributes->stockDimensions", "is", null)
+  ]);
 
-  if (result.error) {
+  if (availableResult.error) {
     throw redirect(
       path.to.material(itemId),
       await flash(
         request,
-        error(result.error, "Failed to load material stock")
+        error(availableResult.error, "Failed to load material stock")
       )
     );
   }
 
-  const stockPieces: MaterialStockPiece[] = (result.data ?? [])
-    .map((entity) => {
-      const attrs = entity.attributes as unknown as MaterialStockAttributes;
-      if (!attrs?.stockDimensions) return null;
-      return {
-        trackedEntityId: entity.id,
-        stockDimensions: attrs.stockDimensions,
-        stockUnit: attrs.stockUnit,
-        status: entity.status as "Available" | "Reserved" | "On Hold",
-        shelfId: entity.shelfId,
-        locationId: entity.locationId,
-        parentStockId: attrs.parentStockId ?? null
-      };
-    })
+  if (consumedResult.error) {
+    throw redirect(
+      path.to.material(itemId),
+      await flash(
+        request,
+        error(consumedResult.error, "Failed to load consumed stock")
+      )
+    );
+  }
+
+  const mapEntityToStockPiece = (entity: any): MaterialStockPiece | null => {
+    const attrs = entity.attributes as unknown as MaterialStockAttributes;
+    if (!attrs?.stockDimensions) return null;
+    return {
+      trackedEntityId: entity.id,
+      stockDimensions: attrs.stockDimensions,
+      stockUnit: attrs.stockUnit,
+      status: entity.status as "Available" | "Reserved" | "On Hold" | "Consumed",
+      shelfId: entity.shelfId,
+      locationId: entity.locationId,
+      parentStockId: attrs.parentStockId ?? null
+    };
+  };
+
+  const availableStockPieces: MaterialStockPiece[] = (availableResult.data ?? [])
+    .map(mapEntityToStockPiece)
     .filter(Boolean) as MaterialStockPiece[];
 
-  return { stockPieces, itemId };
+  const consumedStockPieces: MaterialStockPiece[] = (consumedResult.data ?? [])
+    .map(mapEntityToStockPiece)
+    .filter(Boolean) as MaterialStockPiece[];
+
+  return { 
+    stockPieces: availableStockPieces, 
+    consumedStockPieces,
+    itemId 
+  };
 }
 
 const linearSchema = z.object({

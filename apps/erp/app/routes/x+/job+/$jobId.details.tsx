@@ -109,7 +109,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ...m,
         itemType: m.itemType as "Part",
         unitOfMeasureCode: m.unitOfMeasureCode ?? "",
-        jobOperationId: m.jobOperationId ?? undefined
+        jobOperationId: m.jobOperationId ?? undefined,
+        requiresDimensionTracking: (m.item as any)?.requiresDimensionTracking ?? false
       })) ?? [],
     operations:
       operations.data?.map((o) => ({

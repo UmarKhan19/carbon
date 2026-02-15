@@ -8824,6 +8824,7 @@ export type Database = {
           readableId: string
           readableIdWithRevision: string | null
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
+          requiresDimensionTracking: boolean
           revision: string | null
           thumbnailPath: string | null
           trackingMethod: string | null
@@ -8849,6 +8850,7 @@ export type Database = {
           readableId: string
           readableIdWithRevision?: string | null
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
+          requiresDimensionTracking?: boolean
           revision?: string | null
           thumbnailPath?: string | null
           trackingMethod?: string | null
@@ -8874,6 +8876,7 @@ export type Database = {
           readableId?: string
           readableIdWithRevision?: string | null
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
+          requiresDimensionTracking?: boolean
           revision?: string | null
           thumbnailPath?: string | null
           trackingMethod?: string | null
@@ -10991,6 +10994,9 @@ export type Database = {
           quantity: number
           quantityIssued: number | null
           quantityToIssue: number | null
+          requiredHeight: number | null
+          requiredLength: number | null
+          requiredWidth: number | null
           requiresBatchTracking: boolean
           requiresSerialTracking: boolean
           scrapQuantity: number
@@ -11021,6 +11027,9 @@ export type Database = {
           quantity?: number
           quantityIssued?: number | null
           quantityToIssue?: number | null
+          requiredHeight?: number | null
+          requiredLength?: number | null
+          requiredWidth?: number | null
           requiresBatchTracking?: boolean
           requiresSerialTracking?: boolean
           scrapQuantity?: number
@@ -11051,6 +11060,9 @@ export type Database = {
           quantity?: number
           quantityIssued?: number | null
           quantityToIssue?: number | null
+          requiredHeight?: number | null
+          requiredLength?: number | null
+          requiredWidth?: number | null
           requiresBatchTracking?: boolean
           requiresSerialTracking?: boolean
           scrapQuantity?: number
@@ -15936,6 +15948,9 @@ export type Database = {
           order: number
           productionQuantity: number | null
           quantity: number
+          requiredHeight: number | null
+          requiredLength: number | null
+          requiredWidth: number | null
           scrapQuantity: number
           shelfIds: Json
           tags: string[] | null
@@ -15959,6 +15974,9 @@ export type Database = {
           order?: number
           productionQuantity?: number | null
           quantity: number
+          requiredHeight?: number | null
+          requiredLength?: number | null
+          requiredWidth?: number | null
           scrapQuantity?: number
           shelfIds?: Json
           tags?: string[] | null
@@ -15982,6 +16000,9 @@ export type Database = {
           order?: number
           productionQuantity?: number | null
           quantity?: number
+          requiredHeight?: number | null
+          requiredLength?: number | null
+          requiredWidth?: number | null
           scrapQuantity?: number
           shelfIds?: Json
           tags?: string[] | null
@@ -44693,6 +44714,7 @@ export type Database = {
           itemId: string | null
           itemReadableId: string | null
           itemReadableIdWithoutRevision: string | null
+          itemScrapPercentage: number | null
           itemType: string | null
           jobId: string | null
           jobMakeMethodId: string | null
@@ -44704,7 +44726,11 @@ export type Database = {
           quantity: number | null
           quantityIssued: number | null
           quantityToIssue: number | null
+          requiredHeight: number | null
+          requiredLength: number | null
+          requiredWidth: number | null
           requiresBatchTracking: boolean | null
+          requiresDimensionTracking: boolean | null
           requiresSerialTracking: boolean | null
           scrapQuantity: number | null
           shelfId: string | null
@@ -46493,7 +46519,6 @@ export type Database = {
           defaultMethodType: Database["public"]["Enums"]["methodType"] | null
           description: string | null
           dimensions: string | null
-          externalId: Json | null
           finish: string | null
           grade: string | null
           id: string | null
@@ -46517,6 +46542,7 @@ export type Database = {
           replenishmentSystem:
             | Database["public"]["Enums"]["itemReplenishmentSystem"]
             | null
+          requiresDimensionTracking: boolean | null
           revision: string | null
           revisions: Json | null
           supplierIds: string | null
@@ -51891,14 +51917,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56203,6 +56229,7 @@ export type Database = {
           readableId: string
           readableIdWithRevision: string
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
+          requiresDimensionTracking: boolean
           revision: string
           revisions: Json
           supplierIds: string
@@ -56233,7 +56260,6 @@ export type Database = {
         Args: { uid: string }
         Returns: {
           description: string
-          externalId: Json
           isRoot: boolean
           itemId: string
           itemReadableId: string
@@ -56248,6 +56274,9 @@ export type Database = {
           order: number
           parentMaterialId: string
           quantity: number
+          requiredHeight: number
+          requiredLength: number
+          requiredWidth: number
           revision: string
           shelfIds: Json
           unitCost: number

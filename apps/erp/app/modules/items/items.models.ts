@@ -85,7 +85,8 @@ export const itemValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  unitCost: zfd.numeric(z.number().nonnegative().optional())
+  unitCost: zfd.numeric(z.number().nonnegative().optional()),
+  requiresDimensionTracking: zfd.checkbox().optional()
 });
 
 export const configurationParameterGroupValidator = z.object({
@@ -217,7 +218,10 @@ export const methodMaterialValidator = z.object({
     } catch {
       return {};
     }
-  })
+  }),
+  requiredLength: zfd.numeric(z.number().min(0).optional()),
+  requiredWidth: zfd.numeric(z.number().min(0).optional()),
+  requiredHeight: zfd.numeric(z.number().min(0).optional())
 });
 
 export const methodOperationValidator = z
