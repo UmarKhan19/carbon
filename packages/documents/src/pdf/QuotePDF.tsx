@@ -353,9 +353,7 @@ const QuotePDF = ({
                             />
                           </View>
                         )}
-                        {(Object.keys(additionalCharges).length > 0 ||
-                          (price?.convertedShippingCost ?? 0) > 0 ||
-                          taxPercent > 0) && (
+                        {totalTaxAndFees > 0 && (
                           <View style={tw("mt-1")}>
                             <Text
                               style={tw("text-[8px] text-gray-400 font-bold")}
@@ -368,7 +366,11 @@ const QuotePDF = ({
                               </Text>
                             )}
                             {Object.values(additionalCharges)
-                              .filter((charge) => charge.description)
+                              .filter(
+                                (charge) =>
+                                  charge.description &&
+                                  (charge.amounts?.[quantity] ?? 0) > 0
+                              )
                               .sort((a, b) =>
                                 a.description.localeCompare(b.description)
                               )
