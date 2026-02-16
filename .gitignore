@@ -37,3 +37,8 @@ packages/database/supabase/seed.sql
 .env*.local
 
 .react-router
+
+
+packages/cad-rust
+packages/cad-engine
+packages/cad-engine

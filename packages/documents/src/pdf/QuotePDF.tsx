@@ -353,6 +353,40 @@ const QuotePDF = ({
                             />
                           </View>
                         )}
+                        {(Object.keys(additionalCharges).length > 0 ||
+                          (price?.convertedShippingCost ?? 0) > 0 ||
+                          taxPercent > 0) && (
+                          <View style={tw("mt-1")}>
+                            <Text
+                              style={tw("text-[8px] text-gray-400 font-bold")}
+                            >
+                              Tax & Fees
+                            </Text>
+                            {(price?.convertedShippingCost ?? 0) > 0 && (
+                              <Text style={tw("text-[8px] text-gray-400")}>
+                                - Shipping
+                              </Text>
+                            )}
+                            {Object.values(additionalCharges)
+                              .filter((charge) => charge.description)
+                              .sort((a, b) =>
+                                a.description.localeCompare(b.description)
+                              )
+                              .map((charge) => (
+                                <Text
+                                  key={charge.description}
+                                  style={tw("text-[8px] text-gray-400")}
+                                >
+                                  - {charge.description}
+                                </Text>
+                              ))}
+                            {taxPercent > 0 && (
+                              <Text style={tw("text-[8px] text-gray-400")}>
+                                - Tax ({(taxPercent * 100).toFixed(0)}%)
+                              </Text>
+                            )}
+                          </View>
+                        )}
                       </View>
                       <View style={tw("w-2/3 flex flex-row")}>
                         <Text
@@ -388,7 +422,9 @@ const QuotePDF = ({
                               `${colWidth} text-right text-gray-600 pr-3`
                             )}
                           >
-                            {leadTime > 0 ? `${leadTime} ${pluralize(leadTime, "day")}` : "-"}
+                            {leadTime > 0
+                              ? `${leadTime} ${pluralize(leadTime, "day")}`
+                              : "-"}
                           </Text>
                         )}
                         <Text
