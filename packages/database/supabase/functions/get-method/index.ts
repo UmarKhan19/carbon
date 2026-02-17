@@ -397,17 +397,23 @@ serve(async (req: Request) => {
         await db.transaction().execute(async (trx) => {
           // Delete existing jobMakeMethod, jobMakeMethodOperation, jobMakeMethodMaterial
           await Promise.all([
-            trx
-              .deleteFrom("jobMakeMethod")
-              .where((eb) =>
-                eb.and([
-                  eb("jobId", "=", jobId),
-                  eb("parentMaterialId", "is not", null),
-                ])
-              )
-              .execute(),
-            trx.deleteFrom("jobMaterial").where("jobId", "=", jobId).execute(),
-            trx.deleteFrom("jobOperation").where("jobId", "=", jobId).execute(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("jobMakeMethod")
+                  .where((eb) =>
+                    eb.and([
+                      eb("jobId", "=", jobId),
+                      eb("parentMaterialId", "is not", null),
+                    ])
+                  )
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfMaterial
+              ? trx.deleteFrom("jobMaterial").where("jobId", "=", jobId).execute()
+              : Promise.resolve(),
+            parts.billOfProcess
+              ? trx.deleteFrom("jobOperation").where("jobId", "=", jobId).execute()
+              : Promise.resolve(),
             trx
               .updateTable("jobMakeMethod")
               .set({ version: makeMethod.data.version ?? 1 })
@@ -489,6 +495,9 @@ serve(async (req: Request) => {
               node.data.materialMakeMethodId
             }:${node.data.isRoot ? "undefined" : node.data.methodMaterialId}`;
 
+            let methodOperationsToJobOperations: Record<string, string> = {};
+
+            if (parts.billOfProcess) {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
@@ -597,7 +606,7 @@ serve(async (req: Request) => {
                   processId,
                   op.operationSupplierProcessId
                 ),
-                workInstruction: op.workInstruction,
+                workInstruction: parts.workInstructions ? op.workInstruction : {},
                 targetQuantity,
                 operationQuantity,
                 companyId,
@@ -633,7 +642,6 @@ serve(async (req: Request) => {
                 .filter(Boolean);
             }
 
-            let methodOperationsToJobOperations: Record<string, string> = {};
             if (jobOperationsInserts?.length > 0) {
               const operationIds = await trx
                 .insertInto("jobOperation")
@@ -655,6 +663,7 @@ serve(async (req: Request) => {
                   } = operation;
 
                   if (
+                    parts.tools &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
@@ -681,6 +690,7 @@ serve(async (req: Request) => {
                     });
                   } else {
                     if (
+                      parts.parameters &&
                       Array.isArray(methodOperationParameter) &&
                       methodOperationParameter.length > 0
                     ) {
@@ -705,6 +715,7 @@ serve(async (req: Request) => {
                     }
 
                     if (
+                      parts.steps &&
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
@@ -749,7 +760,9 @@ serve(async (req: Request) => {
                   {}
                 ) ?? {};
             }
+            } // end if (parts.billOfProcess)
 
+            if (parts.billOfMaterial) {
             const locationId = job.data?.locationId;
 
             const mapMethodMaterialToJobMaterial = async (
@@ -980,6 +993,7 @@ serve(async (req: Request) => {
                 .values(pickedOrBoughtMaterials)
                 .execute();
             }
+            } // end if (parts.billOfMaterial)
           }
 
           // Start traversal with job quantity as the root's target/parent estimated quantity
@@ -1100,14 +1114,18 @@ serve(async (req: Request) => {
         await db.transaction().execute(async (trx: Transaction) => {
           // Delete existing jobMakeMethodOperation, jobMakeMethodMaterial
           await Promise.all([
-            trx
-              .deleteFrom("jobMaterial")
-              .where("jobMakeMethodId", "=", jobMakeMethodId)
-              .execute(),
-            trx
-              .deleteFrom("jobOperation")
-              .where("jobMakeMethodId", "=", jobMakeMethodId)
-              .execute(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("jobMaterial")
+                  .where("jobMakeMethodId", "=", jobMakeMethodId)
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfProcess
+              ? trx
+                  .deleteFrom("jobOperation")
+                  .where("jobMakeMethodId", "=", jobMakeMethodId)
+                  .execute()
+              : Promise.resolve(),
             trx
               .updateTable("jobMakeMethod")
               .set({ version: makeMethod.data.version ?? 1 })
@@ -1181,7 +1199,7 @@ serve(async (req: Request) => {
                   op.operationSupplierProcessId
                 ),
                 tags: op.tags ?? [],
-                workInstruction: op.workInstruction,
+                workInstruction: parts.workInstructions ? op.workInstruction : {},
                 targetQuantity,
                 operationQuantity,
                 companyId,
@@ -1190,6 +1208,8 @@ serve(async (req: Request) => {
               })) ?? [];
 
             let methodOperationsToJobOperations: Record<string, string> = {};
+
+            if (parts.billOfProcess) {
             if (jobOperationsInserts?.length > 0) {
               const operationIds = await trx
                 .insertInto("jobOperation")
@@ -1211,6 +1231,7 @@ serve(async (req: Request) => {
                   } = operation;
 
                   if (
+                    parts.tools &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
@@ -1237,6 +1258,7 @@ serve(async (req: Request) => {
                     });
                   } else {
                     if (
+                      parts.parameters &&
                       Array.isArray(methodOperationParameter) &&
                       methodOperationParameter.length > 0
                     ) {
@@ -1255,6 +1277,7 @@ serve(async (req: Request) => {
                     }
 
                     if (
+                      parts.steps &&
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
@@ -1287,7 +1310,9 @@ serve(async (req: Request) => {
                   {}
                 ) ?? {};
             }
+            } // end if (parts.billOfProcess)
 
+            if (parts.billOfMaterial) {
             const mapMethodMaterialToJobMaterial = async (
               child: MethodTreeItem
             ) => {
@@ -1421,6 +1446,7 @@ serve(async (req: Request) => {
                 .values(pickedOrBoughtMaterials)
                 .execute();
             }
+            } // end if (parts.billOfMaterial)
           }
 
           // Start traversal with the parent's estimated quantity
@@ -1527,23 +1553,29 @@ serve(async (req: Request) => {
         await db.transaction().execute(async (trx: Transaction<KyselyDatabase>) => {
           // Delete existing quoteMakeMethod, quoteMakeMethodOperation, quoteMakeMethodMaterial
           await Promise.all([
-            trx
-              .deleteFrom("quoteMakeMethod")
-              .where((eb) =>
-                eb.and([
-                  eb("quoteLineId", "=", quoteLineId),
-                  eb("parentMaterialId", "is not", null),
-                ])
-              )
-              .execute(),
-            trx
-              .deleteFrom("quoteMaterial")
-              .where("quoteLineId", "=", quoteLineId)
-              .execute(),
-            trx
-              .deleteFrom("quoteOperation")
-              .where("quoteLineId", "=", quoteLineId)
-              .execute(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("quoteMakeMethod")
+                  .where((eb) =>
+                    eb.and([
+                      eb("quoteLineId", "=", quoteLineId),
+                      eb("parentMaterialId", "is not", null),
+                    ])
+                  )
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("quoteMaterial")
+                  .where("quoteLineId", "=", quoteLineId)
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfProcess
+              ? trx
+                  .deleteFrom("quoteOperation")
+                  .where("quoteLineId", "=", quoteLineId)
+                  .execute()
+              : Promise.resolve(),
             trx
               .updateTable("quoteMakeMethod")
               .set({ version: makeMethod.data.version ?? 1 })
@@ -1590,6 +1622,13 @@ serve(async (req: Request) => {
             node: MethodTreeItem,
             parentQuoteMakeMethodId: string | null
           ) {
+            let methodOperationsToQuoteOperations: Record<string, string> = {};
+
+            const nodeLevelConfigurationKey = `${
+              node.data.materialMakeMethodId
+            }:${node.data.isRoot ? "undefined" : node.data.methodMaterialId}`;
+
+            if (parts.billOfProcess) {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
@@ -1710,16 +1749,12 @@ serve(async (req: Request) => {
                   op.operationSupplierProcessId
                 ),
                 tags: op.tags ?? [],
-                workInstruction: op.workInstruction,
+                workInstruction: parts.workInstructions ? op.workInstruction : {},
                 companyId,
                 createdBy: userId,
                 customFields: {},
               });
             }
-
-            const nodeLevelConfigurationKey = `${
-              node.data.materialMakeMethodId
-            }:${node.data.isRoot ? "undefined" : node.data.methodMaterialId}`;
 
             const bopConfigurationKey = `billOfProcess:${nodeLevelConfigurationKey}`;
             let bopConfiguration: string[] | null = null;
@@ -1748,7 +1783,6 @@ serve(async (req: Request) => {
                 .filter(Boolean);
             }
 
-            let methodOperationsToQuoteOperations: Record<string, string> = {};
             if (quoteOperationsInserts?.length > 0) {
               const operationIds = await trx
                 .insertInto("quoteOperation")
@@ -1770,6 +1804,7 @@ serve(async (req: Request) => {
                   } = operation;
 
                   if (
+                    parts.tools &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
@@ -1789,6 +1824,7 @@ serve(async (req: Request) => {
 
                   if (!procedureId) {
                     if (
+                      parts.parameters &&
                       Array.isArray(methodOperationParameter) &&
                       methodOperationParameter.length > 0
                     ) {
@@ -1813,6 +1849,7 @@ serve(async (req: Request) => {
                     }
 
                     if (
+                      parts.steps &&
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
@@ -1857,7 +1894,9 @@ serve(async (req: Request) => {
                   {}
                 ) ?? {};
             }
+            } // end if (parts.billOfProcess)
 
+            if (parts.billOfMaterial) {
             const mapMethodMaterialToQuoteMaterial = async (
               child: MethodTreeItem
             ) => {
@@ -2038,6 +2077,7 @@ serve(async (req: Request) => {
                 .values(pickedOrBoughtMaterials)
                 .execute();
             }
+            } // end if (parts.billOfMaterial)
           }
 
           await traverseMethod(methodTree, quoteMakeMethod.data.id);
@@ -2126,14 +2166,18 @@ serve(async (req: Request) => {
         await db.transaction().execute(async (trx) => {
           // Delete existing quoteMakeMethodOperation, quoteMakeMethodMaterial
           await Promise.all([
-            trx
-              .deleteFrom("quoteMaterial")
-              .where("quoteMakeMethodId", "=", quoteMakeMethodId)
-              .execute(),
-            trx
-              .deleteFrom("quoteOperation")
-              .where("quoteMakeMethodId", "=", quoteMakeMethodId)
-              .execute(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("quoteMaterial")
+                  .where("quoteMakeMethodId", "=", quoteMakeMethodId)
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfProcess
+              ? trx
+                  .deleteFrom("quoteOperation")
+                  .where("quoteMakeMethodId", "=", quoteMakeMethodId)
+                  .execute()
+              : Promise.resolve(),
             trx
               .updateTable("quoteMakeMethod")
               .set({ version: makeMethod.data.version ?? 1 })
@@ -2214,13 +2258,15 @@ serve(async (req: Request) => {
                   op.operationSupplierProcessId
                 ),
                 tags: op.tags ?? [],
-                workInstruction: op.workInstruction,
+                workInstruction: parts.workInstructions ? op.workInstruction : {},
                 companyId,
                 createdBy: userId,
                 customFields: {},
               })) ?? [];
 
             let methodOperationsToQuoteOperations: Record<string, string> = {};
+
+            if (parts.billOfProcess) {
             if (quoteOperationInserts?.length > 0) {
               const operationIds = await trx
                 .insertInto("quoteOperation")
@@ -2242,6 +2288,7 @@ serve(async (req: Request) => {
                   } = operation;
 
                   if (
+                    parts.tools &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
@@ -2261,6 +2308,7 @@ serve(async (req: Request) => {
 
                   if (!procedureId) {
                     if (
+                      parts.parameters &&
                       Array.isArray(methodOperationParameter) &&
                       methodOperationParameter.length > 0
                     ) {
@@ -2279,6 +2327,7 @@ serve(async (req: Request) => {
                     }
 
                     if (
+                      parts.steps &&
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
@@ -2311,7 +2360,9 @@ serve(async (req: Request) => {
                   {}
                 ) ?? {};
             }
+            } // end if (parts.billOfProcess)
 
+            if (parts.billOfMaterial) {
             const mapMethodMaterialToQuoteMaterial = (
               child: MethodTreeItem
             ) => ({
@@ -2393,6 +2444,7 @@ serve(async (req: Request) => {
                 .values(pickedOrBoughtMaterials)
                 .execute();
             }
+            } // end if (parts.billOfMaterial)
           }
 
           await traverseMethod(methodTree, quoteMakeMethod.data.id);
@@ -2544,18 +2596,22 @@ serve(async (req: Request) => {
                 : mm
             );
             await Promise.all([
-              trx
-                .deleteFrom("methodMaterial")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
-              trx
-                .deleteFrom("methodOperation")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
+              parts.billOfMaterial
+                ? trx
+                    .deleteFrom("methodMaterial")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
+              parts.billOfProcess
+                ? trx
+                    .deleteFrom("methodOperation")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
             ]);
           }
 
-          if (materialInserts.length > 0) {
+          if (parts.billOfMaterial && materialInserts.length > 0) {
             await trx
               .insertInto("methodMaterial")
               .values(
@@ -2576,6 +2632,7 @@ serve(async (req: Request) => {
               .execute();
           }
 
+          if (parts.billOfProcess) {
           jobOperations.data?.forEach((op) => {
             operationInserts.push({
               makeMethodId: op.makeMethodId!,
@@ -2596,7 +2653,7 @@ serve(async (req: Request) => {
               operationLeadTime: op.operationLeadTime ?? 0,
               operationUnitCost: op.operationUnitCost ?? 0,
               tags: op.tags ?? [],
-              workInstruction: op.workInstruction,
+              workInstruction: parts.workInstructions ? op.workInstruction : {},
               companyId,
               createdBy: userId,
               customFields: {},
@@ -2632,6 +2689,7 @@ serve(async (req: Request) => {
                 } = operation;
 
                 if (
+                  parts.tools &&
                   Array.isArray(jobOperationTool) &&
                   jobOperationTool.length > 0
                 ) {
@@ -2651,6 +2709,7 @@ serve(async (req: Request) => {
 
                 if (!procedureId) {
                   if (
+                    parts.parameters &&
                     Array.isArray(jobOperationParameter) &&
                     jobOperationParameter.length > 0
                   ) {
@@ -2669,6 +2728,7 @@ serve(async (req: Request) => {
                   }
 
                   if (
+                    parts.steps &&
                     Array.isArray(jobOperationStep) &&
                     jobOperationStep.length > 0
                   ) {
@@ -2688,6 +2748,7 @@ serve(async (req: Request) => {
               }
             }
           }
+          } // end if (parts.billOfProcess)
         });
 
         break;
@@ -2835,18 +2896,22 @@ serve(async (req: Request) => {
                 : mm
             );
             await Promise.all([
-              trx
-                .deleteFrom("methodMaterial")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
-              trx
-                .deleteFrom("methodOperation")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
+              parts.billOfMaterial
+                ? trx
+                    .deleteFrom("methodMaterial")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
+              parts.billOfProcess
+                ? trx
+                    .deleteFrom("methodOperation")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
             ]);
           }
 
-          if (materialInserts.length > 0) {
+          if (parts.billOfMaterial && materialInserts.length > 0) {
             await trx
               .insertInto("methodMaterial")
               .values(
@@ -2867,6 +2932,7 @@ serve(async (req: Request) => {
               .execute();
           }
 
+          if (parts.billOfProcess) {
           jobOperations.data?.forEach((op) => {
             operationInserts.push({
               makeMethodId: op.makeMethodId!,
@@ -2888,7 +2954,7 @@ serve(async (req: Request) => {
               operationUnitCost: op.operationUnitCost ?? 0,
               operationSupplierProcessId: op.operationSupplierProcessId,
               tags: op.tags ?? [],
-              workInstruction: op.workInstruction,
+              workInstruction: parts.workInstructions ? op.workInstruction : {},
               companyId,
               createdBy: userId,
               customFields: {},
@@ -2924,6 +2990,7 @@ serve(async (req: Request) => {
                 } = operation;
 
                 if (
+                  parts.tools &&
                   Array.isArray(jobOperationTool) &&
                   jobOperationTool.length > 0
                 ) {
@@ -2943,6 +3010,7 @@ serve(async (req: Request) => {
 
                 if (!procedureId) {
                   if (
+                    parts.parameters &&
                     Array.isArray(jobOperationParameter) &&
                     jobOperationParameter.length > 0
                   ) {
@@ -2961,6 +3029,7 @@ serve(async (req: Request) => {
                   }
 
                   if (
+                    parts.steps &&
                     Array.isArray(jobOperationStep) &&
                     jobOperationStep.length > 0
                   ) {
@@ -2989,6 +3058,7 @@ serve(async (req: Request) => {
               }
             }
           }
+          } // end if (parts.billOfProcess)
         });
 
         break;
@@ -3431,18 +3501,22 @@ serve(async (req: Request) => {
                 : mm
             );
             await Promise.all([
-              trx
-                .deleteFrom("methodMaterial")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
-              trx
-                .deleteFrom("methodOperation")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
+              parts.billOfMaterial
+                ? trx
+                    .deleteFrom("methodMaterial")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
+              parts.billOfProcess
+                ? trx
+                    .deleteFrom("methodOperation")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
             ]);
           }
 
-          if (materialInserts.length > 0) {
+          if (parts.billOfMaterial && materialInserts.length > 0) {
             await trx
               .insertInto("methodMaterial")
               .values(
@@ -3463,6 +3537,7 @@ serve(async (req: Request) => {
               .execute();
           }
 
+          if (parts.billOfProcess) {
           quoteOperations.data?.forEach((op) => {
             operationInserts.push({
               makeMethodId: op.makeMethodId!,
@@ -3483,7 +3558,7 @@ serve(async (req: Request) => {
               operationLeadTime: op.operationLeadTime ?? 0,
               operationUnitCost: op.operationUnitCost ?? 0,
               tags: op.tags ?? [],
-              workInstruction: op.workInstruction,
+              workInstruction: parts.workInstructions ? op.workInstruction : {},
               companyId,
               createdBy: userId,
               customFields: {},
@@ -3519,6 +3594,7 @@ serve(async (req: Request) => {
                 } = operation;
 
                 if (
+                  parts.tools &&
                   Array.isArray(quoteOperationTool) &&
                   quoteOperationTool.length > 0
                 ) {
@@ -3538,6 +3614,7 @@ serve(async (req: Request) => {
 
                 if (!procedureId) {
                   if (
+                    parts.parameters &&
                     Array.isArray(quoteOperationParameter) &&
                     quoteOperationParameter.length > 0
                   ) {
@@ -3556,6 +3633,7 @@ serve(async (req: Request) => {
                   }
 
                   if (
+                    parts.steps &&
                     Array.isArray(quoteOperationStep) &&
                     quoteOperationStep.length > 0
                   ) {
@@ -3575,6 +3653,7 @@ serve(async (req: Request) => {
               }
             }
           }
+          } // end if (parts.billOfProcess)
         });
 
         break;
@@ -3721,18 +3800,22 @@ serve(async (req: Request) => {
                 : mm
             );
             await Promise.all([
-              trx
-                .deleteFrom("methodMaterial")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
-              trx
-                .deleteFrom("methodOperation")
-                .where("makeMethodId", "in", makeMethodsToDelete)
-                .execute(),
+              parts.billOfMaterial
+                ? trx
+                    .deleteFrom("methodMaterial")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
+              parts.billOfProcess
+                ? trx
+                    .deleteFrom("methodOperation")
+                    .where("makeMethodId", "in", makeMethodsToDelete)
+                    .execute()
+                : Promise.resolve(),
             ]);
           }
 
-          if (materialInserts.length > 0) {
+          if (parts.billOfMaterial && materialInserts.length > 0) {
             await trx
               .insertInto("methodMaterial")
               .values(
@@ -3753,6 +3836,7 @@ serve(async (req: Request) => {
               .execute();
           }
 
+          if (parts.billOfProcess) {
           quoteOperations.data?.forEach((op) => {
             operationInserts.push({
               makeMethodId: op.makeMethodId!,
@@ -3773,7 +3857,7 @@ serve(async (req: Request) => {
               operationLeadTime: op.operationLeadTime ?? 0,
               operationUnitCost: op.operationUnitCost ?? 0,
               tags: op.tags ?? [],
-              workInstruction: op.workInstruction,
+              workInstruction: parts.workInstructions ? op.workInstruction : {},
               companyId,
               createdBy: userId,
               customFields: {},
@@ -3809,6 +3893,7 @@ serve(async (req: Request) => {
                 } = operation;
 
                 if (
+                  parts.tools &&
                   Array.isArray(quoteOperationTool) &&
                   quoteOperationTool.length > 0
                 ) {
@@ -3828,6 +3913,7 @@ serve(async (req: Request) => {
 
                 if (!procedureId) {
                   if (
+                    parts.parameters &&
                     Array.isArray(quoteOperationParameter) &&
                     quoteOperationParameter.length > 0
                   ) {
@@ -3846,6 +3932,7 @@ serve(async (req: Request) => {
                   }
 
                   if (
+                    parts.steps &&
                     Array.isArray(quoteOperationStep) &&
                     quoteOperationStep.length > 0
                   ) {
@@ -3865,6 +3952,7 @@ serve(async (req: Request) => {
               }
             }
           }
+          } // end if (parts.billOfProcess)
         });
 
         break;
@@ -3970,17 +4058,23 @@ serve(async (req: Request) => {
         await db.transaction().execute(async (trx) => {
           // Delete existing jobMakeMethods, jobMaterials, and jobOperations for this job
           await Promise.all([
-            trx
-              .deleteFrom("jobMakeMethod")
-              .where((eb) =>
-                eb.and([
-                  eb("jobId", "=", jobId),
-                  eb("parentMaterialId", "is not", null),
-                ])
-              )
-              .execute(),
-            trx.deleteFrom("jobMaterial").where("jobId", "=", jobId).execute(),
-            trx.deleteFrom("jobOperation").where("jobId", "=", jobId).execute(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("jobMakeMethod")
+                  .where((eb) =>
+                    eb.and([
+                      eb("jobId", "=", jobId),
+                      eb("parentMaterialId", "is not", null),
+                    ])
+                  )
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfMaterial
+              ? trx.deleteFrom("jobMaterial").where("jobId", "=", jobId).execute()
+              : Promise.resolve(),
+            parts.billOfProcess
+              ? trx.deleteFrom("jobOperation").where("jobId", "=", jobId).execute()
+              : Promise.resolve(),
           ]);
 
           await traverseQuoteMethod(
@@ -4131,14 +4225,14 @@ serve(async (req: Request) => {
                 }
               }
 
-              if (jobMaterialInserts.length > 0) {
+              if (parts.billOfMaterial && jobMaterialInserts.length > 0) {
                 await trx
                   .insertInto("jobMaterial")
                   .values(jobMaterialInserts)
                   .execute();
               }
 
-              if (jobMakeMethodInserts.length > 0) {
+              if (parts.billOfMaterial && jobMakeMethodInserts.length > 0) {
                 for await (const insert of jobMakeMethodInserts) {
                   await trx
                     .updateTable("jobMakeMethod")
@@ -4154,6 +4248,7 @@ serve(async (req: Request) => {
             }
           );
 
+          if (parts.billOfProcess) {
           const jobOperationInserts: Database["public"]["Tables"]["jobOperation"]["Insert"][] =
             quoteOperations.data.map((op) => {
               // Get quantities for this operation's make method
@@ -4183,7 +4278,7 @@ serve(async (req: Request) => {
                 operationLeadTime: op.operationLeadTime ?? 0,
                 operationUnitCost: op.operationUnitCost ?? 0,
                 tags: op.tags ?? [],
-                workInstruction: op.workInstruction,
+                workInstruction: parts.workInstructions ? op.workInstruction : {},
                 targetQuantity: opQuantities?.targetQuantity ?? 0,
                 operationQuantity: opQuantities?.totalWithScrap ?? 0,
                 companyId,
@@ -4212,6 +4307,7 @@ serve(async (req: Request) => {
                 } = operation;
 
                 if (
+                  parts.tools &&
                   Array.isArray(quoteOperationTool) &&
                   quoteOperationTool.length > 0
                 ) {
@@ -4238,6 +4334,7 @@ serve(async (req: Request) => {
                   });
                 } else {
                   if (
+                    parts.parameters &&
                     Array.isArray(quoteOperationParameter) &&
                     quoteOperationParameter.length > 0
                   ) {
@@ -4256,6 +4353,7 @@ serve(async (req: Request) => {
                   }
 
                   if (
+                    parts.steps &&
                     Array.isArray(quoteOperationStep) &&
                     quoteOperationStep.length > 0
                   ) {
@@ -4275,6 +4373,7 @@ serve(async (req: Request) => {
               }
             }
           }
+          } // end if (parts.billOfProcess)
         });
 
         break;
@@ -4348,25 +4447,31 @@ serve(async (req: Request) => {
         const quoteMakeMethodIdToQuoteMakeMethodId: Record<string, string> = {};
 
         await db.transaction().execute(async (trx) => {
-          // Delete existing jobMakeMethods, jobMaterials, and jobOperations for this job
+          // Delete existing quoteMakeMethods, quoteMaterials, and quoteOperations for this quote line
           await Promise.all([
-            trx
-              .deleteFrom("quoteMakeMethod")
-              .where((eb) =>
-                eb.and([
-                  eb("quoteLineId", "=", targetQuoteLineId),
-                  eb("parentMaterialId", "is not", null),
-                ])
-              )
-              .execute(),
-            trx
-              .deleteFrom("quoteMaterial")
-              .where("quoteLineId", "=", targetQuoteLineId)
-              .execute(),
-            trx
-              .deleteFrom("quoteOperation")
-              .where("quoteLineId", "=", targetQuoteLineId)
-              .execute(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("quoteMakeMethod")
+                  .where((eb) =>
+                    eb.and([
+                      eb("quoteLineId", "=", targetQuoteLineId),
+                      eb("parentMaterialId", "is not", null),
+                    ])
+                  )
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("quoteMaterial")
+                  .where("quoteLineId", "=", targetQuoteLineId)
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfProcess
+              ? trx
+                  .deleteFrom("quoteOperation")
+                  .where("quoteLineId", "=", targetQuoteLineId)
+                  .execute()
+              : Promise.resolve(),
           ]);
 
           await traverseQuoteMethod(
@@ -4426,14 +4531,14 @@ serve(async (req: Request) => {
                 }
               }
 
-              if (quoteMaterialInserts.length > 0) {
+              if (parts.billOfMaterial && quoteMaterialInserts.length > 0) {
                 await trx
                   .insertInto("quoteMaterial")
                   .values(quoteMaterialInserts)
                   .execute();
               }
 
-              if (quoteMakeMethodInserts.length > 0) {
+              if (parts.billOfMaterial && quoteMakeMethodInserts.length > 0) {
                 for await (const insert of quoteMakeMethodInserts) {
                   await trx
                     .updateTable("quoteMakeMethod")
@@ -4449,6 +4554,7 @@ serve(async (req: Request) => {
             }
           );
 
+          if (parts.billOfProcess) {
           const quoteOperationInserts: Database["public"]["Tables"]["quoteOperation"]["Insert"][] =
             sourceQuoteOperations.data.map((op) => ({
               quoteId: targetQuoteId,
@@ -4478,7 +4584,7 @@ serve(async (req: Request) => {
               operationUnitCost: op.operationUnitCost ?? 0,
               overheadRate: op.overheadRate,
               tags: op.tags ?? [],
-              workInstruction: op.workInstruction,
+              workInstruction: parts.workInstructions ? op.workInstruction : {},
               companyId,
               createdBy: userId,
               customFields: {},
@@ -4503,6 +4609,7 @@ serve(async (req: Request) => {
                 } = operation;
 
                 if (
+                  parts.tools &&
                   Array.isArray(quoteOperationTool) &&
                   quoteOperationTool.length > 0
                 ) {
@@ -4521,6 +4628,7 @@ serve(async (req: Request) => {
                 }
 
                 if (
+                  parts.parameters &&
                   Array.isArray(quoteOperationParameter) &&
                   quoteOperationParameter.length > 0
                 ) {
@@ -4539,6 +4647,7 @@ serve(async (req: Request) => {
                 }
 
                 if (
+                  parts.steps &&
                   Array.isArray(quoteOperationStep) &&
                   quoteOperationStep.length > 0
                 ) {
@@ -4557,6 +4666,7 @@ serve(async (req: Request) => {
               }
             }
           }
+          } // end if (parts.billOfProcess)
         });
 
         break;

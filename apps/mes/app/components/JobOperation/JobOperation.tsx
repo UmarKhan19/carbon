@@ -646,37 +646,32 @@ export const JobOperation = ({
                     />
                   </CardHeader>
                   <CardContent>
-                    <Heading size="h1">
-                      {operation.jobDueDate
-                        ? formatDate(operation.jobDueDate)
-                        : null}
-                      <VStack className="justify-start" spacing={0}>
-                        <Heading
-                          size="h3"
-                          className={cn(
-                            "w-full truncate",
-                            isOverdue ? "text-red-500" : ""
-                          )}
-                        >
-                          {["ASAP", "No Deadline"].includes(
-                            operation.jobDeadlineType
-                          )
-                            ? operation.jobDeadlineType
-                            : operation.jobDueDate
-                              ? `Due ${formatRelativeTime(
-                                  convertDateStringToIsoString(
-                                    operation.jobDueDate
-                                  )
-                                )}`
-                              : "–"}
-                        </Heading>
-                        <span className="text-muted-foreground text-sm">
-                          {operation.jobDueDate
-                            ? formatDate(operation.jobDueDate)
-                            : null}
-                        </span>
-                      </VStack>
-                    </Heading>
+                    <VStack className="justify-start" spacing={0}>
+                      <Heading
+                        size="h3"
+                        className={cn(
+                          "w-full truncate",
+                          isOverdue ? "text-red-500" : ""
+                        )}
+                      >
+                        {["ASAP", "No Deadline"].includes(
+                          operation.jobDeadlineType
+                        )
+                          ? operation.jobDeadlineType
+                          : operation.jobDueDate
+                            ? `Due ${formatRelativeTime(
+                                convertDateStringToIsoString(
+                                  operation.jobDueDate
+                                )
+                              )}`
+                            : "–"}
+                      </Heading>
+                      <span className="text-muted-foreground text-sm">
+                        {operation.jobDueDate
+                          ? formatDate(operation.jobDueDate)
+                          : null}
+                      </span>
+                    </VStack>
                   </CardContent>
                 </Card>
               </div>
