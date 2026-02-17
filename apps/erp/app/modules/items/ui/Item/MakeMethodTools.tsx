@@ -6,6 +6,9 @@ import {
   Badge,
   Button,
   Checkbox,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   cn,
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +39,7 @@ import { flushSync } from "react-dom";
 import {
   LuCheck,
   LuChevronDown,
+  LuChevronRight,
   LuCirclePlus,
   LuCopy,
   LuGitBranch,
@@ -294,6 +298,7 @@ const MakeMethodTools = ({
                       This will overwrite the existing manufacturing method
                     </AlertTitle>
                   </Alert>
+                  <AdvancedSection />
                 </VStack>
               </ModalBody>
               <ModalFooter>
@@ -356,6 +361,7 @@ const MakeMethodTools = ({
                       Include Inactive
                     </label>
                   </div>
+                  <AdvancedSection />
                 </VStack>
               </ModalBody>
               <ModalFooter>
@@ -452,5 +458,97 @@ const MakeMethodTools = ({
     </>
   );
 };
+
+function AdvancedSection() {
+  const [open, setOpen] = useState(false);
+  const [billOfProcess, setBillOfProcess] = useState(true);
+  const [parameters, setParameters] = useState(true);
+  const [tools, setTools] = useState(true);
+  const [steps, setSteps] = useState(true);
+  const [workInstructions, setWorkInstructions] = useState(true);
+
+  const processChildren = [
+    {
+      name: "parameters",
+      label: "Parameters",
+      checked: parameters,
+      onChange: setParameters
+    },
+    { name: "tools", label: "Tools", checked: tools, onChange: setTools },
+    { name: "steps", label: "Steps", checked: steps, onChange: setSteps },
+    {
+      name: "workInstructions",
+      label: "Work Instructions",
+      checked: workInstructions,
+      onChange: setWorkInstructions
+    }
+  ];
+
+  return (
+    <Collapsible className="w-full" open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="w-full justify-start gap-2 px-0">
+          <LuChevronRight
+            className={cn("h-4 w-4 transition-transform", open && "rotate-90")}
+          />
+          Advanced
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent forceMount className={cn(!open && "hidden")}>
+        <VStack spacing={2} className="pt-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="billOfMaterial"
+              name="billOfMaterial"
+              defaultChecked
+            />
+            <label
+              htmlFor="billOfMaterial"
+              className="text-sm font-medium leading-none"
+            >
+              Bill of Material
+            </label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="billOfProcess"
+              name="billOfProcess"
+              checked={billOfProcess}
+              onCheckedChange={(checked) => setBillOfProcess(!!checked)}
+            />
+            <label
+              htmlFor="billOfProcess"
+              className="text-sm font-medium leading-none"
+            >
+              Bill of Process
+            </label>
+          </div>
+          <VStack spacing={2} className="pl-6">
+            {processChildren.map(({ name, label, checked, onChange }) => (
+              <div key={name} className="flex items-center space-x-2">
+                <Checkbox
+                  id={name}
+                  name={name}
+                  disabled={!billOfProcess}
+                  checked={billOfProcess ? checked : false}
+                  onCheckedChange={(val) => onChange(!!val)}
+                />
+                <label
+                  htmlFor={name}
+                  className={cn(
+                    "text-sm font-medium leading-none",
+                    !billOfProcess && "text-muted-foreground"
+                  )}
+                >
+                  {label}
+                </label>
+              </div>
+            ))}
+          </VStack>
+        </VStack>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
 
 export default MakeMethodTools;

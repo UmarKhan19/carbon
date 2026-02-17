@@ -39,6 +39,15 @@ import { KyselyDatabase } from "../lib/postgres/index.ts";
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
 
+const partsValidator = z.object({
+  billOfMaterial: z.boolean().default(true),
+  billOfProcess: z.boolean().default(true),
+  parameters: z.boolean().default(true),
+  tools: z.boolean().default(true),
+  steps: z.boolean().default(true),
+  workInstructions: z.boolean().default(true),
+}).default({});
+
 const payloadValidator = z.object({
   type: z.enum([
     "itemToItem",
@@ -61,6 +70,7 @@ const payloadValidator = z.object({
   companyId: z.string(),
   userId: z.string(),
   configuration: z.record(z.unknown()).optional(),
+  parts: partsValidator,
 });
 
 serve(async (req: Request) => {
@@ -70,7 +80,7 @@ serve(async (req: Request) => {
   const payload = await req.json();
 
   try {
-    const { type, sourceId, targetId, companyId, userId, configuration } =
+    const { type, sourceId, targetId, companyId, userId, configuration, parts } =
       payloadValidator.parse(payload);
 
     console.log({
@@ -80,6 +90,7 @@ serve(async (req: Request) => {
       targetId,
       companyId,
       userId,
+      parts,
       configuration,
     });
 
@@ -132,18 +143,22 @@ serve(async (req: Request) => {
         }
 
         const [sourceMaterials, sourceOperations] = await Promise.all([
-          client
-            .from("methodMaterial")
-            .select("*")
-            .eq("makeMethodId", sourceMakeMethod.data.id)
-            .eq("companyId", companyId),
-          client
-            .from("methodOperation")
-            .select(
-              "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*)"
-            )
-            .eq("makeMethodId", sourceMakeMethod.data.id)
-            .eq("companyId", companyId),
+          parts.billOfMaterial
+            ? client
+                .from("methodMaterial")
+                .select("*")
+                .eq("makeMethodId", sourceMakeMethod.data.id)
+                .eq("companyId", companyId)
+            : Promise.resolve({ data: [], error: null }),
+          parts.billOfProcess
+            ? client
+                .from("methodOperation")
+                .select(
+                  "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*)"
+                )
+                .eq("makeMethodId", sourceMakeMethod.data.id)
+                .eq("companyId", companyId)
+            : Promise.resolve({ data: [], error: null }),
         ]);
 
         if (sourceMaterials.error || sourceOperations.error) {
@@ -153,18 +168,22 @@ serve(async (req: Request) => {
         await db.transaction().execute(async (trx) => {
           // Delete existing materials and operations from target method
           await Promise.all([
-            trx
-              .deleteFrom("methodMaterial")
-              .where("makeMethodId", "=", targetMakeMethod.data.id)
-              .execute(),
-            trx
-              .deleteFrom("methodOperation")
-              .where("makeMethodId", "=", targetMakeMethod.data.id)
-              .execute(),
+            parts.billOfMaterial
+              ? trx
+                  .deleteFrom("methodMaterial")
+                  .where("makeMethodId", "=", targetMakeMethod.data.id)
+                  .execute()
+              : Promise.resolve(),
+            parts.billOfProcess
+              ? trx
+                  .deleteFrom("methodOperation")
+                  .where("makeMethodId", "=", targetMakeMethod.data.id)
+                  .execute()
+              : Promise.resolve(),
           ]);
 
           // Copy materials from source to target
-          if (sourceMaterials.data && sourceMaterials.data.length > 0) {
+          if (parts.billOfMaterial && sourceMaterials.data && sourceMaterials.data.length > 0) {
             await trx
               .insertInto("methodMaterial")
               .values(
@@ -180,7 +199,7 @@ serve(async (req: Request) => {
           }
 
           // Copy operations from source to target
-          if (sourceOperations.data && sourceOperations.data.length > 0) {
+          if (parts.billOfProcess && sourceOperations.data && sourceOperations.data.length > 0) {
             const operationIds = await trx
               .insertInto("methodOperation")
               .values(
@@ -190,12 +209,18 @@ serve(async (req: Request) => {
                     methodOperationParameter: _parameters,
                     methodOperationStep: _attributes,
                     ...operation
-                  }) => ({
-                    ...operation,
-                    id: undefined, // Let the database generate a new ID
-                    makeMethodId: targetMakeMethod.data.id!,
-                    createdBy: userId,
-                  })
+                  }) => {
+                    const insert = {
+                      ...operation,
+                      id: undefined, // Let the database generate a new ID
+                      makeMethodId: targetMakeMethod.data.id!,
+                      createdBy: userId,
+                    };
+                    if (!parts.workInstructions) {
+                      insert.workInstruction = {};
+                    }
+                    return insert;
+                  }
                 )
               )
               .returning(["id"])
@@ -214,6 +239,7 @@ serve(async (req: Request) => {
               const operationId = operationIds[index].id;
 
               if (
+                parts.tools &&
                 operationId &&
                 Array.isArray(methodOperationTool) &&
                 methodOperationTool.length > 0
@@ -234,6 +260,7 @@ serve(async (req: Request) => {
 
               if (!procedureId) {
                 if (
+                  parts.parameters &&
                   Array.isArray(methodOperationParameter) &&
                   methodOperationParameter.length > 0
                 ) {
@@ -252,6 +279,7 @@ serve(async (req: Request) => {
                 }
 
                 if (
+                  parts.steps &&
                   Array.isArray(methodOperationStep) &&
                   methodOperationStep.length > 0
                 ) {
