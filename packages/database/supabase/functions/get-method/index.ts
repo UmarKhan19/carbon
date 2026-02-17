@@ -411,6 +411,13 @@ serve(async (req: Request) => {
             parts.billOfMaterial
               ? trx.deleteFrom("jobMaterial").where("jobId", "=", jobId).execute()
               : Promise.resolve(),
+            // Prevent cascade deletion of materials when only replacing operations
+            !parts.billOfMaterial && parts.billOfProcess
+              ? trx.updateTable("jobMaterial")
+                  .set({ jobOperationId: null })
+                  .where("jobId", "=", jobId)
+                  .execute()
+              : Promise.resolve(),
             parts.billOfProcess
               ? trx.deleteFrom("jobOperation").where("jobId", "=", jobId).execute()
               : Promise.resolve(),
@@ -458,6 +465,19 @@ serve(async (req: Request) => {
             parentJobMakeMethodId: string | null,
             parentEstimatedQuantity: number
           ) {
+            console.log("[traverseMethod]", {
+              isRoot: node.data.isRoot,
+              itemId: node.data.itemId,
+              methodType: node.data.methodType,
+              materialMakeMethodId: node.data.materialMakeMethodId,
+              childCount: node.children.length,
+              childMethodTypes: node.children.map(c => ({
+                itemId: c.data.itemId,
+                methodType: c.data.methodType,
+              })),
+              parentJobMakeMethodId,
+            });
+
             // For root node, targetQuantity equals the job quantity (parentEstimatedQuantity passed in)
             // For children, targetQuantity = parentEstimatedQuantity * quantityPerParent
             const targetQuantity = node.data.isRoot
@@ -497,7 +517,8 @@ serve(async (req: Request) => {
 
             let methodOperationsToJobOperations: Record<string, string> = {};
 
-            if (parts.billOfProcess) {
+            // For child nodes, always include operations regardless of parts flags
+            if (!node.data.isRoot || parts.billOfProcess) {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
@@ -606,7 +627,7 @@ serve(async (req: Request) => {
                   processId,
                   op.operationSupplierProcessId
                 ),
-                workInstruction: parts.workInstructions ? op.workInstruction : {},
+                workInstruction: (!node.data.isRoot || parts.workInstructions) ? op.workInstruction : {},
                 targetQuantity,
                 operationQuantity,
                 companyId,
@@ -663,7 +684,7 @@ serve(async (req: Request) => {
                   } = operation;
 
                   if (
-                    parts.tools &&
+                    (!node.data.isRoot || parts.tools) &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
@@ -690,7 +711,7 @@ serve(async (req: Request) => {
                     });
                   } else {
                     if (
-                      parts.parameters &&
+                      (!node.data.isRoot || parts.parameters) &&
                       Array.isArray(methodOperationParameter) &&
                       methodOperationParameter.length > 0
                     ) {
@@ -715,7 +736,7 @@ serve(async (req: Request) => {
                     }
 
                     if (
-                      parts.steps &&
+                      (!node.data.isRoot || parts.steps) &&
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
@@ -883,7 +904,7 @@ serve(async (req: Request) => {
                 requiresSerialTracking,
                 requiresBatchTracking,
                 unitOfMeasureCode,
-                unitCost,
+                unitCost: unitCost ?? 0,
                 itemScrapPercentage,
                 companyId,
                 createdBy: userId,
@@ -931,44 +952,48 @@ serve(async (req: Request) => {
                 (material) => material.methodType !== "Make"
               );
 
-            const madeChildren = madeMaterials.map((material, index) => {
-              const childIndex = materialsWithConfiguredFields.findIndex(
-                (m) => m.itemId === material.itemId
-              );
-              return node.children[childIndex];
+            const madeChildren = node.children.filter(
+              (child) => child.data.methodType === "Make"
+            );
+
+            console.log("[traverseMethod] materials", {
+              totalChildren: materialsWithConfiguredFields.length,
+              madeMaterialsCount: madeMaterials.length,
+              madeChildrenCount: madeChildren.length,
+              pickedOrBoughtCount: pickedOrBoughtMaterials.length,
             });
 
             if (madeMaterials.length > 0) {
-              const madeMaterialIds = await trx
+              const madeMaterialsWithIds = madeMaterials.map((m) => ({
+                ...m,
+                id: nanoid(),
+              }));
+
+              await trx
                 .insertInto("jobMaterial")
-                .values(madeMaterials)
-                .returning(["id"])
+                .values(madeMaterialsWithIds)
                 .execute();
 
-              const jobMakeMethods = await trx
-                .selectFrom("jobMakeMethod")
-                .select(["id", "parentMaterialId"])
-                .where(
-                  "parentMaterialId",
-                  "in",
-                  madeMaterialIds.map((m) => m.id)
-                )
-                .execute();
-
-              // Create proper mapping from parentMaterialId to jobMakeMethodId
-              const materialIdToJobMakeMethodId: Record<string, string> = {};
-              jobMakeMethods.forEach((jmm) => {
-                if (jmm.parentMaterialId && jmm.id) {
-                  materialIdToJobMakeMethodId[jmm.parentMaterialId] = jmm.id;
-                }
-              });
-
-              // Use proper correlation instead of index-based assumption
               for (const [index, child] of madeChildren.entries()) {
-                const materialId = madeMaterialIds[index]?.id;
-                const jobMakeMethodId = materialId
-                  ? materialIdToJobMakeMethodId[materialId]
-                  : null;
+                const materialId = madeMaterialsWithIds[index].id;
+                const newMakeMethodId = nanoid();
+
+                const updateResult = await trx
+                  .updateTable("jobMakeMethod")
+                  .set({ id: newMakeMethodId })
+                  .where("parentMaterialId", "=", materialId)
+                  .execute();
+
+                console.log("[traverseMethod] processing made child", {
+                  index,
+                  materialId,
+                  newMakeMethodId,
+                  childItemId: child.data.itemId,
+                  parentItemId: itemId,
+                  willRecurse: child.data.itemId !== itemId,
+                  updateResult,
+                });
+
                 // Get the total quantity (estimated + scrap) for this child material
                 // This is what we pass to children for the cascade
                 const material = madeMaterials[index];
@@ -977,10 +1002,10 @@ serve(async (req: Request) => {
                   (material?.scrapQuantity ?? 0);
 
                 // prevent an infinite loop
-                if (child.data.itemId !== itemId && jobMakeMethodId) {
+                if (child.data.itemId !== itemId) {
                   await traverseMethod(
                     child,
-                    jobMakeMethodId,
+                    newMakeMethodId,
                     childTotalForCascade || 1
                   );
                 }
@@ -995,6 +1020,14 @@ serve(async (req: Request) => {
             }
             } // end if (parts.billOfMaterial)
           }
+
+          function logTree(node: MethodTreeItem, depth = 0) {
+            console.log("  ".repeat(depth) + `[tree] ${node.data.itemId} (${node.data.methodType}, isRoot=${node.data.isRoot}, children=${node.children.length})`);
+            for (const child of node.children) {
+              logTree(child, depth + 1);
+            }
+          }
+          logTree(methodTree);
 
           // Start traversal with job quantity as the root's target/parent estimated quantity
           await traverseMethod(
@@ -1117,6 +1150,13 @@ serve(async (req: Request) => {
             parts.billOfMaterial
               ? trx
                   .deleteFrom("jobMaterial")
+                  .where("jobMakeMethodId", "=", jobMakeMethodId)
+                  .execute()
+              : Promise.resolve(),
+            // Prevent cascade deletion of materials when only replacing operations
+            !parts.billOfMaterial && parts.billOfProcess
+              ? trx.updateTable("jobMaterial")
+                  .set({ jobOperationId: null })
                   .where("jobMakeMethodId", "=", jobMakeMethodId)
                   .execute()
               : Promise.resolve(),
@@ -1390,38 +1430,30 @@ serve(async (req: Request) => {
             }
 
             if (madeMaterials.length > 0) {
-              const madeMaterialIds = await trx
+              const madeMaterialsWithIds = madeMaterials.map((m) => ({
+                ...m,
+                id: nanoid(),
+              }));
+
+              await trx
                 .insertInto("jobMaterial")
-                .values(madeMaterials)
-                .returning(["id"])
+                .values(madeMaterialsWithIds)
                 .execute();
 
-              const jobMakeMethods = await trx
-                .selectFrom("jobMakeMethod")
-                .select(["id", "parentMaterialId"])
-                .where(
-                  "parentMaterialId",
-                  "in",
-                  madeMaterialIds.map((m) => m.id)
-                )
-                .execute();
+              const madeChildren = node.children.filter(
+                (child) => child.data.methodType === "Make"
+              );
 
-              // Create proper mapping from parentMaterialId to jobMakeMethodId
-              const materialIdToJobMakeMethodId: Record<string, string> = {};
-              jobMakeMethods.forEach((jmm) => {
-                if (jmm.parentMaterialId && jmm.id) {
-                  materialIdToJobMakeMethodId[jmm.parentMaterialId] = jmm.id;
-                }
-              });
+              for (const [index, child] of madeChildren.entries()) {
+                const materialId = madeMaterialsWithIds[index].id;
+                const newMakeMethodId = nanoid();
 
-              // Use proper correlation instead of index-based assumption
-              for (const [index, child] of node.children
-                .filter((child) => child.data.methodType === "Make")
-                .entries()) {
-                const materialId = madeMaterialIds[index]?.id;
-                const jobMakeMethodId = materialId
-                  ? materialIdToJobMakeMethodId[materialId]
-                  : null;
+                await trx
+                  .updateTable("jobMakeMethod")
+                  .set({ id: newMakeMethodId })
+                  .where("parentMaterialId", "=", materialId)
+                  .execute();
+
                 // Get the total quantity (estimated + scrap) for this child material
                 // This is what we pass to children for the cascade
                 const material = madeMaterials[index];
@@ -1430,10 +1462,10 @@ serve(async (req: Request) => {
                   (material?.scrapQuantity ?? 0);
 
                 // prevent an infinite loop
-                if (child.data.itemId !== itemId && jobMakeMethodId) {
+                if (child.data.itemId !== itemId) {
                   await traverseMethod(
                     child,
-                    jobMakeMethodId,
+                    newMakeMethodId,
                     childTotalForCascade || 1
                   );
                 }
@@ -1570,6 +1602,13 @@ serve(async (req: Request) => {
                   .where("quoteLineId", "=", quoteLineId)
                   .execute()
               : Promise.resolve(),
+            // Prevent cascade deletion of materials when only replacing operations
+            !parts.billOfMaterial && parts.billOfProcess
+              ? trx.updateTable("quoteMaterial")
+                  .set({ quoteOperationId: null })
+                  .where("quoteLineId", "=", quoteLineId)
+                  .execute()
+              : Promise.resolve(),
             parts.billOfProcess
               ? trx
                   .deleteFrom("quoteOperation")
@@ -1622,13 +1661,27 @@ serve(async (req: Request) => {
             node: MethodTreeItem,
             parentQuoteMakeMethodId: string | null
           ) {
+            console.log("[traverseMethod]", {
+              isRoot: node.data.isRoot,
+              itemId: node.data.itemId,
+              methodType: node.data.methodType,
+              materialMakeMethodId: node.data.materialMakeMethodId,
+              childCount: node.children.length,
+              childMethodTypes: node.children.map(c => ({
+                itemId: c.data.itemId,
+                methodType: c.data.methodType,
+              })),
+              parentQuoteMakeMethodId,
+            });
+
             let methodOperationsToQuoteOperations: Record<string, string> = {};
 
             const nodeLevelConfigurationKey = `${
               node.data.materialMakeMethodId
             }:${node.data.isRoot ? "undefined" : node.data.methodMaterialId}`;
 
-            if (parts.billOfProcess) {
+            // For child nodes, always include operations regardless of parts flags
+            if (!node.data.isRoot || parts.billOfProcess) {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
@@ -1749,7 +1802,7 @@ serve(async (req: Request) => {
                   op.operationSupplierProcessId
                 ),
                 tags: op.tags ?? [],
-                workInstruction: parts.workInstructions ? op.workInstruction : {},
+                workInstruction: (!node.data.isRoot || parts.workInstructions) ? op.workInstruction : {},
                 companyId,
                 createdBy: userId,
                 customFields: {},
@@ -1804,7 +1857,7 @@ serve(async (req: Request) => {
                   } = operation;
 
                   if (
-                    parts.tools &&
+                    (!node.data.isRoot || parts.tools) &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
@@ -1824,7 +1877,7 @@ serve(async (req: Request) => {
 
                   if (!procedureId) {
                     if (
-                      parts.parameters &&
+                      (!node.data.isRoot || parts.parameters) &&
                       Array.isArray(methodOperationParameter) &&
                       methodOperationParameter.length > 0
                     ) {
@@ -1849,7 +1902,7 @@ serve(async (req: Request) => {
                     }
 
                     if (
-                      parts.steps &&
+                      (!node.data.isRoot || parts.steps) &&
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
@@ -1978,7 +2031,7 @@ serve(async (req: Request) => {
                     (child.data.shelfIds?.[quoteLocationId] as string) || null
                   : null,
                 unitOfMeasureCode,
-                unitCost,
+                unitCost: unitCost ?? 0,
                 companyId,
                 createdBy: userId,
                 customFields: {},
@@ -2025,48 +2078,51 @@ serve(async (req: Request) => {
                 (material) => material.methodType !== "Make"
               );
 
-            const madeChildren = madeMaterials.map((material, index) => {
-              const childIndex = materialsWithConfiguredFields.findIndex(
-                (m) => m.itemId === material.itemId
-              );
-              return node.children[childIndex];
+            const madeChildren = node.children.filter(
+              (child) => child.data.methodType === "Make"
+            );
+
+            console.log("[traverseMethod] materials", {
+              totalChildren: materialsWithConfiguredFields.length,
+              madeMaterialsCount: madeMaterials.length,
+              madeChildrenCount: madeChildren.length,
+              pickedOrBoughtCount: pickedOrBoughtMaterials.length,
             });
 
             if (madeMaterials.length > 0) {
-              const madeMaterialIds = await trx
+              const madeMaterialsWithIds = madeMaterials.map((m) => ({
+                ...m,
+                id: nanoid(),
+              }));
+
+              await trx
                 .insertInto("quoteMaterial")
-                .values(madeMaterials)
-                .returning(["id"])
+                .values(madeMaterialsWithIds)
                 .execute();
 
-              const quoteMakeMethods = await trx
-                .selectFrom("quoteMakeMethod")
-                .select(["id", "parentMaterialId"])
-                .where(
-                  "parentMaterialId",
-                  "in",
-                  madeMaterialIds.map((m) => m.id)
-                )
-                .execute();
-
-              // Create proper mapping from parentMaterialId to quoteMakeMethodId
-              const materialIdToQuoteMakeMethodId: Record<string, string> = {};
-              quoteMakeMethods.forEach((qmm) => {
-                if (qmm.parentMaterialId && qmm.id) {
-                  materialIdToQuoteMakeMethodId[qmm.parentMaterialId] = qmm.id;
-                }
-              });
-
-              // Use proper correlation instead of index-based assumption
               for (const [index, child] of madeChildren.entries()) {
-                const materialId = madeMaterialIds[index]?.id;
-                const quoteMakeMethodId = materialId
-                  ? materialIdToQuoteMakeMethodId[materialId]
-                  : null;
+                const materialId = madeMaterialsWithIds[index].id;
+                const newMakeMethodId = nanoid();
+
+                const updateResult = await trx
+                  .updateTable("quoteMakeMethod")
+                  .set({ id: newMakeMethodId })
+                  .where("parentMaterialId", "=", materialId)
+                  .execute();
+
+                console.log("[traverseMethod] processing made child", {
+                  index,
+                  materialId,
+                  newMakeMethodId,
+                  childItemId: child.data.itemId,
+                  parentItemId: itemId,
+                  willRecurse: child.data.itemId !== itemId,
+                  updateResult,
+                });
 
                 // prevent an infinite loop
-                if (child.data.itemId !== itemId && quoteMakeMethodId) {
-                  await traverseMethod(child, quoteMakeMethodId);
+                if (child.data.itemId !== itemId) {
+                  await traverseMethod(child, newMakeMethodId);
                 }
               }
             }
@@ -2079,6 +2135,14 @@ serve(async (req: Request) => {
             }
             } // end if (parts.billOfMaterial)
           }
+
+          function logTree(node: MethodTreeItem, depth = 0) {
+            console.log("  ".repeat(depth) + `[tree] ${node.data.itemId} (${node.data.methodType}, isRoot=${node.data.isRoot}, children=${node.children.length})`);
+            for (const child of node.children) {
+              logTree(child, depth + 1);
+            }
+          }
+          logTree(methodTree);
 
           await traverseMethod(methodTree, quoteMakeMethod.data.id);
         });
@@ -2169,6 +2233,13 @@ serve(async (req: Request) => {
             parts.billOfMaterial
               ? trx
                   .deleteFrom("quoteMaterial")
+                  .where("quoteMakeMethodId", "=", quoteMakeMethodId)
+                  .execute()
+              : Promise.resolve(),
+            // Prevent cascade deletion of materials when only replacing operations
+            !parts.billOfMaterial && parts.billOfProcess
+              ? trx.updateTable("quoteMaterial")
+                  .set({ quoteOperationId: null })
                   .where("quoteMakeMethodId", "=", quoteMakeMethodId)
                   .execute()
               : Promise.resolve(),
@@ -2380,7 +2451,7 @@ serve(async (req: Request) => {
               quantity: child.data.quantity,
               shelfId: (child.data as any).shelfId || null, // @ts-ignore: shelfId field exists in database but types may not be updated
               unitOfMeasureCode: child.data.unitOfMeasureCode,
-              unitCost: child.data.unitCost,
+              unitCost: child.data.unitCost ?? 0,
               companyId,
               createdBy: userId,
               customFields: {},
@@ -2400,40 +2471,29 @@ serve(async (req: Request) => {
               mapMethodMaterialToQuoteMaterial
             );
             if (madeMaterials.length > 0) {
-              const madeMaterialIds = await trx
+              const madeMaterialsWithIds = madeMaterials.map((m) => ({
+                ...m,
+                id: nanoid(),
+              }));
+
+              await trx
                 .insertInto("quoteMaterial")
-                .values(madeMaterials)
-                .returning(["id"])
+                .values(madeMaterialsWithIds)
                 .execute();
 
-              const quoteMakeMethods = await trx
-                .selectFrom("quoteMakeMethod")
-                .select(["id", "parentMaterialId"])
-                .where(
-                  "parentMaterialId",
-                  "in",
-                  madeMaterialIds.map((m) => m.id)
-                )
-                .execute();
-
-              // Create proper mapping from parentMaterialId to quoteMakeMethodId
-              const materialIdToQuoteMakeMethodId: Record<string, string> = {};
-              quoteMakeMethods.forEach((qmm) => {
-                if (qmm.parentMaterialId && qmm.id) {
-                  materialIdToQuoteMakeMethodId[qmm.parentMaterialId] = qmm.id;
-                }
-              });
-
-              // Use proper correlation instead of index-based assumption
               for (const [index, child] of madeChildren.entries()) {
-                const materialId = madeMaterialIds[index]?.id;
-                const quoteMakeMethodId = materialId
-                  ? materialIdToQuoteMakeMethodId[materialId]
-                  : null;
+                const materialId = madeMaterialsWithIds[index].id;
+                const newMakeMethodId = nanoid();
+
+                await trx
+                  .updateTable("quoteMakeMethod")
+                  .set({ id: newMakeMethodId })
+                  .where("parentMaterialId", "=", materialId)
+                  .execute();
 
                 // prevent an infinite loop
-                if (child.data.itemId !== itemId && quoteMakeMethodId) {
-                  await traverseMethod(child, quoteMakeMethodId);
+                if (child.data.itemId !== itemId) {
+                  await traverseMethod(child, newMakeMethodId);
                 }
               }
             }
@@ -4072,6 +4132,13 @@ serve(async (req: Request) => {
             parts.billOfMaterial
               ? trx.deleteFrom("jobMaterial").where("jobId", "=", jobId).execute()
               : Promise.resolve(),
+            // Prevent cascade deletion of materials when only replacing operations
+            !parts.billOfMaterial && parts.billOfProcess
+              ? trx.updateTable("jobMaterial")
+                  .set({ jobOperationId: null })
+                  .where("jobId", "=", jobId)
+                  .execute()
+              : Promise.resolve(),
             parts.billOfProcess
               ? trx.deleteFrom("jobOperation").where("jobId", "=", jobId).execute()
               : Promise.resolve(),
@@ -4463,6 +4530,13 @@ serve(async (req: Request) => {
             parts.billOfMaterial
               ? trx
                   .deleteFrom("quoteMaterial")
+                  .where("quoteLineId", "=", targetQuoteLineId)
+                  .execute()
+              : Promise.resolve(),
+            // Prevent cascade deletion of materials when only replacing operations
+            !parts.billOfMaterial && parts.billOfProcess
+              ? trx.updateTable("quoteMaterial")
+                  .set({ quoteOperationId: null })
                   .where("quoteLineId", "=", targetQuoteLineId)
                   .execute()
               : Promise.resolve(),

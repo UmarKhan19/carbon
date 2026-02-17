@@ -21,10 +21,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cva } from "class-variance-authority";
 import { AiOutlinePartition } from "react-icons/ai";
-import { FaTasks } from "react-icons/fa";
 import {
   LuCalendarDays,
   LuCircleCheck,
+  LuClock,
   LuEllipsisVertical,
   LuFlashlight,
   LuFlashlightOff,
@@ -241,7 +241,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
                 }
                 progress={Math.min((item.progress ?? 0) * 100, 100)}
               />
-              <FaTasks className="text-muted-foreground w-4 h-4" />
+              <LuClock className="text-muted-foreground w-4 h-4" />
             </HStack>
           )}
       </CardHeader>

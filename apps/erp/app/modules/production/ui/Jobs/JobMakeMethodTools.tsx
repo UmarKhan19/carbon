@@ -118,6 +118,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
 
   const getMethodModal = useDisclosure();
   const saveMethodModal = useDisclosure();
+  const [hasMethodParts, setHasMethodParts] = useState(true);
 
   const isJobDetails = pathname === path.to.jobDetails(jobId);
   const isJobMethod =
@@ -371,6 +372,14 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                     )}
 
                     <VStack spacing={4}>
+                      {hasMethods && (
+                        <Alert variant="destructive">
+                          <LuTriangleAlert className="h-4 w-4" />
+                          <AlertTitle>
+                            This will overwrite the existing job method
+                          </AlertTitle>
+                        </Alert>
+                      )}
                       <Item
                         name="sourceId"
                         label="Source Method"
@@ -392,15 +401,8 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                           Include Inactive
                         </label>
                       </div>
-                      {hasMethods && (
-                        <Alert variant="destructive">
-                          <LuTriangleAlert className="h-4 w-4" />
-                          <AlertTitle>
-                            This will overwrite the existing job method
-                          </AlertTitle>
-                        </Alert>
-                      )}
-                      <AdvancedSection />
+
+                      <AdvancedSection onChange={setHasMethodParts} />
                     </VStack>
                   </TabsContent>
                   <TabsContent value="quote">
@@ -408,7 +410,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                     <Hidden name="targetId" value={jobId} />
                     <VStack spacing={4}>
                       <QuoteLineMethodForm />
-                      <AdvancedSection />
+                      <AdvancedSection onChange={setHasMethodParts} />
                     </VStack>
                   </TabsContent>
                 </Tabs>
@@ -417,7 +419,10 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                 <Button onClick={getMethodModal.onClose} variant="secondary">
                   Cancel
                 </Button>
-                <Submit variant={hasMethods ? "destructive" : "primary"}>
+                <Submit
+                  isDisabled={!hasMethodParts}
+                  variant={hasMethods ? "destructive" : "primary"}
+                >
                   Confirm
                 </Submit>
               </ModalFooter>
@@ -517,15 +522,8 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                       Include Inactive
                     </label>
                   </div>
-                  {hasMethods && (
-                    <Alert variant="destructive">
-                      <LuTriangleAlert className="h-4 w-4" />
-                      <AlertTitle>
-                        This will overwrite the existing manufacturing method
-                      </AlertTitle>
-                    </Alert>
-                  )}
-                  <AdvancedSection />
+
+                  <AdvancedSection onChange={setHasMethodParts} />
                 </VStack>
               </ModalBody>
               <ModalFooter>
@@ -535,7 +533,9 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                 <Submit
                   variant={hasMethods ? "destructive" : "primary"}
                   isDisabled={
-                    !selectedMakeMethod || !permissions.can("update", "parts")
+                    !selectedMakeMethod ||
+                    !permissions.can("update", "parts") ||
+                    !hasMethodParts
                   }
                 >
                   Confirm
@@ -611,13 +611,26 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
   );
 };
 
-function AdvancedSection() {
+function AdvancedSection({
+  onChange
+}: {
+  onChange?: (hasSelection: boolean) => void;
+}) {
   const [open, setOpen] = useState(false);
+  const [billOfMaterial, setBillOfMaterial] = useState(true);
   const [billOfProcess, setBillOfProcess] = useState(true);
   const [parameters, setParameters] = useState(true);
   const [tools, setTools] = useState(true);
   const [steps, setSteps] = useState(true);
   const [workInstructions, setWorkInstructions] = useState(true);
+
+  const hasSelection =
+    billOfMaterial ||
+    (billOfProcess && (parameters || tools || steps || workInstructions));
+
+  useEffect(() => {
+    onChange?.(hasSelection);
+  }, [hasSelection, onChange]);
 
   const processChildren = [
     {
@@ -652,7 +665,8 @@ function AdvancedSection() {
             <Checkbox
               id="billOfMaterial"
               name="billOfMaterial"
-              defaultChecked
+              checked={billOfMaterial}
+              onCheckedChange={(checked) => setBillOfMaterial(!!checked)}
             />
             <label
               htmlFor="billOfMaterial"

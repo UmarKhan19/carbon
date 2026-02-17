@@ -117,6 +117,7 @@ const QuoteMakeMethodTools = () => {
 
   const getMethodModal = useDisclosure();
   const saveMethodModal = useDisclosure();
+  const [hasMethodParts, setHasMethodParts] = useState(true);
 
   const isQuoteLineDetails =
     lineId && pathname === path.to.quoteLine(quoteId, lineId);
@@ -310,6 +311,14 @@ const QuoteMakeMethodTools = () => {
                       <Hidden name="type" value="item" />
                       <Hidden name="targetId" value={`${quoteId}:${lineId}`} />
                       <VStack spacing={4}>
+                        {hasMethods && (
+                          <Alert variant="destructive">
+                            <LuTriangleAlert className="h-4 w-4" />
+                            <AlertTitle>
+                              This will overwrite the existing quote method
+                            </AlertTitle>
+                          </Alert>
+                        )}
                         <Item
                           name="sourceId"
                           label="Source Method"
@@ -331,15 +340,8 @@ const QuoteMakeMethodTools = () => {
                             Include Inactive
                           </label>
                         </div>
-                        {hasMethods && (
-                          <Alert variant="destructive">
-                            <LuTriangleAlert className="h-4 w-4" />
-                            <AlertTitle>
-                              This will overwrite the existing quote method
-                            </AlertTitle>
-                          </Alert>
-                        )}
-                        <AdvancedSection />
+
+                        <AdvancedSection onChange={setHasMethodParts} />
                       </VStack>
                     </TabsContent>
                     <TabsContent value="quote">
@@ -353,6 +355,14 @@ const QuoteMakeMethodTools = () => {
                     <Hidden name="type" value="method" />
                     <Hidden name="targetId" value={methodId!} />
                     <VStack spacing={4}>
+                      {hasMethods && (
+                        <Alert variant="destructive">
+                          <LuTriangleAlert className="h-4 w-4" />
+                          <AlertTitle>
+                            This will overwrite the existing quote method
+                          </AlertTitle>
+                        </Alert>
+                      )}
                       <Item
                         name="sourceId"
                         label="Source Method"
@@ -374,15 +384,8 @@ const QuoteMakeMethodTools = () => {
                           Include Inactive
                         </label>
                       </div>
-                      {hasMethods && (
-                        <Alert variant="destructive">
-                          <LuTriangleAlert className="h-4 w-4" />
-                          <AlertTitle>
-                            This will overwrite the existing quote method
-                          </AlertTitle>
-                        </Alert>
-                      )}
-                      <AdvancedSection />
+
+                      <AdvancedSection onChange={setHasMethodParts} />
                     </VStack>
                   </>
                 )}
@@ -391,7 +394,10 @@ const QuoteMakeMethodTools = () => {
                 <Button onClick={getMethodModal.onClose} variant="secondary">
                   Cancel
                 </Button>
-                <Submit variant={hasMethods ? "destructive" : "primary"}>
+                <Submit
+                  isDisabled={!hasMethodParts}
+                  variant={hasMethods ? "destructive" : "primary"}
+                >
                   Confirm
                 </Submit>
               </ModalFooter>
@@ -495,7 +501,7 @@ const QuoteMakeMethodTools = () => {
                       Include Inactive
                     </label>
                   </div>
-                  <AdvancedSection />
+                  <AdvancedSection onChange={setHasMethodParts} />
                 </VStack>
               </ModalBody>
               <ModalFooter>
@@ -503,7 +509,7 @@ const QuoteMakeMethodTools = () => {
                   Cancel
                 </Button>
                 <Submit
-                  isDisabled={!selectedMakeMethod}
+                  isDisabled={!selectedMakeMethod || !hasMethodParts}
                   variant={hasMethods ? "destructive" : "primary"}
                 >
                   Confirm
@@ -576,13 +582,26 @@ const QuoteMakeMethodTools = () => {
   );
 };
 
-function AdvancedSection() {
+function AdvancedSection({
+  onChange
+}: {
+  onChange?: (hasSelection: boolean) => void;
+}) {
   const [open, setOpen] = useState(false);
+  const [billOfMaterial, setBillOfMaterial] = useState(true);
   const [billOfProcess, setBillOfProcess] = useState(true);
   const [parameters, setParameters] = useState(true);
   const [tools, setTools] = useState(true);
   const [steps, setSteps] = useState(true);
   const [workInstructions, setWorkInstructions] = useState(true);
+
+  const hasSelection =
+    billOfMaterial ||
+    (billOfProcess && (parameters || tools || steps || workInstructions));
+
+  useEffect(() => {
+    onChange?.(hasSelection);
+  }, [hasSelection, onChange]);
 
   const processChildren = [
     {
@@ -617,7 +636,8 @@ function AdvancedSection() {
             <Checkbox
               id="billOfMaterial"
               name="billOfMaterial"
-              defaultChecked
+              checked={billOfMaterial}
+              onCheckedChange={(checked) => setBillOfMaterial(!!checked)}
             />
             <label
               htmlFor="billOfMaterial"
