@@ -1,7 +1,11 @@
 import {
   Badge,
-  Copy,
   cn,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  Copy,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -23,6 +27,8 @@ import {
   LuBraces,
   LuChevronDown,
   LuChevronRight,
+  LuChevronsDownUp,
+  LuChevronsUpDown,
   LuEllipsisVertical,
   LuExternalLink,
   LuSearch,
@@ -233,15 +239,17 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
             )}
           </HStack>
           <div className="flex flex-1 min-h-0 w-full">
-            <TreeView
-              parentRef={parentRef}
-              virtualizer={virtualizer}
-              autoFocus
-              tree={method}
-              nodes={nodes}
-              getNodeProps={getNodeProps}
-              getTreeProps={getTreeProps}
-              renderNode={({ node, state }) => (
+            <ContextMenu>
+              <ContextMenuTrigger asChild>
+                <TreeView
+                  parentRef={parentRef}
+                  virtualizer={virtualizer}
+                  autoFocus
+                  tree={method}
+                  nodes={nodes}
+                  getNodeProps={getNodeProps}
+                  getTreeProps={getTreeProps}
+                  renderNode={({ node, state }) => (
                 <HoverCard>
                   <HoverCardTrigger asChild>
                     <div
@@ -331,7 +339,19 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
                   </HoverCardContent>
                 </HoverCard>
               )}
-            />
+                />
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem onClick={() => expandAllBelowDepth(0)}>
+                  <LuChevronsUpDown className="mr-2 h-4 w-4" />
+                  Expand All
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => collapseAllBelowDepth(0)}>
+                  <LuChevronsDownUp className="mr-2 h-4 w-4" />
+                  Collapse All
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           </div>
         </>
       )}

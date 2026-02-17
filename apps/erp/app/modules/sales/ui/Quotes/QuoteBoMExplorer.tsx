@@ -1,7 +1,11 @@
 import {
   Badge,
-  Copy,
   cn,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  Copy,
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -17,6 +21,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuChevronDown,
   LuChevronRight,
+  LuChevronsDownUp,
+  LuChevronsUpDown,
   LuExternalLink,
   LuSearch
 } from "react-icons/lu";
@@ -171,15 +177,17 @@ const QuoteBoMExplorer = ({
               </InputGroup>
             </HStack>
           )}
-          <TreeView
-            parentRef={parentRef}
-            virtualizer={virtualizer}
-            autoFocus
-            tree={methods}
-            nodes={nodes}
-            getNodeProps={getNodeProps}
-            getTreeProps={getTreeProps}
-            renderNode={({ node, state }) => (
+          <ContextMenu>
+            <ContextMenuTrigger asChild>
+              <TreeView
+                parentRef={parentRef}
+                virtualizer={virtualizer}
+                autoFocus
+                tree={methods}
+                nodes={nodes}
+                getNodeProps={getNodeProps}
+                getTreeProps={getTreeProps}
+                renderNode={({ node, state }) => (
               <HoverCard>
                 <HoverCardTrigger asChild>
                   <div
@@ -266,7 +274,19 @@ const QuoteBoMExplorer = ({
                 </HoverCardContent>
               </HoverCard>
             )}
-          />
+              />
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem onClick={() => expandAllBelowDepth(0)}>
+                <LuChevronsUpDown className="mr-2 h-4 w-4" />
+                Expand All
+              </ContextMenuItem>
+              <ContextMenuItem onClick={() => collapseAllBelowDepth(0)}>
+                <LuChevronsDownUp className="mr-2 h-4 w-4" />
+                Collapse All
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         </>
       )}
     </VStack>

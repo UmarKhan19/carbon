@@ -1,7 +1,11 @@
 import {
   Badge,
-  Copy,
   cn,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  Copy,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -27,6 +31,8 @@ import {
   LuBraces,
   LuChevronDown,
   LuChevronRight,
+  LuChevronsDownUp,
+  LuChevronsUpDown,
   LuDownload,
   LuEllipsisVertical,
   LuExternalLink,
@@ -268,16 +274,18 @@ const BoMExplorer = ({
           </div>
         )}
         <div className="flex flex-1 min-h-0 w-full">
-          <TreeView
-            parentRef={parentRef}
-            virtualizer={virtualizer}
-            autoFocus
-            tree={methods}
-            nodes={nodes}
-            getNodeProps={getNodeProps}
-            getTreeProps={getTreeProps}
-            parentClassName="h-full"
-            renderNode={({ node, state }) => {
+          <ContextMenu>
+            <ContextMenuTrigger asChild>
+              <TreeView
+                parentRef={parentRef}
+                virtualizer={virtualizer}
+                autoFocus
+                tree={methods}
+                nodes={nodes}
+                getNodeProps={getNodeProps}
+                getTreeProps={getTreeProps}
+                parentClassName="h-full"
+                renderNode={({ node, state }) => {
               return (
                 <HoverCard>
                   <HoverCardTrigger asChild>
@@ -378,7 +386,19 @@ const BoMExplorer = ({
                 </HoverCard>
               );
             }}
-          />
+              />
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem onClick={() => expandAllBelowDepth(0)}>
+                <LuChevronsUpDown className="mr-2 h-4 w-4" />
+                Expand All
+              </ContextMenuItem>
+              <ContextMenuItem onClick={() => collapseAllBelowDepth(0)}>
+                <LuChevronsDownUp className="mr-2 h-4 w-4" />
+                Collapse All
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         </div>
       </VStack>
       {importBomDisclosure.isOpen && (
