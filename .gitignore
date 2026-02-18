@@ -39,9 +39,14 @@ packages/database/supabase/seed.sql
 
 .react-router
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3c1de58f5 (- git changes)
 # Rust
 **/target/
 **/*.rs.bk
+**/pkg/
 **/pkg/
 
 # C++ (cad-engine)
