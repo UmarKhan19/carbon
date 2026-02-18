@@ -43,8 +43,8 @@ packages/database/supabase/seed.sql
 **/target/
 **/*.rs.bk
 **/pkg/
-**/pkg/
 
 # C++ (cad-engine)
 **/build/
 !**/build/.gitkeep
+**/pkg/

@@ -63,7 +63,7 @@ interface PlannerStats {
 }
 
 /**
- * Simulation result from the Rust cad-server
+ * Simulation result from the C++ cad-engine
  */
 interface SimulationResult {
   steps: SimulatorStep[];
@@ -76,7 +76,7 @@ interface SimulationResult {
 }
 
 /**
- * Response from Rust cad-server /simulate endpoint
+ * Response from C++ cad-engine /simulate endpoint
  */
 interface SimulateResponse {
   success: boolean;
@@ -95,7 +95,7 @@ function summarizeBody(body: string, max = 500): string {
 function formatSimulatorHttpError(
   status: number,
   body: string,
-  cadServerUrl: string
+  cadEngineUrl: string
 ): string {
   const trimmed = body.trim();
 
@@ -105,16 +105,16 @@ function formatSimulatorHttpError(
   ) {
     return [
       `Simulator tunnel reachable but upstream service is unavailable (${status}).`,
-      `CAD_SERVER_URL=${cadServerUrl}`,
+      `CAD_ENGINE_URL=${cadEngineUrl}`,
       "ngrok reports ERR_NGROK_8012 (upstream connection refused).",
-      "Start cad-server on the forwarded port (usually 8080) or point ngrok/CAD_SERVER_URL to the correct port."
+      "Start cad-engine on the forwarded port (usually 8080) or point ngrok/CAD_ENGINE_URL to the correct port."
     ].join(" ");
   }
 
   if (trimmed.startsWith("<!DOCTYPE html") || trimmed.startsWith("<html")) {
     return [
       `Simulator returned HTML error page (${status}) instead of JSON.`,
-      `CAD_SERVER_URL=${cadServerUrl}`,
+      `CAD_ENGINE_URL=${cadEngineUrl}`,
       `Body: ${summarizeBody(body)}`
     ].join(" ");
   }
@@ -125,7 +125,7 @@ function formatSimulatorHttpError(
 function parseSimulatorResponse(
   rawBody: string,
   contentType: string,
-  cadServerUrl: string
+  cadEngineUrl: string
 ): SimulateResponse {
   try {
     return JSON.parse(rawBody) as SimulateResponse;
@@ -138,8 +138,8 @@ function parseSimulatorResponse(
       throw new Error(
         [
           "Simulator returned ngrok upstream error page instead of JSON.",
-          `CAD_SERVER_URL=${cadServerUrl}`,
-          "ERR_NGROK_8012 indicates cad-server is not reachable on the forwarded local port."
+          `CAD_ENGINE_URL=${cadEngineUrl}`,
+          "ERR_NGROK_8012 indicates cad-engine is not reachable on the forwarded local port."
         ].join(" ")
       );
     }
@@ -148,7 +148,7 @@ function parseSimulatorResponse(
       throw new Error(
         [
           "Simulator returned HTML instead of JSON.",
-          `CAD_SERVER_URL=${cadServerUrl}`,
+          `CAD_ENGINE_URL=${cadEngineUrl}`,
           `content-type=${contentType || "unknown"}`,
           `Body: ${summarizeBody(rawBody)}`
         ].join(" ")
@@ -182,7 +182,7 @@ function normalizeAssemblyTree(node: AssemblyNode): AssemblyNode {
     original_name: node.original_name || node.originalName || node.name,
     node_type: node.node_type || node.type || "part",
     children: node.children?.map(normalizeAssemblyTree) || [],
-    // Rust deserializer requires transform to be present - use identity matrix if not provided
+    // Deserializer requires transform to be present - use identity matrix if not provided
     transform: node.transform ?? IDENTITY_MATRIX,
   };
 }
@@ -192,7 +192,7 @@ function normalizeAssemblyTree(node: AssemblyNode): AssemblyNode {
  *
  * This task:
  * 1. Fetches the assemblyProject's assemblyTree from database
- * 2. Calls the Rust cad-server /simulate endpoint
+ * 2. Calls the C++ cad-engine /simulate endpoint
  * 3. Creates assemblyStep records from the simulation result
  * 4. Updates the project status to "editing"
  */
@@ -215,7 +215,7 @@ export const assemblySimulateTask = task({
     });
 
     const client = getCarbonServiceRole();
-    const cadServerUrl = process.env.CAD_SERVER_URL || "http://localhost:8080";
+    const cadEngineUrl = process.env.CAD_ENGINE_URL || "http://localhost:8080";
 
     // Update status to simulating
     await metadata.set("status", "loading");
@@ -282,12 +282,12 @@ export const assemblySimulateTask = task({
       const glbSizeMB = glbArrayBuffer.byteLength / (1024 * 1024);
       const timeoutMs = Math.max(300_000, Math.round(300_000 + (glbSizeMB / 10) * 60_000));
 
-      logger.info("Calling simulator", { cadServerUrl, timeoutMs, glbSizeMB: Math.round(glbSizeMB) });
+      logger.info("Calling C++ cad-engine simulator", { cadEngineUrl, timeoutMs, glbSizeMB: Math.round(glbSizeMB) });
 
       const controller = new AbortController();
       const fetchTimeout = setTimeout(() => controller.abort(), timeoutMs + 30_000);
 
-      const response = await fetch(`${cadServerUrl}/simulate`, {
+      const response = await fetch(`${cadEngineUrl}/simulate`, {
         method: "POST",
         signal: controller.signal,
         headers: {
@@ -307,14 +307,14 @@ export const assemblySimulateTask = task({
 
       if (!response.ok) {
         throw new Error(
-          formatSimulatorHttpError(response.status, responseBody, cadServerUrl)
+          formatSimulatorHttpError(response.status, responseBody, cadEngineUrl)
         );
       }
 
       const result = parseSimulatorResponse(
         responseBody,
         responseContentType,
-        cadServerUrl
+        cadEngineUrl
       );
 
       if (!result.success || !result.result) {

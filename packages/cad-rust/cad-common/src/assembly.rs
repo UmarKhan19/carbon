@@ -215,6 +215,26 @@ pub struct SimulationIssue {
     pub metrics: Option<Value>,
 }
 
+/// A suggested subassembly detected via community detection on the contact graph.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SuggestedSubassembly {
+    /// Name derived from the most-connected functional part.
+    pub name: String,
+    /// Part IDs in this subassembly.
+    pub part_ids: Vec<String>,
+    /// Confidence score (0.0-1.0) based on community cohesion.
+    pub confidence: f32,
+}
+
+/// A group of fasteners that should be assembled together (e.g., bolt + washer + nut).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FastenerKit {
+    /// The primary fastener (bolt/screw).
+    pub primary: String,
+    /// Accessories that go with it (washers, nuts, lock washers).
+    pub accessories: Vec<String>,
+}
+
 /// Planner statistics for debugging and monitoring.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlannerStats {
@@ -228,6 +248,9 @@ pub struct PlannerStats {
     pub collision_checks: u64,
     /// Number of overlap issues detected in the assembled state.
     pub overlap_issue_count: usize,
+    /// Number of parts skipped by the blocking matrix pre-filter.
+    #[serde(default)]
+    pub blocking_matrix_skips: u64,
 }
 
 /// Result of running the assembly sequence simulation.
@@ -249,4 +272,13 @@ pub struct SimulationResult {
     /// Planner statistics for observability.
     #[serde(default)]
     pub planner_stats: Option<PlannerStats>,
+    /// Groups of part IDs with identical geometry (for step clustering).
+    #[serde(default)]
+    pub identical_groups: Vec<Vec<String>>,
+    /// Suggested subassemblies detected via community detection.
+    #[serde(default)]
+    pub suggested_subassemblies: Vec<SuggestedSubassembly>,
+    /// Fastener kits (bolt + washer + nut groups).
+    #[serde(default)]
+    pub kits: Vec<FastenerKit>,
 }

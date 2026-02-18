@@ -179,12 +179,13 @@ export default $config({
       },
     });
 
-    // CAD Service - PythonOCC STEP parser (internal service, no public load balancer)
-    const cadService = cluster.addService("CarbonCADService", {
-      image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.us-gov-east-1.amazonaws.com/carbon/cad-service:latest`,
-      port: 8000,
+    // CAD Engine - C++ (OpenCascade + CGAL) unified STEP parser + assembly simulator
+    // Replaces both PythonOCC cad-service and Rust cad-server
+    const cadEngine = cluster.addService("CarbonCADEngine", {
+      image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.us-gov-east-1.amazonaws.com/carbon/cad-engine:latest`,
+      port: 8080,
       cpu: "1 vCPU",
-      memory: "4 GB", // CAD processing needs memory for large assemblies
+      memory: "4 GB",
       scaling: {
         min: 1,
         max: 5,

@@ -1,11 +1,12 @@
+export type { ThreeCanvasProps, ThreeContext } from "./ThreeCanvas";
+export { ThreeCanvas } from "./ThreeCanvas";
+export type { XeokitCanvasProps } from "./XeokitCanvas";
+export { XeokitCanvas } from "./XeokitCanvas";
 export type { AnimationPlaybackState } from "./useAnimationPlayback";
 export { useAnimationPlayback } from "./useAnimationPlayback";
+export type { UseThreeOptions } from "./useThree";
+export { useThree } from "./useThree";
 export type { UseXeokitOptions } from "./useXeokit";
 export { useXeokit } from "./useXeokit";
-export type { XeokitCanvasProps } from "./XeokitCanvas";
-export {
-  flyToEntity,
-  flyToViewpoint,
-  setViewPreset,
-  XeokitCanvas
-} from "./XeokitCanvas";
+export type { XeokitAnimationPlaybackState } from "./useXeokitAnimationPlayback";
+export { useXeokitAnimationPlayback } from "./useXeokitAnimationPlayback";

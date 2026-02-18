@@ -3,7 +3,7 @@ import { task, logger, metadata, tasks } from "@trigger.dev/sdk";
 import type { assemblySimulateTask } from "./assembly-simulate";
 
 /**
- * Assembly node from OpenCascade parser
+ * Assembly node from C++ CAD Engine
  */
 interface AssemblyNode {
   id: string;
@@ -15,7 +15,7 @@ interface AssemblyNode {
 }
 
 /**
- * Response from CAD Service /parse endpoint
+ * Response from C++ CAD Engine /parse endpoint
  */
 interface CadServiceResponse {
   success: boolean;
@@ -27,11 +27,11 @@ interface CadServiceResponse {
 }
 
 /**
- * Trigger.dev task to parse STEP files using OpenCascade (PythonOCC)
+ * Trigger.dev task to parse STEP files using C++ CAD Engine
  *
  * This task:
  * 1. Downloads the STEP file from Supabase Storage
- * 2. Sends it to the CAD Service for parsing
+ * 2. Sends it to the C++ CAD Engine for parsing (OpenCascade STEP reader)
  * 3. Uploads the resulting GLB to storage
  * 4. Updates the assemblyProject with hierarchy and model path
  */
@@ -49,15 +49,15 @@ export const stepParserOccTask = task({
   }) => {
     const { projectId, companyId, storagePath } = payload;
 
-    logger.info("Starting OpenCascade STEP parser", {
+    logger.info("Starting C++ CAD Engine STEP parser", {
       projectId,
       companyId,
       storagePath,
     });
 
     const client = getCarbonServiceRole();
-    const cadServiceUrl =
-      process.env.CAD_SERVICE_URL || "http://localhost:8000";
+    const cadEngineUrl =
+      process.env.CAD_ENGINE_URL || "http://localhost:8080";
 
     // Update status to processing
     await metadata.set("status", "downloading");
@@ -101,31 +101,31 @@ export const stepParserOccTask = task({
         .update({ parsingProgress: 30 })
         .eq("id", projectId);
 
-      // 2. Send to CAD Service for parsing
-      logger.info("Sending to CAD Service", { cadServiceUrl });
+      // 2. Send to CAD Engine for parsing
+      logger.info("Sending to CAD Engine", { cadEngineUrl });
 
       const formData = new FormData();
       formData.append("file", fileData, "model.step");
       formData.append("tolerance", "0.1");
       formData.append("angular_tolerance", "0.5");
 
-      const response = await fetch(`${cadServiceUrl}/parse`, {
+      const response = await fetch(`${cadEngineUrl}/parse`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`CAD Service error (${response.status}): ${errorText}`);
+        throw new Error(`CAD Engine error (${response.status}): ${errorText}`);
       }
 
       const result: CadServiceResponse = await response.json();
 
       if (!result.success) {
-        throw new Error(result.error || "CAD Service parsing failed");
+        throw new Error(result.error || "CAD Engine parsing failed");
       }
 
-      logger.info("CAD Service parsing complete", {
+      logger.info("CAD Engine parsing complete", {
         partCount: result.part_count,
         parseTimeMs: result.parse_time_ms,
       });
@@ -140,7 +140,7 @@ export const stepParserOccTask = task({
 
       // 3. Upload GLB to storage
       if (!result.glb_base64) {
-        throw new Error("CAD Service did not return GLB data");
+        throw new Error("CAD Engine did not return GLB data");
       }
 
       const glbBuffer = Buffer.from(result.glb_base64, "base64");
@@ -223,6 +223,32 @@ export const stepParserOccTask = task({
         .eq("id", projectId);
 
       throw error;
+    }
+  },
+});
+
+/**
+ * Health check task to verify CAD Engine is available
+ */
+export const cadEngineHealthTask = task({
+  id: "cad-engine-health",
+  run: async () => {
+    const cadEngineUrl =
+      process.env.CAD_ENGINE_URL || "http://localhost:8080";
+
+    try {
+      const response = await fetch(`${cadEngineUrl}/health`);
+      const data = await response.json();
+
+      return {
+        available: response.ok && data.status === "ok",
+        version: data.version,
+      };
+    } catch (error) {
+      return {
+        available: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      };
     }
   },
 });

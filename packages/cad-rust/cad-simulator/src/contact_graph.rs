@@ -6,11 +6,14 @@
 //! - Identify structural parts (parts with many contacts are likely structural)
 //! - Build assembly constraints (parts must be in position before their fasteners)
 
+use cad_common::{FastenerKit, SuggestedSubassembly};
+
+use crate::sequence::PartKind;
 use nalgebra::{Isometry3, Point3, Vector3};
 use parry3d::query;
 use parry3d::query::PointQuery;
 use parry3d::shape::TriMesh;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
 use tracing::{debug, info};
 
 /// A contact between two parts in the assembly.
@@ -49,8 +52,9 @@ impl ContactGraph {
     ///   Recommended: `assembly_diagonal * 0.002`
     ///
     /// # Performance
-    /// O(n²) in number of parts. For assemblies with >500 parts, consider
-    /// adding a broad-phase filter using bounding box overlap.
+    /// Uses sweep-and-prune broad-phase on the X axis to avoid O(n²) distance
+    /// queries. Only pairs whose loosened AABBs overlap on all 3 axes get the
+    /// expensive narrow-phase `query::distance()` call.
     pub fn build<'a>(
         parts: impl IntoIterator<Item = (&'a str, &'a TriMesh, &'a Isometry3<f32>)> + Clone,
         threshold: f32,
@@ -71,18 +75,91 @@ impl ContactGraph {
             adjacency.insert((*id).to_string(), Vec::new());
         }
 
-        // Pairwise distance computation
-        for i in 0..n {
-            for j in (i + 1)..n {
+        // Compute world-space AABBs loosened by threshold for broad-phase
+        let world_aabbs: Vec<(Point3<f32>, Point3<f32>)> = parts_vec
+            .iter()
+            .map(|(_, mesh, transform)| {
+                let local_aabb = mesh.local_aabb();
+                // Transform all 8 corners to world space to get tight world AABB
+                let corners = [
+                    Point3::new(local_aabb.mins.x, local_aabb.mins.y, local_aabb.mins.z),
+                    Point3::new(local_aabb.maxs.x, local_aabb.mins.y, local_aabb.mins.z),
+                    Point3::new(local_aabb.mins.x, local_aabb.maxs.y, local_aabb.mins.z),
+                    Point3::new(local_aabb.maxs.x, local_aabb.maxs.y, local_aabb.mins.z),
+                    Point3::new(local_aabb.mins.x, local_aabb.mins.y, local_aabb.maxs.z),
+                    Point3::new(local_aabb.maxs.x, local_aabb.mins.y, local_aabb.maxs.z),
+                    Point3::new(local_aabb.mins.x, local_aabb.maxs.y, local_aabb.maxs.z),
+                    Point3::new(local_aabb.maxs.x, local_aabb.maxs.y, local_aabb.maxs.z),
+                ];
+                let world_corners: Vec<Point3<f32>> =
+                    corners.iter().map(|c| *transform * *c).collect();
+                let mut wmin = world_corners[0];
+                let mut wmax = world_corners[0];
+                for c in &world_corners[1..] {
+                    wmin.x = wmin.x.min(c.x);
+                    wmin.y = wmin.y.min(c.y);
+                    wmin.z = wmin.z.min(c.z);
+                    wmax.x = wmax.x.max(c.x);
+                    wmax.y = wmax.y.max(c.y);
+                    wmax.z = wmax.z.max(c.z);
+                }
+                // Loosen by threshold on each side
+                wmin.x -= threshold;
+                wmin.y -= threshold;
+                wmin.z -= threshold;
+                wmax.x += threshold;
+                wmax.y += threshold;
+                wmax.z += threshold;
+                (wmin, wmax)
+            })
+            .collect();
+
+        // Sort indices by AABB min-x for sweep-and-prune
+        let mut sorted_indices: Vec<usize> = (0..n).collect();
+        sorted_indices.sort_by(|&a, &b| {
+            world_aabbs[a]
+                .0
+                .x
+                .partial_cmp(&world_aabbs[b].0.x)
+                .unwrap()
+        });
+
+        let mut broad_phase_pairs = 0u64;
+        let mut narrow_phase_pairs = 0u64;
+
+        // Sweep-and-prune: only check pairs that overlap on X axis
+        for si in 0..sorted_indices.len() {
+            let i = sorted_indices[si];
+            let (amin, amax) = &world_aabbs[i];
+
+            for &j in &sorted_indices[(si + 1)..] {
+                let (bmin, bmax) = &world_aabbs[j];
+
+                // Early exit: if bmin.x > amax.x, no further j can overlap on X
+                if bmin.x > amax.x {
+                    break;
+                }
+
+                broad_phase_pairs += 1;
+
+                // Check Y and Z overlap
+                if amin.y > bmax.y || bmin.y > amax.y {
+                    continue;
+                }
+                if amin.z > bmax.z || bmin.z > amax.z {
+                    continue;
+                }
+
+                // AABBs overlap on all 3 axes → narrow-phase distance check
+                narrow_phase_pairs += 1;
+
                 let (id_a, mesh_a, transform_a) = parts_vec[i];
                 let (id_b, mesh_b, transform_b) = parts_vec[j];
 
-                // Compute minimum distance between meshes
                 let dist =
                     query::distance(transform_a, mesh_a, transform_b, mesh_b).unwrap_or(f32::MAX);
 
                 if dist < threshold {
-                    // Area-weighted triangle normal voting for robust contact direction
                     let (contact_point, normal) = Self::compute_contact_patch_normal(
                         mesh_a,
                         transform_a,
@@ -100,7 +177,6 @@ impl ContactGraph {
                         estimated_normal: normal,
                     });
 
-                    // Add to adjacency lists
                     adjacency.get_mut(id_a).unwrap().push(edge_idx);
                     adjacency.get_mut(id_b).unwrap().push(edge_idx);
 
@@ -109,10 +185,15 @@ impl ContactGraph {
             }
         }
 
+        let total_possible = (n * (n - 1)) / 2;
         info!(
-            "Contact graph built: {} edges among {} parts",
+            "Contact graph built: {} edges among {} parts \
+             (broad-phase: {}/{} pairs, narrow-phase: {} pairs)",
             edges.len(),
-            n
+            n,
+            broad_phase_pairs,
+            total_possible,
+            narrow_phase_pairs
         );
 
         ContactGraph { edges, adjacency }
@@ -350,11 +431,281 @@ impl ContactGraph {
     pub fn node_count(&self) -> usize {
         self.adjacency.len()
     }
+
+    /// Detect subassemblies using label propagation community detection.
+    ///
+    /// The algorithm assigns high weights to functional↔functional contacts
+    /// and low weights to fastener edges (since fasteners JOIN subassemblies,
+    /// they shouldn't define them). Label propagation then finds tightly
+    /// connected communities of functional parts.
+    ///
+    /// # Returns
+    /// A list of suggested subassemblies, each with a name, part IDs, and
+    /// confidence score. Only communities with >= 2 functional parts are returned.
+    pub fn detect_subassemblies(
+        &self,
+        classifications: &HashMap<String, PartKind>,
+    ) -> Vec<SuggestedSubassembly> {
+        let all_parts: Vec<&String> = self.adjacency.keys().collect();
+        if all_parts.len() < 2 {
+            return Vec::new();
+        }
+
+        // Assign each part a numeric index
+        let part_to_idx: HashMap<&str, usize> = all_parts
+            .iter()
+            .enumerate()
+            .map(|(i, id)| (id.as_str(), i))
+            .collect();
+        let n = all_parts.len();
+
+        // Build weighted adjacency list
+        // functional↔functional = 1.0, anything involving a fastener = 0.1
+        let mut adj: Vec<Vec<(usize, f32)>> = vec![Vec::new(); n];
+
+        for contact in &self.edges {
+            let Some(&ia) = part_to_idx.get(contact.part_a.as_str()) else {
+                continue;
+            };
+            let Some(&ib) = part_to_idx.get(contact.part_b.as_str()) else {
+                continue;
+            };
+
+            let kind_a = classifications
+                .get(&contact.part_a)
+                .copied()
+                .unwrap_or(PartKind::Unknown);
+            let kind_b = classifications
+                .get(&contact.part_b)
+                .copied()
+                .unwrap_or(PartKind::Unknown);
+
+            let weight = if kind_a == PartKind::Fastener || kind_b == PartKind::Fastener {
+                0.1
+            } else {
+                1.0
+            };
+
+            adj[ia].push((ib, weight));
+            adj[ib].push((ia, weight));
+        }
+
+        // Label propagation: each node starts with its own label
+        let mut labels: Vec<usize> = (0..n).collect();
+        let max_iterations = 50;
+
+        for _ in 0..max_iterations {
+            let mut changed = false;
+
+            for node in 0..n {
+                if adj[node].is_empty() {
+                    continue;
+                }
+
+                // Sum weights per neighbor label
+                let mut label_weights: HashMap<usize, f32> = HashMap::new();
+                for &(neighbor, weight) in &adj[node] {
+                    *label_weights.entry(labels[neighbor]).or_default() += weight;
+                }
+
+                // Pick the label with highest total weight (ties broken by smallest label)
+                let best_label = label_weights
+                    .into_iter()
+                    .max_by(|(label_a, weight_a), (label_b, weight_b)| {
+                        weight_a
+                            .partial_cmp(weight_b)
+                            .unwrap()
+                            .then(label_b.cmp(label_a)) // prefer smaller label on tie
+                    })
+                    .map(|(label, _)| label)
+                    .unwrap_or(labels[node]);
+
+                if best_label != labels[node] {
+                    labels[node] = best_label;
+                    changed = true;
+                }
+            }
+
+            if !changed {
+                break;
+            }
+        }
+
+        // Group nodes by label → communities
+        let mut communities: HashMap<usize, Vec<usize>> = HashMap::new();
+        for (node, &label) in labels.iter().enumerate() {
+            communities.entry(label).or_default().push(node);
+        }
+
+        // Filter and build results
+        let mut results = Vec::new();
+        for members in communities.values() {
+            // Count functional parts in this community
+            let functional_count = members
+                .iter()
+                .filter(|&&idx| {
+                    let kind = classifications
+                        .get(all_parts[idx].as_str())
+                        .copied()
+                        .unwrap_or(PartKind::Unknown);
+                    kind != PartKind::Fastener
+                })
+                .count();
+
+            // Only report communities with >= 2 functional parts
+            if functional_count < 2 {
+                continue;
+            }
+
+            let part_ids: Vec<String> = members.iter().map(|&idx| all_parts[idx].clone()).collect();
+
+            // Name: use the part with highest degree (most connections)
+            let name = members
+                .iter()
+                .max_by_key(|&&idx| self.degree(all_parts[idx].as_str()))
+                .map(|&idx| all_parts[idx].clone())
+                .unwrap_or_default();
+
+            // Confidence: ratio of internal edges to total edges touching this community
+            let member_set: HashSet<usize> = members.iter().copied().collect();
+            let mut internal_weight = 0.0f32;
+            let mut total_weight = 0.0f32;
+            for &node in members {
+                for &(neighbor, weight) in &adj[node] {
+                    total_weight += weight;
+                    if member_set.contains(&neighbor) {
+                        internal_weight += weight;
+                    }
+                }
+            }
+            let confidence = if total_weight > 0.0 {
+                (internal_weight / total_weight).min(1.0)
+            } else {
+                0.0
+            };
+
+            results.push(SuggestedSubassembly {
+                name,
+                part_ids,
+                confidence,
+            });
+        }
+
+        debug!(
+            "Detected {} subassemblies from {} communities",
+            results.len(),
+            communities.len()
+        );
+
+        results
+    }
+
+    /// Detect fastener kits: groups of fasteners that should be assembled together.
+    ///
+    /// Starting from each bolt/screw, BFS through contact neighbors that are also
+    /// fastener-classified (washers, nuts, lock washers). The bolt is the primary
+    /// fastener; all other fasteners in the chain are accessories.
+    ///
+    /// Each part can only belong to one kit (assigned to the first bolt that claims it).
+    pub fn detect_kits(
+        &self,
+        classifications: &HashMap<String, PartKind>,
+    ) -> Vec<FastenerKit> {
+        let mut claimed: HashSet<String> = HashSet::new();
+        let mut kits = Vec::new();
+
+        // Find all bolts/screws (fastener-classified parts whose names suggest they're primary)
+        let bolt_names = ["bolt", "screw", "capscrew", "cap screw", "stud"];
+
+        let mut primary_fasteners: Vec<&str> = Vec::new();
+        for part_id in self.adjacency.keys() {
+            let kind = classifications
+                .get(part_id.as_str())
+                .copied()
+                .unwrap_or(PartKind::Unknown);
+            if kind != PartKind::Fastener {
+                continue;
+            }
+            let lower = part_id.to_lowercase();
+            if bolt_names.iter().any(|name| lower.contains(name)) {
+                primary_fasteners.push(part_id.as_str());
+            }
+        }
+
+        // Sort for deterministic output
+        primary_fasteners.sort();
+
+        for &bolt_id in &primary_fasteners {
+            if claimed.contains(bolt_id) {
+                continue;
+            }
+
+            // BFS from this bolt through fastener neighbors
+            let mut accessories = Vec::new();
+            let mut queue: VecDeque<&str> = VecDeque::new();
+            let mut visited: HashSet<&str> = HashSet::new();
+            visited.insert(bolt_id);
+
+            // Seed the BFS with fastener neighbors of the bolt
+            for neighbor in self.neighbors(bolt_id) {
+                let kind = classifications
+                    .get(neighbor)
+                    .copied()
+                    .unwrap_or(PartKind::Unknown);
+                if kind == PartKind::Fastener && !claimed.contains(neighbor) {
+                    queue.push_back(neighbor);
+                }
+            }
+
+            while let Some(part) = queue.pop_front() {
+                if visited.contains(part) {
+                    continue;
+                }
+                visited.insert(part);
+
+                // Only continue traversal through fastener parts
+                let kind = classifications
+                    .get(part)
+                    .copied()
+                    .unwrap_or(PartKind::Unknown);
+                if kind != PartKind::Fastener {
+                    continue;
+                }
+                if claimed.contains(part) {
+                    continue;
+                }
+
+                accessories.push(part.to_string());
+
+                // Continue BFS to find more fastener chain members
+                for neighbor in self.neighbors(part) {
+                    if !visited.contains(neighbor) {
+                        queue.push_back(neighbor);
+                    }
+                }
+            }
+
+            if !accessories.is_empty() {
+                claimed.insert(bolt_id.to_string());
+                for acc in &accessories {
+                    claimed.insert(acc.clone());
+                }
+                kits.push(FastenerKit {
+                    primary: bolt_id.to_string(),
+                    accessories,
+                });
+            }
+        }
+
+        debug!("Detected {} fastener kits", kits.len());
+        kits
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sequence::PartKind;
 
     fn create_unit_cube_mesh() -> TriMesh {
         // Unit cube centered at origin
@@ -569,5 +920,200 @@ mod tests {
             normal,
             x_component
         );
+    }
+
+    #[test]
+    fn test_broad_phase_same_results_as_brute_force() {
+        // The sweep-and-prune should produce the same contact graph as brute force.
+        // Test with a 5-part assembly where some touch and some don't.
+        let mesh = create_unit_cube_mesh();
+
+        let transforms = vec![
+            Isometry3::translation(0.0, 0.0, 0.0),
+            Isometry3::translation(1.0, 0.0, 0.0), // touches [0]
+            Isometry3::translation(2.0, 0.0, 0.0), // touches [1]
+            Isometry3::translation(0.0, 1.0, 0.0), // touches [0]
+            Isometry3::translation(5.0, 5.0, 5.0), // isolated
+        ];
+
+        let parts: Vec<(&str, &TriMesh, &Isometry3<f32>)> = vec![
+            ("a", &mesh, &transforms[0]),
+            ("b", &mesh, &transforms[1]),
+            ("c", &mesh, &transforms[2]),
+            ("d", &mesh, &transforms[3]),
+            ("e", &mesh, &transforms[4]),
+        ];
+
+        let graph = ContactGraph::build(parts, 0.1);
+
+        // Expected: a-b, b-c, a-d, b-d (4 edges). b and d share an edge at corner (0.5, 0.5).
+        // e is isolated.
+        assert_eq!(graph.edge_count(), 4, "Should have 4 contacts");
+        assert_eq!(graph.degree("a"), 2); // touches b and d
+        assert_eq!(graph.degree("b"), 3); // touches a, c, and d (corner contact)
+        assert_eq!(graph.degree("c"), 1); // touches b only
+        assert_eq!(graph.degree("d"), 2); // touches a and b (corner contact)
+        assert_eq!(graph.degree("e"), 0); // isolated
+    }
+
+    #[test]
+    fn test_detect_subassemblies_two_clusters() {
+        // Two clusters of functional parts, connected only by fasteners.
+        // Cluster 1: base + plate (functional, touching)
+        // Cluster 2: bracket + support (functional, touching)
+        // Connection: bolt (fastener) touches both plate and bracket
+        let mesh = create_unit_cube_mesh();
+
+        let transforms = vec![
+            Isometry3::translation(0.0, 0.0, 0.0), // base
+            Isometry3::translation(1.0, 0.0, 0.0), // plate (touches base)
+            Isometry3::translation(2.0, 0.0, 0.0), // bolt (fastener, touches plate and bracket)
+            Isometry3::translation(3.0, 0.0, 0.0), // bracket (touches bolt)
+            Isometry3::translation(4.0, 0.0, 0.0), // support (touches bracket)
+        ];
+
+        let parts: Vec<(&str, &TriMesh, &Isometry3<f32>)> = vec![
+            ("base", &mesh, &transforms[0]),
+            ("plate", &mesh, &transforms[1]),
+            ("bolt_1", &mesh, &transforms[2]),
+            ("bracket", &mesh, &transforms[3]),
+            ("support", &mesh, &transforms[4]),
+        ];
+
+        let graph = ContactGraph::build(parts, 0.1);
+
+        let mut classifications = HashMap::new();
+        classifications.insert("base".to_string(), PartKind::Structural);
+        classifications.insert("plate".to_string(), PartKind::Structural);
+        classifications.insert("bolt_1".to_string(), PartKind::Fastener);
+        classifications.insert("bracket".to_string(), PartKind::Structural);
+        classifications.insert("support".to_string(), PartKind::Structural);
+
+        let subassemblies = graph.detect_subassemblies(&classifications);
+
+        // Should detect 2 subassemblies (the fastener joins them but has low weight)
+        // Note: label propagation may group them differently depending on topology.
+        // With the low fastener weight, the two functional clusters should separate.
+        assert!(
+            subassemblies.len() >= 1,
+            "Should detect at least 1 subassembly, got {}",
+            subassemblies.len()
+        );
+
+        // All subassemblies should have >= 2 functional parts
+        for sub in &subassemblies {
+            let functional_count = sub
+                .part_ids
+                .iter()
+                .filter(|id| {
+                    classifications
+                        .get(id.as_str())
+                        .copied()
+                        .unwrap_or(PartKind::Unknown)
+                        != PartKind::Fastener
+                })
+                .count();
+            assert!(
+                functional_count >= 2,
+                "Subassembly '{}' should have >= 2 functional parts, has {}",
+                sub.name,
+                functional_count
+            );
+        }
+    }
+
+    #[test]
+    fn test_detect_subassemblies_single_cluster() {
+        // All functional parts in one tight cluster → one subassembly
+        let mesh = create_unit_cube_mesh();
+
+        let transforms = vec![
+            Isometry3::translation(0.0, 0.0, 0.0),
+            Isometry3::translation(1.0, 0.0, 0.0),
+            Isometry3::translation(0.0, 1.0, 0.0),
+        ];
+
+        let parts: Vec<(&str, &TriMesh, &Isometry3<f32>)> = vec![
+            ("part_a", &mesh, &transforms[0]),
+            ("part_b", &mesh, &transforms[1]),
+            ("part_c", &mesh, &transforms[2]),
+        ];
+
+        let graph = ContactGraph::build(parts, 0.1);
+
+        let mut classifications = HashMap::new();
+        classifications.insert("part_a".to_string(), PartKind::Structural);
+        classifications.insert("part_b".to_string(), PartKind::Structural);
+        classifications.insert("part_c".to_string(), PartKind::Structural);
+
+        let subassemblies = graph.detect_subassemblies(&classifications);
+
+        // All parts tightly connected → should form one community
+        assert_eq!(
+            subassemblies.len(),
+            1,
+            "Tightly connected parts should form 1 subassembly"
+        );
+        assert_eq!(subassemblies[0].part_ids.len(), 3);
+    }
+
+    #[test]
+    fn test_detect_kits_bolt_washer_nut() {
+        // A bolt → washer → nut chain, all touching each other in sequence
+        let mesh = create_unit_cube_mesh();
+
+        let transforms = vec![
+            Isometry3::translation(0.0, 0.0, 0.0), // functional base
+            Isometry3::translation(1.0, 0.0, 0.0), // bolt
+            Isometry3::translation(2.0, 0.0, 0.0), // washer
+            Isometry3::translation(3.0, 0.0, 0.0), // nut
+        ];
+
+        let parts: Vec<(&str, &TriMesh, &Isometry3<f32>)> = vec![
+            ("base", &mesh, &transforms[0]),
+            ("bolt_1", &mesh, &transforms[1]),
+            ("washer_1", &mesh, &transforms[2]),
+            ("nut_1", &mesh, &transforms[3]),
+        ];
+
+        let graph = ContactGraph::build(parts, 0.1);
+
+        let mut classifications = HashMap::new();
+        classifications.insert("base".to_string(), PartKind::Structural);
+        classifications.insert("bolt_1".to_string(), PartKind::Fastener);
+        classifications.insert("washer_1".to_string(), PartKind::Fastener);
+        classifications.insert("nut_1".to_string(), PartKind::Fastener);
+
+        let kits = graph.detect_kits(&classifications);
+
+        assert_eq!(kits.len(), 1, "Should detect 1 kit");
+        assert_eq!(kits[0].primary, "bolt_1");
+        assert!(kits[0].accessories.contains(&"washer_1".to_string()));
+        assert!(kits[0].accessories.contains(&"nut_1".to_string()));
+    }
+
+    #[test]
+    fn test_detect_kits_no_bolts() {
+        // No bolts/screws → no kits
+        let mesh = create_unit_cube_mesh();
+
+        let transforms = vec![
+            Isometry3::translation(0.0, 0.0, 0.0),
+            Isometry3::translation(1.0, 0.0, 0.0),
+        ];
+
+        let parts: Vec<(&str, &TriMesh, &Isometry3<f32>)> = vec![
+            ("base", &mesh, &transforms[0]),
+            ("plate", &mesh, &transforms[1]),
+        ];
+
+        let graph = ContactGraph::build(parts, 0.1);
+
+        let mut classifications = HashMap::new();
+        classifications.insert("base".to_string(), PartKind::Structural);
+        classifications.insert("plate".to_string(), PartKind::Structural);
+
+        let kits = graph.detect_kits(&classifications);
+        assert_eq!(kits.len(), 0, "No bolts = no kits");
     }
 }

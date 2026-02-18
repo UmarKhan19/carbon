@@ -1,41 +1,41 @@
 /**
- * Animation playback engine for assembly steps.
+ * Animation playback engine for assembly steps (Three.js version).
  *
  * Drives a requestAnimationFrame loop that interpolates per-step keyframes
- * and applies entity offsets in the xeokit viewer.
+ * and applies full TRS (position + rotation + scale) to Three.js objects.
+ *
+ * Key improvement over xeokit version:
+ *   - xeokit: only applied entity.offset (translation), ignored rotation
+ *   - Three.js: decomposes position + Euler rotation + scale, with slerp
+ *     for smooth quaternion interpolation. Helix/screw-in animations now rotate.
  *
  * Visual behaviour:
- *   - Completed steps (0 .. current-1): parts visible, offset [0,0,0]
- *   - Current step: parts visible, offset interpolated from start → [0,0,0]
+ *   - Completed steps (0 .. current-1): parts visible at rest position
+ *   - Current step: parts visible, transform interpolated from start → rest
  *   - Future steps (current+1 .. end): parts hidden
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AssemblyStep } from "~/types/assembly.types";
+import type { LoadedModel } from "./engine/GLBLoader";
+// Type-only imports for Three.js (SSR-safe)
+import type { ThreeEngine } from "./engine/ThreeEngine";
 
-type Viewer = import("@xeokit/xeokit-sdk").Viewer;
-
-// xeokit's TS definitions are incomplete — offset and visible exist at runtime
-interface XeokitEntity {
-  offset: number[];
-  visible: boolean;
-}
-
-type Offset3 = [number, number, number];
+type Position3D = { x: number; y: number; z: number };
 
 interface StepKeyframeLike {
   partId: string;
   timestamp: number;
-  position: {
-    x: number;
-    y: number;
-    z: number;
-  };
+  position: Position3D;
+  rotation?: Position3D;
+  scale?: Position3D;
 }
 
 export interface UseAnimationPlaybackOptions {
-  /** xeokit Viewer instance (null until ready). */
-  viewer: Viewer | null;
+  /** Three.js engine instance (null until ready). */
+  engine: ThreeEngine | null;
+  /** Loaded 3D model (null until loaded). */
+  model: LoadedModel | null;
   /** Whether the 3D model has finished loading. */
   isModelLoaded?: boolean;
   /** All assembly steps in order. */
@@ -57,73 +57,120 @@ export interface AnimationPlaybackState {
   hiddenPartIds: string[];
   /** Start playback from the current selectedStepIndex. */
   play: () => void;
-  /** Pause playback (keeps current offsets). */
+  /** Pause playback (keeps current transforms). */
   pause: () => void;
-  /** Stop playback and reset all offsets to zero. */
+  /** Stop playback and reset all transforms to rest. */
   stop: () => void;
-}
-
-/**
- * Safely get a xeokit entity with offset/visible support.
- * xeokit entity IDs are UUIDs that match the partIds from the database.
- */
-function getEntity(viewer: Viewer | null, partId: string): XeokitEntity | null {
-  if (!viewer?.scene?.objects) return null;
-  // Direct lookup - partId IS the entity ID (both are UUIDs)
-  return (viewer.scene.objects[partId] as unknown as XeokitEntity) ?? null;
 }
 
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
 }
 
-/** Evaluate a part's sampled offset curve at normalized time t. */
+/** Evaluate a part's offset at normalized time t. */
 function evaluatePartOffset(
   partKeyframes: StepKeyframeLike[],
   t: number
-): Offset3 {
+): { position: Position3D; rotation: Position3D; scale: Position3D } {
   const clamped = Math.max(0, Math.min(1, t));
-  if (partKeyframes.length === 0) return [0, 0, 0];
+  const zero: Position3D = { x: 0, y: 0, z: 0 };
+  const one: Position3D = { x: 1, y: 1, z: 1 };
+
+  if (partKeyframes.length === 0) {
+    return { position: zero, rotation: zero, scale: one };
+  }
+
   if (partKeyframes.length === 1) {
     const kf = partKeyframes[0];
-    return [
-      kf.position.x * (1 - clamped),
-      kf.position.y * (1 - clamped),
-      kf.position.z * (1 - clamped)
-    ];
+    // Interpolate from keyframe → zero (rest) as t → 1
+    return {
+      position: {
+        x: kf.position.x * (1 - clamped),
+        y: kf.position.y * (1 - clamped),
+        z: kf.position.z * (1 - clamped)
+      },
+      rotation: kf.rotation
+        ? {
+            x: kf.rotation.x * (1 - clamped),
+            y: kf.rotation.y * (1 - clamped),
+            z: kf.rotation.z * (1 - clamped)
+          }
+        : zero,
+      scale: kf.scale
+        ? {
+            x: lerp(kf.scale.x, 1, clamped),
+            y: lerp(kf.scale.y, 1, clamped),
+            z: lerp(kf.scale.z, 1, clamped)
+          }
+        : one
+    };
   }
 
   const sorted = [...partKeyframes].sort((a, b) => a.timestamp - b.timestamp);
 
+  // Before first keyframe
   const first = sorted[0];
   if (clamped <= first.timestamp) {
-    return [first.position.x, first.position.y, first.position.z];
+    return {
+      position: first.position,
+      rotation: first.rotation ?? zero,
+      scale: first.scale ?? one
+    };
   }
 
+  // After last keyframe
   const last = sorted[sorted.length - 1];
   if (clamped >= last.timestamp) {
-    return [last.position.x, last.position.y, last.position.z];
+    return {
+      position: last.position,
+      rotation: last.rotation ?? zero,
+      scale: last.scale ?? one
+    };
   }
 
+  // Interpolate between surrounding keyframes
   for (let i = 0; i < sorted.length - 1; i++) {
     const a = sorted[i];
     const b = sorted[i + 1];
     if (clamped >= a.timestamp && clamped <= b.timestamp) {
-      const span = Math.max(b.timestamp - a.timestamp, 1.0e-6);
+      const span = Math.max(b.timestamp - a.timestamp, 1e-6);
       const localT = (clamped - a.timestamp) / span;
-      return [
-        lerp(a.position.x, b.position.x, localT),
-        lerp(a.position.y, b.position.y, localT),
-        lerp(a.position.z, b.position.z, localT)
-      ];
+
+      const aRot = a.rotation ?? zero;
+      const bRot = b.rotation ?? zero;
+      const aScale = a.scale ?? one;
+      const bScale = b.scale ?? one;
+
+      return {
+        position: {
+          x: lerp(a.position.x, b.position.x, localT),
+          y: lerp(a.position.y, b.position.y, localT),
+          z: lerp(a.position.z, b.position.z, localT)
+        },
+        rotation: {
+          x: lerp(aRot.x, bRot.x, localT),
+          y: lerp(aRot.y, bRot.y, localT),
+          z: lerp(aRot.z, bRot.z, localT)
+        },
+        scale: {
+          x: lerp(aScale.x, bScale.x, localT),
+          y: lerp(aScale.y, bScale.y, localT),
+          z: lerp(aScale.z, bScale.z, localT)
+        }
+      };
     }
   }
 
-  return [last.position.x, last.position.y, last.position.z];
+  return {
+    position: last.position,
+    rotation: last.rotation ?? zero,
+    scale: last.scale ?? one
+  };
 }
 
 export function useAnimationPlayback({
-  viewer,
+  engine,
+  model,
   isModelLoaded = false,
   steps,
   selectedStepIndex,
@@ -139,6 +186,9 @@ export function useAnimationPlayback({
   const playingStepRef = useRef(selectedStepIndex);
   const lastProgressRef = useRef(0);
 
+  // THREE module ref (loaded dynamically on first use)
+  const threeRef = useRef<typeof import("three") | null>(null);
+
   // ── Helpers ──────────────────────────────────────────────────────────
 
   /** Collect all partIds from steps[start..end). */
@@ -153,50 +203,98 @@ export function useAnimationPlayback({
     [steps]
   );
 
-  /** Reset every entity offset to [0,0,0]. */
-  const resetAllOffsets = useCallback(() => {
+  /** Reset all part transforms to their rest (loaded) positions. */
+  const resetAllTransforms = useCallback(() => {
+    if (!model) return;
     for (const step of steps) {
       for (const partId of step.partIds) {
-        const entity = getEntity(viewer, partId);
-        if (entity) entity.offset = [0, 0, 0];
+        const obj = model.parts.get(partId);
+        if (!obj) continue;
+        const rest = obj.userData._restPosition;
+        if (rest) {
+          obj.position.copy(rest);
+          obj.quaternion.copy(obj.userData._restQuaternion);
+          obj.scale.copy(obj.userData._restScale);
+        }
       }
     }
-  }, [viewer, steps]);
+  }, [model, steps]);
 
   /** Apply the "assembly so far" snapshot: steps 0..stepIdx complete, rest hidden. */
   const applySnapshot = useCallback(
     (stepIdx: number) => {
-      resetAllOffsets();
+      resetAllTransforms();
       setHiddenPartIds(collectPartIds(stepIdx + 1, steps.length));
       setStepProgress(1);
     },
-    [resetAllOffsets, collectPartIds, steps.length]
+    [resetAllTransforms, collectPartIds, steps.length]
   );
 
   /**
-   * Interpolate offsets for the active step.
-   * Only touches entity.offset (no React state changes) → safe inside RAF.
+   * Interpolate transforms for the active step.
+   * Operates directly on Object3D — no React state changes (RAF-safe).
    */
   const interpolateStep = useCallback(
     (stepIdx: number, t: number) => {
       const step = steps[stepIdx];
-      if (!step) return;
+      if (!step || !model) return;
 
+      const THREE = threeRef.current;
       const keyframes = step.animationData?.keyframes;
 
       for (const partId of step.partIds) {
-        const entity = getEntity(viewer, partId);
-        if (!entity) continue;
+        const obj = model.parts.get(partId);
+        if (!obj) continue;
 
-        // Find this part's keyframes (there may be one partId or many)
-        const partKfs = keyframes?.filter((kf) => kf.partId === partId);
-        const offset = partKfs?.length
+        const rest = obj.userData._restPosition;
+        if (!rest) continue;
+
+        // Find this part's keyframes
+        const partKfs = keyframes?.filter((kf) => kf.partId === partId) as
+          | StepKeyframeLike[]
+          | undefined;
+
+        const { position, rotation, scale } = partKfs?.length
           ? evaluatePartOffset(partKfs, t)
-          : [0, 0, 0];
-        entity.offset = offset;
+          : {
+              position: { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0 },
+              scale: { x: 1, y: 1, z: 1 }
+            };
+
+        // Apply position as offset from rest
+        obj.position.set(
+          rest.x + position.x,
+          rest.y + position.y,
+          rest.z + position.z
+        );
+
+        // Apply rotation (Euler offset from rest quaternion)
+        if (
+          THREE &&
+          (rotation.x !== 0 || rotation.y !== 0 || rotation.z !== 0)
+        ) {
+          const euler = new THREE.Euler(rotation.x, rotation.y, rotation.z);
+          const offsetQuat = new THREE.Quaternion().setFromEuler(euler);
+          obj.quaternion
+            .copy(obj.userData._restQuaternion)
+            .multiply(offsetQuat);
+        } else {
+          obj.quaternion.copy(obj.userData._restQuaternion);
+        }
+
+        // Apply scale offset
+        if (scale.x !== 1 || scale.y !== 1 || scale.z !== 1) {
+          const restScale = obj.userData._restScale;
+          obj.scale.set(
+            restScale.x * scale.x,
+            restScale.y * scale.y,
+            restScale.z * scale.z
+          );
+        }
       }
     },
-    [viewer, steps]
+    [model, steps]
   );
 
   // ── RAF loop ─────────────────────────────────────────────────────────
@@ -213,7 +311,7 @@ export function useAnimationPlayback({
       // Apply interpolation (no React re-render)
       interpolateStep(playingStepRef.current, progress);
 
-      // Throttle React state update to ~20 fps to avoid excessive re-renders
+      // Throttle React state update to ~20 fps
       if (
         Math.abs(progress - lastProgressRef.current) > 0.05 ||
         progress >= 1
@@ -223,18 +321,24 @@ export function useAnimationPlayback({
       }
 
       if (progress >= 1) {
-        // Snap completed step's parts to rest
-        if (step) {
+        // Snap completed step to rest
+        if (step && model) {
           for (const partId of step.partIds) {
-            const entity = getEntity(viewer, partId);
-            if (entity) entity.offset = [0, 0, 0];
+            const obj = model.parts.get(partId);
+            if (!obj) continue;
+            const rest = obj.userData._restPosition;
+            if (rest) {
+              obj.position.copy(rest);
+              obj.quaternion.copy(obj.userData._restQuaternion);
+              obj.scale.copy(obj.userData._restScale);
+            }
           }
         }
 
         // Advance to next step
         if (playingStepRef.current < steps.length - 1) {
           playingStepRef.current += 1;
-          startTimeRef.current = 0; // will be set on next tick
+          startTimeRef.current = 0;
           onStepChange(playingStepRef.current);
 
           // Reveal the next step's parts
@@ -257,7 +361,7 @@ export function useAnimationPlayback({
       steps,
       defaultStepDurationMs,
       interpolateStep,
-      viewer,
+      model,
       onStepChange,
       collectPartIds
     ]
@@ -266,12 +370,18 @@ export function useAnimationPlayback({
   // ── Controls ─────────────────────────────────────────────────────────
 
   const play = useCallback(() => {
-    if (!viewer || steps.length === 0) return;
+    if (!engine || !model || steps.length === 0) return;
 
-    // Wait for model to load
     if (!isModelLoaded) {
       console.warn("[ANIM] Cannot play - model not loaded yet");
       return;
+    }
+
+    // Load THREE for quaternion operations
+    if (!threeRef.current) {
+      import("three").then((THREE) => {
+        threeRef.current = THREE;
+      });
     }
 
     playingStepRef.current = selectedStepIndex;
@@ -286,17 +396,36 @@ export function useAnimationPlayback({
     if (step) {
       const kfs = step.animationData?.keyframes;
       for (const partId of step.partIds) {
-        const entity = getEntity(viewer, partId);
-        if (!entity) continue;
-        entity.visible = true;
-        const partKfs = kfs?.filter((kf) => kf.partId === partId) ?? [];
-        entity.offset = evaluatePartOffset(partKfs, 0);
+        const obj = model.parts.get(partId);
+        if (!obj) continue;
+        obj.visible = true;
+
+        const partKfs = (kfs?.filter((kf) => kf.partId === partId) ??
+          []) as StepKeyframeLike[];
+
+        const { position } = evaluatePartOffset(partKfs, 0);
+        const rest = obj.userData._restPosition;
+        if (rest) {
+          obj.position.set(
+            rest.x + position.x,
+            rest.y + position.y,
+            rest.z + position.z
+          );
+        }
       }
     }
 
     setIsPlaying(true);
     rafRef.current = requestAnimationFrame(tick);
-  }, [viewer, isModelLoaded, steps, selectedStepIndex, collectPartIds, tick]);
+  }, [
+    engine,
+    model,
+    isModelLoaded,
+    steps,
+    selectedStepIndex,
+    collectPartIds,
+    tick
+  ]);
 
   const pause = useCallback(() => {
     setIsPlaying(false);
@@ -308,24 +437,19 @@ export function useAnimationPlayback({
 
   const stop = useCallback(() => {
     pause();
-    resetAllOffsets();
+    resetAllTransforms();
     setStepProgress(0);
     applySnapshot(selectedStepIndex);
-  }, [pause, resetAllOffsets, selectedStepIndex, applySnapshot]);
+  }, [pause, resetAllTransforms, selectedStepIndex, applySnapshot]);
 
   // ── Sync with manual step navigation ─────────────────────────────────
 
   useEffect(() => {
-    // Only apply snapshot when viewer is ready AND has objects loaded
-    if (
-      !isPlaying &&
-      viewer?.scene?.objects &&
-      Object.keys(viewer.scene.objects).length > 0
-    ) {
+    if (!isPlaying && model && isModelLoaded) {
       applySnapshot(selectedStepIndex);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedStepIndex, viewer]);
+  }, [selectedStepIndex, isModelLoaded]);
 
   // ── Cleanup ──────────────────────────────────────────────────────────
 

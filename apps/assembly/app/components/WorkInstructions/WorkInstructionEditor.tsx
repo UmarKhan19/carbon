@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  useAnimationPlayback,
+  XeokitCanvas,
   useXeokit,
-  XeokitCanvas
+  useXeokitAnimationPlayback
 } from "~/components/Viewer";
 import type {
   AssemblyProject,
@@ -62,9 +62,23 @@ export function WorkInstructionEditor({
   } = useXeokit({
     onPartSelected: (partId, _partName) => {
       console.log("Part selected in viewer:", partId);
-      // When user clicks in 3D viewer, update selection AND highlight the part
       setSelectedNodeId(partId);
-      // Note: highlightParts will be called via useEffect below when selectedNodeId changes
+    }
+  });
+
+  // Animation playback engine
+  const {
+    isPlaying,
+    hiddenPartIds: animationHiddenIds,
+    play: animPlay,
+    pause: animPause
+  } = useXeokitAnimationPlayback({
+    viewer,
+    isModelLoaded,
+    steps,
+    selectedStepIndex,
+    onStepChange: (index) => {
+      setSelectedStepIndex(index);
     }
   });
 
@@ -76,22 +90,6 @@ export function WorkInstructionEditor({
       highlightParts([]);
     }
   }, [selectedNodeId, isModelLoaded, highlightParts]);
-
-  // Animation playback engine
-  const {
-    isPlaying,
-    hiddenPartIds: animationHiddenIds,
-    play: animPlay,
-    pause: animPause
-  } = useAnimationPlayback({
-    viewer,
-    isModelLoaded,
-    steps,
-    selectedStepIndex,
-    onStepChange: (index) => {
-      setSelectedStepIndex(index);
-    }
-  });
 
   const currentStep = steps[selectedStepIndex];
 

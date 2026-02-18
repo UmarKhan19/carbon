@@ -4,6 +4,8 @@ use cad_common::{
     AnimationKeyframe, AssemblyNode, AssemblyStep, PlannerStats, SimulationIssue,
     SimulationIssueKind, SimulationIssueSeverity, SimulationResult,
 };
+
+use crate::geometry::find_identical_groups;
 use nalgebra::Unit;
 use nalgebra::{Isometry3, Matrix4, Point3, Translation3, UnitQuaternion, Vector3};
 use parry3d::shape::TriMesh;
@@ -140,6 +142,175 @@ struct MotionTrace {
 
 const MIN_REMOVAL_RATIO: f32 = 0.90;
 const MAX_MOTION_SAMPLING_STEPS: f32 = 100.0;
+
+/// The 6 canonical axis-aligned directions for blocking analysis.
+const CANONICAL_DIRECTIONS: [Vector3<f32>; 6] = [
+    Vector3::new(1.0, 0.0, 0.0),
+    Vector3::new(-1.0, 0.0, 0.0),
+    Vector3::new(0.0, 1.0, 0.0),
+    Vector3::new(0.0, -1.0, 0.0),
+    Vector3::new(0.0, 0.0, 1.0),
+    Vector3::new(0.0, 0.0, -1.0),
+];
+const NUM_CANONICAL_DIRS: usize = 6;
+
+/// Pre-computed directional blocking relationships between assembly parts.
+///
+/// For each part and each of 6 canonical directions, stores which other parts
+/// block removal in that direction. Built once using CCD (`cast_shapes`), then
+/// queried each iteration of the disassembly loop as a pre-filter: parts blocked
+/// in ALL 6 directions by remaining parts are skipped, avoiding expensive full
+/// CCD path evaluation.
+///
+/// This is a **pre-filter**, not a replacement for CCD. Carbon's path evaluator
+/// also tests diagonal and contact-normal-guided directions that the 6-direction
+/// matrix doesn't cover — a part that passes the pre-filter still gets full
+/// CCD evaluation.
+struct BlockingMatrix {
+    /// blockers[part_id][dir_index] = set of part IDs blocking that direction.
+    blockers: HashMap<String, [HashSet<String>; 6]>,
+}
+
+impl BlockingMatrix {
+    /// Build the blocking matrix by sweeping each part in 6 canonical directions.
+    ///
+    /// For each part P × direction × other part Q:
+    /// 1. AABB pre-filter: skip if swept AABBs don't overlap
+    /// 2. Baseline intersection check: if P and Q already overlap at rest,
+    ///    do NOT record Q as a blocker (full evaluator handles these specially)
+    /// 3. CCD check: `cast_shapes` → if hit, Q blocks P in this direction
+    fn build(parts: &[PartData], sweep_distance: f32, clearance: f32) -> Self {
+        let mut blockers: HashMap<String, [HashSet<String>; 6]> = HashMap::new();
+
+        for part in parts {
+            blockers.insert(part.id.clone(), Default::default());
+        }
+
+        let zero_vel = Vector3::zeros();
+        let options = rapier3d::parry::query::ShapeCastOptions {
+            max_time_of_impact: 1.0,
+            target_distance: clearance,
+            stop_at_penetration: true,
+            compute_impact_geometry_on_penetration: false,
+        };
+
+        for (i, part) in parts.iter().enumerate() {
+            for (dir_idx, dir) in CANONICAL_DIRECTIONS.iter().enumerate() {
+                let velocity = *dir * sweep_distance;
+
+                for (j, other) in parts.iter().enumerate() {
+                    if i == j {
+                        continue;
+                    }
+
+                    // AABB pre-filter: skip if swept AABB can't overlap other's AABB
+                    if !swept_aabb_could_overlap(part, other, dir, sweep_distance, clearance) {
+                        continue;
+                    }
+
+                    // Skip baseline-intersecting pairs: the full evaluator has special
+                    // handling (monotonic overlap reduction). Recording them as blockers
+                    // would cause false "trapped" verdicts for overlapping parts.
+                    let baseline_intersecting =
+                        parry3d::query::intersection_test(
+                            &part.transform,
+                            &part.mesh,
+                            &other.transform,
+                            &other.mesh,
+                        )
+                        .unwrap_or(false);
+                    if baseline_intersecting {
+                        continue;
+                    }
+
+                    // CCD: does `other` block `part` in this direction?
+                    match rapier3d::parry::query::cast_shapes(
+                        &part.transform,
+                        &velocity,
+                        &part.mesh,
+                        &other.transform,
+                        &zero_vel,
+                        &other.mesh,
+                        options,
+                    ) {
+                        Ok(Some(_)) => {
+                            blockers.get_mut(&part.id).unwrap()[dir_idx]
+                                .insert(other.id.clone());
+                        }
+                        Ok(None) => {} // No collision — not blocking
+                        Err(_) => {
+                            // Unsupported shape combo — conservatively assume blocking
+                            blockers.get_mut(&part.id).unwrap()[dir_idx]
+                                .insert(other.id.clone());
+                        }
+                    }
+                }
+            }
+        }
+
+        BlockingMatrix { blockers }
+    }
+
+    /// Check if a part is blocked in ALL 6 canonical directions by remaining parts.
+    ///
+    /// Returns `true` if every direction has at least one non-removed blocker,
+    /// meaning the part cannot be removed along any axis-aligned path.
+    /// This is conservative: `true` → definitely skip, `false` → might be removable.
+    fn is_blocked_in_all_directions(&self, part_id: &str, removed: &HashSet<String>) -> bool {
+        let Some(dir_blockers) = self.blockers.get(part_id) else {
+            return false;
+        };
+
+        for dir_idx in 0..NUM_CANONICAL_DIRS {
+            let has_remaining_blocker = dir_blockers[dir_idx]
+                .iter()
+                .any(|blocker_id| !removed.contains(blocker_id));
+            if !has_remaining_blocker {
+                return false; // Free in at least one direction
+            }
+        }
+
+        true // Blocked in all 6 directions by remaining parts
+    }
+
+    /// Total blocking pairs across all parts and directions (for stats/logging).
+    fn total_blocking_pairs(&self) -> usize {
+        self.blockers
+            .values()
+            .flat_map(|dirs| dirs.iter())
+            .map(|set| set.len())
+            .sum()
+    }
+}
+
+/// Quick AABB check: can part's swept AABB (moving along direction × distance)
+/// overlap with other's static AABB?
+fn swept_aabb_could_overlap(
+    part: &PartData,
+    other: &PartData,
+    direction: &Vector3<f32>,
+    distance: f32,
+    clearance: f32,
+) -> bool {
+    let offset = *direction * distance;
+    let swept_min = Point3::new(
+        part.world_aabb_min.x.min(part.world_aabb_min.x + offset.x) - clearance,
+        part.world_aabb_min.y.min(part.world_aabb_min.y + offset.y) - clearance,
+        part.world_aabb_min.z.min(part.world_aabb_min.z + offset.z) - clearance,
+    );
+    let swept_max = Point3::new(
+        part.world_aabb_max.x.max(part.world_aabb_max.x + offset.x) + clearance,
+        part.world_aabb_max.y.max(part.world_aabb_max.y + offset.y) + clearance,
+        part.world_aabb_max.z.max(part.world_aabb_max.z + offset.z) + clearance,
+    );
+
+    !(swept_max.x < other.world_aabb_min.x
+        || swept_min.x > other.world_aabb_max.x
+        || swept_max.y < other.world_aabb_min.y
+        || swept_min.y > other.world_aabb_max.y
+        || swept_max.z < other.world_aabb_min.z
+        || swept_min.z > other.world_aabb_max.z)
+}
 
 impl AssemblySimulator {
     /// Create a new simulator with the given configuration.
@@ -363,7 +534,20 @@ impl AssemblySimulator {
         }
         let mut reported_constraint_conflict = false;
 
-        // Main disassembly loop
+        // ════════════════════════════════════════════════════════════════════
+        // Build blocking matrix (pre-filter for main loop)
+        // ════════════════════════════════════════════════════════════════════
+        let blocking_matrix =
+            BlockingMatrix::build(&self.parts, self.config.removal_distance, clearance);
+        info!(
+            "Blocking matrix: {} total blocking pairs",
+            blocking_matrix.total_blocking_pairs()
+        );
+        let blocking_matrix_skips = Cell::new(0u64);
+
+        // ════════════════════════════════════════════════════════════════════
+        // Main disassembly loop with constraints
+        // ════════════════════════════════════════════════════════════════════
         while self.removed_parts.len() < self.parts.len() {
             // Check timeout
             if start_time.elapsed().as_millis() as u64 > self.config.timeout_ms {
@@ -371,7 +555,14 @@ impl AssemblySimulator {
             }
 
             // Find parts that can be removed (geometrically)
-            let removable = self.find_removable_parts(&contact_graph, &kinds, clearance, deadline);
+            let removable = self.find_removable_parts(
+                &contact_graph,
+                &kinds,
+                clearance,
+                deadline,
+                &blocking_matrix,
+                &blocking_matrix_skips,
+            );
             if Instant::now() >= deadline {
                 return Err(SimulatorError::Timeout(self.config.timeout_ms));
             }
@@ -466,7 +657,11 @@ impl AssemblySimulator {
                         candidate_paths_evaluated: self.path_evaluations.get(),
                         collision_checks: self.collision_checks.get(),
                         overlap_issue_count,
+                        blocking_matrix_skips: blocking_matrix_skips.get(),
                     }),
+                    identical_groups: Vec::new(),
+                    suggested_subassemblies: Vec::new(),
+                    kits: Vec::new(),
                 });
             }
 
@@ -480,14 +675,19 @@ impl AssemblySimulator {
                     continue; // Part not found, skip
                 };
 
+                // Compute adaptive duration before moving evaluation fields
+                let duration_ms = Self::compute_step_duration(
+                    &evaluation,
+                    (self.global_aabb_max - self.global_aabb_min).magnitude(),
+                );
+
                 // Create assembly step
                 let step = AssemblyStep {
                     step_number,
                     part_ids: vec![part_id.clone()],
                     part_names: vec![part.name.clone()],
                     assembly_direction: [-path.direction.x, -path.direction.y, -path.direction.z], // Reverse for assembly
-                    animation_path: evaluation.animation_path,
-                    suggested_duration_ms: 1500,
+                    suggested_duration_ms: duration_ms,
                     motion_type: Some(path.motion.label().to_string()),
                     min_clearance: evaluation.min_clearance,
                     planner_score: Some(if evaluation.required_distance > 1.0e-6 {
@@ -495,6 +695,7 @@ impl AssemblySimulator {
                     } else {
                         1.0
                     }),
+                    animation_path: evaluation.animation_path,
                     motion_distance: Some(evaluation.travel_distance),
                 };
 
@@ -521,6 +722,26 @@ impl AssemblySimulator {
             start_time.elapsed().as_millis()
         );
 
+        // ════════════════════════════════════════════════════════════════════
+        // Step intelligence: clustering annotations
+        // ════════════════════════════════════════════════════════════════════
+        let identical_groups = find_identical_groups(
+            &self
+                .parts
+                .iter()
+                .map(|p| (p.id.as_str(), &p.mesh))
+                .collect::<Vec<_>>(),
+        );
+        let suggested_subassemblies = contact_graph.detect_subassemblies(&kinds);
+        let kits = contact_graph.detect_kits(&kinds);
+
+        info!(
+            "Clustering: {} identical groups, {} subassemblies, {} kits",
+            identical_groups.len(),
+            suggested_subassemblies.len(),
+            kits.len()
+        );
+
         Ok(SimulationResult {
             steps,
             stuck_parts: Vec::new(),
@@ -534,7 +755,11 @@ impl AssemblySimulator {
                 candidate_paths_evaluated: self.path_evaluations.get(),
                 collision_checks: self.collision_checks.get(),
                 overlap_issue_count,
+                blocking_matrix_skips: blocking_matrix_skips.get(),
             }),
+            identical_groups,
+            suggested_subassemblies,
+            kits,
         })
     }
 
@@ -544,6 +769,22 @@ impl AssemblySimulator {
             .iter()
             .find(|p| p.id == part_id)
             .map(|p| p.name.as_str())
+    }
+
+    /// Compute step duration proportional to travel distance.
+    ///
+    /// Short moves (washers dropping onto a bolt) get ~500ms, long moves
+    /// (large panels traveling across the assembly) get up to ~3000ms.
+    /// The `scene_diagonal` normalizes distances across assemblies of
+    /// different physical scales.
+    fn compute_step_duration(evaluation: &PathEvaluation, scene_diagonal: f32) -> u32 {
+        if scene_diagonal <= 0.0 {
+            return 1500;
+        }
+        let normalized = evaluation.travel_distance / scene_diagonal;
+        // Linear map: 0 distance → 500ms, ~1× diagonal → 2500ms
+        let ms = 500.0 + normalized * 2000.0;
+        ms.clamp(300.0, 3000.0) as u32
     }
 
     /// Detect overlap and tight-clearance issues in the assembled state.
@@ -662,6 +903,8 @@ impl AssemblySimulator {
         kinds: &HashMap<String, PartKind>,
         clearance: f32,
         deadline: Instant,
+        blocking_matrix: &BlockingMatrix,
+        blocking_matrix_skips: &Cell<u64>,
     ) -> Vec<RemovableCandidate> {
         let mut removable = Vec::new();
 
@@ -673,7 +916,44 @@ impl AssemblySimulator {
                 continue;
             }
 
+            // Blocking matrix pre-filter: if blocked in ALL 6 canonical
+            // directions by remaining parts, skip expensive CCD evaluation.
+            // This is conservative — a part that passes might still fail the
+            // full evaluator (which tests diagonals and contact-normal dirs),
+            // but a part that's blocked here definitely can't be removed.
+            if blocking_matrix.is_blocked_in_all_directions(&part.id, &self.removed_parts) {
+                blocking_matrix_skips.set(blocking_matrix_skips.get().saturating_add(1));
+                continue;
+            }
+
+            let kind = kinds.get(&part.id).copied().unwrap_or(PartKind::Unknown);
             let paths = self.candidate_paths_for_part(part, contact_graph, kinds);
+
+            // For fasteners, compute a preferred removal direction from contact
+            // normals. The area-weighted normal from the contact graph captures
+            // the dominant contact axis (e.g., screw head resting on board face).
+            // This is used as a tiebreaker when multiple directions are valid
+            // (e.g., a screw in a through-hole can be removed from either end).
+            let preferred_direction: Option<Vector3<f32>> = if kind == PartKind::Fastener {
+                let mut weighted_dir = Vector3::zeros();
+                for contact in contact_graph.contacts_for(&part.id) {
+                    // estimated_normal points from part_a toward part_b.
+                    // "Away from neighbor" = the natural removal direction.
+                    let away = if contact.part_a == part.id {
+                        -contact.estimated_normal
+                    } else {
+                        contact.estimated_normal
+                    };
+                    weighted_dir += away;
+                }
+                if weighted_dir.norm_squared() > 1.0e-8 {
+                    Some(weighted_dir.normalize())
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
 
             // Test each path and keep the one with the best quality score.
             // Enforces near-complete removal distance so we do not accept
@@ -702,7 +982,22 @@ impl AssemblySimulator {
                 }
 
                 let clearance_bonus = evaluation.min_clearance.unwrap_or(0.0).min(10.0) * 1.0e-3;
-                let quality = ratio + clearance_bonus;
+                let mut quality = ratio + clearance_bonus;
+
+                // For fasteners, add a small alignment bonus with the preferred
+                // removal direction. This breaks ties when opposite directions
+                // both produce valid paths (e.g., screw in a through-hole).
+                if let Some(ref pref_dir) = preferred_direction {
+                    let dir_norm = if path.direction.norm_squared() > 1.0e-8 {
+                        path.direction.normalize()
+                    } else {
+                        path.direction
+                    };
+                    let alignment = dir_norm.dot(pref_dir);
+                    // Maps [-1, 1] → [0, 0.05] — small enough to only break ties
+                    quality += (alignment + 1.0) * 0.025;
+                }
+
                 let improvement_threshold = 0.01;
                 let should_replace = match &best_candidate {
                     Some((_, _, best_quality)) => quality > *best_quality + improvement_threshold,
@@ -712,12 +1007,15 @@ impl AssemblySimulator {
                 if should_replace {
                     let mut candidate = path.clone();
                     candidate.travel_distance = evaluation.travel_distance;
-                    if ratio >= 0.999 && evaluation.min_clearance.unwrap_or(clearance) >= clearance
-                    {
-                        best_candidate = Some((candidate, evaluation, quality));
+                    let is_perfect = ratio >= 0.999
+                        && evaluation.min_clearance.unwrap_or(clearance) >= clearance;
+                    best_candidate = Some((candidate, evaluation, quality));
+                    // For non-fasteners, a perfect path can short-circuit.
+                    // For fasteners, continue evaluating all directions so the
+                    // alignment bonus can pick the correct side (e.g., through-hole).
+                    if is_perfect && kind != PartKind::Fastener {
                         break;
                     }
-                    best_candidate = Some((candidate, evaluation, quality));
                 }
             }
 
@@ -756,7 +1054,7 @@ impl AssemblySimulator {
         contact_graph: &ContactGraph,
         kinds: &HashMap<String, PartKind>,
     ) -> Vec<RemovalPath> {
-        let mut directions = self.candidate_directions_for_part(part, contact_graph, kinds);
+        let mut directions = self.candidate_directions_for_part(part, contact_graph, kinds, None);
 
         let mut paths: Vec<RemovalPath> = Vec::new();
 
@@ -851,11 +1149,16 @@ impl AssemblySimulator {
     ///
     /// For fasteners, the axial direction is tried first. Then contact normals,
     /// part-local axes, and global axes/diagonals as fallbacks.
+    ///
+    /// If `forced_direction` is provided (from a user's approach direction override),
+    /// only directions within 45° of the forced direction are returned. If no
+    /// candidates match, all candidates are returned as a fallback.
     fn candidate_directions_for_part(
         &self,
         part: &PartData,
         contact_graph: &ContactGraph,
         kinds: &HashMap<String, PartKind>,
+        forced_direction: Option<Vector3<f32>>,
     ) -> Vec<Vector3<f32>> {
         let mut directions: Vec<Vector3<f32>> = Vec::new();
 
@@ -937,6 +1240,28 @@ impl AssemblySimulator {
             directions.truncate(max_directions);
         }
 
+        // Apply forced direction filter: keep only candidates within 45° cone
+        if let Some(forced) = forced_direction {
+            let forced_n = forced.normalize();
+            let cos_45 = 0.707; // cos(45°)
+            let filtered: Vec<Vector3<f32>> = directions
+                .iter()
+                .copied()
+                .filter(|d| d.dot(&forced_n) > cos_45)
+                .collect();
+
+            if !filtered.is_empty() {
+                return filtered;
+            }
+            // Fallback: no candidates within 45°, return all (simulator will pick best)
+            debug!(
+                "No directions within 45° of forced {:?} for part {}, using all {} candidates",
+                forced,
+                part.id,
+                directions.len()
+            );
+        }
+
         directions
     }
 
@@ -956,13 +1281,16 @@ impl AssemblySimulator {
             None => return None,
         };
 
-        // Check collisions against ALL parts (not just non-removed).
-        // This ensures paths are valid for assembly, where we need to avoid
-        // parts that will be placed later, not just parts already in place.
+        // Check collisions against remaining (non-removed) parts only.
+        // In disassembly, removed parts are physically gone. When the sequence
+        // is reversed for assembly, earlier-removed parts are placed LATER —
+        // they aren't present when this part is placed, so they can't block
+        // its assembly path. Checking against all parts was over-conservative
+        // and caused false "stuck" verdicts.
         let other_parts: Vec<&PartData> = self
             .parts
             .iter()
-            .filter(|p| p.id != part_id)
+            .filter(|p| p.id != part_id && !self.removed_parts.contains(&p.id))
             .collect();
 
         let min_dim = part
@@ -2076,11 +2404,16 @@ mod tests {
         );
 
         let kinds: HashMap<String, PartKind> = HashMap::new();
+        let blocking_matrix =
+            BlockingMatrix::build(&simulator.parts, simulator.config.removal_distance, 0.0);
+        let bm_skips = Cell::new(0u64);
         let removable = simulator.find_removable_parts(
             &contact_graph,
             &kinds,
             0.0,
             Instant::now() + Duration::from_secs(1),
+            &blocking_matrix,
+            &bm_skips,
         );
         let a_entry = removable
             .iter()
@@ -2196,11 +2529,16 @@ mod tests {
         let mut kinds: HashMap<String, PartKind> = HashMap::new();
         kinds.insert("bolt".to_string(), PartKind::Fastener);
 
+        let blocking_matrix =
+            BlockingMatrix::build(&simulator.parts, simulator.config.removal_distance, 0.0);
+        let bm_skips = Cell::new(0u64);
         let removable = simulator.find_removable_parts(
             &contact_graph,
             &kinds,
             0.0,
             Instant::now() + Duration::from_secs(1),
+            &blocking_matrix,
+            &bm_skips,
         );
         let bolt_entry = removable
             .iter()
@@ -2356,7 +2694,7 @@ mod tests {
         kinds.insert("bolt".to_string(), PartKind::Fastener);
 
         let bolt_part = simulator.parts.iter().find(|p| p.id == "bolt").unwrap();
-        let directions = simulator.candidate_directions_for_part(bolt_part, &contact_graph, &kinds);
+        let directions = simulator.candidate_directions_for_part(bolt_part, &contact_graph, &kinds, None);
 
         // For a fastener, the first directions should be along the fastener axis
         assert!(
@@ -2426,11 +2764,16 @@ mod tests {
         );
 
         let kinds: HashMap<String, PartKind> = HashMap::new();
+        let blocking_matrix =
+            BlockingMatrix::build(&simulator.parts, simulator.config.removal_distance, 0.0);
+        let bm_skips = Cell::new(0u64);
         let removable = simulator.find_removable_parts(
             &contact_graph,
             &kinds,
             0.0,
             Instant::now() + Duration::from_secs(2),
+            &blocking_matrix,
+            &bm_skips,
         );
 
         // The cube should be removable, but its removal path should NOT
@@ -2513,6 +2856,534 @@ mod tests {
             linear_paths.len() > 6,
             "Should have diagonal paths in addition to basic directions, got {} linear paths",
             linear_paths.len()
+        );
+    }
+
+    /// Test that a fastener's removal direction aligns with the contact-normal
+    /// tiebreaker. A screw sitting on top of a board should be removed upward
+    /// (away from the board), not downward through it.
+    #[test]
+    fn test_fastener_direction_prefers_contact_normal() {
+        // Board: large part centered at origin (spans -10..+10 on each axis)
+        let board_mesh = create_cube_mesh(20.0);
+        let board = create_test_part(
+            "board",
+            "MAIN_BOARD",
+            board_mesh,
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+
+        // Screw: small fastener sitting on top of the board
+        // Cube of size 2 translated to Y=+11 → spans Y=+10 to Y=+12 → touching board at Y=+10
+        let screw_mesh = create_cube_mesh(2.0);
+        let screw = create_test_part(
+            "screw",
+            "M6_SCREW",
+            screw_mesh,
+            Matrix4::new_translation(&Vector3::new(0.0, 11.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Test Assembly".to_string(),
+            original_name: "Test Assembly".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![board, screw],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+
+        let result = simulator.compute_sequence().unwrap();
+        assert!(
+            result.success,
+            "Simulation not successful: {:?}",
+            result.error
+        );
+
+        // Find the screw's assembly step
+        let screw_step = result
+            .steps
+            .iter()
+            .find(|s| s.part_names.iter().any(|n| n.contains("SCREW")))
+            .expect("Should have a step for the screw");
+
+        // The assembly_direction is the NEGATED removal direction.
+        // Screw sits above board → removal is +Y → assembly_direction is -Y.
+        let asm_dir = &screw_step.assembly_direction;
+        println!(
+            "Screw assembly direction: [{:.3}, {:.3}, {:.3}]",
+            asm_dir[0], asm_dir[1], asm_dir[2]
+        );
+
+        // assembly_direction Y component should be negative (going down into position)
+        assert!(
+            asm_dir[1] < -0.5,
+            "Screw assembly direction should point downward (-Y), got [{:.3}, {:.3}, {:.3}]",
+            asm_dir[0],
+            asm_dir[1],
+            asm_dir[2]
+        );
+    }
+
+    #[test]
+    fn test_direction_constraint_filters_candidates() {
+        // Create a simple assembly with a part that has multiple candidate directions
+        let mesh = create_cube_mesh(1.0);
+
+        let base = create_test_part(
+            "base",
+            "BASE_PLATE",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+        let block = create_test_part(
+            "block",
+            "BLOCK",
+            mesh,
+            Matrix4::new_translation(&Vector3::new(0.0, 1.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Dir Constraint Test".to_string(),
+            original_name: "Dir Constraint Test".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![base, block],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+
+        let contact_graph = ContactGraph::build(
+            simulator
+                .parts
+                .iter()
+                .map(|p| (p.id.as_str(), &p.mesh, &p.transform)),
+            0.05,
+        );
+
+        let mut kinds = HashMap::new();
+        kinds.insert("base".to_string(), PartKind::Structural);
+        kinds.insert("block".to_string(), PartKind::Structural);
+
+        let block_part = simulator.parts.iter().find(|p| p.id == "block").unwrap();
+
+        // Without constraint: should have multiple directions
+        let all_dirs =
+            simulator.candidate_directions_for_part(block_part, &contact_graph, &kinds, None);
+        assert!(
+            all_dirs.len() > 1,
+            "Without constraint should have multiple directions, got {}",
+            all_dirs.len()
+        );
+
+        // With +Y constraint: should only return upward-ish directions
+        let forced_up = Vector3::new(0.0, 1.0, 0.0);
+        let filtered_dirs = simulator.candidate_directions_for_part(
+            block_part,
+            &contact_graph,
+            &kinds,
+            Some(forced_up),
+        );
+
+        assert!(
+            !filtered_dirs.is_empty(),
+            "Should have at least one direction within 45° of +Y"
+        );
+
+        // All returned directions should be within 45° of +Y
+        for dir in &filtered_dirs {
+            let dot = dir.dot(&forced_up);
+            assert!(
+                dot > 0.707 - 0.01, // cos(45°) with tolerance
+                "Direction {:?} should be within 45° of +Y, dot={:.3}",
+                dir,
+                dot
+            );
+        }
+
+        // Filtered should have fewer directions than unfiltered
+        assert!(
+            filtered_dirs.len() <= all_dirs.len(),
+            "Filtered ({}) should have <= unfiltered ({})",
+            filtered_dirs.len(),
+            all_dirs.len()
+        );
+    }
+
+    #[test]
+    fn test_adaptive_duration_scales_with_distance() {
+        let scene_diagonal = 10.0;
+
+        // Short move: ~5% of diagonal → should be near minimum
+        let short_eval = PathEvaluation {
+            travel_distance: 0.5,
+            required_distance: 0.5,
+            min_clearance: None,
+            animation_path: vec![],
+        };
+        let short_ms = AssemblySimulator::compute_step_duration(&short_eval, scene_diagonal);
+
+        // Long move: ~80% of diagonal → should be near maximum
+        let long_eval = PathEvaluation {
+            travel_distance: 8.0,
+            required_distance: 8.0,
+            min_clearance: None,
+            animation_path: vec![],
+        };
+        let long_ms = AssemblySimulator::compute_step_duration(&long_eval, scene_diagonal);
+
+        assert!(
+            short_ms >= 300 && short_ms <= 700,
+            "Short move duration {} should be 300-700ms",
+            short_ms
+        );
+        assert!(
+            long_ms >= 1500 && long_ms <= 3000,
+            "Long move duration {} should be 1500-3000ms",
+            long_ms
+        );
+        assert!(
+            long_ms > short_ms,
+            "Long moves ({}) should take longer than short moves ({})",
+            long_ms,
+            short_ms
+        );
+    }
+
+    #[test]
+    fn test_adaptive_duration_zero_diagonal_fallback() {
+        let eval = PathEvaluation {
+            travel_distance: 5.0,
+            required_distance: 5.0,
+            min_clearance: None,
+            animation_path: vec![],
+        };
+        let ms = AssemblySimulator::compute_step_duration(&eval, 0.0);
+        assert_eq!(ms, 1500, "Zero diagonal should fallback to 1500ms");
+    }
+
+    #[test]
+    fn test_simulation_result_has_clustering_fields() {
+        // Build a simple assembly with identical parts (same size cubes)
+        let mesh = create_cube_mesh(2.0);
+        let part_a = create_test_part(
+            "washer_1",
+            "WASHER",
+            mesh.clone(),
+            Matrix4::identity(),
+        );
+        let part_b = create_test_part(
+            "washer_2",
+            "WASHER",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(5.0, 0.0, 0.0)),
+        );
+        let part_c = create_test_part(
+            "bracket",
+            "BRACKET",
+            create_cube_mesh(2.0), // same mesh shape → identical geometry
+            Matrix4::new_translation(&Vector3::new(0.0, 5.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Test".to_string(),
+            original_name: "Test".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![part_a, part_b, part_c],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+        let result = simulator.compute_sequence().unwrap();
+
+        assert!(result.success, "Simulation failed: {:?}", result.error);
+
+        // All three parts use the same mesh → should have at least one identical group
+        assert!(
+            !result.identical_groups.is_empty(),
+            "Should detect identical geometry groups for same-mesh parts"
+        );
+        // The group should contain all three since they all use unit cubes
+        let total_grouped: usize = result.identical_groups.iter().map(|g| g.len()).sum();
+        assert!(
+            total_grouped >= 2,
+            "At least 2 parts should be in identical groups, got {}",
+            total_grouped
+        );
+
+        // Subassemblies and kits may or may not be detected depending on
+        // contact graph structure, but the fields should exist
+        // (just verifying they're populated without error)
+        let _ = &result.suggested_subassemblies;
+        let _ = &result.kits;
+    }
+
+    #[test]
+    fn test_removal_path_respects_removed_parts() {
+        // Three cubes stacked vertically: A at bottom, B in middle, C on top.
+        // C blocks B in +Y, and B blocks A in +Y.
+        // After removing C (first in disassembly), B should be removable in +Y
+        // because C is no longer in the collision set.
+        let mesh = create_cube_mesh(2.0);
+        let part_a = create_test_part(
+            "a",
+            "BASE",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0)),
+        );
+        let part_b = create_test_part(
+            "b",
+            "MIDDLE",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 2.0, 0.0)),
+        );
+        let part_c = create_test_part(
+            "c",
+            "TOP",
+            mesh.clone(),
+            Matrix4::new_translation(&Vector3::new(0.0, 4.0, 0.0)),
+        );
+
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Stack".to_string(),
+            original_name: "Stack".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children: vec![part_a, part_b, part_c],
+            metadata: Default::default(),
+        };
+
+        let mut simulator = AssemblySimulator::new(SimulatorConfig::default());
+        simulator.load_assembly(&root).unwrap();
+        let result = simulator.compute_sequence().unwrap();
+
+        assert!(result.success, "Simulation should succeed: {:?}", result.error);
+        assert_eq!(result.stuck_parts.len(), 0, "No parts should be stuck");
+        assert_eq!(result.steps.len(), 3, "All 3 parts should be sequenced");
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // Blocking matrix tests
+    // ════════════════════════════════════════════════════════════════════
+
+    /// Helper: load parts into a simulator and return it (for BlockingMatrix tests).
+    fn load_sim(children: Vec<AssemblyNode>) -> AssemblySimulator {
+        let root = AssemblyNode {
+            id: "root".to_string(),
+            name: "Assembly".to_string(),
+            original_name: "Assembly".to_string(),
+            node_type: NodeType::Assembly,
+            transform: Matrix4::identity(),
+            bounding_box: None,
+            mesh: None,
+            children,
+            metadata: Default::default(),
+        };
+        let mut sim = AssemblySimulator::new(SimulatorConfig::default());
+        sim.load_assembly(&root).unwrap();
+        sim
+    }
+
+    #[test]
+    fn test_blocking_matrix_free_part() {
+        // Three cubes in a row along X: left(-4,0,0), center(0,0,0), right(4,0,0).
+        // Cubes are 2×2×2 with 2-unit gaps between them.
+        // Center is blocked in ±X by neighbors, but free in ±Y and ±Z.
+        let mesh = create_cube_mesh(2.0);
+        let sim = load_sim(vec![
+            create_test_part("left", "L", mesh.clone(), Matrix4::new_translation(&Vector3::new(-4.0, 0.0, 0.0))),
+            create_test_part("center", "C", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0))),
+            create_test_part("right", "R", mesh.clone(), Matrix4::new_translation(&Vector3::new(4.0, 0.0, 0.0))),
+        ]);
+
+        let bm = BlockingMatrix::build(&sim.parts, sim.config.removal_distance, 0.0);
+        let removed = HashSet::new();
+
+        // Center has free directions (Y, Z) so should NOT be blocked in all dirs
+        assert!(
+            !bm.is_blocked_in_all_directions("center", &removed),
+            "Center should not be blocked — it has free Y and Z directions"
+        );
+        // Left is only blocked in +X direction, free in all others
+        assert!(
+            !bm.is_blocked_in_all_directions("left", &removed),
+            "Left should not be fully blocked"
+        );
+    }
+
+    #[test]
+    fn test_blocking_matrix_trapped_part() {
+        // Center cube at origin surrounded by 6 cubes on all faces.
+        // Center should be blocked in ALL 6 canonical directions.
+        // Gap of 0.1 between cubes so they are NOT baseline-intersecting
+        // (parry3d intersection_test returns true for touching faces).
+        let mesh = create_cube_mesh(2.0);
+        let gap = 2.1; // half-extent(1.0) + half-extent(1.0) + 0.1 gap
+        let sim = load_sim(vec![
+            create_test_part("center", "C", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0))),
+            create_test_part("px", "+X", mesh.clone(), Matrix4::new_translation(&Vector3::new(gap, 0.0, 0.0))),
+            create_test_part("nx", "-X", mesh.clone(), Matrix4::new_translation(&Vector3::new(-gap, 0.0, 0.0))),
+            create_test_part("py", "+Y", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, gap, 0.0))),
+            create_test_part("ny", "-Y", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, -gap, 0.0))),
+            create_test_part("pz", "+Z", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, gap))),
+            create_test_part("nz", "-Z", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, -gap))),
+        ]);
+
+        let bm = BlockingMatrix::build(&sim.parts, sim.config.removal_distance, 0.0);
+        let removed = HashSet::new();
+
+        assert!(
+            bm.is_blocked_in_all_directions("center", &removed),
+            "Center cube should be blocked in all 6 directions by surrounding cubes"
+        );
+    }
+
+    #[test]
+    fn test_blocking_matrix_after_removal() {
+        // Same trapped setup as above. After removing the +Y neighbor,
+        // center should no longer be blocked in all directions.
+        let mesh = create_cube_mesh(2.0);
+        let gap = 2.1;
+        let sim = load_sim(vec![
+            create_test_part("center", "C", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0))),
+            create_test_part("px", "+X", mesh.clone(), Matrix4::new_translation(&Vector3::new(gap, 0.0, 0.0))),
+            create_test_part("nx", "-X", mesh.clone(), Matrix4::new_translation(&Vector3::new(-gap, 0.0, 0.0))),
+            create_test_part("py", "+Y", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, gap, 0.0))),
+            create_test_part("ny", "-Y", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, -gap, 0.0))),
+            create_test_part("pz", "+Z", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, gap))),
+            create_test_part("nz", "-Z", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, -gap))),
+        ]);
+
+        let bm = BlockingMatrix::build(&sim.parts, sim.config.removal_distance, 0.0);
+
+        // Before removal: blocked
+        let removed = HashSet::new();
+        assert!(bm.is_blocked_in_all_directions("center", &removed));
+
+        // After removing py: center is free in +Y
+        let mut removed = HashSet::new();
+        removed.insert("py".to_string());
+        assert!(
+            !bm.is_blocked_in_all_directions("center", &removed),
+            "After removing +Y neighbor, center should be free in +Y direction"
+        );
+    }
+
+    #[test]
+    fn test_blocking_matrix_baseline_intersecting() {
+        // Two cubes that overlap at rest (touching faces at origin).
+        // Baseline-intersecting parts should NOT be recorded as mutual blockers.
+        let mesh = create_cube_mesh(2.0);
+        let sim = load_sim(vec![
+            create_test_part("a", "A", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0))),
+            create_test_part("b", "B", mesh.clone(), Matrix4::new_translation(&Vector3::new(1.5, 0.0, 0.0))),
+        ]);
+
+        let bm = BlockingMatrix::build(&sim.parts, sim.config.removal_distance, 0.0);
+        let removed = HashSet::new();
+
+        // Both parts overlap at rest, so neither should consider the other a blocker.
+        // With only 2 overlapping parts and no other geometry, neither is fully blocked.
+        assert!(
+            !bm.is_blocked_in_all_directions("a", &removed),
+            "Part A should not be blocked — overlapping part B is excluded from blockers"
+        );
+        assert!(
+            !bm.is_blocked_in_all_directions("b", &removed),
+            "Part B should not be blocked — overlapping part A is excluded from blockers"
+        );
+
+        // Verify total blocking pairs is 0 (since the only pair is baseline-intersecting)
+        assert_eq!(
+            bm.total_blocking_pairs(),
+            0,
+            "Baseline-intersecting parts should not appear as blocking pairs"
+        );
+    }
+
+    #[test]
+    fn test_blocking_matrix_isolated_part() {
+        // A single cube far from anything else.
+        // Should be free in all directions (no blockers at all).
+        let mesh = create_cube_mesh(2.0);
+        let sim = load_sim(vec![
+            create_test_part("alone", "ALONE", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0))),
+            create_test_part("far", "FAR", mesh.clone(), Matrix4::new_translation(&Vector3::new(500.0, 500.0, 500.0))),
+        ]);
+
+        let bm = BlockingMatrix::build(&sim.parts, sim.config.removal_distance, 0.0);
+        let removed = HashSet::new();
+
+        assert!(
+            !bm.is_blocked_in_all_directions("alone", &removed),
+            "Isolated part should be completely free"
+        );
+        assert!(
+            !bm.is_blocked_in_all_directions("far", &removed),
+            "Distant part should also be completely free"
+        );
+    }
+
+    #[test]
+    fn test_blocking_matrix_skips_counter() {
+        // Verify that the blocking matrix skip counter increments when
+        // a trapped part is skipped in find_removable_parts.
+        // Surrounded center (trapped) + six exposed neighbor parts (free).
+        let mesh = create_cube_mesh(2.0);
+        let gap = 2.1;
+        let sim = load_sim(vec![
+            create_test_part("center", "C", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, 0.0))),
+            create_test_part("px", "+X", mesh.clone(), Matrix4::new_translation(&Vector3::new(gap, 0.0, 0.0))),
+            create_test_part("nx", "-X", mesh.clone(), Matrix4::new_translation(&Vector3::new(-gap, 0.0, 0.0))),
+            create_test_part("py", "+Y", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, gap, 0.0))),
+            create_test_part("ny", "-Y", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, -gap, 0.0))),
+            create_test_part("pz", "+Z", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, gap))),
+            create_test_part("nz", "-Z", mesh.clone(), Matrix4::new_translation(&Vector3::new(0.0, 0.0, -gap))),
+        ]);
+
+        let bm = BlockingMatrix::build(&sim.parts, sim.config.removal_distance, 0.0);
+        let bm_skips = Cell::new(0u64);
+
+        // Build a minimal contact graph for the call
+        let contact_graph = ContactGraph::build(
+            sim.parts.iter().map(|p| (p.id.as_str(), &p.mesh, &p.transform)),
+            sim.config.removal_distance * 0.001,
+        );
+        let kinds: HashMap<String, PartKind> = HashMap::new();
+
+        let _removable = sim.find_removable_parts(
+            &contact_graph,
+            &kinds,
+            0.0,
+            Instant::now() + Duration::from_secs(5),
+            &bm,
+            &bm_skips,
+        );
+
+        // The center part is surrounded and should be skipped by the blocking matrix.
+        // Exact skip count depends on geometry, but should be >= 1 (center is trapped).
+        assert!(
+            bm_skips.get() >= 1,
+            "Expected at least 1 blocking matrix skip for the trapped center part, got {}",
+            bm_skips.get()
         );
     }
 }

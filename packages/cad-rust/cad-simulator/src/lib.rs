@@ -9,6 +9,7 @@
 
 pub mod contact_graph;
 pub mod dependency_graph;
+pub mod geometry;
 pub mod sequence;
 pub mod simulator;
 
