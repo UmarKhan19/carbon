@@ -4,5 +4,7 @@ import * as build from "virtual:react-router/server-build";
 
 const handler = createRequestHandler(build);
 
-// @ts-expect-error
-export default (req: Request) => handler(req, new RouterContextProvider());
+export default {
+  // @ts-expect-error
+  fetch: (req: Request) => handler(req, new RouterContextProvider()),
+};
