@@ -14,7 +14,7 @@ export default defineConfig(({ mode, isSsrBuild }) => ({
 
         defaultHandler(warning);
       },
-      ...(isSsrBuild && { input: "./server/app.ts" }),
+      // ...(isSsrBuild && { input: "./server/app.ts" }),
     },
   },
   define: {
