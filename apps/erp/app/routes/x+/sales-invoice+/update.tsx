@@ -1,7 +1,40 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { parseDate } from "@internationalized/date";
+import { CalendarDate, endOfMonth, parseDate } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { getCurrencyByCode } from "~/modules/accounting";
+
+type PaymentTermCalculationMethod = "Net" | "End of Month" | "Day of Month";
+
+/**
+ * Calculates the due date based on payment term settings
+ */
+function calculateDueDate(
+  dateIssued: string,
+  daysDue: number,
+  calculationMethod: PaymentTermCalculationMethod
+): string {
+  const issuedDate = parseDate(dateIssued);
+
+  switch (calculationMethod) {
+    case "Net":
+      return issuedDate.add({ days: daysDue }).toString();
+    case "End of Month": {
+      const monthEnd = endOfMonth(issuedDate);
+      return monthEnd.add({ days: daysDue }).toString();
+    }
+    case "Day of Month": {
+      const nextMonth = issuedDate.add({ months: 1 });
+      const targetDay = Math.min(daysDue, endOfMonth(nextMonth).day);
+      return new CalendarDate(
+        nextMonth.year,
+        nextMonth.month,
+        targetDay
+      ).toString();
+    }
+    default:
+      return issuedDate.add({ days: daysDue }).toString();
+  }
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -61,34 +94,48 @@ export async function action({ request }: ActionFunctionArgs) {
         })
         .in("id", ids as string[]);
     case "dateIssued":
-      if (ids.length === 1) {
-        const paymentTerms = await client
-          .from("paymentTerm")
-          .select("*")
-          .eq("id", value as string)
+      if (ids.length === 1 && value) {
+        // First fetch the invoice to get its paymentTermId
+        const invoice = await client
+          .from("salesInvoice")
+          .select("paymentTermId")
+          .eq("id", ids[0] as string)
           .single();
-        if (paymentTerms.data) {
-          return await client
-            .from("salesInvoice")
-            .update({
-              dateIssued: value,
-              dateDue: parseDate(value as string)
-                .add({ days: paymentTerms.data.daysDue })
-                .toString(),
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
-            })
-            .eq("id", ids[0] as string);
-        } else {
-          return await client
-            .from("salesInvoice")
-            .update({
-              [field]: value ? value : null,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
-            })
-            .in("id", ids as string[]);
+
+        if (invoice.data?.paymentTermId) {
+          // Fetch the payment term using the invoice's paymentTermId
+          const paymentTermResult = await client
+            .from("paymentTerm")
+            .select("*")
+            .eq("id", invoice.data.paymentTermId)
+            .single();
+
+          if (paymentTermResult.data) {
+            const dateDue = calculateDueDate(
+              value as string,
+              paymentTermResult.data.daysDue,
+              paymentTermResult.data.calculationMethod as PaymentTermCalculationMethod
+            );
+            return await client
+              .from("salesInvoice")
+              .update({
+                dateIssued: value,
+                dateDue,
+                updatedBy: userId,
+                updatedAt: new Date().toISOString()
+              })
+              .eq("id", ids[0] as string);
+          }
         }
+        // No payment term set, just update dateIssued without dateDue
+        return await client
+          .from("salesInvoice")
+          .update({
+            dateIssued: value,
+            updatedBy: userId,
+            updatedAt: new Date().toISOString()
+          })
+          .eq("id", ids[0] as string);
       }
       break;
     // don't break -- just let it catch the next case
@@ -112,12 +159,45 @@ export async function action({ request }: ActionFunctionArgs) {
         }
       }
     // don't break -- just let it catch the next case
+    case "paymentTermId":
+      if (ids.length === 1 && value) {
+        // When payment term changes, recalculate dateDue if dateIssued exists
+        const [invoiceForPaymentTerm, newPaymentTerm] = await Promise.all([
+          client
+            .from("salesInvoice")
+            .select("dateIssued")
+            .eq("id", ids[0] as string)
+            .single(),
+          client
+            .from("paymentTerm")
+            .select("*")
+            .eq("id", value as string)
+            .single()
+        ]);
+
+        if (invoiceForPaymentTerm.data?.dateIssued && newPaymentTerm.data) {
+          const newDateDue = calculateDueDate(
+            invoiceForPaymentTerm.data.dateIssued,
+            newPaymentTerm.data.daysDue,
+            newPaymentTerm.data.calculationMethod as PaymentTermCalculationMethod
+          );
+          return await client
+            .from("salesInvoice")
+            .update({
+              paymentTermId: value,
+              dateDue: newDateDue,
+              updatedBy: userId,
+              updatedAt: new Date().toISOString()
+            })
+            .eq("id", ids[0] as string);
+        }
+      }
+      // Fall through to generic update if no dateIssued or payment term not found
     case "customerId":
     case "invoiceCustomerContactId":
     case "invoiceCustomerLocationId":
     case "locationId":
     case "customerReference":
-    case "paymentTermId":
     case "exchangeRate":
     case "dateDue":
     case "datePaid":

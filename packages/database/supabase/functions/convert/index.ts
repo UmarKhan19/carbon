@@ -1,10 +1,55 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
 import {
+  CalendarDate,
+  endOfMonth,
   getLocalTimeZone,
   now,
+  parseDate,
   toCalendarDate,
 } from "npm:@internationalized/date";
 import { z } from "npm:zod@^3.24.1";
+
+type PaymentTermCalculationMethod = "Net" | "End of Month" | "Day of Month";
+
+/**
+ * Calculates the due date based on payment term settings
+ * @param dateIssued - The invoice issue date in ISO format (YYYY-MM-DD)
+ * @param daysDue - Number of days until payment is due
+ * @param calculationMethod - How to calculate the due date
+ * @returns The due date in ISO format (YYYY-MM-DD)
+ */
+function calculateDueDate(
+  dateIssued: string,
+  daysDue: number,
+  calculationMethod: PaymentTermCalculationMethod
+): string {
+  const issuedDate = parseDate(dateIssued);
+
+  switch (calculationMethod) {
+    case "Net":
+      // Payment due N days after invoice date
+      return issuedDate.add({ days: daysDue }).toString();
+
+    case "End of Month":
+      // Payment due at end of month + N days
+      const monthEnd = endOfMonth(issuedDate);
+      return monthEnd.add({ days: daysDue }).toString();
+
+    case "Day of Month":
+      // Payment due on specific day (daysDue) of the next month
+      // If daysDue is greater than days in the month, use last day
+      const nextMonth = issuedDate.add({ months: 1 });
+      const targetDay = Math.min(
+        daysDue,
+        endOfMonth(nextMonth).day
+      );
+      return new CalendarDate(nextMonth.year, nextMonth.month, targetDay).toString();
+
+    default:
+      // Default to Net calculation
+      return issuedDate.add({ days: daysDue }).toString();
+  }
+}
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 
@@ -624,13 +669,24 @@ serve(async (req: Request) => {
             .single(),
         ]);
 
-        if (!salesOrder.data) throw new Error("Purchase order not found");
+        if (!salesOrder.data) throw new Error("Sales order not found");
         if (salesOrderLines.error)
           throw new Error(salesOrderLines.error.message);
         if (!salesOrderPayment.data)
-          throw new Error("Purchase order payment not found");
+          throw new Error("Sales order payment not found");
         if (!salesOrderShipment.data)
-          throw new Error("Purchase order delivery not found");
+          throw new Error("Sales order shipment not found");
+
+        // Fetch payment term to calculate due date
+        let paymentTerm: Database["public"]["Tables"]["paymentTerm"]["Row"] | null = null;
+        if (salesOrderPayment.data.paymentTermId) {
+          const paymentTermResult = await client
+            .from("paymentTerm")
+            .select("*")
+            .eq("id", salesOrderPayment.data.paymentTermId)
+            .single();
+          paymentTerm = paymentTermResult.data;
+        }
 
         const uninvoicedLines = salesOrderLines?.data?.reduce<
           (typeof salesOrderLines)["data"]
@@ -656,6 +712,16 @@ serve(async (req: Request) => {
 
         let salesInvoiceId = "";
 
+        // Calculate dates
+        const dateIssued = new Date().toISOString().split("T")[0];
+        const dateDue = paymentTerm
+          ? calculateDueDate(
+              dateIssued,
+              paymentTerm.daysDue,
+              paymentTerm.calculationMethod as PaymentTermCalculationMethod
+            )
+          : null;
+
         await db.transaction().execute(async (trx) => {
           salesInvoiceId = await getNextSequence(
             trx,
@@ -678,7 +744,8 @@ serve(async (req: Request) => {
               locationId: salesOrderShipment.data.locationId,
               paymentTermId: salesOrderPayment.data.paymentTermId,
               currencyCode: salesOrder.data.currencyCode ?? "USD",
-              dateIssued: new Date().toISOString().split("T")[0],
+              dateIssued,
+              dateDue,
               exchangeRate: salesOrder.data.exchangeRate ?? 1,
               subtotal: uninvoicedSubtotal ?? 0,
               opportunityId: salesOrder.data.opportunityId,
@@ -692,7 +759,7 @@ serve(async (req: Request) => {
             .returning(["id"])
             .executeTakeFirstOrThrow();
 
-          if (!salesInvoice.id) throw new Error("Purchase invoice not created");
+          if (!salesInvoice.id) throw new Error("Sales invoice not created");
           salesInvoiceId = salesInvoice.id;
 
           await trx
@@ -1171,13 +1238,24 @@ serve(async (req: Request) => {
             .single(),
         ]);
 
-        if (!salesOrder.data) throw new Error("Purchase order not found");
+        if (!salesOrder.data) throw new Error("Sales order not found");
         if (salesOrderLines.error)
           throw new Error(salesOrderLines.error.message);
         if (!salesOrderPayment.data)
-          throw new Error("Purchase order payment not found");
+          throw new Error("Sales order payment not found");
         if (!salesOrderShipment.data)
-          throw new Error("Purchase order delivery not found");
+          throw new Error("Sales order shipment not found");
+
+        // Fetch payment term to calculate due date
+        let paymentTermForShipment: Database["public"]["Tables"]["paymentTerm"]["Row"] | null = null;
+        if (salesOrderPayment.data.paymentTermId) {
+          const paymentTermResult = await client
+            .from("paymentTerm")
+            .select("*")
+            .eq("id", salesOrderPayment.data.paymentTermId)
+            .single();
+          paymentTermForShipment = paymentTermResult.data;
+        }
 
         const uninvoicedLines = salesOrderLines?.data?.reduce<
           (typeof salesOrderLines)["data"]
@@ -1212,6 +1290,16 @@ serve(async (req: Request) => {
 
         let salesInvoiceId = "";
 
+        // Calculate dates
+        const shipmentDateIssued = new Date().toISOString().split("T")[0];
+        const shipmentDateDue = paymentTermForShipment
+          ? calculateDueDate(
+              shipmentDateIssued,
+              paymentTermForShipment.daysDue,
+              paymentTermForShipment.calculationMethod as PaymentTermCalculationMethod
+            )
+          : null;
+
         await db.transaction().execute(async (trx) => {
           salesInvoiceId = await getNextSequence(
             trx,
@@ -1234,7 +1322,8 @@ serve(async (req: Request) => {
               locationId: salesOrderShipment.data.locationId,
               paymentTermId: salesOrderPayment.data.paymentTermId,
               currencyCode: salesOrder.data.currencyCode ?? "USD",
-              dateIssued: new Date().toISOString().split("T")[0],
+              dateIssued: shipmentDateIssued,
+              dateDue: shipmentDateDue,
               exchangeRate: salesOrder.data.exchangeRate ?? 1,
               subtotal: uninvoicedSubtotal ?? 0,
               opportunityId: salesOrder.data.opportunityId,
@@ -1249,7 +1338,7 @@ serve(async (req: Request) => {
             .returning(["id"])
             .executeTakeFirstOrThrow();
 
-          if (!salesInvoice.id) throw new Error("Purchase invoice not created");
+          if (!salesInvoice.id) throw new Error("Sales invoice not created");
           salesInvoiceId = salesInvoice.id;
 
           await trx
