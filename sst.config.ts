@@ -75,7 +75,7 @@ export default $config({
         STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
         SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
         SUPABASE_DB_URL: process.env.SUPABASE_DB_URL,
-        SUPABASE_SERVICE_ROLE: process.env.SUPABASE_SERVICE_ROLE,
+        SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
         SUPABASE_URL: process.env.SUPABASE_URL,
         TRIGGER_API_URL: process.env.TRIGGER_API_URL,
         TRIGGER_PROJECT_ID: process.env.TRIGGER_PROJECT_ID,
