@@ -61,7 +61,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
         carbon,
         "employees",
         "id, name, email, avatarUrl",
-        (query) => query.eq("companyId", companyId).order("name")
+        (query) =>
+          query.eq("companyId", companyId).eq("active", true).order("name")
       )
     ]);
 
