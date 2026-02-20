@@ -447,7 +447,7 @@ export const JobOperation = ({
                 Schedule
               </Button>
             </div>
-            <div className="hidden md:flex flex-shrink-0 items-center justify-end gap-2">
+            <div className="flex flex-shrink-0 items-center justify-end gap-2">
               <TabsList className="md:ml-auto">
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger
@@ -471,7 +471,7 @@ export const JobOperation = ({
           </HStack>
         </header>
 
-        <div className="hidden md:flex items-center justify-between px-4 lg:pl-6 py-2 h-[var(--header-height)] bg-background gap-4 max-w-[100vw] overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
+        <div className="flex flex-wrap items-center justify-between px-4 lg:pl-6 py-2 min-h-[var(--header-height)] bg-background gap-2 md:gap-4 max-w-[100vw] overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
           <HStack className="min-w-22 justify-between">
             <Heading size="h4">{operation.jobReadableId}</Heading>
 
@@ -514,7 +514,7 @@ export const JobOperation = ({
             </DropdownMenu>
           </HStack>
 
-          <HStack className="justify-end items-center gap-2">
+          <HStack className="hidden md:flex justify-end items-center gap-2">
             {job.customer?.name && (
               <HStack className="justify-start space-x-2">
                 <LuSquareUser className="text-muted-foreground" />
@@ -580,8 +580,8 @@ export const JobOperation = ({
         </div>
         <Separator />
 
-        <TabsContent value="details" className="flex-col hidden md:flex">
-          <ScrollArea className="w-full pr-[calc(var(--controls-width))] h-[calc(100dvh-var(--header-height)*2-var(--controls-height)-2rem)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
+        <TabsContent value="details" className="flex flex-col">
+          <ScrollArea className="w-full md:pr-[calc(var(--controls-width))] h-[calc(100dvh-var(--header-height)*2-var(--controls-height)-2rem)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
             <div className="flex items-start justify-between p-4 lg:p-6">
               <HStack>
                 {thumbnailPath && (
@@ -1051,32 +1051,34 @@ export const JobOperation = ({
                                             ) : null}
                                           </HStack>
                                         </Td>
-                                        <Td className="flex flex-row items-center gap-1">
-                                          <Badge variant="secondary">
-                                            <MethodIcon
-                                              type={material.methodType ?? ""}
-                                              isKit={material.kit ?? false}
-                                              className="mr-2"
+                                        <Td className="hidden lg:table-cell">
+                                          <div className="flex flex-row items-center gap-1">
+                                            <Badge variant="secondary">
+                                              <MethodIcon
+                                                type={material.methodType ?? ""}
+                                                isKit={material.kit ?? false}
+                                                className="mr-2"
+                                              />
+                                              {material.methodType === "Make" &&
+                                              material.kit
+                                                ? "Kit"
+                                                : material.methodType}
+                                            </Badge>
+                                            <LuArrowLeft
+                                              className={cn(
+                                                material.methodType === "Make"
+                                                  ? "rotate-180"
+                                                  : ""
+                                              )}
                                             />
-                                            {material.methodType === "Make" &&
-                                            material.kit
-                                              ? "Kit"
-                                              : material.methodType}
-                                          </Badge>
-                                          <LuArrowLeft
-                                            className={cn(
-                                              material.methodType === "Make"
-                                                ? "rotate-180"
-                                                : ""
-                                            )}
-                                          />
-                                          <Badge variant="secondary">
-                                            <LuGitPullRequest className="size-3 mr-1" />
-                                            {material.shelfName ??
-                                              (material.methodType === "Make"
-                                                ? "WIP"
-                                                : "Default Shelf")}
-                                          </Badge>
+                                            <Badge variant="secondary">
+                                              <LuGitPullRequest className="size-3 mr-1" />
+                                              {material.shelfName ??
+                                                (material.methodType === "Make"
+                                                  ? "WIP"
+                                                  : "Default Shelf")}
+                                            </Badge>
+                                          </div>
                                         </Td>
 
                                         <Td>
