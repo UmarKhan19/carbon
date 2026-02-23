@@ -1,5 +1,13 @@
-@import url("non.geist");
 @import url("non.geist/mono");
+
+@font-face {
+  font-family: "Gnarly";
+  src: url("/fonts/gnarly.woff2") format("woff2"),
+       url("/fonts/gnarly.woff") format("woff"),
+       url("/fonts/gnarly.ttf") format("truetype");
+  font-display: swap;
+  font-synthesis: none;
+}
 
 @tailwind base;
 @tailwind components;

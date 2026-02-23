@@ -279,7 +279,7 @@ export function TraceabilityGraph({
       .attr("font-size", "12px")
       .attr("fill", "hsl(var(--foreground))") // Use white in dark mode and black in light mode
       .attr("font-weight", "bold")
-      .attr("font-family", "Geist");
+      .attr("font-family", "Gnarly");
 
     // Add serial number below the label
     node
@@ -289,7 +289,7 @@ export function TraceabilityGraph({
       .attr("dy", (d) => 45 + (d.depth || 0) * 2) // Position below the main label
       .attr("font-size", "10px")
       .attr("fill", "currentColor")
-      .attr("font-family", "Geist");
+      .attr("font-family", "Gnarly");
 
     // Add title for hover tooltip
     node.append("title").text((d) => {

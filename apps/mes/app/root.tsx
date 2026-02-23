@@ -39,6 +39,13 @@ import { getTheme } from "./services/theme.server";
 
 export function links() {
   return [
+    {
+      rel: "preload",
+      as: "font",
+      type: "font/woff2",
+      href: "/fonts/gnarly.woff2",
+      crossOrigin: "anonymous"
+    },
     { rel: "stylesheet", href: Tailwind },
     { rel: "stylesheet", href: Background },
     { rel: "stylesheet", href: NProgress }

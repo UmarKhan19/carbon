@@ -101,9 +101,9 @@ export default {
         xxs: "0.675rem",
       },
       fontFamily: {
-        sans: ["Geist Variable", ...fontFamily.sans],
+        sans: ["Gnarly", "Geist Variable", ...fontFamily.sans],
         mono: ["Geist Mono Variable", ...fontFamily.mono],
-        headline: ["Geist Variable", ...fontFamily.sans],
+        headline: ["Gnarly", "Geist Variable", ...fontFamily.sans],
       },
       letterSpacing: {
         normal: "-0.02em",
