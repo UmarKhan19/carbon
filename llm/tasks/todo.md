@@ -12,33 +12,84 @@ This document analyzes what Carbon already has, how SAP/major ERPs handle deviat
 
 ### SAP QM (Quality Management)
 
+SAP QM is structured around three pillars: **Quality Planning**, **Quality Inspection**, and **Quality Notification**. Deviation management lives primarily in the Quality Notification and Quality Inspection subsystems.
+
 SAP uses **Quality Notifications** as the central mechanism for deviations:
+
+**Q-Type (Manually Created):**
 
 | SAP Notification Type | Purpose | Carbon Equivalent |
 |---|---|---|
-| **Q1 - Customer Complaint** | External quality issues | NCR with source="External" |
-| **Q2 - Vendor Complaint** | Supplier material deviations | NCR with supplier association |
-| **Q3 - Internal Defect** | Process/product deviations found internally | NCR with source="Internal" |
+| **Q1 - Customer Complaint** | Customer reports a quality issue with delivered product | NCR with source="External", customer association |
+| **Q2 - Complaint Against Vendor** | Quality issue found in received materials (incoming inspection) | NCR with source="External", supplier association |
+| **Q3 - Internal Problem Report** | Quality issue found during in-process inspection on the shop floor | NCR with source="Internal", job operation association |
+
+**F-Type (Created During Inspection - automatically generated):**
+
+| SAP Notification Type | Purpose | Carbon Equivalent |
+|---|---|---|
+| **F1 - Customer-related Defect** | Defect recorded during inspection linked to customer context | Auto-NCR from inspection |
+| **F2 - Supplier-related Defect** | Defect recorded during incoming goods inspection | Auto-NCR from receipt inspection |
+| **F3 - Material-related Defect** | Defect recorded during production inspection | Auto-NCR from MES scrap/inspection |
+
+Custom types are common: **Deviation Acceptance Report (DAR)** for formal concession requests, **CAPA Notification** for corrective/preventive action tracking.
+
+**SAP Quality Notification Structure:**
+- **Header**: Problem description, reference objects (material, batch, order), quantities, status
+- **Items**: Coded defects (defect type + defect location)
+- **Causes**: Root cause codes linked to items
+- **Tasks**: Corrective actions with responsible parties, deadlines, status
+- **Activities**: Documented actions taken during processing
+- **Partners**: Internal and external parties involved
 
 **SAP's Deviation Flow:**
 1. **Detection** - Quality notification created (shop floor, inspection, receiving)
 2. **Classification** - Categorized by type, coded with reason/defect codes
-3. **Disposition** - Use-as-is, rework, scrap, return to vendor, concession
-4. **Approval** - MRB or engineering disposition with customer approval if required
-5. **Corrective Action** - CAPA linked to notification, root cause analysis
+3. **Disposition (Usage Decision)** - Formal decision about material fate with coded options, triggers stock movements
+4. **Approval** - Multi-level workflow routing to internal approvers, engineering, customer
+5. **Corrective Action** - CAPA linked to notification, root cause analysis (8D methodology supported in S/4HANA 1909+)
 6. **Closure** - Verified effectiveness, audit trail complete
+
+**SAP Usage Decision Codes (Disposition):**
+
+| Code | Meaning | Stock Action |
+|---|---|---|
+| Accept | Material meets specs | Move to unrestricted stock |
+| Accept with minor deviations | Acceptable with noted issues | Move to unrestricted stock (documented) |
+| Reject - Rework | Fixable nonconformance | Move to rework area / create rework order |
+| Reject - Scrap | Unsalvageable | Post to scrap (removed from inventory) |
+| Reject - Return to Vendor | Supplier issue | Create return delivery |
+| Reject - Block | Pending further decision | Move to blocked stock (MRB hold) |
 
 **SAP's key distinction:** SAP does NOT have a separate "Deviation" module. Deviations are handled through Quality Notifications + Usage Decisions + CAPA. The term "deviation" in SAP refers to a concession/waiver request, which is a specific disposition type within the notification workflow.
 
+**Key SAP concepts for Carbon:**
+- **Concession** = Permission to use/ship product that is already produced and nonconforming (post-production). Customer approves accepting the nonconforming product.
+- **Deviation Permit** = Permission to depart from requirements *before* production. Approved for a limited quantity or time period.
+- **MRB** = Implemented through blocked stock + quality notifications as the MRB queue + workflow routing to MRB members. No dedicated "MRB" entity.
+
 ### Oracle Quality Management
-- Uses **Quality Actions** and **Nonconformance Reports**
-- Disposition codes drive downstream actions (scrap orders, rework orders)
-- Customer approval tracked as part of disposition workflow
+- Nonconformances logged dynamically during batch execution with **severity, priority, and ownership**
+- Tracks deviations caused by: batch material quantity changes, item substitutions, resource substitutions, ad-hoc operator observations
+- **Workflow approval process** for disposition decisions
+- Operators, supervisors, and quality managers can all log nonconformances
+- Full electronic records with auditable trail (identity, date/time, reason for signing)
+- Oracle MES integrates directly with Oracle Quality for shop floor transaction reporting
 
 ### Epicor (Kinetic)
-- **NCR module** handles all nonconformance types
-- **DMR (Discrepant Material Report)** for receiving deviations
-- Disposition drives automatic creation of rework jobs or scrap transactions
+- **Two-stage nonconformance flow**: NCR -> DMR (Discrepant Material Report)
+- When parts fail inspection, a DMR is automatically created, providing the MRB with an online queue
+- **Four standard dispositions**: Scrap, Rework In-House, Rework at Vendor, Use As Is
+- "Use As Is" often requires engineering analysis or customer approval
+- Corrective actions tracked with due dates, audit sign-offs
+- **Tiered QMS**: Basic (built-in), Enhanced QA, Advanced QMS (powered by ETQ with 40+ quality apps)
+
+### DELMIAworks (formerly IQMS)
+- **Single-database architecture**: Quality, ERP, and MES all in one system (like Carbon!)
+- Non-conforming inventory tracked in the same database as manufacturing, accounting, and supply chain
+- Quality modules link directly to RMAs, BOMs, and all manufacturing data
+- **Corrective Action Requests (CARs)** with scheduling, assignment, and tracking
+- ISO and FDA compliance tracking built in
 
 ### Common Pattern Across All ERPs
 All major ERPs handle deviations through their NCR/Quality Notification system. None have a standalone "Deviation" module. The pattern is:
@@ -55,14 +106,43 @@ NCR/Quality Notification
 
 ### The "Post-Shipment Containment" Problem (Brad's Question)
 
-SAP handles this through **Quality Notifications with retroactive lot tracking**:
-1. Create Q1/Q3 notification identifying affected serial/lot range
-2. System traces forward through shipment records to identify which items shipped
-3. Field action / customer notification generated
-4. Containment action tracked as CAPA task
-5. Disposition applied to unshipped items in inventory
+SAP handles this through a **multi-module containment workflow**:
+1. **Identify scope** - Batch Cockpit (BMBC) traces from defective batch to all deliveries and customers. MB56 (Batch Where-Used) identifies all downstream consumption.
+2. **Create notifications** - Q1 notification created for each affected customer; Q3 for internal containment
+3. **Quarantine remaining inventory** - Transfer stock postings to move remaining material from unrestricted to blocked stock or dedicated containment location
+4. **Distribution halt** - Block material/batch for further shipments
+5. **Customer notification & resolution** - Return material authorization (RMA), replacement shipments, credit notes
+6. **CAPA** - Corrective action tasks in the quality notification
 
-**Carbon can handle this today** via the existing NCR + trackedEntity + shipmentLine associations. The NCR already supports linking to shipment lines and tracked entities, which enables identification of shipped vs. unshipped affected items.
+**Key SAP limitation:** SAP does not have a dedicated "recall campaign" entity in standard QM. Recall campaigns are managed through multiple Q1 notifications + PLM documentation. Industries like automotive/medical devices often need custom development for formal field action campaigns.
+
+**Carbon can handle this today** via the existing NCR + trackedEntity + shipmentLine associations. The NCR already supports linking to shipment lines and tracked entities, which enables identification of shipped vs. unshipped affected items. Carbon's single-database architecture (like DELMIAworks) is actually an advantage here -- the traceability graph can instantly show which tracked entities were shipped where.
+
+---
+
+### Deviation Types to Support (Universal Across ERPs)
+
+Based on the research, these are the deviation categories all major ERPs converge on:
+
+| Type | Description | Carbon Mapping |
+|---|---|---|
+| **Unplanned deviation** | Nonconformance discovered during inspection/production | Standard NCR |
+| **Planned deviation / Deviation permit** | Pre-approved departure from spec (time/quantity-limited) | NCR with duration="Temporary" |
+| **Concession** | Post-production approval to use/ship nonconforming product | NCR with disposition="Deviation Accepted" + customer approval |
+| **In-process exception** | Real-time deviation reported from shop floor | NCR created from MES |
+
+### Universal Disposition Options (All ERPs agree on these)
+
+1. **Accept / Use As Is** - Product meets functional requirements despite measured deviation
+2. **Rework** - Return product to conformance through additional processing
+3. **Repair** - Make product acceptable without fully returning to original spec (requires concession)
+4. **Scrap** - Destroy/discard the product
+5. **Return to Vendor** - Send nonconforming purchased material back to supplier
+6. **Hold / Quarantine** - Segregate pending further decision (MRB queue)
+7. **Conditional Acceptance** - Accepted with conditions/limitations
+8. **Regrade / No Action Required** - Use for different purpose or determined to be within acceptable range
+
+Note: Carbon's database already has all these as the `disposition` enum! They're just commented out in the TypeScript model.
 
 ---
 
