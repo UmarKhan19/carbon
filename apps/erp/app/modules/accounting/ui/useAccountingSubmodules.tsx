@@ -1,4 +1,4 @@
-import { LuDollarSign, LuList, LuTarget } from "react-icons/lu";
+import { LuBoxes, LuDollarSign, LuList, LuTarget } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
@@ -68,6 +68,12 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
         to: path.to.accountingDefaults,
         icon: <LuTarget />,
         role: "employee"
+      },
+      {
+        name: "Dimensions",
+        to: path.to.dimensions,
+        role: "employee",
+        icon: <LuBoxes />
       },
       // {
       //   name: "Fiscal Year",

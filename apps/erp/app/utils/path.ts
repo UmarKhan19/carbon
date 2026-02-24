@@ -492,6 +492,8 @@ export const path = {
       generatePath(`${x}/supplier-quote/${id}/convert`),
     currency: (id: string) => generatePath(`${x}/accounting/currencies/${id}`),
     currencies: `${x}/accounting/currencies`,
+    dimension: (id: string) => generatePath(`${x}/accounting/dimensions/${id}`),
+    dimensions: `${x}/accounting/dimensions`,
     customer: (id: string) => generatePath(`${x}/customer/${id}`),
     customerDetails: (id: string) =>
       generatePath(`${x}/customer/${id}/details`),
@@ -565,6 +567,8 @@ export const path = {
       generatePath(`${x}/resources/contractors/delete/${id}`),
     deleteCurrency: (id: string) =>
       generatePath(`${x}/accounting/currencies/delete/${id}`),
+    deleteDimension: (id: string) =>
+      generatePath(`${x}/accounting/dimensions/delete/${id}`),
     deleteCustomer: (id: string) => generatePath(`${x}/customer/${id}/delete`),
     deleteCustomerContact: (customerId: string, id: string) =>
       generatePath(`${x}/customer/${customerId}/contacts/delete/${id}`),
@@ -1012,6 +1016,7 @@ export const path = {
       generatePath(`${x}/consumable/${id}/purchasing/new`),
     newContractor: `${x}/resources/contractors/new`,
     newCurrency: `${x}/accounting/currencies/new`,
+    newDimension: `${x}/accounting/dimensions/new`,
     newCustomer: `${x}/customer/new`,
     newCustomerAccount: `${x}/users/customers/new`,
     newCustomerContact: (id: string) =>

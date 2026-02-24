@@ -5,6 +5,8 @@ import type {
   getAccountSubcategories,
   getAccountsList,
   getCurrencies,
+  getDimension,
+  getDimensions,
   getInventoryPostingGroups,
   getPaymentTerms,
   getPurchasingPostingGroups,
@@ -46,6 +48,14 @@ export type Chart = Account &
 export type Currency = NonNullable<
   Awaited<ReturnType<typeof getCurrencies>>["data"]
 >[number];
+
+export type Dimension = NonNullable<
+  Awaited<ReturnType<typeof getDimensions>>["data"]
+>[number];
+
+export type DimensionDetail = NonNullable<
+  Awaited<ReturnType<typeof getDimension>>["data"]
+>;
 
 export const currencyCodes = [
   "AFN",

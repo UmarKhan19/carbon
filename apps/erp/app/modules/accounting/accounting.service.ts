@@ -12,6 +12,7 @@ import type {
   currencyValidator,
   defaultBalanceSheetAccountValidator,
   defaultIncomeAcountValidator,
+  dimensionValidator,
   fiscalYearSettingsValidator,
   paymentTermValidator
 } from "./accounting.models";
@@ -840,4 +841,123 @@ export async function upsertPaymentTerm(
     .eq("id", paymentTerm.id)
     .select("id")
     .single();
+}
+
+export async function getDimensions(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: GenericQueryFilters & {
+    search: string | null;
+  }
+) {
+  let query = client
+    .from("dimension")
+    .select("*, dimensionValue(id, name)", {
+      count: "exact"
+    })
+    .eq("companyId", companyId);
+
+  if (args.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  query = setGenericQueryFilters(query, args, [
+    { column: "name", ascending: true }
+  ]);
+  return query;
+}
+
+export async function getDimension(
+  client: SupabaseClient<Database>,
+  dimensionId: string
+) {
+  return client
+    .from("dimension")
+    .select("*, dimensionValue(id, name)")
+    .eq("id", dimensionId)
+    .single();
+}
+
+export async function upsertDimension(
+  client: SupabaseClient<Database>,
+  dimension:
+    | (Omit<z.infer<typeof dimensionValidator>, "id" | "dimensionValues"> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (Omit<z.infer<typeof dimensionValidator>, "id" | "dimensionValues"> & {
+        id: string;
+        updatedBy: string;
+      }),
+  dimensionValues?: string[]
+) {
+  let dimensionResult;
+
+  if ("createdBy" in dimension) {
+    dimensionResult = await client
+      .from("dimension")
+      .insert([dimension])
+      .select("id, companyId")
+      .single();
+  } else {
+    dimensionResult = await client
+      .from("dimension")
+      .update(sanitize(dimension))
+      .eq("id", dimension.id)
+      .select("id, companyId")
+      .single();
+  }
+
+  if (dimensionResult.error) return dimensionResult;
+
+  if (dimension.entityType === "Custom" && dimensionValues !== undefined) {
+    const dimensionId = dimensionResult.data.id;
+    const companyId = dimensionResult.data.companyId;
+
+    const existing = await client
+      .from("dimensionValue")
+      .select("id, name")
+      .eq("dimensionId", dimensionId);
+
+    if (existing.error) return existing;
+
+    const existingNames = new Set((existing.data ?? []).map((v) => v.name));
+    const desiredNames = new Set(dimensionValues);
+
+    const toDelete = (existing.data ?? [])
+      .filter((v) => !desiredNames.has(v.name))
+      .map((v) => v.id);
+
+    if (toDelete.length > 0) {
+      const deleteResult = await client
+        .from("dimensionValue")
+        .delete()
+        .in("id", toDelete);
+      if (deleteResult.error) return deleteResult;
+    }
+
+    const toInsert = dimensionValues
+      .filter((name) => !existingNames.has(name))
+      .map((name) => ({
+        dimensionId,
+        name,
+        companyId,
+        createdBy:
+          "createdBy" in dimension ? dimension.createdBy : dimension.updatedBy
+      }));
+
+    if (toInsert.length > 0) {
+      const insertResult = await client.from("dimensionValue").insert(toInsert);
+      if (insertResult.error) return insertResult;
+    }
+  }
+
+  return dimensionResult;
+}
+
+export async function deleteDimension(
+  client: SupabaseClient<Database>,
+  dimensionId: string
+) {
+  return client.from("dimension").delete().eq("id", dimensionId);
 }

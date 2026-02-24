@@ -357,3 +357,22 @@ export const costLedgerValidator = z.object({
   cost: z.number(),
   costPostedToGL: z.number()
 });
+
+export const dimensionEntityTypes = [
+  "Custom",
+  "Location",
+  "ItemPostingGroup",
+  "SupplierType",
+  "CustomerType",
+  "Department",
+  "Employee"
+] as const;
+
+export const dimensionValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  entityType: z.enum(dimensionEntityTypes, {
+    errorMap: () => ({ message: "Entity type is required" })
+  }),
+  dimensionValues: z.string().min(1).array().optional()
+});
