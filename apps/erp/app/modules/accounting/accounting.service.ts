@@ -855,7 +855,8 @@ export async function getDimensions(
     .select("*, dimensionValue(id, name)", {
       count: "exact"
     })
-    .eq("companyId", companyId);
+    .eq("companyId", companyId)
+    .eq("active", true);
 
   if (args.search) {
     query = query.ilike("name", `%${args.search}%`);
@@ -959,5 +960,8 @@ export async function deleteDimension(
   client: SupabaseClient<Database>,
   dimensionId: string
 ) {
-  return client.from("dimension").delete().eq("id", dimensionId);
+  return client
+    .from("dimension")
+    .update({ active: false })
+    .eq("id", dimensionId);
 }

@@ -1,0 +1,2 @@
+ALTER TABLE "dimension" ADD COLUMN "active" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "dimension" ADD COLUMN "required" BOOLEAN NOT NULL DEFAULT false;

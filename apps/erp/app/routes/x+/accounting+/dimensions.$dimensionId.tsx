@@ -78,6 +78,8 @@ export default function EditDimensionRoute() {
     id: dimension?.id ?? undefined,
     name: dimension?.name ?? "",
     entityType: dimension?.entityType ?? ("Custom" as const),
+    active: dimension?.active ?? true,
+    required: dimension?.required ?? false,
     dimensionValues:
       dimension?.dimensionValue?.map((v: { name: string }) => v.name) ?? []
   };

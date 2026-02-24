@@ -21,7 +21,7 @@ import {
 } from "react-icons/lu";
 import type { z } from "zod";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
-import { Array, Hidden, Input, Submit } from "~/components/Form";
+import { Array, Boolean, Hidden, Input, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 import {
@@ -119,6 +119,8 @@ const DimensionForm = ({ initialValues, onClose }: DimensionFormProps) => {
                 }}
               />
               {isCustom && <Array name="dimensionValues" label="Values" />}
+              <Boolean name="active" label="Active" />
+              <Boolean name="required" label="Required" />
             </VStack>
           </DrawerBody>
           <DrawerFooter>

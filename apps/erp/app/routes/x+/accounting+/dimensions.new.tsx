@@ -63,6 +63,8 @@ export default function NewDimensionRoute() {
   const initialValues = {
     name: "",
     entityType: "Custom" as const,
+    active: true,
+    required: false,
     dimensionValues: [] as string[]
   };
 

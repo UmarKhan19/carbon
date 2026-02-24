@@ -374,5 +374,7 @@ export const dimensionValidator = z.object({
   entityType: z.enum(dimensionEntityTypes, {
     errorMap: () => ({ message: "Entity type is required" })
   }),
+  active: zfd.checkbox(),
+  required: zfd.checkbox(),
   dimensionValues: z.string().min(1).array().optional()
 });
