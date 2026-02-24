@@ -19,6 +19,8 @@ interface CompanyLogoFormProps {
   icon?: boolean;
 }
 
+export const maxSizeMB = 10;
+
 const CompanyLogoForm = ({
   company,
   mode,
@@ -69,7 +71,7 @@ const CompanyLogoForm = ({
       }
 
       // Validate file size (10 MB limit)
-      const maxSizeMB = 10;
+
       const maxSizeBytes = maxSizeMB * 1024 * 1024;
       if (logo.size > maxSizeBytes) {
         toast.error(

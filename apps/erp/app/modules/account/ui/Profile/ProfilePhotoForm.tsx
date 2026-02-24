@@ -1,10 +1,18 @@
 import { SUPABASE_URL, useCarbon } from "@carbon/auth";
-import { Button, File as FileUpload, toast, VStack } from "@carbon/react";
+import {
+  Badge,
+  Button,
+  File as FileUpload,
+  toast,
+  VStack
+} from "@carbon/react";
 import type { ChangeEvent } from "react";
 import { useSubmit } from "react-router";
 import { Avatar } from "~/components";
 import { path } from "~/utils/path";
 import type { Account } from "../../types";
+
+const maxSizeMB = 10;
 
 type ProfilePhotoFormProps = {
   user: Account;
@@ -140,6 +148,7 @@ const ProfilePhotoForm = ({ user }: ProfilePhotoFormProps) => {
           Remove
         </Button>
       )}
+      <Badge variant="outline">{maxSizeMB}MB limit</Badge>
     </VStack>
   );
 };
