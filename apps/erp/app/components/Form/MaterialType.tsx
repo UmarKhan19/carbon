@@ -54,10 +54,10 @@ const MaterialType = (props: MaterialTypeSelectProps) => {
         options={options}
         {...props}
         disabled={props.disabled || !props.substanceId || !props.formId}
-        inline={props?.inline ? MaterialTypePreview : undefined}
+        inline={props?.inline ? (MaterialTypePreview as any) : undefined}
         isOptional={props?.isOptional ?? true}
         label={props?.label ?? "Type"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newTypeModal.onOpen();
           setCreated(option);

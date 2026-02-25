@@ -1,3 +1,4 @@
+/// <reference types="forge-viewer" />
 import {
   createContext,
   useCallback,
@@ -33,14 +34,14 @@ function AutodeskProvider({ children, tokenEndpoint }: AutodeskProviderProps) {
     getToken().then(setToken);
   });
 
-  const getToken = useCallback(async () => {
+  const getToken = useCallback(async (): Promise<string> => {
     try {
       const newToken = await getAccessToken(tokenEndpoint);
       setToken(newToken);
       return newToken;
     } catch (error) {
       console.error("Failed to refresh Autodesk token:", error);
-      return null;
+      return "";
     }
   }, [tokenEndpoint]);
 

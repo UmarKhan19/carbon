@@ -211,7 +211,7 @@ const PurchaseInvoiceHeader = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             <PurchaseInvoicingStatus
-              status={routeData?.purchaseInvoice?.status}
+              status={routeData?.purchaseInvoice?.status as any}
             />
           </HStack>
           <HStack>

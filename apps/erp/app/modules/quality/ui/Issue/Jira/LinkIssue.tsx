@@ -72,7 +72,7 @@ export const LinkIssue = (props: Props) => {
       method="post"
       action={path.to.api.jiraLinkExistingIssue}
       validator={linkIssueValidator}
-      fetcher={fetcher}
+      fetcher={fetcher as any}
       resetAfterSubmit
       onAfterSubmit={() => props.onClose()}
     >

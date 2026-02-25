@@ -7,14 +7,12 @@
     "app/types/global.d.ts"
   ],
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "ESNext"],
-    "esModuleInterop": true,
+    "lib": ["dom", "ESNext"],
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "target": "ES2019",
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
     "paths": {
@@ -24,6 +22,7 @@
     "noEmit": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "noErrorTruncation": true
+    "noErrorTruncation": true,
+    "types": ["node"]
   }
 }

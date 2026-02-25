@@ -27,6 +27,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const copy = await copyQuote(serviceRole, {
     sourceId: quoteId,
     targetId: asRevision ? quoteId : "",
+    billOfMaterial: true,
+    billOfProcess: true,
+    parameters: true,
+    tools: true,
+    steps: true,
+    workInstructions: true,
     companyId: companyId,
     userId: userId
   });

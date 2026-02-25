@@ -73,10 +73,10 @@ const MaterialGrade = (props: MaterialGradeSelectProps) => {
         options={options}
         {...props}
         disabled={props.disabled || !props.substanceId}
-        inline={props?.inline ? MaterialGradePreview : undefined}
+        inline={props?.inline ? (MaterialGradePreview as any) : undefined}
         isOptional={props?.isOptional ?? true}
         label={props?.label ?? "Grade"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newGradeModal.onOpen();
           setCreated(option);

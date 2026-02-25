@@ -46,7 +46,8 @@ const DateTimePicker = ({
       : undefined
   );
 
-  const handleChange = async (newDate: CalendarDateTime) => {
+  const handleChange = async (newDate: CalendarDateTime | null) => {
+    if (!newDate) return;
     flushSync(() => {
       setDate(toCalendarDateTime(newDate));
     });
@@ -80,7 +81,7 @@ const DateTimePicker = ({
       <input type="hidden" name={name} value={utcValue} />
       <DateTimePickerBase
         value={date}
-        onChange={handleChange}
+        onChange={handleChange as any}
         isDisabled={isDisabled}
         minValue={minValue}
         maxValue={maxValue}

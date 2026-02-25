@@ -224,5 +224,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "Content-Type": "application/pdf",
     "Content-Disposition": `inline; filename="${company.data.name} - ${job.data.jobId}.pdf"`
   });
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

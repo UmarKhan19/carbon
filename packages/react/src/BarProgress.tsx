@@ -45,12 +45,12 @@ function getGradientColor(ratio: number, stops: GradientStop[]): string {
   for (let i = 0; i < stops.length - 1; i++) {
     const curr = stops[i];
     const next = stops[i + 1];
-    if (clamped >= curr.pos && clamped <= next.pos) {
-      const t = (clamped - curr.pos) / (next.pos - curr.pos);
-      return lerpColor(curr.color, next.color, t);
+    if (clamped >= curr!.pos && clamped <= next!.pos) {
+      const t = (clamped - curr!.pos) / (next!.pos - curr!.pos);
+      return lerpColor(curr!.color, next!.color, t);
     }
   }
-  return lerpColor(stops[0].color, stops[0].color, 0);
+  return lerpColor(stops[0]!.color, stops[0]!.color, 0);
 }
 
 interface BarProgressProps {

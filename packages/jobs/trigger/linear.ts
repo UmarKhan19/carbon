@@ -95,9 +95,9 @@ export const syncIssueFromLinear = task({
       });
 
       const employees = await getCompanyEmployees(carbon, payload.companyId, [
-        linearUser?.email,
+        linearUser?.email ?? "",
       ]);
-      assignee = employees.length > 0 ? employees[0].userId : null;
+      assignee = employees.length > 0 ? employees[0]!.userId : null;
     }
 
     const updated = await linkActionToLinearIssue(carbon, payload.companyId, {

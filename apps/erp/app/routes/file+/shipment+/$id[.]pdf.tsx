@@ -189,7 +189,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="${company.data.name} - ${shipment.data.shipmentId}.pdf"`
       });
-      return new Response(body, { status: 200, headers });
+      return new Response(new Uint8Array(body), { status: 200, headers });
     }
     case "Sales Invoice": {
       const salesInvoice = await serviceRole
@@ -308,7 +308,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="${company.data.name} - ${shipment.data.shipmentId}.pdf"`
       });
-      return new Response(body, { status: 200, headers });
+      return new Response(new Uint8Array(body), { status: 200, headers });
     }
     case "Purchase Order": {
       const [purchaseOrder, purchaseOrderDelivery] = await Promise.all([
@@ -422,7 +422,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="${company.data.name} - ${shipment.data.shipmentId}.pdf"`
       });
-      return new Response(poBody, { status: 200, headers: poHeaders });
+      return new Response(new Uint8Array(poBody), {
+        status: 200,
+        headers: poHeaders
+      });
     }
     default:
       throw new Error("Invalid source document");

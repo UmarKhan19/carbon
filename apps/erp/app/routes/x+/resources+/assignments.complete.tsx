@@ -22,7 +22,7 @@ export async function action({ request }: ActionFunctionArgs) {
       { error: "Missing required fields" },
       {
         status: 400,
-        headers: await flash(request, error(null, "Missing required fields"))
+        ...(await flash(request, error(null, "Missing required fields")))
       }
     );
   }
@@ -41,19 +41,17 @@ export async function action({ request }: ActionFunctionArgs) {
       { error: result.error.message },
       {
         status: 500,
-        headers: await flash(
+        ...(await flash(
           request,
           error(result.error, "Failed to mark training complete")
-        )
+        ))
       }
     );
   }
 
   return data(
     { success: true },
-    {
-      headers: await flash(request, success("Training marked as complete"))
-    }
+    await flash(request, success("Training marked as complete"))
   );
 }
 

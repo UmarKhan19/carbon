@@ -62,11 +62,12 @@ export const ConversationEmptyState = ({
   </div>
 );
 
-export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
+export type ConversationScrollButtonProps = {
+  className?: string;
+};
 
 export const ConversationScrollButton = ({
-  className,
-  ...props
+  className
 }: ConversationScrollButtonProps) => {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
@@ -77,16 +78,16 @@ export const ConversationScrollButton = ({
   return (
     !isAtBottom && (
       <IconButton
+        aria-label="Scroll to bottom"
         icon={<LuArrowDown />}
         className={cn(
           "absolute bottom-42 left-[50%] translate-x-[-50%] rounded-full",
           className
         )}
         onClick={handleScrollToBottom}
-        size="icon"
+        size="md"
         type="button"
         variant="secondary"
-        {...props}
       />
     )
   );

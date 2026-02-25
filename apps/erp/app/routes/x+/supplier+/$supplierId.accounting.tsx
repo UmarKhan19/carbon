@@ -68,7 +68,7 @@ export default function SupplierAccountingRoute() {
   if (!routeData?.supplier) return null;
 
   const initialValues = {
-    id: routeData?.supplier?.id ?? undefined,
+    id: routeData?.supplier?.id ?? "",
     supplierTypeId: routeData?.supplier?.supplierTypeId ?? undefined,
     taxId: routeData?.supplier?.taxId ?? ""
   };

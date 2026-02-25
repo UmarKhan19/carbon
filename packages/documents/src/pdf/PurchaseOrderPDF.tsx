@@ -276,11 +276,11 @@ const PurchaseOrderPDF = ({
                         </Text>
                       )}
                     {thumbnails &&
-                      line.id in thumbnails &&
-                      thumbnails[line.id] && (
+                      line.id! in thumbnails &&
+                      thumbnails[line.id!] && (
                         <View style={tw("mt-1 w-16")}>
                           <Image
-                            src={thumbnails[line.id]!}
+                            src={thumbnails[line.id!]!}
                             style={tw("w-full h-auto")}
                           />
                         </View>

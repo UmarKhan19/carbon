@@ -534,7 +534,7 @@ async function createUser(
   const { data, error } = await insertUser(client, user);
 
   if (error) {
-    await deleteAuthAccount(client, user.id);
+    await deleteAuthAccount(client, (user as any).id);
   }
 
   return { data, error };
@@ -700,7 +700,10 @@ async function insertUser(
   client: SupabaseClient<Database>,
   user: Omit<User, "fullName" | "createdAt">
 ) {
-  return client.from("user").upsert([user]).select("*");
+  return client
+    .from("user")
+    .upsert([user as any])
+    .select("*");
 }
 
 function makePermissionsFromEmployeeType({

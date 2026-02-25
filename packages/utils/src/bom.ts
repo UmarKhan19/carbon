@@ -70,7 +70,7 @@ export function generateBomIds<TData>(nodes: FlatTreeItem<TData>[]): string[] {
     const level = node.level;
 
     // Reset deeper level counters when moving to shallower level
-    if (index > 0 && level <= nodes[index - 1].level) {
+    if (index > 0 && level <= nodes[index - 1]!.level) {
       for (const [key] of levelCounters) {
         if (key > level) levelCounters.delete(key);
       }

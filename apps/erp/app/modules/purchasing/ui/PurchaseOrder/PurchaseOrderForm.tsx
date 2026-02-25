@@ -51,8 +51,8 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
 
   const onSupplierChange = async (
     newValue: {
-      value: string | undefined;
-      label: string;
+      value: string;
+      label: string | Element;
     } | null
   ) => {
     if (!carbon) {
@@ -131,7 +131,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 autoFocus={!isEditing}
                 name="supplierId"
                 label="Supplier"
-                onChange={onSupplierChange}
+                onChange={onSupplierChange as any}
               />
               <Input name="supplierReference" label="Supplier Order Number" />
               <SupplierLocation

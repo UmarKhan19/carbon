@@ -31,6 +31,6 @@
   },
   "devDependencies": {
     "@carbon/tsconfig": "*",
-    "typescript": "^5.2.2"
+    "typescript": "^6.0.0-beta"
   }
 }

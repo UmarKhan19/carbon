@@ -85,13 +85,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     job: job.data,
-    materials:
-      materials?.data.map((m) => ({
-        ...m,
-        itemType: m.itemType as "Part",
-        unitOfMeasureCode: m.unitOfMeasureCode ?? "",
-        jobOperationId: m.jobOperationId ?? undefined
-      })) ?? [],
+    materials: (materials?.data.map((m) => ({
+      ...m,
+      itemType: m.itemType as "Part",
+      unitOfMeasureCode: m.unitOfMeasureCode ?? "",
+      jobOperationId: m.jobOperationId ?? undefined
+    })) ?? []) as any,
     operations:
       operations.data?.map((o) => ({
         ...o,

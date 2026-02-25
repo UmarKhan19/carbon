@@ -75,9 +75,9 @@ const SupplierLocation = (props: SupplierLocationSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        inline={props?.inline ? SupplierLocationPreview : undefined}
+        inline={props?.inline ? (SupplierLocationPreview as any) : undefined}
         label={props?.label ?? "Supplier Location"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newLocationModal.onOpen();
           // setCreated(option);

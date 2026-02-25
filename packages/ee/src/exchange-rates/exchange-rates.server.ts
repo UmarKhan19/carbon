@@ -1,4 +1,4 @@
-import type { CurrencyCode } from "~/modules/accounting";
+type CurrencyCode = string;
 
 type ExchangeClientOptions = {
   apiKey?: string;
@@ -79,7 +79,7 @@ export class ExchangeRatesClient {
       (acc, [currency, value]) => {
         return {
           ...acc,
-          [currency]: value / baseRate
+          [currency]: value! / baseRate
         };
       },
       {

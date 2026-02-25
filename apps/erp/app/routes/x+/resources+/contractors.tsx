@@ -60,15 +60,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Route() {
-  const { contractors, abilities, count } = useLoaderData<typeof loader>();
+  const { contractors, count } = useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={0} className="h-full">
-      <ContractorsTable
-        data={contractors}
-        count={count}
-        abilities={abilities}
-      />
+      <ContractorsTable data={contractors} count={count} />
       <Outlet />
     </VStack>
   );

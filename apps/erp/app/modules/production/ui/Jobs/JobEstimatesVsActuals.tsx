@@ -118,7 +118,7 @@ const JobEstimatesVsActuals = ({
     setCurrentUnitCosts(
       itemCosts?.data?.reduce(
         (acc, itemCost) => {
-          acc[itemCost.itemId] = itemCost.unitCost;
+          acc[itemCost.itemId] = itemCost.unitCost ?? 0;
           return acc;
         },
         {} as Record<string, number>

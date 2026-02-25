@@ -91,7 +91,7 @@ const Tool = ({ name, label, helperText, ...props }: ToolSelectProps) => {
             ref={triggerRef}
             options={options}
             {...props}
-            inline={props.inline ? ToolPreview : undefined}
+            inline={props.inline ? (ToolPreview as any) : undefined}
             inlineAddLabel="Add Tool"
             value={value?.replace(/"/g, '\\"')}
             onChange={(newValue) => {
@@ -129,7 +129,6 @@ const Tool = ({ name, label, helperText, ...props }: ToolSelectProps) => {
             unitOfMeasureCode: "EA",
             replenishmentSystem: "Buy",
             defaultMethodType: "Buy",
-            active: true,
             unitCost: 0,
             tags: []
           }}

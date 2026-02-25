@@ -62,7 +62,7 @@ export default function JobOperationStepRecordsRoute() {
 
   return (
     <VStack spacing={0} className="h-[calc(100dvh-99px)]">
-      <JobOperationStepRecordsTable data={stepRecords} count={count} />
+      <JobOperationStepRecordsTable data={stepRecords as any} count={count} />
     </VStack>
   );
 }

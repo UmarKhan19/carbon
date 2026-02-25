@@ -48,7 +48,7 @@ const Supplier = ({ allowedSuppliers, ...props }: SupplierSelectProps) => {
         options={options}
         {...props}
         label={props?.label ?? "Supplier"}
-        inline={props?.inline ? SupplierPreview : undefined}
+        inline={props?.inline ? (SupplierPreview as any) : undefined}
         onCreateOption={(option) => {
           newSuppliersModal.onOpen();
           setCreated(option);

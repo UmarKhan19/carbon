@@ -26,7 +26,7 @@ export class LinearNotificationService implements NotificationService {
   ): Promise<void> {
     switch (event.type) {
       case "task.status.changed": {
-        if (!["action", "investigation"].includes(event.data.type)) return;
+        if (!["action", "investigation"].includes(event.data.type!)) return;
 
         const issue = await getLinearIssueFromExternalId(
           context.serviceRole,
@@ -40,6 +40,8 @@ export class LinearNotificationService implements NotificationService {
           event.companyId,
           mapCarbonStatusToLinearStatus(event.data.status)
         );
+
+        if (!state) return;
 
         await linear.updateIssue(event.companyId, {
           id: issue.id,

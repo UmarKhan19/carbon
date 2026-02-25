@@ -76,9 +76,9 @@ export async function action({ request }: ActionFunctionArgs) {
       entityId: itemId,
       integration: "onshape",
       metadata: {
-        documentId,
-        versionId,
-        elementId
+        documentId: documentId as string,
+        versionId: versionId as string,
+        elementId: elementId as string
       },
       lastSyncedAt: new Date().toISOString(),
       companyId

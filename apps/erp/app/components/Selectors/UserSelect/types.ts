@@ -75,6 +75,7 @@ export interface PopoverProps {
 }
 
 interface SelectionOptions {
+  id: string;
   uid: string;
   label: string;
   isChecked?: boolean;

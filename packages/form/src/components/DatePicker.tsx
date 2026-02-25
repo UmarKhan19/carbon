@@ -51,7 +51,8 @@ const DatePicker = ({
     }
   }, [value]);
 
-  const handleChange = async (newDate: CalendarDate) => {
+  const handleChange = async (newDate: CalendarDate | null) => {
+    if (!newDate) return;
     const formattedDate = newDate ? newDate.toString() : null;
     flushSync(() => {
       setDate(newDate);

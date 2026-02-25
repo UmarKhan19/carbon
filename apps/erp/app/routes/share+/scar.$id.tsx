@@ -544,7 +544,10 @@ const Issue = ({
 };
 
 type IssueData = NonNullable<
-  Awaited<ReturnType<Awaited<ReturnType<typeof loader>>["json"]>>["data"]
+  Extract<
+    Awaited<ReturnType<typeof loader>>,
+    { data: Record<string, unknown> }
+  >["data"]
 >;
 
 export default function ExternalQuote() {

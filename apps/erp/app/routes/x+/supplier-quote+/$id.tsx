@@ -91,8 +91,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ) ?? [];
   // Compute default CC: use supplier's if set, otherwise company's
   const defaultCc =
-    supplier.data?.defaultCc?.length > 0
-      ? supplier.data.defaultCc
+    (supplier.data?.defaultCc?.length ?? 0) > 0
+      ? supplier.data!.defaultCc
       : (companySettings.data?.defaultSupplierCc ?? []);
 
   return {

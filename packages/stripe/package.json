@@ -19,7 +19,7 @@
     "rimraf": "^5.0.5",
     "tsup": "^6.5.0",
     "tsx": "^4.13.2",
-    "typescript": "^5.2.2",
+    "typescript": "^6.0.0-beta",
     "zod": "^3.25.76"
   },
   "exports": {

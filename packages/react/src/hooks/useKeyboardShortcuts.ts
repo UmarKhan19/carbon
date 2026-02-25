@@ -27,7 +27,7 @@ export default function useKeyboardShortcuts(keyMap: {
        */
       if (keyPressed.includes("+")) {
         event.preventDefault();
-        keyMap[keyPressed](event);
+        keyMap[keyPressed]!(event);
         setLastKeydown(null);
       } else {
         setLastKeydown(event.key);
@@ -41,7 +41,7 @@ export default function useKeyboardShortcuts(keyMap: {
 
     if (keyMap[event.key] && lastKeydown === event.key) {
       event.preventDefault();
-      keyMap[event.key](event);
+      keyMap[event.key]?.(event);
       setLastKeydown(null);
     }
   };

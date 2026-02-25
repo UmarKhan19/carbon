@@ -75,7 +75,7 @@ export default function MaintenanceRoute() {
   return (
     <VStack spacing={0} className="h-full">
       <MaintenanceDispatchesTable
-        data={dispatches ?? []}
+        data={(dispatches ?? []) as any}
         count={count ?? 0}
         failureModes={failureModes ?? []}
         locations={locations}

@@ -24,8 +24,8 @@ const DepartmentsTable = memo(({ data, count }: DepartmentsTableProps) => {
     ...row,
     parentDepartment:
       (Array.isArray(row.department)
-        ? row.department.map((d) => d.name).join(", ")
-        : row.department?.name) ?? ""
+        ? row.department.map((d: any) => d.name).join(", ")
+        : (row.department as any)?.name) ?? ""
   }));
 
   const customColumns = useCustomColumns<(typeof rows)[number]>("department");
@@ -47,7 +47,7 @@ const DepartmentsTable = memo(({ data, count }: DepartmentsTableProps) => {
         header: "Sub-Departments",
         cell: ({ row }) => (
           <HStack>
-            {row.original.parentDepartment.split(", ").map((v) => (
+            {row.original.parentDepartment.split(", ").map((v: string) => (
               <Enumerable key={v} value={v} />
             ))}
           </HStack>

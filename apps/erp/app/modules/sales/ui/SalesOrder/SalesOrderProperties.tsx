@@ -468,7 +468,7 @@ const SalesOrderProperties = () => {
         <span className="text-xs font-medium text-muted-foreground">
           Created By
         </span>
-        <EmployeeAvatar employeeId={routeData?.salesOrder?.createdBy} />
+        <EmployeeAvatar employeeId={routeData?.salesOrder?.createdBy ?? null} />
       </VStack>
 
       <CustomFormInlineFields

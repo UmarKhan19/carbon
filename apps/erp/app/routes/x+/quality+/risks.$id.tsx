@@ -107,7 +107,6 @@ export default function EditRiskRoute() {
     <RiskRegisterForm
       open
       initialValues={{
-        ...risk,
         id: risk.id,
         title: risk.title || "",
         description: risk.description ?? undefined,
@@ -118,7 +117,8 @@ export default function EditRiskRoute() {
         likelihood: risk.likelihood ? risk.likelihood.toString() : "1",
         assignee: risk.assignee ?? undefined,
         sourceId: risk.sourceId ?? undefined,
-        type: risk.type ?? "Risk"
+        type: risk.type ?? "Risk",
+        notes: risk.notes as string | null | undefined
       }}
       onClose={onClose}
     />

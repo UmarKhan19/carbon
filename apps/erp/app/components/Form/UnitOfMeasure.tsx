@@ -39,7 +39,7 @@ const UnitOfMeasure = (props: UnitOfMeasureSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        inline={props.inline ? UnitOfMeasurePreview : undefined}
+        inline={props.inline ? (UnitOfMeasurePreview as any) : undefined}
         label={props?.label ?? "Unit of Measure"}
         onCreateOption={(option) => {
           newUnitOfMeasureModal.onOpen();

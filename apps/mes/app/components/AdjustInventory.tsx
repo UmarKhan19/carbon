@@ -45,7 +45,7 @@ export function AdjustInventory({ add }: { add: boolean }) {
   }>(path.to.authenticatedRoot);
 
   const onItemChange = async (
-    value: { value: string; label: string | JSX.Element } | null
+    value: { value: string; label: React.ReactNode } | null
   ) => {
     if (!value || !carbon) return;
     const pickMethod = await carbon

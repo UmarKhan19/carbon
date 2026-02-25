@@ -3,10 +3,8 @@
   "display": "React Library",
   "extends": "./base.json",
   "compilerOptions": {
-    "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["ES2015"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "preserveWatchOutput": true,

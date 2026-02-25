@@ -56,7 +56,7 @@ export default function EditAttributeRoute() {
         canSelfManage: attribute.canSelfManage ?? true,
         listOptions: attribute?.listOptions ?? []
       }}
-      dataTypes={attributesRouteData?.dataTypes ?? []}
+      dataTypes={(attributesRouteData?.dataTypes ?? []) as any}
       onClose={onClose}
     />
   );

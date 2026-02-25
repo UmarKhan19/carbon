@@ -55,7 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const updateContractor = await upsertContractor(client, {
     id,
     ...d,
-    abilities: d.abilities ?? [],
+    abilities: (d as any).abilities ?? [],
     customFields: setCustomFields(formData),
     updatedBy: userId
   });

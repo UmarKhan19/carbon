@@ -128,7 +128,7 @@ export default function AccountDefaultsRoute() {
         <AccountDefaultsForm
           balanceSheetAccounts={routeData?.balanceSheetAccounts ?? []}
           incomeStatementAccounts={routeData?.incomeStatementAccounts ?? []}
-          initialValues={defaultAccounts}
+          initialValues={defaultAccounts as Record<string, string>}
         />
       </VStack>
     </ScrollArea>

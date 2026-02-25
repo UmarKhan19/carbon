@@ -61,6 +61,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const copy = await copyMakeMethod(getCarbonServiceRole(), {
     sourceId: validation.data.copyFromId,
     targetId: methodOperationId,
+    billOfMaterial: true,
+    billOfProcess: true,
+    parameters: true,
+    tools: true,
+    steps: true,
+    workInstructions: true,
     companyId,
     userId
   });

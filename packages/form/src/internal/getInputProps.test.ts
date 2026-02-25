@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { describe, expect, it, vi } from "vitest";
 import type { CreateGetInputPropsOptions } from "./getInputProps";
 import { createGetInputProps } from "./getInputProps";

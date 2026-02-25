@@ -62,7 +62,7 @@ export const CreateIssue = (props: Props) => {
       method="post"
       action={path.to.api.jiraCreateIssue}
       validator={createIssueValidator}
-      fetcher={fetcher}
+      fetcher={fetcher as any}
       resetAfterSubmit
       onAfterSubmit={() => props.onClose()}
     >
@@ -83,7 +83,7 @@ export const CreateIssue = (props: Props) => {
           name="issueTypeId"
           placeholder="Select an issue type"
           options={issueTypeOptions}
-          isDisabled={!projectKey || issueTypes.length === 0}
+          disabled={!projectKey || issueTypes.length === 0}
         />
         <Input label="Title" name="title" placeholder="Issue title" required />
         <TextArea
@@ -97,7 +97,7 @@ export const CreateIssue = (props: Props) => {
           placeholder="Select an assignee"
           isOptional
           options={memberOptions}
-          isDisabled={!projectKey || members.length === 0}
+          disabled={!projectKey || members.length === 0}
         />
       </VStack>
       <ModalFooter className="px-0 pb-0">

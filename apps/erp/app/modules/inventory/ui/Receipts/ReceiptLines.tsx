@@ -1058,7 +1058,7 @@ function Shelf({
         onChange={onChange}
         disabled={isReadOnly}
         isReadOnly={isReadOnly}
-        inline={ShelfPreview}
+        inline={ShelfPreview as any}
         onCreateOption={(option) => {
           newShelfModal.onOpen();
           setCreated(option);

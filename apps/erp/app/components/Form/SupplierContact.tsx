@@ -79,9 +79,9 @@ const SupplierContact = (props: SupplierContactSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        inline={props.inline ? SupplierContactPreview : undefined}
+        inline={props.inline ? (SupplierContactPreview as any) : undefined}
         label={props?.label ?? "Supplier Contact"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newContactModal.onOpen();
           setCreated(option);

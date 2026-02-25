@@ -31,7 +31,7 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
     isCustomerTypeGroup: row.data.isCustomerTypeGroup,
     isSupplierTypeGroup: row.data.isSupplierTypeGroup,
     members: row.data.users
-      .map((user) => ({
+      .map((user: any) => ({
         name: user.fullName,
         avatar: user.avatarUrl
       }))

@@ -103,7 +103,7 @@ const StockTransferPDF = ({
               return shelfA.localeCompare(shelfB);
             })
             .map((line) => {
-              const barcodeDataUrl = generateBarcode(line.itemReadableId);
+              const barcodeDataUrl = generateBarcode(line.itemReadableId ?? "");
               let pickUrl = `${getAppUrl()}/api/stock-transfer/${line.id}/pick`;
               if (line.requiresSerialTracking) {
                 pickUrl += "?type=serial";
@@ -129,11 +129,11 @@ const StockTransferPDF = ({
                     </Text>
 
                     {thumbnails &&
-                      line.id in thumbnails &&
-                      thumbnails[line.id] && (
+                      line.id! in thumbnails &&
+                      thumbnails[line.id!] && (
                         <View style={tw("mt-2 mb-2")}>
                           <Image
-                            src={thumbnails[line.id]!}
+                            src={thumbnails[line.id!]!}
                             style={tw("w-1/4 h-auto max-w-[25%]")}
                           />
                         </View>

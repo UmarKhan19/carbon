@@ -492,7 +492,22 @@ const AccountDefaultsForm = ({
                           <h3 className="text-sm font-medium text-foreground">
                             {field.label}
                           </h3>
-                          <Badge variant={badgeColors[field.badgeType]}>
+                          <Badge
+                            variant={
+                              badgeColors[field.badgeType] as
+                                | "default"
+                                | "secondary"
+                                | "destructive"
+                                | "outline"
+                                | "gray"
+                                | "orange"
+                                | "yellow"
+                                | "green"
+                                | "blue"
+                                | "purple"
+                                | "red"
+                            }
+                          >
                             {field.badgeType}
                           </Badge>
                         </div>
@@ -503,7 +518,7 @@ const AccountDefaultsForm = ({
                       <div className="flex-shrink-0 w-64">
                         <Combobox
                           name={field.name}
-                          options={accountOptions[field.accountType]}
+                          options={accountOptions[field.accountType] as any}
                           size="sm"
                         />
                       </div>

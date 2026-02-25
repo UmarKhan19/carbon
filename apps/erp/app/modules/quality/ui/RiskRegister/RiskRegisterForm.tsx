@@ -163,7 +163,9 @@ const RiskRegisterForm = ({
                     label="Type"
                     value={selectedType}
                     onChange={(value) =>
-                      setSelectedType(value?.value ?? "Risk")
+                      setSelectedType(
+                        (value?.value ?? "Risk") as "Risk" | "Opportunity"
+                      )
                     }
                     options={riskRegisterType.map((t) => ({
                       value: t,

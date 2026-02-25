@@ -130,18 +130,18 @@ async function archiveCompanyLogs(
   }
 
   // Get date range from records
-  const startDate = records[0].createdAt;
-  const endDate = records[records.length - 1].createdAt;
+  const startDate = records[0]!.createdAt;
+  const endDate = records[records.length - 1]!.createdAt;
 
   // Record archive metadata
   const { error: archiveError } = await client.from("auditLogArchive").insert({
     companyId,
     archivePath,
-    startDate: startDate.split("T")[0], // Extract date part
+    startDate: startDate.split("T")[0],
     endDate: endDate.split("T")[0],
     rowCount: records.length,
     sizeBytes: gzipped.length,
-  });
+  } as any);
 
   if (archiveError) {
     // Try to clean up uploaded file

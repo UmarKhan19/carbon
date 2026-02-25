@@ -76,9 +76,9 @@ const CustomerLocation = (props: CustomerLocationSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        inline={props?.inline ? CustomerLocationPreview : undefined}
+        inline={props?.inline ? (CustomerLocationPreview as any) : undefined}
         label={props?.label ?? "Customer Location"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newLocationModal.onOpen();
           setCreated(option);

@@ -144,8 +144,8 @@ const Option = ({
       : 0;
 
   // Get avatar info for individuals
-  const avatarUrl = "avatarUrl" in item ? item.avatarUrl : null;
-  const fullName = "fullName" in item ? item.fullName : null;
+  const avatarUrl = "avatarUrl" in item ? (item as any).avatarUrl : null;
+  const fullName = "fullName" in item ? (item as any).fullName : null;
 
   return (
     <li

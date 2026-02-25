@@ -47,8 +47,8 @@ const Shelf = (props: ShelfSelectProps) => {
         options={options}
         {...props}
         label={props?.label ?? "Shelf"}
-        inline={props.inline ? ShelfPreview : undefined}
-        onChange={onChange}
+        inline={props.inline ? (ShelfPreview as any) : undefined}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newShelfModal.onOpen();
           setCreated(option);

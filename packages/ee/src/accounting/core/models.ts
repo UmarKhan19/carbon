@@ -444,6 +444,26 @@ export const BillSchema = z.object({
   raw: z.record(z.any()).optional()
 });
 
+// Item (Product/Service) schema
+export const ItemSchema = z.object({
+  id: z.string(),
+  companyId: z.string(),
+  code: z.string(),
+  name: z.string(),
+  description: z.string().nullish(),
+  type: z.string(),
+  unitOfMeasureCode: z.string().nullish(),
+  unitCost: z.number(),
+  unitSalePrice: z.number(),
+  unitPrice: z.number().nullish(),
+  isPurchased: z.boolean(),
+  isSold: z.boolean(),
+  isTrackedAsInventory: z.boolean(),
+  active: z.boolean().default(true),
+  updatedAt: z.string().datetime(),
+  raw: z.record(z.any()).optional()
+});
+
 // Purchase Order schemas
 export const PurchaseOrderLineSchema = z.object({
   id: z.string(),

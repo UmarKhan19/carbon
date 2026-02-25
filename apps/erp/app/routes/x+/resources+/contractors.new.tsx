@@ -26,7 +26,8 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { id, hoursPerWeek, abilities } = validation.data;
+  const { id, hoursPerWeek } = validation.data;
+  const abilities = (validation.data as any).abilities;
 
   const createContractor = await upsertContractor(client, {
     id,

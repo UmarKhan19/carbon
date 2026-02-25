@@ -298,7 +298,7 @@ function LineItems({
         const isMade = line.methodType === "Make";
 
         const { jobLabel, jobVariant, jobs } = getSalesOrderJobStatus(
-          salesOrder?.jobs as SalesOrderJob[] | undefined,
+          salesOrder?.jobs as any,
           line as any
         );
 
@@ -602,7 +602,7 @@ function LineItems({
                             index === jobs.length - 1 && "border-b-0"
                           )}
                         >
-                          <SalesOrderJobItem job={job} />
+                          <SalesOrderJobItem job={job as SalesOrderJob} />
                         </div>
                       ))}
                   </div>

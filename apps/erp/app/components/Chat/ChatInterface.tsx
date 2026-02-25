@@ -125,7 +125,7 @@ export function ChatInterface({ geo }: Props) {
 
   const { agentStatus, currentToolCall } = useChatStatus(messages, status);
 
-  const { artifacts } = useArtifacts();
+  const [{ artifacts }] = useArtifacts();
   const hasArtifacts = artifacts && artifacts.length > 0;
   const hasMessages = messages.length > 0;
 

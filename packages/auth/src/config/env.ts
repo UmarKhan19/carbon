@@ -85,7 +85,8 @@ export function getEnv(
 ) {
   if (isBrowser && isSecret) return "";
 
-  const source = (isBrowser ? window.env : process.env) ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const source = (isBrowser ? (globalThis as any).env : process.env) ?? {};
 
   const value = source[name as keyof typeof source];
 

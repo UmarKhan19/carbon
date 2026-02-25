@@ -111,7 +111,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         continue;
       }
 
-      const uom = line.unitOfMeasureCode ?? "EA";
+      const uom =
+        line.purchaseUnitOfMeasureCode ??
+        line.inventoryUnitOfMeasureCode ??
+        "EA";
 
       await upsertSupplierQuoteLine(client, {
         supplierQuoteId,

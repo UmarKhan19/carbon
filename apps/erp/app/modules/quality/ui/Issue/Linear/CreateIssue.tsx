@@ -49,7 +49,7 @@ export const CreateIssue = (props: Props) => {
       method="post"
       action={path.to.api.linearCreateIssue}
       validator={createIssueValidator}
-      fetcher={fetcher}
+      fetcher={fetcher as any}
       resetAfterSubmit
       onAfterSubmit={() => props.onClose()}
     >

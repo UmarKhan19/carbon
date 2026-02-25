@@ -64,8 +64,8 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
 
   const onCustomerChange = async (
     newValue: {
-      value: string | undefined;
-      label: string;
+      value: string;
+      label: string | Element;
     } | null
   ) => {
     setCustomer({ id: newValue?.value });
@@ -76,8 +76,8 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
 
   const onInvoiceCustomerChange = async (
     newValue: {
-      value: string | undefined;
-      label: string;
+      value: string;
+      label: string | Element;
     } | null
   ) => {
     if (!carbon) {
@@ -175,7 +175,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
               <Customer
                 name="customerId"
                 label="Customer"
-                onChange={onCustomerChange}
+                onChange={onCustomerChange as any}
               />
               <Input name="customerReference" label="Customer Invoice Number" />
 
@@ -183,7 +183,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
                 name="invoiceCustomerId"
                 label="Invoice Customer"
                 value={invoiceCustomer.id}
-                onChange={onInvoiceCustomerChange}
+                onChange={onInvoiceCustomerChange as any}
               />
               <CustomerLocation
                 name="invoiceCustomerLocationId"

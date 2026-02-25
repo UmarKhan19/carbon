@@ -60,7 +60,7 @@ export const createCarbonWithAuthGetter = (
       persistSession: false
     },
     async accessToken() {
-      if (!store.current) return;
+      if (!store.current) return null;
       const state = store.current.getState();
       return state.accessToken;
     }

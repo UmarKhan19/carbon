@@ -18,7 +18,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return new Response(result.error, { status: 404 });
   }
 
-  const { companySettings, labelItem } = result;
+  const { companySettings, labelItem } = result as Exclude<
+    typeof result,
+    { error: string }
+  >;
 
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");

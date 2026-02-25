@@ -120,7 +120,7 @@ export const useField = (
       clearError: () => clearError(name),
       validate: () => smartValidate({ alwaysIncludeErrorsFromFields: [name] }),
       defaultValue,
-      touched,
+      touched: touched ?? false,
       setTouched
     };
     const getInputProps = createGetInputProps({

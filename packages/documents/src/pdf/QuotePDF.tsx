@@ -81,7 +81,7 @@ const QuotePDF = ({
     if (!acc[price.quoteLineId]) {
       acc[price.quoteLineId] = [];
     }
-    acc[price.quoteLineId].push(price);
+    acc[price.quoteLineId]!.push(price);
     return acc;
   }, {});
 
@@ -90,14 +90,16 @@ const QuotePDF = ({
   );
 
   const hasSinglePricePerLine = quoteLines.every(
-    (line) => line.quantity.length === 1
+    (line) => line.quantity!.length === 1
   );
 
   // Check if any line has a lead time > 0
   const hasAnyLeadTime = quoteLines.some((line) => {
     if (line.status === "No Quote") return false;
-    const prices = pricesByLine[line.id] ?? [];
-    const price = prices.find((p) => p.quantity === line.quantity[0]);
+    const prices = pricesByLine[line.id!] ?? [];
+    const price = prices.find(
+      (p: { quantity: number }) => p.quantity === line.quantity![0]
+    );
     return price && price.leadTime > 0;
   });
 
@@ -124,8 +126,10 @@ const QuotePDF = ({
   const getTotalSubtotal = () => {
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const prices = pricesByLine[line.id!] ?? [];
+      const price = prices.find(
+        (p: { quantity: number }) => p.quantity === line.quantity![0]
+      );
       return total + (price?.convertedNetExtendedPrice ?? 0);
     }, 0);
   };
@@ -133,8 +137,10 @@ const QuotePDF = ({
   const getTotalShipping = () => {
     const lineShipping = quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const prices = pricesByLine[line.id!] ?? [];
+      const price = prices.find(
+        (p: { quantity: number }) => p.quantity === line.quantity![0]
+      );
       return total + (price?.convertedShippingCost ?? 0);
     }, 0);
     const quoteShipping = (shipment?.shippingCost ?? 0) * (exchangeRate ?? 1);
@@ -145,7 +151,7 @@ const QuotePDF = ({
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
       const additionalCharges = line.additionalCharges ?? {};
-      const quantity = line.quantity[0];
+      const quantity = line.quantity![0]!;
       const charges = Object.values(additionalCharges).reduce((acc, charge) => {
         let amount = charge.amounts?.[quantity] ?? 0;
         if (shouldConvertCurrency) {
@@ -160,11 +166,13 @@ const QuotePDF = ({
   const getTotalTaxes = () => {
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const prices = pricesByLine[line.id!] ?? [];
+      const price = prices.find(
+        (p: { quantity: number }) => p.quantity === line.quantity![0]
+      );
       const netExtendedPrice = price?.convertedNetExtendedPrice ?? 0;
       const additionalCharges = line.additionalCharges ?? {};
-      const quantity = line.quantity[0];
+      const quantity = line.quantity![0]!;
       const fees = Object.values(additionalCharges).reduce((acc, charge) => {
         let amount = charge.amounts?.[quantity] ?? 0;
         if (shouldConvertCurrency) {
@@ -291,7 +299,7 @@ const QuotePDF = ({
           const unitPriceFormatter = getCurrencyFormatter(
             currencyCode,
             locale,
-            line.unitPricePrecision
+            line.unitPricePrecision ?? undefined
           );
 
           const additionalCharges = line.additionalCharges ?? {};
@@ -299,9 +307,11 @@ const QuotePDF = ({
           return (
             <View key={line.id} wrap={false}>
               {line.status !== "No Quote" ? (
-                line.quantity.map((quantity, index) => {
-                  const prices = pricesByLine[line.id] ?? [];
-                  const price = prices.find((p) => p.quantity === quantity);
+                line.quantity!.map((quantity, index) => {
+                  const prices = pricesByLine[line.id!] ?? [];
+                  const price = prices.find(
+                    (p: { quantity: number }) => p.quantity === quantity
+                  );
                   const unitPrice = price?.convertedUnitPrice ?? 0;
                   const netExtendedPrice =
                     price?.convertedNetExtendedPrice ?? 0;
@@ -345,10 +355,10 @@ const QuotePDF = ({
                         <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                           {getLineDescriptionDetails(line)}
                         </Text>
-                        {thumbnails && line.id in thumbnails && (
+                        {thumbnails && line.id! in thumbnails && (
                           <View style={tw("mt-2")}>
                             <Image
-                              src={thumbnails[line.id]!}
+                              src={thumbnails[line.id!]!}
                               style={{ width: 60, height: 60 }}
                             />
                           </View>

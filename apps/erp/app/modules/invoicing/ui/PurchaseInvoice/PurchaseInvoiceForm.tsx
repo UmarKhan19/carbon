@@ -64,8 +64,8 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
 
   const onSupplierChange = async (
     newValue: {
-      value: string | undefined;
-      label: string;
+      value: string;
+      label: string | Element;
     } | null
   ) => {
     setSupplier({ id: newValue?.value });
@@ -76,8 +76,8 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
 
   const onInvoiceSupplierChange = async (
     newValue: {
-      value: string | undefined;
-      label: string;
+      value: string;
+      label: string | Element;
     } | null
   ) => {
     if (!carbon) {
@@ -175,7 +175,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <Supplier
                 name="supplierId"
                 label="Supplier"
-                onChange={onSupplierChange}
+                onChange={onSupplierChange as any}
               />
               <Input name="supplierReference" label="Supplier Invoice Number" />
 
@@ -183,7 +183,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 name="invoiceSupplierId"
                 label="Invoice Supplier"
                 value={invoiceSupplier.id}
-                onChange={onInvoiceSupplierChange}
+                onChange={onInvoiceSupplierChange as any}
               />
               <SupplierLocation
                 name="invoiceSupplierLocationId"

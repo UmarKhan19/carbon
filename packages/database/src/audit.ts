@@ -1,16 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { auditConfig, getAuditableTableNames } from "./audit.config.ts";
+import { auditConfig, getAuditableTableNames } from "./audit.config";
 import type {
   AuditLogArchive,
   AuditLogEntry,
   AuditLogFilters,
   AuditLogResponse,
   CreateAuditLogEntry
-} from "./audit.types.ts";
+} from "./audit.types";
 import {
   createEventSystemSubscription,
   deleteEventSystemSubscriptionsByName
-} from "./event.ts";
+} from "./event";
 
 // Type for Supabase client with our custom RPC functions
 type AuditRpcClient = {

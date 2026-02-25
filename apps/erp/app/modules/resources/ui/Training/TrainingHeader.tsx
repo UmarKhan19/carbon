@@ -49,7 +49,7 @@ const TrainingHeader = () => {
           />
           <Heading size="h4" className="flex items-center gap-2">
             <span>{routeData?.training?.name}</span>
-            <TrainingStatus status={routeData?.training?.status} />
+            <TrainingStatus status={routeData?.training?.status ?? null} />
           </Heading>
           <Copy text={routeData?.training?.name ?? ""} />
           <DropdownMenu>

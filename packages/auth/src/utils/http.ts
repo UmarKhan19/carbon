@@ -81,7 +81,7 @@ export function assertIsDelete(
  * @param {string} defaultRedirect The redirect to use if the to is unsafe.
  */
 export function safeRedirect(
-  to: FormDataEntryValue | string | null | undefined,
+  to: string | null | undefined,
   defaultRedirect = path.to.authenticatedRoot
 ) {
   if (

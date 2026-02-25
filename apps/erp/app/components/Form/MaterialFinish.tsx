@@ -77,10 +77,10 @@ const MaterialFinish = (props: MaterialFinishSelectProps) => {
         options={options}
         {...props}
         disabled={props.disabled || !props.substanceId}
-        inline={props?.inline ? MaterialFinishPreview : undefined}
+        inline={props?.inline ? (MaterialFinishPreview as any) : undefined}
         isOptional={props?.isOptional ?? true}
         label={props?.label ?? "Finish"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newFinishModal.onOpen();
           setCreated(option);

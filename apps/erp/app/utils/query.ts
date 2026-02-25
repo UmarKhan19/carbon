@@ -63,7 +63,7 @@ export function getGenericFilter<
   U extends Record<string, unknown>,
   V
 >(
-  query: PostgrestFilterBuilder<T, U, V>,
+  query: PostgrestFilterBuilder<any, T, U, V>,
   column: string,
   operator: string,
   value: string
@@ -97,10 +97,10 @@ export function setGenericQueryFilters<
   U extends Record<string, unknown>,
   V
 >(
-  query: PostgrestFilterBuilder<T, U, V>,
+  query: PostgrestFilterBuilder<any, T, U, V>,
   args: Partial<GenericQueryFilters>,
   defaultSorts?: { column: string; ascending: boolean; foreignTable?: string }[]
-): PostgrestFilterBuilder<T, U, V> {
+): PostgrestFilterBuilder<any, T, U, V> {
   args.filters?.forEach((filter) => {
     if (!filter.value) return;
     query = getGenericFilter(

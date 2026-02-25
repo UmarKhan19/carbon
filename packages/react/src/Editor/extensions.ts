@@ -93,7 +93,7 @@ const VideoEmbed = Extension.create({
             }
 
             // Create an HTML content node
-            const node = view.state.schema.nodes.htmlContent.create({
+            const node = view.state.schema.nodes.htmlContent!.create({
               html: embedHtml,
               type: videoType
             });

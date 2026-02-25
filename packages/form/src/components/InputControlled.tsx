@@ -120,9 +120,13 @@ const InputControlled = forwardRef<HTMLInputElement, FormInputControlledProps>(
                 if (typeof ref === "function") {
                   ref(node);
                 } else if (ref) {
-                  ref.current = node;
+                  (
+                    ref as React.MutableRefObject<HTMLInputElement | null>
+                  ).current = node;
                 }
-                inputRef.current = node;
+                (
+                  inputRef as React.MutableRefObject<HTMLInputElement | null>
+                ).current = node;
               }}
               {...getInputProps({
                 id: name,
@@ -151,9 +155,13 @@ const InputControlled = forwardRef<HTMLInputElement, FormInputControlledProps>(
               if (typeof ref === "function") {
                 ref(node);
               } else if (ref) {
-                ref.current = node;
+                (
+                  ref as React.MutableRefObject<HTMLInputElement | null>
+                ).current = node;
               }
-              inputRef.current = node;
+              (
+                inputRef as React.MutableRefObject<HTMLInputElement | null>
+              ).current = node;
             }}
             {...getInputProps({
               id: name,

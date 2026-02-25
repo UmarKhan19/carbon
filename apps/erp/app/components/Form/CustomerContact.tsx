@@ -57,9 +57,9 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        inline={props.inline ? CustomerContactPreview : undefined}
+        inline={props.inline ? (CustomerContactPreview as any) : undefined}
         label={props?.label ?? "Customer Contact"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newContactModal.onOpen();
           setCreated(option);

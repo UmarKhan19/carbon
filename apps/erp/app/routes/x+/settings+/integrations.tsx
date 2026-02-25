@@ -47,7 +47,7 @@ export default function IntegrationsRoute() {
     <>
       <IntegrationsList
         integrations={integrations}
-        availableIntegrations={availableIntegrations}
+        availableIntegrations={availableIntegrations as any}
       />
       <Outlet />
     </>

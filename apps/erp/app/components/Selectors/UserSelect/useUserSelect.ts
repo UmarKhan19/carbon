@@ -123,7 +123,7 @@ export default function useUserSelect(props: UserSelectProps) {
         result.push(...subgroups);
       }
 
-      const users = group.data.users.map((user) => {
+      const users = group.data.users.map((user: any) => {
         return {
           ...user,
           uid: getOptionId(groupId, user.id),
@@ -581,7 +581,7 @@ export default function useUserSelect(props: UserSelectProps) {
           // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
           const { [id]: removed, ...newSelectionItems } = prevSelectionItems;
 
-          users.forEach((user) => {
+          users.forEach((user: any) => {
             newSelectionItems[user.id] = {
               ...user,
               uid: getOptionId(id, user.id),

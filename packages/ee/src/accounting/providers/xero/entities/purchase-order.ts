@@ -208,7 +208,7 @@ export class PurchaseOrderSyncer extends BaseEntitySyncer<
         purchaseOrderId: row.purchaseOrderId,
         supplierId: row.supplierId,
         supplierExternalId: supplierExternalIds.get(row.supplierId) ?? null,
-        status: row.status,
+        status: row.status as Accounting.PurchaseOrder["status"],
         orderDate: row.orderDate,
         deliveryDate: null, // Would need to join purchaseOrderDelivery
         deliveryAddress: null,

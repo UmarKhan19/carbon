@@ -1,4 +1,5 @@
 import type { Database } from "@carbon/database";
+import type { Novu } from "@novu/node";
 import { nanoid } from "nanoid";
 
 type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
@@ -87,7 +88,7 @@ export function getSubscriberId({
   return `${companyId}:${userId}`;
 }
 
-export async function trigger(novu, data: TriggerPayload) {
+export async function trigger(novu: Novu, data: TriggerPayload) {
   try {
     await novu.trigger(data.workflow, {
       to: data.user,
@@ -108,7 +109,7 @@ export async function trigger(novu, data: TriggerPayload) {
   }
 }
 
-export async function triggerBulk(novu, events: TriggerPayload[]) {
+export async function triggerBulk(novu: Novu, events: TriggerPayload[]) {
   try {
     await novu.bulkTrigger(
       events.map((data) => ({

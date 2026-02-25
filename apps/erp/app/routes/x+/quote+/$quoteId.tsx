@@ -136,8 +136,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const defaultCc =
-    customer.data?.defaultCc?.length > 0
-      ? customer.data.defaultCc
+    (customer.data?.defaultCc?.length ?? 0) > 0
+      ? customer.data!.defaultCc
       : (companySettings.data?.defaultCustomerCc ?? []);
 
   return {

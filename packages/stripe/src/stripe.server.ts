@@ -239,8 +239,17 @@ export async function getCheckoutUrl({
     stripeCustomerId = customer.id;
   }
 
+  if (!stripe) {
+    throw new Error("Stripe is not initialized");
+  }
+
   const serviceRole = getCarbonServiceRole();
   const plan = await getPlanById(serviceRole, planId);
+
+  if (!plan.data) {
+    throw new Error("Plan not found");
+  }
+
   const checkoutSession = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     line_items: [
@@ -350,8 +359,8 @@ export async function processStripeEvent({
     const data = event.data.object as Stripe.Checkout.Session;
     const { customer } = data;
 
-    const companyId = data.metadata.companyId;
-    const userId = data.metadata.userId;
+    const companyId = data.metadata!.companyId;
+    const userId = data.metadata!.userId;
 
     if (!companyId || !userId) {
       console.error(
@@ -372,7 +381,7 @@ export async function processStripeEvent({
           customer,
           companyId,
           userId,
-          data.customer_details?.email
+          data.customer_details?.email ?? undefined
         )
       ]);
     } catch (error) {
@@ -439,9 +448,13 @@ async function sendNewCustomerNotification(
   const serviceRole = getCarbonServiceRole();
   const subscription = subscriptions.data[0];
 
+  if (!subscription) {
+    throw new Error("No subscription found for customer");
+  }
+
   const plan = await getPlanByPriceId(
     serviceRole,
-    subscription.items.data[0].price.id
+    subscription.items.data[0]!.price.id
   );
 
   if (CarbonEdition === Edition.Cloud) {
@@ -488,26 +501,24 @@ export async function syncStripeDataToKV(
     companyId = companyPlan.data?.id;
   }
 
-  const subscription = subscriptions.data[0];
-  const plan = await getPlanByPriceId(
-    serviceRole,
-    subscription.items.data[0].price.id
-  );
+  const subscription = subscriptions.data[0]!;
+  const subscriptionItem = subscription.items.data[0]!;
+  const plan = await getPlanByPriceId(serviceRole, subscriptionItem.price.id);
 
   if (!plan.data) {
     console.error("Failed to get plan by price id:", plan.error);
     throw new Error(
-      `Failed to get plan for price_id: ${subscription.items.data[0].price.id}`
+      `Failed to get plan for price_id: ${subscriptionItem.price.id}`
     );
   }
 
   const subDataResult = KvStripeCustomerSchema.safeParse({
     subscriptionId: subscription.id,
     status: subscription.status,
-    planId: plan.data?.id ?? null,
-    priceId: subscription.items.data[0].price.id,
-    currentPeriodStart: subscription.items.data[0].current_period_start,
-    currentPeriodEnd: subscription.items.data[0].current_period_end,
+    planId: plan.data.id ?? null,
+    priceId: subscriptionItem.price.id,
+    currentPeriodStart: subscriptionItem.current_period_start,
+    currentPeriodEnd: subscriptionItem.current_period_end,
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
     paymentMethod:
       subscription.default_payment_method &&
@@ -530,7 +541,7 @@ export async function syncStripeDataToKV(
     const companyPlanData: Database["public"]["Tables"]["companyPlan"]["Insert"] =
       {
         id: companyId,
-        planId: plan.data?.id ?? null,
+        planId: plan.data.id ?? null,
         tasksLimit: plan.data.tasksLimit,
         aiTokensLimit: plan.data.aiTokensLimit,
         usersLimit: 10, // Default value as defined in the migration
@@ -646,7 +657,7 @@ export async function updateSubscriptionQuantityForCompany(companyId: string) {
     }
 
     // Update the quantity on the first subscription item
-    const subscriptionItemId = subscription.items.data[0].id;
+    const subscriptionItemId = subscription.items.data[0]!.id;
 
     await stripe.subscriptionItems.update(subscriptionItemId, {
       quantity: activeUserCount

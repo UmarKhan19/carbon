@@ -1,7 +1,7 @@
 import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
 
 export function Canvas() {
-  const { current } = useArtifacts({
+  const [{ current }] = useArtifacts({
     exclude: ["chat-title", "followup-questions"]
   });
 

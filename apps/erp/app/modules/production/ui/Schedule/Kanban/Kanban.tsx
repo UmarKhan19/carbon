@@ -250,16 +250,20 @@ const Kanban = ({
                 )}
                 {activeItem && (
                   <ItemCard
-                    item={{
-                      ...activeItem,
-                      status: progressByItemId[activeItem.id]?.active
-                        ? "In Progress"
-                        : activeItem.status,
-                      employeeIds: progressByItemId[activeItem.id]?.employees
-                        ? Array.from(progressByItemId[activeItem.id].employees!)
-                        : undefined,
-                      progress: progressByItemId[activeItem.id]?.progress ?? 0
-                    }}
+                    item={
+                      {
+                        ...activeItem,
+                        status: progressByItemId[activeItem.id]?.active
+                          ? "In Progress"
+                          : activeItem.status,
+                        employeeIds: progressByItemId[activeItem.id]?.employees
+                          ? Array.from(
+                              progressByItemId[activeItem.id].employees!
+                            )
+                          : undefined,
+                        progress: progressByItemId[activeItem.id]?.progress ?? 0
+                      } as Item
+                    }
                     isOverlay
                     progressByItemId={progressByItemId}
                   />

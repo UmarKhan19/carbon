@@ -353,7 +353,9 @@ export async function getIntegrationHealth(
 
   const check = getIntegrationConfigById(integration.id!);
 
-  if (!check || !check.onHealthcheck) {
+  const healthcheck = check?.onHealthcheck;
+
+  if (!check || !healthcheck) {
     return {
       ...integration,
       health: "healthy"
@@ -372,10 +374,12 @@ export async function getIntegrationHealth(
     };
   }
 
-  const status = await check.onHealthcheck(
-    companyId,
-    integration.metadata as Record<string, any>
-  );
+  const status = await (
+    healthcheck as (
+      companyId: string,
+      metadata: Record<string, any>
+    ) => Promise<boolean>
+  )(companyId, integration.metadata as Record<string, any>);
 
   await redis.set(key, status ? "1" : "0", {
     ex: INTEGRATION_CACHE_TTL * 5 // Cache for 5 minutes

@@ -299,16 +299,18 @@ const Gantt = ({
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Slider
-            className="w-20"
-            leftIcon={<LuZoomOut />}
-            rightIcon={<LuZoomIn />}
-            value={[scale]}
-            onValueChange={(value) => setScale(value[0])}
-            min={0}
-            max={1}
-            step={0.05}
-          />
+          <div className="flex items-center gap-1">
+            <LuZoomOut className="h-3 w-3 text-muted-foreground" />
+            <Slider
+              className="w-20"
+              value={[scale]}
+              onValueChange={(value: number[]) => setScale(value[0])}
+              min={0}
+              max={1}
+              step={0.05}
+            />
+            <LuZoomIn className="h-3 w-3 text-muted-foreground" />
+          </div>
         </div>
       </div>
     </div>

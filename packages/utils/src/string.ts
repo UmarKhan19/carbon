@@ -1,14 +1,14 @@
-export function parseBoolean<T>(
+export function parseBoolean<T = undefined>(
   value: string | undefined,
   defaultValue?: T
 ): boolean | T {
-  if (!value) return defaultValue;
+  if (!value) return defaultValue as T;
 
   if (typeof value === "boolean") return value;
   const normalized = value.trim().toLowerCase();
   if (normalized === "true" || normalized === "1") return true;
   if (normalized === "false" || normalized === "0") return false;
-  return defaultValue; // or throw an error if invalid
+  return defaultValue as T; // or throw an error if invalid
 }
 
 /**

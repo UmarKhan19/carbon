@@ -49,9 +49,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const [assignment, trainings, assignmentStatus] = await Promise.all([
     getTrainingAssignment(client, assignmentId),
     getTrainingsList(client, companyId),
-    getTrainingAssignmentStatus(client, companyId, {
-      // We'll filter by trainingId which we'll get from the assignment
-    })
+    getTrainingAssignmentStatus(client, companyId)
   ]);
 
   if (assignment.error) {
@@ -119,10 +117,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       { error: result.error.message },
       {
         status: 500,
-        headers: await flash(
+        ...(await flash(
           request,
           error(result.error, "Failed to update assignment")
-        )
+        ))
       }
     );
   }

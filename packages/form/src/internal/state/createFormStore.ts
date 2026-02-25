@@ -1,5 +1,7 @@
+// @ts-expect-error immer internal types not available in strict mode
 import type { WritableDraft } from "immer/dist/internal";
 import invariant from "tiny-invariant";
+// @ts-expect-error GetState removed in newer zustand versions
 import type { GetState } from "zustand";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";

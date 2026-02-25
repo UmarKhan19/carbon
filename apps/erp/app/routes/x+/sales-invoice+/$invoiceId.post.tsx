@@ -278,7 +278,7 @@ export async function action(args: ActionFunctionArgs) {
           salesInvoiceLocations: salesInvoiceLocations.data,
           salesInvoiceShipment: salesInvoiceShipment.data,
           recipient: {
-            email: customer.data.contact.email,
+            email: customer.data.contact.email!,
             firstName: customer.data.contact.firstName ?? undefined,
             lastName: customer.data.contact.lastName ?? undefined
           },
@@ -294,7 +294,7 @@ export async function action(args: ActionFunctionArgs) {
         const text = await renderAsync(emailTemplate, { plainText: true });
 
         await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
-          to: [seller.data.email, customer.data.contact.email],
+          to: [seller.data.email, customer.data.contact.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: seller.data.email,
           subject: `Invoice ${salesInvoice.data.invoiceId} from ${company.data.name}`,

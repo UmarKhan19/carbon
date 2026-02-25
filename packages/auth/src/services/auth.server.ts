@@ -153,7 +153,7 @@ export async function requirePermissions(
         }
         if (!(permission in myClaims.permissions)) return false;
         const permissionForCompany =
-          myClaims.permissions[permission][
+          myClaims.permissions[permission]![
             action as "view" | "create" | "update" | "delete"
           ];
         return (
@@ -163,7 +163,7 @@ export async function requirePermissions(
       } else if (Array.isArray(permission)) {
         return permission.every((p) => {
           const permissionForCompany =
-            myClaims.permissions[p][
+            myClaims.permissions[p]![
               action as "view" | "create" | "update" | "delete"
             ];
           return permissionForCompany.includes(companyId);
@@ -237,7 +237,7 @@ export async function signInWithEmail(email: string, password: string) {
   if (!data.session || error) return null;
   const companies = await getCompaniesForUser(client, data.user.id);
 
-  return makeAuthSession(data.session, companies?.[0]);
+  return makeAuthSession(data.session, companies?.[0] ?? "");
 }
 
 export async function refreshAccessToken(

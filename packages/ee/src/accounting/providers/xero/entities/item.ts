@@ -100,15 +100,16 @@ export class ItemSyncer extends BaseEntitySyncer<
         name: row.name,
         description: row.description,
         companyId: row.companyId!,
-        type: row.type,
+        type: row.type as string,
         unitOfMeasureCode: row.unitOfMeasureCode,
         unitCost: Number(row.unitCost) || 0,
         unitSalePrice: Number(row.unitSalePrice) || 0,
         isPurchased,
         isSold,
         isTrackedAsInventory,
+        active: true,
         updatedAt: row.updatedAt ?? new Date().toISOString(),
-        raw: row
+        raw: row as Record<string, any>
       });
     }
 

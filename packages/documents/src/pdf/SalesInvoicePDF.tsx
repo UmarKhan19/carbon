@@ -251,14 +251,16 @@ const SalesInvoicePDF = ({
                 <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                   {getLineDescriptionDetails(line)}
                 </Text>
-                {thumbnails && line.id in thumbnails && thumbnails[line.id] && (
-                  <View style={tw("mt-1 w-16")}>
-                    <Image
-                      src={thumbnails[line.id]!}
-                      style={tw("w-full h-auto")}
-                    />
-                  </View>
-                )}
+                {thumbnails &&
+                  line.id! in thumbnails &&
+                  thumbnails[line.id!] && (
+                    <View style={tw("mt-1 w-16")}>
+                      <Image
+                        src={thumbnails[line.id!]!}
+                        style={tw("w-full h-auto")}
+                      />
+                    </View>
+                  )}
                 {Object.keys(line.externalNotes ?? {}).length > 0 && (
                   <View style={tw("mt-1")}>
                     <Note

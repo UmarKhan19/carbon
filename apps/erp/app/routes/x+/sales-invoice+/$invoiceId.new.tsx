@@ -72,7 +72,8 @@ export default function NewSalesInvoiceLineRoute() {
 
   const initialValues = {
     invoiceId: invoiceId,
-    invoiceLineType: "Item" as MethodItemType,
+    invoiceLineType: "Part" as MethodItemType,
+    methodType: "Buy" as const,
     quantity: 1,
     unitOfMeasureCode: "EA",
     locationId:

@@ -329,8 +329,10 @@ export function TaskItem({
             </button>
           )}
 
-          {integrations.has("linear") && <LinearIssueDialog task={task} />}
-          {integrations.has("jira") && <JiraIssueDialog task={task} />}
+          {integrations.has("linear") && (
+            <LinearIssueDialog task={task as any} />
+          )}
+          {integrations.has("jira") && <JiraIssueDialog task={task as any} />}
 
           <IconButton
             icon={<LuChevronRight />}

@@ -1,6 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import type { Json } from "@carbon/database";
 import { integrations as availableIntegrations } from "@carbon/ee";
 import {
   getAccountingIntegration,
@@ -86,7 +87,6 @@ function buildIntegrationMetadata(
   };
 
   // Remove owner settings from formData since they're now in syncConfig
-  // biome-ignore lint/correctness/noUnusedVariables: destructuring to exclude from restFormData
   const {
     customerOwner: _customerOwner,
     vendorOwner: _vendorOwner,
@@ -231,7 +231,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { active, ...d } = validation.data;
+  const { active, ...d } = validation.data as Record<string, unknown>;
 
   // Fetch existing metadata so we merge form settings without
   // overwriting credentials and syncConfig
@@ -245,7 +245,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const update = await upsertCompanyIntegration(client, {
     id: integrationId,
     active: true,
-    metadata,
+    metadata: metadata as Json,
     companyId,
     updatedBy: userId
   });

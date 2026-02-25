@@ -67,7 +67,7 @@ export class ExternalIntegrationMappingService {
         externalId,
         allowDuplicateExternalId,
         companyId: this.companyId,
-        metadata: options?.metadata ?? null,
+        metadata: (options?.metadata ?? null) as any,
         lastSyncedAt: now,
         remoteUpdatedAt,
         createdBy: options?.createdBy ?? null,
@@ -80,7 +80,7 @@ export class ExternalIntegrationMappingService {
           .doUpdateSet({
             externalId,
             allowDuplicateExternalId,
-            metadata: options?.metadata ?? null,
+            metadata: (options?.metadata ?? null) as any,
             lastSyncedAt: now,
             remoteUpdatedAt,
             updatedAt: now
@@ -259,17 +259,17 @@ export class ExternalIntegrationMappingService {
     integration: string,
     limit: number
   ): Promise<string[]> {
-    const result = await this.db
-      .selectFrom(tableName as keyof KyselyDatabase)
-      .leftJoin("externalIntegrationMapping as m", (join) =>
+    const result = await (this.db as any)
+      .selectFrom(tableName)
+      .leftJoin("externalIntegrationMapping as m", (join: any) =>
         join
-          .onRef("m.entityId", "=", `${tableName}.id` as any)
+          .onRef("m.entityId", "=", `${tableName}.id`)
           .on("m.entityType", "=", entityType)
           .on("m.integration", "=", integration)
           .on("m.companyId", "=", this.companyId)
       )
-      .select([`${tableName}.id` as any])
-      .where(`${tableName}.companyId` as any, "=", this.companyId)
+      .select([`${tableName}.id`])
+      .where(`${tableName}.companyId`, "=", this.companyId)
       .where("m.id", "is", null)
       .limit(limit)
       .execute();
@@ -322,7 +322,7 @@ export class ExternalIntegrationMappingService {
       externalId: m.externalId,
       allowDuplicateExternalId: m.options?.allowDuplicateExternalId ?? false,
       companyId: this.companyId,
-      metadata: m.options?.metadata ?? null,
+      metadata: (m.options?.metadata ?? null) as any,
       lastSyncedAt: now,
       // Default to current timestamp if remoteUpdatedAt is not provided
       remoteUpdatedAt:

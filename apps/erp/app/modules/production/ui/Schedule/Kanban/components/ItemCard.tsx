@@ -131,10 +131,10 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
 
   const progress = progressByItemId[item.id]?.progress ?? 0;
   const status = progressByItemId[item.id]?.active
-    ? "In Progress"
+    ? ("In Progress" as const)
     : item.status;
   const employeeIds = progressByItemId[item.id]?.employees
-    ? Array.from(progressByItemId[item.id].employees!)
+    ? Array.from(progressByItemId[item.id]!.employees!)
     : undefined;
 
   return (
@@ -145,7 +145,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
         "max-w-[330px]",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
-          status: status,
+          status: status as any,
           highlighted: isHighlighted
         })
       )}
@@ -219,16 +219,16 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
 
         {displaySettings.showProgress &&
           Number.isFinite(progress) &&
-          Number.isFinite(item?.duration) &&
+          Number.isFinite((item as any)?.duration) &&
           Number(progress) >= 0 &&
-          Number(item?.duration) >= 0 && (
+          Number((item as any)?.duration) >= 0 && (
             <HStack>
               <BarProgress
                 gradient
                 invertGradient
                 progress={Math.min(
-                  progress && item.duration
-                    ? (progress / item.duration) * 100
+                  progress && (item as any).duration
+                    ? (progress / (item as any).duration) * 100
                     : 0,
                   100
                 )}
@@ -245,7 +245,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
                   item.quantityCompleted &&
                   (item.targetQuantity ?? item.quantity)
                     ? (item.quantityCompleted /
-                        (item.targetQuantity ?? item.quantity)) *
+                        (item.targetQuantity ?? item.quantity)!) *
                       100
                     : 0
                 }
@@ -279,7 +279,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             <JobOperationStatus
               operation={{
                 id: item.id,
-                status: status ?? "Todo",
+                status: (status ?? "Todo") as any,
                 jobId: item.jobId
               }}
               className="size-4 p-0 hover:bg-transparent"
@@ -287,14 +287,15 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             <span className="text-sm">{status}</span>
           </HStack>
         )}
-        {displaySettings.showDuration && typeof item.duration === "number" && (
-          <HStack className="justify-start space-x-2">
-            <LuTimer className="text-muted-foreground" />
-            <span className="text-sm">
-              {formatDurationMilliseconds(item.duration)}
-            </span>
-          </HStack>
-        )}
+        {displaySettings.showDuration &&
+          typeof (item as any).duration === "number" && (
+            <HStack className="justify-start space-x-2">
+              <LuTimer className="text-muted-foreground" />
+              <span className="text-sm">
+                {formatDurationMilliseconds((item as any).duration)}
+              </span>
+            </HStack>
+          )}
         {displaySettings.showDueDate && item.deadlineType && (
           <HStack className="justify-start space-x-2">
             {getDeadlineIcon(item.deadlineType)}

@@ -1,13 +1,13 @@
 import { getUser } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { TiptapDocument } from "../../jira/lib/richtext";
 import {
   getJiraClient,
   getJiraIssueFromExternalId,
   mapCarbonStatusToJiraCategory,
   tiptapToAdf
 } from "../../jira/lib";
+import type { TiptapDocument } from "../../jira/lib/richtext";
 import type { NotificationEvent, NotificationService } from "../types";
 
 const jira = getJiraClient();
@@ -26,7 +26,7 @@ export class JiraNotificationService implements NotificationService {
   ): Promise<void> {
     switch (event.type) {
       case "task.status.changed": {
-        if (!["action", "investigation"].includes(event.data.type)) return;
+        if (!["action", "investigation"].includes(event.data.type!)) return;
 
         const issue = await getJiraIssueFromExternalId(
           context.serviceRole,
@@ -36,7 +36,11 @@ export class JiraNotificationService implements NotificationService {
 
         if (!issue) return;
 
-        const targetCategory = mapCarbonStatusToJiraCategory(event.data.status);
+        const targetCategory = mapCarbonStatusToJiraCategory(
+          event.data.status as Parameters<
+            typeof mapCarbonStatusToJiraCategory
+          >[0]
+        );
 
         await jira.transitionIssue(event.companyId, issue.id, targetCategory);
 

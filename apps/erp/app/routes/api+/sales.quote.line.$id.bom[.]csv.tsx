@@ -52,7 +52,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const quote = await client
     .from("quoteLine")
-    .select("quoteId, quantity, itemReadableId")
+    .select("quoteId, quantity, ...item(itemReadableId:readableId)")
     .eq("id", id)
     .single();
   const fileName = `${quote.data?.itemReadableId}-bom.csv`;
@@ -150,7 +150,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       if (operations) {
         operations.forEach((operation) => {
           const durations: Record<string, number> = (quote.data?.quantity ?? [])
-            .map((quantity) => {
+            .map((quantity: number): [number, number] => {
               const duration = makeDurations({
                 ...operation,
                 operationQuantity: quantity
@@ -158,7 +158,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
               return [quantity, duration.duration];
             })
             .reduce(
-              (acc, [quantity, duration]) => {
+              (
+                acc: Record<string, number>,
+                [quantity, duration]: [number, number]
+              ) => {
                 acc[`totalDuration${quantity}`] = duration;
                 return acc;
               },

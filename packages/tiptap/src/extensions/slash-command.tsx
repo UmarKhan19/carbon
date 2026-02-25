@@ -23,10 +23,11 @@ const Command = Extension.create({
     };
   },
   addProseMirrorPlugins() {
+    const { editor: _editor, ...suggestionOptions } = this.options.suggestion;
     return [
       Suggestion({
-        editor: this.editor,
-        ...this.options.suggestion
+        ...suggestionOptions,
+        editor: this.editor
       })
     ];
   }

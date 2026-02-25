@@ -114,7 +114,6 @@ export function MaintenanceDispatchNotes({
         ) : (
           <div
             className="prose dark:prose-invert"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: suppressed due to migration
             dangerouslySetInnerHTML={{
               __html: generateHTML(content as JSONContent)
             }}
@@ -276,7 +275,7 @@ function MaintenanceFilesContent({
     [upload]
   );
 
-  const uploadFiles = (e: ChangeEvent<HTMLInputElement>) => {
+  const uploadFiles = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       upload(Array.from(e.target.files));
     }

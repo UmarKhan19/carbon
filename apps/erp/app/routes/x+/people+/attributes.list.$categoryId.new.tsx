@@ -25,7 +25,7 @@ export default function NewAttributeRoute() {
         userAttributeCategoryId: categoryId,
         canSelfManage: false
       }}
-      dataTypes={attributesRouteData?.dataTypes ?? []}
+      dataTypes={(attributesRouteData?.dataTypes ?? []) as any}
       onClose={onClose}
     />
   );

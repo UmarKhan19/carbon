@@ -148,11 +148,11 @@ function WarehouseTransferLineListItem({
               <ItemThumbnail
                 size="sm"
                 thumbnailPath={line.item?.thumbnailPath}
-                type={(item.type as "Part") ?? "Part"}
+                type={((item as any).type as "Part") ?? "Part"}
               />
               <VStack spacing={0}>
                 <span className="text-sm font-medium truncate">
-                  {item.name}
+                  {(item as any).name}
                 </span>
                 <span className="text-xs text-muted-foreground truncate">
                   {item.readableIdWithRevision}

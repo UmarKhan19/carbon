@@ -171,7 +171,7 @@ const CustomerContact = ({
         (c) => c.id === newValue
       );
 
-      onChange({ id: newValue, contact: contact?.contact ?? null });
+      onChange({ id: newValue, contact: contact?.contact ?? null } as any);
     }
   };
 

@@ -100,7 +100,9 @@ const DateTimePicker = (
           <TimeField
             label="Time"
             value={state.timeValue}
-            onChange={state.setTimeValue}
+            onChange={(value) => {
+              if (value) state.setTimeValue(value);
+            }}
           />
           {props.inline && (
             <PopoverFooter>

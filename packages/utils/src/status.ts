@@ -94,7 +94,7 @@ export const getSalesOrderJobStatus = (
   const saleQuantity = line.saleQuantity ?? 0;
 
   const totalProduction = filteredJobs.reduce(
-    (acc, job) => acc + job.productionQuantity,
+    (acc, job) => acc + (job.productionQuantity ?? 0),
     0
   );
   const totalCompleted = filteredJobs.reduce(
@@ -103,7 +103,7 @@ export const getSalesOrderJobStatus = (
   );
   const totalReleased = filteredJobs.reduce((acc, job) => {
     if (job.status !== "Planned" && job.status !== "Draft") {
-      return acc + job.productionQuantity;
+      return acc + (job.productionQuantity ?? 0);
     }
     return acc;
   }, 0);
@@ -114,7 +114,7 @@ export const getSalesOrderJobStatus = (
   const isCompleted =
     hasEnoughJobsToCoverQuantity && hasEnoughCompletedToCoverQuantity;
   const isPartiallyShipped =
-    line.quantitySent > 0 && line.quantitySent < saleQuantity;
+    (line.quantitySent ?? 0) > 0 && (line.quantitySent ?? 0) < saleQuantity;
 
   let jobVariant: "green" | "red" | "orange";
   let jobLabel:

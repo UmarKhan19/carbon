@@ -189,7 +189,7 @@ const Item = ({
             ref={triggerRef}
             options={options}
             {...props}
-            inline={props.inline ? ItemPreview : undefined}
+            inline={props.inline ? (ItemPreview as any) : undefined}
             value={value?.replace(/"/g, '\\"')}
             onChange={(newValue) => {
               setValue(newValue?.replace(/"/g, '\\"') ?? "");

@@ -135,7 +135,7 @@ const CustomersTable = memo(
           header: "Tags",
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
-              {row.original.tags?.map((tag) => (
+              {(row.original as any).tags?.map((tag: string) => (
                 <Badge key={tag} variant="secondary">
                   {tag}
                 </Badge>

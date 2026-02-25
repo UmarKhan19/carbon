@@ -70,10 +70,10 @@ export async function action({ request }: ActionFunctionArgs) {
       { error: result.error.message },
       {
         status: 500,
-        headers: await flash(
+        ...(await flash(
           request,
           error(result.error, "Failed to create assignment")
-        )
+        ))
       }
     );
   }

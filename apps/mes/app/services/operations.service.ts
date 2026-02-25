@@ -625,7 +625,15 @@ export async function getWorkCenter(
       "id, name, isBlocked, blockingDispatchId, blockingDispatchReadableId"
     )
     .eq("id", workCenterId)
-    .single();
+    .single() as unknown as Promise<
+    import("@supabase/postgrest-js").PostgrestSingleResponse<{
+      id: string;
+      name: string;
+      isBlocked: boolean | null;
+      blockingDispatchId: string | null;
+      blockingDispatchReadableId: string | null;
+    }>
+  >;
 }
 
 export async function getWorkCentersByLocation(
@@ -940,7 +948,7 @@ export async function getJobMethodBomIdMap(
     return new Map();
   }
 
-  const tree = arrayToTree(result.data as JobMethod[]);
+  const tree = arrayToTree(result.data as unknown as JobMethod[]);
   if (tree.length === 0) {
     return new Map();
   }

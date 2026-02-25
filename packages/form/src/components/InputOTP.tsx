@@ -9,8 +9,8 @@ import {
 } from "@carbon/react";
 import type { ReactNode } from "react";
 import { forwardRef, useEffect } from "react";
-import type { ValidationBehaviorOptions } from "src/internal/getInputProps";
 import { useControlField, useField } from "../hooks";
+import type { ValidationBehaviorOptions } from "../internal/getInputProps";
 
 type FormInputOTPProps = {
   name: string;

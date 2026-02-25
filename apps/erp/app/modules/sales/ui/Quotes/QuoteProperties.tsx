@@ -462,7 +462,7 @@ const QuoteProperties = () => {
         <span className="text-xs font-medium text-muted-foreground">
           Created By
         </span>
-        <EmployeeAvatar employeeId={routeData?.quote?.createdBy} />
+        <EmployeeAvatar employeeId={routeData?.quote?.createdBy ?? null} />
       </VStack>
 
       <CustomFormInlineFields

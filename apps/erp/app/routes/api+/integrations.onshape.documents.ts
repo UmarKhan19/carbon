@@ -29,7 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let allDocuments: Array<{ id: string; name: string }> = [];
 
     while (true) {
-      const response = await onshapeClient.getDocuments(limit, offset);
+      const response = await onshapeClient!.getDocuments(limit, offset);
 
       if (!response.items || response.items.length === 0) {
         break;

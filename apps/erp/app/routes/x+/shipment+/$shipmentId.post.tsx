@@ -63,7 +63,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             request,
             params: { id: shipmentId },
             context: {}
-          };
+          } as any;
 
           const pdf = await pdfLoader(pdfArgs);
 

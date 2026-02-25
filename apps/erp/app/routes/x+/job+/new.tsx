@@ -64,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
         )
       );
     }
-    jobId = nextSequenceResult.data;
+    jobId = nextSequenceResult.data ?? undefined;
   }
 
   const leadTime = manufacturing.data?.leadTime ?? 7;
@@ -121,7 +121,7 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     createdBy: userId,
     customFields: setCustomFields(formData)
-  });
+  } as any);
 
   const id = createJob.data?.id!;
   if (createJob.error || !jobId) {

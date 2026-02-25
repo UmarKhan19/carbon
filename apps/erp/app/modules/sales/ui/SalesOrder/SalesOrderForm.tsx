@@ -62,8 +62,8 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
 
   const onCustomerChange = async (
     newValue: {
-      value: string | undefined;
-      label: string;
+      value: string;
+      label: string | Element;
     } | null
   ) => {
     if (!carbon) {
@@ -140,7 +140,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
                 autoFocus={!isEditing}
                 name="customerId"
                 label="Customer"
-                onChange={onCustomerChange}
+                onChange={onCustomerChange as any}
               />
               <Input name="customerReference" label="Customer PO Number" />
 

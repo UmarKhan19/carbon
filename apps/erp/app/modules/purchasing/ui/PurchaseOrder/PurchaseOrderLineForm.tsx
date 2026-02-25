@@ -316,9 +316,11 @@ const PurchaseOrderLineForm = ({
                           )}{" "}
                           {initialValues?.purchaseUnitOfMeasureCode}
                         </Badge>
-                        {initialValues?.taxPercent > 0 ? (
+                        {(initialValues as any)?.taxPercent > 0 ? (
                           <Badge variant="red">
-                            {percentFormatter.format(initialValues?.taxPercent)}{" "}
+                            {percentFormatter.format(
+                              (initialValues as any)?.taxPercent
+                            )}{" "}
                             Tax
                           </Badge>
                         ) : null}

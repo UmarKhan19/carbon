@@ -3,7 +3,7 @@ import type {
   PostgrestFilterBuilder
 } from "@supabase/postgrest-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "./types.ts";
+import type { Database } from "./types";
 
 const BATCH_SIZE = 1000;
 
@@ -25,6 +25,7 @@ export type PaginatedResult<T> =
  */
 export async function fetchAllRecords<T extends object>(
   baseQuery: PostgrestFilterBuilder<
+    Record<string, unknown>,
     Database["public"],
     Record<string, unknown>,
     T[]
@@ -100,6 +101,7 @@ export async function fetchAllFromTable<T extends object>(
  */
 export async function* fetchRecordsInBatches<T extends object>(
   baseQuery: PostgrestFilterBuilder<
+    Record<string, unknown>,
     Database["public"],
     Record<string, unknown>,
     T[]

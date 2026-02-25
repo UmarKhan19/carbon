@@ -188,7 +188,7 @@ export const cleanup = schedules.task({
 
         // Get unique company IDs
         const companyIds = [
-          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId)),
+          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId).filter((id): id is string => id !== null)),
         ];
 
         // Fetch all company settings at once
@@ -217,7 +217,7 @@ export const cleanup = schedules.task({
           // Create notification payloads for each gauge
           for (const gauge of outOfCalibrationGauges.data) {
             const notificationGroup =
-              notificationGroupsByCompany.get(gauge.companyId) ?? [];
+              notificationGroupsByCompany.get(gauge.companyId!) ?? [];
 
             if (notificationGroup.length === 0) {
               console.log(
@@ -232,12 +232,12 @@ export const cleanup = schedules.task({
                 workflow: NotificationWorkflow.GaugeCalibration,
                 payload: {
                   event: NotificationEvent.GaugeCalibrationExpired,
-                  recordId: gauge.id,
+                  recordId: gauge.id!,
                   description: `Gauge ${gauge.gaugeId} is out of calibration`,
                 },
                 user: {
                   subscriberId: getSubscriberId({
-                    companyId: gauge.companyId,
+                    companyId: gauge.companyId!,
                     userId,
                   }),
                 },

@@ -1306,7 +1306,7 @@ export async function upsertMaintenanceDispatch(
   if ("createdBy" in dispatch) {
     return client
       .from("maintenanceDispatch")
-      .insert([dispatch])
+      .insert([dispatch as any])
       .select("id")
       .single();
   } else {
@@ -1492,7 +1492,7 @@ export async function upsertPartner(
       .update(sanitize(partner))
       .eq("id", partner.id);
   } else {
-    return await client.from("partner").insert([partner]);
+    return await client.from("partner").insert([partner as any]);
   }
 }
 

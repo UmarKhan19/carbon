@@ -29,7 +29,6 @@ import {
   getPurchasingRFQLines
 } from "~/modules/purchasing/purchasing.service";
 import type { PurchasingRFQLine } from "~/modules/purchasing/types";
-import type { Company } from "~/modules/settings";
 import { getCompany } from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 
@@ -68,7 +67,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const thumbnailPaths = linesResult.data?.reduce<
     Record<string, string | null>
   >((acc, line) => {
-    if (line.thumbnailPath) {
+    if (line.thumbnailPath && line.id) {
       acc[line.id] = line.thumbnailPath;
     }
     return acc;
@@ -104,7 +103,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   };
 }
 
-const Header = ({ company, rfq }: { company: Company | null; rfq: any }) => (
+const Header = ({
+  company,
+  rfq
+}: {
+  company: { name: string } | null;
+  rfq: any;
+}) => (
   <CardHeader className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-4 sm:space-y-2 pb-7">
     <VStack spacing={4}>
       <div>
@@ -146,7 +151,7 @@ const LineItems = ({
   thumbnails: Record<string, string | null>;
 }) => {
   const [openItems, setOpenItems] = useState<string[]>(() =>
-    lines.map((line) => line.id).filter(Boolean)
+    lines.map((line) => line.id).filter((id): id is string => Boolean(id))
   );
 
   const toggleOpen = (id: string) => {
@@ -184,7 +189,7 @@ const LineItems = ({
               <VStack spacing={0} className="w-full">
                 <div
                   className="flex flex-col cursor-pointer w-full"
-                  onClick={() => toggleOpen(line.id)}
+                  onClick={() => toggleOpen(line.id!)}
                 >
                   <div className="flex items-center gap-x-4 justify-between flex-grow">
                     <Heading>{line.itemReadableId ?? "Item"}</Heading>
@@ -270,7 +275,11 @@ const RFQPreview = ({
   data
 }: {
   data: {
-    company: Company | null;
+    company: {
+      name: string;
+      logoDark: string | null;
+      logoLight: string | null;
+    } | null;
     rfq: any;
     lines: PurchasingRFQLine[];
     thumbnails: Record<string, string | null>;

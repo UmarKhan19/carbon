@@ -956,7 +956,7 @@ export async function insertManualInventoryAdjustment(
       const trackedEntityUpdate = await client
         .from("trackedEntity")
         .update({ readableId })
-        .eq("id", inventoryAdjustment.trackedEntityId);
+        .eq("id", inventoryAdjustment.trackedEntityId!);
 
       if (trackedEntityUpdate.error) {
         return trackedEntityUpdate;

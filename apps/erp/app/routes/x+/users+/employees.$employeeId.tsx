@@ -9,7 +9,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { Json } from "@carbon/database";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useLoaderData } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import type { CompanyPermission } from "~/modules/users";
 import {
   EmployeePermissionsForm,
@@ -86,8 +86,11 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { id, employeeType, data } = validation.data;
-  const permissions = JSON.parse(data) as Record<string, CompanyPermission>;
+  const { id, employeeType, data: permissionsData } = validation.data;
+  const permissions = JSON.parse(permissionsData) as Record<
+    string,
+    CompanyPermission
+  >;
 
   if (
     !Object.values(permissions).every(

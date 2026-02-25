@@ -352,7 +352,12 @@ function BatchPropertyComponent({
             id: property.id,
             itemId: property.itemId,
             label: property.label,
-            dataType: property.dataType,
+            dataType: property.dataType as
+              | "boolean"
+              | "text"
+              | "list"
+              | "numeric"
+              | "date",
             listOptions: property.listOptions ?? []
           }}
         >

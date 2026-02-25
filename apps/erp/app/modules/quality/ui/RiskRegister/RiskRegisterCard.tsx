@@ -138,11 +138,18 @@ export default function RiskRegisterCard({
           initialValues={
             selectedRisk
               ? {
-                  ...selectedRisk,
+                  id: selectedRisk.id ?? undefined,
+                  title: selectedRisk.title ?? "",
+                  status: selectedRisk.status ?? "Open",
+                  source: selectedRisk.source ?? "General",
                   description: selectedRisk.description ?? undefined,
                   assignee: selectedRisk.assignee ?? undefined,
                   sourceId: selectedRisk.sourceId ?? undefined,
                   itemId: selectedRisk.itemId ?? undefined,
+                  notes:
+                    typeof selectedRisk.notes === "string"
+                      ? selectedRisk.notes
+                      : null,
                   severity: selectedRisk.severity
                     ? selectedRisk.severity.toString()
                     : "1",
@@ -180,7 +187,7 @@ export default function RiskRegisterCard({
           }}
           title="Delete Risk"
           text="Are you sure you want to delete this risk?"
-          action={path.to.deleteRisk(selectedRisk.id)}
+          action={path.to.deleteRisk(selectedRisk.id!)}
         />
       )}
     </Card>
@@ -242,7 +249,7 @@ function RiskRegisterCardItem({
         <div>
           <Assignee
             table="riskRegister"
-            id={risk.id}
+            id={risk.id!}
             size="sm"
             value={risk.assignee ?? undefined}
             onChange={(assignee) => {

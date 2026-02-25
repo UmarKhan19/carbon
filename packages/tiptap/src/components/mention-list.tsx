@@ -111,7 +111,7 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
             }}
           >
             {virtualItems.map((virtualRow) => {
-              const item = props.items[virtualRow.index];
+              const item = props.items[virtualRow.index]!;
               const isSelected = virtualRow.index === selectedIndex;
 
               return (

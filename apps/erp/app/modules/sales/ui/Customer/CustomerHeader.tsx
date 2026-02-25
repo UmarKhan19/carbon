@@ -141,7 +141,7 @@ const CustomerHeader = () => {
                 <CardAttributeValue>
                   <ValidatedForm
                     defaultValues={{
-                      tags: routeData?.customer?.tags ?? []
+                      tags: (routeData?.customer as any)?.tags ?? []
                     }}
                     validator={z.object({
                       tags: z.array(z.string()).optional()

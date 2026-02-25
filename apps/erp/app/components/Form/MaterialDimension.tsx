@@ -77,10 +77,10 @@ const MaterialDimension = (props: MaterialDimensionSelectProps) => {
         options={options}
         {...props}
         disabled={props.disabled || !props.formId}
-        inline={props?.inline ? MaterialDimensionPreview : undefined}
+        inline={props?.inline ? (MaterialDimensionPreview as any) : undefined}
         isOptional={props?.isOptional ?? true}
         label={props?.label ?? "Dimensions"}
-        onChange={onChange}
+        onChange={onChange as any}
         onCreateOption={(option) => {
           newDimensionModal.onOpen();
           setCreated(option);

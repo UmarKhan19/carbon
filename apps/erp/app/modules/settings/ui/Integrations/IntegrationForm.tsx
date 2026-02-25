@@ -419,10 +419,14 @@ export function IntegrationForm({
                   {integration.description}
                 </div>
 
-                {integration.setupInstructions && (
+                {(integration as any).setupInstructions && (
                   <>
                     <Heading size="h3">Setup Instructions</Heading>
-                    <integration.setupInstructions companyId={companyId} />
+                    {(() => {
+                      const SetupInstructions = (integration as any)
+                        .setupInstructions;
+                      return <SetupInstructions companyId={companyId} />;
+                    })()}
                   </>
                 )}
 
@@ -446,12 +450,14 @@ export function IntegrationForm({
                 ))}
 
                 {installed &&
-                  integration.actions &&
-                  integration.actions.length > 0 && (
+                  (integration as any).actions &&
+                  (integration as any).actions.length > 0 && (
                     <>
                       <Heading size="h3">Actions</Heading>
                       <VStack spacing={2} className="w-full">
-                        {integration.actions.map((action) => (
+                        {(
+                          (integration as any).actions as IntegrationAction[]
+                        ).map((action: IntegrationAction) => (
                           <IntegrationActionButton
                             key={action.id}
                             action={action}

@@ -16,7 +16,7 @@
     "ts-morph": "^22.0.0",
     "tsx": "^4.13.2",
     "turbo": "^2.6.3",
-    "typescript": "5.8"
+    "typescript": "^6.0.0-beta"
   },
   "lint-staged": {
     "(apps|packages)/**/*.{js,ts,jsx,tsx}": [

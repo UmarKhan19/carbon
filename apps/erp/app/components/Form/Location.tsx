@@ -41,7 +41,7 @@ const Location = ({ inline = false, ...props }: LocationSelectProps) => {
         options={options}
         {...props}
         label={props?.label ?? "Location"}
-        inline={inline ? LocationPreview : undefined}
+        inline={inline ? (LocationPreview as any) : undefined}
         onCreateOption={(option) => {
           newLocationModal.onOpen();
           setCreated(option);

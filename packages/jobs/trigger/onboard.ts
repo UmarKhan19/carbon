@@ -67,8 +67,7 @@ export const onboardTask = task({
 
         let type: "Warm" | "Cold" = "Warm";
         try {
-          const { object } = await generateObject<Record<string, string>>({
-            // @ts-ignore
+          const { object } = await (generateObject as any)({
             model: openai("gpt-4o"),
             schema: z.object({
               type: z.enum(["Warm", "Cold"]).describe("The type of lead"),
@@ -90,7 +89,7 @@ export const onboardTask = task({
             `,
             temperature: 0.2,
           });
-          type = object.type as "Warm" | "Cold";
+          type = (object as any).type as "Warm" | "Cold";
           console.log("Generated type:", type);
         } catch (error) {
           console.error("Error generating type", error);
@@ -143,7 +142,7 @@ export const onboardTask = task({
                 externalId: {
                   twenty: twentyPersonId,
                 },
-              })
+              } as any)
               .eq("id", userId);
 
             console.log("User update result:", updateResult);
@@ -161,10 +160,10 @@ export const onboardTask = task({
                 name: company.data.name,
                 domainName: {
                   primaryLinkLabel: removeProtocolFromWebsite(
-                    company.data.website
+                    company.data.website ?? ""
                   ),
                   primaryLinkUrl: ensureProtocolFromWebsite(
-                    company.data.website
+                    company.data.website ?? ""
                   ),
                   additionalLinks: [],
                 },
@@ -183,7 +182,7 @@ export const onboardTask = task({
                   externalId: {
                     twenty: twentyOpportunityId,
                   },
-                })
+                } as any)
                 .eq("id", companyId);
 
               console.log("Company update result:", updateResult);
@@ -293,7 +292,7 @@ export const onboardTask = task({
         let isPlanActiveAfter30Days =
           planAfter30Days?.data?.stripeSubscriptionStatus === "Active";
 
-        if (isPlanActiveAfter30Days) {
+        if (isPlanActiveAfter30Days && twentyId) {
           await twenty.updatePerson(twentyId, {
             customerStatus: [
               isPlanActiveAfter30Days

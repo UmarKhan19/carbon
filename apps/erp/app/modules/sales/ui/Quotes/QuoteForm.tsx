@@ -60,8 +60,8 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
 
   const onCustomerChange = async (
     newValue: {
-      value: string | undefined;
-      label: string;
+      value: string;
+      label: string | Element;
     } | null
   ) => {
     if (!carbon) {
@@ -136,7 +136,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 autoFocus={!isEditing}
                 name="customerId"
                 label="Customer"
-                onChange={onCustomerChange}
+                onChange={onCustomerChange as any}
               />
               <Input name="customerReference" label="Customer RFQ" />
               <CustomerContact

@@ -52,7 +52,9 @@ export function ColumnCard({
   }, [items]);
 
   const totalDuration = items.reduce((acc, item) => {
-    return acc + Math.max((item?.duration ?? 0) - (item?.progress ?? 0), 0);
+    return (
+      acc + Math.max(((item as any)?.duration ?? 0) - (item?.progress ?? 0), 0)
+    );
   }, 0);
 
   const {

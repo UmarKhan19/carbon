@@ -83,7 +83,9 @@ export default function NewStockTransferLinesRoute() {
     itemId: line?.itemId ?? "",
     quantity: line?.quantity ?? 1,
     fromShelfId: line?.fromShelfId ?? "",
-    toShelfId: line?.toShelfId ?? ""
+    toShelfId: line?.toShelfId ?? "",
+    requiresBatchTracking: line?.requiresBatchTracking ?? false,
+    requiresSerialTracking: line?.requiresSerialTracking ?? false
   };
 
   return (

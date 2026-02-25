@@ -26,7 +26,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return new Response(result.error, { status: 404 });
   }
 
-  const { companySettings, labelItem } = result;
+  const { companySettings, labelItem } = result as Exclude<
+    typeof result,
+    { error: string }
+  >;
 
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");
@@ -64,5 +67,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "Content-Type": "application/pdf",
     "Content-Disposition": `inline; filename="${company.data.name} - Entity Labels.pdf"`
   });
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

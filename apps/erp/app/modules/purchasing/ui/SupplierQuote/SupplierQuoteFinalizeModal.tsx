@@ -53,7 +53,9 @@ const SupplierQuoteFinalizeModal = ({
           action={action}
           onSubmit={onClose}
           defaultValues={{
-            notification: notificationType as "Email" | "None",
+            notification: (notificationType === "Email"
+              ? "Email"
+              : undefined) as "Email" | "Share" | undefined,
             supplierContact: quote?.supplierContactId ?? undefined
           }}
           fetcher={fetcher}

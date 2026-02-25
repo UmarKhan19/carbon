@@ -4,7 +4,6 @@ import { flash } from "@carbon/auth/session.server";
 import { notifyTaskStatusChanged } from "@carbon/ee/notifications";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import type { IssueInvestigationTask } from "~/modules/quality";
 import { updateIssueTaskStatus } from "~/modules/quality";
 import { getCompanyIntegrations } from "~/modules/settings/settings.server";
 import { path } from "~/utils/path";
@@ -23,7 +22,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await flash(request, error("Invalid task ID", "Invalid task ID"))
     );
   }
-  const status = formData.get("status") as IssueInvestigationTask["status"];
+  const status = formData.get("status") as
+    | "Pending"
+    | "Completed"
+    | "Skipped"
+    | "In Progress";
   const type = formData.get("type") as
     | "investigation"
     | "action"

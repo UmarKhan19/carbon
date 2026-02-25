@@ -91,7 +91,10 @@ export function makePermissionsFromClaims(claims: Json[] | null) {
 
   Object.entries(claims).forEach(([key, value]) => {
     if (isClaimPermission(key, value)) {
-      const [module, action] = key.split("_");
+      const parts = key.split("_");
+      const module = parts[0];
+      const action = parts[1];
+      if (!module || !action) return;
       if (!(module in permissions)) {
         permissions[module] = {
           view: [],
@@ -101,22 +104,23 @@ export function makePermissionsFromClaims(claims: Json[] | null) {
         };
       }
 
+      const perm = permissions[module]!;
       switch (action) {
         case "view":
           // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
-          permissions[module]["view"] = value as string[];
+          perm["view"] = value as string[];
           break;
         case "create":
           // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
-          permissions[module]["create"] = value as string[];
+          perm["create"] = value as string[];
           break;
         case "update":
           // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
-          permissions[module]["update"] = value as string[];
+          perm["update"] = value as string[];
           break;
         case "delete":
           // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
-          permissions[module]["delete"] = value as string[];
+          perm["delete"] = value as string[];
           break;
       }
     }

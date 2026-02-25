@@ -69,14 +69,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     makeMethod: makeMethod.data,
-    materials:
-      materials?.data.map((m) => ({
-        ...m,
-        description: m.description ?? "",
-        itemType: m.itemType as "Part",
-        unitOfMeasureCode: m.unitOfMeasureCode ?? "",
-        quoteOperationId: m.quoteOperationId ?? undefined
-      })) ?? [],
+    materials: (materials?.data.map((m) => ({
+      ...m,
+      description: m.description ?? "",
+      itemType: m.itemType as "Part",
+      unitOfMeasureCode: m.unitOfMeasureCode ?? "",
+      quoteOperationId: m.quoteOperationId ?? undefined
+    })) ?? []) as any,
     operations:
       operations.data?.map((o) => ({
         ...o,

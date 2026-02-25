@@ -56,7 +56,9 @@ const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
     const avatarInitials = getInitials(name ?? "");
     const [error, setError] = useState(false);
 
-    const { background, color } = getColorByValue(name ?? "", "light");
+    const colorResult = getColorByValue(name ?? "", "light");
+    const background = colorResult?.background;
+    const color = colorResult?.color;
 
     return src && !error ? (
       <img

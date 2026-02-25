@@ -73,7 +73,10 @@ export function AssociatedItemsList({
       <CardContent>
         <ul className="flex flex-col gap-3">
           {associatedItems
-            .sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0))
+            .sort(
+              (a, b) =>
+                ((a as any).createdAt ?? 0) - ((b as any).createdAt ?? 0)
+            )
             .map((child) => {
               // Resolve item information from the items store using documentId
               const item = items.find((i) => i.id === child.documentId);

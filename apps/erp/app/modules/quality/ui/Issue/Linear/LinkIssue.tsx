@@ -55,7 +55,7 @@ export const LinkIssue = (props: Props) => {
       method="post"
       action={path.to.api.linearLinkExistingIssue}
       validator={linkIssueValidator}
-      fetcher={fetcher}
+      fetcher={fetcher as any}
       resetAfterSubmit
       onAfterSubmit={() => props.onClose()}
     >

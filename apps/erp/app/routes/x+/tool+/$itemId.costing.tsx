@@ -87,11 +87,14 @@ export default function ToolCostingRoute() {
     <VStack spacing={2} className="p-2">
       <ItemCostingForm
         key={itemCost.itemId}
-        initialValues={{
-          ...itemCost,
-          itemPostingGroupId: itemCost.itemPostingGroupId ?? undefined,
-          ...getCustomFields(itemCost.customFields)
-        }}
+        initialValues={
+          {
+            ...itemCost,
+            unitCost: itemCost.unitCost ?? 0,
+            itemPostingGroupId: itemCost.itemPostingGroupId ?? undefined,
+            ...getCustomFields(itemCost.customFields)
+          } as any
+        }
       />
       <ItemCostHistoryChart
         readableId={itemCost.readableIdWithRevision ?? ""}

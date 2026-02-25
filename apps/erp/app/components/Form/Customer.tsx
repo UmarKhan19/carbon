@@ -45,7 +45,7 @@ const Customer = (props: CustomerSelectProps) => {
         options={options}
         {...props}
         label={props?.label ?? "Customer"}
-        inline={props?.inline ? CustomerPreview : undefined}
+        inline={props?.inline ? (CustomerPreview as any) : undefined}
         onCreateOption={(option) => {
           newCustomersModal.onOpen();
           setCreated(option);

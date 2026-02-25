@@ -69,7 +69,7 @@ const useEmailOptions = (type: "employee" | "supplier" | "customer") => {
 
     const collectGroupEmails = (group: Group): string[] => {
       const groupEmails: string[] = [];
-      group.data.users?.forEach((user) => {
+      group.data.users?.forEach((user: any) => {
         if (user.email) groupEmails.push(user.email);
       });
       group.children?.forEach((child) => {
@@ -93,7 +93,7 @@ const useEmailOptions = (type: "employee" | "supplier" | "customer") => {
         });
       }
 
-      group.data.users?.forEach((user) => {
+      group.data.users?.forEach((user: any) => {
         if (user.email) {
           opts.push({
             type: "user",

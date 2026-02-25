@@ -127,7 +127,7 @@ export default function ToolMakeMethodPage() {
       <BillOfMaterial
         key={`bom:${makeMethodId}`}
         makeMethod={makeMethod}
-        materials={methodMaterials}
+        materials={methodMaterials as any}
         operations={methodOperations}
       />
       <BillOfProcess

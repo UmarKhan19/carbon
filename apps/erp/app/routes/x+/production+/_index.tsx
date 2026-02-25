@@ -206,9 +206,8 @@ export default function ProductionDashboard() {
     if (selectedKpi === "estimatesVsActuals") {
       if (!kpiFetcher.data?.data) return null;
       return {
-        // @ts-expect-error
         value: kpiFetcher.data.data.reduce(
-          (acc, item) => acc + item.estimate,
+          (acc, item) => acc + ((item as any).estimate ?? 0),
           0
         )
       };
@@ -616,7 +615,7 @@ export default function ProductionDashboard() {
             {(resolvedEvents) => (
               <WorkCenterCards
                 events={resolvedEvents.data ?? []}
-                workCenters={workCenters}
+                workCenters={workCenters as WorkCenterWithBlocking[]}
               />
             )}
           </Await>
