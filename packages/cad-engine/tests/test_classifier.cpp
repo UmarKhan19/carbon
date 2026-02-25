@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "classification/part_classifier.h"
+#include "parsing/brep_analysis_types.h"
 #include "test_helpers.h"
 
 using namespace carbon;
@@ -150,4 +151,89 @@ TEST(Classifier, ClassifyAllPartsBatch) {
     EXPECT_EQ(results.size(), 2u);
     EXPECT_GT(results["bolt_1"].fastener_score, 0.3f);
     EXPECT_GT(results["frame_1"].structural_score, 0.3f);
+}
+
+// ===========================================================================
+// BRep-based classification tests (opaque STEP names)
+// ===========================================================================
+
+TEST(Classifier, BRepFastenerWithThreads) {
+    SequencingRules rules;
+    ClassificationInput input;
+    input.name = "=>[0:1:1:5]";  // opaque STEP name — no name match
+    input.bbox_dims = Vec3(6.0f, 6.0f, 20.0f);
+    input.relative_volume = 0.001f;
+    input.contact_degree = 2;
+
+    BRepAnalysis brep;
+    brep.has_threads = true;
+    brep.cylindrical_surface_ratio = 0.7;
+    brep.planar_surface_ratio = 0.1;
+    brep.total_faces = 8;
+    brep.cylindrical_faces = 5;
+    brep.planar_faces = 3;
+    brep.volume = 500.0;
+    input.brep = brep;
+
+    auto cls = classify_part(input, rules);
+    EXPECT_GE(cls.fastener_score, 0.5f);
+    EXPECT_EQ(cls.dominant(), PartKind::Fastener);
+}
+
+TEST(Classifier, BRepStructuralLargeVolume) {
+    SequencingRules rules;
+    ClassificationInput input;
+    input.name = "=>[0:1:1:1]";  // opaque name
+    input.bbox_dims = Vec3(100.0f, 50.0f, 200.0f);
+    input.relative_volume = 0.40f;
+    input.contact_degree = 5;
+
+    BRepAnalysis brep;
+    brep.volume = 500000.0;
+    brep.planar_surface_ratio = 0.6;
+    brep.total_faces = 30;
+    brep.planar_faces = 18;
+    brep.cylindrical_faces = 8;
+    brep.conical_faces = 2;
+    brep.freeform_faces = 2;
+    input.brep = brep;
+
+    auto cls = classify_part(input, rules);
+    EXPECT_GE(cls.structural_score, 0.4f);
+    EXPECT_EQ(cls.dominant(), PartKind::Structural);
+}
+
+TEST(Classifier, BRepPanelFlatPlanar) {
+    SequencingRules rules;
+    ClassificationInput input;
+    input.name = "=>[0:1:1:10]";  // opaque name
+    input.bbox_dims = Vec3(100.0f, 100.0f, 2.0f);
+    input.relative_volume = 0.05f;
+    input.contact_degree = 3;
+
+    BRepAnalysis brep;
+    brep.planar_surface_ratio = 0.85;
+    brep.planar_faces = 10;
+    brep.total_faces = 12;
+    brep.cylindrical_faces = 2;
+    input.brep = brep;
+
+    auto cls = classify_part(input, rules);
+    EXPECT_GE(cls.panel_score, 0.4f);
+    EXPECT_EQ(cls.dominant(), PartKind::Panel);
+}
+
+TEST(Classifier, NoBRepFallsBackGracefully) {
+    // Name-based classification still works when brep is nullopt
+    SequencingRules rules;
+    ClassificationInput input;
+    input.name = "M6x20_Socket_Head_Screw";
+    input.bbox_dims = Vec3(6.0f, 6.0f, 20.0f);
+    input.relative_volume = 0.001f;
+    input.contact_degree = 2;
+    // brep stays std::nullopt
+
+    auto cls = classify_part(input, rules);
+    EXPECT_GE(cls.fastener_score, 0.5f);
+    EXPECT_EQ(cls.dominant(), PartKind::Fastener);
 }

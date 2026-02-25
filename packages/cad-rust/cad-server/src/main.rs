@@ -26,7 +26,10 @@ async fn main() {
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber");
 
-    info!("Starting CAD Server");
+    info!("─────────────────────────────────────────");
+    info!("Carbon CAD Server (Rust) v{}", env!("CARGO_PKG_VERSION"));
+    info!("parry3d + truck-stepio + gltf");
+    info!("─────────────────────────────────────────");
 
     // Create application state
     let state = Arc::new(AppState::new());
@@ -48,13 +51,20 @@ async fn main() {
 
     // Start server
     let port = std::env::var("PORT")
-        .unwrap_or_else(|_| "8080".to_string())
+        .unwrap_or_else(|_| "8081".to_string())
         .parse::<u16>()
         .expect("Invalid PORT");
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    info!("Listening on {}", addr);
+    info!("Starting server on port {}", port);
 
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap_or_else(|e| {
+        eprintln!("[cad-server] Failed to bind to port {}: {}", port, e);
+        eprintln!("[cad-server] Is another service already running on this port?");
+        eprintln!("[cad-server] Set PORT env var to use a different port (default: 8081)");
+        std::process::exit(1);
+    });
+
+    info!("Listening on {}", addr);
     axum::serve(listener, app).await.unwrap();
 }

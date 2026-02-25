@@ -46,18 +46,25 @@ export const stepParserOccTask = task({
     projectId: string;
     companyId: string;
     storagePath: string;
+    engine?: "cpp" | "python-rust";
   }) => {
-    const { projectId, companyId, storagePath } = payload;
+    const { projectId, companyId, storagePath, engine = "cpp" } = payload;
 
-    logger.info("Starting C++ CAD Engine STEP parser", {
+    // Route to the correct parse service based on engine choice
+    const cadParseUrl =
+      engine === "python-rust"
+        ? process.env.CAD_SERVICE_URL || "http://localhost:8000"
+        : process.env.CAD_ENGINE_URL || "http://localhost:8080";
+
+    logger.info("Starting STEP parser", {
       projectId,
       companyId,
       storagePath,
+      engine,
+      cadParseUrl,
     });
 
     const client = getCarbonServiceRole();
-    const cadEngineUrl =
-      process.env.CAD_ENGINE_URL || "http://localhost:8080";
 
     // Update status to processing
     await metadata.set("status", "downloading");
@@ -101,15 +108,15 @@ export const stepParserOccTask = task({
         .update({ parsingProgress: 30 })
         .eq("id", projectId);
 
-      // 2. Send to CAD Engine for parsing
-      logger.info("Sending to CAD Engine", { cadEngineUrl });
+      // 2. Send to parse service
+      logger.info("Sending to parse service", { cadParseUrl, engine });
 
       const formData = new FormData();
       formData.append("file", fileData, "model.step");
       formData.append("tolerance", "0.1");
       formData.append("angular_tolerance", "0.5");
 
-      const response = await fetch(`${cadEngineUrl}/parse`, {
+      const response = await fetch(`${cadParseUrl}/parse`, {
         method: "POST",
         body: formData,
       });
@@ -187,6 +194,7 @@ export const stepParserOccTask = task({
       await tasks.trigger<typeof assemblySimulateTask>("assembly-simulate", {
         projectId,
         companyId,
+        engine,
       });
 
       await metadata.set("status", "simulation-triggered");

@@ -1,5 +1,6 @@
 #include "parsing/step_reader.h"
 #include "parsing/tessellator.h"
+#include "parsing/brep_analyzer.h"
 
 // OCCT XCAF / XDE
 #include <STEPCAFControl_Reader.hxx>
@@ -224,6 +225,20 @@ static void build_tree_xcaf(
                             child.bounding_box = child.mesh->local_aabb();
                             part_count++;
                         }
+                        auto brep = analyze_shape(shape);
+                        std::cout << "[brep_debug] Part '" << child.name << "'"
+                                  << " shapeType=" << static_cast<int>(shape.ShapeType())
+                                  << " vol=" << brep.volume
+                                  << " area=" << brep.surface_area
+                                  << " total_faces=" << brep.total_faces
+                                  << " cyl_faces=" << brep.cylindrical_faces
+                                  << " planar_faces=" << brep.planar_faces
+                                  << " cyl_ratio=" << brep.cylindrical_surface_ratio
+                                  << " planar_ratio=" << brep.planar_surface_ratio
+                                  << " threads=" << brep.has_threads
+                                  << " axes=" << brep.insertion_axes.size()
+                                  << std::endl;
+                        child.metadata.brep_analysis = brep;
                     }
                 }
 
@@ -272,6 +287,20 @@ static void build_tree_xcaf(
                 node.bounding_box = node.mesh->local_aabb();
                 part_count++;
             }
+            auto brep = analyze_shape(shape);
+            std::cout << "[brep_debug] LeafPart '" << node.name << "'"
+                      << " shapeType=" << static_cast<int>(shape.ShapeType())
+                      << " vol=" << brep.volume
+                      << " area=" << brep.surface_area
+                      << " total_faces=" << brep.total_faces
+                      << " cyl_faces=" << brep.cylindrical_faces
+                      << " planar_faces=" << brep.planar_faces
+                      << " cyl_ratio=" << brep.cylindrical_surface_ratio
+                      << " planar_ratio=" << brep.planar_surface_ratio
+                      << " threads=" << brep.has_threads
+                      << " axes=" << brep.insertion_axes.size()
+                      << std::endl;
+            node.metadata.brep_analysis = brep;
         }
         if (node.name.empty()) {
             node.name = "Part_" + std::to_string(part_count);
@@ -393,6 +422,20 @@ static ParseResult parse_simple(const std::string& file_path, const ParseConfig&
         if (child.mesh && !child.mesh->empty()) {
             child.bounding_box = child.mesh->local_aabb();
         }
+        auto brep = analyze_shape(solid);
+        std::cout << "[brep_debug] SimplePart '" << child.name << "'"
+                  << " shapeType=" << static_cast<int>(solid.ShapeType())
+                  << " vol=" << brep.volume
+                  << " area=" << brep.surface_area
+                  << " total_faces=" << brep.total_faces
+                  << " cyl_faces=" << brep.cylindrical_faces
+                  << " planar_faces=" << brep.planar_faces
+                  << " cyl_ratio=" << brep.cylindrical_surface_ratio
+                  << " planar_ratio=" << brep.planar_surface_ratio
+                  << " threads=" << brep.has_threads
+                  << " axes=" << brep.insertion_axes.size()
+                  << std::endl;
+        child.metadata.brep_analysis = brep;
 
         result.hierarchy.children.push_back(std::move(child));
     }

@@ -40,6 +40,7 @@ private:
 
     // Part data extracted from the assembly tree
     std::vector<PartData> parts_;
+    std::unordered_map<std::string, const PartData*> part_map_;  // O(1) lookup by ID
     AABB global_aabb_;
     float scene_diagonal_ = 0.0f;
 

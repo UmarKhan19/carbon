@@ -3,6 +3,7 @@
 /// Core geometric types for the CAD assembly engine.
 /// Replaces nalgebra types from Rust (Point3, Vector3, Matrix4, Isometry3).
 
+#include "parsing/brep_analysis_types.h"
 #include <Eigen/Dense>
 #include <array>
 #include <cstdint>
@@ -166,6 +167,7 @@ struct AssemblyNodeMetadata {
     std::optional<float> volume;
     std::optional<float> surface_area;
     std::optional<std::array<float, 3>> center_of_gravity;
+    std::optional<BRepAnalysis> brep_analysis;
 };
 
 struct AssemblyNode {
@@ -195,6 +197,25 @@ struct AssemblyNode {
     std::vector<const AssemblyNode*> get_all_parts() const {
         std::vector<const AssemblyNode*> parts;
         collect_parts(parts);
+        return parts;
+    }
+
+    /// Recursively collect all part nodes with their composed world transforms.
+    void collect_parts_world(
+        std::vector<std::pair<const AssemblyNode*, Mat4>>& out,
+        const Mat4& parent_world = Mat4::Identity()) const {
+        Mat4 world = parent_world * transform;
+        if (is_part()) {
+            out.push_back({this, world});
+        }
+        for (const auto& child : children) {
+            child.collect_parts_world(out, world);
+        }
+    }
+
+    std::vector<std::pair<const AssemblyNode*, Mat4>> get_all_parts_world() const {
+        std::vector<std::pair<const AssemblyNode*, Mat4>> parts;
+        collect_parts_world(parts);
         return parts;
     }
 

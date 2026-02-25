@@ -10,9 +10,10 @@ namespace carbon {
 
 /// Tessellate a BRep shape into a triangle mesh.
 /// Attempts multiple deflection values for robustness:
-/// tries the requested deflection first, then falls back to coarser values.
+/// tries coarse (1.0mm) first for speed, then falls back to finer values.
+/// Applies ShapeFix_Shape healing before tessellation.
 TriMesh tessellate_shape(const TopoDS_Shape& shape,
                          double linear_deflection = 0.1,
-                         double angular_deflection = 0.5);
+                         double angular_deflection = 0.5);  // radians (~28.6 degrees)
 
 } // namespace carbon

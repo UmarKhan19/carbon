@@ -620,3 +620,86 @@ TEST(Simulator, SimulationTimeMsNonZero) {
 
     EXPECT_GE(result.simulation_time_ms, 0u);
 }
+
+// ===========================================================================
+// Nested assembly world transform tests
+// ===========================================================================
+
+TEST(AssemblyNode, GetAllPartsWorldComposesTransforms) {
+    // Unit test: sub-assembly at (10,0,0) contains part at local (0,5,0)
+    // World position should be (10, 5, 0)
+    AssemblyNode root;
+    root.id = "root";
+    root.node_type = NodeType::Assembly;
+    root.transform = Mat4::Identity();
+
+    AssemblyNode sub;
+    sub.id = "sub";
+    sub.node_type = NodeType::Assembly;
+    sub.transform = Mat4::Identity();
+    sub.transform(0, 3) = 10.0f;
+
+    AssemblyNode part;
+    part.id = "part";
+    part.node_type = NodeType::Part;
+    part.transform = Mat4::Identity();
+    part.transform(1, 3) = 5.0f;
+    part.mesh = make_cube(0.5f);
+
+    sub.children.push_back(std::move(part));
+    root.children.push_back(std::move(sub));
+
+    auto parts = root.get_all_parts_world();
+    ASSERT_EQ(parts.size(), 1u);
+
+    const Mat4& world = parts[0].second;
+    EXPECT_NEAR(world(0, 3), 10.0f, 1e-5f);
+    EXPECT_NEAR(world(1, 3), 5.0f, 1e-5f);
+    EXPECT_NEAR(world(2, 3), 0.0f, 1e-5f);
+}
+
+TEST(Simulator, NestedAssemblyWorldTransform) {
+    // Sub-assembly offset by (10,0,0) with two parts at local (1,0,0) and (2,0,0).
+    // A third part sits at root level at (0,0,0).
+    // All three should be removable with correct world positions.
+    AssemblyNode root = make_assembly("root", {
+        make_sub_assembly("sub_a", Vec3(10, 0, 0), {
+            make_part_node("p1", "Part_1", make_cube(0.5f), Vec3(1, 0, 0)),
+            make_part_node("p2", "Part_2", make_cube(0.5f), Vec3(2, 0, 0)),
+        }),
+        make_part_node("p3", "Part_3", make_cube(0.5f), Vec3(0, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 3u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, DeeplyNestedAssemblyTransforms) {
+    // Root -> SubAsm_A(5,0,0) -> SubAsm_B(0,5,0) -> Part(0,0,0)
+    // Part world position should be (5, 5, 0).
+    // A second part at root level at origin.
+    AssemblyNode root = make_assembly("root", {
+        make_sub_assembly("sub_a", Vec3(5, 0, 0), {
+            make_sub_assembly("sub_b", Vec3(0, 5, 0), {
+                make_part_node("p1", "Part_1", make_cube(0.5f), Vec3(0, 0, 0)),
+            }),
+        }),
+        make_part_node("p2", "Part_2", make_cube(0.5f), Vec3(0, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 2u);
+}

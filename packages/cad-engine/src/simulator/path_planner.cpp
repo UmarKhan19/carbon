@@ -140,10 +140,16 @@ static bool evaluate_motion_transform(
 
         collision_checks++;
 
-        // Intersection test
-        bool intersecting = mesh_intersects(
-            *part.mesh, test_transform,
-            *ns.part->mesh, ns.part->transform);
+        // Intersection test (use cached neighbor mesh when available)
+        bool intersecting;
+        if (ns.cached_mesh) {
+            intersecting = mesh_intersects_cached(
+                *part.mesh, test_transform, *ns.cached_mesh);
+        } else {
+            intersecting = mesh_intersects(
+                *part.mesh, test_transform,
+                *ns.part->mesh, ns.part->transform);
+        }
 
         if (intersecting) {
             if (ns.baseline_intersecting) {
@@ -162,11 +168,17 @@ static bool evaluate_motion_transform(
             return true;  // Non-baseline intersection — collision
         }
 
-        // Distance check
+        // Distance check (use cached neighbor AABB tree when available)
         collision_checks++;
-        float dist = mesh_distance(
-            *part.mesh, test_transform,
-            *ns.part->mesh, ns.part->transform);
+        float dist;
+        if (ns.cached_mesh) {
+            dist = mesh_distance_cached(
+                *part.mesh, test_transform, *ns.cached_mesh);
+        } else {
+            dist = mesh_distance(
+                *part.mesh, test_transform,
+                *ns.part->mesh, ns.part->transform);
+        }
 
         if (dist < ns.relaxed_clearance) {
             return true;  // Too close — collision

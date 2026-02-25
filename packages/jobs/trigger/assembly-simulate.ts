@@ -95,7 +95,7 @@ function summarizeBody(body: string, max = 500): string {
 function formatSimulatorHttpError(
   status: number,
   body: string,
-  cadEngineUrl: string
+  cadSimulateUrl: string
 ): string {
   const trimmed = body.trim();
 
@@ -105,7 +105,7 @@ function formatSimulatorHttpError(
   ) {
     return [
       `Simulator tunnel reachable but upstream service is unavailable (${status}).`,
-      `CAD_ENGINE_URL=${cadEngineUrl}`,
+      `CAD_ENGINE_URL=${cadSimulateUrl}`,
       "ngrok reports ERR_NGROK_8012 (upstream connection refused).",
       "Start cad-engine on the forwarded port (usually 8080) or point ngrok/CAD_ENGINE_URL to the correct port."
     ].join(" ");
@@ -114,7 +114,7 @@ function formatSimulatorHttpError(
   if (trimmed.startsWith("<!DOCTYPE html") || trimmed.startsWith("<html")) {
     return [
       `Simulator returned HTML error page (${status}) instead of JSON.`,
-      `CAD_ENGINE_URL=${cadEngineUrl}`,
+      `CAD_ENGINE_URL=${cadSimulateUrl}`,
       `Body: ${summarizeBody(body)}`
     ].join(" ");
   }
@@ -125,7 +125,7 @@ function formatSimulatorHttpError(
 function parseSimulatorResponse(
   rawBody: string,
   contentType: string,
-  cadEngineUrl: string
+  cadSimulateUrl: string
 ): SimulateResponse {
   try {
     return JSON.parse(rawBody) as SimulateResponse;
@@ -138,7 +138,7 @@ function parseSimulatorResponse(
       throw new Error(
         [
           "Simulator returned ngrok upstream error page instead of JSON.",
-          `CAD_ENGINE_URL=${cadEngineUrl}`,
+          `CAD_ENGINE_URL=${cadSimulateUrl}`,
           "ERR_NGROK_8012 indicates cad-engine is not reachable on the forwarded local port."
         ].join(" ")
       );
@@ -148,7 +148,7 @@ function parseSimulatorResponse(
       throw new Error(
         [
           "Simulator returned HTML instead of JSON.",
-          `CAD_ENGINE_URL=${cadEngineUrl}`,
+          `CAD_ENGINE_URL=${cadSimulateUrl}`,
           `content-type=${contentType || "unknown"}`,
           `Body: ${summarizeBody(rawBody)}`
         ].join(" ")
@@ -206,16 +206,24 @@ export const assemblySimulateTask = task({
   run: async (payload: {
     projectId: string;
     companyId: string;
+    engine?: "cpp" | "python-rust";
   }) => {
-    const { projectId, companyId } = payload;
+    const { projectId, companyId, engine = "cpp" } = payload;
+
+    // Route to the correct simulation service based on engine choice
+    const cadSimulateUrl =
+      engine === "python-rust"
+        ? process.env.CAD_RUST_URL || "http://localhost:8081"
+        : process.env.CAD_ENGINE_URL || "http://localhost:8080";
 
     logger.info("Starting assembly simulation", {
       projectId,
       companyId,
+      engine,
+      cadSimulateUrl,
     });
 
     const client = getCarbonServiceRole();
-    const cadEngineUrl = process.env.CAD_ENGINE_URL || "http://localhost:8080";
 
     // Update status to simulating
     await metadata.set("status", "loading");
@@ -282,12 +290,12 @@ export const assemblySimulateTask = task({
       const glbSizeMB = glbArrayBuffer.byteLength / (1024 * 1024);
       const timeoutMs = Math.max(300_000, Math.round(300_000 + (glbSizeMB / 10) * 60_000));
 
-      logger.info("Calling C++ cad-engine simulator", { cadEngineUrl, timeoutMs, glbSizeMB: Math.round(glbSizeMB) });
+      logger.info("Calling C++ cad-engine simulator", { cadSimulateUrl, timeoutMs, glbSizeMB: Math.round(glbSizeMB) });
 
       const controller = new AbortController();
       const fetchTimeout = setTimeout(() => controller.abort(), timeoutMs + 30_000);
 
-      const response = await fetch(`${cadEngineUrl}/simulate`, {
+      const response = await fetch(`${cadSimulateUrl}/simulate`, {
         method: "POST",
         signal: controller.signal,
         headers: {
@@ -307,14 +315,14 @@ export const assemblySimulateTask = task({
 
       if (!response.ok) {
         throw new Error(
-          formatSimulatorHttpError(response.status, responseBody, cadEngineUrl)
+          formatSimulatorHttpError(response.status, responseBody, cadSimulateUrl)
         );
       }
 
       const result = parseSimulatorResponse(
         responseBody,
         responseContentType,
-        cadEngineUrl
+        cadSimulateUrl
       );
 
       if (!result.success || !result.result) {

@@ -8,6 +8,7 @@
 #include "collision/contact_graph.h"
 #include "collision/collision_utils.h"
 #include "classification/part_classifier.h"
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -41,6 +42,7 @@ struct PartData {
     Isometry transform;
     Vec3 bbox_size;   // local AABB dimensions
     AABB world_aabb;
+    std::optional<BRepAnalysis> brep_analysis;
 };
 
 /// Neighbor state for collision checking during motion.
@@ -49,6 +51,7 @@ struct NeighborState {
     bool baseline_intersecting;
     float baseline_overlap_volume;
     float relaxed_clearance;
+    std::shared_ptr<CachedCollisionMesh> cached_mesh;  // pre-built CGAL mesh + AABB tree
 };
 
 /// Generate candidate removal directions for a part.

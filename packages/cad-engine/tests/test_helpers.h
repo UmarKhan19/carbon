@@ -104,6 +104,21 @@ inline AssemblyNode make_assembly(const std::string& id, std::vector<AssemblyNod
     return root;
 }
 
+/// Create a sub-assembly node with a position offset and children.
+inline AssemblyNode make_sub_assembly(const std::string& id, const Vec3& position,
+                                       std::vector<AssemblyNode> children) {
+    AssemblyNode node;
+    node.id = id;
+    node.name = id;
+    node.node_type = NodeType::Assembly;
+    node.transform = Mat4::Identity();
+    node.transform(0, 3) = position.x();
+    node.transform(1, 3) = position.y();
+    node.transform(2, 3) = position.z();
+    node.children = std::move(children);
+    return node;
+}
+
 /// Create an Isometry from a translation vector.
 inline Isometry iso_at(const Vec3& pos) {
     Isometry iso;

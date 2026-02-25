@@ -3,6 +3,7 @@
 #include "geometry/aabb.h"
 
 #include <iostream>
+#include <unordered_map>
 
 namespace carbon {
 
@@ -41,9 +42,20 @@ BlockingMatrix BlockingMatrix::build(
         matrix.blockers_[part.id] = {};
     }
 
+    // Pre-build cached CGAL meshes for all parts (each part's mesh is static)
+    std::vector<std::shared_ptr<CachedCollisionMesh>> cached_meshes(n);
+    for (size_t i = 0; i < n; ++i) {
+        cached_meshes[i] = build_collision_mesh(*parts[i].mesh, parts[i].transform);
+    }
+
+    // Pre-compute baseline intersection results for all pairs (symmetric)
+    // Key: min(i,j) * n + max(i,j) → bool
+    std::unordered_map<size_t, bool> baseline_cache;
+
     size_t total_checks = 0;
     size_t skipped_aabb = 0;
     size_t blocked_found = 0;
+    size_t baseline_skips = 0;
 
     for (size_t i = 0; i < n; ++i) {
         const auto& part_i = parts[i];
@@ -64,25 +76,30 @@ BlockingMatrix BlockingMatrix::build(
                     continue;
                 }
 
-                // Check if parts already intersect at rest (baseline-intersecting)
-                // Baseline-intersecting parts are handled specially in path evaluation
-                bool baseline_intersecting = mesh_intersects(
-                    *part_i.mesh, part_i.transform,
-                    *part_j.mesh, part_j.transform);
+                // Check baseline intersection (cached across directions)
+                size_t pair_key = std::min(i, j) * n + std::max(i, j);
+                auto cache_it = baseline_cache.find(pair_key);
+                bool baseline_intersecting;
+                if (cache_it != baseline_cache.end()) {
+                    baseline_intersecting = cache_it->second;
+                } else {
+                    baseline_intersecting = mesh_intersects_cached(
+                        *part_i.mesh, part_i.transform, *cached_meshes[j]);
+                    baseline_cache[pair_key] = baseline_intersecting;
+                }
 
                 if (baseline_intersecting) {
-                    // Skip baseline-intersecting parts in blocking matrix
-                    // (they're handled by monotonic overlap reduction in path eval)
+                    baseline_skips++;
                     continue;
                 }
 
                 total_checks++;
 
-                // Discrete CCD check: does part_i collide with part_j when moving in direction?
+                // Discrete CCD check using pre-built obstacle mesh
                 Vec3 velocity = direction * sweep_distance;
-                auto toi = cast_shapes_discrete(
+                auto toi = cast_shapes_discrete_cached(
                     *part_i.mesh, part_i.transform, velocity,
-                    *part_j.mesh, part_j.transform,
+                    *cached_meshes[j],
                     1.0f,  // max_toi
                     10     // 10 samples (matching Rust)
                 );
@@ -97,7 +114,8 @@ BlockingMatrix BlockingMatrix::build(
     }
 
     std::cout << "[blocking_matrix] Built: " << blocked_found << " blocking pairs, "
-              << total_checks << " CCD checks, " << skipped_aabb << " AABB skips"
+              << total_checks << " CCD checks, " << skipped_aabb << " AABB skips, "
+              << baseline_skips << " baseline-intersecting skips"
               << std::endl;
 
     return matrix;

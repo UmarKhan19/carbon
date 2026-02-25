@@ -1,6 +1,7 @@
 #include "classification/part_classifier.h"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 namespace carbon {
 
@@ -36,9 +37,18 @@ PartClassification classify_part(const ClassificationInput& input,
         cls.structural_score += 0.15f;
     }
 
-    // --- BRep-based signals (NEW, adds to above) ---
+    // --- BRep-based signals (adds to above) ---
     if (input.brep.has_value()) {
         const auto& brep = *input.brep;
+        std::cout << "[classifier_brep] ENTERED for '" << input.name << "'"
+                  << " vol=" << brep.volume
+                  << " threads=" << brep.has_threads
+                  << " cyl_ratio=" << brep.cylindrical_surface_ratio
+                  << " planar_ratio=" << brep.planar_surface_ratio
+                  << " rel_vol=" << input.relative_volume
+                  << " total_faces=" << brep.total_faces
+                  << " aspect=" << ((sorted_dims[2] > 1e-6f) ? sorted_dims[0] / sorted_dims[2] : 1.0f)
+                  << std::endl;
 
         // Thread detection → very strong fastener signal
         if (brep.has_threads) {
@@ -50,7 +60,26 @@ PartClassification classify_part(const ClassificationInput& input,
             cls.fastener_score += 0.3f;
         }
 
-        // High planar ratio + thin → panel
+        // Small part with clear insertion axis + moderate cylindrical → fastener
+        if (brep.cylindrical_surface_ratio > 0.3 && input.relative_volume < 0.05f
+            && brep.insertion_axes.size() <= 2) {
+            cls.fastener_score += 0.15f;
+        }
+
+        // Large volume + many faces → structural housing/frame
+        if (brep.volume > 0 && input.relative_volume > 0.10f) {
+            cls.structural_score += 0.15f;
+        }
+        // High planar area ratio + large volume → structural
+        if (brep.planar_surface_ratio > 0.5 && input.relative_volume > 0.10f) {
+            cls.structural_score += 0.10f;
+        }
+        // Many total faces → complex geometry → likely structural
+        if (brep.total_faces > 20) {
+            cls.structural_score += 0.05f;
+        }
+
+        // High planar ratio + thin → panel (face count based)
         int total_faces = brep.planar_faces + brep.cylindrical_faces +
                           brep.conical_faces + brep.spherical_faces +
                           brep.toroidal_faces + brep.freeform_faces;
@@ -59,6 +88,11 @@ PartClassification classify_part(const ClassificationInput& input,
             if (planar_ratio > 0.8 && aspect < 0.15) {
                 cls.panel_score += 0.2f;
             }
+        }
+
+        // Medium planar surface ratio + moderate aspect → panel
+        if (brep.planar_surface_ratio > 0.6 && aspect < 0.25f) {
+            cls.panel_score += 0.15f;
         }
     }
 

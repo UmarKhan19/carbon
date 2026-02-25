@@ -15,7 +15,7 @@ namespace carbon {
 
 struct ParseConfig {
     double linear_deflection = 0.1;   // mm — max mesh-to-geometry distance
-    double angular_deflection = 0.5;  // degrees — max angular deviation
+    double angular_deflection = 0.5;  // radians (~28.6 degrees, matches Python OCC)
     bool extract_colors = true;
     int max_depth = 50;               // recursion depth limit
 };

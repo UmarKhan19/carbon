@@ -64,6 +64,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const name = formData.get("name") as string;
   const file = formData.get("file") as File | null;
+  const engine = ((formData.get("engine") as string) || "cpp") as
+    | "cpp"
+    | "python-rust";
 
   if (!name?.trim()) {
     return { error: "Project name is required" };
@@ -122,7 +125,8 @@ export async function action({ request }: ActionFunctionArgs) {
   await tasks.trigger<typeof stepParserOccTask>("step-parser-occ", {
     projectId: project.id,
     companyId,
-    storagePath
+    storagePath,
+    engine
   });
 
   return { projectId: project.id };

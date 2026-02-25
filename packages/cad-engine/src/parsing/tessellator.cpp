@@ -2,12 +2,14 @@
 
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
+#include <ShapeFix_Shape.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
 #include <Poly_Triangulation.hxx>
 #include <TopLoc_Location.hxx>
 #include <gp_Pnt.hxx>
+#include <chrono>
 #include <iostream>
 #include <unordered_map>
 
@@ -20,12 +22,23 @@ TriMesh tessellate_shape(const TopoDS_Shape& shape,
 
     if (shape.IsNull()) return result;
 
-    // Tessellate with BRepMesh. Try requested deflection first,
-    // fall back to coarser values if no triangulation is produced.
-    double deflections[] = {linear_deflection, 0.5, 1.0};
+    auto t0 = std::chrono::steady_clock::now();
+
+    // Heal shape before tessellation (matches Python OCC behavior).
+    // Fixes bad geometry that can cause BRepMesh to hang or produce degenerate results.
+    TopoDS_Shape working_shape = shape;
+    ShapeFix_Shape fixer(working_shape);
+    fixer.Perform();
+    TopoDS_Shape fixed = fixer.Shape();
+    if (!fixed.IsNull()) working_shape = fixed;
+
+    // Tessellate with BRepMesh. Try coarse deflection first for speed,
+    // fall back to finer values if no triangulation is produced.
+    // This matches Python OCC's order: [1.0, 0.5, 0.1].
+    double deflections[] = {1.0, 0.5, linear_deflection};
     for (double defl : deflections) {
-        BRepMesh_IncrementalMesh mesher(shape, defl, false,
-                                        angular_deflection * M_PI / 180.0);
+        BRepMesh_IncrementalMesh mesher(working_shape, defl, false,
+                                        angular_deflection);  // already in radians
         mesher.Perform();
         if (mesher.IsDone()) break;
     }
@@ -37,7 +50,7 @@ TriMesh tessellate_shape(const TopoDS_Shape& shape,
     // For smooth normals: accumulate face normals per vertex position
     std::vector<Vec3> normal_accum;
 
-    for (TopExp_Explorer exp(shape, TopAbs_FACE); exp.More(); exp.Next()) {
+    for (TopExp_Explorer exp(working_shape, TopAbs_FACE); exp.More(); exp.Next()) {
         const TopoDS_Face& face = TopoDS::Face(exp.Current());
         TopLoc_Location loc;
         Handle(Poly_Triangulation) tri = BRep_Tool::Triangulation(face, loc);
@@ -104,6 +117,11 @@ TriMesh tessellate_shape(const TopoDS_Shape& shape,
         }
         result.normals = std::move(normals);
     }
+
+    auto dt = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - t0).count();
+    std::cout << "[tessellator] " << result.vertices.size() << " verts, "
+              << result.indices.size() << " tris in " << dt << "ms" << std::endl;
 
     return result;
 }

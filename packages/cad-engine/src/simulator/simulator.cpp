@@ -31,23 +31,40 @@ AssemblySimulator::AssemblySimulator(SimulatorConfig config)
 void AssemblySimulator::load_assembly(const AssemblyNode& root) {
     parts_.clear();
 
-    // Collect all part nodes
-    std::vector<const AssemblyNode*> part_nodes = root.get_all_parts();
+    // Collect all part nodes with composed world transforms.
+    // get_all_parts_world() walks the tree and multiplies parent transforms
+    // so that nested sub-assembly positioning is correctly accumulated.
+    auto parts_with_transforms = root.get_all_parts_world();
 
-    for (const auto* node : part_nodes) {
+    for (const auto& [node, world_transform] : parts_with_transforms) {
         if (!node->mesh || node->mesh->empty()) continue;
 
         PartData pd;
         pd.id = node->id;
         pd.name = node->name;
         pd.mesh = &(*node->mesh);
-        pd.transform = Isometry::from_matrix4(node->transform);
+        pd.transform = Isometry::from_matrix4(world_transform);
 
         AABB local_aabb = node->mesh->local_aabb();
         pd.bbox_size = local_aabb.size();
         pd.world_aabb = node->mesh->world_aabb(pd.transform);
+        pd.brep_analysis = node->metadata.brep_analysis;
+        std::cout << "[load_debug] Part '" << pd.name << "'"
+                  << " has_brep=" << pd.brep_analysis.has_value();
+        if (pd.brep_analysis.has_value()) {
+            std::cout << " vol=" << pd.brep_analysis->volume
+                      << " faces=" << pd.brep_analysis->total_faces
+                      << " threads=" << pd.brep_analysis->has_threads;
+        }
+        std::cout << std::endl;
 
         parts_.push_back(std::move(pd));
+    }
+
+    // Build part lookup map
+    part_map_.clear();
+    for (const auto& p : parts_) {
+        part_map_[p.id] = &p;
     }
 
     // Compute global assembly AABB
@@ -90,18 +107,33 @@ std::vector<NeighborState> AssemblySimulator::build_neighbor_states(
         if (removed_parts_.count(nid)) continue;
 
         // Find the neighbor's PartData
-        const PartData* np = nullptr;
-        for (const auto& p : parts_) {
-            if (p.id == nid) { np = &p; break; }
-        }
+        const PartData* np = part_map_.count(nid) ? part_map_.at(nid) : nullptr;
         if (!np) continue;
+
+        // Pre-build cached CGAL mesh + AABB tree for this neighbor (static pose)
+        auto cached = build_collision_mesh(*np->mesh, np->transform);
 
         NeighborState ns;
         ns.part = np;
+        ns.cached_mesh = cached;
 
-        // Check baseline intersection
-        ns.baseline_intersecting = mesh_intersects(
-            *part.mesh, part.transform, *np->mesh, np->transform);
+        // Check baseline intersection with depth threshold.
+        // Shallow mesh overlap at contact surfaces (tessellation artifact)
+        // is NOT counted as baseline-intersecting.
+        bool raw_intersects = mesh_intersects_cached(
+            *part.mesh, part.transform, *cached);
+        if (raw_intersects) {
+            AABB overlap;
+            overlap.min = part.world_aabb.min.cwiseMax(np->world_aabb.min);
+            overlap.max = part.world_aabb.max.cwiseMin(np->world_aabb.max);
+            Vec3 overlap_size = overlap.size();
+            float min_extent = std::min({overlap_size.x(), overlap_size.y(), overlap_size.z()});
+            float small_diag = std::min(part.world_aabb.diagonal(), np->world_aabb.diagonal());
+            float threshold = small_diag * 0.05f;
+            ns.baseline_intersecting = (min_extent > threshold);
+        } else {
+            ns.baseline_intersecting = false;
+        }
 
         // Compute baseline overlap volume
         if (ns.baseline_intersecting) {
@@ -111,11 +143,11 @@ std::vector<NeighborState> AssemblySimulator::build_neighbor_states(
         }
 
         // Relaxed clearance: 0 if near-contact, else use configured clearance
-        float dist = mesh_distance(*part.mesh, part.transform, *np->mesh, np->transform);
+        float dist = mesh_distance_cached(*part.mesh, part.transform, *cached);
         ns.relaxed_clearance = (dist < config_.clearance_epsilon * 2.0f)
             ? 0.0f : config_.clearance_epsilon;
 
-        neighbors.push_back(ns);
+        neighbors.push_back(std::move(ns));
     }
 
     return neighbors;
@@ -156,6 +188,16 @@ SimulationResult AssemblySimulator::simulate() {
         ci.bbox_dims = p.bbox_size;
         ci.relative_volume = (p.bbox_size.x() * p.bbox_size.y() * p.bbox_size.z()) / total_volume;
         ci.contact_degree = contact_graph.degree(p.id);
+        ci.brep = p.brep_analysis;
+        std::cout << "[classify_debug] Part '" << p.name << "'"
+                  << " has_brep=" << ci.brep.has_value();
+        if (ci.brep.has_value()) {
+            std::cout << " vol=" << ci.brep->volume
+                      << " faces=" << ci.brep->total_faces
+                      << " cyl_ratio=" << ci.brep->cylindrical_surface_ratio
+                      << " threads=" << ci.brep->has_threads;
+        }
+        std::cout << std::endl;
         class_inputs.push_back({p.id, ci});
     }
 
@@ -164,16 +206,50 @@ SimulationResult AssemblySimulator::simulate() {
     // Infer kinds
     std::unordered_map<std::string, PartKind> kinds;
     for (const auto& [id, cls] : classifications) {
-        // Find part name
-        std::string name;
-        for (const auto& p : parts_) {
-            if (p.id == id) { name = p.name; break; }
-        }
+        auto it = part_map_.find(id);
+        std::string name = (it != part_map_.end()) ? it->second->name : "";
         kinds[id] = infer_part_kind(name, cls, rules);
     }
 
     // --- 3. Build dependency graph ---
     auto dep_graph = DependencyGraph::build(contact_graph, classifications, kinds);
+
+    // --- Log classifications and dependency edges ---
+    std::cout << "\n=== PART CLASSIFICATIONS ===" << std::endl;
+    for (const auto& p : parts_) {
+        auto kind_it = kinds.find(p.id);
+        const char* kind_str = "Unknown";
+        if (kind_it != kinds.end()) {
+            switch (kind_it->second) {
+                case PartKind::Fastener:   kind_str = "Fastener"; break;
+                case PartKind::Structural: kind_str = "Structural"; break;
+                case PartKind::Panel:      kind_str = "Panel"; break;
+                case PartKind::Unknown:    kind_str = "Unknown"; break;
+            }
+        }
+        auto cls_it = classifications.find(p.id);
+        if (cls_it != classifications.end()) {
+            std::cout << "  \"" << p.name << "\" [" << kind_str << "]"
+                      << " fastener=" << cls_it->second.fastener_score
+                      << " structural=" << cls_it->second.structural_score
+                      << " panel=" << cls_it->second.panel_score
+                      << std::endl;
+        }
+    }
+
+    std::cout << "\n=== DEPENDENCY GRAPH EDGES (before -> after in assembly) ===" << std::endl;
+    for (const auto& [from_id, tos] : dep_graph.forward_edges()) {
+        auto from_it = part_map_.find(from_id);
+        std::string from_name = (from_it != part_map_.end()) ? from_it->second->name : from_id;
+        for (const auto& to_id : tos) {
+            auto to_it = part_map_.find(to_id);
+            std::string to_name = (to_it != part_map_.end()) ? to_it->second->name : to_id;
+            std::cout << "  " << from_name << " -> " << to_name
+                      << "  (assemble \"" << from_name << "\" BEFORE \"" << to_name << "\")"
+                      << std::endl;
+        }
+    }
+    std::cout << std::endl;
 
     // --- 4. Auto-compute clearance ---
     if (config_.clearance_epsilon <= 0.0f) {
@@ -198,12 +274,10 @@ SimulationResult AssemblySimulator::simulate() {
     for (const auto& edge : contact_graph.edges()) {
         if (edge.distance <= 0.0f) {
             // Parts are touching/overlapping — check if truly intersecting
-            const PartData* pa = nullptr;
-            const PartData* pb = nullptr;
-            for (const auto& p : parts_) {
-                if (p.id == edge.part_a) pa = &p;
-                if (p.id == edge.part_b) pb = &p;
-            }
+            auto pa_it = part_map_.find(edge.part_a);
+            auto pb_it = part_map_.find(edge.part_b);
+            const PartData* pa = (pa_it != part_map_.end()) ? pa_it->second : nullptr;
+            const PartData* pb = (pb_it != part_map_.end()) ? pb_it->second : nullptr;
             if (pa && pb && mesh_intersects(*pa->mesh, pa->transform, *pb->mesh, pb->transform)) {
                 SimulationIssue issue;
                 issue.kind = SimulationIssueKind::Overlap;
@@ -355,16 +429,46 @@ SimulationResult AssemblySimulator::simulate() {
         for (const auto& candidate : removable) {
             removed_parts_.insert(candidate.id);
 
+            // Log part removal details
+            auto rp_it = part_map_.find(candidate.id);
+            const PartData* removed_part = (rp_it != part_map_.end()) ? rp_it->second : nullptr;
+            if (removed_part) {
+                Vec3 start_pos = removed_part->transform.translation;
+                Vec3 end_pos = start_pos + candidate.direction * candidate.eval.travel_distance;
+                auto kind_it = kinds.find(candidate.id);
+                const char* kind_str = "Unknown";
+                if (kind_it != kinds.end()) {
+                    switch (kind_it->second) {
+                        case PartKind::Fastener:   kind_str = "Fastener"; break;
+                        case PartKind::Structural: kind_str = "Structural"; break;
+                        case PartKind::Panel:      kind_str = "Panel"; break;
+                        case PartKind::Unknown:    kind_str = "Unknown"; break;
+                    }
+                }
+                std::cout << "[disassembly] Remove step " << step_number + 1
+                          << ": \"" << removed_part->name << "\""
+                          << " [" << kind_str << "]"
+                          << " | dir=(" << candidate.direction.x()
+                          << ", " << candidate.direction.y()
+                          << ", " << candidate.direction.z() << ")"
+                          << " | start=(" << start_pos.x()
+                          << ", " << start_pos.y()
+                          << ", " << start_pos.z() << ")"
+                          << " | end=(" << end_pos.x()
+                          << ", " << end_pos.y()
+                          << ", " << end_pos.z() << ")"
+                          << " | travel=" << candidate.eval.travel_distance
+                          << " | quality=" << candidate.quality
+                          << std::endl;
+            }
+
             AssemblyStep step;
             step.step_number = ++step_number;
             step.part_ids = {candidate.id};
 
             // Find part name
-            for (const auto& p : parts_) {
-                if (p.id == candidate.id) {
-                    step.part_names = {p.name};
-                    break;
-                }
+            if (removed_part) {
+                step.part_names = {removed_part->name};
             }
 
             step.assembly_direction = {
@@ -379,6 +483,21 @@ SimulationResult AssemblySimulator::simulate() {
 
             disassembly_steps.push_back(std::move(step));
         }
+    }
+
+    // --- Log disassembly order summary (BEFORE reversal) ---
+    std::cout << "\n=== DISASSEMBLY ORDER (before reverse) ===" << std::endl;
+    for (const auto& s : disassembly_steps) {
+        std::string name = s.part_names.empty() ? s.part_ids[0] : s.part_names[0];
+        std::cout << "  Step " << s.step_number << ": " << name
+                  << " | removal dir=(" << s.assembly_direction[0]
+                  << ", " << s.assembly_direction[1]
+                  << ", " << s.assembly_direction[2] << ")" << std::endl;
+    }
+    if (!result.stuck_parts.empty()) {
+        std::cout << "  STUCK: ";
+        for (const auto& sp : result.stuck_parts) std::cout << sp << " ";
+        std::cout << std::endl;
     }
 
     // --- 8. Reverse steps for assembly order ---
@@ -398,6 +517,17 @@ SimulationResult AssemblySimulator::simulate() {
             disassembly_steps[i].assembly_direction[j] = -disassembly_steps[i].assembly_direction[j];
         }
     }
+
+    // --- Log assembly order summary (AFTER reversal) ---
+    std::cout << "\n=== ASSEMBLY ORDER (after reverse) ===" << std::endl;
+    for (const auto& s : disassembly_steps) {
+        std::string name = s.part_names.empty() ? s.part_ids[0] : s.part_names[0];
+        std::cout << "  Step " << s.step_number << ": " << name
+                  << " | insert dir=(" << s.assembly_direction[0]
+                  << ", " << s.assembly_direction[1]
+                  << ", " << s.assembly_direction[2] << ")" << std::endl;
+    }
+    std::cout << std::endl;
 
     result.steps = std::move(disassembly_steps);
 

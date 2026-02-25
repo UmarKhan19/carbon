@@ -24,6 +24,14 @@ using AABBTree = CGAL::AABB_tree<Traits>;
 
 namespace PMP = CGAL::Polygon_mesh_processing;
 
+// --- CachedCollisionMesh definition ---
+
+struct CachedCollisionMesh {
+    SMesh cgal_mesh;
+    AABBTree aabb_tree;
+    AABB world_aabb;
+};
+
 // --- Helper: convert TriMesh + Isometry to CGAL Surface_mesh ---
 
 static SMesh to_cgal_mesh(const TriMesh& mesh, const Isometry& transform) {
@@ -47,7 +55,23 @@ static SMesh to_cgal_mesh(const TriMesh& mesh, const Isometry& transform) {
     return sm;
 }
 
-// --- Public API ---
+// --- build_collision_mesh ---
+
+std::shared_ptr<CachedCollisionMesh> build_collision_mesh(
+    const TriMesh& mesh, const Isometry& transform) {
+
+    auto cached = std::make_shared<CachedCollisionMesh>();
+    cached->cgal_mesh = to_cgal_mesh(mesh, transform);
+    cached->aabb_tree.insert(
+        faces(cached->cgal_mesh).first,
+        faces(cached->cgal_mesh).second,
+        cached->cgal_mesh);
+    cached->aabb_tree.accelerate_distance_queries();
+    cached->world_aabb = mesh.world_aabb(transform);
+    return cached;
+}
+
+// --- Original (uncached) Public API ---
 
 bool mesh_intersects(const TriMesh& a, const Isometry& ta,
                      const TriMesh& b, const Isometry& tb) {
@@ -143,6 +167,95 @@ std::optional<float> cast_shapes_discrete(
 
                 SMesh sm_mid = to_cgal_mesh(moving, mid_pose);
                 if (PMP::do_intersect(sm_mid, sm_obstacle)) {
+                    hi = mid;
+                } else {
+                    lo = mid;
+                }
+            }
+            return hi;
+        }
+    }
+    return std::nullopt;
+}
+
+// --- Cached API ---
+
+bool mesh_intersects_cached(const TriMesh& a, const Isometry& ta,
+                            const CachedCollisionMesh& b_cached) {
+    if (a.empty()) return false;
+
+    // Quick AABB pre-check
+    AABB aabb_a = a.world_aabb(ta);
+    if (!aabb_a.overlaps(b_cached.world_aabb, 0.001f)) return false;
+
+    SMesh sm_a = to_cgal_mesh(a, ta);
+    return PMP::do_intersect(sm_a, b_cached.cgal_mesh);
+}
+
+float mesh_distance_cached(const TriMesh& a, const Isometry& ta,
+                           const CachedCollisionMesh& b_cached) {
+    if (a.empty()) return std::numeric_limits<float>::max();
+
+    // Quick AABB distance pre-check
+    AABB aabb_a = a.world_aabb(ta);
+    if (!aabb_a.overlaps(b_cached.world_aabb, 5.0f)) {
+        float dx = std::max(0.0f, std::max(aabb_a.min.x() - b_cached.world_aabb.max.x(),
+                                            b_cached.world_aabb.min.x() - aabb_a.max.x()));
+        float dy = std::max(0.0f, std::max(aabb_a.min.y() - b_cached.world_aabb.max.y(),
+                                            b_cached.world_aabb.min.y() - aabb_a.max.y()));
+        float dz = std::max(0.0f, std::max(aabb_a.min.z() - b_cached.world_aabb.max.z(),
+                                            b_cached.world_aabb.min.z() - aabb_a.max.z()));
+        return std::sqrt(dx*dx + dy*dy + dz*dz);
+    }
+
+    // Use pre-built AABB tree from cached mesh
+    float min_dist = std::numeric_limits<float>::max();
+
+    size_t step = std::max<size_t>(1, a.vertices.size() / 500);
+    for (size_t i = 0; i < a.vertices.size(); i += step) {
+        Vec3 wv = ta.transform_point(a.vertices[i]);
+        Point_3 query(wv.x(), wv.y(), wv.z());
+        float sq_dist = static_cast<float>(b_cached.aabb_tree.squared_distance(query));
+        float dist = std::sqrt(sq_dist);
+        min_dist = std::min(min_dist, dist);
+
+        if (min_dist < 1e-6f) return 0.0f;
+    }
+
+    return min_dist;
+}
+
+std::optional<float> cast_shapes_discrete_cached(
+    const TriMesh& moving, const Isometry& start_pose, const Vec3& velocity,
+    const CachedCollisionMesh& obstacle_cached,
+    float max_toi, int samples) {
+
+    if (moving.empty()) return std::nullopt;
+
+    for (int i = 0; i <= samples; ++i) {
+        float t = max_toi * static_cast<float>(i) / static_cast<float>(samples);
+        Isometry pose = start_pose;
+        pose.translation += velocity * t;
+
+        // Quick AABB check
+        AABB aabb_moving = moving.world_aabb(pose);
+        if (!aabb_moving.overlaps(obstacle_cached.world_aabb, 0.001f)) continue;
+
+        // Full mesh intersection test using cached obstacle
+        SMesh sm_moving = to_cgal_mesh(moving, pose);
+        if (PMP::do_intersect(sm_moving, obstacle_cached.cgal_mesh)) {
+            float lo = (i > 0)
+                ? max_toi * static_cast<float>(i - 1) / static_cast<float>(samples)
+                : 0.0f;
+            float hi = t;
+
+            for (int refine = 0; refine < 6; ++refine) {
+                float mid = (lo + hi) * 0.5f;
+                Isometry mid_pose = start_pose;
+                mid_pose.translation += velocity * mid;
+
+                SMesh sm_mid = to_cgal_mesh(moving, mid_pose);
+                if (PMP::do_intersect(sm_mid, obstacle_cached.cgal_mesh)) {
                     hi = mid;
                 } else {
                     lo = mid;

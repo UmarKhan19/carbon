@@ -33,6 +33,12 @@ public:
 
     size_t edge_count() const;
 
+    /// Access forward edges for logging/debugging.
+    /// forward[A] = parts that must be assembled AFTER A.
+    const std::unordered_map<std::string, std::vector<std::string>>& forward_edges() const {
+        return forward_;
+    }
+
 private:
     // forward_[A] = parts that must be assembled AFTER A
     std::unordered_map<std::string, std::vector<std::string>> forward_;

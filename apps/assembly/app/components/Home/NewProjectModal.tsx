@@ -8,7 +8,9 @@ import {
   ModalDescription,
   ModalFooter,
   ModalHeader,
-  ModalTitle
+  ModalTitle,
+  RadioGroup,
+  RadioGroupItem
 } from "@carbon/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -66,6 +68,7 @@ function getErrorMessage(data: ProjectStatus | null): string {
 export function NewProjectModal({ open, onOpenChange }: NewProjectModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState("");
+  const [engine, setEngine] = useState<"cpp" | "python-rust">("cpp");
   const [projectId, setProjectId] = useState<string | null>(null);
   const [stage, setStage] = useState<PipelineStage>("idle");
 
@@ -148,6 +151,7 @@ export function NewProjectModal({ open, onOpenChange }: NewProjectModalProps) {
     formData.set("intent", "createProject");
     formData.set("name", projectName.trim());
     formData.set("file", selectedFile);
+    formData.set("engine", engine);
 
     submitFetcher.submit(formData, {
       method: "POST",
@@ -158,6 +162,7 @@ export function NewProjectModal({ open, onOpenChange }: NewProjectModalProps) {
   const handleReset = () => {
     setSelectedFile(null);
     setProjectName("");
+    setEngine("cpp");
     setProjectId(null);
     setStage("idle");
   };
@@ -250,6 +255,45 @@ export function NewProjectModal({ open, onOpenChange }: NewProjectModalProps) {
                       </>
                     )}
                   </div>
+                </div>
+
+                {/* Processing Engine */}
+                <div className="space-y-2">
+                  <Label>Processing Engine</Label>
+                  <RadioGroup
+                    value={engine}
+                    onValueChange={(value: string) =>
+                      setEngine(value as "cpp" | "python-rust")
+                    }
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="cpp" id="engine-cpp" />
+                      <Label
+                        htmlFor="engine-cpp"
+                        className="font-normal cursor-pointer"
+                      >
+                        C++ Engine
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem
+                        value="python-rust"
+                        id="engine-python-rust"
+                      />
+                      <Label
+                        htmlFor="engine-python-rust"
+                        className="font-normal cursor-pointer"
+                      >
+                        Python + Rust
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                  <p className="text-xs text-muted-foreground">
+                    {engine === "cpp"
+                      ? "OpenCascade + CGAL for parsing and simulation"
+                      : "PythonOCC for parsing, Rust (parry3d) for simulation"}
+                  </p>
                 </div>
               </div>
             </ModalBody>
