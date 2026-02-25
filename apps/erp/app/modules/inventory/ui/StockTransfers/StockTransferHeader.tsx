@@ -6,24 +6,28 @@ import {
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Heading,
   HStack,
   IconButton,
   useDisclosure
 } from "@carbon/react";
+import { Suspense } from "react";
 import {
   LuBarcode,
   LuCircleCheck,
   LuCirclePlay,
   LuEllipsisVertical,
+  LuHistory,
   LuLoaderCircle,
   LuTrash
 } from "react-icons/lu";
-import { useFetcher, useParams } from "react-router";
+import { Await, useFetcher, useParams } from "react-router";
 import Assignee, { useOptimisticAssignment } from "~/components/Assignee";
+import { AuditLogDrawer } from "~/components/AuditLog";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import type { StockTransfer, StockTransferLine } from "~/modules/inventory";
 import { path } from "~/utils/path";
 import StockTransferCompleteModal from "./StockTransferCompleteModal";
@@ -42,10 +46,16 @@ const StockTransferHeader = () => {
     throw new Error("Failed to load stockTransfer");
   const status = routeData.stockTransfer.status;
 
+  const { company } = useUser();
   const permissions = usePermissions();
   const postModal = useDisclosure();
   const deleteModal = useDisclosure();
+  const auditDrawer = useDisclosure();
   const statusFetcher = useFetcher<Result>();
+
+  const rootRouteData = useRouteData<{
+    auditLogEnabled: Promise<boolean>;
+  }>(path.to.authenticatedRoot);
 
   const canComplete =
     routeData.stockTransferLines.length > 0 &&
@@ -89,6 +99,23 @@ const StockTransferHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                <Suspense fallback={null}>
+                  <Await resolve={rootRouteData?.auditLogEnabled}>
+                    {(auditLogEnabled) => {
+                      return (
+                        <>
+                          {auditLogEnabled && (
+                            <DropdownMenuItem onClick={auditDrawer.onOpen}>
+                              <DropdownMenuIcon icon={<LuHistory />} />
+                              History
+                            </DropdownMenuItem>
+                          )}
+                        </>
+                      );
+                    }}
+                  </Await>
+                </Suspense>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
                     !permissions.can("delete", "inventory") ||
@@ -213,6 +240,13 @@ const StockTransferHeader = () => {
           }}
         />
       )}
+      <AuditLogDrawer
+        isOpen={auditDrawer.isOpen}
+        onClose={auditDrawer.onClose}
+        entityType="stockTransfer"
+        entityId={id}
+        companyId={company.id}
+      />
     </>
   );
 };

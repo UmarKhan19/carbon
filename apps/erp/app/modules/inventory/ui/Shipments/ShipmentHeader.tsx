@@ -23,6 +23,7 @@ import {
   LuCirclePlus,
   LuCreditCard,
   LuEllipsisVertical,
+  LuHistory,
   LuQrCode,
   LuShoppingCart,
   LuTicketX,
@@ -31,8 +32,9 @@ import {
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
 import { Await, Link, useNavigate, useParams } from "react-router";
+import { AuditLogDrawer } from "~/components/AuditLog";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import type { ItemTracking, Shipment, ShipmentLine } from "~/modules/inventory";
 import type { SalesInvoice } from "~/modules/invoicing/types";
 import SalesInvoiceStatus from "~/modules/invoicing/ui/SalesInvoice/SalesInvoiceStatus";
@@ -56,11 +58,17 @@ const ShipmentHeader = () => {
 
   if (!routeData?.shipment) throw new Error("Failed to load shipment");
 
+  const { company } = useUser();
   const permissions = usePermissions();
   const postModal = useDisclosure();
   const voidModal = useDisclosure();
   const deleteModal = useDisclosure();
+  const auditDrawer = useDisclosure();
   const navigate = useNavigate();
+
+  const rootRouteData = useRouteData<{
+    auditLogEnabled: Promise<boolean>;
+  }>(path.to.authenticatedRoot);
 
   const canPost =
     routeData.shipmentLines.length > 0 &&
@@ -121,6 +129,23 @@ const ShipmentHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                <Suspense fallback={null}>
+                  <Await resolve={rootRouteData?.auditLogEnabled}>
+                    {(auditLogEnabled) => {
+                      return (
+                        <>
+                          {auditLogEnabled && (
+                            <DropdownMenuItem onClick={auditDrawer.onOpen}>
+                              <DropdownMenuIcon icon={<LuHistory />} />
+                              History
+                            </DropdownMenuItem>
+                          )}
+                        </>
+                      );
+                    }}
+                  </Await>
+                </Suspense>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
                     !permissions.can("delete", "inventory") ||
@@ -389,6 +414,13 @@ const ShipmentHeader = () => {
           }}
         />
       )}
+      <AuditLogDrawer
+        isOpen={auditDrawer.isOpen}
+        onClose={auditDrawer.onClose}
+        entityType="shipment"
+        entityId={shipmentId}
+        companyId={company.id}
+      />
     </>
   );
 };
