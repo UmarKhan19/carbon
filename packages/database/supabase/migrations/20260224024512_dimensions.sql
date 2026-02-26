@@ -12,60 +12,50 @@ CREATE TABLE "dimension" (
   "id" TEXT NOT NULL DEFAULT id('dim'),
   "name" TEXT NOT NULL,
   "entityType" "dimensionEntityType" NOT NULL DEFAULT 'Custom',
-  "companyId" TEXT NOT NULL,
+  "companyGroupId" TEXT NOT NULL,
+  "active" BOOLEAN NOT NULL DEFAULT true,
+  "required" BOOLEAN NOT NULL DEFAULT false,
   "createdBy" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedBy" TEXT,
   "updatedAt" TIMESTAMP WITH TIME ZONE,
 
   CONSTRAINT "dimension_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "dimension_name_companyId_key" UNIQUE ("name", "companyId"),
-  CONSTRAINT "dimension_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "dimension_name_companyGroupId_key" UNIQUE ("name", "companyGroupId"),
+  CONSTRAINT "dimension_companyGroupId_fkey" FOREIGN KEY ("companyGroupId") REFERENCES "companyGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "dimension_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id"),
   CONSTRAINT "dimension_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id")
 );
 
-CREATE INDEX "dimension_companyId_idx" ON "dimension"("companyId");
+CREATE INDEX "dimension_companyGroupId_idx" ON "dimension"("companyGroupId");
 
 ALTER TABLE "dimension" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "SELECT" ON "public"."dimension"
 FOR SELECT USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_view')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_employee())::text[]
   )
 );
 
 CREATE POLICY "INSERT" ON "public"."dimension"
 FOR INSERT WITH CHECK (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_create')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_root_permission('accounting_create'))::text[]
   )
 );
 
 CREATE POLICY "UPDATE" ON "public"."dimension"
 FOR UPDATE USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_update')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_root_permission('accounting_update'))::text[]
   )
 );
 
 CREATE POLICY "DELETE" ON "public"."dimension"
 FOR DELETE USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_delete')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_root_permission('accounting_delete'))::text[]
   )
 );
 
@@ -74,7 +64,7 @@ CREATE TABLE "dimensionValue" (
   "id" TEXT NOT NULL DEFAULT id('dv'),
   "dimensionId" TEXT NOT NULL,
   "name" TEXT NOT NULL,
-  "companyId" TEXT NOT NULL,
+  "companyGroupId" TEXT NOT NULL,
   "createdBy" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedBy" TEXT,
@@ -83,53 +73,41 @@ CREATE TABLE "dimensionValue" (
   CONSTRAINT "dimensionValue_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "dimensionValue_dimensionId_name_key" UNIQUE ("dimensionId", "name"),
   CONSTRAINT "dimensionValue_dimensionId_fkey" FOREIGN KEY ("dimensionId") REFERENCES "dimension"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "dimensionValue_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "dimensionValue_companyGroupId_fkey" FOREIGN KEY ("companyGroupId") REFERENCES "companyGroup"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "dimensionValue_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id"),
   CONSTRAINT "dimensionValue_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id")
 );
 
 CREATE INDEX "dimensionValue_dimensionId_idx" ON "dimensionValue"("dimensionId");
-CREATE INDEX "dimensionValue_companyId_idx" ON "dimensionValue"("companyId");
+CREATE INDEX "dimensionValue_companyGroupId_idx" ON "dimensionValue"("companyGroupId");
 
 ALTER TABLE "dimensionValue" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "SELECT" ON "public"."dimensionValue"
 FOR SELECT USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_view')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_employee())::text[]
   )
 );
 
 CREATE POLICY "INSERT" ON "public"."dimensionValue"
 FOR INSERT WITH CHECK (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_create')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_root_permission('accounting_create'))::text[]
   )
 );
 
 CREATE POLICY "UPDATE" ON "public"."dimensionValue"
 FOR UPDATE USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_update')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_root_permission('accounting_update'))::text[]
   )
 );
 
 CREATE POLICY "DELETE" ON "public"."dimensionValue"
 FOR DELETE USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('accounting_delete')
-    )::text[]
+  "companyGroupId" = ANY (
+    (SELECT get_company_groups_for_root_permission('accounting_delete'))::text[]
   )
 );
 
@@ -198,7 +176,7 @@ CREATE OR REPLACE VIEW "dimensionValues" WITH(SECURITY_INVOKER=true) AS
     d."id" AS "dimensionId",
     d."name" AS "dimensionName",
     d."entityType",
-    d."companyId",
+    d."companyGroupId",
     dv."id" AS "valueId",
     dv."name" AS "valueName"
   FROM "dimension" d
