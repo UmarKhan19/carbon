@@ -3,7 +3,6 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 
 import { corsHeaders } from "../lib/headers.ts";
 import {
-  accountCategories,
   accountDefaults,
   accounts,
   currencies,
@@ -257,36 +256,22 @@ serve(async (req: Request) => {
           .values(currencies.map((c) => ({ ...c, companyGroupId })))
           .execute();
 
-        const accountCategoriesWithIds = await trx
-          .insertInto("accountCategory")
-          .values(accountCategories.map((ac) => ({ ...ac, companyGroupId })))
-          .returning(["id", "category"])
-          .execute();
-
-        const accountCategoriesByName = accountCategoriesWithIds.reduce<
-          Record<string, string>
-        >((acc, { id, category }) => {
-          if (id && category) {
-            acc[category] = id;
-          }
-          return acc;
-        }, {});
-
-        const getCategoryId = (category: string | null) => {
-          if (!category) return null;
-          return accountCategoriesByName[category];
-        };
-
-        await trx
-          .insertInto("account")
-          .values(
-            accounts.map(({ accountCategory, ...a }) => ({
-              ...a,
+        // Insert accounts in order, resolving parentNumber to parentId
+        const accountIdByNumber: Record<string, string> = {};
+        for (const { parentNumber, ...acc } of accounts) {
+          const result = await trx
+            .insertInto("account")
+            .values({
+              ...acc,
               companyGroupId,
-              accountCategoryId: getCategoryId(accountCategory),
-            }))
-          )
-          .execute();
+              parentId: parentNumber ? accountIdByNumber[parentNumber] ?? null : null,
+            })
+            .returning(["id", "number"])
+            .execute();
+          if (result[0]?.id && result[0]?.number) {
+            accountIdByNumber[result[0].number] = result[0].id;
+          }
+        }
       }
 
       // Company-specific accounting defaults and posting groups

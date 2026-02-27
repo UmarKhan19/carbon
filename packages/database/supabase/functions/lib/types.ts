@@ -174,8 +174,7 @@ export type Database = {
       }
       account: {
         Row: {
-          accountCategoryId: string | null
-          accountSubcategoryId: string | null
+          accountType: Database["public"]["Enums"]["accountType"] | null
           active: boolean
           class: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId: string
@@ -185,19 +184,18 @@ export type Database = {
           createdAt: string
           createdBy: string
           customFields: Json | null
-          directPosting: boolean
           id: string
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
+          isGroup: boolean
           name: string
           number: string
+          parentId: string | null
           tags: string[] | null
-          type: Database["public"]["Enums"]["glAccountType"]
           updatedAt: string | null
           updatedBy: string | null
         }
         Insert: {
-          accountCategoryId?: string | null
-          accountSubcategoryId?: string | null
+          accountType?: Database["public"]["Enums"]["accountType"] | null
           active?: boolean
           class?: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId: string
@@ -207,19 +205,18 @@ export type Database = {
           createdAt?: string
           createdBy: string
           customFields?: Json | null
-          directPosting?: boolean
           id?: string
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
+          isGroup?: boolean
           name: string
           number: string
+          parentId?: string | null
           tags?: string[] | null
-          type: Database["public"]["Enums"]["glAccountType"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Update: {
-          accountCategoryId?: string | null
-          accountSubcategoryId?: string | null
+          accountType?: Database["public"]["Enums"]["accountType"] | null
           active?: boolean
           class?: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId?: string
@@ -229,31 +226,17 @@ export type Database = {
           createdAt?: string
           createdBy?: string
           customFields?: Json | null
-          directPosting?: boolean
           id?: string
           incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"]
+          isGroup?: boolean
           name?: string
           number?: string
+          parentId?: string | null
           tags?: string[] | null
-          type?: Database["public"]["Enums"]["glAccountType"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "account_accountCategoryId_fkey"
-            columns: ["accountCategoryId"]
-            isOneToOne: false
-            referencedRelation: "accountCategories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "account_accountCategoryId_fkey"
-            columns: ["accountCategoryId"]
-            isOneToOne: false
-            referencedRelation: "accountCategory"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "account_companyGroupId_fkey"
             columns: ["companyGroupId"]
@@ -297,6 +280,20 @@ export type Database = {
             referencedColumns: ["userId"]
           },
           {
+            foreignKeyName: "account_parentId_fkey"
+            columns: ["parentId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_parentId_fkey"
+            columns: ["parentId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "account_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
@@ -326,126 +323,6 @@ export type Database = {
           },
           {
             foreignKeyName: "account_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-        ]
-      }
-      accountCategory: {
-        Row: {
-          category: string
-          class: Database["public"]["Enums"]["glAccountClass"]
-          companyGroupId: string
-          createdAt: string
-          createdBy: string
-          customFields: Json | null
-          id: string
-          incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
-          tags: string[] | null
-          updatedAt: string | null
-          updatedBy: string | null
-        }
-        Insert: {
-          category: string
-          class: Database["public"]["Enums"]["glAccountClass"]
-          companyGroupId: string
-          createdAt?: string
-          createdBy: string
-          customFields?: Json | null
-          id?: string
-          incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
-          tags?: string[] | null
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Update: {
-          category?: string
-          class?: Database["public"]["Enums"]["glAccountClass"]
-          companyGroupId?: string
-          createdAt?: string
-          createdBy?: string
-          customFields?: Json | null
-          id?: string
-          incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"]
-          tags?: string[] | null
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "accountCategory_companyGroupId_fkey"
-            columns: ["companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "companyGroup"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -1359,130 +1236,6 @@ export type Database = {
           },
           {
             foreignKeyName: "accountingPeriod_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-        ]
-      }
-      accountSubcategory: {
-        Row: {
-          accountCategoryId: string
-          active: boolean
-          createdAt: string
-          createdBy: string
-          customFields: Json | null
-          id: string
-          name: string
-          tags: string[] | null
-          updatedAt: string | null
-          updatedBy: string | null
-        }
-        Insert: {
-          accountCategoryId: string
-          active?: boolean
-          createdAt?: string
-          createdBy: string
-          customFields?: Json | null
-          id?: string
-          name: string
-          tags?: string[] | null
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Update: {
-          accountCategoryId?: string
-          active?: boolean
-          createdAt?: string
-          createdBy?: string
-          customFields?: Json | null
-          id?: string
-          name?: string
-          tags?: string[] | null
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "accountSubcategory_accountCategoryId_fkey"
-            columns: ["accountCategoryId"]
-            isOneToOne: false
-            referencedRelation: "accountCategories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_accountCategoryId_fkey"
-            columns: ["accountCategoryId"]
-            isOneToOne: false
-            referencedRelation: "accountCategory"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountSubcategory_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -32839,6 +32592,48 @@ export type Database = {
         }
         Relationships: []
       }
+      searchIndex_BRg5pquADpRTpsm5yKGBEY: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
       searchIndex_EUqQpnLP8uywmdSaYT55D: {
         Row: {
           createdAt: string
@@ -32924,6 +32719,48 @@ export type Database = {
         Relationships: []
       }
       searchIndex_RDScwr4FYBh6sDSHzHh13n: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
+      searchIndex_SZTKEVZq62AG464dbPx2Eu: {
         Row: {
           createdAt: string
           description: string | null
@@ -42119,132 +41956,9 @@ export type Database = {
       }
     }
     Views: {
-      accountCategories: {
-        Row: {
-          category: string | null
-          class: Database["public"]["Enums"]["glAccountClass"] | null
-          companyGroupId: string | null
-          createdAt: string | null
-          createdBy: string | null
-          customFields: Json | null
-          id: string | null
-          incomeBalance: Database["public"]["Enums"]["glIncomeBalance"] | null
-          subCategoriesCount: number | null
-          updatedAt: string | null
-          updatedBy: string | null
-        }
-        Insert: {
-          category?: string | null
-          class?: Database["public"]["Enums"]["glAccountClass"] | null
-          companyGroupId?: string | null
-          createdAt?: string | null
-          createdBy?: string | null
-          customFields?: Json | null
-          id?: string | null
-          incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null
-          subCategoriesCount?: never
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Update: {
-          category?: string | null
-          class?: Database["public"]["Enums"]["glAccountClass"] | null
-          companyGroupId?: string | null
-          createdAt?: string | null
-          createdBy?: string | null
-          customFields?: Json | null
-          id?: string | null
-          incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null
-          subCategoriesCount?: never
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "accountCategory_companyGroupId_fkey"
-            columns: ["companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "companyGroup"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accountCategory_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-        ]
-      }
       accounts: {
         Row: {
-          accountCategory: string | null
-          accountCategoryId: string | null
-          accountSubCategory: string | null
-          accountSubcategoryId: string | null
+          accountType: Database["public"]["Enums"]["accountType"] | null
           active: boolean | null
           class: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId: string | null
@@ -42254,21 +41968,18 @@ export type Database = {
           createdAt: string | null
           createdBy: string | null
           customFields: Json | null
-          directPosting: boolean | null
           id: string | null
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"] | null
+          isGroup: boolean | null
           name: string | null
           number: string | null
+          parentId: string | null
           tags: string[] | null
-          type: Database["public"]["Enums"]["glAccountType"] | null
           updatedAt: string | null
           updatedBy: string | null
         }
         Insert: {
-          accountCategory?: never
-          accountCategoryId?: string | null
-          accountSubCategory?: never
-          accountSubcategoryId?: string | null
+          accountType?: Database["public"]["Enums"]["accountType"] | null
           active?: boolean | null
           class?: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId?: string | null
@@ -42278,21 +41989,18 @@ export type Database = {
           createdAt?: string | null
           createdBy?: string | null
           customFields?: Json | null
-          directPosting?: boolean | null
           id?: string | null
           incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null
+          isGroup?: boolean | null
           name?: string | null
           number?: string | null
+          parentId?: string | null
           tags?: string[] | null
-          type?: Database["public"]["Enums"]["glAccountType"] | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Update: {
-          accountCategory?: never
-          accountCategoryId?: string | null
-          accountSubCategory?: never
-          accountSubcategoryId?: string | null
+          accountType?: Database["public"]["Enums"]["accountType"] | null
           active?: boolean | null
           class?: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId?: string | null
@@ -42302,31 +42010,17 @@ export type Database = {
           createdAt?: string | null
           createdBy?: string | null
           customFields?: Json | null
-          directPosting?: boolean | null
           id?: string | null
           incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null
+          isGroup?: boolean | null
           name?: string | null
           number?: string | null
+          parentId?: string | null
           tags?: string[] | null
-          type?: Database["public"]["Enums"]["glAccountType"] | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "account_accountCategoryId_fkey"
-            columns: ["accountCategoryId"]
-            isOneToOne: false
-            referencedRelation: "accountCategories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "account_accountCategoryId_fkey"
-            columns: ["accountCategoryId"]
-            isOneToOne: false
-            referencedRelation: "accountCategory"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "account_companyGroupId_fkey"
             columns: ["companyGroupId"]
@@ -42368,6 +42062,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "account_parentId_fkey"
+            columns: ["parentId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_parentId_fkey"
+            columns: ["parentId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "account_updatedBy_fkey"
@@ -48898,14 +48606,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52551,14 +52259,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55564,6 +55272,19 @@ export type Database = {
     }
     Functions: {
       _xid_machine_id: { Args: never; Returns: number }
+      accountTreeBalances: {
+        Args: {
+          from_date?: string
+          p_company_group_id: string
+          to_date?: string
+        }
+        Returns: {
+          accountId: string
+          balance: number
+          balanceAtDate: number
+          netChange: number
+        }[]
+      }
       attach_event_trigger: {
         Args: { sync_functions?: string[]; table_name_text: string }
         Returns: undefined
@@ -57146,7 +56867,7 @@ export type Database = {
         Returns: {
           balance: number
           balanceAtDate: number
-          companyId: string
+          companyGroupId: string
           netChange: number
           number: string
         }[]
@@ -57277,6 +56998,28 @@ export type Database = {
     }
     Enums: {
       accountingPeriodStatus: "Inactive" | "Active"
+      accountType:
+        | "Bank"
+        | "Cash"
+        | "Accounts Receivable"
+        | "Accounts Payable"
+        | "Inventory"
+        | "Fixed Asset"
+        | "Accumulated Depreciation"
+        | "Other Current Asset"
+        | "Other Asset"
+        | "Other Current Liability"
+        | "Long Term Liability"
+        | "Equity - No Close"
+        | "Equity - Close"
+        | "Retained Earnings"
+        | "Income"
+        | "Cost of Goods Sold"
+        | "Expense"
+        | "Other Income"
+        | "Other Expense"
+        | "Tax"
+        | "Investments"
       approvalDocumentType: "purchaseOrder" | "qualityDocument"
       approvalStatus: "Pending" | "Approved" | "Rejected" | "Cancelled"
       configurationParameterDataType:
@@ -57389,27 +57132,7 @@ export type Database = {
         | "Out-of-Calibration"
       gaugeRole: "Master" | "Standard"
       gaugeStatus: "Active" | "Inactive"
-      glAccountCategory:
-        | "Bank"
-        | "Accounts Receivable"
-        | "Inventory"
-        | "Other Current Asset"
-        | "Fixed Asset"
-        | "Accumulated Depreciation"
-        | "Other Asset"
-        | "Accounts Payable"
-        | "Other Current Liability"
-        | "Long Term Liability"
-        | "Equity - No Close"
-        | "Equity - Close"
-        | "Retained Earnings"
-        | "Income"
-        | "Cost of Goods Sold"
-        | "Expense"
-        | "Other Income"
-        | "Other Expense"
       glAccountClass: "Asset" | "Liability" | "Equity" | "Revenue" | "Expense"
-      glAccountType: "Posting" | "Total" | "Begin Total" | "End Total"
       glConsolidatedRate: "Average" | "Current" | "Historical"
       glIncomeBalance: "Balance Sheet" | "Income Statement"
       inspectionStatus: "Pass" | "Fail"
@@ -58398,6 +58121,29 @@ export const Constants = {
   public: {
     Enums: {
       accountingPeriodStatus: ["Inactive", "Active"],
+      accountType: [
+        "Bank",
+        "Cash",
+        "Accounts Receivable",
+        "Accounts Payable",
+        "Inventory",
+        "Fixed Asset",
+        "Accumulated Depreciation",
+        "Other Current Asset",
+        "Other Asset",
+        "Other Current Liability",
+        "Long Term Liability",
+        "Equity - No Close",
+        "Equity - Close",
+        "Retained Earnings",
+        "Income",
+        "Cost of Goods Sold",
+        "Expense",
+        "Other Income",
+        "Other Expense",
+        "Tax",
+        "Investments",
+      ],
       approvalDocumentType: ["purchaseOrder", "qualityDocument"],
       approvalStatus: ["Pending", "Approved", "Rejected", "Cancelled"],
       configurationParameterDataType: [
@@ -58521,28 +58267,7 @@ export const Constants = {
       ],
       gaugeRole: ["Master", "Standard"],
       gaugeStatus: ["Active", "Inactive"],
-      glAccountCategory: [
-        "Bank",
-        "Accounts Receivable",
-        "Inventory",
-        "Other Current Asset",
-        "Fixed Asset",
-        "Accumulated Depreciation",
-        "Other Asset",
-        "Accounts Payable",
-        "Other Current Liability",
-        "Long Term Liability",
-        "Equity - No Close",
-        "Equity - Close",
-        "Retained Earnings",
-        "Income",
-        "Cost of Goods Sold",
-        "Expense",
-        "Other Income",
-        "Other Expense",
-      ],
       glAccountClass: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
-      glAccountType: ["Posting", "Total", "Begin Total", "End Total"],
       glConsolidatedRate: ["Average", "Current", "Historical"],
       glIncomeBalance: ["Balance Sheet", "Income Statement"],
       inspectionStatus: ["Pass", "Fail"],

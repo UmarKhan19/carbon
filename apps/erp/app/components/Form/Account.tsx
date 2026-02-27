@@ -17,7 +17,7 @@ const Account = ({ classes, ...props }: AccountSelectProps) => {
   useMount(() => {
     let classQueryParamas = classes?.map((c) => `class=${c}`).join("&") ?? "";
     accountFetcher.load(
-      `${path.to.api.accounts}?type=Posting&${classQueryParamas}`
+      `${path.to.api.accounts}?isGroup=false&${classQueryParamas}`
     );
   });
 

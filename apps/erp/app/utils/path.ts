@@ -14,9 +14,6 @@ export const path = {
     api: {
       abilities: `${api}/resources/abilities`,
       accounts: `${api}/accounting/accounts`,
-      accountingCategories: `${api}/accounting/categories`,
-      accountingSubcategories: (id: string) =>
-        generatePath(`${api}/accounting/subcategories?accountCategoryId=${id}`),
       assign: `${api}/assign`,
       batchNumbers: (itemId: string) =>
         generatePath(`${api}/inventory/batch-numbers?itemId=${itemId}`),
@@ -383,11 +380,6 @@ export const path = {
     accountPersonal: `${x}/account/personal`,
     accountPassword: `${x}/account/password`,
     accounting: `${x}/accounting`,
-    accountingCategoryList: (id: string) =>
-      generatePath(`${x}/accounting/categories/list/${id}`),
-    accountingCategory: (id: string) =>
-      generatePath(`${x}/accounting/categories/${id}`),
-    accountingCategories: `${x}/accounting/categories`,
     accountingDefaults: `${x}/accounting/defaults`,
     accountingJournals: `${x}/accounting/journals`,
     accountingGroupsBankAccounts: `${x}/accounting/groups/bank-accounts`,
@@ -396,8 +388,6 @@ export const path = {
     accountingGroupsPurchasing: `${x}/accounting/groups/purchasing`,
     accountingGroupsSales: `${x}/accounting/groups/sales`,
     accountingRoot: `${x}/accounting`,
-    accountingSubcategory: (id: string) =>
-      generatePath(`${x}/accounting/subcategory/${id}`),
     activeMethodVersion: (id: string) =>
       generatePath(`${x}/items/methods/versions/activate/${id}`),
     activateGauge: (id: string) =>
@@ -541,10 +531,6 @@ export const path = {
       generatePath(`${x}/items/revisions/default/${id}`),
     deleteAbility: (id: string) =>
       generatePath(`${x}/resources/abilities/delete/${id}`),
-    deleteAccountingCategory: (id: string) =>
-      generatePath(`${x}/accounting/categories/delete/${id}`),
-    deleteAccountingSubcategory: (id: string) =>
-      generatePath(`${x}/accounting/subcategory/delete/${id}`),
     deleteAccountingCharts: (id: string) =>
       generatePath(`${x}/accounting/charts/delete/${id}`),
     deleteApiKey: (id: string) =>
@@ -999,9 +985,6 @@ export const path = {
     methodOperationTool: (id: string) =>
       generatePath(`${x}/items/methods/operation/tool/${id}`),
     newAbility: `${x}/resources/abilities/new`,
-    newAccountingCategory: `${x}/accounting/categories/new`,
-    newAccountingSubcategory: (id: string) =>
-      generatePath(`${x}/accounting/categories/list/${id}/new`),
     newApiKey: `${x}/settings/api-keys/new`,
     newAttribute: `${x}/people/attribute/new`,
     newAttributeCategory: `${x}/people/attributes/new`,

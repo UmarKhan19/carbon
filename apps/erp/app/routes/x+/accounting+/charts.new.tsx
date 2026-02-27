@@ -3,24 +3,31 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, redirect } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import type {
   AccountClass,
   AccountConsolidatedRate,
-  AccountIncomeBalance,
-  AccountType
+  AccountIncomeBalance
 } from "~/modules/accounting";
-import { accountValidator, upsertAccount } from "~/modules/accounting";
+import {
+  accountValidator,
+  getGroupAccounts,
+  upsertAccount
+} from "~/modules/accounting";
 import { ChartOfAccountForm } from "~/modules/accounting/ui/ChartOfAccounts";
 import { setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermissions(request, {
+  const { client, companyGroupId } = await requirePermissions(request, {
     create: "accounting"
   });
 
-  return null;
+  const groupAccounts = await getGroupAccounts(client, companyGroupId);
+
+  return {
+    groupAccounts: groupAccounts.data ?? []
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -41,6 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const insertAccount = await upsertAccount(client, {
     ...d,
+    parentId: d.parentId || null,
     companyGroupId,
     customFields: setCustomFields(formData),
     createdBy: userId
@@ -55,8 +63,8 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const accountNumber = insertAccount.data?.id;
-  if (!accountNumber) {
+  const accountId = insertAccount.data?.id;
+  if (!accountId) {
     return data(
       {},
       await flash(request, error(insertAccount, "Failed to insert account"))
@@ -70,16 +78,26 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewAccountRoute() {
+  const { groupAccounts } = useLoaderData<typeof loader>();
+
+  const url = new URL(window.location.href);
+  const parentId = url.searchParams.get("parentId") ?? undefined;
+
   const initialValues = {
     name: "",
     number: "",
-    type: "Posting" as AccountType,
-    accountCategoryId: "",
+    parentId,
+    isGroup: false,
+    accountType: undefined,
     class: "Asset" as AccountClass,
     incomeBalance: "Balance Sheet" as AccountIncomeBalance,
-    consolidatedRate: "Average" as AccountConsolidatedRate,
-    directPosting: false
+    consolidatedRate: "Average" as AccountConsolidatedRate
   };
 
-  return <ChartOfAccountForm initialValues={initialValues} />;
+  return (
+    <ChartOfAccountForm
+      initialValues={initialValues}
+      groupAccounts={groupAccounts}
+    />
+  );
 }

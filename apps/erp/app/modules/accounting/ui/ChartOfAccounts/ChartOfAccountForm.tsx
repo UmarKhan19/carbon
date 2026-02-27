@@ -14,8 +14,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
 import {
-  AccountCategory,
-  AccountSubcategory,
   // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Combobox,
@@ -34,24 +32,21 @@ import {
   consolidatedRateTypes,
   incomeBalanceTypes
 } from "../../accounting.models";
-import type {
-  AccountCategory as AccountCategoryType,
-  AccountClass,
-  AccountIncomeBalance
-} from "../../types";
+import type { AccountClass, AccountIncomeBalance } from "../../types";
 
 type ChartOfAccountFormProps = {
   initialValues: z.infer<typeof accountValidator>;
+  groupAccounts?: { id: string; number: string; name: string }[];
 };
 
-const ChartOfAccountForm = ({ initialValues }: ChartOfAccountFormProps) => {
+const ChartOfAccountForm = ({
+  initialValues,
+  groupAccounts = []
+}: ChartOfAccountFormProps) => {
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
 
-  const [accountCategoryId, setAccountCategoryId] = useState<string>(
-    initialValues.accountCategoryId ?? ""
-  );
   const [incomeBalance, setIncomeBalance] = useState<AccountIncomeBalance>(
     initialValues.incomeBalance
   );
@@ -63,14 +58,6 @@ const ChartOfAccountForm = ({ initialValues }: ChartOfAccountFormProps) => {
   const isDisabled = isEditing
     ? !permissions.can("update", "accounting")
     : !permissions.can("create", "accounting");
-
-  const onAccountCategoryChange = (category: AccountCategoryType | null) => {
-    if (category) {
-      setAccountCategoryId(category.id ?? "");
-      setIncomeBalance(category.incomeBalance ?? "Income Statement");
-      setAccountClass(category.class ?? "Asset");
-    }
-  };
 
   return (
     <Drawer
@@ -105,29 +92,32 @@ const ChartOfAccountForm = ({ initialValues }: ChartOfAccountFormProps) => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
               <Input name="number" label="Account Number" />
               <Input name="name" label="Name" />
-              <Select
-                name="type"
-                label="Type"
-                options={accountTypes.map((accountType) => ({
-                  label: accountType,
-                  value: accountType
+              <Boolean name="isGroup" label="Is Group" />
+
+              <Combobox
+                name="parentId"
+                label="Parent Account"
+                options={groupAccounts.map((a) => ({
+                  label: `${a.number} - ${a.name}`,
+                  value: a.id
                 }))}
               />
 
-              <AccountCategory
-                name="accountCategoryId"
-                onChange={onAccountCategoryChange}
+              <Combobox
+                name="accountType"
+                label="Account Type"
+                options={accountTypes.map((t) => ({
+                  label: t,
+                  value: t
+                }))}
               />
-              <AccountSubcategory
-                name="accountSubcategoryId"
-                accountCategoryId={accountCategoryId}
-              />
+
               <Combobox
                 name="incomeBalance"
                 label="Income/Balance"
-                options={incomeBalanceTypes.map((incomeBalance) => ({
-                  label: incomeBalance,
-                  value: incomeBalance
+                options={incomeBalanceTypes.map((ib) => ({
+                  label: ib,
+                  value: ib
                 }))}
                 value={incomeBalance}
                 onChange={(newValue) => {
@@ -138,9 +128,9 @@ const ChartOfAccountForm = ({ initialValues }: ChartOfAccountFormProps) => {
               <Combobox
                 name="class"
                 label="Class"
-                options={accountClassTypes.map((accountClass) => ({
-                  label: accountClass,
-                  value: accountClass
+                options={accountClassTypes.map((c) => ({
+                  label: c,
+                  value: c
                 }))}
                 value={accountClass}
                 onChange={(newValue) => {
@@ -150,12 +140,11 @@ const ChartOfAccountForm = ({ initialValues }: ChartOfAccountFormProps) => {
               <Select
                 name="consolidatedRate"
                 label="Consolidated Rate"
-                options={consolidatedRateTypes.map((consolidatedRateType) => ({
-                  label: consolidatedRateType,
-                  value: consolidatedRateType
+                options={consolidatedRateTypes.map((c) => ({
+                  label: c,
+                  value: c
                 }))}
               />
-              <Boolean name="directPosting" label="Direct Posting" />
               <CustomFormFields table="account" />
             </div>
           </DrawerBody>

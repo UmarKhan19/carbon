@@ -6,8 +6,6 @@ import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import type {
-  accountCategoryValidator,
-  accountSubcategoryValidator,
   accountValidator,
   currencyValidator,
   defaultBalanceSheetAccountValidator,
@@ -16,73 +14,13 @@ import type {
   fiscalYearSettingsValidator,
   paymentTermValidator
 } from "./accounting.models";
-import type { Account, Transaction } from "./types";
-
-type AccountWithTotals = Account & { level: number; totaling: string };
-
-function addLevelsAndTotalsToAccounts(
-  accounts: Account[]
-): AccountWithTotals[] {
-  let result: AccountWithTotals[] = [];
-  let beginTotalAccounts: string[] = [];
-  let endTotalAccounts: string[] = [];
-  let hasHeading = false;
-
-  accounts.forEach((account) => {
-    if (["End Total", "Total"].includes(account.type)) {
-      endTotalAccounts.push(account.number);
-    }
-
-    let level =
-      beginTotalAccounts.length -
-      endTotalAccounts.length +
-      (hasHeading ? 1 : 0);
-
-    if (account.type === "Begin Total") {
-      beginTotalAccounts.push(account.number);
-    }
-
-    let totaling = "";
-
-    if (["End Total", "Total"].includes(account.type)) {
-      let startAccount = beginTotalAccounts.pop();
-      let endAccount = endTotalAccounts.pop();
-
-      totaling = `${startAccount}..${endAccount}`;
-    }
-
-    result.push({
-      ...account,
-      level,
-      totaling
-    });
-  });
-
-  return result;
-}
+import type { Transaction } from "./types";
 
 export async function deleteAccount(
   client: SupabaseClient<Database>,
   accountId: string
 ) {
   return client.from("account").delete().eq("id", accountId);
-}
-
-export async function deleteAccountCategory(
-  client: SupabaseClient<Database>,
-  accountCategoryId: string
-) {
-  return client.from("accountCategory").delete().eq("id", accountCategoryId);
-}
-
-export async function deleteAccountSubcategory(
-  client: SupabaseClient<Database>,
-  accountSubcategoryId: string
-) {
-  return client
-    .from("accountSubcategory")
-    .update({ active: false })
-    .eq("id", accountSubcategoryId);
 }
 
 export async function deletePaymentTerm(
@@ -131,7 +69,7 @@ export async function getAccountsList(
   client: SupabaseClient<Database>,
   companyGroupId: string,
   args?: {
-    type?: Database["public"]["Enums"]["glAccountType"] | null;
+    isGroup?: boolean | null;
     incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null;
     classes?: Database["public"]["Enums"]["glAccountClass"][];
   }
@@ -142,8 +80,8 @@ export async function getAccountsList(
     .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
-  if (args?.type) {
-    query = query.eq("type", args.type);
+  if (args?.isGroup !== undefined && args.isGroup !== null) {
+    query = query.eq("isGroup", args.isGroup);
   }
 
   if (args?.incomeBalance) {
@@ -158,141 +96,17 @@ export async function getAccountsList(
   return query;
 }
 
-export async function getAccountCategories(
-  client: SupabaseClient<Database>,
-  companyGroupId: string,
-  args: GenericQueryFilters & {
-    search: string | null;
-  }
-) {
-  let query = client
-    .from("accountCategories")
-    .select("*", {
-      count: "exact"
-    })
-    .eq("companyGroupId", companyGroupId);
-
-  if (args.search) {
-    query = query.ilike("category", `%${args.search}%`);
-  }
-
-  query = setGenericQueryFilters(query, args, [
-    { column: "incomeBalance", ascending: true },
-    { column: "class", ascending: true },
-    { column: "category", ascending: true }
-  ]);
-  return query;
-}
-
-export async function getAccountCategoriesList(
+export async function getGroupAccounts(
   client: SupabaseClient<Database>,
   companyGroupId: string
 ) {
   return client
-    .from("accountCategory")
-    .select("*")
+    .from("account")
+    .select("id, number, name")
     .eq("companyGroupId", companyGroupId)
-    .order("category", { ascending: true });
-}
-
-export async function getAccountCategory(
-  client: SupabaseClient<Database>,
-  accountCategoryId: string,
-  companyGroupId: string
-) {
-  return client
-    .from("accountCategory")
-    .select("*")
-    .eq("id", accountCategoryId)
-    .eq("companyGroupId", companyGroupId)
-    .single();
-}
-
-export async function getAccountSubcategories(
-  client: SupabaseClient<Database>,
-  args: GenericQueryFilters & {
-    search: string | null;
-  }
-) {
-  let query = client
-    .from("accountSubcategory")
-    .select("*", {
-      count: "exact"
-    })
-    .eq("active", true);
-
-  if (args.search) {
-    query = query.ilike("name", `%${args.search}%`);
-  }
-
-  query = setGenericQueryFilters(query, args, [
-    { column: "name", ascending: true }
-  ]);
-  return query;
-}
-
-export async function getAccountSubcategoriesByCategory(
-  client: SupabaseClient<Database>,
-  accountCategoryId: string
-) {
-  return client
-    .from("accountSubcategory")
-    .select("*")
-    .eq("accountCategoryId", accountCategoryId)
-    .eq("active", true);
-}
-
-export async function getAccountSubcategory(
-  client: SupabaseClient<Database>,
-  accountSubcategoryId: string
-) {
-  return client
-    .from("accountSubcategory")
-    .select("*")
-    .eq("id", accountSubcategoryId)
-    .single();
-}
-
-function getAccountTotal(
-  accounts: Account[],
-  account: AccountWithTotals,
-  type: "netChange" | "balance" | "balanceAtDate",
-  transactionsByAccount: Record<string, Transaction>
-) {
-  if (!account.totaling) {
-    return transactionsByAccount[account.number]?.[type] ?? 0;
-  }
-
-  let total = 0;
-  const [start, end] = account.totaling.split("..");
-  if (!start || !end) throw new Error("Invalid totaling");
-
-  // for End Total -- we just do a simple sum of all accounts between start and end
-  if (account.type === "End Total") {
-    accounts.forEach((account) => {
-      if (account.number >= start && account.number <= end) {
-        total += transactionsByAccount[account.number]?.[type] ?? 0;
-      }
-    });
-  }
-
-  // for Total -- we use accounting equation to calculate the total
-  if (account.type === "Total") {
-    accounts.forEach((account) => {
-      if (account.number >= start && account.number <= end) {
-        if (["Asset", "Revenue"].includes(account.class as string)) {
-          total += transactionsByAccount[account.number]?.[type] ?? 0;
-        }
-        if (
-          ["Liability", "Equity", "Expense"].includes(account.class as string)
-        ) {
-          total -= transactionsByAccount[account.number]?.[type] ?? 0;
-        }
-      }
-    });
-  }
-
-  return total;
+    .eq("isGroup", true)
+    .eq("active", true)
+    .order("number", { ascending: true });
 }
 
 export async function getBaseCurrency(
@@ -324,8 +138,7 @@ export async function getBaseCurrency(
 export async function getChartOfAccounts(
   client: SupabaseClient<Database>,
   companyGroupId: string,
-  args: Omit<GenericQueryFilters, "limit" | "offset"> & {
-    name: string | null;
+  args: {
     incomeBalance: "Income Statement" | "Balance Sheet" | null;
     startDate: string | null;
     endDate: string | null;
@@ -335,63 +148,46 @@ export async function getChartOfAccounts(
     .from("accounts")
     .select("*")
     .eq("companyGroupId", companyGroupId)
-    .eq("active", true);
+    .eq("active", true)
+    .order("number", { ascending: true });
 
   if (args.incomeBalance) {
     accountsQuery = accountsQuery.eq("incomeBalance", args.incomeBalance);
   }
 
-  accountsQuery = setGenericQueryFilters(accountsQuery, args, [
-    { column: "number", ascending: true }
-  ]);
-
-  let transactionsQuery = client.rpc("journalLinesByAccountNumber", {
+  const balancesQuery = client.rpc("accountTreeBalances", {
+    p_company_group_id: companyGroupId,
     from_date:
       args.startDate ?? getDateNYearsAgo(50).toISOString().split("T")[0],
     to_date: args.endDate ?? new Date().toISOString().split("T")[0]
   });
 
-  const [accountsResponse, transactionsResponse] = await Promise.all([
+  const [accountsResponse, balancesResponse] = await Promise.all([
     accountsQuery,
-    transactionsQuery
+    balancesQuery
   ]);
 
-  if (transactionsResponse.error) return transactionsResponse;
   if (accountsResponse.error) return accountsResponse;
+  if (balancesResponse.error) return balancesResponse;
 
-  const transactionsByAccount = (
-    transactionsResponse.data as unknown as Transaction[]
-  ).reduce<Record<string, Transaction>>((acc, transaction: Transaction) => {
-    acc[transaction.number] = transaction;
+  const balancesByAccountId = (
+    balancesResponse.data as unknown as (Transaction & { accountId: string })[]
+  ).reduce<Record<string, Transaction>>((acc, row) => {
+    acc[row.accountId] = {
+      number: row.number,
+      netChange: row.netChange,
+      balance: row.balance,
+      balanceAtDate: row.balanceAtDate
+    };
     return acc;
   }, {});
 
-  // @ts-ignore
-  const accounts: Account[] = accountsResponse.data as Account[];
-
   return {
-    data: addLevelsAndTotalsToAccounts(accounts).map((account) => ({
+    data: (accountsResponse.data ?? []).map((account) => ({
       ...account,
-      netChange: getAccountTotal(
-        accounts,
-        account,
-        "netChange",
-        transactionsByAccount
-      ),
-
-      balance: getAccountTotal(
-        accounts,
-        account,
-        "balance",
-        transactionsByAccount
-      ),
-
-      balanceAtDate: getAccountTotal(
-        accounts,
-        account,
-        "balanceAtDate",
-        transactionsByAccount
-      )
+      netChange: balancesByAccountId[account.id]?.netChange ?? 0,
+      balance: balancesByAccountId[account.id]?.balance ?? 0,
+      balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
     })),
     error: null
   };
@@ -590,63 +386,6 @@ export async function upsertAccount(
     .from("account")
     .update(sanitize(account))
     .eq("id", account.id)
-    .select("id")
-    .single();
-}
-
-export async function upsertAccountCategory(
-  client: SupabaseClient<Database>,
-  accountCategory:
-    | (Omit<z.infer<typeof accountCategoryValidator>, "id"> & {
-        companyGroupId: string;
-        createdBy: string;
-        customFields?: Json;
-      })
-    | (Omit<z.infer<typeof accountCategoryValidator>, "id"> & {
-        id: string;
-        updatedBy: string;
-        customFields?: Json;
-      })
-) {
-  if ("createdBy" in accountCategory) {
-    return client
-      .from("accountCategory")
-      .insert([accountCategory])
-      .select("id")
-      .single();
-  }
-  return client
-    .from("accountCategory")
-    .update(sanitize(accountCategory))
-    .eq("id", accountCategory.id)
-    .select("id")
-    .single();
-}
-
-export async function upsertAccountSubcategory(
-  client: SupabaseClient<Database>,
-  accountSubcategory:
-    | (Omit<z.infer<typeof accountSubcategoryValidator>, "id"> & {
-        createdBy: string;
-        customFields?: Json;
-      })
-    | (Omit<z.infer<typeof accountSubcategoryValidator>, "id"> & {
-        id: string;
-        updatedBy: string;
-        customFields?: Json;
-      })
-) {
-  if ("createdBy" in accountSubcategory) {
-    return client
-      .from("accountSubcategory")
-      .insert([accountSubcategory])
-      .select("id")
-      .single();
-  }
-  return client
-    .from("accountSubcategory")
-    .update(sanitize(accountSubcategory))
-    .eq("id", accountSubcategory.id)
     .select("id")
     .single();
 }

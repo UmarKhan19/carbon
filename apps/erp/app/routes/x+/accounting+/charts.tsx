@@ -5,7 +5,7 @@ import { VStack } from "@carbon/react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import { getChartOfAccounts } from "~/modules/accounting";
-import { ChartOfAccountsTable } from "~/modules/accounting/ui/ChartOfAccounts";
+import { ChartOfAccountsTree } from "~/modules/accounting/ui/ChartOfAccounts";
 import ChartOfAccountsTableFilters from "~/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -24,13 +24,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
-  const name = searchParams.get("name");
   const incomeBalance = searchParams.get("incomeBalance");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
 
   const chartOfAccounts = await getChartOfAccounts(client, companyGroupId, {
-    name,
     incomeBalance,
     startDate,
     endDate
@@ -57,7 +55,7 @@ export default function ChartOfAccountsRoute() {
   return (
     <VStack spacing={0} className="h-full">
       <ChartOfAccountsTableFilters />
-      <ChartOfAccountsTable data={chartOfAccounts} />
+      <ChartOfAccountsTree data={chartOfAccounts} />
       <Outlet />
     </VStack>
   );

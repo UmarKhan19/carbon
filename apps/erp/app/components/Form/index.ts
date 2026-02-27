@@ -31,8 +31,6 @@ import {
 import Abilities from "./Abilities";
 import Ability from "./Ability";
 import Account from "./Account";
-import AccountCategory from "./AccountCategory";
-import AccountSubcategory from "./AccountSubcategory";
 import AddressAutocomplete from "./AddressAutocomplete";
 import Color from "./Color";
 import ConversionFactor from "./ConversionFactor";
@@ -85,8 +83,6 @@ export {
   Abilities,
   Ability,
   Account,
-  AccountCategory,
-  AccountSubcategory,
   AddressAutocomplete,
   Array,
   ArrayNumeric,

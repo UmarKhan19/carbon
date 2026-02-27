@@ -826,7 +826,7 @@ serve(async (req: Request) => {
           const [account, accountDefaults] = await Promise.all([
             client
               .from("accounts")
-              .select("name, number, directPosting")
+              .select("name, number, isGroup")
               .eq("number", invoiceLine.accountNumber ?? "")
               .eq("companyGroupId", companyGroupId)
               .single(),
@@ -840,8 +840,8 @@ serve(async (req: Request) => {
           ]);
           if (account.error || !account.data)
             throw new Error("Failed to fetch account");
-          if (!account.data.directPosting)
-            throw new Error("Account is not a direct posting account");
+          if (account.data.isGroup)
+            throw new Error("Cannot post to a group account");
 
           if (accountDefaults.error || !accountDefaults.data)
             throw new Error("Failed to fetch account defaults");

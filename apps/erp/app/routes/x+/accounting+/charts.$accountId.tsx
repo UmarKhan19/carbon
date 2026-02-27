@@ -7,6 +7,7 @@ import { data, redirect, useLoaderData } from "react-router";
 import {
   accountValidator,
   getAccount,
+  getGroupAccounts,
   upsertAccount
 } from "~/modules/accounting";
 import { ChartOfAccountForm } from "~/modules/accounting/ui/ChartOfAccounts";
@@ -14,7 +15,7 @@ import { getCustomFields, setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyGroupId } = await requirePermissions(request, {
     view: "accounting",
     role: "employee"
   });
@@ -22,10 +23,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { accountId } = params;
   if (!accountId) throw notFound("accountId not found");
 
-  const account = await getAccount(client, accountId);
+  const [account, groupAccounts] = await Promise.all([
+    getAccount(client, accountId),
+    getGroupAccounts(client, companyGroupId)
+  ]);
 
   return {
-    account: account?.data ?? null
+    account: account?.data ?? null,
+    groupAccounts: groupAccounts.data ?? []
   };
 }
 
@@ -48,6 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const updateAccount = await upsertAccount(client, {
     id,
     ...d,
+    parentId: d.parentId || null,
     customFields: setCustomFields(formData),
     updatedBy: userId
   });
@@ -69,23 +75,26 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function EditChartOfAccountsRoute() {
-  const { account } = useLoaderData<typeof loader>();
+  const { account, groupAccounts } = useLoaderData<typeof loader>();
 
   const initialValues = {
     id: account?.id ?? undefined,
     number: account?.number ?? "",
     name: account?.name ?? "",
-    type: account?.type ?? "Posting",
-    accountCategoryId: account?.accountCategoryId ?? undefined,
-    accountSubcategoryId: account?.accountSubcategoryId ?? undefined,
+    parentId: account?.parentId ?? undefined,
+    isGroup: account?.isGroup ?? false,
+    accountType: account?.accountType ?? undefined,
     class: account?.class ?? "Asset",
     incomeBalance: account?.incomeBalance ?? "Balance Sheet",
     consolidatedRate: account?.consolidatedRate ?? "Average",
-    directPosting: account?.directPosting ?? false,
     ...getCustomFields(account?.customFields)
   };
 
   return (
-    <ChartOfAccountForm key={initialValues.id} initialValues={initialValues} />
+    <ChartOfAccountForm
+      key={initialValues.id}
+      initialValues={initialValues}
+      groupAccounts={groupAccounts}
+    />
   );
 }

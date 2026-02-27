@@ -1,9 +1,8 @@
 import {
   LuAxis3D,
   LuBetweenHorizontalStart,
-  LuDollarSign,
+  LuEuro,
   LuHandCoins,
-  LuShapes,
   LuSheet
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
@@ -32,16 +31,10 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
     name: "Configure",
     routes: [
       {
-        name: "Account Categories",
-        to: path.to.accountingCategories,
-        role: "employee",
-        icon: <LuShapes />
-      },
-      {
         name: "Currencies",
         to: path.to.currencies,
         role: "employee",
-        icon: <LuDollarSign />
+        icon: <LuEuro />
       },
       {
         name: "Default Accounts",

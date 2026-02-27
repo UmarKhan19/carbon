@@ -4,7 +4,6 @@
  */
 
 export {
-  accountCategories,
   accountDefaults,
   accounts,
   currencies,

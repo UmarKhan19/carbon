@@ -1,8 +1,6 @@
 import type { Database } from "@carbon/database";
 import type {
   getAccount,
-  getAccountCategories,
-  getAccountSubcategories,
   getAccountsList,
   getCurrencies,
   getDimension,
@@ -14,10 +12,6 @@ export type Account = NonNullable<
   Awaited<ReturnType<typeof getAccount>>["data"]
 >;
 
-export type AccountCategory = NonNullable<
-  Awaited<ReturnType<typeof getAccountCategories>>["data"]
->[number];
-
 export type AccountConsolidatedRate =
   Database["public"]["Enums"]["glConsolidatedRate"];
 
@@ -25,22 +19,14 @@ export type AccountListItem = NonNullable<
   NonNullable<Awaited<ReturnType<typeof getAccountsList>>>["data"]
 >[number];
 
-export type AccountSubcategory = NonNullable<
-  Awaited<ReturnType<typeof getAccountSubcategories>>["data"]
->[number];
-
 export type AccountIncomeBalance =
   Database["public"]["Enums"]["glIncomeBalance"];
 
 export type AccountClass = Database["public"]["Enums"]["glAccountClass"];
 
-export type AccountType = Database["public"]["Enums"]["glAccountType"];
+export type AccountType = Database["public"]["Enums"]["accountType"];
 
-export type Chart = Account &
-  Transaction & {
-    level: number;
-    totaling: string;
-  };
+export type Chart = Account & Transaction;
 
 export type Currency = NonNullable<
   Awaited<ReturnType<typeof getCurrencies>>["data"]

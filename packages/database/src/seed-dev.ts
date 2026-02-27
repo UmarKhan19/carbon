@@ -12,7 +12,6 @@ import { parseArgs } from "node:util";
 import { createClient } from "@supabase/supabase-js";
 import * as dotenv from "dotenv";
 import {
-  accountCategories,
   accountDefaults,
   accounts,
   currencies,
@@ -369,33 +368,26 @@ async function seedDev() {
         );
       }
 
-      // Seed account categories
-      const categoryIdMap: Record<string, string> = {};
-      for (const ac of accountCategories) {
+      // Seed accounts (chart of accounts) - insert in order, resolving parentNumber to parentId
+      const accountIdByNumber: Record<string, string> = {};
+      for (const { parentNumber, ...acc } of accounts) {
         const result = await client.query(
-          `INSERT INTO "accountCategory" (category, class, "incomeBalance", "companyGroupId", "createdBy")
-           VALUES ($1, $2, $3, $4, 'system') RETURNING id`,
-          [ac.category, ac.class, ac.incomeBalance, companyGroupId]
-        );
-        categoryIdMap[ac.category] = result.rows[0].id;
-      }
-
-      // Seed accounts (chart of accounts)
-      for (const acc of accounts) {
-        await client.query(
-          `INSERT INTO account (number, name, type, "accountCategoryId", "incomeBalance", class, "directPosting", "companyGroupId", "createdBy")
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'system')`,
+          `INSERT INTO account (number, name, "isGroup", "accountType", "incomeBalance", class, "parentId", "companyGroupId", "createdBy")
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'system') RETURNING id, number`,
           [
             acc.number,
             acc.name,
-            acc.type,
-            categoryIdMap[acc.accountCategory],
+            acc.isGroup,
+            acc.accountType,
             acc.incomeBalance,
             acc.class,
-            acc.directPosting,
+            parentNumber ? (accountIdByNumber[parentNumber] ?? null) : null,
             companyGroupId
           ]
         );
+        if (result.rows[0]?.id && result.rows[0]?.number) {
+          accountIdByNumber[result.rows[0].number] = result.rows[0].id;
+        }
       }
 
       // Seed account defaults

@@ -7,11 +7,27 @@ import {
 } from "../inventory/inventory.models";
 
 export const accountTypes = [
-  "Posting",
-  // "Heading",
-  "Total",
-  "Begin Total",
-  "End Total"
+  "Bank",
+  "Cash",
+  "Accounts Receivable",
+  "Accounts Payable",
+  "Inventory",
+  "Fixed Asset",
+  "Accumulated Depreciation",
+  "Other Current Asset",
+  "Other Asset",
+  "Other Current Liability",
+  "Long Term Liability",
+  "Equity - No Close",
+  "Equity - Close",
+  "Retained Earnings",
+  "Income",
+  "Cost of Goods Sold",
+  "Expense",
+  "Other Income",
+  "Other Expense",
+  "Tax",
+  "Investments"
 ] as const;
 
 export const consolidatedRateTypes = [
@@ -54,25 +70,26 @@ export const accountValidator = z
     id: zfd.text(z.string().optional()),
     number: z.string().min(1, { message: "Number is required" }),
     name: z.string().min(1, { message: "Name is required" }),
-    type: z.enum(accountTypes, {
-      errorMap: (issue, ctx) => ({
-        message: "Type is required"
+    parentId: zfd.text(z.string().optional()),
+    isGroup: zfd.checkbox(),
+    accountType: z
+      .enum(accountTypes, {
+        errorMap: () => ({
+          message: "Account type is required"
+        })
       })
-    }),
-    accountCategoryId: zfd.text(z.string().optional()),
-    accountSubcategoryId: zfd.text(z.string().optional()),
+      .optional(),
     incomeBalance: z.enum(incomeBalanceTypes, {
-      errorMap: (issue, ctx) => ({
+      errorMap: () => ({
         message: "Income balance is required"
       })
     }),
     class: z.enum(accountClassTypes, {
-      errorMap: (issue, ctx) => ({
+      errorMap: () => ({
         message: "Class is required"
       })
     }),
-    consolidatedRate: z.enum(consolidatedRateTypes),
-    directPosting: zfd.checkbox()
+    consolidatedRate: z.enum(consolidatedRateTypes)
   })
   .refine(
     (data) => {
@@ -100,54 +117,16 @@ export const accountValidator = z
   )
   .refine(
     (data) => {
-      if (!["Total", "Begin Total", "End Total"].includes(data.type)) {
-        return !!data.accountCategoryId;
+      if (!data.isGroup) {
+        return !!data.accountType;
       }
-      return true;
-    },
-    { message: "Account category is required", path: ["accountCategoryId"] }
-  )
-  .refine(
-    (data) => {
-      if (data.number.startsWith(".") || data.number.endsWith(".")) {
-        return false;
-      }
-
       return true;
     },
     {
-      message: "Account number cannot start or end with a dot",
-      path: ["number"]
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.number.includes("..")) {
-        return false;
-      }
-
-      return true;
-    },
-    {
-      message: "Account number cannot include two consecutive dots",
-      path: ["number"]
+      message: "Account type is required for ledger accounts",
+      path: ["accountType"]
     }
   );
-
-export const accountCategoryValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  category: z.string().min(1, { message: "Category is required" }),
-  incomeBalance: z.enum(incomeBalanceTypes, {
-    errorMap: (issue, ctx) => ({
-      message: "Income balance is required"
-    })
-  }),
-  class: z.enum(accountClassTypes, {
-    errorMap: (issue, ctx) => ({
-      message: "Class is required"
-    })
-  })
-});
 
 export const fiscalYearSettingsValidator = z.object({
   startMonth: z.enum(months, {
@@ -170,12 +149,6 @@ export const journalLineValidator = z.object({
   documentType: z.union([z.enum(journalLineDocumentType), z.undefined()]),
   documentId: z.string().optional(),
   externalDocumentId: z.string().optional()
-});
-
-export const accountSubcategoryValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" }),
-  accountCategoryId: z.string().min(1, { message: "Category is required" })
 });
 
 export const currencyValidator = z.object({
