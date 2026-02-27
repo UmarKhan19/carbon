@@ -169,7 +169,7 @@ export const updateExchangeRates = schedules.task({
         const { data, error } = await serviceRole
           .from("currency")
           .select("*")
-          .eq("companyId", integration.companyId);
+          .eq("companyGroupId", company.data.companyGroupId);
 
         if (error) {
           console.error(

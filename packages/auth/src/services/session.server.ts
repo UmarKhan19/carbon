@@ -168,7 +168,8 @@ export async function refreshAuthSession(
 
   const refreshedAuthSession = await refreshAccessToken(
     authSession?.refreshToken,
-    authSession?.companyId
+    authSession?.companyId,
+    authSession?.companyGroupId
   );
 
   if (!refreshedAuthSession) {
@@ -206,7 +207,8 @@ export async function refreshAuthSession(
 
 export async function updateCompanySession(
   request: Request,
-  companyId: string
+  companyId: string,
+  companyGroupId: string
 ) {
   const session = await getSession(request);
   const authSession = await getAuthSession(request);
@@ -215,7 +217,8 @@ export async function updateCompanySession(
     await redis.del(getPermissionCacheKey(authSession?.userId!));
     session.set(SESSION_KEY, {
       ...authSession,
-      companyId
+      companyId,
+      companyGroupId
     });
   }
 

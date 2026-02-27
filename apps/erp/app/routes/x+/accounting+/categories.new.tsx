@@ -15,7 +15,7 @@ import { getParams, path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "accounting"
   });
 
@@ -34,7 +34,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const createAccountCategory = await upsertAccountCategory(client, {
     ...d,
-    companyId,
+    companyGroupId,
     customFields: setCustomFields(formData),
     createdBy: userId
   });

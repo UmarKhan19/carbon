@@ -84,7 +84,17 @@ export async function action({ request }: ActionFunctionArgs) {
     throw new Error("Fatal: failed to insert job");
   }
 
-  const sessionCookie = await updateCompanySession(request, companyId);
+  const { data: companyRecord } = await client
+    .from("company")
+    .select("companyGroupId")
+    .eq("id", companyId)
+    .single();
+
+  const sessionCookie = await updateCompanySession(
+    request,
+    companyId,
+    companyRecord?.companyGroupId ?? ""
+  );
   const companyIdCookie = setCompanyId(companyId);
 
   throw redirect(path.to.authenticatedRoot, {

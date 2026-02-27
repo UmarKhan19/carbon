@@ -16,9 +16,6 @@ import {
   nonConformanceRequiredActions,
   nonConformanceTypes,
   paymentTerms,
-  postingGroupInventory,
-  postingGroupPurchasing,
-  postingGroupSales,
   scrapReasons,
   sequences,
   supplierStauses,
@@ -61,7 +58,33 @@ serve(async (req: Request) => {
     if (company.error) throw new Error(company.error.message);
     if (!company.data) throw new Error("Company not found");
 
+    // Determine if this is a new root company or joining an existing group
+    let companyGroupId = company.data.companyGroupId;
+    const isNewGroup = !companyGroupId;
+
     await db.transaction().execute(async (trx) => {
+      // If no companyGroupId, create a new company group and assign it
+      if (isNewGroup) {
+        const companyGroupResult = await trx
+          .insertInto("companyGroup")
+          .values({
+            name: company.data.name,
+            createdBy: userId,
+          })
+          .returning(["id"])
+          .execute();
+
+        companyGroupId = companyGroupResult[0].id;
+        if (!companyGroupId)
+          throw new Error("Failed to create company group");
+
+        await trx
+          .updateTable("company")
+          .set({ companyGroupId })
+          .where("id", "=", companyId)
+          .execute();
+      }
+
       await trx
         .withSchema("storage")
         .insertInto("buckets")
@@ -227,65 +250,55 @@ serve(async (req: Request) => {
         .values(sequences.map((s) => ({ ...s, companyId })))
         .execute();
 
-      await trx
-        .insertInto("currency")
-        .values(currencies.map((c) => ({ ...c, companyId })))
-        .execute();
+      // Shared tables: only seed for new groups (existing groups already have these)
+      if (isNewGroup) {
+        await trx
+          .insertInto("currency")
+          .values(currencies.map((c) => ({ ...c, companyGroupId })))
+          .execute();
 
-      const accountCategoriesWithIds = await trx
-        .insertInto("accountCategory")
-        .values(accountCategories.map((ac) => ({ ...ac, companyId })))
-        .returning(["id", "category"])
-        .execute();
+        const accountCategoriesWithIds = await trx
+          .insertInto("accountCategory")
+          .values(accountCategories.map((ac) => ({ ...ac, companyGroupId })))
+          .returning(["id", "category"])
+          .execute();
 
-      const accountCategoriesByName = accountCategoriesWithIds.reduce<
-        Record<string, string>
-      >((acc, { id, category }) => {
-        if (id && category) {
-          acc[category] = id;
-        }
-        return acc;
-      }, {});
+        const accountCategoriesByName = accountCategoriesWithIds.reduce<
+          Record<string, string>
+        >((acc, { id, category }) => {
+          if (id && category) {
+            acc[category] = id;
+          }
+          return acc;
+        }, {});
 
-      const getCategoryId = (category: string | null) => {
-        if (!category) return null;
-        return accountCategoriesByName[category];
-      };
+        const getCategoryId = (category: string | null) => {
+          if (!category) return null;
+          return accountCategoriesByName[category];
+        };
 
-      await trx
-        .insertInto("account")
-        .values(
-          accounts.map(({ accountCategory, ...a }) => ({
-            ...a,
-            companyId,
-            accountCategoryId: getCategoryId(accountCategory),
-          }))
-        )
-        .execute();
+        await trx
+          .insertInto("account")
+          .values(
+            accounts.map(({ accountCategory, ...a }) => ({
+              ...a,
+              companyGroupId,
+              accountCategoryId: getCategoryId(accountCategory),
+            }))
+          )
+          .execute();
+      }
 
+      // Company-specific accounting defaults and posting groups
       await trx
         .insertInto("accountDefault")
         .values([
           {
             ...accountDefaults,
             companyId,
+            companyGroupId,
           },
         ])
-        .execute();
-
-      await trx
-        .insertInto("postingGroupInventory")
-        .values([{ ...postingGroupInventory, companyId }])
-        .execute();
-
-      await trx
-        .insertInto("postingGroupPurchasing")
-        .values([{ ...postingGroupPurchasing, companyId }])
-        .execute();
-
-      await trx
-        .insertInto("postingGroupSales")
-        .values([{ ...postingGroupSales, companyId }])
         .execute();
 
       await trx

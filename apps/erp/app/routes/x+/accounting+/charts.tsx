@@ -16,7 +16,7 @@ export const handle: Handle = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyGroupId } = await requirePermissions(request, {
     view: "accounting",
     role: "employee",
     bypassRls: true
@@ -29,7 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
 
-  const chartOfAccounts = await getChartOfAccounts(client, companyId, {
+  const chartOfAccounts = await getChartOfAccounts(client, companyGroupId, {
     name,
     incomeBalance,
     startDate,

@@ -1239,49 +1239,6 @@ export const accountDefaults = {
   retainedEarningsAccount: "95010"
 } as const;
 
-export const postingGroupInventory = {
-  costOfGoodsSoldAccount: accountDefaults.costOfGoodsSoldAccount,
-  inventoryAccount: accountDefaults.inventoryAccount,
-  inventoryInterimAccrualAccount:
-    accountDefaults.inventoryInterimAccrualAccount,
-  inventoryReceivedNotInvoicedAccount:
-    accountDefaults.inventoryReceivedNotInvoicedAccount,
-  inventoryInvoicedNotReceivedAccount:
-    accountDefaults.inventoryInvoicedNotReceivedAccount,
-  inventoryShippedNotInvoicedAccount:
-    accountDefaults.inventoryShippedNotInvoicedAccount,
-  workInProgressAccount: accountDefaults.workInProgressAccount,
-  directCostAppliedAccount: accountDefaults.directCostAppliedAccount,
-  overheadCostAppliedAccount: accountDefaults.overheadCostAppliedAccount,
-  purchaseVarianceAccount: accountDefaults.purchaseVarianceAccount,
-  inventoryAdjustmentVarianceAccount:
-    accountDefaults.inventoryAdjustmentVarianceAccount,
-  materialVarianceAccount: accountDefaults.materialVarianceAccount,
-  capacityVarianceAccount: accountDefaults.capacityVarianceAccount,
-  overheadAccount: accountDefaults.overheadAccount,
-  updatedBy: "system"
-} as const;
-
-export const postingGroupPurchasing = {
-  payablesAccount: accountDefaults.payablesAccount,
-  purchaseAccount: accountDefaults.purchaseAccount,
-  purchaseDiscountAccount: accountDefaults.purchaseAccount,
-  purchaseCreditAccount: accountDefaults.purchaseAccount,
-  purchasePrepaymentAccount: accountDefaults.prepaymentAccount,
-  purchaseTaxPayableAccount: accountDefaults.purchaseTaxPayableAccount,
-  updatedBy: "system"
-} as const;
-
-export const postingGroupSales = {
-  receivablesAccount: accountDefaults.receivablesAccount,
-  salesAccount: accountDefaults.salesAccount,
-  salesDiscountAccount: accountDefaults.salesDiscountAccount,
-  salesCreditAccount: accountDefaults.salesAccount,
-  salesPrepaymentAccount: accountDefaults.prepaymentAccount,
-  salesTaxPayableAccount: accountDefaults.salesTaxPayableAccount,
-  updatedBy: "system"
-} as const;
-
 export const fiscalYearSettings = {
   startMonth: "January",
   taxStartMonth: "January",

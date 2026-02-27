@@ -6,7 +6,7 @@ import { data } from "react-router";
 import { getAccountSubcategoriesByCategory } from "~/modules/accounting";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client } = await requirePermissions(request, {
     view: "accounting"
   });
 
@@ -21,8 +21,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const subcategories = await getAccountSubcategoriesByCategory(
     client,
-    accountCategoryId,
-    companyId
+    accountCategoryId
   );
   if (subcategories.error) {
     return data(

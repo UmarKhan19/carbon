@@ -7,10 +7,7 @@ import type {
   getCurrencies,
   getDimension,
   getDimensions,
-  getInventoryPostingGroups,
-  getPaymentTerms,
-  getPurchasingPostingGroups,
-  getSalesPostingGroups
+  getPaymentTerms
 } from "./accounting.service";
 
 export type Account = NonNullable<
@@ -368,19 +365,11 @@ export const currencyCodes = [
 
 export type CurrencyCode = (typeof currencyCodes)[number];
 
-export type InventoryPostingGroup = NonNullable<
-  Awaited<ReturnType<typeof getInventoryPostingGroups>>["data"]
->[number];
-
 export type PaymentTermCalculationMethod =
   Database["public"]["Enums"]["paymentTermCalculationMethod"];
 
 export type PaymentTerm = NonNullable<
   Awaited<ReturnType<typeof getPaymentTerms>>["data"]
->[number];
-
-export type PurchasingPostingGroup = NonNullable<
-  Awaited<ReturnType<typeof getPurchasingPostingGroups>>["data"]
 >[number];
 
 export type Transaction = {
@@ -389,7 +378,3 @@ export type Transaction = {
   balanceAtDate: number;
   balance: number;
 };
-
-export type SalesPostingGroup = NonNullable<
-  Awaited<ReturnType<typeof getSalesPostingGroups>>["data"]
->[number];

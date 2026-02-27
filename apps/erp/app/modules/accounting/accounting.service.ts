@@ -104,7 +104,7 @@ export async function getAccount(
 
 export async function getAccounts(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   args: GenericQueryFilters & {
     search: string | null;
   }
@@ -114,7 +114,7 @@ export async function getAccounts(
     .select("*", {
       count: "exact"
     })
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
   if (args.search) {
@@ -129,7 +129,7 @@ export async function getAccounts(
 
 export async function getAccountsList(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   args?: {
     type?: Database["public"]["Enums"]["glAccountType"] | null;
     incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null;
@@ -139,7 +139,7 @@ export async function getAccountsList(
   let query = client
     .from("account")
     .select("number, name, incomeBalance")
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
   if (args?.type) {
@@ -160,7 +160,7 @@ export async function getAccountsList(
 
 export async function getAccountCategories(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   args: GenericQueryFilters & {
     search: string | null;
   }
@@ -170,7 +170,7 @@ export async function getAccountCategories(
     .select("*", {
       count: "exact"
     })
-    .eq("companyId", companyId);
+    .eq("companyGroupId", companyGroupId);
 
   if (args.search) {
     query = query.ilike("category", `%${args.search}%`);
@@ -186,31 +186,30 @@ export async function getAccountCategories(
 
 export async function getAccountCategoriesList(
   client: SupabaseClient<Database>,
-  companyId: string
+  companyGroupId: string
 ) {
   return client
     .from("accountCategory")
     .select("*")
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .order("category", { ascending: true });
 }
 
 export async function getAccountCategory(
   client: SupabaseClient<Database>,
   accountCategoryId: string,
-  companyId: string
+  companyGroupId: string
 ) {
   return client
     .from("accountCategory")
     .select("*")
     .eq("id", accountCategoryId)
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .single();
 }
 
 export async function getAccountSubcategories(
   client: SupabaseClient<Database>,
-  companyId: string,
   args: GenericQueryFilters & {
     search: string | null;
   }
@@ -220,7 +219,6 @@ export async function getAccountSubcategories(
     .select("*", {
       count: "exact"
     })
-    .eq("companyId", companyId)
     .eq("active", true);
 
   if (args.search) {
@@ -235,14 +233,12 @@ export async function getAccountSubcategories(
 
 export async function getAccountSubcategoriesByCategory(
   client: SupabaseClient<Database>,
-  accountCategoryId: string,
-  companyId: string
+  accountCategoryId: string
 ) {
   return client
     .from("accountSubcategory")
     .select("*")
     .eq("accountCategoryId", accountCategoryId)
-    .eq("companyId", companyId)
     .eq("active", true);
 }
 
@@ -305,7 +301,7 @@ export async function getBaseCurrency(
 ) {
   const { data: company, error } = await client
     .from("company")
-    .select("baseCurrencyCode")
+    .select("baseCurrencyCode, companyGroupId")
     .eq("id", companyId)
     .single();
 
@@ -321,12 +317,13 @@ export async function getBaseCurrency(
     .from("currency")
     .select("*")
     .eq("code", company.baseCurrencyCode)
+    .eq("companyGroupId", company.companyGroupId!)
     .single();
 }
 
 export async function getChartOfAccounts(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   args: Omit<GenericQueryFilters, "limit" | "offset"> & {
     name: string | null;
     incomeBalance: "Income Statement" | "Balance Sheet" | null;
@@ -337,7 +334,7 @@ export async function getChartOfAccounts(
   let accountsQuery = client
     .from("accounts")
     .select("*")
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
   if (args.incomeBalance) {
@@ -409,20 +406,20 @@ export async function getCurrency(
 
 export async function getCurrencyByCode(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   currencyCode: string
 ) {
   return client
     .from("currencies")
     .select("*")
     .eq("code", currencyCode)
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .single();
 }
 
 export async function getCurrencies(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   args: GenericQueryFilters & {
     search: string | null;
   }
@@ -432,7 +429,7 @@ export async function getCurrencies(
     .select("*", {
       count: "exact"
     })
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
   if (args.search) {
@@ -485,52 +482,6 @@ export async function getFiscalYearSettings(
     .single();
 }
 
-export async function getInventoryPostingGroup(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  args: {
-    itemPostingGroupId: string | null;
-    locationId: string | null;
-  }
-) {
-  let query = client
-    .from("postingGroupInventory")
-    .select("*")
-    .eq("companyId", companyId);
-
-  if (args.itemPostingGroupId === null) {
-    query = query.is("itemPostingGroupId", null);
-  } else {
-    query = query.eq("itemPostingGroupId", args.itemPostingGroupId);
-  }
-
-  if (args.locationId === null) {
-    query = query.is("locationId", null);
-  } else {
-    query = query.eq("locationId", args.locationId);
-  }
-
-  return query.single();
-}
-
-export async function getInventoryPostingGroups(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  args: GenericQueryFilters
-) {
-  let query = client
-    .from("postingGroupInventory")
-    .select("*", {
-      count: "exact"
-    })
-    .eq("companyId", companyId);
-
-  query = setGenericQueryFilters(query, args, [
-    { column: "itemPostingGroupId", ascending: false }
-  ]);
-  return query;
-}
-
 export async function getPaymentTerm(
   client: SupabaseClient<Database>,
   paymentTermId: string
@@ -579,94 +530,6 @@ export async function getPaymentTermsList(
     .order("name", { ascending: true });
 }
 
-export async function getPurchasingPostingGroup(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  args: {
-    itemPostingGroupId: string | null;
-    supplierTypeId: string | null;
-  }
-) {
-  let query = client
-    .from("postingGroupInventory")
-    .select("*")
-    .eq("companyId", companyId);
-
-  if (args.itemPostingGroupId === null) {
-    query = query.is("itemPostingGroupId", null);
-  } else {
-    query = query.eq("itemPostingGroupId", args.itemPostingGroupId);
-  }
-
-  if (args.supplierTypeId === null) {
-    query = query.is("supplierTypeId", null);
-  } else {
-    query = query.eq("supplierTypeId", args.supplierTypeId);
-  }
-
-  return query.single();
-}
-
-export async function getPurchasingPostingGroups(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  args: GenericQueryFilters
-) {
-  let query = client
-    .from("postingGroupPurchasing")
-    .select("*", {
-      count: "exact"
-    })
-    .eq("companyId", companyId);
-
-  query = setGenericQueryFilters(query, args, [
-    { column: "itemPostingGroupId", ascending: false }
-  ]);
-  return query;
-}
-
-export async function getPurchasingSalesGroup(
-  client: SupabaseClient<Database>,
-  args: {
-    itemPostingGroupId: string | null;
-    customerTypeId: string | null;
-  }
-) {
-  let query = client.from("postingGroupInventory").select("*");
-
-  if (args.itemPostingGroupId === null) {
-    query = query.is("itemPostingGroupId", null);
-  } else {
-    query = query.eq("itemPostingGroupId", args.itemPostingGroupId);
-  }
-
-  if (args.customerTypeId === null) {
-    query = query.is("customerTypeId", null);
-  } else {
-    query = query.eq("customerTypeId", args.customerTypeId);
-  }
-
-  return query.single();
-}
-
-export async function getSalesPostingGroups(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  args: GenericQueryFilters
-) {
-  let query = client
-    .from("postingGroupSales")
-    .select("*", {
-      count: "exact"
-    })
-    .eq("companyId", companyId);
-
-  query = setGenericQueryFilters(query, args, [
-    { column: "itemPostingGroupId", ascending: false }
-  ]);
-  return query;
-}
-
 export async function updateDefaultBalanceSheetAccounts(
   client: SupabaseClient<Database>,
   defaultAccounts: z.infer<typeof defaultBalanceSheetAccountValidator> & {
@@ -710,7 +573,7 @@ export async function upsertAccount(
   client: SupabaseClient<Database>,
   account:
     | (Omit<z.infer<typeof accountValidator>, "id"> & {
-        companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -735,7 +598,7 @@ export async function upsertAccountCategory(
   client: SupabaseClient<Database>,
   accountCategory:
     | (Omit<z.infer<typeof accountCategoryValidator>, "id"> & {
-        companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -792,13 +655,13 @@ export async function upsertCurrency(
   client: SupabaseClient<Database>,
   currency:
     | (Omit<z.infer<typeof currencyValidator>, "id"> & {
-        companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
     | (Omit<z.infer<typeof currencyValidator>, "id"> & {
         id: string;
-        companyId: string;
+        companyGroupId: string;
         updatedBy: string;
         customFields?: Json;
       })
@@ -845,7 +708,7 @@ export async function upsertPaymentTerm(
 
 export async function getDimensions(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   args: GenericQueryFilters & {
     search: string | null;
   }
@@ -855,7 +718,7 @@ export async function getDimensions(
     .select("*, dimensionValue(id, name)", {
       count: "exact"
     })
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
   if (args.search) {
@@ -883,7 +746,7 @@ export async function upsertDimension(
   client: SupabaseClient<Database>,
   dimension:
     | (Omit<z.infer<typeof dimensionValidator>, "id" | "dimensionValues"> & {
-        companyId: string;
+        companyGroupId: string;
         createdBy: string;
       })
     | (Omit<z.infer<typeof dimensionValidator>, "id" | "dimensionValues"> & {
@@ -898,14 +761,14 @@ export async function upsertDimension(
     dimensionResult = await client
       .from("dimension")
       .insert([dimension])
-      .select("id, companyId")
+      .select("id, companyGroupId")
       .single();
   } else {
     dimensionResult = await client
       .from("dimension")
       .update(sanitize(dimension))
       .eq("id", dimension.id)
-      .select("id, companyId")
+      .select("id, companyGroupId")
       .single();
   }
 
@@ -913,7 +776,7 @@ export async function upsertDimension(
 
   if (dimension.entityType === "Custom" && dimensionValues !== undefined) {
     const dimensionId = dimensionResult.data.id;
-    const companyId = dimensionResult.data.companyId;
+    const companyGroupId = dimensionResult.data.companyGroupId;
 
     const existing = await client
       .from("dimensionValue")
@@ -942,7 +805,7 @@ export async function upsertDimension(
       .map((name) => ({
         dimensionId,
         name,
-        companyId,
+        companyGroupId,
         createdBy:
           "createdBy" in dimension ? dimension.createdBy : dimension.updatedBy
       }));

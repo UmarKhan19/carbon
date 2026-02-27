@@ -65,7 +65,7 @@ export function useModules() {
     },
     {
       permission: "accounting",
-      name: "Finance",
+      name: "Accounting",
       to: path.to.currencies,
       icon: LuLandmark
     },

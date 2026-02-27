@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { getAccountCategoriesList } from "~/modules/accounting";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {});
+  const { client, companyGroupId } = await requirePermissions(request, {});
 
-  return await getAccountCategoriesList(client, companyId);
+  return await getAccountCategoriesList(client, companyGroupId);
 }

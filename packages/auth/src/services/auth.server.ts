@@ -83,7 +83,7 @@ function getCompanyIdFromAPIKey(apiKey: string) {
   return serviceRole
     .from("apiKey")
     .select(
-      "id, companyId, createdBy, scopes, rateLimit, rateLimitWindow, expiresAt"
+      "id, companyId, ...company(companyGroupId), createdBy, scopes, rateLimit, rateLimitWindow, expiresAt"
     )
     .eq("keyHash", keyHash)
     .single();
@@ -91,7 +91,8 @@ function getCompanyIdFromAPIKey(apiKey: string) {
 
 function makeAuthSession(
   supabaseSession: SupabaseAuthSession | null,
-  companyId: string
+  companyId: string,
+  companyGroupId: string
 ): AuthSession | null {
   if (!supabaseSession) return null;
 
@@ -104,6 +105,7 @@ function makeAuthSession(
   return {
     accessToken: supabaseSession.access_token,
     companyId,
+    companyGroupId,
     refreshToken: supabaseSession.refresh_token,
     userId: supabaseSession.user.id,
     email: supabaseSession.user.email,
@@ -126,15 +128,18 @@ export async function requirePermissions(
 ): Promise<{
   client: SupabaseClient<Database>;
   companyId: string;
+  companyGroupId: string;
   email: string;
   userId: string;
 }> {
   const apiKey = request.headers.get("carbon-key");
+
   if (apiKey) {
     const company = await getCompanyIdFromAPIKey(apiKey);
     if (company.data) {
       const apiKeyData = company.data as unknown as ApiKeyRecord;
       const companyId = apiKeyData.companyId;
+      const companyGroupId = apiKeyData.companyGroupId;
       const userId = apiKeyData.createdBy;
 
       // Check expiration
@@ -199,16 +204,18 @@ export async function requirePermissions(
       }
 
       const client = getCarbonAPIKeyClient(apiKey);
+
       return {
         client,
         companyId,
+        companyGroupId,
         userId,
         email: ""
       };
     }
   }
 
-  const { accessToken, companyId, email, userId } =
+  const { accessToken, companyId, companyGroupId, email, userId } =
     await requireAuthSession(request);
 
   const myClaims = await getUserClaims(userId, companyId);
@@ -221,6 +228,7 @@ export async function requirePermissions(
           ? getCarbonServiceRole()
           : getCarbon(accessToken),
       companyId,
+      companyGroupId,
       email,
       userId
     };
@@ -275,6 +283,7 @@ export async function requirePermissions(
         ? getCarbonServiceRole()
         : getCarbon(accessToken),
     companyId,
+    companyGroupId,
     email,
     userId
   };
@@ -319,12 +328,23 @@ export async function signInWithEmail(email: string, password: string) {
   if (!data.session || error) return null;
   const companies = await getCompaniesForUser(client, data.user.id);
 
-  return makeAuthSession(data.session, companies?.[0]);
+  const { data: companyRecord } = await client
+    .from("company")
+    .select("companyGroupId")
+    .eq("id", companies?.[0])
+    .single();
+
+  return makeAuthSession(
+    data.session,
+    companies?.[0],
+    companyRecord?.companyGroupId ?? ""
+  );
 }
 
 export async function refreshAccessToken(
   refreshToken?: string,
-  companyId?: string
+  companyId?: string,
+  companyGroupId?: string
 ): Promise<AuthSession | null> {
   if (!refreshToken) return null;
 
@@ -336,7 +356,7 @@ export async function refreshAccessToken(
 
   if (!data.session || error) return null;
 
-  return makeAuthSession(data.session, companyId!);
+  return makeAuthSession(data.session, companyId!, companyGroupId!);
 }
 
 export async function verifyAuthSession(authSession: AuthSession) {

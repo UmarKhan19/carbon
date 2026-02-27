@@ -14,7 +14,7 @@ import { getCustomFields, setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyGroupId } = await requirePermissions(request, {
     view: "accounting",
     role: "employee"
   });
@@ -25,7 +25,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const accountCategory = await getAccountCategory(
     client,
     categoryId,
-    companyId
+    companyGroupId
   );
   if (accountCategory.error) {
     throw redirect(

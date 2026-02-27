@@ -45,6 +45,14 @@ serve(async (req: Request) => {
       companyId
     );
 
+    const companyRecord = await client
+      .from("company")
+      .select("companyGroupId")
+      .eq("id", companyId)
+      .single();
+    if (companyRecord.error) throw new Error("Failed to fetch company");
+    const companyGroupId = companyRecord.data.companyGroupId;
+
     const [purchaseInvoice, purchaseInvoiceLines, purchaseInvoiceDelivery] =
       await Promise.all([
         client.from("purchaseInvoice").select("*").eq("id", invoiceId).single(),
@@ -820,7 +828,7 @@ serve(async (req: Request) => {
               .from("accounts")
               .select("name, number, directPosting")
               .eq("number", invoiceLine.accountNumber ?? "")
-              .eq("companyId", companyId)
+              .eq("companyGroupId", companyGroupId)
               .single(),
             client
               .from("accountDefault")

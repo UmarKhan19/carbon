@@ -9,7 +9,7 @@ import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyGroupId } = await requirePermissions(request, {
     create: "purchasing"
   });
 
@@ -20,7 +20,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const currencyCode = formData.get("currencyCode") as string;
   if (!currencyCode) throw new Error("Could not find currencyCode");
 
-  const currency = await getCurrencyByCode(client, companyId, currencyCode);
+  const currency = await getCurrencyByCode(
+    client,
+    companyGroupId,
+    currencyCode
+  );
   if (currency.error || !currency.data.exchangeRate)
     throw new Error("Could not find currency");
 

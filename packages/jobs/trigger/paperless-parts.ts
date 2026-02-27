@@ -316,7 +316,7 @@ export const paperlessPartsTask = task({
         if (quote.currencyCode) {
           const currency = await getCurrencyByCode(
             carbon,
-            quote.companyId,
+            company.data.companyGroupId!,
             quote.currencyCode
           );
           if (currency.data) {
@@ -801,13 +801,13 @@ async function getCustomerShipping(
 
 async function getCurrencyByCode(
   client: SupabaseClient<Database>,
-  companyId: string,
+  companyGroupId: string,
   currencyCode: string
 ) {
   return client
     .from("currency")
     .select("exchangeRate")
-    .eq("companyId", companyId)
+    .eq("companyGroupId", companyGroupId)
     .eq("code", currencyCode)
     .single();
 }

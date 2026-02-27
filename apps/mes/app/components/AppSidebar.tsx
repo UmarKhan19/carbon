@@ -18,6 +18,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   HStack,
+  ScrollArea,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -34,7 +35,7 @@ import {
 } from "@carbon/react";
 import { ItarDisclosure, useMode } from "@carbon/remix";
 import type { ComponentProps } from "react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
 import {
   LuActivity,
@@ -269,6 +270,45 @@ export function UserNav({
 
   const fetcher = useFetcher<typeof action>();
 
+  const companyGroups = useMemo(() => {
+    const groups = new Map<string, { name: string; companies: Company[] }>();
+
+    for (const c of companies) {
+      const groupName = c.companyGroupName ?? "Companies";
+      const existing = groups.get(groupName);
+      if (existing) {
+        existing.companies.push(c);
+      } else {
+        groups.set(groupName, { name: groupName, companies: [c] });
+      }
+    }
+
+    // If a group has only one company, move it to "Companies"
+    const result = new Map<string, { name: string; companies: Company[] }>();
+    for (const [key, group] of groups) {
+      if (group.companies.length === 1 && key !== "Companies") {
+        const existing = result.get("Companies");
+        if (existing) {
+          existing.companies.push(...group.companies);
+        } else {
+          result.set("Companies", {
+            name: "Companies",
+            companies: [...group.companies]
+          });
+        }
+      } else {
+        const existing = result.get(key);
+        if (existing) {
+          existing.companies.push(...group.companies);
+        } else {
+          result.set(key, group);
+        }
+      }
+    }
+
+    return Array.from(result.values());
+  }, [companies]);
+
   const updateLocation = (value: string) => {
     const formData = new FormData();
     formData.append("location", value);
@@ -323,35 +363,43 @@ export function UserNav({
                 Company
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup value={company.companyId!}>
-                  {companies.map((c) => {
-                    const logo =
-                      mode === "dark" ? c.logoDarkIcon : c.logoLightIcon;
-                    return (
-                      <DropdownMenuRadioItem
-                        key={c.companyId}
-                        value={c.companyId!}
-                        onSelect={() => {
-                          const form = new FormData();
-                          form.append("companyId", c.companyId!);
-                          fetcher.submit(form, {
-                            method: "post",
-                            action: path.to.switchCompany(c.companyId!)
-                          });
-                        }}
-                      >
-                        <HStack>
-                          <Avatar
-                            size="xs"
-                            name={c.name ?? undefined}
-                            src={logo ?? undefined}
-                          />
-                          <span>{c.name}</span>
-                        </HStack>
-                      </DropdownMenuRadioItem>
-                    );
-                  })}
-                </DropdownMenuRadioGroup>
+                <ScrollArea className="max-h-[300px]">
+                  {companyGroups.map((group, index) => (
+                    <div key={group.name}>
+                      {index > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuLabel>{group.name}</DropdownMenuLabel>
+                      <DropdownMenuRadioGroup value={company.companyId!}>
+                        {group.companies.map((c) => {
+                          const logo =
+                            mode === "dark" ? c.logoDarkIcon : c.logoLightIcon;
+                          return (
+                            <DropdownMenuRadioItem
+                              key={c.companyId}
+                              value={c.companyId!}
+                              onSelect={() => {
+                                const form = new FormData();
+                                form.append("companyId", c.companyId!);
+                                fetcher.submit(form, {
+                                  method: "post",
+                                  action: path.to.switchCompany(c.companyId!)
+                                });
+                              }}
+                            >
+                              <HStack>
+                                <Avatar
+                                  size="xs"
+                                  name={c.name ?? undefined}
+                                  src={logo ?? undefined}
+                                />
+                                <span>{c.name}</span>
+                              </HStack>
+                            </DropdownMenuRadioItem>
+                          );
+                        })}
+                      </DropdownMenuRadioGroup>
+                    </div>
+                  ))}
+                </ScrollArea>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />

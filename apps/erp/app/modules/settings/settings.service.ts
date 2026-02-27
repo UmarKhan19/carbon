@@ -371,11 +371,12 @@ export async function getWebhooks(
 export async function insertCompany(
   client: SupabaseClient<Database>,
   company: z.infer<typeof companyValidator>,
-  ownerId?: string
+  ownerId?: string,
+  companyGroupId?: string
 ) {
   return client
     .from("company")
-    .insert({ ...company, ownerId })
+    .insert({ ...company, ownerId, companyGroupId })
     .select("id")
     .single();
 }

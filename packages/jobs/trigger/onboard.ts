@@ -67,7 +67,7 @@ export const onboardTask = task({
 
         let type: "Warm" | "Cold" = "Warm";
         try {
-          const { object } = await generateObject<Record<string, string>>({
+          const { object } = await generateObject({
             // @ts-ignore
             model: openai("gpt-4o"),
             schema: z.object({
@@ -138,13 +138,20 @@ export const onboardTask = task({
             });
 
             const updateResult = await carbon
-              .from("user")
-              .update({
-                externalId: {
-                  twenty: twentyPersonId,
+              .from("externalIntegrationMapping")
+              .upsert(
+                {
+                  entityType: "user",
+                  entityId: userId,
+                  integration: "twenty",
+                  externalId: twentyPersonId,
+                  companyId,
                 },
-              })
-              .eq("id", userId);
+                {
+                  onConflict:
+                    "entityType,entityId,integration,companyId",
+                }
+              );
 
             console.log("User update result:", updateResult);
             if (updateResult.error) {
@@ -178,13 +185,20 @@ export const onboardTask = task({
               });
 
               const updateResult = await carbon
-                .from("company")
-                .update({
-                  externalId: {
-                    twenty: twentyOpportunityId,
+                .from("externalIntegrationMapping")
+                .upsert(
+                  {
+                    entityType: "company",
+                    entityId: companyId,
+                    integration: "twenty",
+                    externalId: twentyOpportunityId,
+                    companyId,
                   },
-                })
-                .eq("id", companyId);
+                  {
+                    onConflict:
+                      "entityType,entityId,integration,companyId",
+                  }
+                );
 
               console.log("Company update result:", updateResult);
               if (updateResult.error) {
@@ -205,8 +219,18 @@ export const onboardTask = task({
 
         break;
       case "customer":
-        // @ts-ignore
-        const twentyId = user.data?.externalId?.twenty as string | undefined;
+        const twentyMapping = await carbon
+          .from("externalIntegrationMapping")
+          .select("externalId")
+          .eq("entityType", "user")
+          .eq("entityId", userId)
+          .eq("integration", "twenty")
+          .eq("companyId", companyId)
+          .maybeSingle();
+
+        const twentyId = twentyMapping.data?.externalId as
+          | string
+          | undefined;
 
         try {
           slack.sendMessage({

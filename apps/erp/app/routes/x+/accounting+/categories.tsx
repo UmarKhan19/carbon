@@ -16,7 +16,7 @@ export const handle: Handle = {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyGroupId } = await requirePermissions(request, {
     view: "accounting",
     role: "employee"
   });
@@ -28,7 +28,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getGenericQueryFilters(searchParams);
 
   const [categories] = await Promise.all([
-    getAccountCategories(client, companyId, {
+    getAccountCategories(client, companyGroupId, {
       search,
 
       limit,

@@ -16,18 +16,21 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Finance",
+  breadcrumb: "Accounting",
   to: path.to.currencies,
   module: "accounting"
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "accounting"
-  });
+  const { client, companyId, companyGroupId } = await requirePermissions(
+    request,
+    {
+      view: "accounting"
+    }
+  );
 
   const [accounts, baseCurrency] = await Promise.all([
-    getAccountsList(client, companyId, {
+    getAccountsList(client, companyGroupId, {
       type: "Posting"
     }),
     getBaseCurrency(client, companyId)

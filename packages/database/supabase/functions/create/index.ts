@@ -490,13 +490,20 @@ serve(async (req: Request) => {
               .filter(Boolean) as string[]
           );
 
+          const companyRecord = await client
+            .from("company")
+            .select("companyGroupId")
+            .eq("id", companyId)
+            .single();
+          if (companyRecord.error) throw new Error(companyRecord.error.message);
+
           const exchangeRates = await Promise.all(
             Array.from(currencyCodes).map(async (currencyCode) => {
               const exchangeRate = await client
                 .from("currency")
                 .select("*")
                 .eq("code", currencyCode)
-                .eq("companyId", companyId)
+                .eq("companyGroupId", companyRecord.data.companyGroupId)
                 .single();
               return {
                 currencyCode,

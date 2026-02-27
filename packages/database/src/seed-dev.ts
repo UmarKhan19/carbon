@@ -26,9 +26,6 @@ import {
   nonConformanceRequiredActions,
   nonConformanceTypes,
   paymentTerms,
-  postingGroupInventory,
-  postingGroupPurchasing,
-  postingGroupSales,
   scrapReasons,
   sequences,
   supplierStatuses,
@@ -183,16 +180,25 @@ async function seedDev() {
       const companyId = xidResult.rows[0].id as string;
       console.log(`   Company ID: ${companyId}`);
 
+      // Create company group
+      console.log("5. Creating company group...");
+      const companyGroupResult = await client.query(
+        `INSERT INTO "companyGroup" (name, "createdBy") VALUES ($1, $2) RETURNING id`,
+        [DEV_COMPANY_NAME, userId]
+      );
+      const companyGroupId = companyGroupResult.rows[0].id as string;
+      console.log(`   Company Group ID: ${companyGroupId}`);
+
       // Create the company
-      console.log("5. Creating company...");
+      console.log("6. Creating company...");
       await client.query(
-        `INSERT INTO company (id, name, "baseCurrencyCode") VALUES ($1, $2, 'USD')`,
-        [companyId, DEV_COMPANY_NAME]
+        `INSERT INTO company (id, name, "baseCurrencyCode", "companyGroupId") VALUES ($1, $2, 'USD', $3)`,
+        [companyId, DEV_COMPANY_NAME, companyGroupId]
       );
       console.log(`   Company "${DEV_COMPANY_NAME}" created.`);
 
       // Seed the company with all default data
-      console.log("6. Seeding company with default data...");
+      console.log("7. Seeding company with default data...");
 
       // Create storage bucket
       await client.query(
@@ -357,9 +363,9 @@ async function seedDev() {
       // Seed currencies
       for (const c of currencies) {
         await client.query(
-          `INSERT INTO currency (code, "exchangeRate", "decimalPlaces", "companyId", "createdBy")
+          `INSERT INTO currency (code, "exchangeRate", "decimalPlaces", "companyGroupId", "createdBy")
            VALUES ($1, $2, $3, $4, 'system')`,
-          [c.code, c.exchangeRate, c.decimalPlaces, companyId]
+          [c.code, c.exchangeRate, c.decimalPlaces, companyGroupId]
         );
       }
 
@@ -367,9 +373,9 @@ async function seedDev() {
       const categoryIdMap: Record<string, string> = {};
       for (const ac of accountCategories) {
         const result = await client.query(
-          `INSERT INTO "accountCategory" (category, class, "incomeBalance", "companyId", "createdBy")
+          `INSERT INTO "accountCategory" (category, class, "incomeBalance", "companyGroupId", "createdBy")
            VALUES ($1, $2, $3, $4, 'system') RETURNING id`,
-          [ac.category, ac.class, ac.incomeBalance, companyId]
+          [ac.category, ac.class, ac.incomeBalance, companyGroupId]
         );
         categoryIdMap[ac.category] = result.rows[0].id;
       }
@@ -377,7 +383,7 @@ async function seedDev() {
       // Seed accounts (chart of accounts)
       for (const acc of accounts) {
         await client.query(
-          `INSERT INTO account (number, name, type, "accountCategoryId", "incomeBalance", class, "directPosting", "companyId", "createdBy")
+          `INSERT INTO account (number, name, type, "accountCategoryId", "incomeBalance", class, "directPosting", "companyGroupId", "createdBy")
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'system')`,
           [
             acc.number,
@@ -387,7 +393,7 @@ async function seedDev() {
             acc.incomeBalance,
             acc.class,
             acc.directPosting,
-            companyId
+            companyGroupId
           ]
         );
       }
@@ -408,10 +414,10 @@ async function seedDev() {
           "bankLocalCurrencyAccount", "bankForeignCurrencyAccount", "prepaymentAccount",
           "payablesAccount", "inventoryReceivedNotInvoicedAccount", "inventoryShippedNotInvoicedAccount",
           "salesTaxPayableAccount", "purchaseTaxPayableAccount", "reverseChargeSalesTaxPayableAccount",
-          "retainedEarningsAccount", "companyId"
+          "retainedEarningsAccount", "companyId", "companyGroupId"
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
-          $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40
+          $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
         )`,
         [
           accountDefaults.salesAccount,
@@ -453,76 +459,8 @@ async function seedDev() {
           accountDefaults.purchaseTaxPayableAccount,
           accountDefaults.reverseChargeSalesTaxPayableAccount,
           accountDefaults.retainedEarningsAccount,
-          companyId
-        ]
-      );
-
-      // Seed posting groups
-      await client.query(
-        `INSERT INTO "postingGroupInventory" (
-          "itemPostingGroupId", "locationId", "costOfGoodsSoldAccount", "inventoryAccount",
-          "inventoryInterimAccrualAccount", "inventoryReceivedNotInvoicedAccount",
-          "inventoryInvoicedNotReceivedAccount", "inventoryShippedNotInvoicedAccount",
-          "workInProgressAccount", "directCostAppliedAccount", "overheadCostAppliedAccount",
-          "purchaseVarianceAccount", "inventoryAdjustmentVarianceAccount", "materialVarianceAccount",
-          "capacityVarianceAccount", "overheadAccount", "companyId", "updatedBy"
-        ) VALUES (
-          NULL, NULL, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, 'system'
-        )`,
-        [
-          postingGroupInventory.costOfGoodsSoldAccount,
-          postingGroupInventory.inventoryAccount,
-          postingGroupInventory.inventoryInterimAccrualAccount,
-          postingGroupInventory.inventoryReceivedNotInvoicedAccount,
-          postingGroupInventory.inventoryInvoicedNotReceivedAccount,
-          postingGroupInventory.inventoryShippedNotInvoicedAccount,
-          postingGroupInventory.workInProgressAccount,
-          postingGroupInventory.directCostAppliedAccount,
-          postingGroupInventory.overheadCostAppliedAccount,
-          postingGroupInventory.purchaseVarianceAccount,
-          postingGroupInventory.inventoryAdjustmentVarianceAccount,
-          postingGroupInventory.materialVarianceAccount,
-          postingGroupInventory.capacityVarianceAccount,
-          postingGroupInventory.overheadAccount,
-          companyId
-        ]
-      );
-
-      await client.query(
-        `INSERT INTO "postingGroupPurchasing" (
-          "itemPostingGroupId", "supplierTypeId", "payablesAccount", "purchaseAccount",
-          "purchaseDiscountAccount", "purchaseCreditAccount", "purchasePrepaymentAccount",
-          "purchaseTaxPayableAccount", "companyId", "updatedBy"
-        ) VALUES (
-          NULL, NULL, $1, $2, $3, $4, $5, $6, $7, 'system'
-        )`,
-        [
-          postingGroupPurchasing.payablesAccount,
-          postingGroupPurchasing.purchaseAccount,
-          postingGroupPurchasing.purchaseDiscountAccount,
-          postingGroupPurchasing.purchaseCreditAccount,
-          postingGroupPurchasing.purchasePrepaymentAccount,
-          postingGroupPurchasing.purchaseTaxPayableAccount,
-          companyId
-        ]
-      );
-
-      await client.query(
-        `INSERT INTO "postingGroupSales" (
-          "itemPostingGroupId", "customerTypeId", "receivablesAccount", "salesAccount",
-          "salesDiscountAccount", "salesCreditAccount", "salesPrepaymentAccount",
-          "salesTaxPayableAccount", "companyId", "updatedBy"
-        ) VALUES (
-          NULL, NULL, $1, $2, $3, $4, $5, $6, $7, 'system'
-        )`,
-        [
-          postingGroupSales.receivablesAccount,
-          postingGroupSales.salesAccount,
-          postingGroupSales.salesDiscountAccount,
-          postingGroupSales.salesCreditAccount,
-          postingGroupSales.salesPrepaymentAccount,
-          postingGroupSales.salesTaxPayableAccount,
-          companyId
+          companyId,
+          companyGroupId
         ]
       );
 
