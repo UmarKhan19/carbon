@@ -1,15 +1,15 @@
-import { Button, cn, HStack } from "@carbon/react";
+import { Button, cn } from "@carbon/react";
 import { memo, useMemo, useRef } from "react";
 import {
+  LuChevronDown,
   LuChevronRight,
-  LuEllipsisVertical,
   LuFilePlus,
   LuFolder,
   LuFolderOpen
 } from "react-icons/lu";
-import { Link as ReactRouterLink } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { FlatTree, FlatTreeItem } from "~/components/TreeView";
-import { TreeView, useTree } from "~/components/TreeView";
+import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useRealtime } from "~/hooks";
 import type { Chart } from "../../types";
 
@@ -58,6 +58,7 @@ function formatCurrency(value: number): string {
 const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
   useRealtime("journal");
   const parentRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const tree = useMemo(() => accountsToFlatTree(data), [data]);
 
@@ -65,10 +66,11 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
     nodes,
     getTreeProps,
     getNodeProps,
-    virtualizer,
+    selectNode,
     toggleExpandNode,
     expandAllBelowDepth,
-    collapseAllBelowDepth
+    collapseAllBelowDepth,
+    virtualizer
   } = useTree<Chart, undefined>({
     tree,
     parentRef,
@@ -76,8 +78,8 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
   });
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 w-full bg-card">
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
+    <div className="flex flex-col flex-1 min-h-0 w-full">
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-border flex-shrink-0">
         <Button
           size="sm"
           variant="ghost"
@@ -110,29 +112,51 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
             return (
               <div
                 className={cn(
-                  "flex items-center h-9 px-4 hover:bg-muted/50 text-sm border-b border-border/50 cursor-pointer overflow-hidden",
+                  "flex h-9 cursor-pointer items-center overflow-hidden pr-4 text-sm group/row",
+                  state.selected
+                    ? "bg-muted hover:bg-accent"
+                    : "bg-transparent hover:bg-accent",
                   isGroup && "font-semibold"
                 )}
-                style={{
-                  paddingLeft: `calc(${node.level * 1.25}rem + 1rem)`
-                }}
                 onClick={() => {
-                  if (isGroup) toggleExpandNode(node.id);
+                  selectNode(node.id, false);
+                  if (isGroup) {
+                    toggleExpandNode(node.id);
+                  } else {
+                    navigate(account.id as string);
+                  }
                 }}
               >
-                {/* Expand/collapse icon for groups */}
-                <div className="w-5 h-5 flex items-center justify-center mr-1 shrink-0">
-                  {isGroup ? (
-                    <LuChevronRight
-                      className={cn(
-                        "h-4 w-4 transition-transform text-muted-foreground",
-                        isExpanded && "rotate-90"
-                      )}
-                    />
-                  ) : null}
+                {/* Indentation lines */}
+                <div className="flex h-9 items-center">
+                  {Array.from({ length: node.level }).map((_, index) => (
+                    <LevelLine key={index} isSelected={state.selected} />
+                  ))}
+
+                  {/* Expand/collapse chevron */}
+                  <div
+                    className={cn(
+                      "flex h-9 w-5 items-center justify-center",
+                      node.hasChildren && "hover:bg-accent"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleExpandNode(node.id);
+                    }}
+                  >
+                    {node.hasChildren ? (
+                      isExpanded ? (
+                        <LuChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      ) : (
+                        <LuChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      )
+                    ) : (
+                      <div className="h-9 w-5" />
+                    )}
+                  </div>
                 </div>
 
-                {/* Folder/file icon */}
+                {/* Folder/dot icon */}
                 <div className="w-5 h-5 flex items-center justify-center mr-2 shrink-0">
                   {isGroup ? (
                     isExpanded ? (
@@ -145,54 +169,35 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
                   )}
                 </div>
 
-                {/* Account number */}
-                <div className="w-20 shrink-0 text-muted-foreground">
-                  {account.number}
+                {/* Account number + name */}
+                <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                  <span className="text-muted-foreground shrink-0 w-16">
+                    {account.number}
+                  </span>
+                  <span className="truncate">{account.name}</span>
                 </div>
-
-                {/* Account name as link */}
-                <ReactRouterLink
-                  to={account.id as string}
-                  className="flex-1 truncate mr-4 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {account.name}
-                </ReactRouterLink>
 
                 {/* Balance */}
-                <div className="w-32 text-right tabular-nums shrink-0">
+                <span className="w-32 text-right tabular-nums shrink-0 text-muted-foreground">
                   {formatCurrency(account.balance ?? 0)}
-                </div>
+                </span>
 
-                {/* Actions */}
-                <HStack className="ml-2 shrink-0">
-                  {isGroup && (
-                    <Button
-                      asChild
-                      isIcon
-                      variant="ghost"
-                      size="sm"
-                      aria-label="Add child account"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <ReactRouterLink to={`new?parentId=${account.id}`}>
-                        <LuFilePlus className="h-3.5 w-3.5" />
-                      </ReactRouterLink>
-                    </Button>
-                  )}
+                {/* Add child (groups only) */}
+                {isGroup && (
                   <Button
                     asChild
                     isIcon
                     variant="ghost"
                     size="sm"
-                    aria-label="Edit account"
+                    className="ml-1 shrink-0 opacity-0 group-hover/row:opacity-100"
+                    aria-label="Add child account"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <ReactRouterLink to={`${account.id}`}>
-                      <LuEllipsisVertical className="h-3.5 w-3.5" />
-                    </ReactRouterLink>
+                    <Link to={`new?parentId=${account.id}`}>
+                      <LuFilePlus className="h-3.5 w-3.5" />
+                    </Link>
                   </Button>
-                </HStack>
+                )}
               </div>
             );
           }}
