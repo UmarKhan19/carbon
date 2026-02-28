@@ -69,12 +69,6 @@ export function useModules() {
       to: path.to.currencies,
       icon: LuLandmark
     },
-    // {
-    //   permission: "invoicing",
-    //   name: "Invoicing",
-    //   to: path.to.purchaseInvoices,
-    //   icon: LuCreditCard,
-    // },
     {
       permission: "people",
       name: "People",

@@ -13496,6 +13496,7 @@ export type Database = {
           plannedEndTime: string | null
           plannedStartTime: string | null
           priority: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId: string | null
           severity: Database["public"]["Enums"]["maintenanceSeverity"]
           source: Database["public"]["Enums"]["maintenanceSource"]
           status: Database["public"]["Enums"]["maintenanceDispatchStatus"]
@@ -13524,6 +13525,7 @@ export type Database = {
           plannedEndTime?: string | null
           plannedStartTime?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           severity: Database["public"]["Enums"]["maintenanceSeverity"]
           source?: Database["public"]["Enums"]["maintenanceSource"]
           status?: Database["public"]["Enums"]["maintenanceDispatchStatus"]
@@ -13552,6 +13554,7 @@ export type Database = {
           plannedEndTime?: string | null
           plannedStartTime?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           severity?: Database["public"]["Enums"]["maintenanceSeverity"]
           source?: Database["public"]["Enums"]["maintenanceSource"]
           status?: Database["public"]["Enums"]["maintenanceDispatchStatus"]
@@ -13699,6 +13702,20 @@ export type Database = {
             columns: ["nonConformanceId"]
             isOneToOne: false
             referencedRelation: "nonConformance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceDispatch_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceDispatch_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedures"
             referencedColumns: ["id"]
           },
           {
@@ -14810,10 +14827,12 @@ export type Database = {
           friday: boolean
           id: string
           lastGeneratedAt: string | null
+          locationId: string | null
           monday: boolean
           name: string
           nextDueAt: string | null
           priority: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId: string | null
           saturday: boolean
           skipHolidays: boolean
           sunday: boolean
@@ -14835,10 +14854,12 @@ export type Database = {
           friday?: boolean
           id?: string
           lastGeneratedAt?: string | null
+          locationId?: string | null
           monday?: boolean
           name: string
           nextDueAt?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           saturday?: boolean
           skipHolidays?: boolean
           sunday?: boolean
@@ -14860,10 +14881,12 @@ export type Database = {
           friday?: boolean
           id?: string
           lastGeneratedAt?: string | null
+          locationId?: string | null
           monday?: boolean
           name?: string
           nextDueAt?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           saturday?: boolean
           skipHolidays?: boolean
           sunday?: boolean
@@ -14937,6 +14960,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "maintenanceSchedule_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceSchedule_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceSchedule_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedures"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "maintenanceSchedule_updatedBy_fkey"
@@ -32549,300 +32593,6 @@ export type Database = {
             referencedColumns: ["userId"]
           },
         ]
-      }
-      searchIndex_2ByvFidzzZqZGRs671aAHh: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_BRg5pquADpRTpsm5yKGBEY: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_EUqQpnLP8uywmdSaYT55D: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_P1anXJDULZwHbspLJvFm9D: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_RDScwr4FYBh6sDSHzHh13n: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_SZTKEVZq62AG464dbPx2Eu: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_WoHDRzsgz3n7mDz2xrdNpC: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
       }
       searchIndexRegistry: {
         Row: {
@@ -52259,14 +52009,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]

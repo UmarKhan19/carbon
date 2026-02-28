@@ -219,195 +219,6 @@ export default {
         tags: ["procedures"],
       },
     },
-    "/accountCategory": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.category",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.incomeBalance",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.tags",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/accountCategory",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["accountCategory"],
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.accountCategory",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/preferPost",
-          },
-        ],
-        responses: {
-          "201": {
-            description: "Created",
-          },
-        },
-        tags: ["accountCategory"],
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.category",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.incomeBalance",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.tags",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["accountCategory"],
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.category",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.incomeBalance",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategory.tags",
-          },
-          {
-            $ref: "#/parameters/body.accountCategory",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["accountCategory"],
-      },
-    },
     "/purchasingRfqLines": {
       get: {
         parameters: [
@@ -5361,6 +5172,186 @@ export default {
         tags: ["documentExtensions"],
       },
     },
+    "/dimension": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.dimension.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.entityType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.required",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/dimension",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["dimension"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.dimension",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["dimension"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.dimension.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.entityType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.required",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["dimension"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.dimension.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.entityType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.required",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimension.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.dimension",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["dimension"],
+      },
+    },
     "/quoteOperationStep": {
       get: {
         parameters: [
@@ -8526,195 +8517,6 @@ export default {
         tags: ["invite"],
       },
     },
-    "/postingGroupPurchasing": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.supplierTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.payablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseDiscountAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseCreditAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchasePrepaymentAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseTaxPayableAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.updatedBy",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/postingGroupPurchasing",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["postingGroupPurchasing"],
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.postingGroupPurchasing",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/preferPost",
-          },
-        ],
-        responses: {
-          "201": {
-            description: "Created",
-          },
-        },
-        tags: ["postingGroupPurchasing"],
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.supplierTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.payablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseDiscountAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseCreditAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchasePrepaymentAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseTaxPayableAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.updatedBy",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["postingGroupPurchasing"],
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.supplierTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.payablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseDiscountAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseCreditAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchasePrepaymentAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.purchaseTaxPayableAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupPurchasing.updatedBy",
-          },
-          {
-            $ref: "#/parameters/body.postingGroupPurchasing",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["postingGroupPurchasing"],
-      },
-    },
     "/partners": {
       get: {
         parameters: [
@@ -10498,6 +10300,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemUnitSalePrice.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.itemUnitSalePrice.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -10599,6 +10404,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemUnitSalePrice.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.itemUnitSalePrice.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -10652,6 +10460,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemUnitSalePrice.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemUnitSalePrice.companyGroupId",
           },
           {
             $ref: "#/parameters/body.itemUnitSalePrice",
@@ -15826,6 +15637,27 @@ export default {
             $ref: "#/parameters/rowFilter.companies.ownerId",
           },
           {
+            $ref: "#/parameters/rowFilter.companies.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.suggestionNotificationGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.active",
+          },
+          {
             $ref: "#/parameters/rowFilter.companies.userId",
           },
           {
@@ -15836,6 +15668,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companies.employeeType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.companyGroupName",
           },
           {
             $ref: "#/parameters/select",
@@ -16081,267 +15916,6 @@ export default {
           },
         },
         tags: ["process"],
-      },
-    },
-    "/postingGroupInventory": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.locationId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.costOfGoodsSoldAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryInterimAccrualAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryReceivedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryInvoicedNotReceivedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryShippedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.workInProgressAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.directCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.overheadAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.overheadCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.purchaseVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryAdjustmentVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.materialVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.capacityVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/postingGroupInventory",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["postingGroupInventory"],
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.postingGroupInventory",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/preferPost",
-          },
-        ],
-        responses: {
-          "201": {
-            description: "Created",
-          },
-        },
-        tags: ["postingGroupInventory"],
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.locationId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.costOfGoodsSoldAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryInterimAccrualAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryReceivedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryInvoicedNotReceivedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryShippedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.workInProgressAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.directCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.overheadAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.overheadCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.purchaseVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryAdjustmentVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.materialVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.capacityVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["postingGroupInventory"],
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.locationId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.costOfGoodsSoldAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryInterimAccrualAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryReceivedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryInvoicedNotReceivedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryShippedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.workInProgressAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.directCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.overheadAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.overheadCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.purchaseVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.inventoryAdjustmentVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.materialVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.capacityVarianceAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupInventory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/body.postingGroupInventory",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["postingGroupInventory"],
       },
     },
     "/supplierShipping": {
@@ -20664,186 +20238,6 @@ export default {
         tags: ["customerPayment"],
       },
     },
-    "/accountSubcategory": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.name",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.tags",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/accountSubcategory",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["accountSubcategory"],
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.accountSubcategory",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/preferPost",
-          },
-        ],
-        responses: {
-          "201": {
-            description: "Created",
-          },
-        },
-        tags: ["accountSubcategory"],
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.name",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.tags",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["accountSubcategory"],
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.name",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountSubcategory.tags",
-          },
-          {
-            $ref: "#/parameters/body.accountSubcategory",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["accountSubcategory"],
-      },
-    },
     "/trackedActivityInput": {
       get: {
         parameters: [
@@ -21772,6 +21166,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchasePayment.customFields",
           },
           {
+            $ref: "#/parameters/rowFilter.purchasePayment.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -21870,6 +21267,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchasePayment.customFields",
           },
           {
+            $ref: "#/parameters/rowFilter.purchasePayment.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -21920,6 +21320,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchasePayment.customFields",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchasePayment.companyGroupId",
           },
           {
             $ref: "#/parameters/body.purchasePayment",
@@ -25125,384 +24528,6 @@ export default {
         tags: ["purchasingRfqs"],
       },
     },
-    "/postingGroupSales": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.receivablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesDiscountAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesCreditAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesPrepaymentAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesTaxPayableAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.updatedBy",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/postingGroupSales",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["postingGroupSales"],
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.postingGroupSales",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/preferPost",
-          },
-        ],
-        responses: {
-          "201": {
-            description: "Created",
-          },
-        },
-        tags: ["postingGroupSales"],
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.receivablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesDiscountAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesCreditAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesPrepaymentAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesTaxPayableAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.updatedBy",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["postingGroupSales"],
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.itemPostingGroupId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.receivablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesDiscountAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesCreditAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesPrepaymentAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.salesTaxPayableAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.postingGroupSales.updatedBy",
-          },
-          {
-            $ref: "#/parameters/body.postingGroupSales",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["postingGroupSales"],
-      },
-    },
-    "/accountCategories": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.category",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.incomeBalance",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.subCategoriesCount",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/accountCategories",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["accountCategories"],
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.accountCategories",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/preferPost",
-          },
-        ],
-        responses: {
-          "201": {
-            description: "Created",
-          },
-        },
-        tags: ["accountCategories"],
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.category",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.incomeBalance",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.subCategoriesCount",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["accountCategories"],
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.category",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.incomeBalance",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.updatedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.customFields",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountCategories.subCategoriesCount",
-          },
-          {
-            $ref: "#/parameters/body.accountCategories",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["accountCategories"],
-      },
-    },
     "/salesOrderFavorite": {
       get: {
         parameters: [
@@ -26326,6 +25351,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -26520,6 +25548,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -26666,6 +25697,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId",
           },
           {
             $ref: "#/parameters/body.purchaseOrderLine",
@@ -26923,6 +25957,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -27105,6 +26142,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -27239,6 +26279,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
           },
           {
             $ref: "#/parameters/body.accountDefault",
@@ -27967,9 +27010,6 @@ export default {
             $ref: "#/parameters/rowFilter.currencies.active",
           },
           {
-            $ref: "#/parameters/rowFilter.currencies.companyId",
-          },
-          {
             $ref: "#/parameters/rowFilter.currencies.createdBy",
           },
           {
@@ -27983,6 +27023,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.currencies.customFields",
+          },
+          {
+            $ref: "#/parameters/rowFilter.currencies.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.currencies.companyGroupId",
           },
           {
             $ref: "#/parameters/rowFilter.currencies.name",
@@ -28267,6 +27313,9 @@ export default {
             $ref: "#/parameters/rowFilter.shippingMethod.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.shippingMethod.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -28365,6 +27414,9 @@ export default {
             $ref: "#/parameters/rowFilter.shippingMethod.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.shippingMethod.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -28415,6 +27467,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.shippingMethod.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shippingMethod.companyGroupId",
           },
           {
             $ref: "#/parameters/body.shippingMethod",
@@ -29371,6 +28426,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseInvoice.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -29526,6 +28584,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseInvoice.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -29633,6 +28694,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoice.companyGroupId",
           },
           {
             $ref: "#/parameters/body.purchaseInvoice",
@@ -30031,16 +29095,7 @@ export default {
             $ref: "#/parameters/rowFilter.account.name",
           },
           {
-            $ref: "#/parameters/rowFilter.account.type",
-          },
-          {
             $ref: "#/parameters/rowFilter.account.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.accountSubcategoryId",
           },
           {
             $ref: "#/parameters/rowFilter.account.incomeBalance",
@@ -30049,13 +29104,7 @@ export default {
             $ref: "#/parameters/rowFilter.account.consolidatedRate",
           },
           {
-            $ref: "#/parameters/rowFilter.account.directPosting",
-          },
-          {
             $ref: "#/parameters/rowFilter.account.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.companyId",
           },
           {
             $ref: "#/parameters/rowFilter.account.createdBy",
@@ -30074,6 +29123,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.account.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.parentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.isGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.accountType",
           },
           {
             $ref: "#/parameters/select",
@@ -30144,16 +29205,7 @@ export default {
             $ref: "#/parameters/rowFilter.account.name",
           },
           {
-            $ref: "#/parameters/rowFilter.account.type",
-          },
-          {
             $ref: "#/parameters/rowFilter.account.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.accountSubcategoryId",
           },
           {
             $ref: "#/parameters/rowFilter.account.incomeBalance",
@@ -30162,13 +29214,7 @@ export default {
             $ref: "#/parameters/rowFilter.account.consolidatedRate",
           },
           {
-            $ref: "#/parameters/rowFilter.account.directPosting",
-          },
-          {
             $ref: "#/parameters/rowFilter.account.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.companyId",
           },
           {
             $ref: "#/parameters/rowFilter.account.createdBy",
@@ -30187,6 +29233,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.account.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.parentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.isGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.accountType",
           },
           {
             $ref: "#/parameters/preferReturn",
@@ -30211,16 +29269,7 @@ export default {
             $ref: "#/parameters/rowFilter.account.name",
           },
           {
-            $ref: "#/parameters/rowFilter.account.type",
-          },
-          {
             $ref: "#/parameters/rowFilter.account.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.accountSubcategoryId",
           },
           {
             $ref: "#/parameters/rowFilter.account.incomeBalance",
@@ -30229,13 +29278,7 @@ export default {
             $ref: "#/parameters/rowFilter.account.consolidatedRate",
           },
           {
-            $ref: "#/parameters/rowFilter.account.directPosting",
-          },
-          {
             $ref: "#/parameters/rowFilter.account.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.account.companyId",
           },
           {
             $ref: "#/parameters/rowFilter.account.createdBy",
@@ -30254,6 +29297,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.account.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.parentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.isGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.accountType",
           },
           {
             $ref: "#/parameters/body.account",
@@ -31366,16 +30421,7 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.name",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.type",
-          },
-          {
             $ref: "#/parameters/rowFilter.accounts.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.accountSubcategoryId",
           },
           {
             $ref: "#/parameters/rowFilter.accounts.incomeBalance",
@@ -31384,13 +30430,7 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.consolidatedRate",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.directPosting",
-          },
-          {
             $ref: "#/parameters/rowFilter.accounts.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.companyId",
           },
           {
             $ref: "#/parameters/rowFilter.accounts.createdBy",
@@ -31408,10 +30448,19 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.customFields",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.accountCategory",
+            $ref: "#/parameters/rowFilter.accounts.tags",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.accountSubCategory",
+            $ref: "#/parameters/rowFilter.accounts.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.parentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.isGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.accountType",
           },
           {
             $ref: "#/parameters/select",
@@ -31482,16 +30531,7 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.name",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.type",
-          },
-          {
             $ref: "#/parameters/rowFilter.accounts.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.accountSubcategoryId",
           },
           {
             $ref: "#/parameters/rowFilter.accounts.incomeBalance",
@@ -31500,13 +30540,7 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.consolidatedRate",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.directPosting",
-          },
-          {
             $ref: "#/parameters/rowFilter.accounts.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.companyId",
           },
           {
             $ref: "#/parameters/rowFilter.accounts.createdBy",
@@ -31524,10 +30558,19 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.customFields",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.accountCategory",
+            $ref: "#/parameters/rowFilter.accounts.tags",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.accountSubCategory",
+            $ref: "#/parameters/rowFilter.accounts.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.parentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.isGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.accountType",
           },
           {
             $ref: "#/parameters/preferReturn",
@@ -31552,16 +30595,7 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.name",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.type",
-          },
-          {
             $ref: "#/parameters/rowFilter.accounts.class",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.accountCategoryId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.accountSubcategoryId",
           },
           {
             $ref: "#/parameters/rowFilter.accounts.incomeBalance",
@@ -31570,13 +30604,7 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.consolidatedRate",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.directPosting",
-          },
-          {
             $ref: "#/parameters/rowFilter.accounts.active",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accounts.companyId",
           },
           {
             $ref: "#/parameters/rowFilter.accounts.createdBy",
@@ -31594,10 +30622,19 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.customFields",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.accountCategory",
+            $ref: "#/parameters/rowFilter.accounts.tags",
           },
           {
-            $ref: "#/parameters/rowFilter.accounts.accountSubCategory",
+            $ref: "#/parameters/rowFilter.accounts.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.parentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.isGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.accountType",
           },
           {
             $ref: "#/parameters/body.accounts",
@@ -33115,6 +32152,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.totalAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -33285,6 +32325,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.totalAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -33407,6 +32450,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.totalAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.companyGroupId",
           },
           {
             $ref: "#/parameters/body.purchaseInvoiceLine",
@@ -41950,9 +40996,6 @@ export default {
             $ref: "#/parameters/rowFilter.currency.active",
           },
           {
-            $ref: "#/parameters/rowFilter.currency.companyId",
-          },
-          {
             $ref: "#/parameters/rowFilter.currency.createdBy",
           },
           {
@@ -41969,6 +41012,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.currency.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.currency.companyGroupId",
           },
           {
             $ref: "#/parameters/select",
@@ -42045,9 +41091,6 @@ export default {
             $ref: "#/parameters/rowFilter.currency.active",
           },
           {
-            $ref: "#/parameters/rowFilter.currency.companyId",
-          },
-          {
             $ref: "#/parameters/rowFilter.currency.createdBy",
           },
           {
@@ -42064,6 +41107,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.currency.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.currency.companyGroupId",
           },
           {
             $ref: "#/parameters/preferReturn",
@@ -42094,9 +41140,6 @@ export default {
             $ref: "#/parameters/rowFilter.currency.active",
           },
           {
-            $ref: "#/parameters/rowFilter.currency.companyId",
-          },
-          {
             $ref: "#/parameters/rowFilter.currency.createdBy",
           },
           {
@@ -42113,6 +41156,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.currency.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.currency.companyGroupId",
           },
           {
             $ref: "#/parameters/body.currency",
@@ -42940,6 +41986,9 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -43047,6 +42096,9 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -43106,6 +42158,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.journalLine.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
           },
           {
             $ref: "#/parameters/body.journalLine",
@@ -44374,6 +43429,66 @@ export default {
           },
         },
         tags: ["ability"],
+      },
+    },
+    "/dimensionValues": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.dimensionValues.dimensionId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValues.dimensionName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValues.entityType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValues.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValues.valueId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValues.valueName",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/dimensionValues",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["dimensionValues"],
       },
     },
     "/customerPartToItem": {
@@ -48976,6 +48091,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -49155,6 +48273,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -49286,6 +48407,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.companyGroupId",
           },
           {
             $ref: "#/parameters/body.salesOrderLine",
@@ -49486,6 +48610,18 @@ export default {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.company.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.active",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -49617,6 +48753,18 @@ export default {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.company.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.active",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -49700,6 +48848,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.active",
           },
           {
             $ref: "#/parameters/body.company",
@@ -49870,6 +49030,150 @@ export default {
           },
         },
         tags: ["materialTypes"],
+      },
+    },
+    "/journalLineDimension": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.journalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.dimensionId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.valueId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.createdAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/journalLineDimension",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["journalLineDimension"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.journalLineDimension",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["journalLineDimension"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.journalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.dimensionId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.valueId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.createdAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["journalLineDimension"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.journalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.dimensionId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.valueId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLineDimension.createdAt",
+          },
+          {
+            $ref: "#/parameters/body.journalLineDimension",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["journalLineDimension"],
       },
     },
     "/user": {
@@ -51844,6 +51148,150 @@ export default {
           },
         },
         tags: ["challengeAttempt"],
+      },
+    },
+    "/companyGroup": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/companyGroup",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["companyGroup"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.companyGroup",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["companyGroup"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["companyGroup"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.companyGroup",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["companyGroup"],
       },
     },
     "/nonConformanceSupplier": {
@@ -57366,6 +56814,168 @@ export default {
         tags: ["purchaseOrderTransaction"],
       },
     },
+    "/dimensionValue": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.dimensionId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/dimensionValue",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["dimensionValue"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.dimensionValue",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["dimensionValue"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.dimensionId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["dimensionValue"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.dimensionId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.dimensionValue.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.dimensionValue",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["dimensionValue"],
+      },
+    },
     "/quoteLinePrices": {
       get: {
         parameters: [
@@ -61723,6 +61333,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -61884,6 +61497,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -61997,6 +61613,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.companyGroupId",
           },
           {
             $ref: "#/parameters/body.salesInvoiceLine",
@@ -64963,6 +64582,34 @@ export default {
         tags: ["(rpc) update_receipt_line_serial_tracking"],
       },
     },
+    "/rpc/get_company_groups_for_employee": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) get_company_groups_for_employee"],
+      },
+    },
     "/rpc/get_production_projections": {
       post: {
         parameters: [
@@ -65493,6 +65140,49 @@ export default {
           },
         },
         tags: ["(rpc) check_api_key_rate_limit"],
+      },
+    },
+    "/rpc/accountTreeBalances": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                from_date: {
+                  format: "date",
+                  type: "string",
+                },
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                to_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) accountTreeBalances"],
       },
     },
     "/rpc/nanoid_optimized": {
@@ -66520,6 +66210,41 @@ export default {
           },
         },
         tags: ["(rpc) xid_encode"],
+      },
+    },
+    "/rpc/get_company_groups_for_root_permission": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                permission: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["permission"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) get_company_groups_for_root_permission"],
       },
     },
     "/rpc/populate_sales_search_results": {
@@ -69025,77 +68750,6 @@ export default {
       },
       type: "object",
     },
-    accountCategory: {
-      required: [
-        "id",
-        "category",
-        "class",
-        "incomeBalance",
-        "companyId",
-        "createdBy",
-        "createdAt",
-      ],
-      properties: {
-        id: {
-          default: "public.id('actc'::text)",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        category: {
-          format: "text",
-          type: "string",
-        },
-        class: {
-          enum: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
-          format: 'public."glAccountClass"',
-          type: "string",
-        },
-        incomeBalance: {
-          enum: ["Balance Sheet", "Income Statement"],
-          format: 'public."glIncomeBalance"',
-          type: "string",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdAt: {
-          default: "now()",
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        customFields: {
-          format: "jsonb",
-        },
-        tags: {
-          format: "text[]",
-          items: {
-            type: "string",
-          },
-          type: "array",
-        },
-      },
-      type: "object",
-    },
     purchasingRfqLines: {
       properties: {
         id: {
@@ -71288,6 +70942,82 @@ export default {
       },
       type: "object",
     },
+    dimension: {
+      required: [
+        "id",
+        "name",
+        "entityType",
+        "companyGroupId",
+        "active",
+        "required",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('dim'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        entityType: {
+          default: "Custom",
+          enum: [
+            "Custom",
+            "Location",
+            "ItemPostingGroup",
+            "SupplierType",
+            "CustomerType",
+            "Department",
+            "Employee",
+          ],
+          format: 'public."dimensionEntityType"',
+          type: "string",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        active: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        required: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     quoteOperationStep: {
       required: [
         "id",
@@ -72706,80 +72436,11 @@ export default {
       },
       type: "object",
     },
-    postingGroupPurchasing: {
-      required: [
-        "id",
-        "payablesAccount",
-        "purchaseAccount",
-        "purchaseDiscountAccount",
-        "purchaseCreditAccount",
-        "purchasePrepaymentAccount",
-        "purchaseTaxPayableAccount",
-        "companyId",
-      ],
-      properties: {
-        id: {
-          default: "public.id('pgp'::text)",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        supplierTypeId: {
-          description:
-            "Note:\nThis is a Foreign Key to `supplierType.id`.<fk table='supplierType' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        itemPostingGroupId: {
-          description:
-            "Note:\nThis is a Foreign Key to `itemPostingGroup.id`.<fk table='itemPostingGroup' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        payablesAccount: {
-          format: "text",
-          type: "string",
-        },
-        purchaseAccount: {
-          format: "text",
-          type: "string",
-        },
-        purchaseDiscountAccount: {
-          format: "text",
-          type: "string",
-        },
-        purchaseCreditAccount: {
-          format: "text",
-          type: "string",
-        },
-        purchasePrepaymentAccount: {
-          format: "text",
-          type: "string",
-        },
-        purchaseTaxPayableAccount: {
-          format: "text",
-          type: "string",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-      },
-      type: "object",
-    },
     partners: {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -72828,7 +72489,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -73740,6 +73401,7 @@ export default {
         "companyId",
         "createdBy",
         "createdAt",
+        "companyGroupId",
       ],
       properties: {
         itemId: {
@@ -73812,6 +73474,10 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        companyGroupId: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -76465,6 +76131,41 @@ export default {
           format: "text",
           type: "string",
         },
+        createdAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        suggestionNotificationGroup: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        auditLogEnabled: {
+          format: "boolean",
+          type: "boolean",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        parentCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        isEliminationEntity: {
+          format: "boolean",
+          type: "boolean",
+        },
+        active: {
+          format: "boolean",
+          type: "boolean",
+        },
         userId: {
           description:
             "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
@@ -76483,6 +76184,10 @@ export default {
           type: "string",
         },
         employeeType: {
+          format: "text",
+          type: "string",
+        },
+        companyGroupName: {
           format: "text",
           type: "string",
         },
@@ -76581,113 +76286,6 @@ export default {
           default: true,
           format: "boolean",
           type: "boolean",
-        },
-      },
-      type: "object",
-    },
-    postingGroupInventory: {
-      required: [
-        "id",
-        "costOfGoodsSoldAccount",
-        "inventoryAccount",
-        "inventoryInterimAccrualAccount",
-        "inventoryReceivedNotInvoicedAccount",
-        "inventoryInvoicedNotReceivedAccount",
-        "inventoryShippedNotInvoicedAccount",
-        "workInProgressAccount",
-        "directCostAppliedAccount",
-        "overheadAccount",
-        "overheadCostAppliedAccount",
-        "purchaseVarianceAccount",
-        "inventoryAdjustmentVarianceAccount",
-        "materialVarianceAccount",
-        "capacityVarianceAccount",
-        "companyId",
-      ],
-      properties: {
-        id: {
-          default: "public.id('pgi'::text)",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        itemPostingGroupId: {
-          description:
-            "Note:\nThis is a Foreign Key to `itemPostingGroup.id`.<fk table='itemPostingGroup' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        locationId: {
-          description:
-            "Note:\nThis is a Foreign Key to `location.id`.<fk table='location' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        costOfGoodsSoldAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryInterimAccrualAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryReceivedNotInvoicedAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryInvoicedNotReceivedAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryShippedNotInvoicedAccount: {
-          format: "text",
-          type: "string",
-        },
-        workInProgressAccount: {
-          format: "text",
-          type: "string",
-        },
-        directCostAppliedAccount: {
-          format: "text",
-          type: "string",
-        },
-        overheadAccount: {
-          format: "text",
-          type: "string",
-        },
-        overheadCostAppliedAccount: {
-          format: "text",
-          type: "string",
-        },
-        purchaseVarianceAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryAdjustmentVarianceAccount: {
-          format: "text",
-          type: "string",
-        },
-        materialVarianceAccount: {
-          format: "text",
-          type: "string",
-        },
-        capacityVarianceAccount: {
-          format: "text",
-          type: "string",
-        },
-        companyId: {
-          format: "text",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
         },
       },
       type: "object",
@@ -77206,8 +76804,6 @@ export default {
           type: "string",
         },
         currencyCode: {
-          description:
-            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string",
         },
@@ -78702,71 +78298,6 @@ export default {
       },
       type: "object",
     },
-    accountSubcategory: {
-      required: [
-        "id",
-        "name",
-        "accountCategoryId",
-        "active",
-        "createdBy",
-        "createdAt",
-      ],
-      properties: {
-        id: {
-          default: "public.id('acts'::text)",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        name: {
-          format: "text",
-          type: "string",
-        },
-        accountCategoryId: {
-          description:
-            "Note:\nThis is a Foreign Key to `accountCategory.id`.<fk table='accountCategory' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        active: {
-          default: true,
-          format: "boolean",
-          type: "boolean",
-        },
-        createdBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdAt: {
-          default: "now()",
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        customFields: {
-          format: "jsonb",
-        },
-        tags: {
-          format: "text[]",
-          items: {
-            type: "string",
-          },
-          type: "array",
-        },
-      },
-      type: "object",
-    },
     trackedActivityInput: {
       required: [
         "trackedActivityId",
@@ -79129,6 +78660,7 @@ export default {
         "companyId",
         "createdBy",
         "createdAt",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -79194,6 +78726,10 @@ export default {
         },
         customFields: {
           format: "jsonb",
+        },
+        companyGroupId: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -80550,132 +80086,6 @@ export default {
       },
       type: "object",
     },
-    postingGroupSales: {
-      required: [
-        "id",
-        "receivablesAccount",
-        "salesAccount",
-        "salesDiscountAccount",
-        "salesCreditAccount",
-        "salesPrepaymentAccount",
-        "salesTaxPayableAccount",
-        "companyId",
-      ],
-      properties: {
-        id: {
-          default: "public.id('pgs'::text)",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        customerTypeId: {
-          description:
-            "Note:\nThis is a Foreign Key to `customerType.id`.<fk table='customerType' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        itemPostingGroupId: {
-          description:
-            "Note:\nThis is a Foreign Key to `itemPostingGroup.id`.<fk table='itemPostingGroup' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        receivablesAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesDiscountAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesCreditAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesPrepaymentAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesTaxPayableAccount: {
-          format: "text",
-          type: "string",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-      },
-      type: "object",
-    },
-    accountCategories: {
-      properties: {
-        id: {
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        category: {
-          format: "text",
-          type: "string",
-        },
-        class: {
-          enum: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
-          format: 'public."glAccountClass"',
-          type: "string",
-        },
-        incomeBalance: {
-          enum: ["Balance Sheet", "Income Statement"],
-          format: 'public."glIncomeBalance"',
-          type: "string",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        customFields: {
-          format: "jsonb",
-        },
-        subCategoriesCount: {
-          format: "bigint",
-          type: "integer",
-        },
-      },
-      type: "object",
-    },
     salesOrderFavorite: {
       required: ["salesOrderId", "userId"],
       properties: {
@@ -80983,6 +80393,7 @@ export default {
         "exchangeRate",
         "supplierShippingCost",
         "supplierTaxAmount",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -81205,6 +80616,10 @@ export default {
           format: "numeric",
           type: "number",
         },
+        companyGroupId: {
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -81370,6 +80785,7 @@ export default {
         "purchaseTaxPayableAccount",
         "reverseChargeSalesTaxPayableAccount",
         "retainedEarningsAccount",
+        "companyGroupId",
       ],
       properties: {
         companyId: {
@@ -81537,6 +80953,10 @@ export default {
         updatedBy: {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyGroupId: {
           format: "text",
           type: "string",
         },
@@ -81861,12 +81281,6 @@ export default {
           format: "boolean",
           type: "boolean",
         },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
         createdBy: {
           format: "text",
           type: "string",
@@ -81887,6 +81301,19 @@ export default {
         },
         customFields: {
           format: "jsonb",
+        },
+        tags: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
         },
         name: {
           format: "text",
@@ -81982,6 +81409,7 @@ export default {
         "companyId",
         "createdAt",
         "createdBy",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -82049,6 +81477,10 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        companyGroupId: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -82483,6 +81915,7 @@ export default {
         "createdBy",
         "createdAt",
         "supplierInteractionId",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -82657,6 +82090,10 @@ export default {
           format: "text",
           type: "string",
         },
+        companyGroupId: {
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -82804,13 +82241,12 @@ export default {
         "id",
         "number",
         "name",
-        "type",
         "incomeBalance",
-        "directPosting",
         "active",
-        "companyId",
         "createdBy",
         "createdAt",
+        "companyGroupId",
+        "isGroup",
       ],
       properties: {
         id: {
@@ -82827,24 +82263,9 @@ export default {
           format: "text",
           type: "string",
         },
-        type: {
-          enum: ["Posting", "Total", "Begin Total", "End Total"],
-          format: 'public."glAccountType"',
-          type: "string",
-        },
         class: {
           enum: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
           format: 'public."glAccountClass"',
-          type: "string",
-        },
-        accountCategoryId: {
-          description:
-            "Note:\nThis is a Foreign Key to `accountCategory.id`.<fk table='accountCategory' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        accountSubcategoryId: {
-          format: "text",
           type: "string",
         },
         incomeBalance: {
@@ -82857,21 +82278,10 @@ export default {
           format: 'public."glConsolidatedRate"',
           type: "string",
         },
-        directPosting: {
-          default: false,
-          format: "boolean",
-          type: "boolean",
-        },
         active: {
           default: true,
           format: "boolean",
           type: "boolean",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
         },
         createdBy: {
           description:
@@ -82903,6 +82313,50 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        parentId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        isGroup: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        accountType: {
+          enum: [
+            "Bank",
+            "Cash",
+            "Accounts Receivable",
+            "Accounts Payable",
+            "Inventory",
+            "Fixed Asset",
+            "Accumulated Depreciation",
+            "Other Current Asset",
+            "Other Asset",
+            "Other Current Liability",
+            "Long Term Liability",
+            "Equity - No Close",
+            "Equity - Close",
+            "Retained Earnings",
+            "Income",
+            "Cost of Goods Sold",
+            "Expense",
+            "Other Income",
+            "Other Expense",
+            "Tax",
+            "Investments",
+          ],
+          format: 'public."accountType"',
+          type: "string",
         },
       },
       type: "object",
@@ -83508,24 +82962,9 @@ export default {
           format: "text",
           type: "string",
         },
-        type: {
-          enum: ["Posting", "Total", "Begin Total", "End Total"],
-          format: 'public."glAccountType"',
-          type: "string",
-        },
         class: {
           enum: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
           format: 'public."glAccountClass"',
-          type: "string",
-        },
-        accountCategoryId: {
-          description:
-            "Note:\nThis is a Foreign Key to `accountCategory.id`.<fk table='accountCategory' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        accountSubcategoryId: {
-          format: "text",
           type: "string",
         },
         incomeBalance: {
@@ -83538,19 +82977,9 @@ export default {
           format: 'public."glConsolidatedRate"',
           type: "string",
         },
-        directPosting: {
-          format: "boolean",
-          type: "boolean",
-        },
         active: {
           format: "boolean",
           type: "boolean",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
         },
         createdBy: {
           description:
@@ -83575,12 +83004,54 @@ export default {
         customFields: {
           format: "jsonb",
         },
-        accountCategory: {
+        tags: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
           format: "text",
           type: "string",
         },
-        accountSubCategory: {
+        parentId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
+          type: "string",
+        },
+        isGroup: {
+          format: "boolean",
+          type: "boolean",
+        },
+        accountType: {
+          enum: [
+            "Bank",
+            "Cash",
+            "Accounts Receivable",
+            "Accounts Payable",
+            "Inventory",
+            "Fixed Asset",
+            "Accumulated Depreciation",
+            "Other Current Asset",
+            "Other Asset",
+            "Other Current Liability",
+            "Long Term Liability",
+            "Equity - No Close",
+            "Equity - Close",
+            "Retained Earnings",
+            "Income",
+            "Cost of Goods Sold",
+            "Expense",
+            "Other Income",
+            "Other Expense",
+            "Tax",
+            "Investments",
+          ],
+          format: 'public."accountType"',
           type: "string",
         },
       },
@@ -84148,6 +83619,7 @@ export default {
         "createdAt",
         "supplierShippingCost",
         "supplierTaxAmount",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -84340,6 +83812,10 @@ export default {
         totalAmount: {
           format: "numeric",
           type: "number",
+        },
+        companyGroupId: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -88439,9 +87915,9 @@ export default {
         "exchangeRate",
         "decimalPlaces",
         "active",
-        "companyId",
         "createdBy",
         "createdAt",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -88471,12 +87947,6 @@ export default {
           format: "boolean",
           type: "boolean",
         },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
         createdBy: {
           format: "text",
           type: "string",
@@ -88505,6 +87975,12 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -88945,6 +88421,7 @@ export default {
         "accrual",
         "companyId",
         "createdAt",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -89026,6 +88503,10 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        companyGroupId: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -89557,6 +89038,48 @@ export default {
         updatedBy: {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    dimensionValues: {
+      properties: {
+        dimensionId: {
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        dimensionName: {
+          format: "text",
+          type: "string",
+        },
+        entityType: {
+          enum: [
+            "Custom",
+            "Location",
+            "ItemPostingGroup",
+            "SupplierType",
+            "CustomerType",
+            "Department",
+            "Employee",
+          ],
+          format: 'public."dimensionEntityType"',
+          type: "string",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        valueId: {
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        valueName: {
           format: "text",
           type: "string",
         },
@@ -91912,6 +91435,7 @@ export default {
         "methodType",
         "shippingCost",
         "taxPercent",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -92108,6 +91632,10 @@ export default {
           format: "date",
           type: "string",
         },
+        companyGroupId: {
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -92137,6 +91665,8 @@ export default {
         "createdAt",
         "suggestionNotificationGroup",
         "auditLogEnabled",
+        "isEliminationEntity",
+        "active",
       ],
       properties: {
         id: {
@@ -92243,6 +91773,28 @@ export default {
         },
         auditLogEnabled: {
           default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        parentCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        isEliminationEntity: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        active: {
+          default: true,
           format: "boolean",
           type: "boolean",
         },
@@ -92362,6 +91914,52 @@ export default {
         },
         formName: {
           format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    journalLineDimension: {
+      required: [
+        "id",
+        "journalLineId",
+        "dimensionId",
+        "valueId",
+        "companyId",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.xid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        journalLineId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journalLine.id`.<fk table='journalLine' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        dimensionId: {
+          description:
+            "Note:\nThis is a Foreign Key to `dimension.id`.<fk table='dimension' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        valueId: {
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
           type: "string",
         },
       },
@@ -93188,6 +92786,43 @@ export default {
       },
       type: "object",
     },
+    companyGroup: {
+      required: ["id", "name", "createdAt"],
+      properties: {
+        id: {
+          default: "public.id('cg'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     nonConformanceSupplier: {
       required: [
         "id",
@@ -93322,8 +92957,6 @@ export default {
           type: "string",
         },
         currencyCode: {
-          description:
-            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string",
         },
@@ -96253,6 +95886,62 @@ export default {
       },
       type: "object",
     },
+    dimensionValue: {
+      required: [
+        "id",
+        "dimensionId",
+        "name",
+        "companyGroupId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('dv'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        dimensionId: {
+          description:
+            "Note:\nThis is a Foreign Key to `dimension.id`.<fk table='dimension' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     quoteLinePrices: {
       properties: {
         id: {
@@ -98202,6 +97891,7 @@ export default {
         "companyId",
         "createdAt",
         "createdBy",
+        "companyGroupId",
       ],
       properties: {
         id: {
@@ -98378,6 +98068,10 @@ export default {
         updatedBy: {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyGroupId: {
           format: "text",
           type: "string",
         },
@@ -99207,81 +98901,6 @@ export default {
     },
     "rowFilter.procedures.versions": {
       name: "versions",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "body.accountCategory": {
-      name: "accountCategory",
-      description: "accountCategory",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/accountCategory",
-      },
-    },
-    "rowFilter.accountCategory.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.category": {
-      name: "category",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.class": {
-      name: "class",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.incomeBalance": {
-      name: "incomeBalance",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.createdBy": {
-      name: "createdBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.createdAt": {
-      name: "createdAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.updatedAt": {
-      name: "updatedAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.customFields": {
-      name: "customFields",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategory.tags": {
-      name: "tags",
       required: false,
       in: "query",
       type: "string",
@@ -101839,6 +101458,75 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.dimension": {
+      name: "dimension",
+      description: "dimension",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/dimension",
+      },
+    },
+    "rowFilter.dimension.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.entityType": {
+      name: "entityType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.required": {
+      name: "required",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimension.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.quoteOperationStep": {
       name: "quoteOperationStep",
       description: "quoteOperationStep",
@@ -103390,81 +103078,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "body.postingGroupPurchasing": {
-      name: "postingGroupPurchasing",
-      description: "postingGroupPurchasing",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/postingGroupPurchasing",
-      },
-    },
-    "rowFilter.postingGroupPurchasing.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.supplierTypeId": {
-      name: "supplierTypeId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.itemPostingGroupId": {
-      name: "itemPostingGroupId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.payablesAccount": {
-      name: "payablesAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.purchaseAccount": {
-      name: "purchaseAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.purchaseDiscountAccount": {
-      name: "purchaseDiscountAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.purchaseCreditAccount": {
-      name: "purchaseCreditAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.purchasePrepaymentAccount": {
-      name: "purchasePrepaymentAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.purchaseTaxPayableAccount": {
-      name: "purchaseTaxPayableAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupPurchasing.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "body.partners": {
       name: "partners",
       description: "partners",
@@ -104718,6 +104331,12 @@ export default {
     },
     "rowFilter.itemUnitSalePrice.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemUnitSalePrice.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -107704,6 +107323,48 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.companies.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.suggestionNotificationGroup": {
+      name: "suggestionNotificationGroup",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.auditLogEnabled": {
+      name: "auditLogEnabled",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.parentCompanyId": {
+      name: "parentCompanyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.isEliminationEntity": {
+      name: "isEliminationEntity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.companies.userId": {
       name: "userId",
       required: false,
@@ -107724,6 +107385,12 @@ export default {
     },
     "rowFilter.companies.employeeType": {
       name: "employeeType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.companyGroupName": {
+      name: "companyGroupName",
       required: false,
       in: "query",
       type: "string",
@@ -107811,129 +107478,6 @@ export default {
     },
     "rowFilter.process.active": {
       name: "active",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "body.postingGroupInventory": {
-      name: "postingGroupInventory",
-      description: "postingGroupInventory",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/postingGroupInventory",
-      },
-    },
-    "rowFilter.postingGroupInventory.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.itemPostingGroupId": {
-      name: "itemPostingGroupId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.locationId": {
-      name: "locationId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.costOfGoodsSoldAccount": {
-      name: "costOfGoodsSoldAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.inventoryAccount": {
-      name: "inventoryAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.inventoryInterimAccrualAccount": {
-      name: "inventoryInterimAccrualAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.inventoryReceivedNotInvoicedAccount": {
-      name: "inventoryReceivedNotInvoicedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.inventoryInvoicedNotReceivedAccount": {
-      name: "inventoryInvoicedNotReceivedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.inventoryShippedNotInvoicedAccount": {
-      name: "inventoryShippedNotInvoicedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.workInProgressAccount": {
-      name: "workInProgressAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.directCostAppliedAccount": {
-      name: "directCostAppliedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.overheadAccount": {
-      name: "overheadAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.overheadCostAppliedAccount": {
-      name: "overheadCostAppliedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.purchaseVarianceAccount": {
-      name: "purchaseVarianceAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.inventoryAdjustmentVarianceAccount": {
-      name: "inventoryAdjustmentVarianceAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.materialVarianceAccount": {
-      name: "materialVarianceAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.capacityVarianceAccount": {
-      name: "capacityVarianceAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupInventory.updatedBy": {
-      name: "updatedBy",
       required: false,
       in: "query",
       type: "string",
@@ -110193,75 +109737,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "body.accountSubcategory": {
-      name: "accountSubcategory",
-      description: "accountSubcategory",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/accountSubcategory",
-      },
-    },
-    "rowFilter.accountSubcategory.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.name": {
-      name: "name",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.accountCategoryId": {
-      name: "accountCategoryId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.active": {
-      name: "active",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.createdBy": {
-      name: "createdBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.createdAt": {
-      name: "createdAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.updatedAt": {
-      name: "updatedAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.customFields": {
-      name: "customFields",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountSubcategory.tags": {
-      name: "tags",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "body.trackedActivityInput": {
       name: "trackedActivityInput",
       description: "trackedActivityInput",
@@ -110765,6 +110240,12 @@ export default {
     },
     "rowFilter.purchasePayment.customFields": {
       name: "customFields",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchasePayment.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -112303,156 +111784,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "body.postingGroupSales": {
-      name: "postingGroupSales",
-      description: "postingGroupSales",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/postingGroupSales",
-      },
-    },
-    "rowFilter.postingGroupSales.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.customerTypeId": {
-      name: "customerTypeId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.itemPostingGroupId": {
-      name: "itemPostingGroupId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.receivablesAccount": {
-      name: "receivablesAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.salesAccount": {
-      name: "salesAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.salesDiscountAccount": {
-      name: "salesDiscountAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.salesCreditAccount": {
-      name: "salesCreditAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.salesPrepaymentAccount": {
-      name: "salesPrepaymentAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.salesTaxPayableAccount": {
-      name: "salesTaxPayableAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.postingGroupSales.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "body.accountCategories": {
-      name: "accountCategories",
-      description: "accountCategories",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/accountCategories",
-      },
-    },
-    "rowFilter.accountCategories.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.category": {
-      name: "category",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.class": {
-      name: "class",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.incomeBalance": {
-      name: "incomeBalance",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.createdBy": {
-      name: "createdBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.createdAt": {
-      name: "createdAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.updatedAt": {
-      name: "updatedAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.customFields": {
-      name: "customFields",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountCategories.subCategoriesCount": {
-      name: "subCategoriesCount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "body.salesOrderFavorite": {
       name: "salesOrderFavorite",
       description: "salesOrderFavorite",
@@ -113065,6 +112396,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.purchaseOrderLine.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.stockTransferLines": {
       name: "stockTransferLines",
       description: "stockTransferLines",
@@ -113473,6 +112810,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.accountDefault.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.warehouse": {
       name: "warehouse",
       description: "warehouse",
@@ -113839,12 +113182,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.currencies.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.currencies.createdBy": {
       name: "createdBy",
       required: false,
@@ -113871,6 +113208,18 @@ export default {
     },
     "rowFilter.currencies.customFields": {
       name: "customFields",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.currencies.tags": {
+      name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.currencies.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -114045,6 +113394,12 @@ export default {
     },
     "rowFilter.shippingMethod.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shippingMethod.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -114679,6 +114034,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.purchaseInvoice.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.userAttribute": {
       name: "userAttribute",
       description: "userAttribute",
@@ -114850,26 +114211,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.account.type": {
-      name: "type",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.account.class": {
       name: "class",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.account.accountCategoryId": {
-      name: "accountCategoryId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.account.accountSubcategoryId": {
-      name: "accountSubcategoryId",
       required: false,
       in: "query",
       type: "string",
@@ -114886,20 +114229,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.account.directPosting": {
-      name: "directPosting",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.account.active": {
       name: "active",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.account.companyId": {
-      name: "companyId",
       required: false,
       in: "query",
       type: "string",
@@ -114936,6 +114267,30 @@ export default {
     },
     "rowFilter.account.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.account.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.account.parentId": {
+      name: "parentId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.account.isGroup": {
+      name: "isGroup",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.account.accountType": {
+      name: "accountType",
       required: false,
       in: "query",
       type: "string",
@@ -115587,26 +114942,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.accounts.type": {
-      name: "type",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.accounts.class": {
       name: "class",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accounts.accountCategoryId": {
-      name: "accountCategoryId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accounts.accountSubcategoryId": {
-      name: "accountSubcategoryId",
       required: false,
       in: "query",
       type: "string",
@@ -115623,20 +114960,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.accounts.directPosting": {
-      name: "directPosting",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.accounts.active": {
       name: "active",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accounts.companyId": {
-      name: "companyId",
       required: false,
       in: "query",
       type: "string",
@@ -115671,14 +114996,32 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.accounts.accountCategory": {
-      name: "accountCategory",
+    "rowFilter.accounts.tags": {
+      name: "tags",
       required: false,
       in: "query",
       type: "string",
     },
-    "rowFilter.accounts.accountSubCategory": {
-      name: "accountSubCategory",
+    "rowFilter.accounts.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accounts.parentId": {
+      name: "parentId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accounts.isGroup": {
+      name: "isGroup",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accounts.accountType": {
+      name: "accountType",
       required: false,
       in: "query",
       type: "string",
@@ -116519,6 +115862,12 @@ export default {
     },
     "rowFilter.purchaseInvoiceLine.totalAmount": {
       name: "totalAmount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseInvoiceLine.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -121255,12 +120604,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.currency.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.currency.createdBy": {
       name: "createdBy",
       required: false,
@@ -121293,6 +120636,12 @@ export default {
     },
     "rowFilter.currency.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.currency.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -121884,6 +121233,12 @@ export default {
     },
     "rowFilter.journalLine.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLine.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -122511,6 +121866,51 @@ export default {
     },
     "rowFilter.ability.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.dimensionValues": {
+      name: "dimensionValues",
+      description: "dimensionValues",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/dimensionValues",
+      },
+    },
+    "rowFilter.dimensionValues.dimensionId": {
+      name: "dimensionId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValues.dimensionName": {
+      name: "dimensionName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValues.entityType": {
+      name: "entityType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValues.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValues.valueId": {
+      name: "valueId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValues.valueName": {
+      name: "valueName",
       required: false,
       in: "query",
       type: "string",
@@ -125319,6 +124719,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.salesOrderLine.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.purchaseOrderFavorite": {
       name: "purchaseOrderFavorite",
       description: "purchaseOrderFavorite",
@@ -125493,6 +124899,30 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.company.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.parentCompanyId": {
+      name: "parentCompanyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.isEliminationEntity": {
+      name: "isEliminationEntity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.salesOrderLocations": {
       name: "salesOrderLocations",
       description: "salesOrderLocations",
@@ -125651,6 +125081,51 @@ export default {
     },
     "rowFilter.materialTypes.formName": {
       name: "formName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.journalLineDimension": {
+      name: "journalLineDimension",
+      description: "journalLineDimension",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/journalLineDimension",
+      },
+    },
+    "rowFilter.journalLineDimension.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLineDimension.journalLineId": {
+      name: "journalLineId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLineDimension.dimensionId": {
+      name: "dimensionId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLineDimension.valueId": {
+      name: "valueId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLineDimension.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLineDimension.createdAt": {
+      name: "createdAt",
       required: false,
       in: "query",
       type: "string",
@@ -126503,6 +125978,51 @@ export default {
     },
     "rowFilter.challengeAttempt.createdAt": {
       name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.companyGroup": {
+      name: "companyGroup",
+      description: "companyGroup",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/companyGroup",
+      },
+    },
+    "rowFilter.companyGroup.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyGroup.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyGroup.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyGroup.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyGroup.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyGroup.updatedAt": {
+      name: "updatedAt",
       required: false,
       in: "query",
       type: "string",
@@ -130005,6 +129525,63 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.dimensionValue": {
+      name: "dimensionValue",
+      description: "dimensionValue",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/dimensionValue",
+      },
+    },
+    "rowFilter.dimensionValue.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValue.dimensionId": {
+      name: "dimensionId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValue.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValue.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValue.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValue.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValue.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.dimensionValue.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.quoteLinePrices": {
       name: "quoteLinePrices",
       description: "quoteLinePrices",
@@ -132353,6 +131930,12 @@ export default {
     },
     "rowFilter.salesInvoiceLine.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLine.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",

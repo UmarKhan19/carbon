@@ -133,6 +133,10 @@ END $$;
 -- Delete End Total and Total accounts (they have no journal entries since directPosting was false)
 DELETE FROM "account" WHERE "type" IN ('End Total', 'Total');
 
+-- Drop account numbers for group accounts (groups are identified by name, not number)
+ALTER TABLE "account" ALTER COLUMN "number" DROP NOT NULL;
+UPDATE "account" SET "number" = NULL WHERE "isGroup" = true;
+
 -- ============================================================
 -- Step 4: Add self-referential FK constraint
 -- ============================================================
