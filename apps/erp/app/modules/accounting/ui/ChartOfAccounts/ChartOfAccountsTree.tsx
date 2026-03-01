@@ -158,21 +158,18 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
 
                 {/* Folder/dot icon */}
                 <div className="w-5 h-5 flex items-center justify-center mr-2 shrink-0">
-                  {isGroup ? (
-                    isExpanded ? (
+                  {isGroup &&
+                    (isExpanded ? (
                       <LuFolderOpen className="h-4 w-4 text-muted-foreground" />
                     ) : (
                       <LuFolder className="h-4 w-4 text-muted-foreground" />
-                    )
-                  ) : (
-                    <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
-                  )}
+                    ))}
                 </div>
 
                 {/* Account number + name */}
                 <div className="flex flex-1 items-center gap-2 overflow-hidden">
-                  <span className="text-muted-foreground shrink-0 w-16">
-                    {account.number}
+                  <span className="text-muted-foreground shrink-0">
+                    {account.number ?? ""}
                   </span>
                   <span className="truncate">{account.name}</span>
                 </div>

@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
+import type { Chart } from "~/modules/accounting";
 import { getChartOfAccounts } from "~/modules/accounting";
 import { ChartOfAccountsTree } from "~/modules/accounting/ui/ChartOfAccounts";
 import ChartOfAccountsTableFilters from "~/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters";
@@ -22,11 +23,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
     bypassRls: true
   });
 
+  console.log("companyGroupId", companyGroupId);
+
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
-  const incomeBalance = searchParams.get("incomeBalance");
-  const startDate = searchParams.get("startDate");
-  const endDate = searchParams.get("endDate");
+  const incomeBalanceParam = searchParams.get("incomeBalance");
+  const incomeBalance =
+    incomeBalanceParam === "Income Statement" ||
+    incomeBalanceParam === "Balance Sheet"
+      ? incomeBalanceParam
+      : null;
+  const startDate = searchParams.get("startDate") || null;
+  const endDate = searchParams.get("endDate") || null;
 
   const chartOfAccounts = await getChartOfAccounts(client, companyGroupId, {
     incomeBalance,
@@ -45,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   return {
-    chartOfAccounts: chartOfAccounts.data ?? []
+    chartOfAccounts: (chartOfAccounts.data ?? []) as Chart[]
   };
 }
 

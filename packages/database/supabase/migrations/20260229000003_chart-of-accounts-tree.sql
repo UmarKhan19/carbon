@@ -123,9 +123,10 @@ BEGIN
       -- Will be deleted below
 
     ELSIF r."type" = 'Total' THEN
-      -- Total accounts (accounting equation summaries) are no longer needed
-      -- Will be deleted below
-      NULL;
+      -- Total accounts close their top-level Begin Total - pop the stack
+      IF array_length(stack, 1) IS NOT NULL AND array_length(stack, 1) > 0 THEN
+        stack := stack[1:array_length(stack, 1) - 1];
+      END IF;
     END IF;
   END LOOP;
 END $$;

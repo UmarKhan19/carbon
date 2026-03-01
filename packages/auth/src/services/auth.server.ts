@@ -70,6 +70,7 @@ export function hashApiKey(rawKey: string): string {
 type ApiKeyRecord = {
   id: string;
   companyId: string;
+  companyGroupId: string;
   createdBy: string;
   scopes: Record<string, string[]>;
   rateLimit: number;

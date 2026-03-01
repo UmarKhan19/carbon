@@ -12,7 +12,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Carbon | Finance" }];
+  return [{ title: "Carbon | Accounting" }];
 };
 
 export const handle: Handle = {
@@ -31,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const [accounts, baseCurrency] = await Promise.all([
     getAccountsList(client, companyGroupId, {
-      type: "Posting"
+      isGroup: false
     }),
     getBaseCurrency(client, companyId)
   ]);
