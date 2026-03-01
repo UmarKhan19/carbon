@@ -56,7 +56,7 @@
     "dev:assembly": "turbo run dev --filter=./apps/assembly --filter=./packages/",
     "dev:cad": "run-p dev:cad:python dev:cad:rust",
     "dev:cad:python": "docker compose -f packages/cad-service/docker-compose.yml up --build",
-    "dev:cad:rust": "packages/cad-rust/target/release/cad-server",
+    "dev:cad:rust": "PORT=8081 packages/cad-rust/target/release/cad-server",
     "dev:erp": "turbo run dev --filter=./apps/erp --filter=./packages/ ",
     "dev:jobs": "npm run -w @carbon/jobs dev:jobs",
     "dev:mes": "turbo run dev --filter=./apps/mes",

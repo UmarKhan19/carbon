@@ -187,12 +187,9 @@ impl ContactGraph {
 
         let total_possible = (n * (n - 1)) / 2;
         info!(
-            "Contact graph built: {} edges among {} parts \
-             (broad-phase: {}/{} pairs, narrow-phase: {} pairs)",
+            "[contact_graph] Built: {} contacts from {} parts ({} narrow-phase checks)",
             edges.len(),
             n,
-            broad_phase_pairs,
-            total_possible,
             narrow_phase_pairs
         );
 

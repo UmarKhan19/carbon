@@ -401,25 +401,17 @@ impl AssemblySimulator {
             return Err(SimulatorError::NoParts);
         }
 
-        // Log part names for classification debugging
-        let part_names: Vec<&str> = self.parts.iter().map(|p| p.name.as_str()).collect();
-        info!(
-            "Loaded {} parts with names: {:?}",
-            self.parts.len(),
-            part_names
-        );
-
         // Auto-scale removal distance to 2x the assembly diagonal
         let diagonal = (global_max - global_min).magnitude();
         if diagonal > 0.0 {
             self.config.removal_distance = diagonal * 2.0;
-            info!(
-                "Assembly bounding box: min={:?}, max={:?}, diagonal={:.1}, removal_distance={:.1}",
-                global_min, global_max, diagonal, self.config.removal_distance
-            );
         }
 
-        info!("Loaded {} parts into simulator", self.parts.len());
+        info!(
+            "[simulator] Loaded {} parts, scene diagonal = {:.2}",
+            self.parts.len(),
+            diagonal
+        );
         Ok(())
     }
 
@@ -453,7 +445,7 @@ impl AssemblySimulator {
             contact_threshold,
         );
         info!(
-            "Contact graph: {} contacts among {} parts",
+            "[contact_graph] Built: {} contacts from {} parts",
             contact_graph.edge_count(),
             contact_graph.node_count()
         );
@@ -483,14 +475,16 @@ impl AssemblySimulator {
             }
         }
 
-        // Log classifications for debugging
-        for (id, class) in &classifications {
-            let name = self.get_part_name(id).unwrap_or("?");
-            let kind = kinds.get(id).copied().unwrap_or(PartKind::Unknown);
-            debug!(
-                "Classification: {} ({}) → fastener={:.2}, structural={:.2}, panel={:.2}, kind={:?}",
-                name, id, class.fastener_score, class.structural_score, class.panel_score, kind
-            );
+        // Log classifications matching C++ format
+        info!("\n=== PART CLASSIFICATIONS ===");
+        for part in &self.parts {
+            if let Some(class) = classifications.get(&part.id) {
+                let kind = kinds.get(&part.id).copied().unwrap_or(PartKind::Unknown);
+                info!(
+                    "  \"{}\" [{:?}] fastener={} structural={} panel={}",
+                    part.name, kind, class.fastener_score, class.structural_score, class.panel_score
+                );
+            }
         }
 
         // Build dependency graph
@@ -502,10 +496,15 @@ impl AssemblySimulator {
             DEFAULT_STRUCTURAL_THRESHOLD,
         );
         let dependency_edge_count = dependency_graph.edge_count();
-        info!(
-            "Dependency graph: {} edges (assembly constraints)",
-            dependency_edge_count
-        );
+
+        info!("\n=== DEPENDENCY GRAPH EDGES (before -> after in assembly) ===");
+        for (from_id, tos) in dependency_graph.forward_edges() {
+            let from_name = self.get_part_name(from_id).unwrap_or(from_id);
+            for to_id in tos {
+                let to_name = self.get_part_name(to_id).unwrap_or(to_id);
+                info!("  {} -> {}  (assemble \"{}\" BEFORE \"{}\")", from_name, to_name, from_name, to_name);
+            }
+        }
 
         // Derive a clearance epsilon from part sizes (unless configured)
         let min_dim = self
@@ -540,7 +539,7 @@ impl AssemblySimulator {
         let blocking_matrix =
             BlockingMatrix::build(&self.parts, self.config.removal_distance, clearance);
         info!(
-            "Blocking matrix: {} total blocking pairs",
+            "[blocking_matrix] Built: {} blocking pairs",
             blocking_matrix.total_blocking_pairs()
         );
         let blocking_matrix_skips = Cell::new(0u64);
@@ -675,6 +674,24 @@ impl AssemblySimulator {
                     continue; // Part not found, skip
                 };
 
+                let kind = kinds.get(&part_id).copied().unwrap_or(PartKind::Unknown);
+                let start_pos = part.transform.translation.vector;
+                let end_pos = start_pos + path.direction * evaluation.travel_distance;
+
+                info!(
+                    "[disassembly] Remove step {}: \"{}\" [{:?}] | dir=({:.6}, {:.6}, {:.6}) | start=({:.6}, {:.6}, {:.6}) | end=({:.6}, {:.6}, {:.6}) | travel={:.6} | quality={:.2}",
+                    step_number, part.name, kind,
+                    path.direction.x, path.direction.y, path.direction.z,
+                    start_pos.x, start_pos.y, start_pos.z,
+                    end_pos.x, end_pos.y, end_pos.z,
+                    evaluation.travel_distance,
+                    if evaluation.required_distance > 1.0e-6 {
+                        evaluation.travel_distance / evaluation.required_distance
+                    } else {
+                        1.0
+                    }
+                );
+
                 // Compute adaptive duration before moving evaluation fields
                 let duration_ms = Self::compute_step_duration(
                     &evaluation,
@@ -705,6 +722,17 @@ impl AssemblySimulator {
             }
         }
 
+        // Log disassembly order (before reversal)
+        info!("\n=== DISASSEMBLY ORDER (before reverse) ===");
+        for s in &steps {
+            let name = s.part_names.first().map(|n| n.as_str()).unwrap_or(&s.part_ids[0]);
+            info!(
+                "  Step {}: {} | removal dir=({}, {}, {})",
+                s.step_number, name,
+                s.assembly_direction[0], s.assembly_direction[1], s.assembly_direction[2]
+            );
+        }
+
         // Reverse steps for assembly order
         steps.reverse();
         for (i, step) in steps.iter_mut().enumerate() {
@@ -716,11 +744,16 @@ impl AssemblySimulator {
             }
         }
 
-        info!(
-            "Computed {} assembly steps in {}ms",
-            steps.len(),
-            start_time.elapsed().as_millis()
-        );
+        // Log assembly order (after reversal)
+        info!("\n=== ASSEMBLY ORDER (after reverse) ===");
+        for s in &steps {
+            let name = s.part_names.first().map(|n| n.as_str()).unwrap_or(&s.part_ids[0]);
+            info!(
+                "  Step {}: {} | insert dir=({}, {}, {})",
+                s.step_number, name,
+                s.assembly_direction[0], s.assembly_direction[1], s.assembly_direction[2]
+            );
+        }
 
         // ════════════════════════════════════════════════════════════════════
         // Step intelligence: clustering annotations
@@ -735,17 +768,17 @@ impl AssemblySimulator {
         let suggested_subassemblies = contact_graph.detect_subassemblies(&kinds);
         let kits = contact_graph.detect_kits(&kinds);
 
+        let elapsed_ms = start_time.elapsed().as_millis() as u64;
         info!(
-            "Clustering: {} identical groups, {} subassemblies, {} kits",
-            identical_groups.len(),
-            suggested_subassemblies.len(),
-            kits.len()
+            "[simulator] Complete: {} steps, 0 stuck, {}ms",
+            steps.len(),
+            elapsed_ms
         );
 
         Ok(SimulationResult {
             steps,
             stuck_parts: Vec::new(),
-            simulation_time_ms: start_time.elapsed().as_millis() as u64,
+            simulation_time_ms: elapsed_ms,
             success: true,
             error: None,
             issues,

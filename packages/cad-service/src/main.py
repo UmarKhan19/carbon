@@ -71,15 +71,13 @@ class HealthResponse(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("─────────────────────────────────────────")
-    logger.info("Carbon CAD Service (Python) v1.0.0")
-    logger.info("PythonOCC (OpenCascade) + subprocess isolation")
-    logger.info("─────────────────────────────────────────")
+    logger.info("[cad-service] Carbon CAD Service (Python) v1.0.0")
+    logger.info("[cad-service] PythonOCC (OpenCascade) + subprocess isolation")
     try:
         from OCC import VERSION as OCC_VERSION
-        logger.info("OpenCascade version: %s", OCC_VERSION)
+        logger.info("[cad-service] OpenCascade version: %s", OCC_VERSION)
     except Exception:
-        logger.warning("OpenCascade version not available at startup")
+        logger.warning("[cad-service] OpenCascade version not available at startup")
 
 
 def _parse_in_subprocess(step_path: str, tolerance: float, angular_tolerance: float, result_queue):
@@ -198,7 +196,7 @@ async def parse_step_file(
 
     try:
         # Save uploaded file to temp location
-        logger.info("[parse] Received file: %s (tolerance=%.3f, angular=%.1f)", filename, tolerance, angular_tolerance)
+        logger.info("[handler] Received file: %s (tolerance=%.3f, angular=%.1f)", filename, tolerance, angular_tolerance)
         with tempfile.NamedTemporaryFile(suffix=".step", delete=False) as tmp:
             content = await file.read()
             tmp.write(content)
@@ -206,7 +204,7 @@ async def parse_step_file(
 
         file_size = len(content)
         save_ms = int((time.time() - start_time) * 1000)
-        logger.info("[parse] Parsing STEP file: %s (%d bytes, saved in %dms)", filename, file_size, save_ms)
+        logger.info("[handler] Parsing STEP file: %s (%d bytes, saved in %dms)", filename, file_size, save_ms)
 
         # Run parsing in subprocess to isolate C++ crashes
         # If OpenCascade crashes, only the subprocess dies, not the main server
@@ -270,11 +268,9 @@ async def parse_step_file(
         glb_size_kb = glb_size // 1024
 
         logger.info(
-            "[parse] Parse complete: %s — %d parts, GLB %dKB, subprocess=%dms, total=%dms",
-            filename,
+            "[handler] Parse complete: %d parts, GLB %dKB, %dms total",
             result["part_count"],
             glb_size_kb,
-            subprocess_ms,
             parse_time_ms,
         )
 

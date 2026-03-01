@@ -36,6 +36,10 @@ std::vector<Vec3> candidate_directions_for_part(
 
     std::vector<Vec3> directions;
 
+    // Check if this part is classified as a fastener
+    auto kind_it = kinds.find(part.id);
+    bool is_fastener = (kind_it != kinds.end() && kind_it->second == PartKind::Fastener);
+
     // 1. Contact normals (away from neighbors)
     for (const auto& edge : contacts.edges()) {
         if (edge.part_a != part.id && edge.part_b != part.id) continue;
@@ -60,6 +64,25 @@ std::vector<Vec3> candidate_directions_for_part(
         add_unique_direction(directions, local_axis);
         add_unique_direction(directions, -local_axis);
     }
+
+    // For fasteners, stop here — only use contact normals + local axes.
+    // Fasteners (bolts/screws) should only be removed along their shaft axis,
+    // not along arbitrary diagonals which would cut through the hole wall.
+    if (is_fastener) {
+        // 6. Apply forced direction filter (keep only directions within 45 degrees)
+        if (forced_direction) {
+            Vec3 fd = forced_direction->normalized();
+            float cos_45 = 0.707f;
+            std::vector<Vec3> filtered;
+            for (const auto& d : directions) {
+                if (d.dot(fd) > cos_45) filtered.push_back(d);
+            }
+            if (!filtered.empty()) return filtered;
+        }
+        return directions;
+    }
+
+    // --- Non-fastener parts get the full direction candidate set ---
 
     // 3. Global canonical axes
     add_unique_direction(directions, Vec3(1, 0, 0));

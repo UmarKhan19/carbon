@@ -12,6 +12,7 @@ Uses a robust two-stage approach:
 """
 
 import logging
+import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Optional, List
@@ -101,29 +102,32 @@ class StepParser:
 
         Tries XCAF first (has names, colors, hierarchy), falls back to simple.
         """
-        logger.info(f"Starting parse of: {step_path}")
+        parse_start = time.time()
+        logger.info("[step_reader] Starting parse of: %s", step_path)
 
         # Try XCAF FIRST (preserves hierarchy, colors, names)
         try:
-            logger.info("Attempting XCAF parsing for assembly support...")
+            logger.info("[step_reader] Attempting XCAF parsing for assembly support...")
             result = self._parse_with_xcaf(step_path)
             if result["success"]:
-                logger.info(f"XCAF parsing successful: {result['part_count']} parts")
+                dt = (time.time() - parse_start) * 1000
+                logger.info("[step_reader] Parsed %s → %d parts in %.2fms", step_path, result['part_count'], dt)
                 return result
-            logger.debug(f"XCAF parsing failed: {result.get('error')}")
+            logger.debug("[step_reader] XCAF parsing failed: %s", result.get('error'))
         except Exception as e:
-            logger.warning(f"XCAF parsing exception: {e}")
+            logger.warning("[step_reader] XCAF parsing exception: %s", e)
 
         # Fall back to simple reader (more robust but no names/colors)
         try:
-            logger.debug("Attempting simple STEPControl_Reader (robust mode)...")
+            logger.debug("[step_reader] Attempting simple STEPControl_Reader (robust mode)...")
             result = self._parse_simple(step_path)
             if result["success"]:
-                logger.info(f"Simple parsing successful: {result['part_count']} parts")
+                dt = (time.time() - parse_start) * 1000
+                logger.info("[step_reader] Parsed %s → %d parts in %.2fms", step_path, result['part_count'], dt)
                 return result
-            logger.debug(f"Simple parsing failed: {result.get('error')}")
+            logger.debug("[step_reader] Simple parsing failed: %s", result.get('error'))
         except Exception as e:
-            logger.warning(f"Simple parsing exception: {e}")
+            logger.warning("[step_reader] Simple parsing exception: %s", e)
 
         return {
             "success": False,
@@ -698,6 +702,8 @@ class StepParser:
             if shape is None or shape.IsNull():
                 return None
 
+            t0 = time.time()
+
             # Try to fix/heal the shape first (helps prevent crashes)
             try:
                 fixer = ShapeFix_Shape(shape)
@@ -790,6 +796,9 @@ class StepParser:
             vertices = np.array(all_vertices, dtype=np.float32)
             indices = np.array(all_indices, dtype=np.uint32)
             normals = self._calculate_normals(vertices, indices)
+
+            dt = (time.time() - t0) * 1000
+            logger.info("[tessellator] %s: %d verts, %d tris in %.1fms", name, len(vertices), len(indices), dt)
 
             return Mesh(
                 id=part_id,

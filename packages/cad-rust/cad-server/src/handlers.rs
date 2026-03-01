@@ -46,7 +46,7 @@ pub async fn parse_step(
     mut multipart: Multipart,
 ) -> Result<Json<ParseResponse>, StatusCode> {
     let start = Instant::now();
-    info!("[parse] Received parse request");
+    info!("[handler] Received parse request");
 
     // Extract file from multipart
     let mut file_data: Option<Vec<u8>> = None;
@@ -77,7 +77,7 @@ pub async fn parse_step(
     };
 
     let file_size = file_data.len();
-    info!("[parse] Parsing STEP file: {} ({} bytes)", file_name, file_size);
+    info!("[handler] Parsing STEP file: {} ({} bytes)", file_name, file_size);
 
     // Write to temp file
     let temp_path = std::env::temp_dir().join(&file_name);
@@ -110,7 +110,7 @@ pub async fn parse_step(
             let part_count = count_parts(&tree);
 
             info!(
-                "[parse] Parse complete: {} parts, parse={}ms, total={}ms",
+                "[handler] Parse complete: {} parts, parse={}ms, total={}ms",
                 part_count, parse_ms, total_ms
             );
             Ok(Json(ParseResponse {
@@ -166,7 +166,7 @@ pub async fn run_simulation(
     Json(request): Json<SimulateRequest>,
 ) -> Json<SimulateResponse> {
     let start = Instant::now();
-    info!("[simulate] Received simulation request");
+    info!("[handler] /simulate request received");
 
     // Clone the assembly tree so we can modify it
     let mut assembly_tree = request.assembly_tree;
@@ -208,7 +208,7 @@ pub async fn run_simulation(
             }
         };
         let load_ms = load_start.elapsed().as_millis();
-        info!("[simulate] {} meshes loaded from GLB, {}ms", meshes.len(), load_ms);
+        info!("[handler] /simulate: {} meshes loaded from GLB, {}ms", meshes.len(), load_ms);
 
         // Attach meshes to assembly tree
         let attach_start = Instant::now();
@@ -289,14 +289,14 @@ pub async fn run_simulation(
     if sim_result.success {
         if let Some(ref result) = sim_result.result {
             info!(
-                "[simulate] Request complete: {} steps, {} stuck, {}ms total",
+                "[handler] /simulate complete: {} steps, {} stuck, {}ms",
                 result.steps.len(),
                 result.stuck_parts.len(),
                 total_ms
             );
         }
     } else {
-        error!("[simulate] Request failed after {}ms", total_ms);
+        error!("[handler] /simulate failed after {}ms", total_ms);
     }
 
     Json(sim_result)

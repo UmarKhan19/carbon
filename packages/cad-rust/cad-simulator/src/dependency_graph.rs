@@ -348,6 +348,11 @@ impl DependencyGraph {
     pub fn edge_count(&self) -> usize {
         self.forward.values().map(|v| v.len()).sum()
     }
+
+    /// Get the forward edges (part_id → list of parts that depend on it).
+    pub fn forward_edges(&self) -> &HashMap<String, Vec<String>> {
+        &self.forward
+    }
 }
 
 #[cfg(test)]

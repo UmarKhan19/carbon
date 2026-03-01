@@ -26,10 +26,8 @@ async fn main() {
         .finish();
     tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber");
 
-    info!("─────────────────────────────────────────");
-    info!("Carbon CAD Server (Rust) v{}", env!("CARGO_PKG_VERSION"));
-    info!("parry3d + truck-stepio + gltf");
-    info!("─────────────────────────────────────────");
+    info!("[cad-server] Carbon CAD Server (Rust) v{}", env!("CARGO_PKG_VERSION"));
+    info!("[cad-server] parry3d + truck-stepio + gltf");
 
     // Create application state
     let state = Arc::new(AppState::new());
@@ -56,7 +54,7 @@ async fn main() {
         .expect("Invalid PORT");
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    info!("Starting server on port {}", port);
+    info!("[cad-server] Starting server on port {}", port);
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap_or_else(|e| {
         eprintln!("[cad-server] Failed to bind to port {}: {}", port, e);
@@ -65,6 +63,6 @@ async fn main() {
         std::process::exit(1);
     });
 
-    info!("Listening on {}", addr);
+    info!("[cad-server] Listening on {}", addr);
     axum::serve(listener, app).await.unwrap();
 }
