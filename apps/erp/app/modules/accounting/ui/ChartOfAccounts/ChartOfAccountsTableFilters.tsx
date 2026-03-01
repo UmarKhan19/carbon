@@ -5,11 +5,13 @@ import {
   Popover,
   PopoverContent,
   PopoverHeader,
-  PopoverTrigger
+  PopoverTrigger,
+  ToggleGroup,
+  ToggleGroupItem
 } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
 import { LuCalendarDays, LuX } from "react-icons/lu";
-import { New, Select } from "~/components";
+import { New } from "~/components";
 import { usePermissions, useUrlParams } from "~/hooks";
 import { incomeBalanceTypes } from "../../accounting.models";
 
@@ -20,22 +22,24 @@ const ChartOfAccountsTableFilters = () => {
   const startDate = params.get("startDate");
   const endDate = params.get("endDate");
 
-  const incomeBalanceOptions = incomeBalanceTypes.map((type) => ({
-    label: type,
-    value: type
-  }));
-
   return (
     <div className="flex px-4 py-3 items-center space-x-4 justify-between bg-card border-b border-border w-full">
       <HStack>
-        <Select
-          value={params.get("incomeBalance") ?? ""}
-          placeholder="Income/Balance Sheet"
-          options={incomeBalanceOptions}
+        <ToggleGroup
+          type="single"
+          variant="outline"
           size="sm"
-          isClearable
-          onChange={(newValue) => setParams({ incomeBalance: newValue })}
-        />
+          value={params.get("incomeBalance") ?? ""}
+          onValueChange={(value) =>
+            setParams({ incomeBalance: value || undefined })
+          }
+        >
+          {incomeBalanceTypes.map((type) => (
+            <ToggleGroupItem key={type} value={type}>
+              {type}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="secondary" leftIcon={<LuCalendarDays />}>

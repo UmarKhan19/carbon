@@ -23,8 +23,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     bypassRls: true
   });
 
-  console.log("companyGroupId", companyGroupId);
-
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
   const incomeBalanceParam = searchParams.get("incomeBalance");
@@ -33,6 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     incomeBalanceParam === "Balance Sheet"
       ? incomeBalanceParam
       : null;
+
   const startDate = searchParams.get("startDate") || null;
   const endDate = searchParams.get("endDate") || null;
 

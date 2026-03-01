@@ -1,4 +1,4 @@
-import { Button, cn } from "@carbon/react";
+import { Button, cn, ScrollArea } from "@carbon/react";
 import { memo, useMemo, useRef } from "react";
 import {
   LuChevronDown,
@@ -28,7 +28,9 @@ function accountsToFlatTree(accounts: Chart[]): FlatTree<Chart> {
   const result: FlatTreeItem<Chart>[] = [];
 
   function walk(parentId: string | null, level: number) {
-    const children = byParent.get(parentId ?? "__root__") ?? [];
+    const children = (byParent.get(parentId ?? "__root__") ?? []).sort((a, b) =>
+      (a.name ?? "").localeCompare(b.name ?? "")
+    );
     for (const account of children) {
       const childAccounts = byParent.get(account.id) ?? [];
       const childIds = childAccounts.map((c) => c.id);
@@ -68,139 +70,120 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
     getNodeProps,
     selectNode,
     toggleExpandNode,
-    expandAllBelowDepth,
-    collapseAllBelowDepth,
     virtualizer
   } = useTree<Chart, undefined>({
     tree,
     parentRef,
-    estimatedRowHeight: () => 36
+    estimatedRowHeight: () => 36,
+    isEager: true
   });
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 w-full">
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-border flex-shrink-0">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => expandAllBelowDepth(0)}
-        >
-          Expand All
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => collapseAllBelowDepth(0)}
-        >
-          Collapse All
-        </Button>
-      </div>
-      <div className="flex flex-1 min-h-0 w-full">
-        <TreeView<Chart>
-          tree={tree}
-          nodes={nodes}
-          getTreeProps={getTreeProps}
-          getNodeProps={getNodeProps}
-          virtualizer={virtualizer}
-          parentRef={parentRef}
-          parentClassName="h-full"
-          renderNode={({ node, state }) => {
-            const account = node.data;
-            const isGroup = account.isGroup;
-            const isExpanded = state.expanded;
+    <ScrollArea className="h-[calc(100dvh-var(--header-height)-61px)] w-full">
+      <TreeView<Chart>
+        tree={tree}
+        nodes={nodes}
+        getTreeProps={getTreeProps}
+        getNodeProps={getNodeProps}
+        virtualizer={virtualizer}
+        parentRef={parentRef}
+        parentClassName="h-full"
+        renderNode={({ node, state }) => {
+          const account = node.data;
+          const isGroup = account.isGroup;
+          const isExpanded = state.expanded;
 
-            return (
-              <div
-                className={cn(
-                  "flex h-9 cursor-pointer items-center overflow-hidden pr-4 text-sm group/row",
-                  state.selected
-                    ? "bg-muted hover:bg-accent"
-                    : "bg-transparent hover:bg-accent",
-                  isGroup && "font-semibold"
-                )}
-                onClick={() => {
-                  selectNode(node.id, false);
-                  if (isGroup) {
+          return (
+            <div
+              className={cn(
+                "flex h-8 cursor-pointer items-center overflow-hidden pr-4 text-sm group/row",
+                state.selected
+                  ? "bg-muted hover:bg-accent"
+                  : "bg-transparent hover:bg-accent",
+                isGroup && "font-semibold"
+              )}
+              onClick={() => {
+                selectNode(node.id, false);
+                if (isGroup) {
+                  toggleExpandNode(node.id);
+                } else {
+                  navigate(account.id as string);
+                }
+              }}
+            >
+              {/* Indentation lines */}
+              <div className="flex h-9 items-center">
+                {Array.from({ length: node.level }).map((_, index) => (
+                  <LevelLine key={index} isSelected={state.selected} />
+                ))}
+
+                {/* Expand/collapse chevron */}
+                <div
+                  className={cn(
+                    "flex h-9 w-5 items-center justify-center",
+                    node.hasChildren && "hover:bg-accent"
+                  )}
+                  onClick={(e) => {
+                    e.stopPropagation();
                     toggleExpandNode(node.id);
-                  } else {
-                    navigate(account.id as string);
-                  }
-                }}
-              >
-                {/* Indentation lines */}
-                <div className="flex h-9 items-center">
-                  {Array.from({ length: node.level }).map((_, index) => (
-                    <LevelLine key={index} isSelected={state.selected} />
-                  ))}
-
-                  {/* Expand/collapse chevron */}
-                  <div
-                    className={cn(
-                      "flex h-9 w-5 items-center justify-center",
-                      node.hasChildren && "hover:bg-accent"
-                    )}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleExpandNode(node.id);
-                    }}
-                  >
-                    {node.hasChildren ? (
-                      isExpanded ? (
-                        <LuChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      ) : (
-                        <LuChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      )
+                  }}
+                >
+                  {node.hasChildren ? (
+                    isExpanded ? (
+                      <LuChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     ) : (
-                      <div className="h-9 w-5" />
-                    )}
-                  </div>
+                      <LuChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    )
+                  ) : (
+                    <div className="h-9 w-5" />
+                  )}
                 </div>
-
-                {/* Folder/dot icon */}
-                <div className="w-5 h-5 flex items-center justify-center mr-2 shrink-0">
-                  {isGroup &&
-                    (isExpanded ? (
-                      <LuFolderOpen className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <LuFolder className="h-4 w-4 text-muted-foreground" />
-                    ))}
-                </div>
-
-                {/* Account number + name */}
-                <div className="flex flex-1 items-center gap-2 overflow-hidden">
-                  <span className="text-muted-foreground shrink-0">
-                    {account.number ?? ""}
-                  </span>
-                  <span className="truncate">{account.name}</span>
-                </div>
-
-                {/* Balance */}
-                <span className="w-32 text-right tabular-nums shrink-0 text-muted-foreground">
-                  {formatCurrency(account.balance ?? 0)}
-                </span>
-
-                {/* Add child (groups only) */}
-                {isGroup && (
-                  <Button
-                    asChild
-                    isIcon
-                    variant="ghost"
-                    size="sm"
-                    className="ml-1 shrink-0 opacity-0 group-hover/row:opacity-100"
-                    aria-label="Add child account"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Link to={`new?parentId=${account.id}`}>
-                      <LuFilePlus className="h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
-                )}
               </div>
-            );
-          }}
-        />
-      </div>
-    </div>
+
+              {/* Folder/dot icon */}
+              <div className="w-5 h-5 flex items-center justify-center mr-2 shrink-0">
+                {isGroup &&
+                  (isExpanded ? (
+                    <LuFolderOpen className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <LuFolder className="h-4 w-4 text-muted-foreground" />
+                  ))}
+              </div>
+
+              {/* Account number + name */}
+              <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                <span className="text-muted-foreground shrink-0">
+                  {account.number ?? ""}
+                </span>
+                <span className="truncate">{account.name}</span>
+              </div>
+
+              {/* Balance */}
+              <span className="w-32 text-right tabular-nums shrink-0 text-muted-foreground">
+                {formatCurrency(account.balance ?? 0)}
+              </span>
+
+              {/* Add child (groups only) */}
+              {isGroup && (
+                <Button
+                  asChild
+                  isIcon
+                  variant="ghost"
+                  size="sm"
+                  className="ml-1 shrink-0 opacity-0 group-hover/row:opacity-100"
+                  aria-label="Add child account"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Link to={`new?parentId=${account.id}`}>
+                    <LuFilePlus className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              )}
+            </div>
+          );
+        }}
+      />
+    </ScrollArea>
   );
 });
 
