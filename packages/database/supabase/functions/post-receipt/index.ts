@@ -165,12 +165,12 @@ serve(async (req: Request) => {
               Database["public"]["Tables"]["trackedEntity"]["Update"]
             >
           >((acc, itemTracking) => {
+            const trackingAttributes =
+              itemTracking.attributes as TrackedEntityAttributes | undefined;
             const receiptLine = receiptLines.data?.find(
               (receiptLine) =>
                 receiptLine.id ===
-                (itemTracking.attributes as TrackedEntityAttributes)?.[
-                  "Receipt Line"
-                ]?.toString()
+                trackingAttributes?.["Receipt Line"]?.toString()
             );
 
             const safeReceivedQuantity =
@@ -179,7 +179,11 @@ serve(async (req: Request) => {
               receiptLine?.receivedQuantity == null
                 ? 0
                 : receiptLine.receivedQuantity;
-            const quantity = receiptLine?.requiresSerialTracking
+            const isDimensionTrackedEntity =
+              !!trackingAttributes?.stockDimensions &&
+              !!trackingAttributes?.materialId;
+            const quantity =
+              receiptLine?.requiresSerialTracking || isDimensionTrackedEntity
               ? 1
               : safeReceivedQuantity || itemTracking.quantity;
 
@@ -696,20 +700,56 @@ serve(async (req: Request) => {
             // For inventory entries, use the appropriate entry type based on quantity sign
             const entryType =
               receivedQuantity < 0 ? "Negative Adjmt." : "Positive Adjmt.";
+            const quantityPerEntry = receivedQuantity < 0 ? -1 : 1;
+            const lineTracking = receiptLineTracking.data?.filter(
+              (tracking) =>
+                (tracking.attributes as TrackedEntityAttributes | undefined)?.[
+                  "Receipt Line"
+                ] === receiptLine.id
+            );
+            const dimensionLineTracking =
+              lineTracking?.filter((tracking) => {
+                const attrs =
+                  tracking.attributes as TrackedEntityAttributes | undefined;
+                return !!attrs?.stockDimensions && !!attrs?.materialId;
+              }) ?? [];
 
-            itemLedgerInserts.push({
-              postingDate: today,
-              itemId: receiptLine.itemId,
-              quantity: receivedQuantity,
-              locationId: receiptLine.locationId,
-              shelfId: receiptLine.shelfId,
-              entryType,
-              documentType: "Purchase Receipt",
-              documentId: receipt.data?.id ?? undefined,
-              externalDocumentId: receipt.data?.externalDocumentId ?? undefined,
-              createdBy: userId,
-              companyId,
-            });
+            // Dimension-tracked material lines should maintain one ledger row per piece
+            // so each adjustment stays linked to its tracked entity.
+            if (dimensionLineTracking.length > 0) {
+              for (const tracking of dimensionLineTracking) {
+                itemLedgerInserts.push({
+                  postingDate: today,
+                  itemId: receiptLine.itemId,
+                  quantity: quantityPerEntry,
+                  locationId: receiptLine.locationId,
+                  shelfId: receiptLine.shelfId,
+                  entryType,
+                  documentType: "Purchase Receipt",
+                  documentId: receipt.data?.id ?? undefined,
+                  trackedEntityId: tracking.id,
+                  externalDocumentId:
+                    receipt.data?.externalDocumentId ?? undefined,
+                  createdBy: userId,
+                  companyId,
+                });
+              }
+            } else {
+              itemLedgerInserts.push({
+                postingDate: today,
+                itemId: receiptLine.itemId,
+                quantity: receivedQuantity,
+                locationId: receiptLine.locationId,
+                shelfId: receiptLine.shelfId,
+                entryType,
+                documentType: "Purchase Receipt",
+                documentId: receipt.data?.id ?? undefined,
+                externalDocumentId:
+                  receipt.data?.externalDocumentId ?? undefined,
+                createdBy: userId,
+                companyId,
+              });
+            }
           }
 
           if (receiptLine.requiresBatchTracking && !isOutsideProcessing) {
@@ -726,10 +766,14 @@ serve(async (req: Request) => {
               documentType: "Purchase Receipt",
               documentId: receipt.data?.id ?? undefined,
               trackedEntityId: receiptLineTracking.data?.find(
-                (tracking) =>
-                  (
-                    tracking.attributes as TrackedEntityAttributes | undefined
-                  )?.["Receipt Line"] === receiptLine.id
+                (tracking) => {
+                  const attrs =
+                    tracking.attributes as TrackedEntityAttributes | undefined;
+                  return (
+                    attrs?.["Receipt Line"] === receiptLine.id &&
+                    !attrs?.stockDimensions
+                  );
+                }
               )?.id,
               externalDocumentId: receipt.data?.externalDocumentId ?? undefined,
               createdBy: userId,

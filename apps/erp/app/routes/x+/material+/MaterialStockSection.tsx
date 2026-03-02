@@ -1,3 +1,4 @@
+import { useCarbon } from "@carbon/auth";
 import {
   Badge,
   Button,
@@ -39,8 +40,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatStockDimensions, getStockRemaining } from "@carbon/utils";
-import type { MaterialStockPiece } from "@carbon/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LuChevronDown,
   LuChevronUp,
@@ -48,27 +48,71 @@ import {
   LuRuler
 } from "react-icons/lu";
 import { useFetcher, useLoaderData } from "react-router";
+import { useRouteData } from "~/hooks";
+import type { ListItem } from "~/types";
+import { path } from "~/utils/path";
 import type { loader } from "./$itemId.stock";
 
 export function MaterialStockSection() {
+  const { carbon } = useCarbon();
   const { stockPieces, consumedStockPieces, itemId } = useLoaderData<typeof loader>();
+  const sharedMaterialsData = useRouteData<{ locations: ListItem[] }>(
+    path.to.materialRoot
+  );
+  const locations = sharedMaterialsData?.locations ?? [];
   const addModal = useDisclosure();
   const fetcher = useFetcher();
 
   const [newStockType, setNewStockType] = useState<
-    "linear" | "sheet" | "block"
+    "linear" | "sheet" | "block" | "roll"
   >("linear");
   const [newStockLength, setNewStockLength] = useState<number>(0);
   const [newStockWidth, setNewStockWidth] = useState<number>(0);
   const [newStockHeight, setNewStockHeight] = useState<number>(0);
   const [newStockUnit, setNewStockUnit] = useState<string>("IN");
   const [newStockQty, setNewStockQty] = useState<number>(1);
+  const [locationId, setLocationId] = useState<string>("");
+  const [shelves, setShelves] = useState<Array<{ value: string; label: string }>>(
+    []
+  );
+  const [shelfId, setShelfId] = useState<string>("");
+
+  useEffect(() => {
+    if (!locationId || !carbon) {
+      setShelves([]);
+      setShelfId("");
+      return;
+    }
+
+    let cancelled = false;
+    const fetchShelves = async () => {
+      const result = await carbon
+        .from("shelf")
+        .select("id, name")
+        .eq("locationId", locationId)
+        .order("name");
+
+      if (!cancelled && result.data) {
+        setShelves(
+          result.data.map((shelf) => ({ value: shelf.id, label: shelf.name }))
+        );
+      }
+    };
+
+    fetchShelves();
+    return () => {
+      cancelled = true;
+    };
+  }, [locationId, carbon]);
 
   const handleAddStock = () => {
+    if (!locationId) return;
+
     let stockDimensions:
       | { type: "linear"; length: number }
-      | { type: "sheet"; width: number; height: number }
-      | { type: "block"; length: number; width: number; height: number };
+      | { type: "sheet"; length: number; width: number }
+      | { type: "block"; length: number; width: number; height: number }
+      | { type: "roll"; length: number; width: number };
 
     switch (newStockType) {
       case "linear":
@@ -77,8 +121,15 @@ export function MaterialStockSection() {
       case "sheet":
         stockDimensions = {
           type: "sheet",
-          width: newStockWidth,
-          height: newStockHeight
+          length: newStockLength,
+          width: newStockWidth
+        };
+        break;
+      case "roll":
+        stockDimensions = {
+          type: "roll",
+          length: newStockLength,
+          width: newStockWidth
         };
         break;
       case "block":
@@ -94,6 +145,8 @@ export function MaterialStockSection() {
     fetcher.submit(
       JSON.stringify({
         materialId: itemId,
+        locationId,
+        shelfId: shelfId || undefined,
         stockDimensions,
         stockUnit: newStockUnit,
         quantity: newStockQty
@@ -276,7 +329,7 @@ export function MaterialStockSection() {
                   <Select
                     value={newStockType}
                     onValueChange={(v) =>
-                      setNewStockType(v as "linear" | "sheet" | "block")
+                      setNewStockType(v as "linear" | "sheet" | "block" | "roll")
                     }
                   >
                     <SelectTrigger>
@@ -287,15 +340,21 @@ export function MaterialStockSection() {
                         Linear (Length)
                       </SelectItem>
                       <SelectItem value="sheet">
-                        Sheet (Width x Height)
+                        Sheet (Length x Width)
                       </SelectItem>
                       <SelectItem value="block">
-                        Block (L x W x H)
+                        Block (Length x Width x Height)
+                      </SelectItem>
+                      <SelectItem value="roll">
+                        Roll (Length x Width)
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                {newStockType === "linear" && (
+                {(newStockType === "linear" ||
+                  newStockType === "sheet" ||
+                  newStockType === "roll" ||
+                  newStockType === "block") && (
                   <div>
                     <label className="block text-sm font-medium mb-1">
                       Length
@@ -335,30 +394,32 @@ export function MaterialStockSection() {
                         </NumberInputGroup>
                       </NumberField>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Height
-                      </label>
-                      <NumberField
-                        value={newStockHeight}
-                        onChange={setNewStockHeight}
-                        minValue={0.01}
-                      >
-                        <NumberInputGroup className="relative">
-                          <NumberInput />
-                        </NumberInputGroup>
-                      </NumberField>
-                    </div>
+                    {newStockType === "block" && (
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Height
+                        </label>
+                        <NumberField
+                          value={newStockHeight}
+                          onChange={setNewStockHeight}
+                          minValue={0.01}
+                        >
+                          <NumberInputGroup className="relative">
+                            <NumberInput />
+                          </NumberInputGroup>
+                        </NumberField>
+                      </div>
+                    )}
                   </div>
                 )}
-                {newStockType === "block" && (
+                {newStockType === "roll" && (
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Length / Depth
+                      Width
                     </label>
                     <NumberField
-                      value={newStockLength}
-                      onChange={setNewStockLength}
+                      value={newStockWidth}
+                      onChange={setNewStockWidth}
                       minValue={0.01}
                     >
                       <NumberInputGroup className="relative">
@@ -375,6 +436,48 @@ export function MaterialStockSection() {
                     </NumberField>
                   </div>
                 )}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Location
+                    </label>
+                    <Select
+                      value={locationId}
+                      onValueChange={(value) => {
+                        setLocationId(value);
+                        setShelfId("");
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select location" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {locations.map((location) => (
+                          <SelectItem key={location.id} value={location.id}>
+                            {location.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Shelf (optional)
+                    </label>
+                    <Select value={shelfId} onValueChange={setShelfId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select shelf" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {shelves.map((shelf) => (
+                          <SelectItem key={shelf.value} value={shelf.value}>
+                            {shelf.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -429,6 +532,7 @@ export function MaterialStockSection() {
                 variant="primary"
                 onClick={handleAddStock}
                 isLoading={fetcher.state !== "idle"}
+                isDisabled={!locationId}
               >
                 Add Stock
               </Button>

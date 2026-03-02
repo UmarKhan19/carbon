@@ -1026,8 +1026,7 @@ export async function recordCut(
   client: SupabaseClient<Database>,
   params: RecordCutParams
 ): Promise<RecordCutResult> {
-  const { sourceStockId, consumedAmount, remnantDimensions, jobMaterialId, companyId, userId } =
-    params;
+  const { sourceStockId, remnantDimensions, jobMaterialId, companyId, userId } = params;
 
   // 1. Get source stock entity
   const sourceResult = await client
@@ -1047,6 +1046,62 @@ export async function recordCut(
     throw new Error("Source stock does not have stock dimensions");
   }
 
+  const plannedConsumedAmount =
+    params.planned?.consumedAmount ?? params.consumedAmount;
+  const actualConsumedAmount =
+    params.actual?.consumedAmount ?? params.consumedAmount ?? 0;
+
+  if (actualConsumedAmount < 0) {
+    throw new Error("Actual consumed amount cannot be negative");
+  }
+
+  if (actualConsumedAmount > attributes.stockDimensions.length) {
+    throw new Error(
+      `Consumed amount (${actualConsumedAmount}) exceeds available stock length (${attributes.stockDimensions.length})`
+    );
+  }
+
+  const varianceAmount =
+    plannedConsumedAmount !== undefined
+      ? actualConsumedAmount - plannedConsumedAmount
+      : 0;
+
+  const normalizedOutputs =
+    params.outputs && params.outputs.length > 0
+      ? params.outputs
+      : remnantDimensions
+        ? [
+            {
+              kind: "remnant" as const,
+              quantity: 1,
+              dimensions: remnantDimensions
+            }
+          ]
+        : [];
+
+  // Legacy fallback: if no outputs are supplied, derive one by reducing length only.
+  if (normalizedOutputs.length === 0) {
+    const remaining = calculateRemainingDimensions(
+      attributes.stockDimensions,
+      actualConsumedAmount
+    );
+    if (remaining > 0) {
+      const derivedDimensions = updateStockDimensions(
+        attributes.stockDimensions,
+        remaining
+      );
+      normalizedOutputs.push({
+        kind: "remnant",
+        quantity: 1,
+        dimensions: {
+          length: derivedDimensions.length,
+          width: derivedDimensions.width,
+          height: derivedDimensions.height
+        }
+      });
+    }
+  }
+
   // 2. Create trackedActivity type="Cut"
   const activityId = nanoid();
   const activityResult = await client
@@ -1057,9 +1112,18 @@ export async function recordCut(
       sourceDocument: jobMaterialId ? "Job Material" : "Manual",
       sourceDocumentId: jobMaterialId ?? null,
       attributes: {
-        consumedAmount,
+        consumedAmount: actualConsumedAmount,
         unit: attributes.stockUnit,
-        "Job Material": jobMaterialId
+        "Job Material": jobMaterialId,
+        planned: params.planned ?? {
+          consumedAmount: plannedConsumedAmount
+        },
+        actual: {
+          ...params.actual,
+          consumedAmount: actualConsumedAmount,
+          varianceAmount
+        },
+        outputs: normalizedOutputs
       },
       companyId,
       createdBy: userId
@@ -1075,7 +1139,7 @@ export async function recordCut(
   const inputResult = await client.from("trackedActivityInput").insert({
     trackedActivityId: activityId,
     trackedEntityId: sourceStockId,
-    quantity: consumedAmount,
+    quantity: actualConsumedAmount,
     companyId,
     createdBy: userId
   });
@@ -1084,96 +1148,77 @@ export async function recordCut(
     throw new Error(`Failed to link input: ${inputResult.error.message}`);
   }
 
-  // 4. Determine remnant dimensions
-  let newDimensions: StockDimensions | null = null;
-  
-  if (remnantDimensions) {
-    // Use user-provided remnant dimensions
-    newDimensions = {
-      length: remnantDimensions.length,
-      width: remnantDimensions.width,
-      height: remnantDimensions.height,
-      originalLength: attributes.stockDimensions.originalLength,
-      originalWidth: attributes.stockDimensions.originalWidth,
-      originalHeight: attributes.stockDimensions.originalHeight
-    };
-  } else {
-    // Fall back to old logic: only reduce length
-    const remaining = calculateRemainingDimensions(
+  // 4. Create output entities for remnant outputs
+  const remnantIds: string[] = [];
+  const outputEntityIds: string[] = [];
+
+  for (const output of normalizedOutputs) {
+    if (output.kind !== "remnant" || !output.dimensions) continue;
+
+    const quantity = output.quantity ?? 1;
+    if (quantity <= 0) continue;
+
+    const outputDimensions = buildOutputDimensions(
       attributes.stockDimensions,
-      consumedAmount
+      output.dimensions
     );
-    if (remaining > 0) {
-      newDimensions = updateStockDimensions(
-        attributes.stockDimensions,
-        remaining
-      );
+
+    if (!isPositiveStockDimensions(outputDimensions)) continue;
+    if (!isWithinSourceDimensions(outputDimensions, attributes.stockDimensions)) {
+      throw new Error("Output remnant dimensions cannot exceed source dimensions");
     }
-  }
 
-  let remnantId: string | undefined;
+    for (let index = 0; index < quantity; index++) {
+      const remnantId = nanoid();
+      const remnantAttributes = {
+        materialId: attributes.materialId,
+        parentStockId: sourceStockId,
+        stockDimensions: outputDimensions,
+        stockUnit: attributes.stockUnit,
+        cutHistory: [
+          ...(attributes.cutHistory ?? []),
+          {
+            cutAt: new Date().toISOString(),
+            cutBy: userId,
+            consumed: actualConsumedAmount,
+            jobId: jobMaterialId
+          }
+        ]
+      };
 
-  // 5. If remnant exists and has non-zero volume: Create new trackedEntity for remnant
-  const hasRemnant = newDimensions && 
-    (newDimensions.length > 0 && newDimensions.width > 0 && newDimensions.height > 0);
-  
-  if (hasRemnant) {
-    remnantId = nanoid();
-    
-    console.log("Creating remnant with dimensions:", JSON.stringify(newDimensions));
-    
-    const remnantAttributes = {
-      materialId: attributes.materialId,
-      parentStockId: sourceStockId,
-      stockDimensions: newDimensions,
-      stockUnit: attributes.stockUnit,
-      cutHistory: [
-        ...(attributes.cutHistory ?? []),
-        {
-          cutAt: new Date().toISOString(),
-          cutBy: userId,
-          consumed: consumedAmount,
-          jobId: jobMaterialId
-        }
-      ]
-    };
-    
-    console.log("Remnant attributes:", JSON.stringify(remnantAttributes));
+      const remnantResult = await client
+        .from("trackedEntity")
+        .insert({
+          id: remnantId,
+          quantity: 1,
+          status: "Available",
+          sourceDocument: "Cut",
+          sourceDocumentId: activityId,
+          attributes: remnantAttributes as unknown as Record<string, unknown>,
+          companyId,
+          createdBy: userId
+        })
+        .select("*")
+        .single();
 
-    const remnantResult = await client
-      .from("trackedEntity")
-      .insert({
-        id: remnantId,
+      if (remnantResult.error) {
+        throw new Error(`Failed to create remnant: ${remnantResult.error.message}`);
+      }
+
+      const outputResult = await client.from("trackedActivityOutput").insert({
+        trackedActivityId: activityId,
+        trackedEntityId: remnantId,
         quantity: 1,
-        status: "Available",
-        sourceDocument: "Cut",
-        sourceDocumentId: activityId,
-        attributes: remnantAttributes as unknown as Record<string, unknown>,
         companyId,
         createdBy: userId
-      })
-      .select("*")
-      .single();
+      });
 
-    if (remnantResult.error) {
-      console.error("Failed to create remnant:", remnantResult.error);
-      throw new Error(`Failed to create remnant: ${remnantResult.error.message}`);
-    }
-    
-    console.log("Remnant created successfully:", remnantId);
-    console.log("Remnant data from DB:", JSON.stringify(remnantResult.data));
+      if (outputResult.error) {
+        throw new Error(`Failed to link output: ${outputResult.error.message}`);
+      }
 
-    // Link remnant as output
-    const outputResult = await client.from("trackedActivityOutput").insert({
-      trackedActivityId: activityId,
-      trackedEntityId: remnantId,
-      quantity: 1,
-      companyId,
-      createdBy: userId
-    });
-
-    if (outputResult.error) {
-      throw new Error(`Failed to link output: ${outputResult.error.message}`);
+      remnantIds.push(remnantId);
+      outputEntityIds.push(remnantId);
     }
   }
 
@@ -1198,7 +1243,7 @@ export async function recordCut(
     documentType: "Job Consumption",
     documentId: jobMaterialId,
     itemId: attributes.materialId,
-    quantity: -consumedAmount,
+    quantity: -actualConsumedAmount,
     trackedEntityId: sourceStockId,
     companyId,
     createdBy: userId
@@ -1212,7 +1257,9 @@ export async function recordCut(
   return {
     success: true,
     activityId,
-    remnantId,
+    remnantId: remnantIds[0],
+    remnantIds,
+    outputEntityIds,
     consumedEntityId: sourceStockId
   };
 }
@@ -1239,4 +1286,65 @@ function updateStockDimensions(
     ...dimensions,
     length: remaining
   };
+}
+
+function buildOutputDimensions(
+  sourceDimensions: StockDimensions,
+  outputDimensions: { length: number; width: number; height: number }
+): StockDimensions {
+  switch (sourceDimensions.type) {
+    case "linear":
+      return {
+        ...sourceDimensions,
+        length: outputDimensions.length,
+        width: 1,
+        height: 1
+      };
+    case "sheet":
+      return {
+        ...sourceDimensions,
+        length: outputDimensions.length,
+        width: outputDimensions.width,
+        height: 1
+      };
+    case "roll":
+      return {
+        ...sourceDimensions,
+        length: outputDimensions.length,
+        width: outputDimensions.width,
+        height: 1
+      };
+    case "block":
+      return {
+        ...sourceDimensions,
+        length: outputDimensions.length,
+        width: outputDimensions.width,
+        height: outputDimensions.height
+      };
+  }
+}
+
+function isPositiveStockDimensions(dimensions: StockDimensions): boolean {
+  switch (dimensions.type) {
+    case "linear":
+      return dimensions.length > 0;
+    case "sheet":
+    case "roll":
+      return dimensions.length > 0 && dimensions.width > 0;
+    case "block":
+      return (
+        dimensions.length > 0 && dimensions.width > 0 && dimensions.height > 0
+      );
+  }
+}
+
+function isWithinSourceDimensions(
+  output: StockDimensions,
+  source: StockDimensions
+): boolean {
+  return (
+    output.length <= source.length &&
+    output.width <= source.width &&
+    output.height <= source.height
+  );
 }

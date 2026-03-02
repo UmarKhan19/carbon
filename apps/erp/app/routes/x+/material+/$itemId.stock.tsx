@@ -3,10 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
   buildStockDimensions,
-  formatStockDimensions,
   type MaterialStockAttributes,
   type MaterialStockPiece,
-  type StockDimensions
 } from "@carbon/utils";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useParams } from "react-router";
@@ -94,8 +92,14 @@ const linearSchema = z.object({
 
 const sheetSchema = z.object({
   type: z.literal("sheet"),
-  width: z.number().positive("Width must be positive"),
-  height: z.number().positive("Height must be positive")
+  length: z.number().positive("Length must be positive"),
+  width: z.number().positive("Width must be positive")
+});
+
+const rollSchema = z.object({
+  type: z.literal("roll"),
+  length: z.number().positive("Length must be positive"),
+  width: z.number().positive("Width must be positive")
 });
 
 const blockSchema = z.object({
@@ -107,9 +111,12 @@ const blockSchema = z.object({
 
 const addStockValidator = z.object({
   materialId: z.string().min(1),
+  locationId: z.string().min(1),
+  shelfId: z.string().optional(),
   stockDimensions: z.discriminatedUnion("type", [
     linearSchema,
     sheetSchema,
+    rollSchema,
     blockSchema
   ]),
   stockUnit: z.string().min(1),
@@ -148,7 +155,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const { materialId, stockDimensions, stockUnit, quantity } = validation.data;
+  const { materialId, locationId, shelfId, stockDimensions, stockUnit, quantity } =
+    validation.data;
 
   try {
     const fullDimensions = buildStockDimensions(stockDimensions);
@@ -177,6 +185,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if (result.error) {
         throw new Error(
           `Failed to create stock entity: ${result.error.message}`
+        );
+      }
+
+      const ledgerResult = await carbon.from("itemLedger").insert({
+        postingDate: new Date().toISOString(),
+        entryType: "Positive Adjmt." as const,
+        itemId: materialId,
+        quantity: 1,
+        locationId,
+        shelfId,
+        trackedEntityId: result.data.id,
+        companyId,
+        createdBy: userId
+      });
+
+      if (ledgerResult.error) {
+        throw new Error(
+          `Failed to create item ledger entry: ${ledgerResult.error.message}`
         );
       }
     }

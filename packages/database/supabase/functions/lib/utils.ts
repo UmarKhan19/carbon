@@ -3,10 +3,12 @@ export interface TrackedEntityAttributes {
   Customer?: string;
   "Job Operation"?: string;
   "Job Operation Index"?: number;
+  materialId?: string;
   "Purchase Order"?: string;
   "Receipt Line Index"?: number;
   "Receipt Line"?: string;
   Receipt?: string;
+  stockDimensions?: Record<string, unknown>;
   Supplier?: string;
   "Serial Number"?: string;
   "Shipment Line Index"?: number;

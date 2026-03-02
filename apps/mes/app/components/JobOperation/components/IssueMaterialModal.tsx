@@ -42,6 +42,7 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
+import { useRouteData } from "@carbon/remix";
 
 import { getItemReadableId } from "@carbon/utils";
 import { useNumberFormatter } from "@react-aria/i18n";
@@ -99,6 +100,8 @@ export function IssueMaterialModal({
   onClose: () => void;
 }) {
   const { carbon } = useCarbon();
+  const routeData = useRouteData<{ location: string }>(path.to.authenticatedRoot);
+  const locationId = routeData?.location ?? "";
   const [items] = useItems();
   const numberFormatter = useNumberFormatter({ maximumFractionDigits: 4 });
 
@@ -217,9 +220,13 @@ export function IssueMaterialModal({
   }, [materialStockPieces]);
   const [selectedStockId, setSelectedStockId] = useState<string>("");
   const [stockCutAmount, setStockCutAmount] = useState<number>(initialQuantity);
+  const [actualCutAmount, setActualCutAmount] = useState<number>(initialQuantity);
   const [remnantLength, setRemnantLength] = useState<number>(0);
   const [remnantWidth, setRemnantWidth] = useState<number>(0);
   const [remnantHeight, setRemnantHeight] = useState<number>(0);
+  const [additionalRemnants, setAdditionalRemnants] = useState<
+    Array<{ id: string; length: number; width: number; height: number }>
+  >([]);
   const hasStockPieces = (materialStockPieces?.length ?? 0) > 0;
   const isMaterial = material?.itemType === "Material";
   const requiresDimensionTracking = (material as unknown as { requiresDimensionTracking?: boolean })?.requiresDimensionTracking ?? false;
@@ -236,17 +243,27 @@ export function IssueMaterialModal({
         setRemnantLength(selectedStock.stockDimensions.length);
         setRemnantWidth(selectedStock.stockDimensions.width);
         setRemnantHeight(selectedStock.stockDimensions.height);
+        setStockCutAmount(initialQuantity);
+        setActualCutAmount(initialQuantity);
+        setAdditionalRemnants([]);
       }
     }
-  }, [selectedStockId, materialStockPieces]);
+  }, [selectedStockId, materialStockPieces, initialQuantity]);
 
   // Add stock form state
   const [showAddStock, setShowAddStock] = useState(false);
+  const [newStockType, setNewStockType] = useState<
+    "linear" | "sheet" | "block" | "roll"
+  >("linear");
   const [newStockLength, setNewStockLength] = useState<number>(0);
   const [newStockWidth, setNewStockWidth] = useState<number>(0);
   const [newStockHeight, setNewStockHeight] = useState<number>(0);
   const [newStockUnit, setNewStockUnit] = useState<string>("IN");
   const [newStockQty, setNewStockQty] = useState<number>(1);
+  const [newStockShelfId, setNewStockShelfId] = useState<string>("");
+  const [shelves, setShelves] = useState<Array<{ value: string; label: string }>>(
+    []
+  );
 
   // Tab state
   const [activeTab, setActiveTab] = useState("scan");
@@ -278,6 +295,7 @@ export function IssueMaterialModal({
     success: boolean;
     message: string;
     remnantId?: string;
+    remnantIds?: string[];
   }>();
   const addStockFetcher = useFetcher<{
     success: boolean;
@@ -289,6 +307,37 @@ export function IssueMaterialModal({
   const convertDisclosure = useDisclosure();
   const scrapDisclosure = useDisclosure();
   const [trackedEntity, setTrackedEntity] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!locationId || !carbon) {
+      setShelves([]);
+      setNewStockShelfId("");
+      return;
+    }
+
+    let cancelled = false;
+    const fetchShelves = async () => {
+      const result = await carbon
+        .from("shelf")
+        .select("id, name")
+        .eq("locationId", locationId)
+        .order("name");
+
+      if (!cancelled && result.data) {
+        setShelves(
+          result.data.map((shelf) => ({
+            value: shelf.id,
+            label: shelf.name
+          }))
+        );
+      }
+    };
+
+    fetchShelves();
+    return () => {
+      cancelled = true;
+    };
+  }, [locationId, carbon]);
 
   // Fetch item details when item is selected (only when no material provided)
   const handleItemChange = useCallback(
@@ -710,7 +759,11 @@ export function IssueMaterialModal({
       return;
     }
 
-    const { length: availLength, width: availWidth, height: availHeight } = selectedStock.stockDimensions;
+    const {
+      length: availLength,
+      width: availWidth,
+      height: availHeight
+    } = selectedStock.stockDimensions;
 
     // Validate remnant dimensions are not negative
     if (remnantLength < 0 || remnantWidth < 0 || remnantHeight < 0) {
@@ -738,12 +791,78 @@ export function IssueMaterialModal({
       return;
     }
 
-    // Calculate consumed amount (we'll use the reduction in length for the ledger)
-    const consumedLength = availLength - remnantLength;
+    if (actualCutAmount < 0 || actualCutAmount > availLength) {
+      toast.error(
+        `Actual consumed amount must be between 0 and ${availLength} ${selectedStock.stockUnit}`
+      );
+      return;
+    }
+
+    for (const output of additionalRemnants) {
+      if (output.length < 0 || output.width < 0 || output.height < 0) {
+        toast.error("Additional remnant dimensions cannot be negative");
+        return;
+      }
+      if (output.length > availLength) {
+        toast.error(
+          `Additional remnant length (${output.length}) cannot exceed original stock length (${availLength} ${selectedStock.stockUnit})`
+        );
+        return;
+      }
+      if (output.width > availWidth) {
+        toast.error(
+          `Additional remnant width (${output.width}) cannot exceed original stock width (${availWidth} ${selectedStock.stockUnit})`
+        );
+        return;
+      }
+      if (output.height > availHeight) {
+        toast.error(
+          `Additional remnant height (${output.height}) cannot exceed original stock height (${availHeight} ${selectedStock.stockUnit})`
+        );
+        return;
+      }
+    }
+
+    const remnantOutputs = [
+      {
+        kind: "remnant" as const,
+        quantity: 1,
+        dimensions: {
+          length: remnantLength,
+          width: remnantWidth,
+          height: remnantHeight
+        }
+      },
+      ...additionalRemnants.map((output) => ({
+        kind: "remnant" as const,
+        quantity: 1,
+        dimensions: {
+          length: output.length,
+          width: output.width,
+          height: output.height
+        }
+      }))
+    ].filter(
+      (output) =>
+        output.dimensions.length > 0 &&
+        output.dimensions.width > 0 &&
+        output.dimensions.height > 0
+    );
 
     const payload = {
       sourceStockId: selectedStockId,
-      consumedAmount: consumedLength,
+      consumedAmount: actualCutAmount,
+      planned: {
+        consumedAmount: stockCutAmount
+      },
+      actual: {
+        consumedAmount: actualCutAmount,
+        varianceReason:
+          stockCutAmount !== actualCutAmount
+            ? "Operator adjusted actual consumption"
+            : undefined
+      },
+      outputs: remnantOutputs,
       remnantDimensions: {
         length: remnantLength,
         width: remnantWidth,
@@ -759,9 +878,12 @@ export function IssueMaterialModal({
     });
   }, [
     selectedStockId,
+    stockCutAmount,
+    actualCutAmount,
     remnantLength,
     remnantWidth,
     remnantHeight,
+    additionalRemnants,
     materialStockPieces,
     material?.id,
     stockFetcher
@@ -769,22 +891,60 @@ export function IssueMaterialModal({
 
   // Submit handler for adding new stock
   const handleAddStock = useCallback(() => {
-    if (newStockLength <= 0 || newStockWidth <= 0 || newStockHeight <= 0) {
-      toast.error("All dimensions (L, W, H) must be greater than 0");
+    if (!locationId) {
+      toast.error("Location is required to add stock");
       return;
     }
 
-    const stockDimensions = {
-      length: newStockLength,
-      width: newStockWidth,
-      height: newStockHeight,
-      originalLength: newStockLength,
-      originalWidth: newStockWidth,
-      originalHeight: newStockHeight
-    };
+    let stockDimensions:
+      | { type: "linear"; length: number }
+      | { type: "sheet"; length: number; width: number }
+      | { type: "block"; length: number; width: number; height: number }
+      | { type: "roll"; length: number; width: number };
+
+    if (newStockType === "linear") {
+      if (newStockLength <= 0) {
+        toast.error("Length must be greater than 0");
+        return;
+      }
+      stockDimensions = { type: "linear", length: newStockLength };
+    } else if (newStockType === "sheet") {
+      if (newStockLength <= 0 || newStockWidth <= 0) {
+        toast.error("Sheet length and width must be greater than 0");
+        return;
+      }
+      stockDimensions = {
+        type: "sheet",
+        length: newStockLength,
+        width: newStockWidth
+      };
+    } else if (newStockType === "block") {
+      if (newStockLength <= 0 || newStockWidth <= 0 || newStockHeight <= 0) {
+        toast.error("Block length, width, and height must be greater than 0");
+        return;
+      }
+      stockDimensions = {
+        type: "block",
+        length: newStockLength,
+        width: newStockWidth,
+        height: newStockHeight
+      };
+    } else {
+      if (newStockLength <= 0 || newStockWidth <= 0) {
+        toast.error("Roll length and width must be greater than 0");
+        return;
+      }
+      stockDimensions = {
+        type: "roll",
+        length: newStockLength,
+        width: newStockWidth
+      };
+    }
 
     const payload = {
       materialId: selectedItemId,
+      locationId,
+      shelfId: newStockShelfId || undefined,
       stockDimensions,
       stockUnit: newStockUnit,
       quantity: newStockQty
@@ -797,10 +957,13 @@ export function IssueMaterialModal({
     });
   }, [
     newStockLength,
+    newStockType,
     newStockWidth,
     newStockHeight,
     newStockUnit,
     newStockQty,
+    newStockShelfId,
+    locationId,
     selectedItemId,
     addStockFetcher
   ]);
@@ -862,9 +1025,14 @@ export function IssueMaterialModal({
   useEffect(() => {
     if (stockFetcher.data?.success) {
       toast.success(stockFetcher.data.message || "Material issued from stock");
-      if (stockFetcher.data.remnantId) {
+      const remnantIds =
+        stockFetcher.data.remnantIds ??
+        (stockFetcher.data.remnantId ? [stockFetcher.data.remnantId] : []);
+      if (remnantIds.length > 0) {
         toast.info(
-          `Remnant created: ${stockFetcher.data.remnantId.slice(0, 10)}...`
+          remnantIds.length === 1
+            ? `Remnant created: ${remnantIds[0].slice(0, 10)}...`
+            : `${remnantIds.length} remnants created`
         );
       }
       // Refresh stock list after a delay to ensure database transaction completes
@@ -887,6 +1055,7 @@ export function IssueMaterialModal({
       setNewStockWidth(0);
       setNewStockHeight(0);
       setNewStockQty(1);
+      setNewStockShelfId("");
       refreshStock();
     } else if (addStockFetcher.data?.message && !addStockFetcher.data?.success) {
       toast.error(addStockFetcher.data.message);
@@ -1133,11 +1302,47 @@ export function IssueMaterialModal({
                               </div>
                               <div>
                                 <label className="block text-sm font-medium mb-1">
-                                  Remnant Dimensions (after cut)
+                                  Planned vs Actual Consumption
+                                </label>
+                                <div className="grid grid-cols-2 gap-2 mb-3">
+                                  <div>
+                                    <label className="block text-xs text-muted-foreground mb-1">
+                                      Planned
+                                    </label>
+                                    <NumberField
+                                      value={stockCutAmount}
+                                      onChange={setStockCutAmount}
+                                      minValue={0}
+                                    >
+                                      <NumberInputGroup className="relative">
+                                        <NumberInput />
+                                      </NumberInputGroup>
+                                    </NumberField>
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-muted-foreground mb-1">
+                                      Actual
+                                    </label>
+                                    <NumberField
+                                      value={actualCutAmount}
+                                      onChange={setActualCutAmount}
+                                      minValue={0}
+                                    >
+                                      <NumberInputGroup className="relative">
+                                        <NumberInput />
+                                      </NumberInputGroup>
+                                    </NumberField>
+                                  </div>
+                                </div>
+                                <label className="block text-sm font-medium mb-1">
+                                  Remnant Outputs (actual)
                                 </label>
                                 <p className="text-xs text-muted-foreground mb-2">
-                                  Enter the dimensions of the remaining piece. Each must be ≤ original.
+                                  Record one or more remnant pieces produced by the cut.
                                 </p>
+                                <div className="text-xs font-medium mb-2">
+                                  Primary remnant
+                                </div>
                                 <div className="grid grid-cols-3 gap-2">
                                   <div>
                                     <label className="block text-xs text-muted-foreground mb-1">
@@ -1182,6 +1387,106 @@ export function IssueMaterialModal({
                                     </NumberField>
                                   </div>
                                 </div>
+                                {additionalRemnants.length > 0 && (
+                                  <div className="flex flex-col gap-2 mt-3">
+                                    {additionalRemnants.map((output, index) => (
+                                      <div
+                                        key={output.id}
+                                        className="p-2 border rounded-md"
+                                      >
+                                        <div className="flex items-center justify-between mb-2">
+                                          <span className="text-xs font-medium">
+                                            Additional remnant {index + 1}
+                                          </span>
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() =>
+                                              setAdditionalRemnants((prev) =>
+                                                prev.filter((p) => p.id !== output.id)
+                                              )
+                                            }
+                                          >
+                                            Remove
+                                          </Button>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2">
+                                          <NumberField
+                                            value={output.length}
+                                            onChange={(value) =>
+                                              setAdditionalRemnants((prev) =>
+                                                prev.map((p) =>
+                                                  p.id === output.id
+                                                    ? { ...p, length: value }
+                                                    : p
+                                                )
+                                              )
+                                            }
+                                            minValue={0}
+                                          >
+                                            <NumberInputGroup className="relative">
+                                              <NumberInput />
+                                            </NumberInputGroup>
+                                          </NumberField>
+                                          <NumberField
+                                            value={output.width}
+                                            onChange={(value) =>
+                                              setAdditionalRemnants((prev) =>
+                                                prev.map((p) =>
+                                                  p.id === output.id
+                                                    ? { ...p, width: value }
+                                                    : p
+                                                )
+                                              )
+                                            }
+                                            minValue={0}
+                                          >
+                                            <NumberInputGroup className="relative">
+                                              <NumberInput />
+                                            </NumberInputGroup>
+                                          </NumberField>
+                                          <NumberField
+                                            value={output.height}
+                                            onChange={(value) =>
+                                              setAdditionalRemnants((prev) =>
+                                                prev.map((p) =>
+                                                  p.id === output.id
+                                                    ? { ...p, height: value }
+                                                    : p
+                                                )
+                                              )
+                                            }
+                                            minValue={0}
+                                          >
+                                            <NumberInputGroup className="relative">
+                                              <NumberInput />
+                                            </NumberInputGroup>
+                                          </NumberField>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="secondary"
+                                  className="mt-2"
+                                  onClick={() =>
+                                    setAdditionalRemnants((prev) => [
+                                      ...prev,
+                                      {
+                                        id: `${Date.now()}-${Math.random()}`,
+                                        length: 0,
+                                        width: 0,
+                                        height: 0
+                                      }
+                                    ])
+                                  }
+                                >
+                                  Add Another Remnant
+                                </Button>
                                 {selectedStockId && (
                                   <span className="text-xs text-muted-foreground mt-1">
                                     Unit: {
@@ -1213,48 +1518,82 @@ export function IssueMaterialModal({
                                 )}
                               </div>
                               <div className="grid grid-cols-3 gap-2">
-                                <div>
+                                <div className="col-span-3">
                                   <label className="block text-sm font-medium mb-1">
-                                    Length
+                                    Stock Type
                                   </label>
-                                  <NumberField
-                                    value={newStockLength}
-                                    onChange={setNewStockLength}
-                                    minValue={0.01}
+                                  <Select
+                                    value={newStockType}
+                                    onValueChange={(value) =>
+                                      setNewStockType(
+                                        value as "linear" | "sheet" | "block" | "roll"
+                                      )
+                                    }
                                   >
-                                    <NumberInputGroup className="relative">
-                                      <NumberInput />
-                                    </NumberInputGroup>
-                                  </NumberField>
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="linear">Linear</SelectItem>
+                                      <SelectItem value="sheet">Sheet</SelectItem>
+                                      <SelectItem value="block">Block</SelectItem>
+                                      <SelectItem value="roll">Roll</SelectItem>
+                                    </SelectContent>
+                                  </Select>
                                 </div>
-                                <div>
-                                  <label className="block text-sm font-medium mb-1">
-                                    Width
-                                  </label>
-                                  <NumberField
-                                    value={newStockWidth}
-                                    onChange={setNewStockWidth}
-                                    minValue={0.01}
-                                  >
-                                    <NumberInputGroup className="relative">
-                                      <NumberInput />
-                                    </NumberInputGroup>
-                                  </NumberField>
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium mb-1">
-                                    Height
-                                  </label>
-                                  <NumberField
-                                    value={newStockHeight}
-                                    onChange={setNewStockHeight}
-                                    minValue={0.01}
-                                  >
-                                    <NumberInputGroup className="relative">
-                                      <NumberInput />
-                                    </NumberInputGroup>
-                                  </NumberField>
-                                </div>
+                                {(newStockType === "linear" ||
+                                  newStockType === "sheet" ||
+                                  newStockType === "roll" ||
+                                  newStockType === "block") && (
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                      Length
+                                    </label>
+                                    <NumberField
+                                      value={newStockLength}
+                                      onChange={setNewStockLength}
+                                      minValue={0.01}
+                                    >
+                                      <NumberInputGroup className="relative">
+                                        <NumberInput />
+                                      </NumberInputGroup>
+                                    </NumberField>
+                                  </div>
+                                )}
+                                {(newStockType === "sheet" ||
+                                  newStockType === "roll" ||
+                                  newStockType === "block") && (
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                      Width
+                                    </label>
+                                    <NumberField
+                                      value={newStockWidth}
+                                      onChange={setNewStockWidth}
+                                      minValue={0.01}
+                                    >
+                                      <NumberInputGroup className="relative">
+                                        <NumberInput />
+                                      </NumberInputGroup>
+                                    </NumberField>
+                                  </div>
+                                )}
+                                {newStockType === "block" && (
+                                  <div>
+                                    <label className="block text-sm font-medium mb-1">
+                                      Height
+                                    </label>
+                                    <NumberField
+                                      value={newStockHeight}
+                                      onChange={setNewStockHeight}
+                                      minValue={0.01}
+                                    >
+                                      <NumberInputGroup className="relative">
+                                        <NumberInput />
+                                      </NumberInputGroup>
+                                    </NumberField>
+                                  </div>
+                                )}
                               </div>
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
@@ -1306,6 +1645,29 @@ export function IssueMaterialModal({
                                   </NumberField>
                                 </div>
                               </div>
+                              <div>
+                                <label className="block text-sm font-medium mb-1">
+                                  Shelf (optional)
+                                </label>
+                                <Select
+                                  value={newStockShelfId}
+                                  onValueChange={setNewStockShelfId}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select shelf" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {shelves.map((shelf) => (
+                                      <SelectItem
+                                        key={shelf.value}
+                                        value={shelf.value}
+                                      >
+                                        {shelf.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -1342,50 +1704,84 @@ export function IssueMaterialModal({
                               Add stock with dimensions to issue this material.
                             </AlertDescription>
                           </Alert>
-                          {/* Add Stock Form - Block dimensions (L × W × H) */}
+                          {/* Add Stock Form */}
                           <div className="grid grid-cols-3 gap-2">
-                            <div>
+                            <div className="col-span-3">
                               <label className="block text-sm font-medium mb-1">
-                                Length
+                                Stock Type
                               </label>
-                              <NumberField
-                                value={newStockLength}
-                                onChange={setNewStockLength}
-                                minValue={0.01}
+                              <Select
+                                value={newStockType}
+                                onValueChange={(value) =>
+                                  setNewStockType(
+                                    value as "linear" | "sheet" | "block" | "roll"
+                                  )
+                                }
                               >
-                                <NumberInputGroup className="relative">
-                                  <NumberInput />
-                                </NumberInputGroup>
-                              </NumberField>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="linear">Linear</SelectItem>
+                                  <SelectItem value="sheet">Sheet</SelectItem>
+                                  <SelectItem value="block">Block</SelectItem>
+                                  <SelectItem value="roll">Roll</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">
-                                Width
-                              </label>
-                              <NumberField
-                                value={newStockWidth}
-                                onChange={setNewStockWidth}
-                                minValue={0.01}
-                              >
-                                <NumberInputGroup className="relative">
-                                  <NumberInput />
-                                </NumberInputGroup>
-                              </NumberField>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">
-                                Height
-                              </label>
-                              <NumberField
-                                value={newStockHeight}
-                                onChange={setNewStockHeight}
-                                minValue={0.01}
-                              >
-                                <NumberInputGroup className="relative">
-                                  <NumberInput />
-                                </NumberInputGroup>
-                              </NumberField>
-                            </div>
+                            {(newStockType === "linear" ||
+                              newStockType === "sheet" ||
+                              newStockType === "roll" ||
+                              newStockType === "block") && (
+                              <div>
+                                <label className="block text-sm font-medium mb-1">
+                                  Length
+                                </label>
+                                <NumberField
+                                  value={newStockLength}
+                                  onChange={setNewStockLength}
+                                  minValue={0.01}
+                                >
+                                  <NumberInputGroup className="relative">
+                                    <NumberInput />
+                                  </NumberInputGroup>
+                                </NumberField>
+                              </div>
+                            )}
+                            {(newStockType === "sheet" ||
+                              newStockType === "roll" ||
+                              newStockType === "block") && (
+                              <div>
+                                <label className="block text-sm font-medium mb-1">
+                                  Width
+                                </label>
+                                <NumberField
+                                  value={newStockWidth}
+                                  onChange={setNewStockWidth}
+                                  minValue={0.01}
+                                >
+                                  <NumberInputGroup className="relative">
+                                    <NumberInput />
+                                  </NumberInputGroup>
+                                </NumberField>
+                              </div>
+                            )}
+                            {newStockType === "block" && (
+                              <div>
+                                <label className="block text-sm font-medium mb-1">
+                                  Height
+                                </label>
+                                <NumberField
+                                  value={newStockHeight}
+                                  onChange={setNewStockHeight}
+                                  minValue={0.01}
+                                >
+                                  <NumberInputGroup className="relative">
+                                    <NumberInput />
+                                  </NumberInputGroup>
+                                </NumberField>
+                              </div>
+                            )}
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
@@ -1436,6 +1832,26 @@ export function IssueMaterialModal({
                                 </NumberInputGroup>
                               </NumberField>
                             </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">
+                              Shelf (optional)
+                            </label>
+                            <Select
+                              value={newStockShelfId}
+                              onValueChange={setNewStockShelfId}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select shelf" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {shelves.map((shelf) => (
+                                  <SelectItem key={shelf.value} value={shelf.value}>
+                                    {shelf.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       ) : (
@@ -2322,7 +2738,7 @@ function useSerialNumbers(itemId?: string) {
   const serialNumbersFetcher =
     useFetcher<Awaited<ReturnType<typeof getSerialNumbersForItem>>>();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: load() identity is unstable; only re-fetch when itemId changes
   useEffect(() => {
     if (itemId) {
       serialNumbersFetcher.load(path.to.api.serialNumbers(itemId));

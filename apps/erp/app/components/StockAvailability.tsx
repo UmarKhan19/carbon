@@ -13,6 +13,7 @@ import {
 import {
   formatStockDimensions,
   getStockRemaining,
+  isStockCompatible,
   type MaterialStockAttributes,
   type MaterialStockPiece
 } from "@carbon/utils";
@@ -231,6 +232,15 @@ export function StockAvailabilityInline({
         let totalAmt = 0;
         let stockUnit = "";
         let hasValidPiece = false;
+        const requiredDimensions = {
+          length: requiredLength,
+          width: requiredWidth,
+          height: requiredHeight
+        };
+        const hasRequiredDimensions =
+          requiredLength !== undefined ||
+          requiredWidth !== undefined ||
+          requiredHeight !== undefined;
 
         result.data.forEach((entity) => {
           const attrs = entity.attributes as unknown as MaterialStockAttributes;
@@ -239,17 +249,8 @@ export function StockAvailabilityInline({
             if (!stockUnit) stockUnit = attrs.stockUnit;
 
             // Check if this piece can fulfill the required dimensions
-            if (
-              requiredLength !== undefined &&
-              requiredWidth !== undefined &&
-              requiredHeight !== undefined
-            ) {
-              const dims = attrs.stockDimensions;
-              if (
-                dims.length >= requiredLength &&
-                dims.width >= requiredWidth &&
-                dims.height >= requiredHeight
-              ) {
+            if (hasRequiredDimensions) {
+              if (isStockCompatible(attrs.stockDimensions, requiredDimensions)) {
                 hasValidPiece = true;
               }
             } else {
@@ -285,13 +286,12 @@ export function StockAvailabilityInline({
   }
 
   // If we have required dimensions but no piece is large enough
-  if (
-    requiresDimensionTracking &&
-    requiredLength !== undefined &&
-    requiredWidth !== undefined &&
-    requiredHeight !== undefined &&
-    !hasSufficientStock
-  ) {
+  const hasRequiredDimensions =
+    requiredLength !== undefined ||
+    requiredWidth !== undefined ||
+    requiredHeight !== undefined;
+
+  if (requiresDimensionTracking && hasRequiredDimensions && !hasSufficientStock) {
     return (
       <span className="text-xs text-destructive flex items-center gap-1">
         <LuTriangleAlert className="h-3 w-3" />

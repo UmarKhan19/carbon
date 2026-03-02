@@ -29,12 +29,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  NumberDecrementStepper,
   NumberField,
-  NumberIncrementStepper,
   NumberInput,
-  NumberInputGroup,
-  NumberInputStepper,
   Select,
   SelectContent,
   SelectItem,
@@ -48,7 +44,6 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatStockDimensions } from "@carbon/utils";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
 import type { PostgrestResponse } from "@supabase/supabase-js";
@@ -1217,7 +1212,9 @@ function StockDimensionsForm({
   receivedQuantity: number;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [stockType, setStockType] = useState<"linear" | "sheet" | "block">(
+  const [stockType, setStockType] = useState<
+    "linear" | "sheet" | "block" | "roll"
+  >(
     "linear"
   );
   const [length, setLength] = useState<number>(0);
@@ -1255,31 +1252,50 @@ function StockDimensionsForm({
   const handleSubmit = () => {
     let stockDimensions:
       | { type: "linear"; length: number }
-      | { type: "sheet"; width: number; height: number }
-      | { type: "block"; length: number; width: number; height: number };
+      | { type: "sheet"; length: number; width: number }
+      | { type: "block"; length: number; width: number; height: number }
+      | { type: "roll"; length: number; width: number };
 
-    switch (stockType) {
-      case "linear":
-        if (length <= 0) {
-          toast.error("Length must be greater than 0");
-          return;
-        }
-        stockDimensions = { type: "linear", length };
-        break;
-      case "sheet":
-        if (width <= 0 || height <= 0) {
-          toast.error("Width and height must be greater than 0");
-          return;
-        }
-        stockDimensions = { type: "sheet", width, height };
-        break;
-      case "block":
-        if (length <= 0 || width <= 0 || height <= 0) {
-          toast.error("All dimensions must be greater than 0");
-          return;
-        }
-        stockDimensions = { type: "block", length, width, height };
-        break;
+    if (stockType === "linear") {
+      if (length <= 0) {
+        toast.error("Length must be greater than 0");
+        return;
+      }
+      stockDimensions = {
+        type: "linear",
+        length
+      };
+    } else if (stockType === "sheet") {
+      if (width <= 0 || length <= 0) {
+        toast.error("Sheet length and width must be greater than 0");
+        return;
+      }
+      stockDimensions = {
+        type: "sheet",
+        length,
+        width
+      };
+    } else if (stockType === "block") {
+      if (length <= 0 || width <= 0 || height <= 0) {
+        toast.error("Block length, width, and height must be greater than 0");
+        return;
+      }
+      stockDimensions = {
+        type: "block",
+        length,
+        width,
+        height
+      };
+    } else {
+      if (length <= 0 || width <= 0) {
+        toast.error("Roll length and width must be greater than 0");
+        return;
+      }
+      stockDimensions = {
+        type: "roll",
+        length,
+        width
+      };
     }
 
     fetcher.submit(
@@ -1318,78 +1334,73 @@ function StockDimensionsForm({
       <CollapsibleContent>
         <div className="flex flex-col gap-3 pt-3 pl-6 border-l-2 border-muted ml-3">
           <p className="text-xs text-muted-foreground">
-            Track physical dimensions for this material. Stock entities will be
+            Track physical stock dimensions for this material. Stock entities will be
             created when the receipt is posted.
           </p>
-          <div className="grid grid-cols-4 gap-2">
+          <div>
+            <label className="block text-xs font-medium mb-1">Stock Type</label>
+            <Select
+              value={stockType}
+              onValueChange={(v) =>
+                setStockType(v as "linear" | "sheet" | "block" | "roll")
+              }
+            >
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="linear">Linear</SelectItem>
+                <SelectItem value="sheet">Sheet</SelectItem>
+                <SelectItem value="block">Block</SelectItem>
+                <SelectItem value="roll">Roll</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div
+            className={`grid gap-2 ${
+              stockType === "linear"
+                ? "grid-cols-1"
+                : stockType === "block"
+                  ? "grid-cols-3"
+                  : "grid-cols-2"
+            }`}
+          >
             <div>
-              <label className="block text-xs font-medium mb-1">Type</label>
-              <Select
-                value={stockType}
-                onValueChange={(v) =>
-                  setStockType(v as "linear" | "sheet" | "block")
-                }
+              <label className="block text-xs font-medium mb-1">
+                Length
+              </label>
+              <NumberField
+                value={length}
+                onChange={setLength}
+                minValue={0.01}
               >
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="linear">Linear</SelectItem>
-                  <SelectItem value="sheet">Sheet</SelectItem>
-                  <SelectItem value="block">Block</SelectItem>
-                </SelectContent>
-              </Select>
+                <NumberInput className="h-8 text-xs" size="sm" />
+              </NumberField>
             </div>
-            {stockType === "linear" && (
+            {(stockType === "sheet" ||
+              stockType === "roll" ||
+              stockType === "block") && (
               <div>
                 <label className="block text-xs font-medium mb-1">
-                  Length
+                  Width
                 </label>
                 <NumberField
-                  value={length}
-                  onChange={setLength}
+                  value={width}
+                  onChange={setWidth}
                   minValue={0.01}
                 >
                   <NumberInput className="h-8 text-xs" size="sm" />
                 </NumberField>
               </div>
             )}
-            {(stockType === "sheet" || stockType === "block") && (
-              <>
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Width
-                  </label>
-                  <NumberField
-                    value={width}
-                    onChange={setWidth}
-                    minValue={0.01}
-                  >
-                    <NumberInput className="h-8 text-xs" size="sm" />
-                  </NumberField>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1">
-                    Height
-                  </label>
-                  <NumberField
-                    value={height}
-                    onChange={setHeight}
-                    minValue={0.01}
-                  >
-                    <NumberInput className="h-8 text-xs" size="sm" />
-                  </NumberField>
-                </div>
-              </>
-            )}
             {stockType === "block" && (
               <div>
                 <label className="block text-xs font-medium mb-1">
-                  Length
+                  Height
                 </label>
                 <NumberField
-                  value={length}
-                  onChange={setLength}
+                  value={height}
+                  onChange={setHeight}
                   minValue={0.01}
                 >
                   <NumberInput className="h-8 text-xs" size="sm" />

@@ -13,8 +13,14 @@ const linearSchema = z.object({
 
 const sheetSchema = z.object({
   type: z.literal("sheet"),
-  width: z.number().positive(),
-  height: z.number().positive()
+  length: z.number().positive(),
+  width: z.number().positive()
+});
+
+const rollSchema = z.object({
+  type: z.literal("roll"),
+  length: z.number().positive(),
+  width: z.number().positive()
 });
 
 const blockSchema = z.object({
@@ -31,6 +37,7 @@ const stockDimensionsValidator = z.object({
   stockDimensions: z.discriminatedUnion("type", [
     linearSchema,
     sheetSchema,
+    rollSchema,
     blockSchema
   ]),
   stockUnit: z.string().min(1),
@@ -78,6 +85,10 @@ export async function action({ request }: ActionFunctionArgs) {
     const fullDimensions = buildStockDimensions(stockDimensions);
     const createdIds: string[] = [];
 
+    // TODO: Remove these debugging logs after rollout validation.
+    console.log("📦 Stock dimensions input:", stockDimensions);
+    console.log("📦 Built dimensions:", fullDimensions);
+
     for (let i = 0; i < quantity; i++) {
       const materialStockAttrs: MaterialStockAttributes = {
         materialId: itemId,
@@ -92,6 +103,8 @@ export async function action({ request }: ActionFunctionArgs) {
         "Receipt Line": receiptLineId,
         ...materialStockAttrs
       };
+
+      console.log("📦 Attributes to save:", JSON.stringify(attributes, null, 2));
 
       const result = await serviceRole
         .from("trackedEntity")

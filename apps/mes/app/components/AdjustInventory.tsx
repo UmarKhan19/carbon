@@ -125,7 +125,7 @@ export function AdjustInventory({ add }: { add: boolean }) {
               defaultValues={{
                 itemId: "",
                 quantity: 1,
-                entryType: add ? "Positive Adjmt." : "Negative Adjmt."
+                adjustmentType: add ? "Positive Adjmt." : "Negative Adjmt."
               }}
               fetcher={fetcher}
             >
@@ -138,7 +138,7 @@ export function AdjustInventory({ add }: { add: boolean }) {
               </ModalHeader>
               <ModalBody>
                 <Hidden
-                  name="entryType"
+                  name="adjustmentType"
                   value={add ? "Positive Adjmt." : "Negative Adjmt."}
                 />
                 <Hidden name="locationId" value={routeData?.location ?? ""} />

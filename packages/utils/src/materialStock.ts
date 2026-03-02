@@ -9,8 +9,39 @@
  * which describe the cross-section/shape and never change.
  */
 
-// Stock dimensions - always block with three dimensions (length x width x height)
-export type StockDimensions = {
+export type LinearStock = {
+  type: "linear";
+  length: number;
+  width: 1;
+  height: 1;
+  originalLength: number;
+  originalWidth: 1;
+  originalHeight: 1;
+};
+
+export type SheetStock = {
+  type: "sheet";
+  length: number;
+  width: number;
+  height: 1;
+  originalLength: number;
+  originalWidth: number;
+  originalHeight: 1;
+};
+
+export type RollStock = {
+  type: "roll";
+  length: number;
+  width: number;
+  height: 1;
+  originalLength: number;
+  originalWidth: number;
+  originalHeight: 1;
+};
+
+// Kept for backward compatibility with already-created block records.
+export type BlockStock = {
+  type: "block";
   length: number;
   width: number;
   height: number;
@@ -18,6 +49,8 @@ export type StockDimensions = {
   originalWidth: number;
   originalHeight: number;
 };
+
+export type StockDimensions = LinearStock | SheetStock | RollStock | BlockStock;
 
 export type CutRecord = {
   cutAt: string;
@@ -46,12 +79,32 @@ export type MaterialStockPiece = {
 
 export type RecordCutParams = {
   sourceStockId: string;
-  consumedAmount: number;
+  consumedAmount?: number;
   remnantDimensions?: {
     length: number;
     width: number;
     height: number;
   };
+  planned?: {
+    consumedAmount?: number;
+    note?: string;
+  };
+  actual?: {
+    consumedAmount: number;
+    varianceReason?: string;
+    note?: string;
+  };
+  outputs?: Array<{
+    kind: "remnant" | "scrap";
+    quantity?: number;
+    dimensions?: {
+      length: number;
+      width: number;
+      height: number;
+    };
+    consumedAmount?: number;
+    note?: string;
+  }>;
   jobMaterialId?: string;
   companyId: string;
   userId: string;
@@ -61,6 +114,8 @@ export type RecordCutResult = {
   success: boolean;
   activityId: string;
   remnantId?: string;
+  remnantIds?: string[];
+  outputEntityIds?: string[];
   consumedEntityId: string;
 };
 
@@ -73,17 +128,61 @@ export type CreateMaterialStockParams = {
   sourceDocumentId?: string;
 };
 
+export type RequiredStockDimensions = {
+  length?: number;
+  width?: number;
+  height?: number;
+};
+
 export function getStockRemaining(dimensions: StockDimensions): number {
-  // Simplified model: always calculate volume (L x W x H)
-  return dimensions.length * dimensions.width * dimensions.height;
+  switch (dimensions.type) {
+    case "linear":
+      return dimensions.length;
+    case "sheet":
+    case "roll":
+      return dimensions.length * dimensions.width;
+    case "block":
+      return dimensions.length * dimensions.width * dimensions.height;
+  }
 }
 
 export function formatStockDimensions(
   dimensions: StockDimensions,
   unit: string
 ): string {
-  // Simplified model: always display as L x W x H
-  return `${dimensions.length} x ${dimensions.width} x ${dimensions.height} ${unit}`;
+  switch (dimensions.type) {
+    case "linear":
+      return `${dimensions.length} ${unit}`;
+    case "sheet":
+      return `${dimensions.length} x ${dimensions.width} ${unit}`;
+    case "roll":
+      return `${dimensions.length} x ${dimensions.width} ${unit} (roll)`;
+    case "block":
+      return `${dimensions.length} x ${dimensions.width} x ${dimensions.height} ${unit}`;
+  }
+}
+
+export function isStockCompatible(
+  dimensions: StockDimensions,
+  required: RequiredStockDimensions
+): boolean {
+  if (required.length !== undefined && dimensions.length < required.length) {
+    return false;
+  }
+
+  if (required.width !== undefined) {
+    if (dimensions.type === "linear" || dimensions.width < required.width) {
+      return false;
+    }
+  }
+
+  if (required.height !== undefined) {
+    if (dimensions.type !== "block" || dimensions.height < required.height) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -93,7 +192,8 @@ export function formatStockDimensions(
 export function buildStockDimensions(
   input:
     | { type: "linear"; length: number }
-    | { type: "sheet"; width: number; height: number }
+    | { type: "sheet"; length: number; width: number }
+    | { type: "roll"; length: number; width: number }
     | { type: "block"; length: number; width: number; height: number }
 ): StockDimensions {
   switch (input.type) {
@@ -101,15 +201,31 @@ export function buildStockDimensions(
       return {
         type: "linear",
         length: input.length,
-        originalLength: input.length
+        width: 1,
+        height: 1,
+        originalLength: input.length,
+        originalWidth: 1,
+        originalHeight: 1
       };
     case "sheet":
       return {
         type: "sheet",
+        length: input.length,
         width: input.width,
-        height: input.height,
+        height: 1,
+        originalLength: input.length,
         originalWidth: input.width,
-        originalHeight: input.height
+        originalHeight: 1
+      };
+    case "roll":
+      return {
+        type: "roll",
+        length: input.length,
+        width: input.width,
+        height: 1,
+        originalLength: input.length,
+        originalWidth: input.width,
+        originalHeight: 1
       };
     case "block":
       return {
