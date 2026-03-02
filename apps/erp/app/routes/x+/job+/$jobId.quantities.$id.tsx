@@ -5,9 +5,10 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
 import {
+  getJobOperations,
   getProductionQuantity,
   productionQuantityValidator,
-  updateProductionQuantity
+  upsertProductionQuantity
 } from "~/modules/production";
 import { ProductionQuantityForm } from "~/modules/production/ui/Jobs";
 import { getParams, path } from "~/utils/path";
@@ -17,13 +18,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     view: "production"
   });
 
-  const { id } = params;
+  const { id, jobId } = params;
   if (!id) throw notFound("id not found");
+  if (!jobId) throw notFound("jobId not found");
 
-  const productionQuantity = await getProductionQuantity(client, id);
+  const [productionQuantity, jobOperations] = await Promise.all([
+    getProductionQuantity(client, id),
+    getJobOperations(client, jobId)
+  ]);
+
+  const operationOptions =
+    jobOperations.data?.map((operation) => ({
+      label: operation.description ?? "",
+      value: operation.id
+    })) ?? [];
 
   return {
-    productionQuantity: productionQuantity?.data ?? null
+    productionQuantity: productionQuantity?.data ?? null,
+    operationOptions
   };
 }
 
@@ -53,7 +65,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     d.scrapReasonId = undefined;
   }
 
-  const update = await updateProductionQuantity(client, {
+  const update = await upsertProductionQuantity(client, {
     id,
     ...d,
     companyId,
@@ -77,7 +89,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EditProductionQuantityRoute() {
-  const { productionQuantity } = useLoaderData<typeof loader>();
+  const { productionQuantity, operationOptions } =
+    useLoaderData<typeof loader>();
 
   const initialValues = {
     id: productionQuantity?.id!,
@@ -93,6 +106,7 @@ export default function EditProductionQuantityRoute() {
     <ProductionQuantityForm
       key={initialValues.id}
       initialValues={initialValues}
+      operationOptions={operationOptions ?? []}
     />
   );
 }

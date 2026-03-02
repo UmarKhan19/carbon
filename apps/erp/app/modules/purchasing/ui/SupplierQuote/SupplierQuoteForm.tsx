@@ -50,9 +50,11 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
   const [supplier, setSupplier] = useState<{
     id: string | undefined;
     currencyCode: string | undefined;
+    supplierContactId: string | undefined;
   }>({
     id: initialValues.supplierId,
-    currencyCode: initialValues.currencyCode
+    currencyCode: initialValues.currencyCode,
+    supplierContactId: initialValues.supplierContactId
   });
 
   const isDisabled = initialValues?.status !== "Draft";
@@ -63,7 +65,6 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
   const onSupplierChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -76,13 +77,14 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
         // update the supplier immediately
         setSupplier({
           id: newValue?.value,
-          currencyCode: undefined
+          currencyCode: undefined,
+          supplierContactId: undefined
         });
       });
 
       const { data, error } = await carbon
         ?.from("supplier")
-        .select("currencyCode")
+        .select("currencyCode, purchasingContactId")
         .eq("id", newValue.value)
         .single();
       if (error) {
@@ -90,13 +92,15 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
       } else {
         setSupplier((prev) => ({
           ...prev,
-          currencyCode: data.currencyCode ?? undefined
+          currencyCode: data.currencyCode ?? undefined,
+          supplierContactId: data.purchasingContactId ?? undefined
         }));
       }
     } else {
       setSupplier({
         id: undefined,
-        currencyCode: undefined
+        currencyCode: undefined,
+        supplierContactId: undefined
       });
     }
   };
@@ -156,6 +160,7 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
                 label="Supplier Contact"
                 isOptional
                 supplier={supplier.id}
+                value={supplier.supplierContactId}
               />
               <DatePicker name="quotedDate" label="Quoted Date" />
               <DatePicker

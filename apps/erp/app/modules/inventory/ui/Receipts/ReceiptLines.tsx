@@ -230,11 +230,9 @@ const ReceiptLines = () => {
   return (
     <>
       <Card>
-        <HStack className="justify-between items-start">
-          <CardHeader>
-            <CardTitle>Receipt Lines</CardTitle>
-          </CardHeader>
-        </HStack>
+        <CardHeader>
+          <CardTitle>Receipt Lines</CardTitle>
+        </CardHeader>
 
         <CardContent>
           <div className="border rounded-lg">
@@ -1214,9 +1212,7 @@ function StockDimensionsForm({
   const [isOpen, setIsOpen] = useState(false);
   const [stockType, setStockType] = useState<
     "linear" | "sheet" | "block" | "roll"
-  >(
-    "linear"
-  );
+  >("linear");
   const [length, setLength] = useState<number>(0);
   const [width, setWidth] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
@@ -1235,10 +1231,7 @@ function StockDimensionsForm({
     if (fetcher.data?.success) {
       toast.success(fetcher.data.message || "Stock dimensions saved");
       if (fetcher.data.createdIds) {
-        setSavedDimensions((prev) => [
-          ...prev,
-          ...fetcher.data!.createdIds!
-        ]);
+        setSavedDimensions((prev) => [...prev, ...fetcher.data!.createdIds!]);
       }
       setLength(0);
       setWidth(0);
@@ -1334,8 +1327,8 @@ function StockDimensionsForm({
       <CollapsibleContent>
         <div className="flex flex-col gap-3 pt-3 pl-6 border-l-2 border-muted ml-3">
           <p className="text-xs text-muted-foreground">
-            Track physical stock dimensions for this material. Stock entities will be
-            created when the receipt is posted.
+            Track physical stock dimensions for this material. Stock entities
+            will be created when the receipt is posted.
           </p>
           <div>
             <label className="block text-xs font-medium mb-1">Stock Type</label>
@@ -1366,14 +1359,8 @@ function StockDimensionsForm({
             }`}
           >
             <div>
-              <label className="block text-xs font-medium mb-1">
-                Length
-              </label>
-              <NumberField
-                value={length}
-                onChange={setLength}
-                minValue={0.01}
-              >
+              <label className="block text-xs font-medium mb-1">Length</label>
+              <NumberField value={length} onChange={setLength} minValue={0.01}>
                 <NumberInput className="h-8 text-xs" size="sm" />
               </NumberField>
             </div>
@@ -1381,23 +1368,15 @@ function StockDimensionsForm({
               stockType === "roll" ||
               stockType === "block") && (
               <div>
-                <label className="block text-xs font-medium mb-1">
-                  Width
-                </label>
-                <NumberField
-                  value={width}
-                  onChange={setWidth}
-                  minValue={0.01}
-                >
+                <label className="block text-xs font-medium mb-1">Width</label>
+                <NumberField value={width} onChange={setWidth} minValue={0.01}>
                   <NumberInput className="h-8 text-xs" size="sm" />
                 </NumberField>
               </div>
             )}
             {stockType === "block" && (
               <div>
-                <label className="block text-xs font-medium mb-1">
-                  Height
-                </label>
+                <label className="block text-xs font-medium mb-1">Height</label>
                 <NumberField
                   value={height}
                   onChange={setHeight}
@@ -1425,9 +1404,7 @@ function StockDimensionsForm({
               </Select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">
-                Pieces
-              </label>
+              <label className="block text-xs font-medium mb-1">Pieces</label>
               <NumberField value={qty} onChange={setQty} minValue={1}>
                 <NumberInput className="h-8 text-xs" size="sm" />
               </NumberField>

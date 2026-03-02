@@ -1603,25 +1603,43 @@ export type Database = {
           companyId: string
           createdAt: string
           createdBy: string
+          expiresAt: string | null
           id: string
-          key: string
+          keyHash: string
+          keyPreview: string | null
+          lastUsedAt: string | null
           name: string
+          rateLimit: number
+          rateLimitWindow: string
+          scopes: Json
         }
         Insert: {
           companyId: string
           createdAt?: string
           createdBy: string
+          expiresAt?: string | null
           id?: string
-          key: string
+          keyHash: string
+          keyPreview?: string | null
+          lastUsedAt?: string | null
           name: string
+          rateLimit?: number
+          rateLimitWindow?: string
+          scopes?: Json
         }
         Update: {
           companyId?: string
           createdAt?: string
           createdBy?: string
+          expiresAt?: string | null
           id?: string
-          key?: string
+          keyHash?: string
+          keyPreview?: string | null
+          lastUsedAt?: string | null
           name?: string
+          rateLimit?: number
+          rateLimitWindow?: string
+          scopes?: Json
         }
         Relationships: [
           {
@@ -1686,6 +1704,32 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+        ]
+      }
+      apiKeyRateLimit: {
+        Row: {
+          apiKeyId: string
+          requestCount: number
+          windowStart: string
+        }
+        Insert: {
+          apiKeyId: string
+          requestCount?: number
+          windowStart: string
+        }
+        Update: {
+          apiKeyId?: string
+          requestCount?: number
+          windowStart?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "apiKeyRateLimit_apiKeyId_fkey"
+            columns: ["apiKeyId"]
+            isOneToOne: false
+            referencedRelation: "apiKey"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2133,6 +2177,68 @@ export type Database = {
         }
         Relationships: []
       }
+      auditLogArchive: {
+        Row: {
+          archivePath: string
+          companyId: string
+          createdAt: string
+          endDate: string
+          id: string
+          rowCount: number
+          sizeBytes: number | null
+          startDate: string
+        }
+        Insert: {
+          archivePath: string
+          companyId: string
+          createdAt?: string
+          endDate: string
+          id?: string
+          rowCount: number
+          sizeBytes?: number | null
+          startDate: string
+        }
+        Update: {
+          archivePath?: string
+          companyId?: string
+          createdAt?: string
+          endDate?: string
+          id?: string
+          rowCount?: number
+          sizeBytes?: number | null
+          startDate?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auditLogArchive_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "auditLogArchive_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "auditLogArchive_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "auditLogArchive_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+        ]
+      }
       batchProperty: {
         Row: {
           companyId: string
@@ -2383,6 +2489,7 @@ export type Database = {
         Row: {
           addressLine1: string | null
           addressLine2: string | null
+          auditLogEnabled: boolean
           baseCurrencyCode: string
           city: string | null
           countryCode: string | null
@@ -2408,6 +2515,7 @@ export type Database = {
         Insert: {
           addressLine1?: string | null
           addressLine2?: string | null
+          auditLogEnabled?: boolean
           baseCurrencyCode: string
           city?: string | null
           countryCode?: string | null
@@ -2433,6 +2541,7 @@ export type Database = {
         Update: {
           addressLine1?: string | null
           addressLine2?: string | null
+          auditLogEnabled?: boolean
           baseCurrencyCode?: string
           city?: string | null
           countryCode?: string | null
@@ -13230,6 +13339,7 @@ export type Database = {
           plannedEndTime: string | null
           plannedStartTime: string | null
           priority: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId: string | null
           severity: Database["public"]["Enums"]["maintenanceSeverity"]
           source: Database["public"]["Enums"]["maintenanceSource"]
           status: Database["public"]["Enums"]["maintenanceDispatchStatus"]
@@ -13258,6 +13368,7 @@ export type Database = {
           plannedEndTime?: string | null
           plannedStartTime?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           severity: Database["public"]["Enums"]["maintenanceSeverity"]
           source?: Database["public"]["Enums"]["maintenanceSource"]
           status?: Database["public"]["Enums"]["maintenanceDispatchStatus"]
@@ -13286,6 +13397,7 @@ export type Database = {
           plannedEndTime?: string | null
           plannedStartTime?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           severity?: Database["public"]["Enums"]["maintenanceSeverity"]
           source?: Database["public"]["Enums"]["maintenanceSource"]
           status?: Database["public"]["Enums"]["maintenanceDispatchStatus"]
@@ -13433,6 +13545,20 @@ export type Database = {
             columns: ["nonConformanceId"]
             isOneToOne: false
             referencedRelation: "nonConformance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceDispatch_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceDispatch_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedures"
             referencedColumns: ["id"]
           },
           {
@@ -14544,10 +14670,12 @@ export type Database = {
           friday: boolean
           id: string
           lastGeneratedAt: string | null
+          locationId: string | null
           monday: boolean
           name: string
           nextDueAt: string | null
           priority: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId: string | null
           saturday: boolean
           skipHolidays: boolean
           sunday: boolean
@@ -14569,10 +14697,12 @@ export type Database = {
           friday?: boolean
           id?: string
           lastGeneratedAt?: string | null
+          locationId?: string | null
           monday?: boolean
           name: string
           nextDueAt?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           saturday?: boolean
           skipHolidays?: boolean
           sunday?: boolean
@@ -14594,10 +14724,12 @@ export type Database = {
           friday?: boolean
           id?: string
           lastGeneratedAt?: string | null
+          locationId?: string | null
           monday?: boolean
           name?: string
           nextDueAt?: string | null
           priority?: Database["public"]["Enums"]["maintenanceDispatchPriority"]
+          procedureId?: string | null
           saturday?: boolean
           skipHolidays?: boolean
           sunday?: boolean
@@ -14671,6 +14803,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "maintenanceSchedule_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceSchedule_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenanceSchedule_procedureId_fkey"
+            columns: ["procedureId"]
+            isOneToOne: false
+            referencedRelation: "procedures"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "maintenanceSchedule_updatedBy_fkey"
@@ -36285,6 +36438,154 @@ export type Database = {
           },
         ]
       }
+      supplierPartPrice: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          leadTime: number
+          quantity: number
+          sourceDocumentId: string | null
+          sourceType: Database["public"]["Enums"]["supplierPartPriceSourceType"]
+          supplierPartId: string
+          unitPrice: number
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          leadTime?: number
+          quantity?: number
+          sourceDocumentId?: string | null
+          sourceType?: Database["public"]["Enums"]["supplierPartPriceSourceType"]
+          supplierPartId: string
+          unitPrice: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          leadTime?: number
+          quantity?: number
+          sourceDocumentId?: string | null
+          sourceType?: Database["public"]["Enums"]["supplierPartPriceSourceType"]
+          supplierPartId?: string
+          unitPrice?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplierPartPrice_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_supplierPartId_companyId_fkey"
+            columns: ["supplierPartId", "companyId"]
+            isOneToOne: false
+            referencedRelation: "supplierPart"
+            referencedColumns: ["id", "companyId"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierPartPrice_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       supplierPayment: {
         Row: {
           companyId: string
@@ -51917,14 +52218,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55491,9 +55792,17 @@ export type Database = {
         Args: { sync_functions?: string[]; table_name_text: string }
         Returns: undefined
       }
+      check_api_key_rate_limit: {
+        Args: { p_api_key_id: string; p_limit: number; p_window: string }
+        Returns: Json
+      }
       check_operation_dependencies: {
         Args: { operation_id: string }
         Returns: boolean
+      }
+      create_audit_log_table: {
+        Args: { p_company_id: string }
+        Returns: undefined
       }
       create_company_search_index: {
         Args: { p_company_id: string }
@@ -55577,6 +55886,14 @@ export type Database = {
           p_entity_id: string
           p_entity_type: string
         }
+        Returns: undefined
+      }
+      delete_old_audit_logs: {
+        Args: { p_company_id: string; p_cutoff_date: string }
+        Returns: number
+      }
+      drop_audit_log_table: {
+        Args: { p_company_id: string }
         Returns: undefined
       }
       drop_company_search_index: {
@@ -55678,6 +55995,7 @@ export type Database = {
           workCenterId: string
         }[]
       }
+      get_api_key_scopes: { Args: never; Returns: Json }
       get_assigned_job_operations: {
         Args: { company_id: string; user_id: string }
         Returns: {
@@ -55713,6 +56031,58 @@ export type Database = {
           targetQuantity: number
           thumbnailPath: string
           workCenterId: string
+        }[]
+      }
+      get_audit_log: {
+        Args: {
+          p_actor_id?: string
+          p_company_id: string
+          p_end_date?: string
+          p_entity_id?: string
+          p_entity_type?: string
+          p_limit?: number
+          p_offset?: number
+          p_operation?: string
+          p_search?: string
+          p_start_date?: string
+        }
+        Returns: {
+          actorId: string
+          createdAt: string
+          diff: Json
+          entityId: string
+          entityType: string
+          id: string
+          metadata: Json
+          operation: string
+          tableName: string
+          totalCount: number
+        }[]
+      }
+      get_audit_log_count: {
+        Args: {
+          p_actor_id?: string
+          p_company_id: string
+          p_end_date?: string
+          p_entity_type?: string
+          p_operation?: string
+          p_search?: string
+          p_start_date?: string
+        }
+        Returns: number
+      }
+      get_audit_logs_for_archive: {
+        Args: { p_before_date: string; p_company_id: string }
+        Returns: {
+          actorId: string
+          createdAt: string
+          diff: Json
+          entityId: string
+          entityType: string
+          id: string
+          metadata: Json
+          operation: string
+          tableName: string
         }[]
       }
       get_claims: { Args: { company: string; uid: string }; Returns: Json }
@@ -55837,6 +56207,26 @@ export type Database = {
           sourceDocumentReadableId: string
           status: Database["public"]["Enums"]["trackedEntityStatus"]
           trackedActivityId: string
+        }[]
+      }
+      get_entity_audit_log: {
+        Args: {
+          p_company_id: string
+          p_entity_id: string
+          p_entity_type: string
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          actorId: string
+          createdAt: string
+          diff: Json
+          entityId: string
+          entityType: string
+          id: string
+          metadata: Json
+          operation: string
+          tableName: string
         }[]
       }
       get_inventory_quantities: {
@@ -56354,6 +56744,10 @@ export type Database = {
       get_period_end_date: { Args: { period: string }; Returns: string }
       get_period_start_date: { Args: { period: string }; Returns: string }
       get_permission_companies: { Args: { claim: string }; Returns: string[] }
+      get_primary_key_column: {
+        Args: { p_table_name: string }
+        Returns: string
+      }
       get_production_planning: {
         Args: { company_id: string; location_id: string; periods: string[] }
         Returns: {
@@ -56931,6 +57325,23 @@ export type Database = {
       increment_webhook_success: {
         Args: { webhook_id: string }
         Returns: undefined
+      }
+      insert_audit_log: {
+        Args: {
+          p_actor_id: string
+          p_actor_name: string
+          p_company_id: string
+          p_diff?: Json
+          p_entity_id: string
+          p_entity_type: string
+          p_metadata?: Json
+          p_operation: string
+        }
+        Returns: string
+      }
+      insert_audit_log_batch: {
+        Args: { p_company_id: string; p_entries: Json[] }
+        Returns: number
       }
       is_claims_admin: { Args: never; Returns: boolean }
       is_last_job_operation: {
@@ -57532,6 +57943,7 @@ export type Database = {
         | "Finance Charge Memo"
         | "Reminder"
         | "Refund"
+      supplierPartPriceSourceType: "Quote" | "Purchase Order" | "Manual Entry"
       supplierQuoteStatus:
         | "Active"
         | "Expired"
@@ -58687,6 +59099,7 @@ export const Constants = {
         "Reminder",
         "Refund",
       ],
+      supplierPartPriceSourceType: ["Quote", "Purchase Order", "Manual Entry"],
       supplierQuoteStatus: [
         "Active",
         "Expired",

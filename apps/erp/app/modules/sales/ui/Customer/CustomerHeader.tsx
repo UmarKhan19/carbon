@@ -1,7 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Card,
-  CardAction,
   CardAttribute,
   CardAttributeLabel,
   CardAttributes,
@@ -16,10 +15,11 @@ import { useCallback } from "react";
 import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { EmployeeAvatar } from "~/components";
+import { useAuditLog } from "~/components/AuditLog";
 import { Enumerable } from "~/components/Enumerable";
 import { Tags } from "~/components/Form";
 import { useCustomerTypes } from "~/components/Form/CustomerType";
-import { useRouteData } from "~/hooks";
+import { useRouteData, useUser } from "~/hooks";
 import type { action } from "~/routes/x+/settings+/tags";
 import { path } from "~/utils/path";
 import type { CustomerDetail, CustomerStatus } from "../../types";
@@ -29,6 +29,7 @@ const CustomerHeader = () => {
 
   if (!customerId) throw new Error("Could not find customerId");
   const fetcher = useFetcher<typeof action>();
+  const { company } = useUser();
   const routeData = useRouteData<{
     customer: CustomerDetail;
     tags: { name: string }[];
@@ -38,6 +39,13 @@ const CustomerHeader = () => {
   const customerType = customerTypes?.find(
     (type) => type.value === routeData?.customer?.customerTypeId
   )?.label;
+
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "customer",
+    entityId: customerId,
+    companyId: company.id,
+    variant: "card-action"
+  });
 
   const sharedCustomerData = useRouteData<{
     customerStatuses: CustomerStatus[];
@@ -68,67 +76,68 @@ const CustomerHeader = () => {
   );
 
   return (
-    <VStack>
-      <Card>
-        <HStack className="justify-between items-start">
-          <CardHeader>
-            <CardTitle>{routeData?.customer?.name}</CardTitle>
-          </CardHeader>
-          <CardAction>
-            {/* <Button onClick={() => alert("TODO")} leftIcon={<FaHistory />}>
-              Customer Details
-            </Button> */}
-          </CardAction>
-        </HStack>
-        <CardContent>
-          <CardAttributes>
-            <CardAttribute>
-              <CardAttributeLabel>Status</CardAttributeLabel>
-              <CardAttributeValue>
-                {customerStatus ? <Enumerable value={customerStatus!} /> : "-"}
-              </CardAttributeValue>
-            </CardAttribute>
-            <CardAttribute>
-              <CardAttributeLabel>Type</CardAttributeLabel>
-              <CardAttributeValue>
-                {customerType ? <Enumerable value={customerType!} /> : "-"}
-              </CardAttributeValue>
-            </CardAttribute>
-            <CardAttribute>
-              <CardAttributeLabel>Account Manager</CardAttributeLabel>
-              <CardAttributeValue>
-                {routeData?.customer?.accountManagerId ? (
-                  <EmployeeAvatar
-                    employeeId={routeData?.customer?.accountManagerId ?? null}
-                  />
-                ) : (
-                  "-"
-                )}
-              </CardAttributeValue>
-            </CardAttribute>
-            <CardAttribute>
-              <CardAttributeValue>
-                <ValidatedForm
-                  defaultValues={{
-                    tags: routeData?.customer?.tags ?? []
-                  }}
-                  validator={z.object({
-                    tags: z.array(z.string()).optional()
-                  })}
-                  className="w-full"
-                >
-                  <Tags
-                    label="Tags"
-                    name="tags"
-                    availableTags={routeData?.tags ?? []}
-                    table="customer"
-                    inline
-                    onChange={onUpdateTags}
-                  />
-                </ValidatedForm>
-              </CardAttributeValue>
-            </CardAttribute>
-            {/* {permissions.is("employee") && (
+    <>
+      <VStack>
+        <Card>
+          <HStack className="justify-between items-start">
+            <CardHeader>
+              <CardTitle>{routeData?.customer?.name}</CardTitle>
+            </CardHeader>
+            {auditLogTrigger}
+          </HStack>
+          <CardContent>
+            <CardAttributes>
+              <CardAttribute>
+                <CardAttributeLabel>Status</CardAttributeLabel>
+                <CardAttributeValue>
+                  {customerStatus ? (
+                    <Enumerable value={customerStatus!} />
+                  ) : (
+                    "-"
+                  )}
+                </CardAttributeValue>
+              </CardAttribute>
+              <CardAttribute>
+                <CardAttributeLabel>Type</CardAttributeLabel>
+                <CardAttributeValue>
+                  {customerType ? <Enumerable value={customerType!} /> : "-"}
+                </CardAttributeValue>
+              </CardAttribute>
+              <CardAttribute>
+                <CardAttributeLabel>Account Manager</CardAttributeLabel>
+                <CardAttributeValue>
+                  {routeData?.customer?.accountManagerId ? (
+                    <EmployeeAvatar
+                      employeeId={routeData?.customer?.accountManagerId ?? null}
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </CardAttributeValue>
+              </CardAttribute>
+              <CardAttribute>
+                <CardAttributeValue>
+                  <ValidatedForm
+                    defaultValues={{
+                      tags: routeData?.customer?.tags ?? []
+                    }}
+                    validator={z.object({
+                      tags: z.array(z.string()).optional()
+                    })}
+                    className="w-full"
+                  >
+                    <Tags
+                      label="Tags"
+                      name="tags"
+                      availableTags={routeData?.tags ?? []}
+                      table="customer"
+                      inline
+                      onChange={onUpdateTags}
+                    />
+                  </ValidatedForm>
+                </CardAttributeValue>
+              </CardAttribute>
+              {/* {permissions.is("employee") && (
               <CardAttribute>
                 <CardAttributeLabel>Assignee</CardAttributeLabel>
                 <CardAttributeValue>
@@ -141,10 +150,12 @@ const CustomerHeader = () => {
                 </CardAttributeValue>
               </CardAttribute>
             )} */}
-          </CardAttributes>
-        </CardContent>
-      </Card>
-    </VStack>
+            </CardAttributes>
+          </CardContent>
+        </Card>
+      </VStack>
+      {auditLogDrawer}
+    </>
   );
 };
 

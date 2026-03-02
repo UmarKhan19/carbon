@@ -65,7 +65,6 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
   const onCustomerChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     setCustomer({ id: newValue?.value });
@@ -77,7 +76,6 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
   const onInvoiceCustomerChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -100,7 +98,9 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
       const [customerData, paymentTermData] = await Promise.all([
         carbon
           ?.from("customer")
-          .select("currencyCode")
+          .select(
+            "currencyCode, salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+          )
           .eq("id", newValue.value)
           .single(),
         carbon
@@ -117,9 +117,13 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
           ...prev,
           id: newValue.value,
           invoiceCustomerContactId:
-            paymentTermData.data.invoiceCustomerContactId ?? undefined,
+            paymentTermData.data.invoiceCustomerContactId ??
+            customerData.data.salesContactId ??
+            undefined,
           invoiceCustomerLocationId:
-            paymentTermData.data.invoiceCustomerLocationId ?? undefined,
+            paymentTermData.data.invoiceCustomerLocationId ??
+            customerData.data.customerShipping?.shippingCustomerLocationId ??
+            undefined,
           currencyCode: customerData.data.currencyCode ?? undefined,
           paymentTermId: paymentTermData.data.paymentTermId ?? undefined
         }));

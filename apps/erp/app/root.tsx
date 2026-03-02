@@ -37,8 +37,8 @@ import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
-import "./polyfill";
 import type { Route } from "./+types/root";
+import "./polyfill";
 import { getTheme } from "./services/theme.server";
 
 export const links: LinksFunction = () => {
@@ -60,9 +60,13 @@ export const meta: MetaFunction = () => {
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const {
     CARBON_EDITION,
+    CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
     CONTROLLED_ENVIRONMENT,
+    ERP_URL,
     GOOGLE_PLACES_API_KEY,
+    JIRA_CLIENT_ID,
+    MES_URL,
     NOVU_APPLICATION_ID,
     ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
@@ -81,9 +85,13 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     {
       env: {
         CARBON_EDITION,
+        CARBON_API_URL,
         CLOUDFLARE_TURNSTILE_SITE_KEY,
         CONTROLLED_ENVIRONMENT,
+        ERP_URL,
         GOOGLE_PLACES_API_KEY,
+        JIRA_CLIENT_ID,
+        MES_URL,
         NOVU_APPLICATION_ID,
         ONSHAPE_CLIENT_ID,
         POSTHOG_API_HOST,
@@ -172,7 +180,10 @@ export function Document({
     >
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
         <Meta />
         <title>{title}</title>
         <link rel="manifest" href="/site.webmanifest" />

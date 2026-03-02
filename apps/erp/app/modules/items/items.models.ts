@@ -58,6 +58,12 @@ export const partManufacturingPolicies = [
 
 export const serviceType = ["Internal", "External"] as const;
 
+export const supplierPartPriceSourceTypes = [
+  "Quote",
+  "Purchase Order",
+  "Manual Entry"
+] as const;
+
 export const itemValidator = z.object({
   id: z.string().min(1, { message: "Item ID is required" }).max(255),
   readableId: zfd.text(z.string().optional()),
@@ -157,7 +163,13 @@ export const customerPartValidator = z.object({
 
 export const getMethodValidator = z.object({
   targetId: z.string().min(1, { message: "Please select a target method" }),
-  sourceId: z.string().min(1, { message: "Please select a source method" })
+  sourceId: z.string().min(1, { message: "Please select a source method" }),
+  billOfMaterial: zfd.checkbox(),
+  billOfProcess: zfd.checkbox(),
+  parameters: zfd.checkbox(),
+  tools: zfd.checkbox(),
+  steps: zfd.checkbox(),
+  workInstructions: zfd.checkbox()
 });
 
 export const makeMethodVersionValidator = z.object({
@@ -524,7 +536,7 @@ export const supplierPartValidator = z.object({
   supplierUnitOfMeasureCode: zfd.text(z.string().optional()),
   minimumOrderQuantity: zfd.numeric(z.number().min(0)),
   conversionFactor: zfd.numeric(z.number().min(0)),
-  unitPrice: zfd.numeric(z.number().min(0))
+  unitPrice: zfd.numeric(z.number().min(0).optional())
 });
 
 export const toolValidator = itemValidator.merge(

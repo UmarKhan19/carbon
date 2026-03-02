@@ -43,16 +43,17 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
   const [supplier, setSupplier] = useState<{
     id: string | undefined;
     currencyCode: string | undefined;
+    supplierContactId: string | undefined;
   }>({
     id: initialValues.supplierId,
-    currencyCode: initialValues.currencyCode
+    currencyCode: initialValues.currencyCode,
+    supplierContactId: initialValues.supplierContactId
   });
   const isEditing = initialValues.id !== undefined;
 
   const onSupplierChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -65,13 +66,14 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
         // update the supplier immediately
         setSupplier({
           id: newValue?.value,
-          currencyCode: undefined
+          currencyCode: undefined,
+          supplierContactId: undefined
         });
       });
 
       const { data, error } = await carbon
         ?.from("supplier")
-        .select("currencyCode")
+        .select("currencyCode, purchasingContactId")
         .eq("id", newValue.value)
         .single();
       if (error) {
@@ -79,13 +81,15 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
       } else {
         setSupplier((prev) => ({
           ...prev,
-          currencyCode: data.currencyCode ?? undefined
+          currencyCode: data.currencyCode ?? undefined,
+          supplierContactId: data.purchasingContactId ?? undefined
         }));
       }
     } else {
       setSupplier({
         id: undefined,
-        currencyCode: undefined
+        currencyCode: undefined,
+        supplierContactId: undefined
       });
     }
   };
@@ -143,6 +147,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 name="supplierContactId"
                 label="Supplier Contact"
                 supplier={supplier.id}
+                value={supplier.supplierContactId}
               />
 
               <Currency

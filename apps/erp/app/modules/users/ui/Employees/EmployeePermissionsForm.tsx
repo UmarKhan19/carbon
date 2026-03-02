@@ -1,22 +1,27 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
   HStack,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
   VStack
 } from "@carbon/react";
-import { useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
 import { Hidden, Select, Submit } from "~/components/Form";
+import PermissionMatrix from "~/components/PermissionMatrix";
+import {
+  fromCompanyPermissions,
+  toCompanyPermissions,
+  usePermissionMatrix
+} from "~/hooks/usePermissionMatrix";
 import type { CompanyPermission } from "~/modules/users";
 import { employeeValidator } from "~/modules/users";
-import PermissionCheckboxes from "~/modules/users/ui/components/Permission";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 
@@ -42,22 +47,30 @@ const EmployeePermissionsForm = ({
       label: et.name
     })) ?? [];
 
-  const [permissions, setPermissions] = useState(initialValues.permissions);
-  const updatePermissions = (module: string, permission: CompanyPermission) => {
-    setPermissions((prevPermissions) => ({
-      ...prevPermissions,
-      [module]: permission
-    }));
-  };
+  const { state: initialState, modules } = useMemo(
+    () => fromCompanyPermissions(initialValues.permissions),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const matrix = usePermissionMatrix({
+    modules,
+    initialState
+  });
+
+  // Serialize permissions to the format expected by the action
+  const permissionsData = JSON.stringify(
+    toCompanyPermissions(matrix.permissions)
+  );
 
   return (
-    <Drawer
+    <Modal
       open
       onOpenChange={(open) => {
         if (!open) onClose();
       }}
     >
-      <DrawerContent>
+      <ModalContent size="xlarge">
         <ValidatedForm
           validator={employeeValidator}
           method="post"
@@ -65,10 +78,10 @@ const EmployeePermissionsForm = ({
           defaultValues={initialValues}
           className="flex flex-col h-full"
         >
-          <DrawerHeader>
-            <DrawerTitle>{name}</DrawerTitle>
-          </DrawerHeader>
-          <DrawerBody>
+          <ModalHeader>
+            <ModalTitle>{name}</ModalTitle>
+          </ModalHeader>
+          <ModalBody className="max-h-[70dvh] overflow-y-auto">
             <VStack spacing={4}>
               <Select
                 name="employeeType"
@@ -76,36 +89,22 @@ const EmployeePermissionsForm = ({
                 options={employeeTypeOptions}
                 placeholder="Select Employee Type"
               />
-              <label className="block text-sm font-medium leading-none">
-                Permissions
-              </label>
-              <VStack spacing={8}>
-                {Object.entries(permissions)
-                  .sort((a, b) => a[0].localeCompare(b[0]))
-                  .map(([module, data], index) => (
-                    <PermissionCheckboxes
-                      key={index}
-                      module={module}
-                      permissions={data}
-                      updatePermissions={updatePermissions}
-                    />
-                  ))}
-              </VStack>
+              <PermissionMatrix matrix={matrix} />
               <Hidden name="id" />
-              <Hidden name="data" value={JSON.stringify(permissions)} />
+              <Hidden name="data" value={permissionsData} />
             </VStack>
-          </DrawerBody>
-          <DrawerFooter>
+          </ModalBody>
+          <ModalFooter>
             <HStack>
               <Submit>Save</Submit>
               <Button size="md" variant="solid" onClick={onClose}>
                 Cancel
               </Button>
             </HStack>
-          </DrawerFooter>
+          </ModalFooter>
         </ValidatedForm>
-      </DrawerContent>
-    </Drawer>
+      </ModalContent>
+    </Modal>
   );
 };
 

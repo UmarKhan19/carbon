@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Heading,
   HStack,
@@ -28,9 +29,10 @@ import {
   LuTrash
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import type { PurchaseInvoice, PurchaseInvoiceLine } from "~/modules/invoicing";
 import { PurchaseInvoicingStatus } from "~/modules/invoicing";
 import type { action as statusAction } from "~/routes/x+/purchase-invoice+/$invoiceId.status";
@@ -41,8 +43,16 @@ import PurchaseInvoicePostModal from "./PurchaseInvoicePostModal";
 const PurchaseInvoiceHeader = () => {
   const permissions = usePermissions();
   const { invoiceId } = useParams();
+  const { company } = useUser();
   const postingModal = useDisclosure();
   const deleteModal = useDisclosure();
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "purchaseInvoice",
+    entityId: invoiceId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
+
   const statusFetcher = useFetcher<typeof statusAction>();
 
   const { carbon } = useCarbon();
@@ -171,6 +181,8 @@ const PurchaseInvoiceHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {auditLogTrigger}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
                     !permissions.can("delete", "invoicing") ||
@@ -338,6 +350,7 @@ const PurchaseInvoiceHeader = () => {
           }}
         />
       )}
+      {auditLogDrawer}
     </>
   );
 };

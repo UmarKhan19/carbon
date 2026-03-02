@@ -48,7 +48,6 @@ import {
   LuClipboardList,
   LuClock,
   LuEllipsisVertical,
-  LuHardHat,
   LuList,
   LuLoaderCircle,
   LuPackage,
@@ -65,12 +64,18 @@ import {
 import { RiProgress8Line } from "react-icons/ri";
 import type { FetcherWithComponents } from "react-router";
 import { Link, useFetcher, useNavigate, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
 import { Location, Shelf } from "~/components/Form";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import Select from "~/components/Select";
 import SupplierAvatar from "~/components/SupplierAvatar";
-import { useOptimisticLocation, usePermissions, useRouteData } from "~/hooks";
+import {
+  useOptimisticLocation,
+  usePermissions,
+  useRouteData,
+  useUser
+} from "~/hooks";
 import { path } from "~/utils/path";
 import { jobCompleteValidator } from "../../production.models";
 import type { Job } from "../../types";
@@ -82,14 +87,20 @@ const JobHeader = () => {
   const { jobId } = useParams();
   if (!jobId) throw new Error("jobId not found");
 
+  const { company } = useUser();
   const location = useOptimisticLocation();
   const { toggleExplorer, toggleProperties } = usePanels();
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "productionJob",
+    entityId: jobId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
 
   const releaseModal = useDisclosure();
   const cancelModal = useDisclosure();
   const completeModal = useDisclosure();
   const deleteJobModal = useDisclosure();
-
   const routeData = useRouteData<{ job: Job }>(path.to.job(jobId));
 
   const statusFetcher = useFetcher<{}>();
@@ -148,6 +159,8 @@ const JobHeader = () => {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              {auditLogTrigger}
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 disabled={
                   !permissions.can("delete", "production") ||
@@ -411,6 +424,7 @@ const JobHeader = () => {
           }}
         />
       )}
+      {auditLogDrawer}
     </>
   );
 };
@@ -447,7 +461,7 @@ function getExplorerMenuIcon(type: string) {
     case "quantities":
       return <LuSquareSigma />;
     default:
-      return <LuHardHat />;
+      return <LuCirclePlay />;
   }
 }
 

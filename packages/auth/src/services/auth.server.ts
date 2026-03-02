@@ -1,8 +1,10 @@
 import type { Database } from "@carbon/database";
+import { checkApiKeyRateLimit } from "@carbon/database/ratelimit";
 import type {
   AuthSession as SupabaseAuthSession,
   SupabaseClient
 } from "@supabase/supabase-js";
+import { createHash } from "crypto";
 import { redirect } from "react-router";
 import { REFRESH_ACCESS_TOKEN_THRESHOLD, VERCEL_URL } from "../config/env";
 import { getCarbon, getCarbonServiceRole } from "../lib/supabase";
@@ -60,12 +62,30 @@ export async function getAuthAccountByAccessToken(accessToken: string) {
   return data.user;
 }
 
+/** Hash an API key using SHA-256 for secure storage/lookup */
+export function hashApiKey(rawKey: string): string {
+  return createHash("sha256").update(rawKey).digest("hex");
+}
+
+type ApiKeyRecord = {
+  id: string;
+  companyId: string;
+  createdBy: string;
+  scopes: Record<string, string[]>;
+  rateLimit: number;
+  rateLimitWindow: "1m" | "1h" | "1d";
+  expiresAt: string | null;
+};
+
 function getCompanyIdFromAPIKey(apiKey: string) {
   const serviceRole = getCarbonServiceRole();
+  const keyHash = hashApiKey(apiKey);
   return serviceRole
     .from("apiKey")
-    .select("companyId, createdBy")
-    .eq("key", apiKey)
+    .select(
+      "id, companyId, createdBy, scopes, rateLimit, rateLimitWindow, expiresAt"
+    )
+    .eq("keyHash", keyHash)
     .single();
 }
 
@@ -113,10 +133,72 @@ export async function requirePermissions(
   if (apiKey) {
     const company = await getCompanyIdFromAPIKey(apiKey);
     if (company.data) {
-      const companyId = company.data.companyId;
-      const userId = company.data.createdBy;
-      const client = getCarbonAPIKeyClient(apiKey);
+      const apiKeyData = company.data as unknown as ApiKeyRecord;
+      const companyId = apiKeyData.companyId;
+      const userId = apiKeyData.createdBy;
 
+      // Check expiration
+      if (apiKeyData.expiresAt && new Date(apiKeyData.expiresAt) < new Date()) {
+        throw new Response("API key has expired", { status: 401 });
+      }
+
+      // Check rate limit via Postgres function
+      const serviceRole = getCarbonServiceRole();
+      const rl = await checkApiKeyRateLimit(
+        serviceRole,
+        apiKeyData.id,
+        apiKeyData.rateLimit,
+        apiKeyData.rateLimitWindow
+      );
+      if (!rl.success) {
+        throw new Response("Rate limit exceeded", {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "X-RateLimit-Limit": rl.limit.toString(),
+            "X-RateLimit-Remaining": rl.remaining.toString(),
+            "X-RateLimit-Reset": rl.resetAt.toString(),
+            "Retry-After": Math.ceil(
+              (rl.resetAt - Date.now()) / 1000
+            ).toString()
+          }
+        });
+      }
+
+      // Update lastUsedAt (fire-and-forget)
+      // @ts-expect-error -- Supabase deep type instantiation on chained calls
+      void serviceRole
+        .from("apiKey")
+        .update({ lastUsedAt: new Date().toISOString() } as any)
+        .eq("id" as any, apiKeyData.id);
+
+      // Check scopes against required permissions
+      const scopes = apiKeyData.scopes ?? {};
+      const scopeCheckPassed = Object.entries(requiredPermissions).every(
+        ([action, permission]) => {
+          if (action === "bypassRls" || action === "role") return true;
+          if (typeof permission === "string") {
+            const scopeKey = `${permission}_${action}`;
+            return scopeKey in scopes && scopes[scopeKey]?.includes(companyId);
+          } else if (Array.isArray(permission)) {
+            return permission.every((p) => {
+              const scopeKey = `${p}_${action}`;
+              return (
+                scopeKey in scopes && scopes[scopeKey]?.includes(companyId)
+              );
+            });
+          }
+          return false;
+        }
+      );
+
+      if (!scopeCheckPassed) {
+        throw new Response("API key lacks required permissions", {
+          status: 403
+        });
+      }
+
+      const client = getCarbonAPIKeyClient(apiKey);
       return {
         client,
         companyId,

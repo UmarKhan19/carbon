@@ -116,6 +116,9 @@ export const path = {
       linearCreateIssue: `${api}/integrations/linear/issue/create`,
       linearLinkExistingIssue: `${api}/integrations/linear/issue/link`,
       linearSyncNotes: `${api}/integrations/linear/issue/sync-notes`,
+      jiraCreateIssue: `${api}/integrations/jira/issue/create`,
+      jiraLinkExistingIssue: `${api}/integrations/jira/issue/link`,
+      jiraSyncNotes: `${api}/integrations/jira/issue/sync-notes`,
       outsideOperations: (jobId: string) =>
         generatePath(`${api}/production/outside-operations/${jobId}`),
       purchasingKpi: (key: string) =>
@@ -411,6 +414,8 @@ export const path = {
       generatePath(`${x}/people/attributes/${id}`),
     attributeCategoryList: (id: string) =>
       generatePath(`${x}/people/attributes/list/${id}`),
+    auditLog: `${x}/settings/audit-logs`,
+    auditLogDetails: `${x}/settings/audit-logs/details`,
     batchProperty: (itemId: string) =>
       generatePath(`${x}/inventory/batch-property/${itemId}/property`),
     batchPropertyOrder: (itemId: string) =>
@@ -478,7 +483,7 @@ export const path = {
       generatePath(`${x}/consumable/${id}/purchasing`),
     consumableRoot: `${x}/consumable`,
     consumableSupplier: (itemId: string, id: string) =>
-      generatePath(`${x}/consumable/${itemId}/suppliers/${id}`),
+      generatePath(`${x}/consumable/${itemId}/purchasing/${id}`),
     consumableSuppliers: (id: string) =>
       generatePath(`${x}/consumable/${id}/suppliers`),
     convertQuoteToOrder: (id: string) =>
@@ -505,7 +510,7 @@ export const path = {
       generatePath(`${x}/customer/${id}/locations`),
     customerPart: (id: string, customerPartToItemId: string) =>
       generatePath(
-        `${x}/part/${id}/view/sales/customer-parts/${customerPartToItemId}`
+        `${x}/part/${id}/sales/customer-parts/${customerPartToItemId}`
       ),
     customerPayment: (id: string) =>
       generatePath(`${x}/customer/${id}/payments`),
@@ -567,7 +572,7 @@ export const path = {
       generatePath(`${x}/customer/${customerId}/locations/delete/${id}`),
     deleteCustomerPart: (id: string, customerPartToItemId: string) =>
       generatePath(
-        `${x}/part/${id}/view/sales/customer-parts/delete/${customerPartToItemId}`
+        `${x}/part/${id}/sales/customer-parts/delete/${customerPartToItemId}`
       ),
     deleteCustomerStatus: (id: string) =>
       generatePath(`${x}/sales/customer-statuses/delete/${id}`),
@@ -955,8 +960,7 @@ export const path = {
       generatePath(`${x}/material/${id}/inventory`),
     materialInventoryLocation: (id: string, locationId: string) =>
       generatePath(`${x}/material/${id}/inventory?location=${locationId}`),
-    materialStock: (id: string) =>
-      generatePath(`${x}/material/${id}/stock`),
+    materialStock: (id: string) => generatePath(`${x}/material/${id}/stock`),
     materialPlanning: (id: string) =>
       generatePath(`${x}/material/${id}/planning`),
     materialPlanningLocation: (id: string, locationId: string) =>
@@ -967,7 +971,7 @@ export const path = {
       generatePath(`${x}/material/${id}/purchasing`),
     materialRoot: `${x}/material`,
     materialSupplier: (itemId: string, id: string) =>
-      generatePath(`${x}/material/${itemId}/suppliers/${id}`),
+      generatePath(`${x}/material/${itemId}/purchasing/${id}`),
     materialSuppliers: (id: string) =>
       generatePath(`${x}/material/${id}/suppliers`),
     materials: `${x}/items/materials`,
@@ -1020,7 +1024,7 @@ export const path = {
     newCustomField: (tableId: string) =>
       generatePath(`${x}/settings/custom-fields/${tableId}/new`),
     newCustomerPart: (id: string) =>
-      generatePath(`${x}/part/${id}/view/sales/customer-parts/new`),
+      generatePath(`${x}/part/${id}/sales/customer-parts/new`),
     newDemandProjection: `${x}/production/projections/new`,
     newDepartment: `${x}/people/departments/new`,
     newDocument: `${x}/documents/new`,
@@ -1075,7 +1079,7 @@ export const path = {
     newNote: `${x}/shared/notes/new`,
     newPart: `${x}/part/new`,
     newPartSupplier: (id: string) =>
-      generatePath(`${x}/part/${id}/view/purchasing/new`),
+      generatePath(`${x}/part/${id}/purchasing/new`),
     newStockTransfer: `${x}/stock-transfer/new`,
     newStockTransferLine: (id: string) =>
       generatePath(`${x}/stock-transfer/${id}/line/new`),
@@ -1149,7 +1153,7 @@ export const path = {
     newTag: `${x}/settings/tags/new`,
     newTool: `${x}/tool/new`,
     newToolSupplier: (id: string) =>
-      generatePath(`${x}/tool/${id}/view/purchasing/new`),
+      generatePath(`${x}/tool/${id}/purchasing/new`),
     newTraining: `${x}/resources/training/new`,
     newTrainingAssignment: `${x}/resources/assignments/new`,
     newTrainingQuestion: (id: string) =>
@@ -1180,7 +1184,7 @@ export const path = {
     partRoot: `${x}/part`,
     partSales: (id: string) => generatePath(`${x}/part/${id}/sales`),
     partSupplier: (itemId: string, id: string) =>
-      generatePath(`${x}/part/${itemId}/suppliers/${id}`),
+      generatePath(`${x}/part/${itemId}/purchasing/${id}`),
     parts: `${x}/items/parts`,
     partner: (id: string, abilityId: string) =>
       generatePath(`${x}/resources/partners/${id}/${abilityId}`),
@@ -1468,7 +1472,7 @@ export const path = {
     servicePurchasing: (id: string) =>
       generatePath(`${x}/service/${id}/purchasing`),
     serviceSupplier: (serviceId: string, id: string) =>
-      generatePath(`${x}/service/${serviceId}/suppliers/${id}`),
+      generatePath(`${x}/service/${serviceId}/purchasing/${id}`),
     serviceSuppliers: (id: string) =>
       generatePath(`${x}/service/${id}/suppliers`),
     settings: `${x}/settings`,
@@ -1572,9 +1576,8 @@ export const path = {
     toolPurchasing: (id: string) => generatePath(`${x}/tool/${id}/purchasing`),
     toolRoot: `${x}/tool`,
     toolSupplier: (itemId: string, id: string) =>
-      generatePath(`${x}/tool/${itemId}/view/suppliers/${id}`),
-    toolSuppliers: (id: string) =>
-      generatePath(`${x}/tool/${id}/view/suppliers`),
+      generatePath(`${x}/tool/${itemId}/suppliers/${id}`),
+    toolSuppliers: (id: string) => generatePath(`${x}/tool/${id}/suppliers`),
     tools: `${x}/items/tools`,
     traceability: `${x}/traceability`,
     traceabilityGraph: `${x}/traceability/graph`,

@@ -1,4 +1,4 @@
-import { ValidatedForm } from "@carbon/form";
+import { DateTimePicker, ValidatedForm } from "@carbon/form";
 import {
   Alert,
   AlertTitle,
@@ -16,22 +16,35 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LuCheck, LuClipboard, LuLock } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import { Hidden, Input, Submit } from "~/components/Form";
+import PermissionMatrix from "~/components/PermissionMatrix";
 import { usePermissions } from "~/hooks";
-import { apiKeyValidator } from "~/modules/settings";
+import {
+  fromApiKeyScopes,
+  toApiKeyScopes,
+  usePermissionMatrix
+} from "~/hooks/usePermissionMatrix";
+import { apiKeyPermissionModules, apiKeyValidator } from "~/modules/settings";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
 
 type ApiKeyFormProps = {
   initialValues: z.infer<typeof apiKeyValidator>;
+  companyId?: string;
+  existingScopes?: Record<string, string[]> | null;
   onClose: () => void;
 };
 
-const ApiKeyForm = ({ initialValues, onClose }: ApiKeyFormProps) => {
+const ApiKeyForm = ({
+  initialValues,
+  companyId,
+  existingScopes,
+  onClose
+}: ApiKeyFormProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<{ key: string }>();
 
@@ -40,12 +53,31 @@ const ApiKeyForm = ({ initialValues, onClose }: ApiKeyFormProps) => {
 
   const [key, setKey] = useState<string | null>(null);
 
+  const initialScopeState = useMemo(
+    () =>
+      isEditing
+        ? fromApiKeyScopes(existingScopes, apiKeyPermissionModules)
+        : fromApiKeyScopes(null, apiKeyPermissionModules),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const matrix = usePermissionMatrix({
+    modules: apiKeyPermissionModules,
+    initialState: initialScopeState
+  });
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     if (fetcher.data?.key) {
       setKey(fetcher.data.key);
     }
   }, [fetcher.data, fetcher.state, onClose]);
+
+  // Serialize scopes to JSONB format for form submission
+  const scopesJsonb = companyId
+    ? JSON.stringify(toApiKeyScopes(matrix.permissions, companyId))
+    : "{}";
 
   return (
     <>
@@ -55,7 +87,7 @@ const ApiKeyForm = ({ initialValues, onClose }: ApiKeyFormProps) => {
           if (!open) onClose?.();
         }}
       >
-        <ModalContent>
+        <ModalContent size="xlarge">
           <ValidatedForm
             validator={apiKeyValidator}
             method="post"
@@ -69,10 +101,18 @@ const ApiKeyForm = ({ initialValues, onClose }: ApiKeyFormProps) => {
             <ModalHeader>
               <ModalTitle>{isEditing ? "Edit" : "New"} API Key</ModalTitle>
             </ModalHeader>
-            <ModalBody>
+            <ModalBody className="max-h-[70dvh] overflow-y-auto">
               <Hidden name="id" />
+              <Hidden name="scopes" value={scopesJsonb} />
               <VStack spacing={4}>
                 <Input name="name" label="Name" />
+
+                <DateTimePicker
+                  name="expiresAt"
+                  label="Expires At (optional)"
+                />
+
+                <PermissionMatrix matrix={matrix} />
               </VStack>
             </ModalBody>
             <ModalFooter>

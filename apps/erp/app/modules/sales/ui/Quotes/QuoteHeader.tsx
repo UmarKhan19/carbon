@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Heading,
   HStack,
@@ -46,9 +47,10 @@ import {
   LuTrophy
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
 import type {
   Opportunity,
@@ -66,6 +68,7 @@ const QuoteHeader = () => {
   const { quoteId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
 
+  const { company } = useUser();
   const { toggleExplorer, toggleProperties } = usePanels();
 
   const routeData = useRouteData<{
@@ -85,11 +88,17 @@ const QuoteHeader = () => {
   const shareModal = useDisclosure();
   const createRevisionModal = useDisclosure();
   const deleteQuoteModal = useDisclosure();
-
   const [asRevision, setAsRevision] = useState(false);
 
   const finalizeFetcher = useFetcher<{}>();
   const statusFetcher = useFetcher<{}>();
+
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "salesQuote",
+    entityId: quoteId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
 
   return (
     <>
@@ -126,6 +135,8 @@ const QuoteHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {auditLogTrigger}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setAsRevision(false);
@@ -393,6 +404,7 @@ const QuoteHeader = () => {
           }}
         />
       )}
+      {auditLogDrawer}
     </>
   );
 };

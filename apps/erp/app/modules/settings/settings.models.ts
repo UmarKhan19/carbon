@@ -12,6 +12,7 @@ export const modulesType = [
   "Production",
   // "Messaging",
   "Purchasing",
+  "Quality",
   "Resources",
   "Sales",
   "Users"
@@ -24,9 +25,30 @@ export const purchasePriceUpdateTimingTypes = [
   "Purchase Order Finalize"
 ] as const;
 
+/** All permission modules with their available CRUD actions */
+export const apiKeyPermissionModules = {
+  accounting: ["view", "create", "update"],
+  documents: ["view", "create", "update", "delete"],
+  inventory: ["view", "create", "update", "delete"],
+  invoicing: ["view", "create", "update", "delete"],
+  parts: ["view", "create", "update", "delete"],
+  people: ["view", "create", "update", "delete"],
+  production: ["view", "create", "update", "delete"],
+  purchasing: ["view", "create", "update", "delete"],
+  quality: ["view", "create", "update", "delete"],
+  resources: ["view", "create", "update", "delete"],
+  sales: ["view", "create", "update", "delete"],
+  settings: ["view", "create", "update", "delete"],
+  users: ["view", "create", "update", "delete"]
+} as const;
+
+export type ApiKeyPermissionModule = keyof typeof apiKeyPermissionModules;
+
 export const apiKeyValidator = z.object({
   id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" })
+  name: z.string().min(1, { message: "Name is required" }),
+  scopes: zfd.text(z.string().optional()),
+  expiresAt: zfd.text(z.string().optional())
 });
 
 const company = {

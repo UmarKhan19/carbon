@@ -34,9 +34,10 @@ import {
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
 
+import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { ReceiptStatus } from "~/modules/inventory/ui/Receipts";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
 import PurchaseInvoicingStatus from "~/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicingStatus";
@@ -56,6 +57,7 @@ const PurchaseOrderHeader = () => {
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
 
+  const { company } = useUser();
   const { toggleExplorer, toggleProperties } = usePanels();
 
   const routeData = useRouteData<{
@@ -85,6 +87,13 @@ const PurchaseOrderHeader = () => {
     routeData?.purchaseOrder?.supplierInteractionId ?? "",
     routeData?.purchaseOrder?.purchaseOrderType === "Outside Processing"
   );
+
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "purchaseOrder",
+    entityId: orderId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
 
   const finalizeDisclosure = useDisclosure();
   const deleteModal = useDisclosure();
@@ -130,6 +139,8 @@ const PurchaseOrderHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {auditLogTrigger}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
                     !permissions.can("delete", "purchasing") ||
@@ -538,6 +549,7 @@ const PurchaseOrderHeader = () => {
           defaultCc={routeData?.defaultCc ?? []}
         />
       )}
+      {auditLogDrawer}
     </>
   );
 };

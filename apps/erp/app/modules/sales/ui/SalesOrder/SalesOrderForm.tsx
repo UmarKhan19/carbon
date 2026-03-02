@@ -51,9 +51,13 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
   const [customer, setCustomer] = useState<{
     id: string | undefined;
     currencyCode: string | undefined;
+    customerContactId: string | undefined;
+    customerLocationId: string | undefined;
   }>({
     id: initialValues.customerId,
-    currencyCode: initialValues.currencyCode
+    currencyCode: initialValues.currencyCode,
+    customerContactId: initialValues.customerContactId,
+    customerLocationId: initialValues.customerLocationId
   });
   const isEditing = initialValues.id !== undefined;
   const isCustomer = permissions.is("customer");
@@ -63,7 +67,6 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
   const onCustomerChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -76,13 +79,17 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
         // update the customer immediately
         setCustomer({
           id: newValue?.value,
-          currencyCode: undefined
+          currencyCode: undefined,
+          customerContactId: undefined,
+          customerLocationId: undefined
         });
       });
 
       const { data, error } = await carbon
         ?.from("customer")
-        .select("currencyCode")
+        .select(
+          "currencyCode, salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+        )
         .eq("id", newValue.value)
         .single();
       if (error) {
@@ -90,13 +97,18 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
       } else {
         setCustomer((prev) => ({
           ...prev,
-          currencyCode: data.currencyCode ?? undefined
+          currencyCode: data.currencyCode ?? undefined,
+          customerContactId: data.salesContactId ?? undefined,
+          customerLocationId:
+            data.customerShipping?.shippingCustomerLocationId ?? undefined
         }));
       }
     } else {
       setCustomer({
         id: undefined,
-        currencyCode: undefined
+        currencyCode: undefined,
+        customerContactId: undefined,
+        customerLocationId: undefined
       });
     }
   };
@@ -148,6 +160,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
                 name="customerContactId"
                 label="Purchasing Contact"
                 customer={customer.id}
+                value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
@@ -158,6 +171,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
                 name="customerLocationId"
                 label="Customer Location"
                 customer={customer.id}
+                value={customer.customerLocationId}
               />
 
               {initialValues.originatedFromQuote &&
