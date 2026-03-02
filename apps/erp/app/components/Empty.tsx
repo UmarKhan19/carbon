@@ -14,7 +14,7 @@ export default function Empty({
     >
       <LuCircleDashed className="size-8 text-muted-foreground" />
       <h3 className="text-xs text-muted-foreground">
-        Pretty empty around here
+        Looks empty here&nbsp;&nbsp;👀
       </h3>
       {children}
     </VStack>
