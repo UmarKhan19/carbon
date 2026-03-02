@@ -276,6 +276,28 @@ export async function deleteMethodMaterial(
   return client.from("methodMaterial").delete().eq("id", id);
 }
 
+export async function assertMethodOperationIsDraft(
+  client: SupabaseClient<Database>,
+  operationId: string
+) {
+  const result = await client
+    .from("methodOperation")
+    .select("makeMethodId, makeMethod!inner(status)")
+    .eq("id", operationId)
+    .single();
+
+  if (result.error || !result.data) {
+    throw new Error("Failed to find method operation");
+  }
+
+  const status = (result.data.makeMethod as { status: string }).status;
+  if (status !== "Draft") {
+    throw new Error(
+      `Cannot modify steps on a method version with status "${status}". Only Draft versions can be modified.`
+    );
+  }
+}
+
 export async function deleteMethodOperationStep(
   client: SupabaseClient<Database>,
   id: string

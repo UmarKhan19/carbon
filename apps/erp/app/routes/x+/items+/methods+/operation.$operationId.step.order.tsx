@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
+import { assertMethodOperationIsDraft } from "~/modules/items";
 import { updateMethodOperationStepOrder } from "~/modules/production";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -28,6 +29,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await flash(request, error(null, "Failed to receive a new sort order"))
     );
   }
+
+  await assertMethodOperationIsDraft(client, operationId);
 
   const updates = Object.entries(JSON.parse(updateMap)).map(
     ([id, sortOrderString]) => ({

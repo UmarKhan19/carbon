@@ -2231,7 +2231,7 @@ function AttributesListItem({
                 Cancel
               </Button>
               <Submit
-                isDisabled={fetcher.state !== "idle"}
+                isDisabled={isDisabled || fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
                 Save
@@ -2345,30 +2345,32 @@ function AttributesListItem({
               </span>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <IconButton
-                  aria-label="Open menu"
-                  icon={<LuEllipsisVertical />}
-                  variant="ghost"
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={disclosure.onOpen}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  destructive
-                  onClick={deleteModalDisclosure.onOpen}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {!isDisabled && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <IconButton
+                    aria-label="Open menu"
+                    icon={<LuEllipsisVertical />}
+                    variant="ghost"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={disclosure.onOpen}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    destructive
+                    onClick={deleteModalDisclosure.onOpen}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       )}
-      {deleteModalDisclosure.isOpen && (
+      {!isDisabled && deleteModalDisclosure.isOpen && (
         <ConfirmDelete
           action={path.to.deleteMethodOperationStep(id)}
           isOpen={deleteModalDisclosure.isOpen}
@@ -2472,6 +2474,7 @@ function ParametersForm({
                 configurable={configurable}
                 rulesByField={rulesByField}
                 onConfigure={onConfigure}
+                isDisabled={isDisabled}
               />
             ))}
         </div>
@@ -2491,7 +2494,8 @@ function ParametersListItem({
   className,
   configurable,
   rulesByField,
-  onConfigure
+  onConfigure,
+  isDisabled = false
 }: {
   parameter: OperationParameter;
   operationId: string;
@@ -2499,6 +2503,7 @@ function ParametersListItem({
   configurable: boolean;
   rulesByField: Map<string, ConfigurationRule>;
   onConfigure?: (c: Configuration) => void;
+  isDisabled?: boolean;
 }) {
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
@@ -2578,7 +2583,7 @@ function ParametersListItem({
                 Cancel
               </Button>
               <Submit
-                isDisabled={fetcher.state !== "idle"}
+                isDisabled={isDisabled || fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
                 Save
@@ -2631,30 +2636,32 @@ function ParametersListItem({
               </span>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <IconButton
-                  aria-label="Open menu"
-                  icon={<LuEllipsisVertical />}
-                  variant="ghost"
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={disclosure.onOpen}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  destructive
-                  onClick={deleteModalDisclosure.onOpen}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {!isDisabled && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <IconButton
+                    aria-label="Open menu"
+                    icon={<LuEllipsisVertical />}
+                    variant="ghost"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={disclosure.onOpen}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    destructive
+                    onClick={deleteModalDisclosure.onOpen}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       )}
-      {deleteModalDisclosure.isOpen && (
+      {!isDisabled && deleteModalDisclosure.isOpen && (
         <ConfirmDelete
           action={path.to.deleteMethodOperationParameter(id)}
           isOpen={deleteModalDisclosure.isOpen}
@@ -2750,6 +2757,7 @@ function ToolsForm({
                 tool={t}
                 operationId={operationId}
                 className={index === tools.length - 1 ? "border-none" : ""}
+                isDisabled={isDisabled}
               />
             ))}
         </div>
@@ -2766,11 +2774,13 @@ function ToolsForm({
 function ToolsListItem({
   tool: { toolId, quantity, id, updatedBy, updatedAt, createdBy, createdAt },
   operationId,
-  className
+  className,
+  isDisabled = false
 }: {
   tool: OperationTool;
   operationId: string;
   className?: string;
+  isDisabled?: boolean;
 }) {
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
@@ -2824,7 +2834,7 @@ function ToolsListItem({
                 Cancel
               </Button>
               <Submit
-                isDisabled={fetcher.state !== "idle"}
+                isDisabled={isDisabled || fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
                 Save
@@ -2859,30 +2869,32 @@ function ToolsListItem({
               </span>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <IconButton
-                  aria-label="Open menu"
-                  icon={<LuEllipsisVertical />}
-                  variant="ghost"
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={disclosure.onOpen}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  destructive
-                  onClick={deleteModalDisclosure.onOpen}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {!isDisabled && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <IconButton
+                    aria-label="Open menu"
+                    icon={<LuEllipsisVertical />}
+                    variant="ghost"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={disclosure.onOpen}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    destructive
+                    onClick={deleteModalDisclosure.onOpen}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       )}
-      {deleteModalDisclosure.isOpen && (
+      {!isDisabled && deleteModalDisclosure.isOpen && (
         <ConfirmDelete
           action={path.to.deleteMethodOperationTool(id)}
           isOpen={deleteModalDisclosure.isOpen}
