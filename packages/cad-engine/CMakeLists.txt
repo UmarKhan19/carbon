@@ -53,6 +53,8 @@ set(ENGINE_LIB_SOURCES
     src/geometry/aabb.cpp
     src/geometry/mesh_utils.cpp
     src/collision/collision_utils.cpp
+    src/collision/sdf.cpp
+    src/collision/sdf_collision.cpp
     src/collision/contact_graph.cpp
     src/collision/blocking_matrix.cpp
     src/classification/part_classifier.cpp
@@ -62,7 +64,13 @@ set(ENGINE_LIB_SOURCES
     src/simulator/simulator.cpp
     src/simulator/path_planner.cpp
     src/simulator/animation_gen.cpp
+    src/simulator/bfs_planner.cpp
+    src/simulator/rrt_planner.cpp
+    src/simulator/stability_checker.cpp
     src/identical/geometry_signature.cpp
+    src/physics/contact_solver.cpp
+    src/physics/integrator.cpp
+    src/physics/simulation.cpp
 )
 
 # OpenCascade libraries (OCCT 7.9 naming):
@@ -123,6 +131,11 @@ if(BUILD_TESTS)
         tests/test_classifier.cpp
         tests/test_dependency_graph.cpp
         tests/test_simulator.cpp
+        tests/test_sdf.cpp
+        tests/test_sdf_collision.cpp
+        tests/test_physics.cpp
+        tests/test_physics_planner.cpp
+        tests/test_stability.cpp
     )
     target_include_directories(cad-engine-tests PRIVATE
         ${CMAKE_SOURCE_DIR}/tests

@@ -89,7 +89,39 @@ BlockingMatrix BlockingMatrix::build(
                 }
 
                 if (baseline_intersecting) {
-                    baseline_skips++;
+                    // C1: Depth threshold — shallow contact artifacts should NOT
+                    // exempt pairs from CCD testing. Matches build_neighbor_states() 5% threshold.
+                    AABB overlap;
+                    overlap.min = part_i.world_aabb.min.cwiseMax(part_j.world_aabb.min);
+                    overlap.max = part_i.world_aabb.max.cwiseMin(part_j.world_aabb.max);
+                    Vec3 overlap_size = overlap.size();
+                    float min_extent = std::min({overlap_size.x(), overlap_size.y(), overlap_size.z()});
+                    float small_diag = std::min(part_i.world_aabb.diagonal(), part_j.world_aabb.diagonal());
+
+                    std::cout << "[baseline_detail] " << part_i.id << " <-> " << part_j.id
+                              << " overlap_min=" << min_extent
+                              << " small_diag=" << small_diag
+                              << " ratio=" << (small_diag > 0 ? min_extent / small_diag : 0)
+                              << " dir=" << dir
+                              << std::endl;
+
+                    if (min_extent > small_diag * 0.05f) {
+                        // Deep overlap (>5%) — genuine interference, skip CCD
+                        baseline_skips++;
+                        continue;
+                    }
+
+                    // Shallow overlap — CCD can't handle initial intersection (always
+                    // reports t=0 hit). Instead, check if parts still overlap at the
+                    // final position. If they separate, direction is not blocked.
+                    Vec3 velocity = direction * sweep_distance;
+                    Isometry final_pose = part_i.transform;
+                    final_pose.translation += velocity;
+                    if (mesh_intersects_cached(*part_i.mesh, final_pose, *cached_meshes[j])) {
+                        matrix.blockers_[part_i.id][dir].insert(part_j.id);
+                        blocked_found++;
+                    }
+                    total_checks++;
                     continue;
                 }
 

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+#### C++ CAD Engine (`packages/cad-engine/`)
+- **SDF validation gate for geometric planner** — after the geometric planner declares a removal direction "clear," cross-checks N sample points along the path against precomputed SDFs (every ~10 units, min 5 samples); if SDF detects clipping at any point, rejects that direction and tries the next-best geometric direction before falling through to BFS/RRT physics planner (`simulator/simulator.cpp`)
+- **Baseline-intersecting depth threshold in blocking matrix** — added 5% depth threshold (matching `build_neighbor_states()`) so shallow mesh contact artifacts no longer blanket-exempt pairs from CCD testing; shallow-overlap pairs use endpoint separation check instead of standard CCD (which false-positives at t=0 for touching meshes); only genuine deep overlaps (>5% of smaller diagonal) get the full exemption (`collision/blocking_matrix.cpp`)
+- **SDF gate excludes baseline-intersecting neighbors** — the SDF validation gate now skips neighbors where overlap at rest is expected (baseline-intersecting pairs like bolt-in-hole); previously these caused false rejections at early path samples where the part is still partially inside the mating geometry (`simulator/simulator.cpp`)
+- **Force physics for baseline-blind parts** — when ALL of a part's neighbors are baseline-intersecting (checked=0), the geometric planner has zero collision data; now skips geometric entirely and forces BFS/RRT physics planner which has per-timestep SDF collision (`simulator/simulator.cpp`)
+- **Increased physics planner budget** — BFS depth 100×(1+retries×2), states 10000×scale, RRT iterations 10000×scale, max_retries bumped from 3→4; gives complex parts (circlips, trailing arms) enough search depth after blockers are removed
+- **Diagnostic logging for collision pipeline** — permanent log points for path audit (`[path_audit]`), SDF gate rejections (`[sdf_gate]`), blind skip (`[blind_skip]`), baseline overlap detail (`[baseline_detail]`), and scene dump (`[scene]`) for future debugging
+
 ### Added
 
 #### C++ CAD Engine (`packages/cad-engine/`)
@@ -22,6 +32,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Combined diagonal candidate directions (pairs of primary directions with dot < 0.7) for narrow-gap removal paths
   - Fastener preferred direction alignment bonus (sum of away-from-neighbor normals, `(alignment+1)×0.025` quality boost)
   - Multi-part batch removal per iteration (collect all independently-removable parts, sort by quality, remove together)
+- **Physics-first disassembly** — removed classification from the planning loop so physics determines removal order naturally (`simulator/simulator.cpp`, `simulator/path_planner.cpp`):
+  - Removed dependency graph gate (`can_disassemble()`) from the disassembly loop — every part gets a chance on every iteration
+  - Removed classification-based priority sorting — parts enter queue in load order instead of Fastener > Panel > Unknown > Structural
+  - Removed fastener direction constraint — all parts get the full direction candidate set (contact normals + local axes + global axes + diagonals + combined); physics (collision) determines what's removable
+  - Physics planners (BFS/RRT) fire on first geometric failure, not just on retries
+  - Precomputed SDFs for all parts before the disassembly loop to avoid rebuilding per-call
+  - Classification and dependency graph moved to post-planning for display labels and stats only
+- **Outsideness heuristic for queue ordering** — parts furthest from the assembly centroid are tried first in both Current and Queue/ProgressiveQueue strategies, matching ASAP's `HeuristicsOutsidenessGenerator` (`simulator/simulator.cpp`)
+- **Per-branch oscillation prevention in BFS** — new `oscillates_with_ancestors()` check prevents back-and-forth within a single BFS trajectory by comparing each new state against all ancestors in the current branch, matching Assemble-Them-All's `any_state_similar()` (`simulator/bfs_planner.cpp`)
 
 #### Three.js Viewer (`apps/assembly/app/components/Viewer/`)
 - **Replaced xeokit with Three.js** — full TRS keyframe animation support (position + rotation + scale decomposition from 4x4 matrices), enabling helix/screw-in animations that xeokit couldn't render

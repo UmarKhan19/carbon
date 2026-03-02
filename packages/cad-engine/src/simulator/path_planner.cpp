@@ -31,14 +31,9 @@ static void add_unique_direction(std::vector<Vec3>& dirs, const Vec3& d) {
 std::vector<Vec3> candidate_directions_for_part(
     const PartData& part,
     const ContactGraph& contacts,
-    const std::unordered_map<std::string, PartKind>& kinds,
     std::optional<Vec3> forced_direction) {
 
     std::vector<Vec3> directions;
-
-    // Check if this part is classified as a fastener
-    auto kind_it = kinds.find(part.id);
-    bool is_fastener = (kind_it != kinds.end() && kind_it->second == PartKind::Fastener);
 
     // 1. Contact normals (away from neighbors)
     for (const auto& edge : contacts.edges()) {
@@ -54,7 +49,6 @@ std::vector<Vec3> candidate_directions_for_part(
 
     // 2. Part-local axes (longest bbox dimension first)
     Eigen::Matrix3f rot = part.transform.rotation.toRotationMatrix();
-    // Sort local axes by bbox dimension (largest first for fasteners)
     std::array<int, 3> axis_order = {0, 1, 2};
     std::sort(axis_order.begin(), axis_order.end(), [&](int a, int b) {
         return part.bbox_size[a] > part.bbox_size[b];
@@ -65,26 +59,8 @@ std::vector<Vec3> candidate_directions_for_part(
         add_unique_direction(directions, -local_axis);
     }
 
-    // For fasteners, stop here — only use contact normals + local axes.
-    // Fasteners (bolts/screws) should only be removed along their shaft axis,
-    // not along arbitrary diagonals which would cut through the hole wall.
-    if (is_fastener) {
-        // 6. Apply forced direction filter (keep only directions within 45 degrees)
-        if (forced_direction) {
-            Vec3 fd = forced_direction->normalized();
-            float cos_45 = 0.707f;
-            std::vector<Vec3> filtered;
-            for (const auto& d : directions) {
-                if (d.dot(fd) > cos_45) filtered.push_back(d);
-            }
-            if (!filtered.empty()) return filtered;
-        }
-        return directions;
-    }
-
-    // --- Non-fastener parts get the full direction candidate set ---
-
-    // 3. Global canonical axes
+    // 3. Global canonical axes — all parts get the full direction set.
+    // Physics (collision) determines what's actually removable.
     add_unique_direction(directions, Vec3(1, 0, 0));
     add_unique_direction(directions, Vec3(-1, 0, 0));
     add_unique_direction(directions, Vec3(0, 1, 0));

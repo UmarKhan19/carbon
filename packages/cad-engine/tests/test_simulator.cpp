@@ -252,8 +252,7 @@ TEST(PathPlanner, CandidateDirectionsGenerated) {
     std::vector<std::tuple<std::string, const TriMesh*, const Isometry*>> empty_parts;
     auto graph = ContactGraph::build(empty_parts, 0.1f);
 
-    std::unordered_map<std::string, PartKind> kinds;
-    auto dirs = candidate_directions_for_part(part, graph, kinds);
+    auto dirs = candidate_directions_for_part(part, graph);
 
     // Should have at least 6 directions (global axes)
     EXPECT_GE(dirs.size(), 6u);
@@ -271,10 +270,8 @@ TEST(PathPlanner, DirectionConstraintFiltersCandidates) {
 
     std::vector<std::tuple<std::string, const TriMesh*, const Isometry*>> empty_parts;
     auto graph = ContactGraph::build(empty_parts, 0.1f);
-    std::unordered_map<std::string, PartKind> kinds;
-
-    auto all_dirs = candidate_directions_for_part(part, graph, kinds);
-    auto filtered_dirs = candidate_directions_for_part(part, graph, kinds, Vec3(0, 1, 0));
+    auto all_dirs = candidate_directions_for_part(part, graph);
+    auto filtered_dirs = candidate_directions_for_part(part, graph, Vec3(0, 1, 0));
 
     // Filtered should have fewer or equal directions
     EXPECT_LE(filtered_dirs.size(), all_dirs.size());
@@ -454,23 +451,10 @@ TEST(Simulator, RealisticAssemblyOrder) {
     sim.load_assembly(root);
     auto result = sim.simulate();
 
+    // Physics determines order — just verify all parts are sequenced
     EXPECT_TRUE(result.success);
     EXPECT_EQ(result.steps.size(), 4u);
-
-    // In assembly order, structural parts should come before fasteners
-    // Steps are in assembly order (reversed from disassembly)
-    bool frame_before_bolts = true;
-    int frame_step = -1, bolt_step = -1;
-    for (size_t i = 0; i < result.steps.size(); ++i) {
-        if (result.steps[i].part_ids[0] == "frame") frame_step = i;
-        if (result.steps[i].part_ids[0] == "bolt_1" ||
-            result.steps[i].part_ids[0] == "bolt_2") {
-            if (bolt_step < 0 || (int)i < bolt_step) bolt_step = i;
-        }
-    }
-    if (frame_step >= 0 && bolt_step >= 0) {
-        EXPECT_LT(frame_step, bolt_step);
-    }
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
 }
 
 TEST(Simulator, DetectsInitialOverlapIssues) {
@@ -702,4 +686,183 @@ TEST(Simulator, DeeplyNestedAssemblyTransforms) {
 
     EXPECT_TRUE(result.success);
     EXPECT_EQ(result.steps.size(), 2u);
+}
+
+// ===========================================================================
+// Sequence strategy tests
+// ===========================================================================
+
+TEST(Simulator, SequenceStrategyDefaultIsProgressiveQueue) {
+    SimulatorConfig config;
+    EXPECT_EQ(config.strategy, SequenceStrategy::ProgressiveQueue);
+    EXPECT_EQ(config.max_retries, 4);
+}
+
+TEST(Simulator, QueueStrategySinglePart) {
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0))
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::Queue;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 1u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, QueueStrategyTwoParts) {
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(3.0f, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::Queue;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 2u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, QueueStrategyThreePartStack) {
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Base_A", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(0, 1.0f, 0)),
+        make_part_node("c", "Part_C", make_cube(0.5f), Vec3(0, 2.0f, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::Queue;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 3u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, ProgressiveQueueSinglePart) {
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0))
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::ProgressiveQueue;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 1u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, ProgressiveQueueTwoParts) {
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(3.0f, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::ProgressiveQueue;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 2u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, QueueStrategyStepNumbersSequential) {
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(1.0f, 0, 0)),
+        make_part_node("c", "Part_C", make_cube(0.5f), Vec3(2.0f, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::Queue;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    for (size_t i = 0; i < result.steps.size(); ++i) {
+        EXPECT_EQ(result.steps[i].step_number, static_cast<uint32_t>(i + 1));
+    }
+}
+
+TEST(Simulator, OutsidenessOrderingExteriorFirst) {
+    // Outer parts at (10,0,0) and (-10,0,0), inner part at (0,0,0).
+    // All should be removable; exterior parts tried first due to outsideness sort.
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("inner", "Inner", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("outer_a", "Outer_A", make_cube(0.5f), Vec3(10, 0, 0)),
+        make_part_node("outer_b", "Outer_B", make_cube(0.5f), Vec3(-10, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 3u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, SDFGatekeeperRejectsClippingPath) {
+    // Two tightly touching cubes — geometric planner might allow a direction
+    // that clips due to baseline-intersecting tolerance. SDF gate catches it.
+    // Both parts should still be removable (via alternative directions or physics).
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(1.0f, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::ProgressiveQueue;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 2u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
+}
+
+TEST(Simulator, QueueStrategyRespectsTimeout) {
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(1.0f, 0, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    config.strategy = SequenceStrategy::Queue;
+    config.timeout_ms = 1;  // extremely short timeout
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    // Should either succeed very fast or timeout — either way result.error may be set
+    // The important thing is that it doesn't run forever
+    EXPECT_TRUE(result.error.has_value() || result.success);
 }

@@ -7,7 +7,6 @@
 #include "geometry/types.h"
 #include "collision/contact_graph.h"
 #include "collision/collision_utils.h"
-#include "classification/part_classifier.h"
 #include <memory>
 #include <optional>
 #include <string>
@@ -55,10 +54,11 @@ struct NeighborState {
 };
 
 /// Generate candidate removal directions for a part.
+/// All parts get the full direction candidate set (contact normals + local axes
+/// + global axes + diagonals + combined). Physics determines what's removable.
 std::vector<Vec3> candidate_directions_for_part(
     const PartData& part,
     const ContactGraph& contacts,
-    const std::unordered_map<std::string, PartKind>& kinds,
     std::optional<Vec3> forced_direction = std::nullopt);
 
 /// Evaluate whether a removal path is collision-free.

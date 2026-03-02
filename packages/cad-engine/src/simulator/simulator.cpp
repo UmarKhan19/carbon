@@ -1,14 +1,18 @@
 #include "simulator/simulator.h"
 #include "simulator/path_planner.h"
 #include "simulator/animation_gen.h"
+#include "simulator/bfs_planner.h"
+#include "simulator/rrt_planner.h"
 #include "collision/contact_graph.h"
 #include "collision/blocking_matrix.h"
+#include "collision/sdf_collision.h"
 #include "classification/part_classifier.h"
 #include "graph/dependency_graph.h"
 #include "identical/geometry_signature.h"
 #include "geometry/aabb.h"
 
 #include <chrono>
+#include <deque>
 #include <iostream>
 #include <algorithm>
 #include <cmath>
@@ -78,6 +82,19 @@ void AssemblySimulator::load_assembly(const AssemblyNode& root) {
 
     std::cout << "[simulator] Loaded " << parts_.size() << " parts"
               << ", scene diagonal = " << scene_diagonal_ << std::endl;
+
+    // A4: Scene dump for diagnostics
+    std::cout << "[scene] === PART SCENE DUMP ===" << std::endl;
+    for (size_t i = 0; i < parts_.size(); i++) {
+        const auto& p = parts_[i];
+        Vec3 center = (p.world_aabb.min + p.world_aabb.max) * 0.5f;
+        Vec3 sizes = p.world_aabb.size();
+        std::cout << "[scene] [" << i << "] '" << p.name << "'"
+                  << " center=(" << center.x() << "," << center.y() << "," << center.z() << ")"
+                  << " size=(" << sizes.x() << "," << sizes.y() << "," << sizes.z() << ")"
+                  << " diag=" << p.world_aabb.diagonal()
+                  << std::endl;
+    }
 }
 
 // --- Compute auto removal distance ---
@@ -153,6 +170,132 @@ std::vector<NeighborState> AssemblySimulator::build_neighbor_states(
     return neighbors;
 }
 
+// --- Physics-based path planning ---
+
+bool AssemblySimulator::try_physics_path(
+    const PartData& part,
+    int retry_count,
+    Vec3& out_direction,
+    PathEvaluation& out_eval,
+    const std::unordered_map<std::string, std::shared_ptr<CachedSDFMesh>>& part_sdfs) {
+
+    // Filter precomputed SDFs to non-removed, nearby parts
+    std::vector<std::shared_ptr<CachedSDFMesh>> obstacles;
+    float margin = compute_removal_distance() * 1.5f;
+    for (const auto& other : parts_) {
+        if (other.id == part.id) continue;
+        if (removed_parts_.count(other.id)) continue;
+        if (!part.world_aabb.overlaps(other.world_aabb, margin)) continue;
+
+        auto it = part_sdfs.find(other.id);
+        if (it != part_sdfs.end()) {
+            obstacles.push_back(it->second);
+        }
+    }
+
+    // Scale search budget aggressively with retry count
+    int depth_scale = 1 + retry_count * 2;
+
+    // Try BFS first
+    BFSPlannerConfig bfs_cfg;
+    bfs_cfg.separation_distance = compute_removal_distance();
+    bfs_cfg.max_bfs_depth = 100 * depth_scale;
+    bfs_cfg.max_states = 10000 * depth_scale;
+    bfs_cfg.force_magnitude = 50.0f;
+    bfs_cfg.sim_steps_per_action = 10;
+
+    auto bfs_result = plan_bfs(*part.mesh, part.transform, obstacles, bfs_cfg);
+    if (bfs_result.success) {
+        out_direction = bfs_result.final_direction;
+        // Build animation path from trajectory
+        out_eval.success = true;
+        out_eval.travel_distance = bfs_cfg.separation_distance;
+        out_eval.required_distance = bfs_cfg.separation_distance;
+
+        float n = static_cast<float>(bfs_result.trajectory.size());
+        for (size_t i = 0; i < bfs_result.trajectory.size(); ++i) {
+            float t = (n > 1) ? static_cast<float>(i) / (n - 1.0f) : 0.0f;
+            Isometry pose;
+            pose.translation = bfs_result.trajectory[i].position;
+            pose.rotation = bfs_result.trajectory[i].orientation;
+            out_eval.animation_path.push_back({t, pose.to_matrix4()});
+        }
+
+        std::cout << "[physics] BFS succeeded for '" << part.name
+                  << "' (depth=" << bfs_result.depth
+                  << ", states=" << bfs_result.states_explored << ")" << std::endl;
+        return true;
+    }
+
+    // Try RRT if BFS fails
+    RRTPlannerConfig rrt_cfg;
+    rrt_cfg.separation_distance = compute_removal_distance();
+    rrt_cfg.max_iterations = 10000 * depth_scale;
+    rrt_cfg.force_magnitude = 50.0f;
+    rrt_cfg.sim_steps_per_extend = 10;
+    rrt_cfg.pos_range = compute_removal_distance() * 2.0f;
+
+    auto rrt_result = plan_rrt(*part.mesh, part.transform, obstacles, rrt_cfg);
+    if (rrt_result.success) {
+        out_direction = rrt_result.final_direction;
+        out_eval.success = true;
+        out_eval.travel_distance = rrt_cfg.separation_distance;
+        out_eval.required_distance = rrt_cfg.separation_distance;
+
+        float n = static_cast<float>(rrt_result.trajectory.size());
+        for (size_t i = 0; i < rrt_result.trajectory.size(); ++i) {
+            float t = (n > 1) ? static_cast<float>(i) / (n - 1.0f) : 0.0f;
+            Isometry pose;
+            pose.translation = rrt_result.trajectory[i].position;
+            pose.rotation = rrt_result.trajectory[i].orientation;
+            out_eval.animation_path.push_back({t, pose.to_matrix4()});
+        }
+
+        std::cout << "[physics] RRT succeeded for '" << part.name
+                  << "' (iters=" << rrt_result.iterations
+                  << ", tree=" << rrt_result.tree_size << ")" << std::endl;
+        return true;
+    }
+
+    return false;
+}
+
+// --- SDF validation gate ---
+
+/// SDF cross-validation of a geometric removal path.
+/// Samples multiple points along the path against precomputed SDFs.
+/// Returns true if the path is clean (no clipping detected at any sample).
+static bool validate_path_with_sdf(
+    const PartData& part,
+    const Vec3& direction,
+    float travel,
+    const std::vector<PartData>& all_parts,
+    const std::unordered_set<std::string>& removed,
+    const std::unordered_set<std::string>& baseline_neighbors,
+    const std::unordered_map<std::string, std::shared_ptr<CachedSDFMesh>>& sdfs) {
+
+    // Sample N points along the path: every ~10 units, minimum 5 samples
+    int num_samples = std::max(5, static_cast<int>(travel / 10.0f));
+
+    for (int i = 1; i <= num_samples; ++i) {
+        float t = static_cast<float>(i) / static_cast<float>(num_samples);
+        Isometry pose = part.transform;
+        pose.translation += direction * (travel * t);
+
+        for (const auto& obs : all_parts) {
+            if (obs.id == part.id || removed.count(obs.id)) continue;
+            if (baseline_neighbors.count(obs.id)) continue;
+            auto it = sdfs.find(obs.id);
+            if (it == sdfs.end()) continue;
+            if (sdf_mesh_intersects(*part.mesh, pose, *it->second)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 // --- Main simulation ---
 
 SimulationResult AssemblySimulator::simulate() {
@@ -173,85 +316,7 @@ SimulationResult AssemblySimulator::simulate() {
     }
     auto contact_graph = ContactGraph::build(part_tuples, threshold);
 
-    // --- 2. Classify all parts ---
-    SequencingRules rules;
-    float total_volume = 0.0f;
-    for (const auto& p : parts_) {
-        total_volume += p.bbox_size.x() * p.bbox_size.y() * p.bbox_size.z();
-    }
-    total_volume = std::max(total_volume, 0.001f);
-
-    std::vector<std::pair<std::string, ClassificationInput>> class_inputs;
-    for (const auto& p : parts_) {
-        ClassificationInput ci;
-        ci.name = p.name;
-        ci.bbox_dims = p.bbox_size;
-        ci.relative_volume = (p.bbox_size.x() * p.bbox_size.y() * p.bbox_size.z()) / total_volume;
-        ci.contact_degree = contact_graph.degree(p.id);
-        ci.brep = p.brep_analysis;
-        std::cout << "[classify_debug] Part '" << p.name << "'"
-                  << " has_brep=" << ci.brep.has_value();
-        if (ci.brep.has_value()) {
-            std::cout << " vol=" << ci.brep->volume
-                      << " faces=" << ci.brep->total_faces
-                      << " cyl_ratio=" << ci.brep->cylindrical_surface_ratio
-                      << " threads=" << ci.brep->has_threads;
-        }
-        std::cout << std::endl;
-        class_inputs.push_back({p.id, ci});
-    }
-
-    auto classifications = classify_all_parts(class_inputs, rules);
-
-    // Infer kinds
-    std::unordered_map<std::string, PartKind> kinds;
-    for (const auto& [id, cls] : classifications) {
-        auto it = part_map_.find(id);
-        std::string name = (it != part_map_.end()) ? it->second->name : "";
-        kinds[id] = infer_part_kind(name, cls, rules);
-    }
-
-    // --- 3. Build dependency graph ---
-    auto dep_graph = DependencyGraph::build(contact_graph, classifications, kinds);
-
-    // --- Log classifications and dependency edges ---
-    std::cout << "\n=== PART CLASSIFICATIONS ===" << std::endl;
-    for (const auto& p : parts_) {
-        auto kind_it = kinds.find(p.id);
-        const char* kind_str = "Unknown";
-        if (kind_it != kinds.end()) {
-            switch (kind_it->second) {
-                case PartKind::Fastener:   kind_str = "Fastener"; break;
-                case PartKind::Structural: kind_str = "Structural"; break;
-                case PartKind::Panel:      kind_str = "Panel"; break;
-                case PartKind::Unknown:    kind_str = "Unknown"; break;
-            }
-        }
-        auto cls_it = classifications.find(p.id);
-        if (cls_it != classifications.end()) {
-            std::cout << "  \"" << p.name << "\" [" << kind_str << "]"
-                      << " fastener=" << cls_it->second.fastener_score
-                      << " structural=" << cls_it->second.structural_score
-                      << " panel=" << cls_it->second.panel_score
-                      << std::endl;
-        }
-    }
-
-    std::cout << "\n=== DEPENDENCY GRAPH EDGES (before -> after in assembly) ===" << std::endl;
-    for (const auto& [from_id, tos] : dep_graph.forward_edges()) {
-        auto from_it = part_map_.find(from_id);
-        std::string from_name = (from_it != part_map_.end()) ? from_it->second->name : from_id;
-        for (const auto& to_id : tos) {
-            auto to_it = part_map_.find(to_id);
-            std::string to_name = (to_it != part_map_.end()) ? to_it->second->name : to_id;
-            std::cout << "  " << from_name << " -> " << to_name
-                      << "  (assemble \"" << from_name << "\" BEFORE \"" << to_name << "\")"
-                      << std::endl;
-        }
-    }
-    std::cout << std::endl;
-
-    // --- 4. Auto-compute clearance ---
+    // --- 2. Auto-compute clearance ---
     if (config_.clearance_epsilon <= 0.0f) {
         float min_dim = std::numeric_limits<float>::max();
         for (const auto& p : parts_) {
@@ -261,7 +326,7 @@ SimulationResult AssemblySimulator::simulate() {
         config_.clearance_epsilon = std::max(min_dim * 0.02f, 1e-4f);
     }
 
-    // --- 5. Build blocking matrix ---
+    // --- 3. Build blocking matrix ---
     float removal_dist = compute_removal_distance();
     std::vector<BlockingPartData> blocking_parts;
     for (const auto& p : parts_) {
@@ -270,7 +335,7 @@ SimulationResult AssemblySimulator::simulate() {
     auto blocking_matrix = BlockingMatrix::build(
         blocking_parts, removal_dist, config_.clearance_epsilon);
 
-    // --- 6. Detect initial overlap issues ---
+    // --- 4. Detect initial overlap issues ---
     for (const auto& edge : contact_graph.edges()) {
         if (edge.distance <= 0.0f) {
             // Parts are touching/overlapping — check if truly intersecting
@@ -289,199 +354,315 @@ SimulationResult AssemblySimulator::simulate() {
         }
     }
 
-    // --- 7. Main disassembly loop ---
+    // --- 5. Precompute SDFs for physics planners ---
+    std::unordered_map<std::string, std::shared_ptr<CachedSDFMesh>> part_sdfs;
+    for (const auto& p : parts_) {
+        part_sdfs[p.id] = build_sdf_mesh(*p.mesh, p.transform);
+    }
+
+    // --- 6. Main disassembly loop ---
+
+    // Compute assembly centroid for outsideness heuristic (ASAP-style).
+    // Parts furthest from centroid are tried first — they're most likely
+    // to be exterior and removable without obstruction.
+    Vec3 assembly_centroid = Vec3::Zero();
+    for (const auto& p : parts_) {
+        assembly_centroid += p.transform.translation;
+    }
+    assembly_centroid /= static_cast<float>(parts_.size());
+
     removed_parts_.clear();
     collision_checks_ = 0;
     path_evaluations_ = 0;
     blocking_matrix_skips_ = 0;
 
-    // Pre-compute fastener preferred directions from contact normals.
-    // Ports Rust simulator.rs:958-977: sum "away from neighbor" normals
-    // for each fastener to find its natural removal axis.
-    std::unordered_map<std::string, Vec3> preferred_directions;
-    for (const auto& [id, kind] : kinds) {
-        if (kind != PartKind::Fastener) continue;
-        Vec3 weighted_dir = Vec3::Zero();
-        for (const auto& edge : contact_graph.edges()) {
-            if (edge.part_a != id && edge.part_b != id) continue;
-            Vec3 away = (edge.part_a == id) ? -edge.estimated_normal : edge.estimated_normal;
-            weighted_dir += away;
-        }
-        if (weighted_dir.squaredNorm() > 1e-8f) {
-            preferred_directions[id] = weighted_dir.normalized();
-        }
-    }
-
     std::vector<AssemblyStep> disassembly_steps;
     uint32_t step_number = 0;
 
-    while (removed_parts_.size() < parts_.size()) {
-        // Check timeout
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
-        if (static_cast<uint64_t>(elapsed_ms) > config_.timeout_ms) {
-            result.error = "Simulation timed out after " + std::to_string(elapsed_ms) + "ms";
-            break;
+    // Helper: try geometric removal for a single part. Returns true if path found.
+    struct RemovableCandidate {
+        std::string id;
+        Vec3 direction;
+        PathEvaluation eval;
+        float quality;
+    };
+
+    auto try_geometric_removal = [&](const PartData& part) -> std::optional<RemovableCandidate> {
+        // Blocking matrix pre-filter (purely geometric, no classification)
+        if (blocking_matrix.is_blocked_in_all_directions(part.id, removed_parts_)) {
+            blocking_matrix_skips_++;
+            return std::nullopt;
         }
 
-        // Find removable parts
-        struct RemovableCandidate {
-            std::string id;
-            Vec3 direction;
-            PathEvaluation eval;
-            float quality;
-        };
+        // Generate candidate directions — full set for all parts
+        auto directions = candidate_directions_for_part(part, contact_graph);
 
-        std::vector<RemovableCandidate> removable;
+        // Build neighbor states (excluding removed parts)
+        auto neighbors = build_neighbor_states(part, contact_graph);
 
-        // Sort parts by disassembly priority (fasteners first)
-        std::vector<size_t> part_indices(parts_.size());
-        std::iota(part_indices.begin(), part_indices.end(), 0);
-        std::sort(part_indices.begin(), part_indices.end(), [&](size_t a, size_t b) {
-            auto ka = kinds.count(parts_[a].id) ? kinds.at(parts_[a].id) : PartKind::Unknown;
-            auto kb = kinds.count(parts_[b].id) ? kinds.at(parts_[b].id) : PartKind::Unknown;
-            auto ca = classifications.count(parts_[a].id) ? classifications.at(parts_[a].id) : PartClassification{};
-            auto cb = classifications.count(parts_[b].id) ? classifications.at(parts_[b].id) : PartClassification{};
-            return disassembly_priority(ka, ca) > disassembly_priority(kb, cb);
-        });
+        // Collect all passing candidates, sorted by quality (best first)
+        std::vector<RemovableCandidate> candidates;
 
-        for (size_t idx : part_indices) {
-            const auto& part = parts_[idx];
-            if (removed_parts_.count(part.id)) continue;
+        for (const auto& dir : directions) {
+            path_evaluations_++;
 
-            // Check dependency constraints
-            if (!dep_graph.can_disassemble(part.id, removed_parts_)) continue;
+            auto eval = evaluate_removal_path(
+                part, dir, removal_dist, config_.clearance_epsilon,
+                neighbors, collision_checks_);
 
-            // Blocking matrix pre-filter
-            if (blocking_matrix.is_blocked_in_all_directions(part.id, removed_parts_)) {
-                blocking_matrix_skips_++;
-                continue;
+            if (!eval) continue;
+
+            float ratio = eval->travel_distance / std::max(removal_dist, 1e-6f);
+            float quality = ratio;
+            if (eval->min_clearance) {
+                quality += *eval->min_clearance * 1e-3f;
             }
 
-            // Generate candidate directions
-            auto directions = candidate_directions_for_part(part, contact_graph, kinds);
-
-            // Build neighbor states (excluding removed parts)
-            auto neighbors = build_neighbor_states(part, contact_graph);
-
-            // Evaluate each direction
-            RemovableCandidate best;
-            best.quality = -1.0f;
-
-            // Look up fastener preferred direction for alignment bonus
-            auto pref_it = preferred_directions.find(part.id);
-
-            for (const auto& dir : directions) {
-                path_evaluations_++;
-
-                auto eval = evaluate_removal_path(
-                    part, dir, removal_dist, config_.clearance_epsilon,
-                    neighbors, collision_checks_);
-
-                if (!eval) continue;
-
-                float ratio = eval->travel_distance / std::max(removal_dist, 1e-6f);
-                float quality = ratio;
-                if (eval->min_clearance) {
-                    quality += *eval->min_clearance * 1e-3f;
-                }
-
-                // Fastener alignment bonus: prefer removal along preferred axis
-                // Ports Rust simulator.rs:1011-1020
-                if (pref_it != preferred_directions.end()) {
-                    float alignment = dir.dot(pref_it->second);
-                    quality += (alignment + 1.0f) * 0.025f;
-                }
-
-                if (quality > best.quality + 0.01f) {
-                    best.id = part.id;
-                    best.direction = dir;
-                    best.eval = *eval;
-                    best.quality = quality;
-                }
-
-                // Short-circuit on near-perfect path
-                if (ratio >= 0.999f) break;
-            }
-
-            if (best.quality > 0.0f) {
-                removable.push_back(std::move(best));
-                // Don't break — collect ALL removable parts this iteration
+            if (quality > 0.0f) {
+                RemovableCandidate c;
+                c.id = part.id;
+                c.direction = dir;
+                c.eval = *eval;
+                c.quality = quality;
+                candidates.push_back(std::move(c));
             }
         }
 
-        if (removable.empty()) {
-            // Stuck — collect remaining parts
-            for (const auto& p : parts_) {
-                if (!removed_parts_.count(p.id)) {
-                    result.stuck_parts.push_back(p.id);
-                }
-            }
-            break;
-        }
-
-        // Sort by quality (best first) and batch-remove all candidates
-        std::sort(removable.begin(), removable.end(),
+        // Sort by quality descending
+        std::sort(candidates.begin(), candidates.end(),
             [](const RemovableCandidate& a, const RemovableCandidate& b) {
                 return a.quality > b.quality;
             });
 
-        for (const auto& candidate : removable) {
-            removed_parts_.insert(candidate.id);
+        // A1: Per-part collision audit (log once for best candidate)
+        int baseline_count = 0, checked_count = 0;
+        if (!candidates.empty()) {
+            const auto& best = candidates[0];
+            for (const auto& ns : neighbors) {
+                if (ns.baseline_intersecting) baseline_count++;
+                else checked_count++;
+            }
+            std::cout << "[path_audit] '" << part.name << "'"
+                      << " dir=(" << best.direction.x() << "," << best.direction.y() << "," << best.direction.z() << ")"
+                      << " neighbors=" << neighbors.size()
+                      << " baseline_skipped=" << baseline_count
+                      << " checked=" << checked_count
+                      << " travel=" << best.eval.travel_distance
+                      << " candidates=" << candidates.size()
+                      << std::endl;
+        }
 
-            // Log part removal details
-            auto rp_it = part_map_.find(candidate.id);
-            const PartData* removed_part = (rp_it != part_map_.end()) ? rp_it->second : nullptr;
-            if (removed_part) {
-                Vec3 start_pos = removed_part->transform.translation;
-                Vec3 end_pos = start_pos + candidate.direction * candidate.eval.travel_distance;
-                auto kind_it = kinds.find(candidate.id);
-                const char* kind_str = "Unknown";
-                if (kind_it != kinds.end()) {
-                    switch (kind_it->second) {
-                        case PartKind::Fastener:   kind_str = "Fastener"; break;
-                        case PartKind::Structural: kind_str = "Structural"; break;
-                        case PartKind::Panel:      kind_str = "Panel"; break;
-                        case PartKind::Unknown:    kind_str = "Unknown"; break;
+        // Fix 1: If ALL neighbors are baseline-intersecting, the geometric planner
+        // has zero collision data. Skip it entirely and force physics planner.
+        if (checked_count == 0 && baseline_count > 0) {
+            std::cout << "[blind_skip] '" << part.name
+                      << "' has 0 checked neighbors (" << baseline_count
+                      << " baseline) — forcing physics planner" << std::endl;
+            return std::nullopt;
+        }
+
+        // Build baseline-intersecting neighbor set for SDF gate exclusion
+        std::unordered_set<std::string> baseline_ids;
+        for (const auto& ns : neighbors) {
+            if (ns.baseline_intersecting) {
+                baseline_ids.insert(ns.part->id);
+            }
+        }
+
+        // B2: SDF validation gate — try each candidate in quality order
+        for (const auto& candidate : candidates) {
+            bool sdf_ok = validate_path_with_sdf(
+                part, candidate.direction, candidate.eval.travel_distance,
+                parts_, removed_parts_, baseline_ids, part_sdfs);
+
+            if (sdf_ok) {
+                return candidate;
+            }
+
+            std::cout << "[sdf_gate] Rejected geometric result for '" << part.name
+                      << "' dir=(" << candidate.direction.x() << "," << candidate.direction.y()
+                      << "," << candidate.direction.z() << ") — SDF detected clipping" << std::endl;
+        }
+
+        // All geometric directions rejected by SDF — fall through to physics
+        return std::nullopt;
+    };
+
+    // Helper: log and record a removal step
+    auto record_removal = [&](const RemovableCandidate& candidate) {
+        removed_parts_.insert(candidate.id);
+
+        auto rp_it = part_map_.find(candidate.id);
+        const PartData* removed_part = (rp_it != part_map_.end()) ? rp_it->second : nullptr;
+        if (removed_part) {
+            Vec3 start_pos = removed_part->transform.translation;
+            Vec3 end_pos = start_pos + candidate.direction * candidate.eval.travel_distance;
+            std::cout << "[disassembly] Remove step " << step_number + 1
+                      << ": \"" << removed_part->name << "\""
+                      << " | dir=(" << candidate.direction.x()
+                      << ", " << candidate.direction.y()
+                      << ", " << candidate.direction.z() << ")"
+                      << " | start=(" << start_pos.x()
+                      << ", " << start_pos.y()
+                      << ", " << start_pos.z() << ")"
+                      << " | end=(" << end_pos.x()
+                      << ", " << end_pos.y()
+                      << ", " << end_pos.z() << ")"
+                      << " | travel=" << candidate.eval.travel_distance
+                      << " | quality=" << candidate.quality
+                      << std::endl;
+        }
+
+        AssemblyStep step;
+        step.step_number = ++step_number;
+        step.part_ids = {candidate.id};
+        if (removed_part) {
+            step.part_names = {removed_part->name};
+        }
+        step.assembly_direction = {
+            candidate.direction.x(),
+            candidate.direction.y(),
+            candidate.direction.z()
+        };
+        step.animation_path = candidate.eval.animation_path;
+        step.min_clearance = candidate.eval.min_clearance;
+        step.suggested_duration_ms = compute_step_duration(
+            candidate.eval.travel_distance, scene_diagonal_);
+
+        disassembly_steps.push_back(std::move(step));
+    };
+
+    if (config_.strategy == SequenceStrategy::Current) {
+        // --- Original single-pass approach (no retries) ---
+        while (removed_parts_.size() < parts_.size()) {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+            if (static_cast<uint64_t>(elapsed_ms) > config_.timeout_ms) {
+                result.error = "Simulation timed out after " + std::to_string(elapsed_ms) + "ms";
+                break;
+            }
+
+            std::vector<RemovableCandidate> removable;
+
+            // Sort parts by outsideness (furthest from centroid first)
+            std::vector<size_t> part_indices(parts_.size());
+            std::iota(part_indices.begin(), part_indices.end(), 0);
+            std::sort(part_indices.begin(), part_indices.end(), [&](size_t a, size_t b) {
+                float da = (parts_[a].transform.translation - assembly_centroid).squaredNorm();
+                float db = (parts_[b].transform.translation - assembly_centroid).squaredNorm();
+                return da > db;  // exterior parts first
+            });
+
+            for (size_t idx : part_indices) {
+                const auto& part = parts_[idx];
+                if (removed_parts_.count(part.id)) continue;
+
+                auto candidate = try_geometric_removal(part);
+                if (candidate) {
+                    removable.push_back(std::move(*candidate));
+                }
+            }
+
+            if (removable.empty()) {
+                for (const auto& p : parts_) {
+                    if (!removed_parts_.count(p.id)) {
+                        result.stuck_parts.push_back(p.id);
                     }
                 }
-                std::cout << "[disassembly] Remove step " << step_number + 1
-                          << ": \"" << removed_part->name << "\""
-                          << " [" << kind_str << "]"
-                          << " | dir=(" << candidate.direction.x()
-                          << ", " << candidate.direction.y()
-                          << ", " << candidate.direction.z() << ")"
-                          << " | start=(" << start_pos.x()
-                          << ", " << start_pos.y()
-                          << ", " << start_pos.z() << ")"
-                          << " | end=(" << end_pos.x()
-                          << ", " << end_pos.y()
-                          << ", " << end_pos.z() << ")"
-                          << " | travel=" << candidate.eval.travel_distance
-                          << " | quality=" << candidate.quality
-                          << std::endl;
+                break;
             }
 
-            AssemblyStep step;
-            step.step_number = ++step_number;
-            step.part_ids = {candidate.id};
+            std::sort(removable.begin(), removable.end(),
+                [](const RemovableCandidate& a, const RemovableCandidate& b) {
+                    return a.quality > b.quality;
+                });
 
-            // Find part name
-            if (removed_part) {
-                step.part_names = {removed_part->name};
+            for (const auto& candidate : removable) {
+                record_removal(candidate);
+            }
+        }
+    } else {
+        // --- Queue / ProgressiveQueue strategies ---
+        // Build initial queue sorted by outsideness (furthest from centroid first)
+        std::vector<size_t> sorted_indices(parts_.size());
+        std::iota(sorted_indices.begin(), sorted_indices.end(), 0);
+        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t a, size_t b) {
+            float da = (parts_[a].transform.translation - assembly_centroid).squaredNorm();
+            float db = (parts_[b].transform.translation - assembly_centroid).squaredNorm();
+            return da > db;  // exterior parts first
+        });
+        std::deque<size_t> queue;
+        for (size_t idx : sorted_indices) {
+            queue.push_back(idx);
+        }
+
+        // Track retry counts per part
+        std::unordered_map<std::string, int> retry_counts;
+        size_t stall_counter = 0;  // counts consecutive failures without progress
+
+        while (!queue.empty()) {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+            if (static_cast<uint64_t>(elapsed_ms) > config_.timeout_ms) {
+                result.error = "Simulation timed out after " + std::to_string(elapsed_ms) + "ms";
+                break;
             }
 
-            step.assembly_direction = {
-                candidate.direction.x(),
-                candidate.direction.y(),
-                candidate.direction.z()
-            };
-            step.animation_path = candidate.eval.animation_path;
-            step.min_clearance = candidate.eval.min_clearance;
-            step.suggested_duration_ms = compute_step_duration(
-                candidate.eval.travel_distance, scene_diagonal_);
+            // If we've gone through the entire queue with no progress, we're stuck
+            if (stall_counter >= queue.size()) {
+                for (size_t idx : queue) {
+                    if (!removed_parts_.count(parts_[idx].id)) {
+                        result.stuck_parts.push_back(parts_[idx].id);
+                    }
+                }
+                break;
+            }
 
-            disassembly_steps.push_back(std::move(step));
+            size_t idx = queue.front();
+            queue.pop_front();
+
+            const auto& part = parts_[idx];
+            if (removed_parts_.count(part.id)) {
+                stall_counter = 0;  // removed parts don't count as stalls
+                continue;
+            }
+
+            // Try geometric approach first
+            auto candidate = try_geometric_removal(part);
+
+            // If geometric fails, try physics immediately (primary, not fallback)
+            if (!candidate &&
+                config_.strategy == SequenceStrategy::ProgressiveQueue) {
+                int retries = retry_counts[part.id];
+                Vec3 phys_dir;
+                PathEvaluation phys_eval;
+                if (try_physics_path(part, retries, phys_dir, phys_eval, part_sdfs)) {
+                    RemovableCandidate phys_candidate;
+                    phys_candidate.id = part.id;
+                    phys_candidate.direction = phys_dir;
+                    phys_candidate.eval = phys_eval;
+                    phys_candidate.quality = 0.5f;  // lower than geometric
+                    candidate = phys_candidate;
+                }
+            }
+
+            if (candidate) {
+                record_removal(*candidate);
+                stall_counter = 0;
+                retry_counts.erase(part.id);
+            } else {
+                // Failed — re-queue with incremented retry count
+                int& retries = retry_counts[part.id];
+                retries++;
+                if (retries > config_.max_retries) {
+                    // Give up on this part
+                    result.stuck_parts.push_back(part.id);
+                    stall_counter++;
+                } else {
+                    queue.push_back(idx);
+                    stall_counter++;
+                }
+            }
         }
     }
 
@@ -500,7 +681,7 @@ SimulationResult AssemblySimulator::simulate() {
         std::cout << std::endl;
     }
 
-    // --- 8. Reverse steps for assembly order ---
+    // --- 7. Reverse steps for assembly order ---
     std::reverse(disassembly_steps.begin(), disassembly_steps.end());
     for (size_t i = 0; i < disassembly_steps.size(); ++i) {
         disassembly_steps[i].step_number = static_cast<uint32_t>(i + 1);
@@ -531,21 +712,82 @@ SimulationResult AssemblySimulator::simulate() {
 
     result.steps = std::move(disassembly_steps);
 
-    // --- 9. Identical groups, subassemblies, kits ---
-    // Identical geometry groups
+    // --- Post-planning: classify parts for display labels ---
+    SequencingRules rules;
+    float total_volume = 0.0f;
+    for (const auto& p : parts_) {
+        total_volume += p.bbox_size.x() * p.bbox_size.y() * p.bbox_size.z();
+    }
+    total_volume = std::max(total_volume, 0.001f);
+
+    std::vector<std::pair<std::string, ClassificationInput>> class_inputs;
+    for (const auto& p : parts_) {
+        ClassificationInput ci;
+        ci.name = p.name;
+        ci.bbox_dims = p.bbox_size;
+        ci.relative_volume = (p.bbox_size.x() * p.bbox_size.y() * p.bbox_size.z()) / total_volume;
+        ci.contact_degree = contact_graph.degree(p.id);
+        ci.brep = p.brep_analysis;
+        class_inputs.push_back({p.id, ci});
+    }
+
+    auto classifications = classify_all_parts(class_inputs, rules);
+
+    std::unordered_map<std::string, PartKind> kinds;
+    for (const auto& [id, cls] : classifications) {
+        auto it = part_map_.find(id);
+        std::string name = (it != part_map_.end()) ? it->second->name : "";
+        kinds[id] = infer_part_kind(name, cls, rules);
+    }
+
+    // Log classifications (display only, no effect on planning)
+    std::cout << "\n=== PART CLASSIFICATIONS (display only) ===" << std::endl;
+    for (const auto& p : parts_) {
+        auto kind_it = kinds.find(p.id);
+        const char* kind_str = "Unknown";
+        if (kind_it != kinds.end()) {
+            switch (kind_it->second) {
+                case PartKind::Fastener:   kind_str = "Fastener"; break;
+                case PartKind::Structural: kind_str = "Structural"; break;
+                case PartKind::Panel:      kind_str = "Panel"; break;
+                case PartKind::Unknown:    kind_str = "Unknown"; break;
+            }
+        }
+        auto cls_it = classifications.find(p.id);
+        if (cls_it != classifications.end()) {
+            std::cout << "  \"" << p.name << "\" [" << kind_str << "]"
+                      << " fastener=" << cls_it->second.fastener_score
+                      << " structural=" << cls_it->second.structural_score
+                      << " panel=" << cls_it->second.panel_score
+                      << std::endl;
+        }
+    }
+
+    // Build dependency graph for stats/logging only
+    auto dep_graph = DependencyGraph::build(contact_graph, classifications, kinds);
+
+    std::cout << "\n=== DEPENDENCY GRAPH EDGES (display only) ===" << std::endl;
+    for (const auto& [from_id, tos] : dep_graph.forward_edges()) {
+        auto from_it = part_map_.find(from_id);
+        std::string from_name = (from_it != part_map_.end()) ? from_it->second->name : from_id;
+        for (const auto& to_id : tos) {
+            auto to_it = part_map_.find(to_id);
+            std::string to_name = (to_it != part_map_.end()) ? to_it->second->name : to_id;
+            std::cout << "  " << from_name << " -> " << to_name << std::endl;
+        }
+    }
+    std::cout << std::endl;
+
+    // --- Identical groups, subassemblies, kits ---
     std::vector<std::pair<std::string, const TriMesh*>> sig_parts;
     for (const auto& p : parts_) {
         sig_parts.push_back({p.id, p.mesh});
     }
     result.identical_groups = find_identical_groups(sig_parts);
-
-    // Subassemblies via label propagation
     result.suggested_subassemblies = contact_graph.detect_subassemblies(kinds);
-
-    // Fastener kits via BFS
     result.kits = contact_graph.detect_kits(kinds);
 
-    // --- 10. Finalize ---
+    // --- Finalize ---
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - start
     ).count();
