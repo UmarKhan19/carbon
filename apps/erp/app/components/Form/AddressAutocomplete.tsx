@@ -26,6 +26,7 @@ const AddressAutocomplete = ({
   const address1Field = "addressLine1";
 
   const [value, setValue] = useControlField<string>(address1Field);
+  const [, setCountryCode] = useControlField<string>("countryCode");
   const { clearError } = useFormContext();
   const { error } = useField(address1Field);
   const [open, setOpen] = useState(false);
@@ -37,7 +38,6 @@ const AddressAutocomplete = ({
   const cityRef = useRef<HTMLInputElement>(null);
   const stateProvinceRef = useRef<HTMLInputElement>(null);
   const postalCodeRef = useRef<HTMLInputElement>(null);
-  const countryRef = useRef<HTMLInputElement>(null);
 
   const {
     suggestions,
@@ -105,7 +105,7 @@ const AddressAutocomplete = ({
         stateProvinceRef.current.value = address.stateProvince;
       if (postalCodeRef.current)
         postalCodeRef.current.value = address.postalCode;
-      if (countryRef.current) countryRef.current.value = address.countryCode;
+      setCountryCode(address.countryCode);
 
       clearError(
         address1Field,
@@ -116,7 +116,14 @@ const AddressAutocomplete = ({
         "countryCode"
       );
     },
-    [clearSuggestions, selectPlace, setValue, clearError, address1Field]
+    [
+      clearSuggestions,
+      selectPlace,
+      setValue,
+      setCountryCode,
+      clearError,
+      address1Field
+    ]
   );
 
   const handleInputFocus = useCallback(() => {

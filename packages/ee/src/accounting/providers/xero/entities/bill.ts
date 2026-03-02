@@ -610,15 +610,16 @@ export class BillSyncer extends BaseEntitySyncer<
    * Tries company owner first, then falls back to first active employee.
    */
   private async getDefaultUser(tx: KyselyTx): Promise<string | null> {
-    // Try company owner first
-    const company = await tx
+    // Try company group owner first
+    const group = await tx
       .selectFrom("company")
-      .select("ownerId")
-      .where("id", "=", this.companyId)
+      .innerJoin("companyGroup", "companyGroup.id", "company.companyGroupId")
+      .select("companyGroup.ownerId")
+      .where("company.id", "=", this.companyId)
       .executeTakeFirst();
 
-    if (company?.ownerId) {
-      return company.ownerId;
+    if (group?.ownerId) {
+      return group.ownerId;
     }
 
     // Fall back to first active employee for this company (by user creation date)

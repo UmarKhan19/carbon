@@ -27,8 +27,8 @@ const ChartOfAccountsTableFilters = () => {
       <HStack>
         <ToggleGroup
           type="single"
-          variant="outline"
           size="sm"
+          variant="outline"
           value={params.get("incomeBalance") ?? ""}
           onValueChange={(value) =>
             setParams({ incomeBalance: value || undefined })
@@ -72,7 +72,7 @@ const ChartOfAccountsTableFilters = () => {
         </Popover>
         {[...params.entries()].length > 0 && (
           <Button
-            variant="solid"
+            variant="secondary"
             rightIcon={<LuX />}
             onClick={() =>
               setParams({

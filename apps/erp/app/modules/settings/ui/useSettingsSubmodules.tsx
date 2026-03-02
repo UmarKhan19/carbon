@@ -10,6 +10,7 @@ import {
   LuImage,
   LuKey,
   LuLayoutDashboard,
+  LuNetwork,
   LuSheet,
   LuShoppingCart,
   LuSquareStack,
@@ -34,6 +35,12 @@ const settingsRoutes: AuthenticatedRouteGroup<{
         to: path.to.company,
         role: "employee",
         icon: <LuFactory />
+      },
+      {
+        name: "Companies",
+        to: path.to.companies,
+        role: "employee",
+        icon: <LuNetwork />
       },
       {
         name: "Billing",

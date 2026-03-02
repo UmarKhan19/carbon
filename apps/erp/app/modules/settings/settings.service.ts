@@ -13,22 +13,9 @@ import type {
   kanbanOutputTypes,
   purchasePriceUpdateTimingTypes,
   sequenceValidator,
+  subsidiaryValidator,
   webhookValidator
 } from "./settings.models";
-
-export async function deleteApiKey(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("apiKey").delete().eq("id", id);
-}
-
-export async function deleteWebhook(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("webhook").delete().eq("id", id);
-}
 
 export async function deactivateWebhooks(
   client: SupabaseClient<Database>,
@@ -38,6 +25,27 @@ export async function deactivateWebhooks(
     .from("webhook")
     .update({ active: false })
     .eq("companyId", companyId);
+}
+
+export async function deleteApiKey(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("apiKey").delete().eq("id", id);
+}
+
+export async function deleteSubsidiary(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client.from("company").delete().eq("id", companyId);
+}
+
+export async function deleteWebhook(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("webhook").delete().eq("id", id);
 }
 
 export async function getApiKeys(
@@ -130,6 +138,16 @@ export async function getCompany(
   };
 }
 
+export async function getCompanyIntegrations(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyIntegration")
+    .select("*")
+    .eq("companyId", companyId);
+}
+
 export async function getCompanyPlan(
   client: SupabaseClient,
   companyId: string
@@ -146,16 +164,6 @@ export async function getCompanySettings(
     .select("*")
     .eq("id", companyId)
     .single();
-}
-
-export async function getCompanyIntegrations(
-  client: SupabaseClient<Database>,
-  companyId: string
-) {
-  return client
-    .from("companyIntegration")
-    .select("*")
-    .eq("companyId", companyId);
 }
 
 export async function getConfig(client: SupabaseClient<Database>) {
@@ -259,14 +267,6 @@ export async function getKanbanOutputSetting(
     .single();
 }
 
-export async function getPlanById(client: SupabaseClient, planId: string) {
-  return client.from("plan").select("*").eq("id", planId).single();
-}
-
-export async function getPlans(client: SupabaseClient) {
-  return client.from("plan").select("*");
-}
-
 export async function getNextSequence(
   client: SupabaseClient<Database>,
   table: string,
@@ -276,6 +276,14 @@ export async function getNextSequence(
     sequence_name: table,
     company_id: companyId
   });
+}
+
+export async function getPlanById(client: SupabaseClient, planId: string) {
+  return client.from("plan").select("*").eq("id", planId).single();
+}
+
+export async function getPlans(client: SupabaseClient) {
+  return client.from("plan").select("*");
 }
 
 export async function getSequence(
@@ -328,6 +336,26 @@ export async function getSequencesList(
     .order("table");
 }
 
+export async function getSubsidiaries(
+  client: SupabaseClient<Database>,
+  companyGroupId: string
+) {
+  return client
+    .from("company")
+    .select(
+      "id, name, baseCurrencyCode, countryCode, parentCompanyId, isEliminationEntity, active"
+    )
+    .eq("companyGroupId", companyGroupId)
+    .order("name");
+}
+
+export async function getSubsidiary(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client.from("company").select("*").eq("id", companyId).single();
+}
+
 export async function getTerms(
   client: SupabaseClient<Database>,
   companyId: string
@@ -337,10 +365,6 @@ export async function getTerms(
 
 export async function getWebhook(client: SupabaseClient<Database>, id: string) {
   return client.from("webhook").select("*").eq("id", id).single();
-}
-
-export async function getWebhookTables(client: SupabaseClient<Database>) {
-  return client.from("webhookTable").select("*").order("name");
 }
 
 export async function getWebhooks(
@@ -368,17 +392,58 @@ export async function getWebhooks(
   return query;
 }
 
+export async function getWebhookTables(client: SupabaseClient<Database>) {
+  return client.from("webhookTable").select("*").order("name");
+}
+
 export async function insertCompany(
   client: SupabaseClient<Database>,
   company: z.infer<typeof companyValidator>,
-  ownerId?: string,
   companyGroupId?: string
 ) {
   return client
     .from("company")
-    .insert({ ...company, ownerId, companyGroupId })
+    .insert({ ...company, companyGroupId })
     .select("id")
     .single();
+}
+
+export async function insertSubsidiary(
+  client: SupabaseClient<Database>,
+  subsidiary: z.infer<typeof subsidiaryValidator> & {
+    companyGroupId: string;
+    createdBy: string;
+    isEliminationEntity?: boolean;
+  }
+) {
+  const { id: _, ...data } = subsidiary;
+  return client.from("company").insert(data).select("id").single();
+}
+
+export async function seedCompany(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  userId: string,
+  parentCompanyId?: string
+) {
+  return client.functions.invoke("seed-company", {
+    body: {
+      companyId,
+      userId,
+      parentCompanyId
+    },
+    region: FunctionRegion.UsEast1
+  });
+}
+
+export async function updateCompany(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  company: Partial<z.infer<typeof companyValidator>> & {
+    updatedBy: string;
+  }
+) {
+  return client.from("company").update(sanitize(company)).eq("id", companyId);
 }
 
 export async function updateCompanyPlan(
@@ -397,28 +462,76 @@ export async function updateCompanyPlan(
   return client.from("companyPlan").update(updateData).eq("id", companyId);
 }
 
-export async function seedCompany(
+export async function updateDefaultCustomerCc(
   client: SupabaseClient<Database>,
   companyId: string,
-  userId: string
+  defaultCustomerCc: string[]
 ) {
-  return client.functions.invoke("seed-company", {
-    body: {
-      companyId,
-      userId
-    },
-    region: FunctionRegion.UsEast1
-  });
+  return client
+    .from("companySettings")
+    .update(sanitize({ defaultCustomerCc }))
+    .eq("id", companyId);
 }
 
-export async function updateCompany(
+export async function updateDefaultSupplierCc(
   client: SupabaseClient<Database>,
   companyId: string,
-  company: Partial<z.infer<typeof companyValidator>> & {
-    updatedBy: string;
-  }
+  defaultSupplierCc: string[]
 ) {
-  return client.from("company").update(sanitize(company)).eq("id", companyId);
+  return client
+    .from("companySettings")
+    .update(sanitize({ defaultSupplierCc }))
+    .eq("id", companyId);
+}
+
+export async function updateDigitalQuoteSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  digitalQuoteEnabled: boolean,
+  digitalQuoteNotificationGroup: string[],
+  digitalQuoteIncludesPurchaseOrders: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({
+        digitalQuoteEnabled,
+        digitalQuoteNotificationGroup,
+        digitalQuoteIncludesPurchaseOrders
+      })
+    )
+    .eq("id", companyId);
+}
+
+export async function updateIntegrationMetadata(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  integrationId: string,
+  metadata: any,
+  updatedBy?: string
+) {
+  return client
+    .from("companyIntegration")
+    .update(
+      sanitize({
+        metadata,
+        updatedAt: new Date().toISOString(),
+        updatedBy
+      })
+    )
+    .eq("companyId", companyId)
+    .eq("id", integrationId);
+}
+
+export async function updateJobTravelerWorkInstructions(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  jobTravelerIncludeWorkInstructions: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
+    .eq("id", companyId);
 }
 
 export async function updateKanbanOutputSetting(
@@ -432,6 +545,91 @@ export async function updateKanbanOutputSetting(
     .eq("id", companyId);
 }
 
+export async function updateLogoDark(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoDark: string | null
+) {
+  return client
+    .from("company")
+    .update(
+      sanitize({
+        logoDark
+      })
+    )
+    .eq("id", companyId);
+}
+
+export async function updateLogoDarkIcon(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoDarkIcon: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoDarkIcon }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoLight(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoLight: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoLight }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoLightIcon(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoLightIcon: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoLightIcon }))
+    .eq("id", companyId);
+}
+
+export async function updateMaintenanceDispatchNotificationSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  settings: {
+    maintenanceDispatchNotificationGroup?: string[];
+    qualityDispatchNotificationGroup?: string[];
+    operationsDispatchNotificationGroup?: string[];
+    otherDispatchNotificationGroup?: string[];
+  }
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize(settings))
+    .eq("id", companyId);
+}
+
+export async function updateMaterialGeneratedIdsSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  materialGeneratedIds: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ materialGeneratedIds }))
+    .eq("id", companyId);
+}
+
+export async function updateMaterialUnitsSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  useMetric: boolean
+) {
+  return (client.from("companySettings") as any)
+    .update(sanitize({ useMetric }))
+    .eq("id", companyId);
+}
+
 export async function updateMetricSettings(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -440,6 +638,98 @@ export async function updateMetricSettings(
   return client
     .from("companySettings")
     .update(sanitize({ useMetric }))
+    .eq("id", companyId);
+}
+
+export async function updateProductLabelSize(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  productLabelSize: string
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ productLabelSize }))
+    .eq("id", companyId);
+}
+
+export async function updatePurchasePriceUpdateTimingSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  purchasePriceUpdateTiming: (typeof purchasePriceUpdateTimingTypes)[number]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ purchasePriceUpdateTiming }))
+    .eq("id", companyId);
+}
+
+export async function updatePurchasingPdfThumbnails(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  includeThumbnailsOnPurchasingPdfs: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ includeThumbnailsOnPurchasingPdfs }))
+    .eq("id", companyId);
+}
+
+export async function updateRfqReadySetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  rfqReadyNotificationGroup: string[]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ rfqReadyNotificationGroup }))
+    .eq("id", companyId);
+}
+
+export async function updateSalesPdfThumbnails(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  includeThumbnailsOnSalesPdfs: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ includeThumbnailsOnSalesPdfs }))
+    .eq("id", companyId);
+}
+
+export async function updateSequence(
+  client: SupabaseClient<Database>,
+  table: string,
+  companyId: string,
+  sequence: Partial<z.infer<typeof sequenceValidator>> & {
+    updatedBy: string;
+  }
+) {
+  return client
+    .from("sequence")
+    .update(sanitize(sequence))
+    .eq("companyId", companyId)
+    .eq("table", table);
+}
+
+export async function updateSuggestionNotificationSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  suggestionNotificationGroup: string[]
+) {
+  return client
+    .from("company")
+    .update(sanitize({ suggestionNotificationGroup }))
+    .eq("id", companyId);
+}
+
+export async function updateSupplierQuoteNotificationSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  supplierQuoteNotificationGroup: string[]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ supplierQuoteNotificationGroup }))
     .eq("id", companyId);
 }
 
@@ -514,255 +804,6 @@ export async function upsertApiKey(
       }) as any
     )
     .eq("id", apiKey.id);
-}
-
-export async function updateDigitalQuoteSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  digitalQuoteEnabled: boolean,
-  digitalQuoteNotificationGroup: string[],
-  digitalQuoteIncludesPurchaseOrders: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(
-      sanitize({
-        digitalQuoteEnabled,
-        digitalQuoteNotificationGroup,
-        digitalQuoteIncludesPurchaseOrders
-      })
-    )
-    .eq("id", companyId);
-}
-
-export async function updateLogoDark(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoDark: string | null
-) {
-  return client
-    .from("company")
-    .update(
-      sanitize({
-        logoDark
-      })
-    )
-    .eq("id", companyId);
-}
-
-export async function updateLogoLight(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoLight: string | null
-) {
-  return client
-    .from("company")
-    .update(sanitize({ logoLight }))
-    .eq("id", companyId);
-}
-
-export async function updateLogoDarkIcon(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoDarkIcon: string | null
-) {
-  return client
-    .from("company")
-    .update(sanitize({ logoDarkIcon }))
-    .eq("id", companyId);
-}
-
-export async function updateLogoLightIcon(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoLightIcon: string | null
-) {
-  return client
-    .from("company")
-    .update(sanitize({ logoLightIcon }))
-    .eq("id", companyId);
-}
-
-export async function updateMaterialGeneratedIdsSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  materialGeneratedIds: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ materialGeneratedIds }))
-    .eq("id", companyId);
-}
-
-export async function updateMaterialUnitsSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  useMetric: boolean
-) {
-  return (client.from("companySettings") as any)
-    .update(sanitize({ useMetric }))
-    .eq("id", companyId);
-}
-
-export async function updateProductLabelSize(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  productLabelSize: string
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ productLabelSize }))
-    .eq("id", companyId);
-}
-
-export async function updatePurchasingPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnPurchasingPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnPurchasingPdfs }))
-    .eq("id", companyId);
-}
-
-export async function updateSalesPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnSalesPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnSalesPdfs }))
-    .eq("id", companyId);
-}
-
-export async function updateJobTravelerWorkInstructions(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  jobTravelerIncludeWorkInstructions: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
-    .eq("id", companyId);
-}
-
-export async function updateRfqReadySetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  rfqReadyNotificationGroup: string[]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ rfqReadyNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updateSuggestionNotificationSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  suggestionNotificationGroup: string[]
-) {
-  return client
-    .from("company")
-    .update(sanitize({ suggestionNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updateMaintenanceDispatchNotificationSettings(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  settings: {
-    maintenanceDispatchNotificationGroup?: string[];
-    qualityDispatchNotificationGroup?: string[];
-    operationsDispatchNotificationGroup?: string[];
-    otherDispatchNotificationGroup?: string[];
-  }
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize(settings))
-    .eq("id", companyId);
-}
-
-export async function updateSupplierQuoteNotificationSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  supplierQuoteNotificationGroup: string[]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ supplierQuoteNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updatePurchasePriceUpdateTimingSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  purchasePriceUpdateTiming: (typeof purchasePriceUpdateTimingTypes)[number]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ purchasePriceUpdateTiming }))
-    .eq("id", companyId);
-}
-
-export async function updateDefaultSupplierCc(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  defaultSupplierCc: string[]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ defaultSupplierCc }))
-    .eq("id", companyId);
-}
-
-export async function updateDefaultCustomerCc(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  defaultCustomerCc: string[]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ defaultCustomerCc }))
-    .eq("id", companyId);
-}
-
-export async function updateSequence(
-  client: SupabaseClient<Database>,
-  table: string,
-  companyId: string,
-  sequence: Partial<z.infer<typeof sequenceValidator>> & {
-    updatedBy: string;
-  }
-) {
-  return client
-    .from("sequence")
-    .update(sanitize(sequence))
-    .eq("companyId", companyId)
-    .eq("table", table);
-}
-
-export async function updateIntegrationMetadata(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  integrationId: string,
-  metadata: any,
-  updatedBy?: string
-) {
-  return client
-    .from("companyIntegration")
-    .update(
-      sanitize({
-        metadata,
-        updatedAt: new Date().toISOString(),
-        updatedBy
-      })
-    )
-    .eq("companyId", companyId)
-    .eq("id", integrationId);
 }
 
 export async function upsertWebhook(

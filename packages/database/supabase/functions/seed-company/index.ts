@@ -30,12 +30,13 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-  const { companyId: id, userId } = await req.json();
+  const { companyId: id, userId, parentCompanyId } = await req.json();
 
   console.log({
     function: "seed-company",
     id,
     userId,
+    parentCompanyId,
   });
 
   try {
@@ -59,7 +60,20 @@ serve(async (req: Request) => {
 
     // Determine if this is a new root company or joining an existing group
     let companyGroupId = company.data.companyGroupId;
-    const isNewGroup = !companyGroupId;
+    const isNewGroup = !companyGroupId && !parentCompanyId;
+
+    // If this is a subsidiary, get the parent's companyGroupId
+    if (parentCompanyId && !companyGroupId) {
+      const parent = await client
+        .from("company")
+        .select("companyGroupId")
+        .eq("id", parentCompanyId)
+        .single();
+      if (parent.error) throw new Error(parent.error.message);
+      if (!parent.data?.companyGroupId)
+        throw new Error("Parent company has no group");
+      companyGroupId = parent.data.companyGroupId;
+    }
 
     await db.transaction().execute(async (trx) => {
       // If no companyGroupId, create a new company group and assign it
@@ -69,6 +83,7 @@ serve(async (req: Request) => {
           .values({
             name: company.data.name,
             createdBy: userId,
+            ownerId: userId,
           })
           .returning(["id"])
           .execute();
@@ -80,6 +95,15 @@ serve(async (req: Request) => {
         await trx
           .updateTable("company")
           .set({ companyGroupId })
+          .where("id", "=", companyId)
+          .execute();
+      }
+
+      // For subsidiaries: set companyGroupId and parentCompanyId
+      if (parentCompanyId) {
+        await trx
+          .updateTable("company")
+          .set({ companyGroupId, parentCompanyId })
           .where("id", "=", companyId)
           .execute();
       }
@@ -335,6 +359,47 @@ serve(async (req: Request) => {
         .update({ permissions: newPermissions })
         .eq("id", userId);
       if (error) throw new Error(error.message);
+
+      // Auto-create elimination entity if this is a subsidiary
+      if (parentCompanyId && companyGroupId) {
+        const siblings = await trx
+          .selectFrom("company")
+          .select(["id", "isEliminationEntity"])
+          .where("companyGroupId", "=", companyGroupId)
+          .where("parentCompanyId", "=", parentCompanyId)
+          .execute();
+
+        const hasElimination = siblings.some(
+          (s) => s.isEliminationEntity
+        );
+
+        if (!hasElimination) {
+          const parent = await trx
+            .selectFrom("company")
+            .select(["baseCurrencyCode", "countryCode"])
+            .where("id", "=", parentCompanyId)
+            .executeTakeFirst();
+
+          await trx
+            .insertInto("company")
+            .values({
+              name: "Elimination",
+              addressLine1: "",
+              city: "",
+              stateProvince: "",
+              postalCode: "",
+              baseCurrencyCode:
+                parent?.baseCurrencyCode ??
+                company.data.baseCurrencyCode,
+              countryCode:
+                parent?.countryCode ?? company.data.countryCode ?? "",
+              parentCompanyId,
+              isEliminationEntity: true,
+              companyGroupId,
+            })
+            .execute();
+        }
+      }
     });
 
     return new Response(
