@@ -38,9 +38,16 @@ import {
 import { Editor } from "@carbon/react/Editor";
 import { formatRelativeTime } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { AnimatePresence, LayoutGroup, motion, Reorder } from "framer-motion";
+import type { DragControls } from "framer-motion";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  Reorder,
+  useDragControls
+} from "framer-motion";
 import { nanoid } from "nanoid";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -1945,25 +1952,28 @@ function AttributesForm({
               if (!step) return null;
               const index = sortOrder.indexOf(stepId);
               return (
-                <Reorder.Item
+                <DraggableStepItem
                   key={stepId}
-                  value={stepId}
-                  dragListener={!isDisabled}
+                  stepId={stepId}
+                  isDisabled={isDisabled}
                 >
-                  <AttributesListItem
-                    attribute={step}
-                    operationId={operationId}
-                    typeOptions={typeOptions}
-                    isDisabled={isDisabled}
-                    className={
-                      index === sortOrder.length - 1 ? "border-none" : ""
-                    }
-                    configurable={configurable}
-                    rulesByField={rulesByField}
-                    onConfigure={onConfigure}
-                    itemMentions={itemMentions}
-                  />
-                </Reorder.Item>
+                  {(dragControls) => (
+                    <AttributesListItem
+                      attribute={step}
+                      operationId={operationId}
+                      typeOptions={typeOptions}
+                      isDisabled={isDisabled}
+                      dragControls={dragControls}
+                      className={
+                        index === sortOrder.length - 1 ? "border-none" : ""
+                      }
+                      configurable={configurable}
+                      rulesByField={rulesByField}
+                      onConfigure={onConfigure}
+                      itemMentions={itemMentions}
+                    />
+                  )}
+                </DraggableStepItem>
               );
             })}
           </Reorder.Group>
@@ -1978,6 +1988,28 @@ function AttributesForm({
   );
 }
 
+function DraggableStepItem({
+  stepId,
+  isDisabled,
+  children
+}: {
+  stepId: string;
+  isDisabled: boolean;
+  children: (dragControls: DragControls) => ReactNode;
+}) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      key={stepId}
+      value={stepId}
+      dragListener={false}
+      dragControls={dragControls}
+    >
+      {children(dragControls)}
+    </Reorder.Item>
+  );
+}
+
 function AttributesListItem({
   attribute,
   operationId,
@@ -1987,6 +2019,7 @@ function AttributesListItem({
   rulesByField,
   onConfigure,
   isDisabled = false,
+  dragControls,
   itemMentions
 }: {
   attribute: OperationStep;
@@ -1997,6 +2030,7 @@ function AttributesListItem({
   rulesByField: Map<string, ConfigurationRule>;
   onConfigure?: (c: Configuration) => void;
   isDisabled?: boolean;
+  dragControls?: DragControls;
   itemMentions: { id: string; label: string }[];
 }) {
   const {
@@ -2247,7 +2281,11 @@ function AttributesListItem({
               icon={<LuGripVertical />}
               variant="ghost"
               disabled={isDisabled}
-              className="cursor-grab"
+              className="cursor-grab active:cursor-grabbing"
+              onPointerDown={(e) => {
+                if (!isDisabled && dragControls) dragControls.start(e);
+              }}
+              style={{ touchAction: "none" }}
             />
             <HStack spacing={4} className="flex-1">
               <div className="bg-muted border rounded-full flex items-center justify-center p-2">

@@ -39,7 +39,9 @@ import {
   usePrettifyShortcut,
   VStack
 } from "@carbon/react";
-import { Reorder } from "framer-motion";
+import type { DragControls } from "framer-motion";
+import { Reorder, useDragControls } from "framer-motion";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -204,19 +206,21 @@ export default function TrainingExplorer() {
               disabled={isDisabled}
             >
               {sortOrder.map((sortId) => (
-                <Reorder.Item
+                <DraggableStepItem
                   key={sortId}
-                  value={sortId}
-                  dragListener={!isDisabled}
+                  stepId={sortId}
+                  isDisabled={isDisabled}
                 >
-                  <TrainingQuestionItem
-                    key={sortId}
-                    isDisabled={isDisabled}
-                    question={questionMap[sortId]}
-                    onDelete={onDeleteQuestion}
-                    onEdit={onEditQuestion}
-                  />
-                </Reorder.Item>
+                  {(dragControls) => (
+                    <TrainingQuestionItem
+                      isDisabled={isDisabled}
+                      question={questionMap[sortId]}
+                      onDelete={onDeleteQuestion}
+                      onEdit={onEditQuestion}
+                      dragControls={dragControls}
+                    />
+                  )}
+                </DraggableStepItem>
               ))}
             </Reorder.Group>
           ) : (
@@ -310,18 +314,42 @@ function TrainingQuestionTypeIcon({
   }
 }
 
+function DraggableStepItem({
+  stepId,
+  isDisabled,
+  children
+}: {
+  stepId: string;
+  isDisabled: boolean;
+  children: (dragControls: DragControls) => ReactNode;
+}) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      key={stepId}
+      value={stepId}
+      dragListener={false}
+      dragControls={dragControls}
+    >
+      {children(dragControls)}
+    </Reorder.Item>
+  );
+}
+
 type TrainingQuestionProps = {
   question: TrainingQuestion;
   isDisabled: boolean;
   onEdit: (question: TrainingQuestion) => void;
   onDelete: (question: TrainingQuestion) => void;
+  dragControls?: DragControls;
 };
 
 function TrainingQuestionItem({
   question,
   isDisabled,
   onEdit,
-  onDelete
+  onDelete,
+  dragControls
 }: TrainingQuestionProps) {
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
@@ -340,7 +368,11 @@ function TrainingQuestionItem({
           icon={<LuGripVertical />}
           variant="ghost"
           disabled={isDisabled}
-          className="cursor-grab"
+          className="cursor-grab active:cursor-grabbing"
+          onPointerDown={(e) => {
+            if (!isDisabled && dragControls) dragControls.start(e);
+          }}
+          style={{ touchAction: "none" }}
         />
       )}
       <VStack spacing={0} className="flex-grow">

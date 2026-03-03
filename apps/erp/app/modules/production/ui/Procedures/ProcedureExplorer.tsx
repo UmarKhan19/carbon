@@ -45,8 +45,10 @@ import {
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
-import { Reorder } from "framer-motion";
+import type { DragControls } from "framer-motion";
+import { Reorder, useDragControls } from "framer-motion";
 import { nanoid } from "nanoid";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -269,19 +271,21 @@ export default function ProcedureExplorer() {
                   disabled={isDisabled}
                 >
                   {sortOrder.map((sortId) => (
-                    <Reorder.Item
+                    <DraggableStepItem
                       key={sortId}
-                      value={sortId}
-                      dragListener={!isDisabled}
+                      stepId={sortId}
+                      isDisabled={isDisabled}
                     >
-                      <ProcedureStepItem
-                        key={sortId}
-                        isDisabled={isDisabled}
-                        attribute={attributeMap[sortId]}
-                        onDelete={onDeleteAttribute}
-                        onEdit={onEditAttribute}
-                      />
-                    </Reorder.Item>
+                      {(dragControls) => (
+                        <ProcedureStepItem
+                          isDisabled={isDisabled}
+                          attribute={attributeMap[sortId]}
+                          onDelete={onDeleteAttribute}
+                          onEdit={onEditAttribute}
+                          dragControls={dragControls}
+                        />
+                      )}
+                    </DraggableStepItem>
                   ))}
                 </Reorder.Group>
               ) : (
@@ -437,18 +441,42 @@ export default function ProcedureExplorer() {
   );
 }
 
+function DraggableStepItem({
+  stepId,
+  isDisabled,
+  children
+}: {
+  stepId: string;
+  isDisabled: boolean;
+  children: (dragControls: DragControls) => ReactNode;
+}) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      key={stepId}
+      value={stepId}
+      dragListener={false}
+      dragControls={dragControls}
+    >
+      {children(dragControls)}
+    </Reorder.Item>
+  );
+}
+
 type ProcedureStepProps = {
   attribute: ProcedureStep;
   isDisabled: boolean;
   onEdit: (attribute: ProcedureStep) => void;
   onDelete: (attribute: ProcedureStep) => void;
+  dragControls?: DragControls;
 };
 
 function ProcedureStepItem({
   attribute,
   isDisabled,
   onEdit,
-  onDelete
+  onDelete,
+  dragControls
 }: ProcedureStepProps) {
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
@@ -466,7 +494,11 @@ function ProcedureStepItem({
         icon={<LuGripVertical />}
         variant="ghost"
         disabled={isDisabled}
-        className="cursor-grab"
+        className="cursor-grab active:cursor-grabbing"
+        onPointerDown={(e) => {
+          if (!isDisabled && dragControls) dragControls.start(e);
+        }}
+        style={{ touchAction: "none" }}
       />
       <VStack spacing={0} className="flex-grow">
         <HStack>
