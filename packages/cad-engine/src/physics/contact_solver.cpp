@@ -1,6 +1,23 @@
 #include "physics/contact_solver.h"
 
+#include <algorithm>
+
 namespace carbon::physics {
+
+// ---------------------------------------------------------------------------
+// Internal: vertex stride helper
+// ---------------------------------------------------------------------------
+
+namespace {
+
+/// Compute stride to sample at most max_vertices from a mesh.
+/// Returns 1 if max_vertices is 0 (sample all) or mesh is small enough.
+int compute_stride(int total_vertices, int max_vertices) {
+    if (max_vertices <= 0 || total_vertices <= max_vertices) return 1;
+    return (total_vertices + max_vertices - 1) / max_vertices;
+}
+
+} // anonymous namespace
 
 // ---------------------------------------------------------------------------
 // Contact detection
@@ -8,6 +25,14 @@ namespace carbon::physics {
 
 std::vector<BodyContact> detect_contacts(
     const std::vector<RigidBody>& bodies) {
+    ContactConfig default_config;
+    default_config.max_sample_vertices = 0; // all vertices for backward compat
+    return detect_contacts(bodies, default_config);
+}
+
+std::vector<BodyContact> detect_contacts(
+    const std::vector<RigidBody>& bodies,
+    const ContactConfig& config) {
     std::vector<BodyContact> contacts;
     int n = static_cast<int>(bodies.size());
 
@@ -26,7 +51,11 @@ std::vector<BodyContact> detect_contacts(
             Isometry iso_i = bodies[i].state.to_isometry();
             Isometry iso_i_inv = iso_i.inverse();
 
-            for (const auto& v : bodies[j].mesh->vertices) {
+            int stride_j = compute_stride(
+                static_cast<int>(bodies[j].mesh->vertices.size()),
+                config.max_sample_vertices);
+            for (int vi = 0; vi < static_cast<int>(bodies[j].mesh->vertices.size()); vi += stride_j) {
+                const auto& v = bodies[j].mesh->vertices[vi];
                 Vec3 world_v = bodies[j].state.to_world(v);
                 // Transform to body i's local space (where the SDF is defined)
                 Vec3 local_v = iso_i_inv.transform_point(world_v);
@@ -54,7 +83,11 @@ std::vector<BodyContact> detect_contacts(
                 Isometry iso_j = bodies[j].state.to_isometry();
                 Isometry iso_j_inv = iso_j.inverse();
 
-                for (const auto& v : bodies[i].mesh->vertices) {
+                int stride_i = compute_stride(
+                    static_cast<int>(bodies[i].mesh->vertices.size()),
+                    config.max_sample_vertices);
+                for (int vi = 0; vi < static_cast<int>(bodies[i].mesh->vertices.size()); vi += stride_i) {
+                    const auto& v = bodies[i].mesh->vertices[vi];
                     Vec3 world_v = bodies[i].state.to_world(v);
                     Vec3 local_v = iso_j_inv.transform_point(world_v);
                     float dist = bodies[j].sdf.query(local_v);
@@ -186,12 +219,13 @@ void apply_contact_forces(
 }
 
 // ---------------------------------------------------------------------------
-// Impulse-based contact resolution
+// Impulse-based contact resolution (internal implementation with dt)
 // ---------------------------------------------------------------------------
 
-void resolve_contacts_impulse(
+static void resolve_contacts_impulse_impl(
     std::vector<RigidBody>& bodies,
     const std::vector<BodyContact>& contacts,
+    float dt,
     const ContactConfig& config) {
 
     // Sequential impulse solver: iterate a few times for convergence
@@ -241,8 +275,8 @@ void resolve_contacts_impulse(
 
             if (eff_mass < 1e-10f) continue;
 
-            // Impulse magnitude (with Baumgarte stabilization)
-            float bias = config.baumgarte_factor * c.depth / 0.01f; // Assume dt~0.01
+            // Impulse magnitude (with Baumgarte stabilization using actual dt)
+            float bias = config.baumgarte_factor * c.depth / std::max(dt, 1e-6f);
             float j = -(1.0f + config.restitution) * v_rel_n + bias;
             j /= eff_mass;
             if (j < 0.0f) j = 0.0f;
@@ -258,6 +292,87 @@ void resolve_contacts_impulse(
                 if (!a.is_static) {
                     a.state.linear_velocity -= impulse * inv_mass_a;
                     a.state.angular_velocity -= inv_I_a * r_a.cross(impulse);
+                }
+            }
+        }
+    }
+}
+
+void resolve_contacts_impulse(
+    std::vector<RigidBody>& bodies,
+    const std::vector<BodyContact>& contacts,
+    const ContactConfig& config) {
+    resolve_contacts_impulse_impl(bodies, contacts, 0.01f, config);
+}
+
+void resolve_contacts_impulse(
+    std::vector<RigidBody>& bodies,
+    const std::vector<BodyContact>& contacts,
+    float dt,
+    const ContactConfig& config) {
+    resolve_contacts_impulse_impl(bodies, contacts, dt, config);
+}
+
+// ---------------------------------------------------------------------------
+// Penetration correction
+// ---------------------------------------------------------------------------
+
+void apply_penetration_correction(
+    std::vector<RigidBody>& bodies,
+    const ContactConfig& config) {
+
+    int n = static_cast<int>(bodies.size());
+
+    for (int i = 0; i < n; ++i) {
+        if (bodies[i].is_static || !bodies[i].mesh) continue;
+        if (bodies[i].sdf.empty()) continue;
+
+        // Check this body's vertices against all other bodies' SDFs
+        for (int j = 0; j < n; ++j) {
+            if (i == j) continue;
+            if (!bodies[j].mesh || bodies[j].sdf.empty()) continue;
+
+            AABB aabb_i = bodies[i].world_aabb();
+            AABB aabb_j = bodies[j].world_aabb();
+            if (!aabb_i.overlaps(aabb_j, 0.001f)) continue;
+
+            Isometry iso_j = bodies[j].state.to_isometry();
+            Isometry iso_j_inv = iso_j.inverse();
+
+            Vec3 correction_sum = Vec3::Zero();
+            int correction_count = 0;
+
+            int stride = compute_stride(
+                static_cast<int>(bodies[i].mesh->vertices.size()),
+                config.max_sample_vertices);
+            for (int vi = 0; vi < static_cast<int>(bodies[i].mesh->vertices.size()); vi += stride) {
+                const auto& v = bodies[i].mesh->vertices[vi];
+                Vec3 world_v = bodies[i].state.to_world(v);
+                Vec3 local_v = iso_j_inv.transform_point(world_v);
+                float dist = bodies[j].sdf.query(local_v);
+
+                if (dist < 0.0f) {
+                    Vec3 local_grad = bodies[j].sdf.gradient(local_v);
+                    Vec3 world_grad = iso_j.transform_direction(local_grad);
+                    float mag = world_grad.norm();
+                    if (mag > 1e-8f) {
+                        world_grad /= mag;
+                        // Push out along gradient by penetration depth
+                        correction_sum += world_grad * (-dist);
+                        correction_count++;
+                    }
+                }
+            }
+
+            if (correction_count > 0) {
+                Vec3 avg_correction = correction_sum / static_cast<float>(correction_count);
+                bodies[i].state.position += avg_correction;
+
+                // Zero velocity component into the surface
+                Vec3 correction_dir = avg_correction.normalized();
+                float v_into = bodies[i].state.linear_velocity.dot(correction_dir);
+                if (v_into < 0.0f) {
+                    bodies[i].state.linear_velocity -= v_into * correction_dir;
                 }
             }
         }

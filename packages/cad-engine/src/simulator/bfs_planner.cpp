@@ -1,4 +1,5 @@
 #include "simulator/bfs_planner.h"
+#include "physics/contact_solver.h"
 
 #include <deque>
 #include <unordered_set>
@@ -7,6 +8,8 @@
 namespace carbon {
 
 using physics::BodyState;
+using physics::RigidBody;
+using physics::BodyContact;
 
 namespace {
 
@@ -62,7 +65,7 @@ struct BFSNode {
     int depth = 0;
 };
 
-/// Generate the set of canonical actions (forces in ±X, ±Y, ±Z).
+/// Generate the set of canonical actions (forces in +/-X, +/-Y, +/-Z).
 std::vector<BFSAction> generate_actions(float force_mag, float torque_mag,
                                          bool use_torques) {
     std::vector<BFSAction> actions;
@@ -87,38 +90,47 @@ std::vector<BFSAction> generate_actions(float force_mag, float torque_mag,
     return actions;
 }
 
-/// Check if the body is separated from all obstacles.
+/// Check if the body is separated from all obstacles using SDF queries.
+/// Samples body vertices at final position against all obstacle SDFs.
+/// Separated when all sampled distances are positive and > threshold.
 bool is_disassembled(const BodyState& state, const TriMesh& mesh,
                      const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
-                     float separation_dist) {
+                     float separation_dist, int max_sample_verts) {
     Isometry iso = state.to_isometry();
     AABB body_aabb = mesh.world_aabb(iso);
 
     for (const auto& obs : obstacles) {
         if (!obs) continue;
-        // Check if AABBs are separated by at least separation_dist
+
+        // Fast AABB pre-check with separation margin
         AABB expanded = obs->world_aabb;
         expanded.min -= Vec3(separation_dist, separation_dist, separation_dist);
         expanded.max += Vec3(separation_dist, separation_dist, separation_dist);
-        if (body_aabb.overlaps(expanded)) return false;
+        if (!body_aabb.overlaps(expanded)) continue;
+
+        // Detailed SDF check: sample body vertices
+        if (obs->sdf.empty()) {
+            // Fall back to AABB overlap
+            return false;
+        }
+
+        int stride = 1;
+        int nverts = static_cast<int>(mesh.vertices.size());
+        if (max_sample_verts > 0 && nverts > max_sample_verts) {
+            stride = (nverts + max_sample_verts - 1) / max_sample_verts;
+        }
+
+        for (int vi = 0; vi < nverts; vi += stride) {
+            Vec3 world_v = iso.transform_point(mesh.vertices[vi]);
+            float dist = obs->sdf.query(world_v);
+            if (dist < separation_dist) return false;
+        }
     }
     return true;
 }
 
-/// Check if the body collides with any obstacle.
-bool collides_with_obstacles(const BodyState& state, const TriMesh& mesh,
-                              const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles) {
-    Isometry iso = state.to_isometry();
-    for (const auto& obs : obstacles) {
-        if (!obs) continue;
-        if (sdf_mesh_intersects(mesh, iso, *obs)) return true;
-    }
-    return false;
-}
-
 /// Check if a state is similar to any ancestor in the current branch.
 /// Prevents back-and-forth oscillation within a single BFS trajectory.
-/// Reference: Assemble-Them-All's any_state_similar(temp_path[:-frame_skip], new_state.q).
 bool oscillates_with_ancestors(const BodyState& state,
                                 int parent_idx,
                                 const std::vector<BFSNode>& nodes,
@@ -133,31 +145,147 @@ bool oscillates_with_ancestors(const BodyState& state,
     return false;
 }
 
-/// Simulate one action: apply force/torque for N steps and return final state.
+/// Detect contacts between a moving body and static SDF obstacles.
+/// Returns BodyContact list compatible with contact_solver functions.
+std::vector<BodyContact> detect_sdf_contacts(
+    const RigidBody& body, int body_idx,
+    const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
+    int max_sample_verts) {
+    std::vector<BodyContact> contacts;
+    if (!body.mesh) return contacts;
+
+    Isometry iso = body.state.to_isometry();
+    AABB body_aabb = body.world_aabb();
+
+    for (const auto& obs : obstacles) {
+        if (!obs || obs->sdf.empty()) continue;
+        if (!body_aabb.overlaps(obs->world_aabb, 0.001f)) continue;
+
+        int nverts = static_cast<int>(body.mesh->vertices.size());
+        int stride = 1;
+        if (max_sample_verts > 0 && nverts > max_sample_verts) {
+            stride = (nverts + max_sample_verts - 1) / max_sample_verts;
+        }
+
+        for (int vi = 0; vi < nverts; vi += stride) {
+            Vec3 world_v = iso.transform_point(body.mesh->vertices[vi]);
+            float dist = obs->sdf.query(world_v);
+
+            if (dist < 0.0f) {
+                Vec3 grad = obs->sdf.gradient(world_v);
+                float mag = grad.norm();
+                if (mag > 1e-8f) grad /= mag;
+                else grad = Vec3(0, 1, 0);
+
+                BodyContact c;
+                c.body_a = -1; // obstacle (static, not in bodies array)
+                c.body_b = body_idx;
+                c.position = world_v;
+                c.normal = grad; // Points outward from obstacle
+                c.depth = -dist;
+                contacts.push_back(c);
+            }
+        }
+    }
+    return contacts;
+}
+
+/// Apply penetration correction for a body against SDF obstacles.
+/// Projects penetrating vertices out along SDF gradient.
+void apply_sdf_penetration_correction(
+    RigidBody& body,
+    const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
+    int max_sample_verts) {
+    if (!body.mesh) return;
+
+    Isometry iso = body.state.to_isometry();
+    AABB body_aabb = body.world_aabb();
+
+    for (const auto& obs : obstacles) {
+        if (!obs || obs->sdf.empty()) continue;
+        if (!body_aabb.overlaps(obs->world_aabb, 0.001f)) continue;
+
+        Vec3 correction_sum = Vec3::Zero();
+        int correction_count = 0;
+
+        int nverts = static_cast<int>(body.mesh->vertices.size());
+        int stride = 1;
+        if (max_sample_verts > 0 && nverts > max_sample_verts) {
+            stride = (nverts + max_sample_verts - 1) / max_sample_verts;
+        }
+
+        for (int vi = 0; vi < nverts; vi += stride) {
+            Vec3 world_v = iso.transform_point(body.mesh->vertices[vi]);
+            float dist = obs->sdf.query(world_v);
+
+            if (dist < 0.0f) {
+                Vec3 grad = obs->sdf.gradient(world_v);
+                float mag = grad.norm();
+                if (mag > 1e-8f) {
+                    grad /= mag;
+                    correction_sum += grad * (-dist);
+                    correction_count++;
+                }
+            }
+        }
+
+        if (correction_count > 0) {
+            Vec3 avg_correction = correction_sum / static_cast<float>(correction_count);
+            body.state.position += avg_correction;
+
+            // Zero velocity into the surface
+            Vec3 correction_dir = avg_correction.normalized();
+            float v_into = body.state.linear_velocity.dot(correction_dir);
+            if (v_into < 0.0f) {
+                body.state.linear_velocity -= v_into * correction_dir;
+            }
+
+            // Update isometry for next obstacle check
+            iso = body.state.to_isometry();
+        }
+    }
+}
+
+/// Simulate one action with full contact-aware physics.
+/// Applies penalty forces, Coulomb friction, and penetration correction at each step.
 BodyState simulate_action(const BodyState& start, const TriMesh& mesh,
-                           const BFSAction& action, const BFSPlannerConfig& config) {
-    physics::RigidBody body;
+                           const BFSAction& action,
+                           const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
+                           const BFSPlannerConfig& config) {
+    RigidBody body;
     body.id = "moving";
     body.mass = 1.0f;
     body.mesh = &mesh;
     body.state = start;
 
     Vec3 half = mesh.local_aabb().size() * 0.5f;
-    body.inertia = physics::RigidBody::box_inertia(body.mass, half);
+    body.inertia = RigidBody::box_inertia(body.mass, half);
     body.inertia_inv = body.inertia.inverse();
 
-    // Simulate with applied force/torque (no gravity, no ground)
+    const auto& cc = config.contact_config;
+
     for (int s = 0; s < config.sim_steps_per_action; ++s) {
         body.clear_forces();
         body.apply_force(action.force);
         body.apply_torque(action.torque);
 
-        // Semi-implicit Euler (lightweight, no full simulation needed)
+        // Detect contacts with obstacles and apply penalty + friction forces
+        auto contacts = detect_sdf_contacts(body, 0, obstacles, cc.max_sample_vertices);
+        if (!contacts.empty()) {
+            // Apply penalty and friction forces via existing contact solver
+            // We need a vector with the body in it for the solver API
+            std::vector<RigidBody> bodies_vec = {body};
+            physics::apply_contact_forces(bodies_vec, contacts, cc);
+            body = bodies_vec[0]; // Copy back forces
+        }
+
+        // Semi-implicit Euler integration
         Vec3 accel = body.force / body.mass;
         body.state.linear_velocity += accel * config.sim_dt;
         body.state.position += body.state.linear_velocity * config.sim_dt;
 
-        if (action.torque.norm() > 1e-8f) {
+        // Angular dynamics
+        if (body.torque.norm() > 1e-8f || body.state.angular_velocity.norm() > 1e-8f) {
             Eigen::Matrix3f I_inv = body.world_inertia_inv();
             Vec3 angular_accel = I_inv * body.torque;
             body.state.angular_velocity += angular_accel * config.sim_dt;
@@ -174,6 +302,9 @@ BodyState simulate_action(const BodyState& start, const TriMesh& mesh,
                 body.state.orientation = (dq * body.state.orientation).normalized();
             }
         }
+
+        // Penetration correction after integration
+        apply_sdf_penetration_correction(body, obstacles, cc.max_sample_vertices);
     }
 
     return body.state;
@@ -218,6 +349,8 @@ BFSResult plan_bfs(
     queue.push_back(0);
     visited.insert(initial);
 
+    int max_sample_verts = config.contact_config.max_sample_vertices;
+
     while (!queue.empty() && result.states_explored < config.max_states) {
         int current_idx = queue.front();
         queue.pop_front();
@@ -226,21 +359,20 @@ BFSResult plan_bfs(
         if (current.depth >= config.max_bfs_depth) continue;
 
         for (int ai = 0; ai < static_cast<int>(actions.size()); ++ai) {
-            // Simulate action
+            // Simulate action with contact physics
             BodyState new_state = simulate_action(
-                current.state, moving_mesh, actions[ai], config);
+                current.state, moving_mesh, actions[ai], obstacles, config);
 
             result.states_explored++;
+
+            // Stuck detection: if part barely moved, skip this direction
+            float movement = (new_state.position - current.state.position).norm();
+            if (movement < config.stuck_threshold) continue;
 
             // Check if already visited (similar state)
             if (visited.count(new_state)) continue;
 
-            // Check collision
-            if (collides_with_obstacles(new_state, moving_mesh, obstacles)) continue;
-
             // Check oscillation: is new state similar to any ancestor in this branch?
-            // Uses 2x pos_threshold (= 0.1) as oscillation radius — slightly looser
-            // than state dedup to catch near-revisits that hash differently.
             if (oscillates_with_ancestors(new_state, current_idx, nodes,
                                            config.pos_threshold * 2.0f)) continue;
 
@@ -257,7 +389,7 @@ BFSResult plan_bfs(
 
             // Check disassembly
             if (is_disassembled(new_state, moving_mesh, obstacles,
-                                config.separation_distance)) {
+                                config.separation_distance, max_sample_verts)) {
                 result.success = true;
                 result.depth = node.depth;
 

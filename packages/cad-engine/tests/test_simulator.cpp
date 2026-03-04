@@ -689,122 +689,12 @@ TEST(Simulator, DeeplyNestedAssemblyTransforms) {
 }
 
 // ===========================================================================
-// Sequence strategy tests
+// Config defaults test
 // ===========================================================================
 
-TEST(Simulator, SequenceStrategyDefaultIsProgressiveQueue) {
+TEST(Simulator, ConfigMaxRetriesDefault) {
     SimulatorConfig config;
-    EXPECT_EQ(config.strategy, SequenceStrategy::ProgressiveQueue);
     EXPECT_EQ(config.max_retries, 4);
-}
-
-TEST(Simulator, QueueStrategySinglePart) {
-    AssemblyNode root = make_assembly("root", {
-        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0))
-    });
-
-    SimulatorConfig config;
-    config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::Queue;
-    AssemblySimulator sim(config);
-    sim.load_assembly(root);
-    auto result = sim.simulate();
-
-    EXPECT_TRUE(result.success);
-    EXPECT_EQ(result.steps.size(), 1u);
-    EXPECT_EQ(result.stuck_parts.size(), 0u);
-}
-
-TEST(Simulator, QueueStrategyTwoParts) {
-    AssemblyNode root = make_assembly("root", {
-        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
-        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(3.0f, 0, 0)),
-    });
-
-    SimulatorConfig config;
-    config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::Queue;
-    AssemblySimulator sim(config);
-    sim.load_assembly(root);
-    auto result = sim.simulate();
-
-    EXPECT_TRUE(result.success);
-    EXPECT_EQ(result.steps.size(), 2u);
-    EXPECT_EQ(result.stuck_parts.size(), 0u);
-}
-
-TEST(Simulator, QueueStrategyThreePartStack) {
-    AssemblyNode root = make_assembly("root", {
-        make_part_node("a", "Base_A", make_cube(0.5f), Vec3(0, 0, 0)),
-        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(0, 1.0f, 0)),
-        make_part_node("c", "Part_C", make_cube(0.5f), Vec3(0, 2.0f, 0)),
-    });
-
-    SimulatorConfig config;
-    config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::Queue;
-    AssemblySimulator sim(config);
-    sim.load_assembly(root);
-    auto result = sim.simulate();
-
-    EXPECT_TRUE(result.success);
-    EXPECT_EQ(result.steps.size(), 3u);
-    EXPECT_EQ(result.stuck_parts.size(), 0u);
-}
-
-TEST(Simulator, ProgressiveQueueSinglePart) {
-    AssemblyNode root = make_assembly("root", {
-        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0))
-    });
-
-    SimulatorConfig config;
-    config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::ProgressiveQueue;
-    AssemblySimulator sim(config);
-    sim.load_assembly(root);
-    auto result = sim.simulate();
-
-    EXPECT_TRUE(result.success);
-    EXPECT_EQ(result.steps.size(), 1u);
-    EXPECT_EQ(result.stuck_parts.size(), 0u);
-}
-
-TEST(Simulator, ProgressiveQueueTwoParts) {
-    AssemblyNode root = make_assembly("root", {
-        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
-        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(3.0f, 0, 0)),
-    });
-
-    SimulatorConfig config;
-    config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::ProgressiveQueue;
-    AssemblySimulator sim(config);
-    sim.load_assembly(root);
-    auto result = sim.simulate();
-
-    EXPECT_TRUE(result.success);
-    EXPECT_EQ(result.steps.size(), 2u);
-    EXPECT_EQ(result.stuck_parts.size(), 0u);
-}
-
-TEST(Simulator, QueueStrategyStepNumbersSequential) {
-    AssemblyNode root = make_assembly("root", {
-        make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
-        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(1.0f, 0, 0)),
-        make_part_node("c", "Part_C", make_cube(0.5f), Vec3(2.0f, 0, 0)),
-    });
-
-    SimulatorConfig config;
-    config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::Queue;
-    AssemblySimulator sim(config);
-    sim.load_assembly(root);
-    auto result = sim.simulate();
-
-    EXPECT_TRUE(result.success);
-    for (size_t i = 0; i < result.steps.size(); ++i) {
-        EXPECT_EQ(result.steps[i].step_number, static_cast<uint32_t>(i + 1));
-    }
 }
 
 TEST(Simulator, OutsidenessOrderingExteriorFirst) {
@@ -827,10 +717,9 @@ TEST(Simulator, OutsidenessOrderingExteriorFirst) {
     EXPECT_EQ(result.stuck_parts.size(), 0u);
 }
 
-TEST(Simulator, SDFGatekeeperRejectsClippingPath) {
-    // Two tightly touching cubes — geometric planner might allow a direction
-    // that clips due to baseline-intersecting tolerance. SDF gate catches it.
-    // Both parts should still be removable (via alternative directions or physics).
+TEST(Simulator, PhysicsOnlyHandlesTouchingParts) {
+    // Two tightly touching cubes — physics-only planner handles them correctly.
+    // Both parts should be removable via contact-aware BFS/RRT.
     AssemblyNode root = make_assembly("root", {
         make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
         make_part_node("b", "Part_B", make_cube(0.5f), Vec3(1.0f, 0, 0)),
@@ -838,7 +727,6 @@ TEST(Simulator, SDFGatekeeperRejectsClippingPath) {
 
     SimulatorConfig config;
     config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::ProgressiveQueue;
     AssemblySimulator sim(config);
     sim.load_assembly(root);
     auto result = sim.simulate();
@@ -848,7 +736,7 @@ TEST(Simulator, SDFGatekeeperRejectsClippingPath) {
     EXPECT_EQ(result.stuck_parts.size(), 0u);
 }
 
-TEST(Simulator, QueueStrategyRespectsTimeout) {
+TEST(Simulator, RespectsTimeout) {
     AssemblyNode root = make_assembly("root", {
         make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
         make_part_node("b", "Part_B", make_cube(0.5f), Vec3(1.0f, 0, 0)),
@@ -856,7 +744,6 @@ TEST(Simulator, QueueStrategyRespectsTimeout) {
 
     SimulatorConfig config;
     config.removal_distance = 5.0f;
-    config.strategy = SequenceStrategy::Queue;
     config.timeout_ms = 1;  // extremely short timeout
     AssemblySimulator sim(config);
     sim.load_assembly(root);
@@ -865,4 +752,28 @@ TEST(Simulator, QueueStrategyRespectsTimeout) {
     // Should either succeed very fast or timeout — either way result.error may be set
     // The important thing is that it doesn't run forever
     EXPECT_TRUE(result.error.has_value() || result.success);
+}
+
+// ===========================================================================
+// Physics-only assembly tests
+// ===========================================================================
+
+TEST(Simulator, ThreePartStackPhysicsOnly) {
+    // A (bottom), B (middle), C (top) — stack along Y.
+    // Physics-only planner should produce a valid disassembly ordering.
+    AssemblyNode root = make_assembly("root", {
+        make_part_node("a", "Base_A", make_cube(0.5f), Vec3(0, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(0, 1.0f, 0)),
+        make_part_node("c", "Part_C", make_cube(0.5f), Vec3(0, 2.0f, 0)),
+    });
+
+    SimulatorConfig config;
+    config.removal_distance = 5.0f;
+    AssemblySimulator sim(config);
+    sim.load_assembly(root);
+    auto result = sim.simulate();
+
+    EXPECT_TRUE(result.success);
+    EXPECT_EQ(result.steps.size(), 3u);
+    EXPECT_EQ(result.stuck_parts.size(), 0u);
 }

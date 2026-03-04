@@ -127,3 +127,83 @@ TEST(RRTPlannerTest, ReturnsDirectionForSuccessfulPath) {
         EXPECT_NEAR(mag, 1.0f, 0.1f) << "Direction should be roughly unit length";
     }
 }
+
+// ---------------------------------------------------------------------------
+// Contact-aware BFS tests
+// ---------------------------------------------------------------------------
+
+TEST(BFSPlannerTest, ContactPhysicsWithObstacles) {
+    // Cube with two nearby obstacles. With contact-aware physics, the BFS
+    // uses penalty forces and friction during simulation (not just post-hoc
+    // collision checks). Verify it still finds a valid path.
+    TriMesh cube = make_cube(0.5f);
+
+    // Two obstacles on +X and -X, leaving Y and Z open
+    auto wall_px = make_obstacle(cube, Vec3(1.2f, 0, 0));
+    auto wall_nx = make_obstacle(cube, Vec3(-1.2f, 0, 0));
+
+    BFSPlannerConfig cfg;
+    cfg.force_magnitude = 50.0f;
+    cfg.sim_steps_per_action = 100;
+    cfg.sim_dt = 0.001f;
+    cfg.max_bfs_depth = 50;
+    cfg.max_states = 5000;
+    cfg.separation_distance = 2.0f;
+
+    auto result = plan_bfs(cube, Isometry::identity(), {wall_px, wall_nx}, cfg);
+
+    EXPECT_TRUE(result.success) << "Should find escape path with contact-aware physics";
+    EXPECT_GT(result.trajectory.size(), 1u) << "Should have a trajectory";
+}
+
+TEST(BFSPlannerTest, StuckDetectionLimitsExploration) {
+    // Cube surrounded by obstacles on all sides.
+    // With contact physics, the cube gets stuck (penalty forces prevent escape).
+    // Even if it eventually finds a path through a gap, stuck detection should
+    // limit the number of states explored compared to max budget.
+    TriMesh cube = make_cube(0.5f);
+    TriMesh big_cube = make_cube(2.0f);
+    // Overlapping big cubes form an impenetrable cage
+    float gap = 1.5f;
+
+    std::vector<std::shared_ptr<CachedSDFMesh>> obstacles;
+    Vec3 dirs[] = {{gap,0,0}, {-gap,0,0}, {0,gap,0}, {0,-gap,0}, {0,0,gap}, {0,0,-gap}};
+    for (const auto& d : dirs) {
+        obstacles.push_back(make_obstacle(big_cube, d));
+    }
+
+    BFSPlannerConfig cfg;
+    cfg.force_magnitude = 50.0f;
+    cfg.sim_steps_per_action = 100;
+    cfg.sim_dt = 0.001f;
+    cfg.max_bfs_depth = 10;
+    cfg.max_states = 500;
+    cfg.separation_distance = 3.0f;
+
+    auto result = plan_bfs(cube, Isometry::identity(), obstacles, cfg);
+
+    // With stuck detection pruning directions that don't move,
+    // we should explore significantly fewer states than the max budget
+    EXPECT_LT(result.states_explored, 500)
+        << "Stuck detection should prune quickly when all directions are blocked";
+}
+
+TEST(BFSPlannerTest, VertexSamplingStrideWorks) {
+    // Verify that max_sample_vertices config affects BFS behavior
+    // (doesn't crash, still finds path with limited sampling)
+    TriMesh cube = make_cube(0.5f);
+    auto obs = make_obstacle(cube, Vec3(5.0f, 0, 0));
+
+    BFSPlannerConfig cfg;
+    cfg.force_magnitude = 50.0f;
+    cfg.sim_steps_per_action = 100;  // Enough steps for meaningful displacement
+    cfg.sim_dt = 0.001f;
+    cfg.max_bfs_depth = 20;
+    cfg.max_states = 1000;
+    cfg.separation_distance = 2.0f;
+    cfg.contact_config.max_sample_vertices = 4; // Very aggressive stride
+
+    auto result = plan_bfs(cube, Isometry::identity(), {obs}, cfg);
+    EXPECT_TRUE(result.success)
+        << "BFS should still find path with limited vertex sampling";
+}

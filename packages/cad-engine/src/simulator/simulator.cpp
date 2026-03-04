@@ -1,10 +1,8 @@
 #include "simulator/simulator.h"
-#include "simulator/path_planner.h"
 #include "simulator/animation_gen.h"
 #include "simulator/bfs_planner.h"
 #include "simulator/rrt_planner.h"
 #include "collision/contact_graph.h"
-#include "collision/blocking_matrix.h"
 #include "collision/sdf_collision.h"
 #include "classification/part_classifier.h"
 #include "graph/dependency_graph.h"
@@ -12,18 +10,11 @@
 #include "geometry/aabb.h"
 
 #include <chrono>
-#include <deque>
 #include <iostream>
 #include <algorithm>
-#include <cmath>
 #include <numeric>
 
 namespace carbon {
-
-// --- Constants ---
-
-static constexpr float APPROACH_TIME_FRACTION = 0.30f;
-static constexpr float STAGING_MARGIN = 0.10f;
 
 // --- Constructor ---
 
@@ -108,66 +99,6 @@ float AssemblySimulator::compute_removal_distance() const {
         if (pmin > 1e-6f) min_dim = std::min(min_dim, pmin);
     }
     return std::max(min_dim * 2.0f, scene_diagonal_ * 0.1f);
-}
-
-// --- Build neighbor states for a part ---
-
-std::vector<NeighborState> AssemblySimulator::build_neighbor_states(
-    const PartData& part,
-    const ContactGraph& contacts) const {
-
-    std::vector<NeighborState> neighbors;
-    auto neighbor_ids = contacts.neighbors(part.id);
-
-    for (const auto& nid : neighbor_ids) {
-        // Skip removed parts
-        if (removed_parts_.count(nid)) continue;
-
-        // Find the neighbor's PartData
-        const PartData* np = part_map_.count(nid) ? part_map_.at(nid) : nullptr;
-        if (!np) continue;
-
-        // Pre-build cached CGAL mesh + AABB tree for this neighbor (static pose)
-        auto cached = build_collision_mesh(*np->mesh, np->transform);
-
-        NeighborState ns;
-        ns.part = np;
-        ns.cached_mesh = cached;
-
-        // Check baseline intersection with depth threshold.
-        // Shallow mesh overlap at contact surfaces (tessellation artifact)
-        // is NOT counted as baseline-intersecting.
-        bool raw_intersects = mesh_intersects_cached(
-            *part.mesh, part.transform, *cached);
-        if (raw_intersects) {
-            AABB overlap;
-            overlap.min = part.world_aabb.min.cwiseMax(np->world_aabb.min);
-            overlap.max = part.world_aabb.max.cwiseMin(np->world_aabb.max);
-            Vec3 overlap_size = overlap.size();
-            float min_extent = std::min({overlap_size.x(), overlap_size.y(), overlap_size.z()});
-            float small_diag = std::min(part.world_aabb.diagonal(), np->world_aabb.diagonal());
-            float threshold = small_diag * 0.05f;
-            ns.baseline_intersecting = (min_extent > threshold);
-        } else {
-            ns.baseline_intersecting = false;
-        }
-
-        // Compute baseline overlap volume
-        if (ns.baseline_intersecting) {
-            ns.baseline_overlap_volume = aabb_overlap_volume(part.world_aabb, np->world_aabb);
-        } else {
-            ns.baseline_overlap_volume = 0.0f;
-        }
-
-        // Relaxed clearance: 0 if near-contact, else use configured clearance
-        float dist = mesh_distance_cached(*part.mesh, part.transform, *cached);
-        ns.relaxed_clearance = (dist < config_.clearance_epsilon * 2.0f)
-            ? 0.0f : config_.clearance_epsilon;
-
-        neighbors.push_back(std::move(ns));
-    }
-
-    return neighbors;
 }
 
 // --- Physics-based path planning ---
@@ -260,42 +191,6 @@ bool AssemblySimulator::try_physics_path(
     return false;
 }
 
-// --- SDF validation gate ---
-
-/// SDF cross-validation of a geometric removal path.
-/// Samples multiple points along the path against precomputed SDFs.
-/// Returns true if the path is clean (no clipping detected at any sample).
-static bool validate_path_with_sdf(
-    const PartData& part,
-    const Vec3& direction,
-    float travel,
-    const std::vector<PartData>& all_parts,
-    const std::unordered_set<std::string>& removed,
-    const std::unordered_set<std::string>& baseline_neighbors,
-    const std::unordered_map<std::string, std::shared_ptr<CachedSDFMesh>>& sdfs) {
-
-    // Sample N points along the path: every ~10 units, minimum 5 samples
-    int num_samples = std::max(5, static_cast<int>(travel / 10.0f));
-
-    for (int i = 1; i <= num_samples; ++i) {
-        float t = static_cast<float>(i) / static_cast<float>(num_samples);
-        Isometry pose = part.transform;
-        pose.translation += direction * (travel * t);
-
-        for (const auto& obs : all_parts) {
-            if (obs.id == part.id || removed.count(obs.id)) continue;
-            if (baseline_neighbors.count(obs.id)) continue;
-            auto it = sdfs.find(obs.id);
-            if (it == sdfs.end()) continue;
-            if (sdf_mesh_intersects(*part.mesh, pose, *it->second)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
 // --- Main simulation ---
 
 SimulationResult AssemblySimulator::simulate() {
@@ -326,14 +221,8 @@ SimulationResult AssemblySimulator::simulate() {
         config_.clearance_epsilon = std::max(min_dim * 0.02f, 1e-4f);
     }
 
-    // --- 3. Build blocking matrix ---
+    // --- 3. Compute removal distance ---
     float removal_dist = compute_removal_distance();
-    std::vector<BlockingPartData> blocking_parts;
-    for (const auto& p : parts_) {
-        blocking_parts.push_back({p.id, p.mesh, p.transform, p.world_aabb});
-    }
-    auto blocking_matrix = BlockingMatrix::build(
-        blocking_parts, removal_dist, config_.clearance_epsilon);
 
     // --- 4. Detect initial overlap issues ---
     for (const auto& edge : contact_graph.edges()) {
@@ -360,7 +249,7 @@ SimulationResult AssemblySimulator::simulate() {
         part_sdfs[p.id] = build_sdf_mesh(*p.mesh, p.transform);
     }
 
-    // --- 6. Main disassembly loop ---
+    // --- 6. Physics-only greedy disassembly loop ---
 
     // Compute assembly centroid for outsideness heuristic (ASAP-style).
     // Parts furthest from centroid are tried first — they're most likely
@@ -379,113 +268,11 @@ SimulationResult AssemblySimulator::simulate() {
     std::vector<AssemblyStep> disassembly_steps;
     uint32_t step_number = 0;
 
-    // Helper: try geometric removal for a single part. Returns true if path found.
     struct RemovableCandidate {
         std::string id;
         Vec3 direction;
         PathEvaluation eval;
         float quality;
-    };
-
-    auto try_geometric_removal = [&](const PartData& part) -> std::optional<RemovableCandidate> {
-        // Blocking matrix pre-filter (purely geometric, no classification)
-        if (blocking_matrix.is_blocked_in_all_directions(part.id, removed_parts_)) {
-            blocking_matrix_skips_++;
-            return std::nullopt;
-        }
-
-        // Generate candidate directions — full set for all parts
-        auto directions = candidate_directions_for_part(part, contact_graph);
-
-        // Build neighbor states (excluding removed parts)
-        auto neighbors = build_neighbor_states(part, contact_graph);
-
-        // Collect all passing candidates, sorted by quality (best first)
-        std::vector<RemovableCandidate> candidates;
-
-        for (const auto& dir : directions) {
-            path_evaluations_++;
-
-            auto eval = evaluate_removal_path(
-                part, dir, removal_dist, config_.clearance_epsilon,
-                neighbors, collision_checks_);
-
-            if (!eval) continue;
-
-            float ratio = eval->travel_distance / std::max(removal_dist, 1e-6f);
-            float quality = ratio;
-            if (eval->min_clearance) {
-                quality += *eval->min_clearance * 1e-3f;
-            }
-
-            if (quality > 0.0f) {
-                RemovableCandidate c;
-                c.id = part.id;
-                c.direction = dir;
-                c.eval = *eval;
-                c.quality = quality;
-                candidates.push_back(std::move(c));
-            }
-        }
-
-        // Sort by quality descending
-        std::sort(candidates.begin(), candidates.end(),
-            [](const RemovableCandidate& a, const RemovableCandidate& b) {
-                return a.quality > b.quality;
-            });
-
-        // A1: Per-part collision audit (log once for best candidate)
-        int baseline_count = 0, checked_count = 0;
-        if (!candidates.empty()) {
-            const auto& best = candidates[0];
-            for (const auto& ns : neighbors) {
-                if (ns.baseline_intersecting) baseline_count++;
-                else checked_count++;
-            }
-            std::cout << "[path_audit] '" << part.name << "'"
-                      << " dir=(" << best.direction.x() << "," << best.direction.y() << "," << best.direction.z() << ")"
-                      << " neighbors=" << neighbors.size()
-                      << " baseline_skipped=" << baseline_count
-                      << " checked=" << checked_count
-                      << " travel=" << best.eval.travel_distance
-                      << " candidates=" << candidates.size()
-                      << std::endl;
-        }
-
-        // Fix 1: If ALL neighbors are baseline-intersecting, the geometric planner
-        // has zero collision data. Skip it entirely and force physics planner.
-        if (checked_count == 0 && baseline_count > 0) {
-            std::cout << "[blind_skip] '" << part.name
-                      << "' has 0 checked neighbors (" << baseline_count
-                      << " baseline) — forcing physics planner" << std::endl;
-            return std::nullopt;
-        }
-
-        // Build baseline-intersecting neighbor set for SDF gate exclusion
-        std::unordered_set<std::string> baseline_ids;
-        for (const auto& ns : neighbors) {
-            if (ns.baseline_intersecting) {
-                baseline_ids.insert(ns.part->id);
-            }
-        }
-
-        // B2: SDF validation gate — try each candidate in quality order
-        for (const auto& candidate : candidates) {
-            bool sdf_ok = validate_path_with_sdf(
-                part, candidate.direction, candidate.eval.travel_distance,
-                parts_, removed_parts_, baseline_ids, part_sdfs);
-
-            if (sdf_ok) {
-                return candidate;
-            }
-
-            std::cout << "[sdf_gate] Rejected geometric result for '" << part.name
-                      << "' dir=(" << candidate.direction.x() << "," << candidate.direction.y()
-                      << "," << candidate.direction.z() << ") — SDF detected clipping" << std::endl;
-        }
-
-        // All geometric directions rejected by SDF — fall through to physics
-        return std::nullopt;
     };
 
     // Helper: log and record a removal step
@@ -532,38 +319,53 @@ SimulationResult AssemblySimulator::simulate() {
         disassembly_steps.push_back(std::move(step));
     };
 
-    if (config_.strategy == SequenceStrategy::Current) {
-        // --- Original single-pass approach (no retries) ---
-        while (removed_parts_.size() < parts_.size()) {
-            auto now = std::chrono::steady_clock::now();
-            auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
-            if (static_cast<uint64_t>(elapsed_ms) > config_.timeout_ms) {
-                result.error = "Simulation timed out after " + std::to_string(elapsed_ms) + "ms";
-                break;
+    // Physics-only greedy loop: sort by outsideness, try physics removal on each part
+    int retry_count = 0;
+
+    while (removed_parts_.size() < parts_.size()) {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+        if (static_cast<uint64_t>(elapsed_ms) > config_.timeout_ms) {
+            result.error = "Simulation timed out after " + std::to_string(elapsed_ms) + "ms";
+            break;
+        }
+
+        // Sort remaining parts by outsideness (furthest from centroid first)
+        std::vector<size_t> remaining_indices;
+        for (size_t i = 0; i < parts_.size(); ++i) {
+            if (!removed_parts_.count(parts_[i].id)) {
+                remaining_indices.push_back(i);
             }
+        }
+        std::sort(remaining_indices.begin(), remaining_indices.end(), [&](size_t a, size_t b) {
+            float da = (parts_[a].transform.translation - assembly_centroid).squaredNorm();
+            float db = (parts_[b].transform.translation - assembly_centroid).squaredNorm();
+            return da > db;  // exterior parts first
+        });
 
-            std::vector<RemovableCandidate> removable;
+        bool progress = false;
+        for (size_t idx : remaining_indices) {
+            const auto& part = parts_[idx];
+            path_evaluations_++;
 
-            // Sort parts by outsideness (furthest from centroid first)
-            std::vector<size_t> part_indices(parts_.size());
-            std::iota(part_indices.begin(), part_indices.end(), 0);
-            std::sort(part_indices.begin(), part_indices.end(), [&](size_t a, size_t b) {
-                float da = (parts_[a].transform.translation - assembly_centroid).squaredNorm();
-                float db = (parts_[b].transform.translation - assembly_centroid).squaredNorm();
-                return da > db;  // exterior parts first
-            });
-
-            for (size_t idx : part_indices) {
-                const auto& part = parts_[idx];
-                if (removed_parts_.count(part.id)) continue;
-
-                auto candidate = try_geometric_removal(part);
-                if (candidate) {
-                    removable.push_back(std::move(*candidate));
-                }
+            Vec3 phys_dir;
+            PathEvaluation phys_eval;
+            if (try_physics_path(part, retry_count, phys_dir, phys_eval, part_sdfs)) {
+                RemovableCandidate candidate;
+                candidate.id = part.id;
+                candidate.direction = phys_dir;
+                candidate.eval = phys_eval;
+                candidate.quality = 1.0f;
+                record_removal(candidate);
+                progress = true;
+                break;  // restart with updated obstacles
             }
+        }
 
-            if (removable.empty()) {
+        if (!progress) {
+            retry_count++;
+            if (retry_count > config_.max_retries) {
+                // Mark remaining as stuck
                 for (const auto& p : parts_) {
                     if (!removed_parts_.count(p.id)) {
                         result.stuck_parts.push_back(p.id);
@@ -571,98 +373,8 @@ SimulationResult AssemblySimulator::simulate() {
                 }
                 break;
             }
-
-            std::sort(removable.begin(), removable.end(),
-                [](const RemovableCandidate& a, const RemovableCandidate& b) {
-                    return a.quality > b.quality;
-                });
-
-            for (const auto& candidate : removable) {
-                record_removal(candidate);
-            }
-        }
-    } else {
-        // --- Queue / ProgressiveQueue strategies ---
-        // Build initial queue sorted by outsideness (furthest from centroid first)
-        std::vector<size_t> sorted_indices(parts_.size());
-        std::iota(sorted_indices.begin(), sorted_indices.end(), 0);
-        std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t a, size_t b) {
-            float da = (parts_[a].transform.translation - assembly_centroid).squaredNorm();
-            float db = (parts_[b].transform.translation - assembly_centroid).squaredNorm();
-            return da > db;  // exterior parts first
-        });
-        std::deque<size_t> queue;
-        for (size_t idx : sorted_indices) {
-            queue.push_back(idx);
-        }
-
-        // Track retry counts per part
-        std::unordered_map<std::string, int> retry_counts;
-        size_t stall_counter = 0;  // counts consecutive failures without progress
-
-        while (!queue.empty()) {
-            auto now = std::chrono::steady_clock::now();
-            auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
-            if (static_cast<uint64_t>(elapsed_ms) > config_.timeout_ms) {
-                result.error = "Simulation timed out after " + std::to_string(elapsed_ms) + "ms";
-                break;
-            }
-
-            // If we've gone through the entire queue with no progress, we're stuck
-            if (stall_counter >= queue.size()) {
-                for (size_t idx : queue) {
-                    if (!removed_parts_.count(parts_[idx].id)) {
-                        result.stuck_parts.push_back(parts_[idx].id);
-                    }
-                }
-                break;
-            }
-
-            size_t idx = queue.front();
-            queue.pop_front();
-
-            const auto& part = parts_[idx];
-            if (removed_parts_.count(part.id)) {
-                stall_counter = 0;  // removed parts don't count as stalls
-                continue;
-            }
-
-            // Try geometric approach first
-            auto candidate = try_geometric_removal(part);
-
-            // If geometric fails, try physics immediately (primary, not fallback)
-            if (!candidate &&
-                config_.strategy == SequenceStrategy::ProgressiveQueue) {
-                int retries = retry_counts[part.id];
-                Vec3 phys_dir;
-                PathEvaluation phys_eval;
-                if (try_physics_path(part, retries, phys_dir, phys_eval, part_sdfs)) {
-                    RemovableCandidate phys_candidate;
-                    phys_candidate.id = part.id;
-                    phys_candidate.direction = phys_dir;
-                    phys_candidate.eval = phys_eval;
-                    phys_candidate.quality = 0.5f;  // lower than geometric
-                    candidate = phys_candidate;
-                }
-            }
-
-            if (candidate) {
-                record_removal(*candidate);
-                stall_counter = 0;
-                retry_counts.erase(part.id);
-            } else {
-                // Failed — re-queue with incremented retry count
-                int& retries = retry_counts[part.id];
-                retries++;
-                if (retries > config_.max_retries) {
-                    // Give up on this part
-                    result.stuck_parts.push_back(part.id);
-                    stall_counter++;
-                } else {
-                    queue.push_back(idx);
-                    stall_counter++;
-                }
-            }
+        } else {
+            retry_count = 0;
         }
     }
 

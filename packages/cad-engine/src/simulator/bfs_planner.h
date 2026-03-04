@@ -7,6 +7,7 @@
 
 #include "collision/sdf_collision.h"
 #include "geometry/types.h"
+#include "physics/contact_solver.h"
 #include "physics/simulation.h"
 #include <functional>
 #include <optional>
@@ -18,14 +19,16 @@ namespace carbon {
 struct BFSPlannerConfig {
     float force_magnitude = 50.0f;       ///< Force magnitude per action (N).
     float torque_magnitude = 10.0f;      ///< Torque magnitude per action (Nm).
-    int sim_steps_per_action = 10;       ///< Physics steps per BFS action.
-    float sim_dt = 0.01f;               ///< Physics timestep.
-    int max_bfs_depth = 50;              ///< Maximum BFS tree depth.
-    int max_states = 5000;               ///< Maximum states explored.
+    int sim_steps_per_action = 100;      ///< Physics steps per BFS action.
+    float sim_dt = 0.001f;              ///< Physics timestep (prevents tunneling at 1mm/step).
+    int max_bfs_depth = 100;             ///< Maximum BFS tree depth.
+    int max_states = 10000;              ///< Maximum states explored.
     float pos_threshold = 0.05f;         ///< State dedup: position threshold.
     float rot_threshold = 0.5f;          ///< State dedup: rotation threshold (rad).
     float separation_distance = 2.0f;    ///< Distance to consider part disassembled.
     bool use_torques = false;            ///< Include torque actions in search.
+    float stuck_threshold = 0.01f;       ///< Movement below this (mm) per action → stuck.
+    physics::ContactConfig contact_config; ///< Contact physics parameters.
 };
 
 /// A single action (force/torque) in the BFS search.
