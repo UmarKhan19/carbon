@@ -14,7 +14,7 @@ namespace carbon {
 struct SDFConfig {
     float dx = 0.0f;          ///< Voxel spacing. 0 = auto from min_resolution.
     int min_resolution = 20;   ///< Minimum voxels per axis (when dx is auto).
-    int padding = 1;           ///< Voxel padding around mesh bounding box.
+    int padding = 3;           ///< Voxel padding around mesh bounding box.
     int exact_band = 1;        ///< Exact distance band around each triangle (in voxels).
 };
 

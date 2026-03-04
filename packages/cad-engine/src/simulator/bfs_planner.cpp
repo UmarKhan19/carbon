@@ -1,7 +1,9 @@
 #include "simulator/bfs_planner.h"
+#include "simulator/planner_physics.h"
 #include "physics/contact_solver.h"
 
 #include <deque>
+#include <iostream>
 #include <unordered_set>
 #include <cmath>
 
@@ -9,7 +11,6 @@ namespace carbon {
 
 using physics::BodyState;
 using physics::RigidBody;
-using physics::BodyContact;
 
 namespace {
 
@@ -120,8 +121,11 @@ bool is_disassembled(const BodyState& state, const TriMesh& mesh,
             stride = (nverts + max_sample_verts - 1) / max_sample_verts;
         }
 
+        AABB sdf_bounds = obs->sdf.grid_aabb();
         for (int vi = 0; vi < nverts; vi += stride) {
             Vec3 world_v = iso.transform_point(mesh.vertices[vi]);
+            // Skip vertices outside SDF grid — clamped values are meaningless
+            if (!sdf_bounds.contains(world_v)) continue;
             float dist = obs->sdf.query(world_v);
             if (dist < separation_dist) return false;
         }
@@ -145,106 +149,7 @@ bool oscillates_with_ancestors(const BodyState& state,
     return false;
 }
 
-/// Detect contacts between a moving body and static SDF obstacles.
-/// Returns BodyContact list compatible with contact_solver functions.
-std::vector<BodyContact> detect_sdf_contacts(
-    const RigidBody& body, int body_idx,
-    const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
-    int max_sample_verts) {
-    std::vector<BodyContact> contacts;
-    if (!body.mesh) return contacts;
-
-    Isometry iso = body.state.to_isometry();
-    AABB body_aabb = body.world_aabb();
-
-    for (const auto& obs : obstacles) {
-        if (!obs || obs->sdf.empty()) continue;
-        if (!body_aabb.overlaps(obs->world_aabb, 0.001f)) continue;
-
-        int nverts = static_cast<int>(body.mesh->vertices.size());
-        int stride = 1;
-        if (max_sample_verts > 0 && nverts > max_sample_verts) {
-            stride = (nverts + max_sample_verts - 1) / max_sample_verts;
-        }
-
-        for (int vi = 0; vi < nverts; vi += stride) {
-            Vec3 world_v = iso.transform_point(body.mesh->vertices[vi]);
-            float dist = obs->sdf.query(world_v);
-
-            if (dist < 0.0f) {
-                Vec3 grad = obs->sdf.gradient(world_v);
-                float mag = grad.norm();
-                if (mag > 1e-8f) grad /= mag;
-                else grad = Vec3(0, 1, 0);
-
-                BodyContact c;
-                c.body_a = -1; // obstacle (static, not in bodies array)
-                c.body_b = body_idx;
-                c.position = world_v;
-                c.normal = grad; // Points outward from obstacle
-                c.depth = -dist;
-                contacts.push_back(c);
-            }
-        }
-    }
-    return contacts;
-}
-
-/// Apply penetration correction for a body against SDF obstacles.
-/// Projects penetrating vertices out along SDF gradient.
-void apply_sdf_penetration_correction(
-    RigidBody& body,
-    const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
-    int max_sample_verts) {
-    if (!body.mesh) return;
-
-    Isometry iso = body.state.to_isometry();
-    AABB body_aabb = body.world_aabb();
-
-    for (const auto& obs : obstacles) {
-        if (!obs || obs->sdf.empty()) continue;
-        if (!body_aabb.overlaps(obs->world_aabb, 0.001f)) continue;
-
-        Vec3 correction_sum = Vec3::Zero();
-        int correction_count = 0;
-
-        int nverts = static_cast<int>(body.mesh->vertices.size());
-        int stride = 1;
-        if (max_sample_verts > 0 && nverts > max_sample_verts) {
-            stride = (nverts + max_sample_verts - 1) / max_sample_verts;
-        }
-
-        for (int vi = 0; vi < nverts; vi += stride) {
-            Vec3 world_v = iso.transform_point(body.mesh->vertices[vi]);
-            float dist = obs->sdf.query(world_v);
-
-            if (dist < 0.0f) {
-                Vec3 grad = obs->sdf.gradient(world_v);
-                float mag = grad.norm();
-                if (mag > 1e-8f) {
-                    grad /= mag;
-                    correction_sum += grad * (-dist);
-                    correction_count++;
-                }
-            }
-        }
-
-        if (correction_count > 0) {
-            Vec3 avg_correction = correction_sum / static_cast<float>(correction_count);
-            body.state.position += avg_correction;
-
-            // Zero velocity into the surface
-            Vec3 correction_dir = avg_correction.normalized();
-            float v_into = body.state.linear_velocity.dot(correction_dir);
-            if (v_into < 0.0f) {
-                body.state.linear_velocity -= v_into * correction_dir;
-            }
-
-            // Update isometry for next obstacle check
-            iso = body.state.to_isometry();
-        }
-    }
-}
+// detect_sdf_contacts() and apply_sdf_penetration_correction() are in planner_physics.h
 
 /// Simulate one action with full contact-aware physics.
 /// Applies penalty forces, Coulomb friction, and penetration correction at each step.
@@ -325,6 +230,14 @@ BFSResult plan_bfs(
     BFSResult result;
 
     if (moving_mesh.empty()) return result;
+
+    std::cout << "[bfs] start pos=(" << moving_pose.translation.x()
+              << "," << moving_pose.translation.y()
+              << "," << moving_pose.translation.z() << ")"
+              << " obstacles=" << obstacles.size()
+              << " sep_dist=" << config.separation_distance
+              << " steps/action=" << config.sim_steps_per_action
+              << " dt=" << config.sim_dt << std::endl;
 
     auto actions = generate_actions(config.force_magnitude, config.torque_magnitude,
                                      config.use_torques);
@@ -409,11 +322,14 @@ BFSResult plan_bfs(
                 float mag = displacement.norm();
                 if (mag > 1e-6f) result.final_direction = displacement / mag;
 
+                std::cout << "[bfs] result: success=1 depth=" << result.depth
+                          << " states=" << result.states_explored << std::endl;
                 return result;
             }
         }
     }
 
+    std::cout << "[bfs] result: success=0 states=" << result.states_explored << std::endl;
     return result;
 }
 

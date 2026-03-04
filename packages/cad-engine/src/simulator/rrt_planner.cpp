@@ -1,7 +1,10 @@
 #include "simulator/rrt_planner.h"
+#include "simulator/planner_physics.h"
 #include "physics/rigid_body.h"
+#include "physics/contact_solver.h"
 
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <random>
 
@@ -26,17 +29,6 @@ float state_distance(const BodyState& a, const BodyState& b) {
     return pos_dist + rot_dist; // Combined metric
 }
 
-/// Check if the body collides with any obstacle.
-bool collides(const BodyState& state, const TriMesh& mesh,
-              const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles) {
-    Isometry iso = state.to_isometry();
-    for (const auto& obs : obstacles) {
-        if (!obs) continue;
-        if (sdf_mesh_intersects(mesh, iso, *obs)) return true;
-    }
-    return false;
-}
-
 /// Check if the body is separated from all obstacles.
 bool is_separated(const BodyState& state, const TriMesh& mesh,
                   const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
@@ -54,9 +46,10 @@ bool is_separated(const BodyState& state, const TriMesh& mesh,
     return true;
 }
 
-/// Simulate extending from a state with a random force/torque.
+/// Simulate extending from a state with a force/torque, using contact-aware physics.
 BodyState extend(const BodyState& from, const TriMesh& mesh,
                  const Vec3& force, const Vec3& torque,
+                 const std::vector<std::shared_ptr<CachedSDFMesh>>& obstacles,
                  const RRTPlannerConfig& config) {
     physics::RigidBody body;
     body.id = "rrt";
@@ -68,16 +61,28 @@ BodyState extend(const BodyState& from, const TriMesh& mesh,
     body.inertia = physics::RigidBody::box_inertia(body.mass, half);
     body.inertia_inv = body.inertia.inverse();
 
+    const auto& cc = config.contact_config;
+
     for (int s = 0; s < config.sim_steps_per_extend; ++s) {
         body.clear_forces();
         body.apply_force(force);
         body.apply_torque(torque);
 
+        // Detect contacts with obstacles and apply penalty + friction forces
+        auto contacts = detect_sdf_contacts(body, 0, obstacles, cc.max_sample_vertices);
+        if (!contacts.empty()) {
+            std::vector<physics::RigidBody> bodies_vec = {body};
+            physics::apply_contact_forces(bodies_vec, contacts, cc);
+            body = bodies_vec[0];
+        }
+
+        // Semi-implicit Euler integration
         Vec3 accel = body.force / body.mass;
         body.state.linear_velocity += accel * config.sim_dt;
         body.state.position += body.state.linear_velocity * config.sim_dt;
 
-        if (torque.norm() > 1e-8f) {
+        // Angular dynamics
+        if (body.torque.norm() > 1e-8f || body.state.angular_velocity.norm() > 1e-8f) {
             Eigen::Matrix3f I_inv = body.world_inertia_inv();
             Vec3 angular_accel = I_inv * body.torque;
             body.state.angular_velocity += angular_accel * config.sim_dt;
@@ -94,6 +99,9 @@ BodyState extend(const BodyState& from, const TriMesh& mesh,
                 body.state.orientation = (dq * body.state.orientation).normalized();
             }
         }
+
+        // Penetration correction after integration
+        apply_sdf_penetration_correction(body, obstacles, cc.max_sample_vertices);
     }
     return body.state;
 }
@@ -127,6 +135,14 @@ RRTResult plan_rrt(
     RRTNode root;
     root.state = initial;
     tree.push_back(root);
+
+    std::cout << "[rrt] start pos=(" << moving_pose.translation.x()
+              << "," << moving_pose.translation.y()
+              << "," << moving_pose.translation.z() << ")"
+              << " obstacles=" << obstacles.size()
+              << " sep_dist=" << config.separation_distance
+              << " steps/extend=" << config.sim_steps_per_extend
+              << " dt=" << config.sim_dt << std::endl;
 
     for (int iter = 0; iter < config.max_iterations; ++iter) {
         result.iterations = iter + 1;
@@ -167,14 +183,36 @@ RRTResult plan_rrt(
         direction /= dir_mag;
 
         Vec3 force = direction * config.force_magnitude;
-        Vec3 torque = Vec3::Zero();
+        Vec3 torque_vec = Vec3::Zero();
 
-        // Extend
+        // Extend with contact-aware physics
         BodyState new_state = extend(tree[nearest_idx].state, moving_mesh,
-                                      force, torque, config);
+                                      force, torque_vec, obstacles, config);
 
-        // Check collision
-        if (collides(new_state, moving_mesh, obstacles)) continue;
+        // Reject states that are deeply penetrating
+        // (contact physics should prevent this, but check anyway)
+        bool deeply_penetrating = false;
+        {
+            Isometry iso = new_state.to_isometry();
+            for (const auto& obs : obstacles) {
+                if (!obs || obs->sdf.empty()) continue;
+                AABB body_aabb = moving_mesh.world_aabb(iso);
+                if (!body_aabb.overlaps(obs->world_aabb, 0.001f)) continue;
+
+                int nverts = static_cast<int>(moving_mesh.vertices.size());
+                int stride = std::max(1, nverts / 50); // Quick check
+                for (int vi = 0; vi < nverts; vi += stride) {
+                    Vec3 world_v = iso.transform_point(moving_mesh.vertices[vi]);
+                    float dist = obs->sdf.query(world_v);
+                    if (dist < -0.1f) { // Allow minor penetration from contact physics
+                        deeply_penetrating = true;
+                        break;
+                    }
+                }
+                if (deeply_penetrating) break;
+            }
+        }
+        if (deeply_penetrating) continue;
 
         // Add to tree
         RRTNode node;
@@ -200,11 +238,15 @@ RRTResult plan_rrt(
             float mag = displacement.norm();
             if (mag > 1e-6f) result.final_direction = displacement / mag;
 
+            std::cout << "[rrt] result: success=1 iters=" << result.iterations
+                      << " tree=" << result.tree_size << std::endl;
             return result;
         }
     }
 
     result.tree_size = static_cast<int>(tree.size());
+    std::cout << "[rrt] result: success=0 iters=" << result.iterations
+              << " tree=" << result.tree_size << std::endl;
     return result;
 }
 

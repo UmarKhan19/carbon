@@ -548,19 +548,20 @@ TEST(Simulator, ContactNormalGuidesRemovalDirection) {
 }
 
 TEST(Simulator, AssemblyDirectionNegated) {
-    // After reversal, assembly directions should be negated from removal
+    // After reversal, assembly directions should be negated from removal.
+    // Parts placed far apart (10 units) so no obstacles interfere.
     AssemblyNode root = make_assembly("root", {
         make_part_node("a", "Part_A", make_cube(0.5f), Vec3(0, 0, 0)),
-        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(3.0f, 0, 0)),
+        make_part_node("b", "Part_B", make_cube(0.5f), Vec3(10.0f, 0, 0)),
     });
 
     SimulatorConfig config;
-    config.removal_distance = 5.0f;
+    config.removal_distance = 2.0f;
     AssemblySimulator sim(config);
     sim.load_assembly(root);
     auto result = sim.simulate();
 
-    EXPECT_TRUE(result.success);
+    ASSERT_TRUE(result.success);
     for (const auto& step : result.steps) {
         // Direction should be non-zero (assembly requires a direction)
         float mag = std::sqrt(

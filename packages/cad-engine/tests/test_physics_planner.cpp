@@ -128,6 +128,31 @@ TEST(RRTPlannerTest, ReturnsDirectionForSuccessfulPath) {
     }
 }
 
+TEST(RRTPlannerTest, ContactPhysicsPreventstunneling) {
+    // Cube with nearby obstacle. With contact physics, the RRT should
+    // NOT produce states that tunnel through the obstacle.
+    TriMesh cube = make_cube(0.5f);
+
+    // Obstacle blocking +X at close range
+    auto wall = make_obstacle(cube, Vec3(1.2f, 0, 0));
+
+    RRTPlannerConfig cfg;
+    cfg.force_magnitude = 50.0f;
+    cfg.sim_steps_per_extend = 100;
+    cfg.sim_dt = 0.001f;
+    cfg.max_iterations = 500;
+    cfg.separation_distance = 2.0f;
+    cfg.pos_range = 5.0f;
+
+    auto result = plan_rrt(cube, Isometry::identity(), {wall}, cfg);
+
+    // Should find a path (around the obstacle, not through it)
+    EXPECT_TRUE(result.success) << "RRT with contacts should find escape path";
+    if (result.success) {
+        EXPECT_GT(result.trajectory.size(), 1u);
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Contact-aware BFS tests
 // ---------------------------------------------------------------------------

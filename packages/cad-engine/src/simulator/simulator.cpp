@@ -124,6 +124,24 @@ bool AssemblySimulator::try_physics_path(
         }
     }
 
+    Vec3 aabb_center = (part.world_aabb.min + part.world_aabb.max) * 0.5f;
+    int null_obs = 0, empty_sdf_obs = 0;
+    for (const auto& o : obstacles) {
+        if (!o) null_obs++;
+        else if (o->sdf.empty()) empty_sdf_obs++;
+    }
+    std::cout << "[physics] Planning for '" << part.name << "'"
+              << " center=(" << aabb_center.x()
+              << "," << aabb_center.y()
+              << "," << aabb_center.z() << ")"
+              << " xform=(" << part.transform.translation.x()
+              << "," << part.transform.translation.y()
+              << "," << part.transform.translation.z() << ")"
+              << " obstacles=" << obstacles.size()
+              << " (null=" << null_obs << " empty_sdf=" << empty_sdf_obs << ")"
+              << " removal_dist=" << compute_removal_distance()
+              << " retry=" << retry_count << std::endl;
+
     // Scale search budget aggressively with retry count
     int depth_scale = 1 + retry_count * 2;
 
@@ -133,14 +151,15 @@ bool AssemblySimulator::try_physics_path(
     bfs_cfg.max_bfs_depth = 100 * depth_scale;
     bfs_cfg.max_states = 10000 * depth_scale;
     bfs_cfg.force_magnitude = 50.0f;
-    bfs_cfg.sim_steps_per_action = 10;
+    // sim_steps_per_action uses header default (100) — do NOT override to 10
 
     auto bfs_result = plan_bfs(*part.mesh, part.transform, obstacles, bfs_cfg);
     if (bfs_result.success) {
         out_direction = bfs_result.final_direction;
         // Build animation path from trajectory
         out_eval.success = true;
-        out_eval.travel_distance = bfs_cfg.separation_distance;
+        Vec3 bfs_disp = bfs_result.trajectory.back().position - bfs_result.trajectory.front().position;
+        out_eval.travel_distance = bfs_disp.norm();
         out_eval.required_distance = bfs_cfg.separation_distance;
 
         float n = static_cast<float>(bfs_result.trajectory.size());
@@ -163,14 +182,15 @@ bool AssemblySimulator::try_physics_path(
     rrt_cfg.separation_distance = compute_removal_distance();
     rrt_cfg.max_iterations = 10000 * depth_scale;
     rrt_cfg.force_magnitude = 50.0f;
-    rrt_cfg.sim_steps_per_extend = 10;
+    // sim_steps_per_extend uses header default (100) — do NOT override to 10
     rrt_cfg.pos_range = compute_removal_distance() * 2.0f;
 
     auto rrt_result = plan_rrt(*part.mesh, part.transform, obstacles, rrt_cfg);
     if (rrt_result.success) {
         out_direction = rrt_result.final_direction;
         out_eval.success = true;
-        out_eval.travel_distance = rrt_cfg.separation_distance;
+        Vec3 rrt_disp = rrt_result.trajectory.back().position - rrt_result.trajectory.front().position;
+        out_eval.travel_distance = rrt_disp.norm();
         out_eval.required_distance = rrt_cfg.separation_distance;
 
         float n = static_cast<float>(rrt_result.trajectory.size());

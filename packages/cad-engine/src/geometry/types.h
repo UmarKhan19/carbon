@@ -39,6 +39,12 @@ struct AABB {
                max.z() + margin >= other.min.z();
     }
 
+    bool contains(const Vec3& p) const {
+        return p.x() >= min.x() && p.x() <= max.x() &&
+               p.y() >= min.y() && p.y() <= max.y() &&
+               p.z() >= min.z() && p.z() <= max.z();
+    }
+
     float volume() const {
         Vec3 s = size();
         return s.x() * s.y() * s.z();

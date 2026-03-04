@@ -1,5 +1,65 @@
 # CAD Engine Changelog
 
+## 2026-03-04 — Fix SDF Contact Detection, Separation Check, and Travel Distance
+
+Fix broken `is_disassembled()` SDF check, increase SDF grid coverage, and compute
+travel distance from actual trajectory displacement.
+
+### Fixed
+
+- **BFS planner** (`bfs_planner.cpp`):
+  - Fixed `is_disassembled()` SDF clamping bug: vertices outside the SDF grid returned clamped boundary values (~dx) which always failed the `dist < separation_dist` check, making the SDF path NEVER pass. Now skips vertices outside `sdf.grid_aabb()`.
+
+- **Simulator** (`simulator.cpp`):
+  - Fixed `travel_distance` hardcoded to `separation_distance` (~100mm) regardless of actual displacement; now computed from BFS/RRT trajectory endpoints.
+  - Enhanced `[physics]` logging to show both AABB center and transform position, plus obstacle validity breakdown (null/empty_sdf counts).
+
+- **Contact detection** (`planner_physics.h`):
+  - Fixed AABB overlap check using mesh AABB with 0.001f margin; now uses `sdf.grid_aabb()` which properly covers the full SDF detection range.
+
+### Changed
+
+- **SDF config** (`sdf.h`):
+  - Increased default `padding` from 1 to 3 voxels, extending SDF grid coverage from ~1*dx to ~3*dx beyond mesh bounds for better contact detection range.
+
+### Added
+
+- `AABB::contains(Vec3)` helper in `types.h` for point-in-AABB tests.
+
+---
+
+## 2026-03-03 — Fix Physics Planner Parameters + Wire Contacts into RRT
+
+Fix critical bugs causing BFS to succeed at depth=1 for internal parts, and add
+contact-aware physics to the RRT planner.
+
+### Fixed
+
+- **Simulator** (`simulator.cpp`):
+  - Removed `sim_steps_per_action = 10` override that negated the BFS default of 100; each BFS action now simulates 100ms of physics instead of 10ms
+  - Removed `sim_steps_per_extend = 10` override for RRT
+  - Added diagnostic logging showing part positions, obstacle count, and removal distance
+
+### Changed
+
+- **RRT planner** (`rrt_planner.h/cpp`):
+  - Wired contact-aware physics into `extend()`: penalty forces, Coulomb friction, and penetration correction at each timestep (matching BFS `simulate_action()`)
+  - Added `ContactConfig` to `RRTPlannerConfig`
+  - Changed defaults: `sim_steps_per_extend` 10 -> 100, `sim_dt` 0.01 -> 0.001
+  - Added deep penetration rejection for extended states
+  - Added diagnostic logging at start/end of `plan_rrt()`
+
+- **BFS planner** (`bfs_planner.cpp`):
+  - Extracted `detect_sdf_contacts()` and `apply_sdf_penetration_correction()` into shared `planner_physics.h`
+  - Added diagnostic logging at start/end of `plan_bfs()`
+
+### Added
+
+- `src/simulator/planner_physics.h` — Shared contact detection + penetration correction for BFS and RRT planners
+- `RRTPlannerTest.ContactPhysicsPreventstunneling` — Verifies RRT with obstacles uses contact physics
+
+---
+
 ## 2026-03-02 — Physics-Only Assembly Simulation
 
 Replace hybrid geometric+physics approach with physics-only disassembly simulation

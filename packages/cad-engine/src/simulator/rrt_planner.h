@@ -6,6 +6,7 @@
 
 #include "collision/sdf_collision.h"
 #include "geometry/types.h"
+#include "physics/contact_solver.h"
 #include "physics/rigid_body.h"
 #include <memory>
 #include <vector>
@@ -16,13 +17,14 @@ namespace carbon {
 struct RRTPlannerConfig {
     float force_magnitude = 50.0f;       ///< Force magnitude per extension (N).
     float torque_magnitude = 10.0f;      ///< Torque magnitude per extension (Nm).
-    int sim_steps_per_extend = 10;       ///< Physics steps per tree extension.
-    float sim_dt = 0.01f;               ///< Physics timestep.
+    int sim_steps_per_extend = 100;      ///< Physics steps per tree extension.
+    float sim_dt = 0.001f;              ///< Physics timestep (prevents tunneling).
     int max_iterations = 5000;           ///< Maximum RRT iterations.
     float goal_bias = 0.2f;             ///< Probability of sampling toward goal.
     float separation_distance = 2.0f;    ///< Distance to consider disassembled.
     float pos_range = 5.0f;             ///< Position sampling range from start.
     bool use_torques = false;            ///< Include torque actions.
+    physics::ContactConfig contact_config; ///< Contact physics parameters.
 };
 
 /// Result of an RRT path planning attempt.
