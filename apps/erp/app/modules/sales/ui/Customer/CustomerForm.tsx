@@ -116,6 +116,7 @@ const CustomerForm = ({
                   <Employee name="accountManagerId" label="Account Manager" />
 
                   <Currency name="currencyCode" label="Currency" />
+                  <Input name="taxId" label="Tax ID" />
 
                   <Number
                     name="taxPercent"
@@ -130,6 +131,7 @@ const CustomerForm = ({
                     }}
                   />
 
+                  <Input name="vatNumber" label="VAT Number" />
                   <Input name="website" label="Website" />
 
                   {isEditing && (

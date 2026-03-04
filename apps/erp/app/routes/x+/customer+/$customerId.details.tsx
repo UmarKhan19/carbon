@@ -66,6 +66,7 @@ export default function CustomerEditRoute() {
     customerStatusId: routeData?.customer?.customerStatusId ?? undefined,
     accountManagerId: routeData?.customer?.accountManagerId ?? undefined,
     taxId: routeData?.customer?.taxId ?? "",
+    vatNumber: routeData?.customer?.vatNumber ?? "",
     currencyCode: routeData?.customer?.currencyCode ?? undefined,
     taxPercent: routeData?.customer?.taxPercent ?? 0,
     website: routeData?.customer?.website ?? "",

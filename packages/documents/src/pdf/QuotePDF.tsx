@@ -207,7 +207,12 @@ const QuotePDF = ({
         subject: meta?.subject ?? "Quote"
       }}
     >
-      <Header company={company} title="Quote" documentId={quote?.quoteId} />
+      <Header
+        company={company}
+        title="Quote"
+        documentId={quote?.quoteId}
+        currencyCode={quote?.currencyCode}
+      />
 
       {/* Customer & Quote Details */}
       <View style={tw("border border-gray-200 mb-4")}>

@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import {
   Boolean,
+  Input,
   Number,
   Submit,
   ValidatedForm,
@@ -38,6 +39,7 @@ import { redirect, useFetcher, useLoaderData } from "react-router";
 import { EmailRecipients, Users } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
 import {
+  accountsReceivableEmailValidator,
   defaultCustomerCcValidator,
   digitalQuoteValidator,
   getCompanySettings,
@@ -45,6 +47,7 @@ import {
   includeThumbnailsOnSalesPdfsValidator,
   quoteLineCategoryMarkupsSettingsValidator,
   rfqReadyValidator,
+  updateAccountsReceivableEmail,
   updateDefaultCustomerCc,
   updateDigitalQuoteSetting,
   updateQuoteLineCategoryMarkups,
@@ -172,6 +175,29 @@ export async function action({ request }: ActionFunctionArgs) {
       return {
         success: true,
         message: "Default category markups updated"
+      };
+    case "accountsReceivableEmail":
+      const arValidation = await validator(
+        accountsReceivableEmailValidator
+      ).validate(formData);
+
+      if (arValidation.error) {
+        return { success: false, message: "Invalid form data" };
+      }
+
+      const arResult = await updateAccountsReceivableEmail(
+        client,
+        companyId,
+        arValidation.data.accountsReceivableEmail
+      );
+
+      if (arResult.error) {
+        return { success: false, message: arResult.error.message };
+      }
+
+      return {
+        success: true,
+        message: "Accounts receivable email updated"
       };
 
     case "emails":
@@ -326,6 +352,45 @@ export default function SalesSettingsRoute() {
                 isLoading={
                   fetcher.state !== "idle" &&
                   fetcher.formData?.get("intent") === "digitalQuote"
+                }
+              >
+                Save
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={accountsReceivableEmailValidator}
+            defaultValues={{
+              accountsReceivableEmail:
+                companySettings.accountsReceivableEmail ?? ""
+            }}
+            fetcher={fetcher}
+          >
+            <input
+              type="hidden"
+              name="intent"
+              value="accountsReceivableEmail"
+            />
+            <CardHeader>
+              <CardTitle>Accounts Receivable Email</CardTitle>
+              <CardDescription>
+                The email address used for accounts receivable correspondence.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-8 max-w-[400px]">
+                <Input name="accountsReceivableEmail" label="Email" />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={
+                  fetcher.state !== "idle" &&
+                  fetcher.formData?.get("intent") === "accountsReceivableEmail"
                 }
               >
                 Save

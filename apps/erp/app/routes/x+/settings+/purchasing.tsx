@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import {
   Boolean,
+  Input,
   Select,
   Submit,
   ValidatedForm,
@@ -37,6 +38,7 @@ import { redirect, useFetcher, useLoaderData } from "react-router";
 import { EmailRecipients, Users } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
 import {
+  accountsPayableEmailValidator,
   defaultSupplierCcValidator,
   getCompanySettings,
   getTerms,
@@ -44,6 +46,7 @@ import {
   purchasePriceUpdateTimingTypes,
   purchasePriceUpdateTimingValidator,
   supplierQuoteNotificationValidator,
+  updateAccountsPayableEmail,
   updateDefaultSupplierCc,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
@@ -166,6 +169,30 @@ export async function action({ request }: ActionFunctionArgs) {
         return { success: false, message: thumbnailsResult.error.message };
 
       return { success: true, message: "PDF settings updated" };
+
+    case "accountsPayableEmail":
+      const apValidation = await validator(
+        accountsPayableEmailValidator
+      ).validate(formData);
+
+      if (apValidation.error) {
+        return { success: false, message: "Invalid form data" };
+      }
+
+      const apResult = await updateAccountsPayableEmail(
+        client,
+        companyId,
+        apValidation.data.accountsPayableEmail
+      );
+
+      if (apResult.error) {
+        return { success: false, message: apResult.error.message };
+      }
+
+      return {
+        success: true,
+        message: "Accounts payable email updated"
+      };
 
     case "emails":
       const defaultSupplierCcValidation = await validator(
@@ -299,6 +326,49 @@ export default function PurchasingSettingsRoute() {
                   fetcher.state !== "idle" &&
                   fetcher.formData?.get("intent") ===
                     "purchasePriceUpdateTiming"
+                }
+              >
+                Save
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={accountsPayableEmailValidator}
+            defaultValues={{
+              accountsPayableEmail:
+                companySettings.accountsPayableEmail ?? ""
+            }}
+            fetcher={fetcher}
+          >
+            <input
+              type="hidden"
+              name="intent"
+              value="accountsPayableEmail"
+            />
+            <CardHeader>
+              <CardTitle>Accounts Payable Email</CardTitle>
+              <CardDescription>
+                The email address used for accounts payable correspondence.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-8 max-w-[400px]">
+                <Input
+                  name="accountsPayableEmail"
+                  label="Email"
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={
+                  fetcher.state !== "idle" &&
+                  fetcher.formData?.get("intent") ===
+                    "accountsPayableEmail"
                 }
               >
                 Save

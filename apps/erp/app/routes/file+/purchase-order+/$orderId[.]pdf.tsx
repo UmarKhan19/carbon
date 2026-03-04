@@ -109,6 +109,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const stream = await renderToStream(
     <PurchaseOrderPDF
       company={company.data}
+      companySettings={companySettings.data}
       locale={locale}
       purchaseOrder={purchaseOrder.data}
       purchaseOrderLines={purchaseOrderLines.data ?? []}

@@ -64,7 +64,8 @@ const company = {
   phone: zfd.text(z.string().optional()),
   fax: zfd.text(z.string().optional()),
   email: zfd.text(z.string().optional()),
-  website: zfd.text(z.string().optional())
+  website: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional())
 };
 
 export const companyValidator = z.object(company);
@@ -181,8 +182,16 @@ export const supplierQuoteNotificationValidator = z.object({
     .optional()
 });
 
+export const accountsPayableEmailValidator = z.object({
+  accountsPayableEmail: zfd.text(z.string().email().optional())
+});
+
 export const defaultSupplierCcValidator = z.object({
   defaultSupplierCc: z.array(z.string().email()).optional()
+});
+
+export const accountsReceivableEmailValidator = z.object({
+  accountsReceivableEmail: zfd.text(z.string().email().optional())
 });
 
 export const defaultCustomerCcValidator = z.object({

@@ -113,6 +113,8 @@ const SalesOrderPDF = ({
         company={company}
         title="Sales Order"
         documentId={salesOrder?.salesOrderId}
+        date={salesOrder?.orderDate}
+        currencyCode={salesOrder?.currencyCode}
       />
 
       {/* Ship To & Bill To */}

@@ -707,6 +707,28 @@ export async function updatePurchasePriceUpdateTimingSetting(
     .eq("id", companyId);
 }
 
+export async function updateAccountsPayableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableEmail: accountsPayableEmail ?? null }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsReceivableEmail: accountsReceivableEmail ?? null }))
+    .eq("id", companyId);
+}
+
 export async function updateDefaultSupplierCc(
   client: SupabaseClient<Database>,
   companyId: string,

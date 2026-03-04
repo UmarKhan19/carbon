@@ -11,12 +11,13 @@ import {
   getTotal
 } from "../utils/purchase-order";
 import { getCurrencyFormatter } from "../utils/shared";
-import { Header, Note, Template } from "./components";
+import { Header, Note, PartyDetails, Template } from "./components";
 
 interface PurchaseOrderPDFProps extends PDF {
   purchaseOrder: Database["public"]["Views"]["purchaseOrders"]["Row"];
   purchaseOrderLines: Database["public"]["Views"]["purchaseOrderLines"]["Row"][];
   purchaseOrderLocations: Database["public"]["Views"]["purchaseOrderLocations"]["Row"];
+  companySettings?: Database["public"]["Tables"]["companySettings"]["Row"] | null;
   terms: JSONContent;
   thumbnails?: Record<string, string | null>;
 }
@@ -56,6 +57,7 @@ const formatDate = (dateStr: string | null) => {
 
 const PurchaseOrderPDF = ({
   company,
+  companySettings,
   locale,
   meta,
   purchaseOrder,
@@ -116,37 +118,33 @@ const PurchaseOrderPDF = ({
         company={company}
         title="Purchase Order"
         documentId={purchaseOrder?.purchaseOrderId}
+        date={purchaseOrder?.orderDate}
+        currencyCode={purchaseOrder?.currencyCode}
       />
 
-      {/* Supplier & Ship To Details */}
+      <PartyDetails
+        company={company}
+        companyLabel="Buyer"
+        counterParty={{
+          name: supplierName,
+          addressLine1: supplierAddressLine1,
+          addressLine2: supplierAddressLine2,
+          city: supplierCity,
+          stateProvince: supplierStateProvince,
+          postalCode: supplierPostalCode,
+          countryName: supplierCountryName,
+          taxId: purchaseOrderLocations.supplierTaxId,
+          vatNumber: purchaseOrderLocations.supplierVatNumber,
+        }}
+        counterPartyLabel="Supplier"
+        createdByFullName={purchaseOrder.createdByFullName}
+        createdByEmail={purchaseOrder.createdByEmail}
+        accountsPayableEmail={companySettings?.accountsPayableEmail}
+      />
+
+      {/* Ship To Details */}
       <View style={tw("border border-gray-200 mb-4")}>
         <View style={tw("flex flex-row")}>
-          <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Supplier
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {supplierName && (
-                <Text style={tw("font-bold")}>{supplierName}</Text>
-              )}
-              {supplierAddressLine1 && <Text>{supplierAddressLine1}</Text>}
-              {supplierAddressLine2 && <Text>{supplierAddressLine2}</Text>}
-              {(supplierCity ||
-                supplierStateProvince ||
-                supplierPostalCode) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    supplierCity,
-                    supplierStateProvince,
-                    supplierPostalCode
-                  )}
-                </Text>
-              )}
-              {supplierCountryName && <Text>{supplierCountryName}</Text>}
-            </View>
-          </View>
           <View style={tw("w-1/2 p-3")}>
             <Text
               style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}

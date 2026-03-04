@@ -112,6 +112,8 @@ const SupplierForm = ({
                   />
                   <Employee name="accountManagerId" label="Account Manager" />
                   <Currency name="currencyCode" label="Currency" />
+                  <Input name="taxId" label="Tax ID" />
+                  <Input name="vatNumber" label="VAT Number" />
                   <Input name="website" label="Website" />
                   {isEditing && (
                     <>

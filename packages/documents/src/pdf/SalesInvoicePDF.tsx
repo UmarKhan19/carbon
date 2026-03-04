@@ -115,6 +115,8 @@ const SalesInvoicePDF = ({
         company={company}
         title="Invoice"
         documentId={salesInvoice?.invoiceId}
+        date={salesInvoice?.dateIssued}
+        currencyCode={salesInvoice?.currencyCode}
       />
 
       {/* Ship To & Bill To */}
