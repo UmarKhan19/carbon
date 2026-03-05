@@ -253,16 +253,14 @@ export const onboardTask = task({
           userId
         );
 
+        await wait.for({ minutes: 5 });
+
         if (sendOnboardingEmail) {
           await sendEmail({
             from,
             to: user.data.email,
-            subject: `Welcome to Carbon`,
-            html: await render(
-              WelcomeEmail({
-                firstName: user.data.firstName,
-              })
-            ),
+            subject: `carbon`,
+            html: await render(WelcomeEmail()),
           });
         }
 
