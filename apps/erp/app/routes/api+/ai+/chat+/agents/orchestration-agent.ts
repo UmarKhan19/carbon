@@ -31,7 +31,7 @@ ${formatContextForLLM(ctx)}
 general: General questions, greetings, web search
 parts: Search for parts by description or readable ID
 suppliers: Search for suppliers, find suppliers for parts
-purchasing: creating purchase orders or getting quotes from suppliers
+purchasing: creating purchase orders, requesting quotes from multiple suppliers, sending quote emails
 </agent-capabilities>
 </background-data>`,
   handoffs: [purchasingAgent, searchAgent],
