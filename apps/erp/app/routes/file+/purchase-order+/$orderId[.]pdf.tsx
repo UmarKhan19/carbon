@@ -9,7 +9,11 @@ import {
   getPurchaseOrderLocations,
   getPurchasingTerms
 } from "~/modules/purchasing";
-import { getCompany, getCompanySettings } from "~/modules/settings";
+import {
+  getAccountsPayableBillingAddress,
+  getCompany,
+  getCompanySettings
+} from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 import { getLocale } from "~/utils/request";
 
@@ -24,6 +28,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const [
     company,
     companySettings,
+    apBillingAddress,
     purchaseOrder,
     purchaseOrderLines,
     purchaseOrderLocations,
@@ -31,6 +36,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   ] = await Promise.all([
     getCompany(client, companyId),
     getCompanySettings(client, companyId),
+    getAccountsPayableBillingAddress(client, companyId),
     getPurchaseOrder(client, orderId),
     getPurchaseOrderLines(client, orderId),
     getPurchaseOrderLocations(client, orderId),
@@ -110,6 +116,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     <PurchaseOrderPDF
       company={company.data}
       companySettings={companySettings.data}
+      accountsPayableBillingAddress={apBillingAddress.data}
       locale={locale}
       purchaseOrder={purchaseOrder.data}
       purchaseOrderLines={purchaseOrderLines.data ?? []}

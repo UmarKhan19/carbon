@@ -14,7 +14,11 @@ import {
   getQuoteShipment,
   getSalesTerms
 } from "~/modules/sales";
-import { getCompany, getCompanySettings } from "~/modules/settings";
+import {
+  getAccountsReceivableBillingAddress,
+  getCompany,
+  getCompanySettings
+} from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 import { getLocale } from "~/utils/request";
 
@@ -31,6 +35,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const [
     company,
     companySettings,
+    arBillingAddress,
     quote,
     quoteLines,
     quoteLinePrices,
@@ -43,6 +48,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   ] = await Promise.all([
     getCompany(client, companyId),
     getCompanySettings(client, companyId),
+    getAccountsReceivableBillingAddress(client, companyId),
     getQuote(client, id),
     getQuoteLines(client, id),
     getQuoteLinePricesByQuoteId(client, id),
@@ -138,6 +144,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       quoteCustomerDetails={quoteLocations.data}
       payment={quotePayment?.data}
       shipment={quoteShipment?.data}
+      accountsReceivableBillingAddress={arBillingAddress.data}
       paymentTerms={paymentTerms.data ?? []}
       shippingMethods={shippingMethods.data ?? []}
       terms={(terms?.data?.salesTerms ?? {}) as JSONContent}

@@ -37,17 +37,19 @@ import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { EmailRecipients, Users } from "~/components/Form";
+import Country from "~/components/Form/Country";
 import { usePermissions, useUser } from "~/hooks";
 import {
-  accountsReceivableEmailValidator,
+  accountsReceivableBillingAddressValidator,
   defaultCustomerCcValidator,
   digitalQuoteValidator,
+  getAccountsReceivableBillingAddress,
   getCompanySettings,
   getTerms,
   includeThumbnailsOnSalesPdfsValidator,
   quoteLineCategoryMarkupsSettingsValidator,
   rfqReadyValidator,
-  updateAccountsReceivableEmail,
+  updateAccountsReceivableBillingAddress,
   updateDefaultCustomerCc,
   updateDigitalQuoteSetting,
   updateQuoteLineCategoryMarkups,
@@ -67,9 +69,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [companySettings, terms] = await Promise.all([
+  const [companySettings, terms, arBillingAddress] = await Promise.all([
     getCompanySettings(client, companyId),
-    getTerms(client, companyId)
+    getTerms(client, companyId),
+    getAccountsReceivableBillingAddress(client, companyId)
   ]);
   if (!companySettings.data)
     throw redirect(
@@ -79,11 +82,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
         error(companySettings.error, "Failed to get company settings")
       )
     );
-  return { companySettings: companySettings.data, terms: terms.data };
+  return {
+    companySettings: companySettings.data,
+    terms: terms.data,
+    arBillingAddress: arBillingAddress.data
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "settings"
   });
 
@@ -176,28 +183,30 @@ export async function action({ request }: ActionFunctionArgs) {
         success: true,
         message: "Default category markups updated"
       };
-    case "accountsReceivableEmail":
-      const arValidation = await validator(
-        accountsReceivableEmailValidator
+
+    case "accountsReceivableBillingAddress":
+      const arBillingValidation = await validator(
+        accountsReceivableBillingAddressValidator
       ).validate(formData);
 
-      if (arValidation.error) {
+      if (arBillingValidation.error) {
         return { success: false, message: "Invalid form data" };
       }
 
-      const arResult = await updateAccountsReceivableEmail(
+      const arBillingResult = await updateAccountsReceivableBillingAddress(
         client,
         companyId,
-        arValidation.data.accountsReceivableEmail
+        arBillingValidation.data,
+        userId
       );
 
-      if (arResult.error) {
-        return { success: false, message: arResult.error.message };
+      if (arBillingResult.error) {
+        return { success: false, message: arBillingResult.error.message };
       }
 
       return {
         success: true,
-        message: "Accounts receivable email updated"
+        message: "Accounts receivable billing address updated"
       };
 
     case "emails":
@@ -232,7 +241,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function SalesSettingsRoute() {
-  const { companySettings, terms } = useLoaderData<typeof loader>();
+  const { companySettings, terms, arBillingAddress } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const [digitalQuoteEnabled, setDigitalQuoteEnabled] = useState(
     companySettings.digitalQuoteEnabled ?? false
@@ -296,6 +306,106 @@ export default function SalesSettingsRoute() {
       >
         <Heading size="h3">Sales</Heading>
         <Card>
+          <HStack className="justify-between items-start">
+            <CardHeader>
+              <CardTitle>Sales Terms &amp; Conditions</CardTitle>
+              <CardDescription>
+                Define the terms and conditions for quotes and sales orders
+              </CardDescription>
+            </CardHeader>
+            <CardAction className="py-6">
+              {salesTermsStatus === "draft" ? (
+                <Badge variant="secondary">Draft</Badge>
+              ) : (
+                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
+              )}
+            </CardAction>
+          </HStack>
+          <CardContent>
+            {permissions.can("update", "settings") ? (
+              <Editor
+                initialValue={(terms?.salesTerms ?? {}) as JSONContent}
+                onUpload={onUploadImage}
+                onChange={handleUpdateSalesTerms}
+              />
+            ) : (
+              <div
+                className="prose dark:prose-invert"
+                dangerouslySetInnerHTML={{
+                  __html: generateHTML(terms?.salesTerms as JSONContent)
+                }}
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={accountsReceivableBillingAddressValidator}
+            defaultValues={{
+              name: arBillingAddress?.name ?? "",
+              addressLine1: arBillingAddress?.addressLine1 ?? "",
+              addressLine2: arBillingAddress?.addressLine2 ?? "",
+              city: arBillingAddress?.city ?? "",
+              state: arBillingAddress?.state ?? "",
+              postalCode: arBillingAddress?.postalCode ?? "",
+              countryCode: arBillingAddress?.countryCode ?? "",
+              phone: arBillingAddress?.phone ?? "",
+              fax: arBillingAddress?.fax ?? "",
+              email: arBillingAddress?.email ?? ""
+            }}
+            fetcher={fetcher}
+          >
+            <input
+              type="hidden"
+              name="intent"
+              value="accountsReceivableBillingAddress"
+            />
+            <CardHeader>
+              <CardTitle>Accounts Receivable Billing Address</CardTitle>
+              <CardDescription>
+                The billing address used on quotes, sales orders, invoices, and
+                other sales documents.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 max-w-[600px]">
+                <div className="col-span-2">
+                  <Input name="name" label="Name" />
+                </div>
+                <div className="col-span-2">
+                  <Input name="email" label="Email" />
+                </div>
+                <div className="col-span-2">
+                  <Input name="addressLine1" label="Address Line 1" />
+                </div>
+                <div className="col-span-2">
+                  <Input name="addressLine2" label="Address Line 2" />
+                </div>
+                <Input name="city" label="City" />
+                <Input name="state" label="State / Province" />
+                <Input name="postalCode" label="Postal Code" />
+                <Country name="countryCode" />
+                <Input name="phone" label="Phone" />
+                <Input name="fax" label="Fax" />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={
+                  fetcher.state !== "idle" &&
+                  fetcher.formData?.get("intent") ===
+                    "accountsReceivableBillingAddress"
+                }
+              >
+                Save
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+        <Card>
           <ValidatedForm
             method="post"
             validator={digitalQuoteValidator}
@@ -352,45 +462,6 @@ export default function SalesSettingsRoute() {
                 isLoading={
                   fetcher.state !== "idle" &&
                   fetcher.formData?.get("intent") === "digitalQuote"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
-        </Card>
-        <Card>
-          <ValidatedForm
-            method="post"
-            validator={accountsReceivableEmailValidator}
-            defaultValues={{
-              accountsReceivableEmail:
-                companySettings.accountsReceivableEmail ?? ""
-            }}
-            fetcher={fetcher}
-          >
-            <input
-              type="hidden"
-              name="intent"
-              value="accountsReceivableEmail"
-            />
-            <CardHeader>
-              <CardTitle>Accounts Receivable Email</CardTitle>
-              <CardDescription>
-                The email address used for accounts receivable correspondence.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-8 max-w-[400px]">
-                <Input name="accountsReceivableEmail" label="Email" />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") === "accountsReceivableEmail"
                 }
               >
                 Save

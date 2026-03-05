@@ -1,4 +1,4 @@
-import { formatCityStatePostalCode, formatDate } from "@carbon/utils";
+import { formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { Company } from "../../types";
@@ -30,7 +30,13 @@ const tw = createTw({
   }
 });
 
-const Header = ({ company, title, documentId, date, currencyCode }: HeaderProps) => {
+const Header = ({
+  company,
+  title,
+  documentId,
+  date,
+  currencyCode
+}: HeaderProps) => {
   return (
     <>
       <View style={tw("flex flex-row justify-between mb-1")}>
@@ -51,8 +57,6 @@ const Header = ({ company, title, documentId, date, currencyCode }: HeaderProps)
               </Text>
             </View>
           )}
-
-          
         </View>
         <View style={tw("flex flex-col items-end justify-start")}>
           <Text style={tw("text-2xl font-bold text-gray-800 tracking-tight")}>

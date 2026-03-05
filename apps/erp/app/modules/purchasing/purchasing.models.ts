@@ -287,7 +287,6 @@ export const supplierValidator = z.object({
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
-  invoicingContactId: zfd.text(z.string().optional()),
   taxId: zfd.text(z.string().optional()),
   vatNumber: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())

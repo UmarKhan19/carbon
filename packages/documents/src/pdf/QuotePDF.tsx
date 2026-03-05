@@ -4,7 +4,7 @@ import { formatCityStatePostalCode, pluralize } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
-import type { PDF } from "../types";
+import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { getLineDescription, getLineDescriptionDetails } from "../utils/quote";
 import { getCurrencyFormatter } from "../utils/shared";
 import { Header, Note, Template } from "./components";
@@ -17,6 +17,7 @@ interface QuotePDFProps extends PDF {
   quoteLinePrices: Database["public"]["Tables"]["quoteLinePrice"]["Row"][];
   payment?: Database["public"]["Tables"]["quotePayment"]["Row"] | null;
   shipment?: Database["public"]["Tables"]["quoteShipment"]["Row"] | null;
+  accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
   paymentTerms: { id: string; name: string }[];
   shippingMethods: { id: string; name: string }[];
   terms: JSONContent;

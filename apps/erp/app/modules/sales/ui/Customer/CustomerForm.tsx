@@ -141,11 +141,6 @@ const CustomerForm = ({
                         name="salesContactId"
                         label="Sales Contact"
                       />
-                      <CustomerContact
-                        customer={initialValues.id}
-                        name="invoicingContactId"
-                        label="Invoicing Contact"
-                      />
                     </>
                   )}
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}

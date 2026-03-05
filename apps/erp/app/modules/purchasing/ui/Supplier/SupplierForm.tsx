@@ -122,11 +122,6 @@ const SupplierForm = ({
                         name="purchasingContactId"
                         label="Purchasing Contact"
                       />
-                      <SupplierContact
-                        supplier={initialValues.id}
-                        name="invoicingContactId"
-                        label="Invoicing Contact"
-                      />
                     </>
                   )}
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}

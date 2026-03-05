@@ -262,3 +262,20 @@ export const quoteLineCategoryMarkupsSettingsValidator = z.object({
   overheadCost: zfd.numeric(z.number().min(0).default(0)),
   outsideCost: zfd.numeric(z.number().min(0).default(0))
 });
+
+const billingAddress = {
+  name: zfd.text(z.string().optional()),
+  addressLine1: zfd.text(z.string().optional()),
+  addressLine2: zfd.text(z.string().optional()),
+  city: zfd.text(z.string().optional()),
+  state: zfd.text(z.string().optional()),
+  postalCode: zfd.text(z.string().optional()),
+  countryCode: zfd.text(z.string().optional()),
+  phone: zfd.text(z.string().optional()),
+  fax: zfd.text(z.string().optional()),
+  email: zfd.text(z.string().email().optional())
+};
+
+export const accountsPayableBillingAddressValidator = z.object(billingAddress);
+export const accountsReceivableBillingAddressValidator =
+  z.object(billingAddress);

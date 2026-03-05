@@ -1,9 +1,8 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { formatCityStatePostalCode } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
-import type { PDF } from "../types";
+import type { AccountsPayableBillingAddress, PDF } from "../types";
 import {
   getLineDescription,
   getLineDescriptionDetails,
@@ -11,13 +10,22 @@ import {
   getTotal
 } from "../utils/purchase-order";
 import { getCurrencyFormatter } from "../utils/shared";
-import { Header, Note, PartyDetails, Template } from "./components";
+import {
+  Header,
+  Note,
+  PartyDetails,
+  ShipBillDetails,
+  Template
+} from "./components";
 
 interface PurchaseOrderPDFProps extends PDF {
   purchaseOrder: Database["public"]["Views"]["purchaseOrders"]["Row"];
   purchaseOrderLines: Database["public"]["Views"]["purchaseOrderLines"]["Row"][];
   purchaseOrderLocations: Database["public"]["Views"]["purchaseOrderLocations"]["Row"];
-  companySettings?: Database["public"]["Tables"]["companySettings"]["Row"] | null;
+  companySettings?:
+    | Database["public"]["Tables"]["companySettings"]["Row"]
+    | null;
+  accountsPayableBillingAddress?: AccountsPayableBillingAddress | null;
   terms: JSONContent;
   thumbnails?: Record<string, string | null>;
 }
@@ -135,6 +143,8 @@ const PurchaseOrderPDF = ({
           countryName: supplierCountryName,
           taxId: purchaseOrderLocations.supplierTaxId,
           vatNumber: purchaseOrderLocations.supplierVatNumber,
+          contactName: purchaseOrderLocations.supplierContactName,
+          contactEmail: purchaseOrderLocations.supplierContactEmail
         }}
         counterPartyLabel="Supplier"
         createdByFullName={purchaseOrder.createdByFullName}
@@ -142,61 +152,29 @@ const PurchaseOrderPDF = ({
         accountsPayableEmail={companySettings?.accountsPayableEmail}
       />
 
-      {/* Ship To Details */}
-      <View style={tw("border border-gray-200 mb-4")}>
-        <View style={tw("flex flex-row")}>
-          <View style={tw("w-1/2 p-3")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Ship To
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {dropShipment ? (
-                <>
-                  {customerName && (
-                    <Text style={tw("font-bold")}>{customerName}</Text>
-                  )}
-                  {customerAddressLine1 && <Text>{customerAddressLine1}</Text>}
-                  {customerAddressLine2 && <Text>{customerAddressLine2}</Text>}
-                  {(customerCity ||
-                    customerStateProvince ||
-                    customerPostalCode) && (
-                    <Text>
-                      {formatCityStatePostalCode(
-                        customerCity,
-                        customerStateProvince,
-                        customerPostalCode
-                      )}
-                    </Text>
-                  )}
-                  {customerCountryName && <Text>{customerCountryName}</Text>}
-                </>
-              ) : (
-                <>
-                  {deliveryName && (
-                    <Text style={tw("font-bold")}>{deliveryName}</Text>
-                  )}
-                  {deliveryAddressLine1 && <Text>{deliveryAddressLine1}</Text>}
-                  {deliveryAddressLine2 && <Text>{deliveryAddressLine2}</Text>}
-                  {(deliveryCity ||
-                    deliveryStateProvince ||
-                    deliveryPostalCode) && (
-                    <Text>
-                      {formatCityStatePostalCode(
-                        deliveryCity,
-                        deliveryStateProvince,
-                        deliveryPostalCode
-                      )}
-                    </Text>
-                  )}
-                  {deliveryCountryName && <Text>{deliveryCountryName}</Text>}
-                </>
-              )}
-            </View>
-          </View>
-        </View>
-      </View>
+      <ShipBillDetails
+        shipTo={
+          dropShipment
+            ? {
+                name: customerName,
+                addressLine1: customerAddressLine1,
+                addressLine2: customerAddressLine2,
+                city: customerCity,
+                stateProvince: customerStateProvince,
+                postalCode: customerPostalCode,
+                countryName: customerCountryName
+              }
+            : {
+                name: deliveryName,
+                addressLine1: deliveryAddressLine1,
+                addressLine2: deliveryAddressLine2,
+                city: deliveryCity,
+                stateProvince: deliveryStateProvince,
+                postalCode: deliveryPostalCode,
+                countryName: deliveryCountryName
+              }
+        }
+      />
 
       {/* Order Details */}
       <View style={tw("border border-gray-200 mb-4")}>
@@ -274,6 +252,7 @@ const PurchaseOrderPDF = ({
                         </Text>
                       )}
                     {thumbnails &&
+                      line.id &&
                       line.id in thumbnails &&
                       thumbnails[line.id] && (
                         <View style={tw("mt-1 w-16")}>

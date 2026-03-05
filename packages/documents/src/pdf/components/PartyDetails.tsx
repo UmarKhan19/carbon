@@ -1,7 +1,7 @@
+import type { Database } from "@carbon/database";
 import { formatCityStatePostalCode } from "@carbon/utils";
 import { Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
-import type { Company } from "../../types";
 
 type CounterParty = {
   name: string | null;
@@ -13,10 +13,12 @@ type CounterParty = {
   countryName: string | null;
   taxId?: string | null;
   vatNumber?: string | null;
+  contactName?: string | null;
+  contactEmail?: string | null;
 };
 
 type PartyDetailsProps = {
-  company: Company;
+  company: Database["public"]["Views"]["companies"]["Row"];
   companyLabel: string;
   counterParty: CounterParty;
   counterPartyLabel: string;
@@ -58,9 +60,7 @@ const PartyDetails = ({
       <View style={tw("flex flex-row")}>
         {/* Buyer / Company */}
         <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
-          <Text
-            style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-          >
+          <Text style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}>
             {companyLabel}
           </Text>
           <View style={tw("text-[10px] text-gray-800")}>
@@ -78,10 +78,9 @@ const PartyDetails = ({
                 )}
               </Text>
             )}
+            {company.countryName && <Text>{company.countryName}</Text>}
             {company.taxId && <Text>Tax ID: {company.taxId}</Text>}
-            {company.vatNumber && (
-              <Text>VAT Number: {company.vatNumber}</Text>
-            )}
+            {company.vatNumber && <Text>VAT Number: {company.vatNumber}</Text>}
             {(createdByFullName || createdByEmail) && (
               <Text>
                 Contact: {createdByFullName}
@@ -96,9 +95,7 @@ const PartyDetails = ({
 
         {/* Counter Party (Supplier) */}
         <View style={tw("w-1/2 p-3")}>
-          <Text
-            style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-          >
+          <Text style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}>
             {counterPartyLabel}
           </Text>
           <View style={tw("text-[10px] text-gray-800")}>
@@ -130,6 +127,14 @@ const PartyDetails = ({
             )}
             {counterParty.vatNumber && (
               <Text>VAT No: {counterParty.vatNumber}</Text>
+            )}
+            {(counterParty.contactName || counterParty.contactEmail) && (
+              <Text>
+                Contact: {counterParty.contactName}
+                {counterParty.contactEmail
+                  ? ` (${counterParty.contactEmail})`
+                  : ""}
+              </Text>
             )}
           </View>
         </View>

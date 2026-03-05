@@ -36,17 +36,19 @@ import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { EmailRecipients, Users } from "~/components/Form";
+import Country from "~/components/Form/Country";
 import { usePermissions, useUser } from "~/hooks";
 import {
-  accountsPayableEmailValidator,
+  accountsPayableBillingAddressValidator,
   defaultSupplierCcValidator,
+  getAccountsPayableBillingAddress,
   getCompanySettings,
   getTerms,
   includeThumbnailsOnPurchasingPdfsValidator,
   purchasePriceUpdateTimingTypes,
   purchasePriceUpdateTimingValidator,
   supplierQuoteNotificationValidator,
-  updateAccountsPayableEmail,
+  updateAccountsPayableBillingAddress,
   updateDefaultSupplierCc,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
@@ -65,9 +67,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [companySettings, terms] = await Promise.all([
+  const [companySettings, terms, apBillingAddress] = await Promise.all([
     getCompanySettings(client, companyId),
-    getTerms(client, companyId)
+    getTerms(client, companyId),
+    getAccountsPayableBillingAddress(client, companyId)
   ]);
 
   if (companySettings.error) {
@@ -89,12 +92,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     companySettings: companySettings.data,
-    terms: terms.data
+    terms: terms.data,
+    apBillingAddress: apBillingAddress.data
   };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "settings"
   });
 
@@ -170,28 +174,29 @@ export async function action({ request }: ActionFunctionArgs) {
 
       return { success: true, message: "PDF settings updated" };
 
-    case "accountsPayableEmail":
-      const apValidation = await validator(
-        accountsPayableEmailValidator
+    case "accountsPayableBillingAddress":
+      const apBillingValidation = await validator(
+        accountsPayableBillingAddressValidator
       ).validate(formData);
 
-      if (apValidation.error) {
+      if (apBillingValidation.error) {
         return { success: false, message: "Invalid form data" };
       }
 
-      const apResult = await updateAccountsPayableEmail(
+      const apBillingResult = await updateAccountsPayableBillingAddress(
         client,
         companyId,
-        apValidation.data.accountsPayableEmail
+        apBillingValidation.data,
+        userId
       );
 
-      if (apResult.error) {
-        return { success: false, message: apResult.error.message };
+      if (apBillingResult.error) {
+        return { success: false, message: apBillingResult.error.message };
       }
 
       return {
         success: true,
-        message: "Accounts payable email updated"
+        message: "Accounts payable billing address updated"
       };
 
     case "emails":
@@ -226,7 +231,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PurchasingSettingsRoute() {
-  const { companySettings, terms } = useLoaderData<typeof loader>();
+  const { companySettings, terms, apBillingAddress } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
@@ -285,6 +291,106 @@ export default function PurchasingSettingsRoute() {
       >
         <Heading size="h3">Purchasing</Heading>
         <Card>
+          <HStack className="justify-between items-start">
+            <CardHeader>
+              <CardTitle>Purchasing Terms &amp; Conditions</CardTitle>
+              <CardDescription>
+                Define the terms and conditions for purchase orders
+              </CardDescription>
+            </CardHeader>
+            <CardAction className="py-6">
+              {purchasingTermsStatus === "draft" ? (
+                <Badge variant="secondary">Draft</Badge>
+              ) : (
+                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
+              )}
+            </CardAction>
+          </HStack>
+          <CardContent>
+            {permissions.can("update", "settings") ? (
+              <Editor
+                initialValue={(terms.purchasingTerms ?? {}) as JSONContent}
+                onUpload={onUploadImage}
+                onChange={handleUpdatePurchasingTerms}
+              />
+            ) : (
+              <div
+                className="prose dark:prose-invert"
+                dangerouslySetInnerHTML={{
+                  __html: generateHTML(terms.purchasingTerms as JSONContent)
+                }}
+              />
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={accountsPayableBillingAddressValidator}
+            defaultValues={{
+              name: apBillingAddress?.name ?? "",
+              addressLine1: apBillingAddress?.addressLine1 ?? "",
+              addressLine2: apBillingAddress?.addressLine2 ?? "",
+              city: apBillingAddress?.city ?? "",
+              state: apBillingAddress?.state ?? "",
+              postalCode: apBillingAddress?.postalCode ?? "",
+              countryCode: apBillingAddress?.countryCode ?? "",
+              phone: apBillingAddress?.phone ?? "",
+              fax: apBillingAddress?.fax ?? "",
+              email: apBillingAddress?.email ?? ""
+            }}
+            fetcher={fetcher}
+          >
+            <input
+              type="hidden"
+              name="intent"
+              value="accountsPayableBillingAddress"
+            />
+            <CardHeader>
+              <CardTitle>Accounts Payable Billing Address</CardTitle>
+              <CardDescription>
+                The billing address used on purchase orders and other purchasing
+                documents.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 max-w-[600px]">
+                <div className="col-span-2">
+                  <Input name="name" label="Name" />
+                </div>
+                <div className="col-span-2">
+                  <Input name="email" label="Email" />
+                </div>
+                <div className="col-span-2">
+                  <Input name="addressLine1" label="Address Line 1" />
+                </div>
+                <div className="col-span-2">
+                  <Input name="addressLine2" label="Address Line 2" />
+                </div>
+                <Input name="city" label="City" />
+                <Input name="state" label="State / Province" />
+                <Input name="postalCode" label="Postal Code" />
+                <Country name="countryCode" />
+                <Input name="phone" label="Phone" />
+                <Input name="fax" label="Fax" />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={
+                  fetcher.state !== "idle" &&
+                  fetcher.formData?.get("intent") ===
+                    "accountsPayableBillingAddress"
+                }
+              >
+                Save
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+
+        <Card>
           <ValidatedForm
             method="post"
             validator={purchasePriceUpdateTimingValidator}
@@ -326,49 +432,6 @@ export default function PurchasingSettingsRoute() {
                   fetcher.state !== "idle" &&
                   fetcher.formData?.get("intent") ===
                     "purchasePriceUpdateTiming"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
-        </Card>
-        <Card>
-          <ValidatedForm
-            method="post"
-            validator={accountsPayableEmailValidator}
-            defaultValues={{
-              accountsPayableEmail:
-                companySettings.accountsPayableEmail ?? ""
-            }}
-            fetcher={fetcher}
-          >
-            <input
-              type="hidden"
-              name="intent"
-              value="accountsPayableEmail"
-            />
-            <CardHeader>
-              <CardTitle>Accounts Payable Email</CardTitle>
-              <CardDescription>
-                The email address used for accounts payable correspondence.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-8 max-w-[400px]">
-                <Input
-                  name="accountsPayableEmail"
-                  label="Email"
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") ===
-                    "accountsPayableEmail"
                 }
               >
                 Save
@@ -500,39 +563,6 @@ export default function PurchasingSettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
-        </Card>
-        <Card>
-          <HStack className="justify-between items-start">
-            <CardHeader>
-              <CardTitle>Purchasing Terms &amp; Conditions</CardTitle>
-              <CardDescription>
-                Define the terms and conditions for purchase orders
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              {purchasingTermsStatus === "draft" ? (
-                <Badge variant="secondary">Draft</Badge>
-              ) : (
-                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
-              )}
-            </CardAction>
-          </HStack>
-          <CardContent>
-            {permissions.can("update", "settings") ? (
-              <Editor
-                initialValue={(terms.purchasingTerms ?? {}) as JSONContent}
-                onUpload={onUploadImage}
-                onChange={handleUpdatePurchasingTerms}
-              />
-            ) : (
-              <div
-                className="prose dark:prose-invert"
-                dangerouslySetInnerHTML={{
-                  __html: generateHTML(terms.purchasingTerms as JSONContent)
-                }}
-              />
-            )}
-          </CardContent>
         </Card>
       </VStack>
     </ScrollArea>

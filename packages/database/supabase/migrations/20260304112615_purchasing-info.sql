@@ -6,6 +6,13 @@ ALTER TABLE "company" ADD COLUMN "vatNumber" TEXT;
 ALTER TABLE "customer" ADD COLUMN "vatNumber" TEXT;
 ALTER TABLE "supplier" ADD COLUMN "vatNumber" TEXT;
 
+
+DROP VIEW IF EXISTS "customers";
+DROP VIEW IF EXISTS "suppliers";
+
+ALTER TABLE "customer" DROP COLUMN IF EXISTS "invoicingContactId";
+ALTER TABLE "supplier" DROP COLUMN IF EXISTS "invoicingContactId";
+
 -- Recreate purchaseOrderLocations view to include supplier taxId and vatNumber
 DROP VIEW IF EXISTS "purchaseOrderLocations";
 CREATE OR REPLACE VIEW "purchaseOrderLocations" WITH(SECURITY_INVOKER=true) AS
@@ -21,6 +28,10 @@ CREATE OR REPLACE VIEW "purchaseOrderLocations" WITH(SECURITY_INVOKER=true) AS
     sc."name" AS "supplierCountryName",
     s."taxId" AS "supplierTaxId",
     s."vatNumber" AS "supplierVatNumber",
+    scon."fullName" AS "supplierContactName",
+    scon."email" AS "supplierContactEmail",
+    comp."countryCode" AS "companyCountryCode",
+    compc."name" AS "companyCountryName",
     dl.name AS "deliveryName",
     dl."addressLine1" AS "deliveryAddressLine1",
     dl."addressLine2" AS "deliveryAddressLine2",
@@ -47,6 +58,14 @@ CREATE OR REPLACE VIEW "purchaseOrderLocations" WITH(SECURITY_INVOKER=true) AS
     ON sa.id = sl."addressId"
   LEFT OUTER JOIN "country" sc
     ON sc.alpha2 = sa."countryCode"
+  LEFT OUTER JOIN "supplierContact" sct
+    ON sct.id = po."supplierContactId"
+  LEFT OUTER JOIN "contact" scon
+    ON scon.id = sct."contactId"
+  LEFT OUTER JOIN "company" comp
+    ON comp.id = po."companyId"
+  LEFT OUTER JOIN "country" compc
+    ON compc.alpha2 = comp."countryCode"
   INNER JOIN "purchaseOrderDelivery" pod
     ON pod.id = po.id
   LEFT OUTER JOIN "location" dl
@@ -107,24 +126,20 @@ DROP VIEW IF EXISTS "companies";
 CREATE OR REPLACE VIEW "companies" WITH(SECURITY_INVOKER=true) AS
   SELECT DISTINCT
     c.*,
+    cc."name" AS "countryName",
     uc.*,
     et.name AS "employeeType"
     FROM "userToCompany" uc
     INNER JOIN "company" c
       ON c.id = uc."companyId"
+    LEFT JOIN "country" cc
+      ON cc.alpha2 = c."countryCode"
     LEFT JOIN "employee" e
       ON e.id = uc."userId" AND e."companyId" = uc."companyId"
     LEFT JOIN "employeeType" et
       ON et.id = e."employeeTypeId";
 
-ALTER POLICY "Users can view other users from their same company" ON "user" USING (
-   id = auth.uid()::text OR
-   "id" IN (
-        SELECT "userId" FROM "userToCompany" WHERE "companyId" IN (
-            SELECT "companyId" FROM "userToCompany" WHERE "userId" = auth.uid()::text
-        )
-   )
-);
+
 
 
 DROP VIEW IF EXISTS "suppliers";
@@ -164,7 +179,7 @@ CREATE OR REPLACE VIEW "suppliers" WITH(SECURITY_INVOKER=true) AS
         s.tags,
         s."taxPercent",
         s."purchasingContactId",
-        s."invoicingContactId",
+        s."purchasingLocationId",
         s.embedding,
         s."defaultCc",
         st.name AS "type",
@@ -216,6 +231,7 @@ CREATE OR REPLACE VIEW "customers" WITH(SECURITY_INVOKER=true) AS
     c.logo,
     c.assignee,
     c."taxPercent",
+    c."tags",
     c.website,
     c."companyId",
     c."createdAt",
@@ -225,7 +241,7 @@ CREATE OR REPLACE VIEW "customers" WITH(SECURITY_INVOKER=true) AS
     c."customFields",
     c."currencyCode",
     c."salesContactId",
-    c."invoicingContactId",
+    c."salesLocationId",
     c."defaultCc",
     c."vatNumber",
     (
@@ -266,3 +282,147 @@ CREATE OR REPLACE VIEW "customers" WITH(SECURITY_INVOKER=true) AS
     INNER JOIN "contact" co ON co.id = cc."contactId"
     ORDER BY cc."customerId"
   ) pc ON pc."customerId" = c.id;
+
+
+CREATE TABLE "companyAccountsPayableBillingAddress" (
+  "id" TEXT NOT NULL,
+  "name" TEXT DEFAULT 'Accounts Payable',
+  "addressLine1" TEXT,
+  "addressLine2" TEXT,
+  "city" TEXT,
+  "state" TEXT,
+  "postalCode" TEXT,
+  "countryCode" TEXT,
+  "phone" TEXT,
+  "fax" TEXT,
+  "email" TEXT,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "updatedBy" TEXT,
+  CONSTRAINT "companyAccountsPayableBillingAddress_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "companyAccountsPayableBillingAddress_id_fkey" FOREIGN KEY ("id") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE "companyAccountsReceivableBillingAddress" (
+  "id" TEXT NOT NULL,
+  "name" TEXT DEFAULT 'Accounts Receivable',
+  "addressLine1" TEXT,
+  "addressLine2" TEXT,
+  "city" TEXT,
+  "state" TEXT,
+  "postalCode" TEXT,
+  "countryCode" TEXT,
+  "phone" TEXT,
+  "fax" TEXT,
+  "email" TEXT,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "updatedBy" TEXT,
+  CONSTRAINT "companyAccountsReceivableBillingAddress_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "companyAccountsReceivableBillingAddress_id_fkey" FOREIGN KEY ("id") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+-- RLS for companyAccountsPayableBillingAddress
+ALTER TABLE "companyAccountsPayableBillingAddress" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SELECT" ON "public"."companyAccountsPayableBillingAddress"
+FOR SELECT USING (
+  "id" = ANY ((SELECT get_companies_with_employee_role())::text[])
+);
+
+CREATE POLICY "INSERT" ON "public"."companyAccountsPayableBillingAddress"
+FOR INSERT WITH CHECK (
+  "id" = ANY ((SELECT get_companies_with_employee_permission('settings_create'))::text[])
+);
+
+CREATE POLICY "UPDATE" ON "public"."companyAccountsPayableBillingAddress"
+FOR UPDATE USING (
+  "id" = ANY ((SELECT get_companies_with_employee_permission('settings_update'))::text[])
+);
+
+CREATE POLICY "DELETE" ON "public"."companyAccountsPayableBillingAddress"
+FOR DELETE USING (
+  "id" = ANY ((SELECT get_companies_with_employee_permission('settings_delete'))::text[])
+);
+
+
+-- RLS for companyAccountsReceivableBillingAddress
+ALTER TABLE "companyAccountsReceivableBillingAddress" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SELECT" ON "public"."companyAccountsReceivableBillingAddress"
+FOR SELECT USING (
+  "id" = ANY ((SELECT get_companies_with_employee_role())::text[])
+);
+
+CREATE POLICY "INSERT" ON "public"."companyAccountsReceivableBillingAddress"
+FOR INSERT WITH CHECK (
+  "id" = ANY ((SELECT get_companies_with_employee_permission('settings_create'))::text[])
+);
+
+CREATE POLICY "UPDATE" ON "public"."companyAccountsReceivableBillingAddress"
+FOR UPDATE USING (
+  "id" = ANY ((SELECT get_companies_with_employee_permission('settings_update'))::text[])
+);
+
+CREATE POLICY "DELETE" ON "public"."companyAccountsReceivableBillingAddress"
+FOR DELETE USING (
+  "id" = ANY ((SELECT get_companies_with_employee_permission('settings_delete'))::text[])
+);
+
+
+-- Update insert_company_related_records to auto-create billing address records
+CREATE OR REPLACE FUNCTION insert_company_related_records()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO "terms" ("id") VALUES (NEW.id);
+
+  INSERT INTO "companySettings" ("id", "useMetric")
+  VALUES (
+    NEW.id,
+    CASE
+      WHEN NEW."countryCode" = 'US' OR NEW."baseCurrencyCode" = 'USD' THEN false
+      ELSE true
+    END
+  );
+
+  INSERT INTO "companyAccountsPayableBillingAddress" ("id", "addressLine1", "addressLine2", "city", "state", "postalCode", "countryCode", "phone", "fax", "email")
+  VALUES (NEW.id, NEW."addressLine1", NEW."addressLine2", NEW."city", NEW."stateProvince", NEW."postalCode", NEW."countryCode", NEW."phone", NEW."fax", NEW."email");
+
+  INSERT INTO "companyAccountsReceivableBillingAddress" ("id", "addressLine1", "addressLine2", "city", "state", "postalCode", "countryCode", "phone", "fax", "email")
+  VALUES (NEW.id, NEW."addressLine1", NEW."addressLine2", NEW."city", NEW."stateProvince", NEW."postalCode", NEW."countryCode", NEW."phone", NEW."fax", NEW."email");
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Backfill existing companies
+INSERT INTO "companyAccountsPayableBillingAddress" ("id", "addressLine1", "addressLine2", "city", "state", "postalCode", "countryCode", "phone", "fax", "email")
+SELECT
+  c."id",
+  c."addressLine1",
+  c."addressLine2",
+  c."city",
+  c."stateProvince",
+  c."postalCode",
+  c."countryCode",
+  c."phone",
+  c."fax",
+  c."email"
+FROM "company" c
+ON CONFLICT ("id") DO NOTHING;
+
+INSERT INTO "companyAccountsReceivableBillingAddress" ("id", "addressLine1", "addressLine2", "city", "state", "postalCode", "countryCode", "phone", "fax", "email")
+SELECT
+  c."id",
+  c."addressLine1",
+  c."addressLine2",
+  c."city",
+  c."stateProvince",
+  c."postalCode",
+  c."countryCode",
+  c."phone",
+  c."fax",
+  c."email"
+FROM "company" c
+ON CONFLICT ("id") DO NOTHING;

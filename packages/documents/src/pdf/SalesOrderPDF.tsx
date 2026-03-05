@@ -3,7 +3,7 @@ import type { JSONContent } from "@carbon/react";
 import { formatCityStatePostalCode } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
-import type { PDF } from "../types";
+import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import {
   getLineDescription,
   getLineDescriptionDetails,
@@ -18,6 +18,7 @@ interface SalesOrderPDFProps extends PDF {
   salesOrder: Database["public"]["Views"]["salesOrders"]["Row"];
   salesOrderLines: Database["public"]["Views"]["salesOrderLines"]["Row"][];
   salesOrderLocations: Database["public"]["Views"]["salesOrderLocations"]["Row"];
+  accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
   paymentTerms: { id: string; name: string }[];
   shippingMethods: { id: string; name: string }[];
   terms: JSONContent;
