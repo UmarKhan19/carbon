@@ -121,6 +121,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const stream = await renderToStream(
     <SalesOrderPDF
       company={company.data}
+      companySettings={companySettings.data}
       locale={locale}
       meta={{
         author: "Carbon",
@@ -130,7 +131,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       salesOrder={salesOrder.data}
       salesOrderLines={salesOrderLines.data ?? []}
       salesOrderLocations={salesOrderLocations.data}
-      accountsReceivableBillingAddress={arBillingAddress.data}
+      accountsReceivableBillingAddress={
+        companySettings.data?.accountsReceivableAddress
+          ? arBillingAddress.data
+          : null
+      }
       terms={(terms?.data?.salesTerms ?? {}) as JSONContent}
       paymentTerms={paymentTerms.data ?? []}
       shippingMethods={shippingMethods.data ?? []}

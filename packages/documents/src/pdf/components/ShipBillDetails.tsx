@@ -9,7 +9,7 @@ type Address = {
   city: string | null;
   stateProvince: string | null;
   postalCode: string | null;
-  countryName: string | null;
+  countryCode: string | null;
 };
 
 type ShipBillDetailsProps = {
@@ -43,16 +43,23 @@ const AddressBlock = ({ address }: { address: Address }) => (
     {address.name && <Text style={tw("font-bold")}>{address.name}</Text>}
     {address.addressLine1 && <Text>{address.addressLine1}</Text>}
     {address.addressLine2 && <Text>{address.addressLine2}</Text>}
-    {(address.city || address.stateProvince || address.postalCode) && (
+    {(address.city ||
+      address.stateProvince ||
+      address.postalCode ||
+      address.countryCode) && (
       <Text>
-        {formatCityStatePostalCode(
-          address.city,
-          address.stateProvince,
-          address.postalCode
-        )}
+        {[
+          formatCityStatePostalCode(
+            address.city,
+            address.stateProvince,
+            address.postalCode
+          ),
+          address.countryCode
+        ]
+          .filter(Boolean)
+          .join(" ")}
       </Text>
     )}
-    {address.countryName && <Text>{address.countryName}</Text>}
   </View>
 );
 

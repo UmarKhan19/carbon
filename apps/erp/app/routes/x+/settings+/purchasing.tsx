@@ -25,13 +25,14 @@ import {
   HStack,
   Label,
   ScrollArea,
+  Switch,
   toast,
   useDebounce,
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -48,6 +49,7 @@ import {
   purchasePriceUpdateTimingTypes,
   purchasePriceUpdateTimingValidator,
   supplierQuoteNotificationValidator,
+  updateAccountsPayableAddressSetting,
   updateAccountsPayableBillingAddress,
   updateDefaultSupplierCc,
   updatePurchasePriceUpdateTimingSetting,
@@ -106,6 +108,21 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
+    case "accountsPayableAddressToggle":
+      const apToggleEnabled = formData.get("enabled") === "true";
+      const apToggleResult = await updateAccountsPayableAddressSetting(
+        client,
+        companyId,
+        apToggleEnabled
+      );
+      if (apToggleResult.error) {
+        return { success: false, message: apToggleResult.error.message };
+      }
+      return {
+        success: true,
+        message: `Accounts payable billing address ${apToggleEnabled ? "enabled" : "disabled"}`
+      };
+
     case "purchasePriceUpdateTiming":
       const validation = await validator(
         purchasePriceUpdateTimingValidator
@@ -251,6 +268,31 @@ export default function PurchasingSettingsRoute() {
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
 
+  const toggleFetcher = useFetcher<typeof action>();
+  const [apAddressEnabled, setApAddressEnabled] = useState(
+    companySettings.accountsPayableAddress ?? false
+  );
+
+  const handleApAddressToggle = useCallback(
+    (checked: boolean) => {
+      setApAddressEnabled(checked);
+      toggleFetcher.submit(
+        { intent: "accountsPayableAddressToggle", enabled: checked.toString() },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
+
+  useEffect(() => {
+    if (toggleFetcher.data?.success === true && toggleFetcher?.data?.message) {
+      toast.success(toggleFetcher.data.message);
+    }
+    if (toggleFetcher.data?.success === false && toggleFetcher?.data?.message) {
+      toast.error(toggleFetcher.data.message);
+    }
+  }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
+
   const [purchasingTermsStatus, setPurchasingTermsStatus] = useState<
     "saved" | "draft"
   >("saved");
@@ -324,71 +366,79 @@ export default function PurchasingSettingsRoute() {
           </CardContent>
         </Card>
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={accountsPayableBillingAddressValidator}
-            defaultValues={{
-              name: apBillingAddress?.name ?? "",
-              addressLine1: apBillingAddress?.addressLine1 ?? "",
-              addressLine2: apBillingAddress?.addressLine2 ?? "",
-              city: apBillingAddress?.city ?? "",
-              state: apBillingAddress?.state ?? "",
-              postalCode: apBillingAddress?.postalCode ?? "",
-              countryCode: apBillingAddress?.countryCode ?? "",
-              phone: apBillingAddress?.phone ?? "",
-              fax: apBillingAddress?.fax ?? "",
-              email: apBillingAddress?.email ?? ""
-            }}
-            fetcher={fetcher}
-          >
-            <input
-              type="hidden"
-              name="intent"
-              value="accountsPayableBillingAddress"
-            />
-            <CardHeader>
-              <CardTitle>Accounts Payable Billing Address</CardTitle>
-              <CardDescription>
-                The billing address used on purchase orders and other purchasing
-                documents.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4 max-w-[600px]">
-                <div className="col-span-2">
-                  <Input name="name" label="Name" />
-                </div>
-                <div className="col-span-2">
-                  <Input name="email" label="Email" />
-                </div>
-                <div className="col-span-2">
-                  <Input name="addressLine1" label="Address Line 1" />
-                </div>
-                <div className="col-span-2">
-                  <Input name="addressLine2" label="Address Line 2" />
-                </div>
-                <Input name="city" label="City" />
-                <Input name="state" label="State / Province" />
-                <Input name="postalCode" label="Postal Code" />
-                <Country name="countryCode" />
-                <Input name="phone" label="Phone" />
-                <Input name="fax" label="Fax" />
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>Accounts Payable Billing Address</CardTitle>
+                <CardDescription>
+                  The billing address used on purchase orders and other
+                  purchasing documents.
+                </CardDescription>
               </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") ===
-                    "accountsPayableBillingAddress"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
+              <Switch
+                checked={apAddressEnabled}
+                onCheckedChange={handleApAddressToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
         </Card>
+        {apAddressEnabled && (
+          <Card>
+            <ValidatedForm
+              method="post"
+              validator={accountsPayableBillingAddressValidator}
+              defaultValues={{
+                name: apBillingAddress?.name ?? "",
+                addressLine1: apBillingAddress?.addressLine1 ?? "",
+                addressLine2: apBillingAddress?.addressLine2 ?? "",
+                city: apBillingAddress?.city ?? "",
+                state: apBillingAddress?.state ?? "",
+                postalCode: apBillingAddress?.postalCode ?? "",
+                countryCode: apBillingAddress?.countryCode ?? "",
+                phone: apBillingAddress?.phone ?? "",
+                fax: apBillingAddress?.fax ?? "",
+                email: apBillingAddress?.email ?? ""
+              }}
+              fetcher={fetcher}
+            >
+              <input
+                type="hidden"
+                name="intent"
+                value="accountsPayableBillingAddress"
+              />
+              <CardHeader>
+                <CardTitle>Billing Address</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <Input name="name" label="Name" />
+                  <Input name="email" label="Email" />
+                  <Input name="addressLine1" label="Address Line 1" />
+                  <Input name="addressLine2" label="Address Line 2" />
+                  <Input name="city" label="City" />
+                  <Input name="state" label="State / Province" />
+                  <Input name="postalCode" label="Postal Code" />
+                  <Country name="countryCode" />
+                  <Input name="phone" label="Phone" />
+                  <Input name="fax" label="Fax" />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Submit
+                  isDisabled={fetcher.state !== "idle"}
+                  isLoading={
+                    fetcher.state !== "idle" &&
+                    fetcher.formData?.get("intent") ===
+                      "accountsPayableBillingAddress"
+                  }
+                >
+                  Save
+                </Submit>
+              </CardFooter>
+            </ValidatedForm>
+          </Card>
+        )}
 
         <Card>
           <ValidatedForm

@@ -283,6 +283,9 @@ CREATE OR REPLACE VIEW "customers" WITH(SECURITY_INVOKER=true) AS
     ORDER BY cc."customerId"
   ) pc ON pc."customerId" = c.id;
 
+ALTER TABLE "companySettings" ADD COLUMN "accountsPayableAddress" BOOLEAN DEFAULT FALSE;
+ALTER TABLE "companySettings" ADD COLUMN "accountsReceivableAddress" BOOLEAN DEFAULT FALSE;
+
 
 CREATE TABLE "companyAccountsPayableBillingAddress" (
   "id" TEXT NOT NULL,

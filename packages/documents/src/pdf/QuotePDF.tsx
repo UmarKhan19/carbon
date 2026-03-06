@@ -1,13 +1,13 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { formatCityStatePostalCode, pluralize } from "@carbon/utils";
+import { pluralize } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { getLineDescription, getLineDescriptionDetails } from "../utils/quote";
 import { getCurrencyFormatter } from "../utils/shared";
-import { Header, Note, Template } from "./components";
+import { Header, Note, PartyDetails, Template } from "./components";
 
 interface QuotePDFProps extends PDF {
   exchangeRate: number;
@@ -18,6 +18,9 @@ interface QuotePDFProps extends PDF {
   payment?: Database["public"]["Tables"]["quotePayment"]["Row"] | null;
   shipment?: Database["public"]["Tables"]["quoteShipment"]["Row"] | null;
   accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
+  companySettings?:
+    | Database["public"]["Tables"]["companySettings"]["Row"]
+    | null;
   paymentTerms: { id: string; name: string }[];
   shippingMethods: { id: string; name: string }[];
   terms: JSONContent;
@@ -44,7 +47,9 @@ const tw = createTw({
 });
 
 const QuotePDF = ({
+  accountsReceivableBillingAddress,
   company,
+  companySettings,
   locale,
   meta,
   exchangeRate,
@@ -66,7 +71,7 @@ const QuotePDF = ({
     customerCity,
     customerStateProvince,
     customerPostalCode,
-    customerCountryName,
+    customerCountryCode,
     contactName,
     contactEmail
   } = quoteCustomerDetails;
@@ -215,39 +220,41 @@ const QuotePDF = ({
         currencyCode={quote?.currencyCode}
       />
 
-      {/* Customer & Quote Details */}
+      <PartyDetails
+        company={company}
+        companyAddressOverride={
+          accountsReceivableBillingAddress
+            ? {
+                name: accountsReceivableBillingAddress.name,
+                addressLine1: accountsReceivableBillingAddress.addressLine1,
+                addressLine2: accountsReceivableBillingAddress.addressLine2,
+                city: accountsReceivableBillingAddress.city,
+                stateProvince: accountsReceivableBillingAddress.state,
+                postalCode: accountsReceivableBillingAddress.postalCode,
+                countryCode: accountsReceivableBillingAddress.countryCode
+              }
+            : undefined
+        }
+        companyLabel="Seller"
+        counterParty={{
+          name: customerName,
+          addressLine1: customerAddressLine1,
+          addressLine2: customerAddressLine2,
+          city: customerCity,
+          stateProvince: customerStateProvince,
+          postalCode: customerPostalCode,
+          countryCode: customerCountryCode,
+          contactName: contactName,
+          contactEmail: contactEmail
+        }}
+        counterPartyLabel="Buyer"
+        accountsReceivableEmail={companySettings?.accountsReceivableEmail}
+      />
+
+      {/* Quote Details & Notes */}
       <View style={tw("border border-gray-200 mb-4")}>
         <View style={tw("flex flex-row")}>
           <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Customer
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {customerName && (
-                <Text style={tw("font-bold")}>{customerName}</Text>
-              )}
-              {contactName && <Text>{contactName}</Text>}
-              {contactEmail && <Text>{contactEmail}</Text>}
-              {customerAddressLine1 && (
-                <Text style={tw("mt-1")}>{customerAddressLine1}</Text>
-              )}
-              {customerAddressLine2 && <Text>{customerAddressLine2}</Text>}
-              {(customerCity || customerStateProvince) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    customerCity,
-                    customerStateProvince,
-                    null
-                  )}
-                </Text>
-              )}
-              {customerPostalCode && <Text>{customerPostalCode}</Text>}
-              {customerCountryName && <Text>{customerCountryName}</Text>}
-            </View>
-          </View>
-          <View style={tw("w-1/2 p-3")}>
             <Text
               style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
             >
@@ -262,6 +269,26 @@ const QuotePDF = ({
               )}
               {quote.customerReference && (
                 <Text>Reference: {quote.customerReference}</Text>
+              )}
+              {maxLeadTime > 0 && (
+                <Text>
+                  Max Lead Time: {maxLeadTime} {pluralize(maxLeadTime, "day")}
+                </Text>
+              )}
+              {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+            </View>
+          </View>
+          <View style={tw("w-1/2 p-3")}>
+            <Text
+              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
+            >
+              Notes
+            </Text>
+            <View style={tw("text-[10px] text-gray-800")}>
+              {Object.keys(quote?.externalNotes ?? {}).length > 0 ? (
+                <Note content={(quote.externalNotes ?? {}) as JSONContent} />
+              ) : (
+                <Text style={tw("text-gray-400")}>None</Text>
               )}
             </View>
           </View>
@@ -558,36 +585,7 @@ const QuotePDF = ({
         )}
       </View>
 
-      {/* Footer - Lead Time & Payment Terms */}
-      {(maxLeadTime > 0 || paymentTerm) && (
-        <View style={tw("flex flex-row gap-8 mb-4 text-[10px]")}>
-          {maxLeadTime > 0 && (
-            <View style={tw("flex flex-row")}>
-              <Text style={tw("font-bold text-gray-800")}>Max Lead Time: </Text>
-              <Text style={tw("text-gray-600")}>
-                {maxLeadTime} {pluralize(maxLeadTime, "day")}
-              </Text>
-            </View>
-          )}
-          {paymentTerm && (
-            <View style={tw("flex flex-row")}>
-              <Text style={tw("font-bold text-gray-800")}>Payment Terms: </Text>
-              <Text style={tw("text-gray-600")}>{paymentTerm.name}</Text>
-            </View>
-          )}
-        </View>
-      )}
-
-      {/* Notes & Terms */}
-      <View style={tw("flex flex-col gap-3 w-full")}>
-        {Object.keys(quote.externalNotes ?? {}).length > 0 && (
-          <Note
-            title="Notes"
-            content={(quote.externalNotes ?? {}) as JSONContent}
-          />
-        )}
-        <Note title="Standard Terms & Conditions" content={terms} />
-      </View>
+      <Note title="Standard Terms & Conditions" content={terms} />
     </Template>
   );
 };

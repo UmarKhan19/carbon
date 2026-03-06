@@ -1,5 +1,6 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
+import { formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { AccountsPayableBillingAddress, PDF } from "../types";
@@ -26,6 +27,7 @@ interface PurchaseOrderPDFProps extends PDF {
     | Database["public"]["Tables"]["companySettings"]["Row"]
     | null;
   accountsPayableBillingAddress?: AccountsPayableBillingAddress | null;
+  paymentTerms?: { id: string; name: string }[];
   terms: JSONContent;
   thumbnails?: Record<string, string | null>;
 }
@@ -49,25 +51,13 @@ const tw = createTw({
   }
 });
 
-const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return null;
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-  } catch {
-    return dateStr;
-  }
-};
-
 const PurchaseOrderPDF = ({
+  accountsPayableBillingAddress,
   company,
   companySettings,
   locale,
   meta,
+  paymentTerms,
   purchaseOrder,
   purchaseOrderLines,
   purchaseOrderLocations,
@@ -82,14 +72,14 @@ const PurchaseOrderPDF = ({
     supplierCity,
     supplierStateProvince,
     supplierPostalCode,
-    supplierCountryName,
+    supplierCountryCode,
     deliveryName,
     deliveryAddressLine1,
     deliveryAddressLine2,
     deliveryCity,
     deliveryStateProvince,
     deliveryPostalCode,
-    deliveryCountryName,
+    deliveryCountryCode,
     dropShipment,
     customerName,
     customerAddressLine1,
@@ -97,7 +87,7 @@ const PurchaseOrderPDF = ({
     customerCity,
     customerStateProvince,
     customerPostalCode,
-    customerCountryName
+    customerCountryCode
   } = purchaseOrderLocations;
 
   const formatter = getCurrencyFormatter(
@@ -110,6 +100,9 @@ const PurchaseOrderPDF = ({
   );
 
   const shippingCost = purchaseOrder?.supplierShippingCost ?? 0;
+  const paymentTerm = paymentTerms?.find(
+    (term) => term.id === purchaseOrder?.paymentTermId
+  );
 
   let rowIndex = 0;
 
@@ -140,7 +133,7 @@ const PurchaseOrderPDF = ({
           city: supplierCity,
           stateProvince: supplierStateProvince,
           postalCode: supplierPostalCode,
-          countryName: supplierCountryName,
+          countryCode: supplierCountryCode,
           taxId: purchaseOrderLocations.supplierTaxId,
           vatNumber: purchaseOrderLocations.supplierVatNumber,
           contactName: purchaseOrderLocations.supplierContactName,
@@ -162,7 +155,7 @@ const PurchaseOrderPDF = ({
                 city: customerCity,
                 stateProvince: customerStateProvince,
                 postalCode: customerPostalCode,
-                countryName: customerCountryName
+                countryCode: customerCountryCode
               }
             : {
                 name: deliveryName,
@@ -171,12 +164,33 @@ const PurchaseOrderPDF = ({
                 city: deliveryCity,
                 stateProvince: deliveryStateProvince,
                 postalCode: deliveryPostalCode,
-                countryName: deliveryCountryName
+                countryCode: deliveryCountryCode
+              }
+        }
+        billTo={
+          accountsPayableBillingAddress
+            ? {
+                name: accountsPayableBillingAddress.name,
+                addressLine1: accountsPayableBillingAddress.addressLine1,
+                addressLine2: accountsPayableBillingAddress.addressLine2,
+                city: accountsPayableBillingAddress.city,
+                stateProvince: accountsPayableBillingAddress.state,
+                postalCode: accountsPayableBillingAddress.postalCode,
+                countryCode: accountsPayableBillingAddress.countryCode
+              }
+            : {
+                name: company.name,
+                addressLine1: company.addressLine1,
+                addressLine2: company.addressLine2,
+                city: company.city,
+                stateProvince: company.stateProvince,
+                postalCode: company.postalCode,
+                countryCode: company.countryCode
               }
         }
       />
 
-      {/* Order Details */}
+      {/* Order Details & Notes */}
       <View style={tw("border border-gray-200 mb-4")}>
         <View style={tw("flex flex-row")}>
           <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
@@ -190,19 +204,33 @@ const PurchaseOrderPDF = ({
               {purchaseOrder?.supplierReference && (
                 <Text>Reference: {purchaseOrder.supplierReference}</Text>
               )}
+              {purchaseOrder?.receiptRequestedDate && (
+                <Text>
+                  Requested Date:{" "}
+                  {formatDate(purchaseOrder.receiptRequestedDate)}
+                </Text>
+              )}
+              {purchaseOrder?.receiptPromisedDate && (
+                <Text>
+                  Promised Date: {formatDate(purchaseOrder.receiptPromisedDate)}
+                </Text>
+              )}
+              {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>
             <Text
               style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
             >
-              Delivery
+              Notes
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
-              {purchaseOrder?.receiptPromisedDate && (
-                <Text>
-                  Promised Date: {formatDate(purchaseOrder.receiptPromisedDate)}
-                </Text>
+              {Object.keys(purchaseOrder?.externalNotes ?? {}).length > 0 ? (
+                <Note
+                  content={(purchaseOrder.externalNotes ?? {}) as JSONContent}
+                />
+              ) : (
+                <Text style={tw("text-gray-400")}>None</Text>
               )}
             </View>
           </View>
@@ -217,10 +245,13 @@ const PurchaseOrderPDF = ({
             "flex flex-row bg-gray-800 py-2 px-3 text-white text-[9px] font-bold"
           )}
         >
-          <Text style={tw("w-1/2")}>Description</Text>
-          <Text style={tw("w-1/6 text-right")}>Qty</Text>
-          <Text style={tw("w-1/6 text-right")}>Unit Price</Text>
-          <Text style={tw("w-1/6 text-right")}>Total</Text>
+          <Text style={tw("w-[5%] text-center")}>#</Text>
+          <Text style={tw("w-[33%]")}>Description</Text>
+          <Text style={tw("w-[12%] text-right")}>Qty</Text>
+          <Text style={tw("w-[10%] text-center")}>UOM</Text>
+          <Text style={tw("w-[15%] text-right")}>Unit Price</Text>
+          <Text style={tw("w-[12%] text-right")}>Tax</Text>
+          <Text style={tw("w-[13%] text-right")}>Total</Text>
         </View>
 
         {/* Rows */}
@@ -238,7 +269,10 @@ const PurchaseOrderPDF = ({
                 )}
               >
                 <View style={tw("flex flex-row")}>
-                  <View style={tw("w-1/2 pr-2")}>
+                  <Text style={tw("w-[5%] text-center text-gray-400")}>
+                    {line.purchaseOrderLineType === "Comment" ? "" : rowIndex}
+                  </Text>
+                  <View style={tw("w-[33%] pr-2")}>
                     <Text style={tw("text-gray-800")}>
                       {getLineDescription(line)}
                     </Text>
@@ -263,18 +297,37 @@ const PurchaseOrderPDF = ({
                         </View>
                       )}
                   </View>
-                  <Text style={tw("w-1/6 text-right text-gray-600")}>
+                  <Text style={tw("w-[12%] text-right text-gray-600")}>
                     {line.purchaseOrderLineType === "Comment"
                       ? ""
-                      : `${line.purchaseQuantity} ${line.purchaseUnitOfMeasureCode}`}
+                      : line.purchaseQuantity}
                   </Text>
-                  <Text style={tw("w-1/6 text-right text-gray-600")}>
+                  <Text style={tw("w-[10%] text-center text-gray-600")}>
+                    {line.purchaseOrderLineType === "Comment"
+                      ? ""
+                      : line.purchaseUnitOfMeasureCode}
+                  </Text>
+                  <Text style={tw("w-[15%] text-right text-gray-600")}>
                     {line.purchaseOrderLineType === "Comment"
                       ? ""
                       : formatter.format(line.supplierUnitPrice ?? 0)}
                   </Text>
+                  <View style={tw("w-[12%]")}>
+                    {line.purchaseOrderLineType !== "Comment" && (
+                      <View style={tw("flex flex-col items-end")}>
+                        <Text style={tw("text-gray-600")}>
+                          {formatter.format(line.supplierTaxAmount ?? 0)}
+                        </Text>
+                        {(line.taxPercent ?? 0) > 0 && (
+                          <Text style={tw("text-[7px] text-gray-400")}>
+                            {((line.taxPercent ?? 0) * 100).toFixed(0)}%
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                  </View>
                   <Text
-                    style={tw("w-1/6 text-right text-gray-800 font-medium")}
+                    style={tw("w-[13%] text-right text-gray-800 font-medium")}
                   >
                     {line.purchaseOrderLineType === "Comment"
                       ? ""
@@ -298,9 +351,9 @@ const PurchaseOrderPDF = ({
         <View>
           {/* Subtotal - before tax and shipping */}
           <View style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}>
-            <View style={tw("w-4/6")} />
-            <Text style={tw("w-1/6 text-right text-gray-600")}>Subtotal</Text>
-            <Text style={tw("w-1/6 text-right text-gray-800")}>
+            <View style={tw("w-[75%]")} />
+            <Text style={tw("w-[12%] text-right text-gray-600")}>Subtotal</Text>
+            <Text style={tw("w-[13%] text-right text-gray-800")}>
               {formatter.format(
                 purchaseOrderLines.reduce((sum, line) => {
                   if (line?.purchaseQuantity && line?.supplierUnitPrice) {
@@ -317,9 +370,11 @@ const PurchaseOrderPDF = ({
             <View
               style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}
             >
-              <View style={tw("w-4/6")} />
-              <Text style={tw("w-1/6 text-right text-gray-600")}>Shipping</Text>
-              <Text style={tw("w-1/6 text-right text-gray-800")}>
+              <View style={tw("w-[75%]")} />
+              <Text style={tw("w-[12%] text-right text-gray-600")}>
+                Shipping
+              </Text>
+              <Text style={tw("w-[13%] text-right text-gray-800")}>
                 {formatter.format(shippingCost)}
               </Text>
             </View>
@@ -330,9 +385,9 @@ const PurchaseOrderPDF = ({
             <View
               style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}
             >
-              <View style={tw("w-4/6")} />
-              <Text style={tw("w-1/6 text-right text-gray-600")}>Tax</Text>
-              <Text style={tw("w-1/6 text-right text-gray-800")}>
+              <View style={tw("w-[75%]")} />
+              <Text style={tw("w-[12%] text-right text-gray-600")}>Tax</Text>
+              <Text style={tw("w-[13%] text-right text-gray-800")}>
                 {formatter.format(taxAmount)}
               </Text>
             </View>
@@ -340,27 +395,19 @@ const PurchaseOrderPDF = ({
 
           <View style={tw("h-[1px] bg-gray-200")} />
           <View style={tw("flex flex-row py-2 px-3 text-[11px]")}>
-            <View style={tw("w-4/6")} />
-            <Text style={tw("w-1/6 text-right text-gray-800 font-bold")}>
+            <View style={tw("w-[75%]")} />
+            <Text style={tw("w-[12%] text-right text-gray-800 font-bold")}>
               Total
             </Text>
-            <Text style={tw("w-1/6 text-right text-gray-800 font-bold")}>
+            <Text style={tw("w-[13%] text-right text-gray-800 font-bold")}>
               {formatter.format(getTotal(purchaseOrderLines) + shippingCost)}
             </Text>
           </View>
         </View>
       </View>
 
-      {/* Notes & Terms */}
-      <View style={tw("flex flex-col gap-3 w-full")}>
-        {Object.keys(purchaseOrder?.externalNotes ?? {}).length > 0 && (
-          <Note
-            title="Notes"
-            content={(purchaseOrder.externalNotes ?? {}) as JSONContent}
-          />
-        )}
-        <Note title="Standard Terms & Conditions" content={terms} />
-      </View>
+      {/* Terms */}
+      <Note title="Standard Terms & Conditions" content={terms} />
     </Template>
   );
 };

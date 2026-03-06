@@ -3,6 +3,7 @@ import { PurchaseOrderPDF } from "@carbon/documents/pdf";
 import type { JSONContent } from "@carbon/react";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
+import { getPaymentTermsList } from "~/modules/accounting";
 import {
   getPurchaseOrder,
   getPurchaseOrderLines,
@@ -32,7 +33,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     purchaseOrder,
     purchaseOrderLines,
     purchaseOrderLocations,
-    terms
+    terms,
+    paymentTerms
   ] = await Promise.all([
     getCompany(client, companyId),
     getCompanySettings(client, companyId),
@@ -40,7 +42,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getPurchaseOrder(client, orderId),
     getPurchaseOrderLines(client, orderId),
     getPurchaseOrderLocations(client, orderId),
-    getPurchasingTerms(client, companyId)
+    getPurchasingTerms(client, companyId),
+    getPaymentTermsList(client, companyId)
   ]);
 
   if (company.error) {
@@ -116,8 +119,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     <PurchaseOrderPDF
       company={company.data}
       companySettings={companySettings.data}
-      accountsPayableBillingAddress={apBillingAddress.data}
+      accountsPayableBillingAddress={
+        companySettings.data?.accountsPayableAddress
+          ? apBillingAddress.data
+          : null
+      }
       locale={locale}
+      paymentTerms={paymentTerms.data ?? []}
       purchaseOrder={purchaseOrder.data}
       purchaseOrderLines={purchaseOrderLines.data ?? []}
       purchaseOrderLocations={purchaseOrderLocations.data}

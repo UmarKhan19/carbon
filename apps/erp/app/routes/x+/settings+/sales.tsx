@@ -26,13 +26,14 @@ import {
   HStack,
   Label,
   ScrollArea,
+  Switch,
   toast,
   useDebounce,
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -49,6 +50,7 @@ import {
   includeThumbnailsOnSalesPdfsValidator,
   quoteLineCategoryMarkupsSettingsValidator,
   rfqReadyValidator,
+  updateAccountsReceivableAddressSetting,
   updateAccountsReceivableBillingAddress,
   updateDefaultCustomerCc,
   updateDigitalQuoteSetting,
@@ -98,6 +100,21 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
+    case "accountsReceivableAddressToggle":
+      const arToggleEnabled = formData.get("enabled") === "true";
+      const arToggleResult = await updateAccountsReceivableAddressSetting(
+        client,
+        companyId,
+        arToggleEnabled
+      );
+      if (arToggleResult.error) {
+        return { success: false, message: arToggleResult.error.message };
+      }
+      return {
+        success: true,
+        message: `Accounts receivable billing address ${arToggleEnabled ? "enabled" : "disabled"}`
+      };
+
     case "digitalQuote":
       const validation = await validator(digitalQuoteValidator).validate(
         formData
@@ -244,6 +261,25 @@ export default function SalesSettingsRoute() {
   const { companySettings, terms, arBillingAddress } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const toggleFetcher = useFetcher<typeof action>();
+  const [arAddressEnabled, setArAddressEnabled] = useState(
+    companySettings.accountsReceivableAddress ?? false
+  );
+
+  const handleArAddressToggle = useCallback(
+    (checked: boolean) => {
+      setArAddressEnabled(checked);
+      toggleFetcher.submit(
+        {
+          intent: "accountsReceivableAddressToggle",
+          enabled: checked.toString()
+        },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
+
   const [digitalQuoteEnabled, setDigitalQuoteEnabled] = useState(
     companySettings.digitalQuoteEnabled ?? false
   );
@@ -257,6 +293,15 @@ export default function SalesSettingsRoute() {
       toast.error(fetcher.data.message);
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
+
+  useEffect(() => {
+    if (toggleFetcher.data?.success === true && toggleFetcher?.data?.message) {
+      toast.success(toggleFetcher.data.message);
+    }
+    if (toggleFetcher.data?.success === false && toggleFetcher?.data?.message) {
+      toast.error(toggleFetcher.data.message);
+    }
+  }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
 
   const permissions = usePermissions();
   const { carbon } = useCarbon();
@@ -340,71 +385,79 @@ export default function SalesSettingsRoute() {
         </Card>
 
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={accountsReceivableBillingAddressValidator}
-            defaultValues={{
-              name: arBillingAddress?.name ?? "",
-              addressLine1: arBillingAddress?.addressLine1 ?? "",
-              addressLine2: arBillingAddress?.addressLine2 ?? "",
-              city: arBillingAddress?.city ?? "",
-              state: arBillingAddress?.state ?? "",
-              postalCode: arBillingAddress?.postalCode ?? "",
-              countryCode: arBillingAddress?.countryCode ?? "",
-              phone: arBillingAddress?.phone ?? "",
-              fax: arBillingAddress?.fax ?? "",
-              email: arBillingAddress?.email ?? ""
-            }}
-            fetcher={fetcher}
-          >
-            <input
-              type="hidden"
-              name="intent"
-              value="accountsReceivableBillingAddress"
-            />
-            <CardHeader>
-              <CardTitle>Accounts Receivable Billing Address</CardTitle>
-              <CardDescription>
-                The billing address used on quotes, sales orders, invoices, and
-                other sales documents.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4 max-w-[600px]">
-                <div className="col-span-2">
-                  <Input name="name" label="Name" />
-                </div>
-                <div className="col-span-2">
-                  <Input name="email" label="Email" />
-                </div>
-                <div className="col-span-2">
-                  <Input name="addressLine1" label="Address Line 1" />
-                </div>
-                <div className="col-span-2">
-                  <Input name="addressLine2" label="Address Line 2" />
-                </div>
-                <Input name="city" label="City" />
-                <Input name="state" label="State / Province" />
-                <Input name="postalCode" label="Postal Code" />
-                <Country name="countryCode" />
-                <Input name="phone" label="Phone" />
-                <Input name="fax" label="Fax" />
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>Accounts Receivable Billing Address</CardTitle>
+                <CardDescription>
+                  The billing address used on quotes, sales orders, invoices,
+                  and other sales documents.
+                </CardDescription>
               </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") ===
-                    "accountsReceivableBillingAddress"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
+              <Switch
+                checked={arAddressEnabled}
+                onCheckedChange={handleArAddressToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
         </Card>
+        {arAddressEnabled && (
+          <Card>
+            <ValidatedForm
+              method="post"
+              validator={accountsReceivableBillingAddressValidator}
+              defaultValues={{
+                name: arBillingAddress?.name ?? "",
+                addressLine1: arBillingAddress?.addressLine1 ?? "",
+                addressLine2: arBillingAddress?.addressLine2 ?? "",
+                city: arBillingAddress?.city ?? "",
+                state: arBillingAddress?.state ?? "",
+                postalCode: arBillingAddress?.postalCode ?? "",
+                countryCode: arBillingAddress?.countryCode ?? "",
+                phone: arBillingAddress?.phone ?? "",
+                fax: arBillingAddress?.fax ?? "",
+                email: arBillingAddress?.email ?? ""
+              }}
+              fetcher={fetcher}
+            >
+              <input
+                type="hidden"
+                name="intent"
+                value="accountsReceivableBillingAddress"
+              />
+              <CardHeader>
+                <CardTitle>Billing Address</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <Input name="name" label="Name" />
+                  <Input name="email" label="Email" />
+                  <Input name="addressLine1" label="Address Line 1" />
+                  <Input name="addressLine2" label="Address Line 2" />
+                  <Input name="city" label="City" />
+                  <Input name="state" label="State / Province" />
+                  <Input name="postalCode" label="Postal Code" />
+                  <Country name="countryCode" />
+                  <Input name="phone" label="Phone" />
+                  <Input name="fax" label="Fax" />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Submit
+                  isDisabled={fetcher.state !== "idle"}
+                  isLoading={
+                    fetcher.state !== "idle" &&
+                    fetcher.formData?.get("intent") ===
+                      "accountsReceivableBillingAddress"
+                  }
+                >
+                  Save
+                </Submit>
+              </CardFooter>
+            </ValidatedForm>
+          </Card>
+        )}
         <Card>
           <ValidatedForm
             method="post"

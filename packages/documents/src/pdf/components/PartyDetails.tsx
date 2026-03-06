@@ -10,21 +10,33 @@ type CounterParty = {
   city: string | null;
   stateProvince: string | null;
   postalCode: string | null;
-  countryName: string | null;
+  countryCode: string | null;
   taxId?: string | null;
   vatNumber?: string | null;
   contactName?: string | null;
   contactEmail?: string | null;
 };
 
+type CompanyAddressOverride = {
+  name: string | null;
+  addressLine1: string | null;
+  addressLine2: string | null;
+  city: string | null;
+  stateProvince: string | null;
+  postalCode: string | null;
+  countryCode: string | null;
+};
+
 type PartyDetailsProps = {
   company: Database["public"]["Views"]["companies"]["Row"];
+  companyAddressOverride?: CompanyAddressOverride;
   companyLabel: string;
   counterParty: CounterParty;
   counterPartyLabel: string;
   createdByFullName?: string | null;
   createdByEmail?: string | null;
   accountsPayableEmail?: string | null;
+  accountsReceivableEmail?: string | null;
 };
 
 const tw = createTw({
@@ -48,37 +60,46 @@ const tw = createTw({
 
 const PartyDetails = ({
   company,
+  companyAddressOverride,
   companyLabel,
   counterParty,
   counterPartyLabel,
   createdByFullName,
   createdByEmail,
-  accountsPayableEmail
+  accountsPayableEmail,
+  accountsReceivableEmail
 }: PartyDetailsProps) => {
+  const addr = companyAddressOverride ?? company;
+
   return (
     <View style={tw("border border-gray-200 mb-4")}>
       <View style={tw("flex flex-row")}>
-        {/* Buyer / Company */}
+        {/* Company */}
         <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
           <Text style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}>
             {companyLabel}
           </Text>
           <View style={tw("text-[10px] text-gray-800")}>
-            {company.name && (
-              <Text style={tw("font-bold")}>{company.name}</Text>
-            )}
-            {company.addressLine1 && <Text>{company.addressLine1}</Text>}
-            {company.addressLine2 && <Text>{company.addressLine2}</Text>}
-            {(company.city || company.stateProvince || company.postalCode) && (
+            {addr.name && <Text style={tw("font-bold")}>{addr.name}</Text>}
+            {addr.addressLine1 && <Text>{addr.addressLine1}</Text>}
+            {addr.addressLine2 && <Text>{addr.addressLine2}</Text>}
+            {(addr.city ||
+              addr.stateProvince ||
+              addr.postalCode ||
+              addr.countryCode) && (
               <Text>
-                {formatCityStatePostalCode(
-                  company.city,
-                  company.stateProvince,
-                  company.postalCode
-                )}
+                {[
+                  formatCityStatePostalCode(
+                    addr.city,
+                    addr.stateProvince,
+                    addr.postalCode
+                  ),
+                  addr.countryCode
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               </Text>
             )}
-            {company.countryName && <Text>{company.countryName}</Text>}
             {company.taxId && <Text>Tax ID: {company.taxId}</Text>}
             {company.vatNumber && <Text>VAT Number: {company.vatNumber}</Text>}
             {(createdByFullName || createdByEmail) && (
@@ -89,6 +110,9 @@ const PartyDetails = ({
             )}
             {accountsPayableEmail && (
               <Text>Accounts Payable: {accountsPayableEmail}</Text>
+            )}
+            {accountsReceivableEmail && (
+              <Text>Accounts Receivable: {accountsReceivableEmail}</Text>
             )}
           </View>
         </View>
@@ -110,17 +134,20 @@ const PartyDetails = ({
             )}
             {(counterParty.city ||
               counterParty.stateProvince ||
-              counterParty.postalCode) && (
+              counterParty.postalCode ||
+              counterParty.countryCode) && (
               <Text>
-                {formatCityStatePostalCode(
-                  counterParty.city,
-                  counterParty.stateProvince,
-                  counterParty.postalCode
-                )}
+                {[
+                  formatCityStatePostalCode(
+                    counterParty.city,
+                    counterParty.stateProvince,
+                    counterParty.postalCode
+                  ),
+                  counterParty.countryCode
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               </Text>
-            )}
-            {counterParty.countryName && (
-              <Text>{counterParty.countryName}</Text>
             )}
             {counterParty.taxId && (
               <Text>Company No: {counterParty.taxId}</Text>

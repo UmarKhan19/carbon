@@ -1,6 +1,6 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { formatCityStatePostalCode } from "@carbon/utils";
+import { formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { AccountsReceivableBillingAddress, PDF } from "../types";
@@ -12,7 +12,13 @@ import {
   getTotal
 } from "../utils/sales-invoice";
 import { getCurrencyFormatter } from "../utils/shared";
-import { Header, Note, Template } from "./components";
+import {
+  Header,
+  Note,
+  PartyDetails,
+  ShipBillDetails,
+  Template
+} from "./components";
 
 interface SalesInvoicePDFProps extends PDF {
   salesInvoice: Database["public"]["Views"]["salesInvoices"]["Row"];
@@ -20,6 +26,9 @@ interface SalesInvoicePDFProps extends PDF {
   salesInvoiceLocations: Database["public"]["Views"]["salesInvoiceLocations"]["Row"];
   salesInvoiceShipment: Database["public"]["Tables"]["salesInvoiceShipment"]["Row"];
   accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
+  companySettings?:
+    | Database["public"]["Tables"]["companySettings"]["Row"]
+    | null;
   paymentTerms: { id: string; name: string }[];
   shippingMethods: { id: string; name: string }[];
   terms: JSONContent;
@@ -46,7 +55,9 @@ const tw = createTw({
 });
 
 const SalesInvoicePDF = ({
+  accountsReceivableBillingAddress,
   company,
+  companySettings,
   locale,
   meta,
   salesInvoice,
@@ -87,20 +98,6 @@ const SalesInvoicePDF = ({
     (method) => method.id === salesInvoiceShipment?.shippingMethodId
   );
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return null;
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-    } catch {
-      return dateStr;
-    }
-  };
-
   let rowIndex = 0;
 
   return (
@@ -120,67 +117,57 @@ const SalesInvoicePDF = ({
         currencyCode={salesInvoice?.currencyCode}
       />
 
-      {/* Ship To & Bill To */}
-      <View style={tw("border border-gray-200 mb-4")}>
-        <View style={tw("flex flex-row")}>
-          <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Ship To
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {customerName && (
-                <Text style={tw("font-bold")}>{customerName}</Text>
-              )}
-              {customerAddressLine1 && (
-                <Text style={tw("mt-1")}>{customerAddressLine1}</Text>
-              )}
-              {customerAddressLine2 && <Text>{customerAddressLine2}</Text>}
-              {(customerCity ||
-                customerStateProvince ||
-                customerPostalCode) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    customerCity,
-                    customerStateProvince,
-                    customerPostalCode
-                  )}
-                </Text>
-              )}
-              {customerCountryName && <Text>{customerCountryName}</Text>}
-            </View>
-          </View>
-          <View style={tw("w-1/2 p-3")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Bill To
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {invoiceCustomerName && (
-                <Text style={tw("font-bold")}>{invoiceCustomerName}</Text>
-              )}
-              {invoiceAddressLine1 && (
-                <Text style={tw("mt-1")}>{invoiceAddressLine1}</Text>
-              )}
-              {invoiceAddressLine2 && <Text>{invoiceAddressLine2}</Text>}
-              {(invoiceCity || invoiceStateProvince || invoicePostalCode) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    invoiceCity,
-                    invoiceStateProvince,
-                    invoicePostalCode
-                  )}
-                </Text>
-              )}
-              {invoiceCountryName && <Text>{invoiceCountryName}</Text>}
-            </View>
-          </View>
-        </View>
-      </View>
+      <PartyDetails
+        company={company}
+        companyAddressOverride={
+          accountsReceivableBillingAddress
+            ? {
+                name: accountsReceivableBillingAddress.name,
+                addressLine1: accountsReceivableBillingAddress.addressLine1,
+                addressLine2: accountsReceivableBillingAddress.addressLine2,
+                city: accountsReceivableBillingAddress.city,
+                stateProvince: accountsReceivableBillingAddress.state,
+                postalCode: accountsReceivableBillingAddress.postalCode,
+                countryCode: accountsReceivableBillingAddress.countryCode
+              }
+            : undefined
+        }
+        companyLabel="Seller"
+        counterParty={{
+          name: customerName,
+          addressLine1: customerAddressLine1,
+          addressLine2: customerAddressLine2,
+          city: customerCity,
+          stateProvince: customerStateProvince,
+          postalCode: customerPostalCode,
+          countryCode: customerCountryName
+        }}
+        counterPartyLabel="Buyer"
+        accountsReceivableEmail={companySettings?.accountsReceivableEmail}
+      />
 
-      {/* Invoice Details */}
+      <ShipBillDetails
+        shipTo={{
+          name: customerName,
+          addressLine1: customerAddressLine1,
+          addressLine2: customerAddressLine2,
+          city: customerCity,
+          stateProvince: customerStateProvince,
+          postalCode: customerPostalCode,
+          countryCode: customerCountryName
+        }}
+        billTo={{
+          name: invoiceCustomerName,
+          addressLine1: invoiceAddressLine1,
+          addressLine2: invoiceAddressLine2,
+          city: invoiceCity,
+          stateProvince: invoiceStateProvince,
+          postalCode: invoicePostalCode,
+          countryCode: invoiceCountryName
+        }}
+      />
+
+      {/* Invoice Details & Notes */}
       <View style={tw("border border-gray-200 mb-4")}>
         <View style={tw("flex flex-row")}>
           <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
@@ -200,18 +187,27 @@ const SalesInvoicePDF = ({
                 <Text>Customer Ref: {salesInvoice.customerReference}</Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+              {shippingMethod && <Text>Shipping: {shippingMethod.name}</Text>}
+              {salesInvoiceShipment?.shippingTermId && (
+                <Text>
+                  Shipping Terms: {salesInvoiceShipment.shippingTermId}
+                </Text>
+              )}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>
             <Text
               style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
             >
-              Shipping
+              Notes
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
-              {shippingMethod && <Text>Method: {shippingMethod.name}</Text>}
-              {salesInvoiceShipment?.shippingTermId && (
-                <Text>Terms: {salesInvoiceShipment.shippingTermId}</Text>
+              {Object.keys(salesInvoice?.externalNotes ?? {}).length > 0 ? (
+                <Note
+                  content={(salesInvoice.externalNotes ?? {}) as JSONContent}
+                />
+              ) : (
+                <Text style={tw("text-gray-400")}>None</Text>
               )}
             </View>
           </View>
@@ -358,16 +354,7 @@ const SalesInvoicePDF = ({
         </View>
       </View>
 
-      {/* Notes & Terms */}
-      <View style={tw("flex flex-col gap-3 w-full")}>
-        {Object.keys(salesInvoice.externalNotes ?? {}).length > 0 && (
-          <Note
-            title="Notes"
-            content={(salesInvoice.externalNotes ?? {}) as JSONContent}
-          />
-        )}
-        <Note title="Standard Terms & Conditions" content={terms} />
-      </View>
+      <Note title="Standard Terms & Conditions" content={terms} />
     </Template>
   );
 };
