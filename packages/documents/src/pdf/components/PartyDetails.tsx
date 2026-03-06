@@ -80,7 +80,13 @@ const PartyDetails = ({
             {companyLabel}
           </Text>
           <View style={tw("text-[10px] text-gray-800")}>
-            {addr.name && <Text style={tw("font-bold")}>{addr.name}</Text>}
+            {company.name && (
+              <Text style={tw("font-bold")}>{company.name}</Text>
+            )}
+            {companyAddressOverride?.name &&
+              companyAddressOverride.name !== company.name && (
+                <Text>{companyAddressOverride.name}</Text>
+              )}
             {addr.addressLine1 && <Text>{addr.addressLine1}</Text>}
             {addr.addressLine2 && <Text>{addr.addressLine2}</Text>}
             {(addr.city ||

@@ -84,7 +84,14 @@ const SalesInvoicePDF = ({
     invoiceCity,
     invoiceStateProvince,
     invoicePostalCode,
-    invoiceCountryName
+    invoiceCountryName,
+    shipmentCustomerName,
+    shipmentAddressLine1,
+    shipmentAddressLine2,
+    shipmentCity,
+    shipmentStateProvince,
+    shipmentPostalCode,
+    shipmentCountryName
   } = salesInvoiceLocations;
 
   const currencyCode = salesInvoice.currencyCode ?? company.baseCurrencyCode;
@@ -148,13 +155,13 @@ const SalesInvoicePDF = ({
 
       <ShipBillDetails
         shipTo={{
-          name: customerName,
-          addressLine1: customerAddressLine1,
-          addressLine2: customerAddressLine2,
-          city: customerCity,
-          stateProvince: customerStateProvince,
-          postalCode: customerPostalCode,
-          countryCode: customerCountryName
+          name: shipmentCustomerName,
+          addressLine1: shipmentAddressLine1,
+          addressLine2: shipmentAddressLine2,
+          city: shipmentCity,
+          stateProvince: shipmentStateProvince,
+          postalCode: shipmentPostalCode,
+          countryCode: shipmentCountryName
         }}
         billTo={{
           name: invoiceCustomerName,

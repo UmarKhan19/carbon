@@ -279,6 +279,12 @@ const PurchaseOrderPDF = ({
                     <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                       {getLineDescriptionDetails(line)}
                     </Text>
+                    {line.requestedDate &&
+                      line.purchaseOrderLineType !== "Comment" && (
+                        <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
+                          Required: {formatDate(line.requestedDate)}
+                        </Text>
+                      )}
                     {purchaseOrder.purchaseOrderType === "Outside Processing" &&
                       line.jobOperationDescription && (
                         <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>

@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { Combobox, ValidatedForm } from "@carbon/form";
+import { Combobox, DatePicker, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   cn,
@@ -19,6 +19,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import { useFetcher, useParams } from "react-router";
@@ -88,31 +89,35 @@ const PurchaseOrderLineForm = ({
   const [locationId, setLocationId] = useState(initialValues.locationId);
   const [itemData, setItemData] = useState<{
     itemId: string;
-    description: string;
-    purchaseQuantity: number;
-    supplierUnitPrice: number;
-    supplierShippingCost: number;
-    purchaseUom: string;
-    inventoryUom: string;
     conversionFactor: number;
-    shelfId: string | null;
-    minimumOrderQuantity?: number;
-    supplierTaxAmount: number;
-    taxPercent: number;
-    priceBreaks: Array<{ quantity: number; unitPrice: number }>;
+    description: string;
     fallbackUnitPrice: number;
+    inventoryUom: string;
+    minimumOrderQuantity?: number;
+    priceBreaks: Array<{ quantity: number; unitPrice: number }>;
+    purchaseQuantity: number;
+    purchaseUom: string;
+    requestedDate: string | null;
+    shelfId: string | null;
+    supplierShippingCost: number;
+    supplierTaxAmount: number;
+    supplierUnitPrice: number;
+    taxPercent: number;
   }>({
     itemId: initialValues.itemId ?? "",
-    description: initialValues.description ?? "",
-    purchaseQuantity: initialValues.purchaseQuantity ?? 1,
-    supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
-    supplierShippingCost: initialValues.supplierShippingCost ?? 0,
-    purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
-    inventoryUom: initialValues.inventoryUnitOfMeasureCode ?? "",
     conversionFactor: initialValues.conversionFactor ?? 1,
-    shelfId: initialValues.shelfId ?? "",
+    description: initialValues.description ?? "",
+    fallbackUnitPrice: initialValues.supplierUnitPrice ?? 0,
+    inventoryUom: initialValues.inventoryUnitOfMeasureCode ?? "",
     minimumOrderQuantity: undefined,
+    purchaseQuantity: initialValues.purchaseQuantity ?? 1,
+    purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
+    priceBreaks: [],
+    requestedDate: initialValues?.requestedDate ?? null,
+    shelfId: initialValues.shelfId ?? "",
+    supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
+    supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
     taxPercent:
       (initialValues.supplierUnitPrice ?? 0) *
         (initialValues.purchaseQuantity ?? 1) +
@@ -122,9 +127,7 @@ const PurchaseOrderLineForm = ({
           ((initialValues.supplierUnitPrice ?? 0) *
             (initialValues.purchaseQuantity ?? 1) +
             (initialValues.supplierShippingCost ?? 0))
-        : 0,
-    priceBreaks: [],
-    fallbackUnitPrice: initialValues.supplierUnitPrice ?? 0
+        : 0
   });
 
   // update tax amount when quantity or unit price changes
@@ -189,19 +192,20 @@ const PurchaseOrderLineForm = ({
     setItemType(t as MethodItemType);
     setItemData({
       itemId: "",
-      description: "",
-      purchaseQuantity: 1,
-      supplierUnitPrice: 0,
-      supplierShippingCost: 0,
-      inventoryUom: "",
-      purchaseUom: "",
       conversionFactor: 1,
-      shelfId: "",
+      description: "",
+      fallbackUnitPrice: 0,
+      inventoryUom: "",
       minimumOrderQuantity: undefined,
-      supplierTaxAmount: 0,
-      taxPercent: 0,
       priceBreaks: [],
-      fallbackUnitPrice: 0
+      purchaseQuantity: 1,
+      purchaseUom: "",
+      requestedDate: null,
+      shelfId: "",
+      supplierShippingCost: 0,
+      supplierTaxAmount: 0,
+      supplierUnitPrice: 0,
+      taxPercent: 0
     });
   };
 
@@ -243,6 +247,7 @@ const PurchaseOrderLineForm = ({
         const itemReplenishment = item?.data?.itemReplenishment;
         const exchangeRate = routeData?.purchaseOrder?.exchangeRate ?? 1;
         const initialQty = supplierPart?.data?.minimumOrderQuantity ?? 1;
+        const leadTime = item?.data?.itemReplenishment?.leadTime ?? 0;
         const baseFallback =
           (supplierPart?.data?.unitPrice ?? itemCost?.unitCost ?? 0) /
           exchangeRate;
@@ -273,6 +278,10 @@ const PurchaseOrderLineForm = ({
             supplierPart?.data?.conversionFactor ??
             itemReplenishment?.conversionFactor ??
             1,
+          requestedDate:
+            leadTime === 0
+              ? null
+              : today(getLocalTimeZone()).add({ days: leadTime }).toString(),
           shelfId: inventory.data?.defaultShelfId ?? null,
           supplierTaxAmount: 0,
           taxPercent: 0,
@@ -407,7 +416,7 @@ const PurchaseOrderLineForm = ({
                       onTypeChange={onTypeChange}
                     />
 
-                    <FormControl className="col-span-2">
+                    <FormControl>
                       <FormLabel>Description</FormLabel>
                       <Input
                         value={itemData.description}
@@ -423,6 +432,18 @@ const PurchaseOrderLineForm = ({
                     {isOutsideProcessing && (
                       <JobOperationSelect jobId={initialValues.jobId} />
                     )}
+
+                    <DatePicker
+                      name="requestedDate"
+                      label="Required Date"
+                      value={itemData?.requestedDate ?? undefined}
+                      onChange={(date) => {
+                        setItemData((d) => ({
+                          ...d,
+                          requestedDate: date
+                        }));
+                      }}
+                    />
 
                     <NumberControlled
                       minValue={itemData.minimumOrderQuantity}
