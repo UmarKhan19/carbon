@@ -20,7 +20,7 @@ import {
   Tr,
   toast
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import { convertKbToString, formatDate } from "@carbon/utils";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -100,6 +100,7 @@ const ItemDocuments = ({
             <Tr>
               <Th>Name</Th>
               <Th>Size</Th>
+              <Th>Created</Th>
               <Th></Th>
             </Tr>
           </Thead>
@@ -121,6 +122,7 @@ const ItemDocuments = ({
                       )
                     : "--"}
                 </Td>
+                <Td className="text-xs font-mono">--</Td>
                 <Td>
                   <div className="flex justify-end w-full">
                     <DropdownMenu>
@@ -194,6 +196,9 @@ const ItemDocuments = ({
                     {convertKbToString(
                       Math.floor((file.metadata?.size ?? 0) / 1024)
                     )}
+                  </Td>
+                  <Td className="text-xs font-mono">
+                    {file.created_at ? formatDate(file.created_at) : "--"}
                   </Td>
                   <Td>
                     <div className="flex justify-end w-full">
