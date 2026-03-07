@@ -20,18 +20,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const markup = Number.parseInt((formData.get("markup") as string) ?? "15");
-  const unitCostsByQuantity = numberArrayValidator.safeParse(
-    JSON.parse((formData.get("unitCostsByQuantity") ?? "[]") as string)
+  const unitPricesByQuantity = numberArrayValidator.safeParse(
+    JSON.parse((formData.get("unitPricesByQuantity") ?? "[]") as string)
   );
 
   const quantities = numberArrayValidator.safeParse(
     JSON.parse((formData.get("quantities") ?? "[]") as string)
   );
 
-  if (unitCostsByQuantity.success === false) {
+  const categoryMarkupsByQuantity = JSON.parse(
+    (formData.get("categoryMarkupsByQuantity") as string) ?? "{}"
+  ) as Record<string, Record<string, number>>;
+
+  if (unitPricesByQuantity.success === false) {
     return data(
-      { data: null, errors: unitCostsByQuantity.error.errors?.[0].message },
+      { data: null, errors: unitPricesByQuantity.error.errors?.[0].message },
       { status: 400 }
     );
   }
@@ -43,14 +46,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const inserts = unitCostsByQuantity.data.map((unitCost, index) => ({
-    quoteLineId: lineId,
-    quantity: quantities.data[index],
-    unitPrice: unitCost * (1 + markup / 100),
-    discountPercent: 0,
-    leadTime: 0,
-    createdBy: userId
-  }));
+  const inserts = unitPricesByQuantity.data.map((unitPrice, index) => {
+    const quantity = quantities.data[index];
+    return {
+      quoteLineId: lineId,
+      quantity,
+      unitPrice,
+      discountPercent: 0,
+      leadTime: 0,
+      createdBy: userId,
+      categoryMarkups: categoryMarkupsByQuantity[quantity] ?? undefined
+    };
+  });
 
   const insertLinePrices = await upsertQuoteLinePrices(
     client,

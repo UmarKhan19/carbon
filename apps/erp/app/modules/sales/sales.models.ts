@@ -190,6 +190,24 @@ export const quoteLineAdditionalChargesValidator = z.record(
   })
 );
 
+export const costCategoryKeys = [
+  "materialCost",
+  "partCost",
+  "toolCost",
+  "consumableCost",
+  "serviceCost",
+  "laborCost",
+  "machineCost",
+  "overheadCost",
+  "outsideCost"
+] as const;
+
+export type CostCategoryKey = (typeof costCategoryKeys)[number];
+
+export const quoteLineCategoryMarkupsValidator = z
+  .record(z.number().min(0))
+  .default({});
+
 export const quoteLineValidator = z.object({
   id: zfd.text(z.string().optional()),
   quoteId: z.string(),

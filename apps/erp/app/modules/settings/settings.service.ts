@@ -729,6 +729,17 @@ export async function updateDefaultCustomerCc(
     .eq("id", companyId);
 }
 
+export async function updateQuoteLineCategoryMarkups(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  quoteLineCategoryMarkups: Record<string, number>
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ quoteLineCategoryMarkups }))
+    .eq("id", companyId);
+}
+
 export async function updateSequence(
   client: SupabaseClient<Database>,
   table: string,

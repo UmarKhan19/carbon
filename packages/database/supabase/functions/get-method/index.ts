@@ -19,6 +19,7 @@ import {
 } from "npm:@internationalized/date";
 import { corsHeaders } from "../lib/headers.ts";
 import {
+    calculateQuoteLinePrices,
     getJobMethodTree,
     getQuoteMethodTree,
     getRatesFromSupplierProcesses,
@@ -2146,6 +2147,8 @@ serve(async (req: Request) => {
 
           await traverseMethod(methodTree, quoteMakeMethod.data.id);
         });
+
+        await calculateQuoteLinePrices(client, quoteId, quoteLineId, companyId, userId);
 
         break;
       }
@@ -4742,6 +4745,8 @@ serve(async (req: Request) => {
           }
           } // end if (parts.billOfProcess)
         });
+
+        await calculateQuoteLinePrices(client, targetQuoteId, targetQuoteLineId, companyId, userId);
 
         break;
       }

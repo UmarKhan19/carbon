@@ -6,6 +6,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
   quoteMaterialValidator,
+  recalculateQuoteLinePrices,
   upsertQuoteMaterial,
   upsertQuoteMaterialMakeMethod
 } from "~/modules/sales";
@@ -102,6 +103,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
     }
   }
+
+  await recalculateQuoteLinePrices(serviceRole, quoteId, lineId, userId);
 
   return {
     id: quoteMaterialId,

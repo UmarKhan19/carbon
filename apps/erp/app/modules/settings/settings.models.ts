@@ -242,3 +242,14 @@ export const webhookValidator = z
 export const jobTravelerSettingsValidator = z.object({
   jobTravelerIncludeWorkInstructions: zfd.checkbox()
 });
+
+export const quoteLineCategoryMarkupsSettingsValidator = z.object({
+  materialCost: zfd.numeric(z.number().min(0).default(0)),
+  partCost: zfd.numeric(z.number().min(0).default(0)),
+  toolCost: zfd.numeric(z.number().min(0).default(0)),
+  consumableCost: zfd.numeric(z.number().min(0).default(0)),
+  laborCost: zfd.numeric(z.number().min(0).default(0)),
+  machineCost: zfd.numeric(z.number().min(0).default(0)),
+  overheadCost: zfd.numeric(z.number().min(0).default(0)),
+  outsideCost: zfd.numeric(z.number().min(0).default(0))
+});

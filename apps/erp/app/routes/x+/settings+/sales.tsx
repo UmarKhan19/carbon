@@ -2,7 +2,13 @@ import { error, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
-import { Boolean, Submit, ValidatedForm, validator } from "@carbon/form";
+import {
+  Boolean,
+  Number,
+  Submit,
+  ValidatedForm,
+  validator
+} from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import {
   Badge,
@@ -36,9 +42,11 @@ import {
   getCompanySettings,
   getTerms,
   includeThumbnailsOnSalesPdfsValidator,
+  quoteLineCategoryMarkupsSettingsValidator,
   rfqReadyValidator,
   updateDefaultCustomerCc,
   updateDigitalQuoteSetting,
+  updateQuoteLineCategoryMarkups,
   updateRfqReadySetting,
   updateSalesPdfThumbnails
 } from "~/modules/settings";
@@ -138,6 +146,32 @@ export async function action({ request }: ActionFunctionArgs) {
         return { success: false, message: rfqSettings.error.message };
 
       return { success: true, message: "RFQ setting updated" };
+
+    case "categoryMarkups":
+      const categoryMarkupsValidation = await validator(
+        quoteLineCategoryMarkupsSettingsValidator
+      ).validate(formData);
+
+      if (categoryMarkupsValidation.error) {
+        return { success: false, message: "Invalid form data" };
+      }
+
+      const categoryMarkupsResult = await updateQuoteLineCategoryMarkups(
+        client,
+        companyId,
+        categoryMarkupsValidation.data
+      );
+
+      if (categoryMarkupsResult.error)
+        return {
+          success: false,
+          message: categoryMarkupsResult.error.message
+        };
+
+      return {
+        success: true,
+        message: "Default category markups updated"
+      };
 
     case "emails":
       const defaultCustomerCcValidation = await validator(
@@ -419,6 +453,10 @@ export default function SalesSettingsRoute() {
             </CardFooter>
           </ValidatedForm>
         </Card>
+        <CategoryMarkupsCard
+          companySettings={companySettings}
+          fetcher={fetcher}
+        />
         <Card>
           <HStack className="justify-between items-start">
             <CardHeader>
@@ -454,5 +492,97 @@ export default function SalesSettingsRoute() {
         </Card>
       </VStack>
     </ScrollArea>
+  );
+}
+
+const costCategoryKeys = [
+  "materialCost",
+  "partCost",
+  "toolCost",
+  "consumableCost",
+  "laborCost",
+  "machineCost",
+  "overheadCost",
+  "outsideCost"
+] as const;
+
+const categoryLabels: Record<string, string> = {
+  materialCost: "Material",
+  partCost: "Part",
+  toolCost: "Tool",
+  consumableCost: "Consumable",
+  laborCost: "Labor",
+  machineCost: "Machine",
+  overheadCost: "Overhead",
+  outsideCost: "Outside"
+};
+
+function CategoryMarkupsCard({
+  companySettings,
+  fetcher
+}: {
+  companySettings: ReturnType<
+    typeof useLoaderData<typeof loader>
+  >["companySettings"];
+  fetcher: ReturnType<typeof useFetcher<typeof action>>;
+}) {
+  const saved = (companySettings as Record<string, unknown>)
+    .quoteLineCategoryMarkups as Record<string, number> | null;
+
+  return (
+    <Card>
+      <ValidatedForm
+        method="post"
+        validator={quoteLineCategoryMarkupsSettingsValidator}
+        defaultValues={{
+          materialCost: saved?.materialCost ?? 0,
+          partCost: saved?.partCost ?? 0,
+          toolCost: saved?.toolCost ?? 0,
+          consumableCost: saved?.consumableCost ?? 0,
+          laborCost: saved?.laborCost ?? 0,
+          machineCost: saved?.machineCost ?? 0,
+          overheadCost: saved?.overheadCost ?? 0,
+          outsideCost: saved?.outsideCost ?? 0
+        }}
+        fetcher={fetcher}
+      >
+        <input type="hidden" name="intent" value="categoryMarkups" />
+        <CardHeader>
+          <CardTitle>Quote Markups</CardTitle>
+          <CardDescription>
+            Set default markup percentages for each cost category on new quote
+            lines
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {costCategoryKeys.map((key) => (
+              <Number
+                key={key}
+                name={key}
+                label={categoryLabels[key]}
+                formatOptions={{
+                  style: "percent",
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 2
+                }}
+                minValue={0}
+              />
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Submit
+            isDisabled={fetcher.state !== "idle"}
+            isLoading={
+              fetcher.state !== "idle" &&
+              fetcher.formData?.get("intent") === "categoryMarkups"
+            }
+          >
+            Save
+          </Submit>
+        </CardFooter>
+      </ValidatedForm>
+    </Card>
   );
 }
