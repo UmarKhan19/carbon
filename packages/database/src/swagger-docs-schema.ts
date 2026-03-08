@@ -3447,6 +3447,213 @@ export default {
         tags: ["nonConformanceSalesOrderLine"],
       },
     },
+    "/companyAccountsPayableBillingAddress": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.addressLine1",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.addressLine2",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.city",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.state",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.postalCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.countryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.phone",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.fax",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.email",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.updatedBy",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/companyAccountsPayableBillingAddress",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["companyAccountsPayableBillingAddress"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.companyAccountsPayableBillingAddress",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["companyAccountsPayableBillingAddress"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.addressLine1",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.addressLine2",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.city",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.state",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.postalCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.countryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.phone",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.fax",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.email",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.updatedBy",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["companyAccountsPayableBillingAddress"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.addressLine1",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.addressLine2",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.city",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.state",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.postalCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.countryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.phone",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.fax",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.email",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsPayableBillingAddress.updatedBy",
+          },
+          {
+            $ref: "#/parameters/body.companyAccountsPayableBillingAddress",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["companyAccountsPayableBillingAddress"],
+      },
+    },
     "/customerShipping": {
       get: {
         parameters: [
@@ -5633,6 +5840,24 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLocations.supplierCountryName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLocations.supplierTaxId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLocations.supplierVatNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLocations.supplierContactName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLocations.supplierContactEmail",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLocations.companyCountryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLocations.companyCountryName",
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLocations.deliveryName",
@@ -12919,6 +13144,30 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLocations.invoiceCountryName",
           },
           {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentCustomerName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentAddressLine1",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentAddressLine2",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentCity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentStateProvince",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentPostalCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentCountryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLocations.shipmentCountryName",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -13798,6 +14047,9 @@ export default {
             $ref: "#/parameters/rowFilter.customers.taxPercent",
           },
           {
+            $ref: "#/parameters/rowFilter.customers.tags",
+          },
+          {
             $ref: "#/parameters/rowFilter.customers.website",
           },
           {
@@ -13825,10 +14077,10 @@ export default {
             $ref: "#/parameters/rowFilter.customers.salesContactId",
           },
           {
-            $ref: "#/parameters/rowFilter.customers.invoicingContactId",
+            $ref: "#/parameters/rowFilter.customers.defaultCc",
           },
           {
-            $ref: "#/parameters/rowFilter.customers.defaultCc",
+            $ref: "#/parameters/rowFilter.customers.vatNumber",
           },
           {
             $ref: "#/parameters/rowFilter.customers.externalId",
@@ -15824,6 +16076,21 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companies.ownerId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.suggestionNotificationGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.vatNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.countryName",
           },
           {
             $ref: "#/parameters/rowFilter.companies.userId",
@@ -26326,6 +26593,12 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -26520,6 +26793,12 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -26666,6 +26945,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
           },
           {
             $ref: "#/parameters/body.purchaseOrderLine",
@@ -31273,6 +31558,9 @@ export default {
             $ref: "#/parameters/rowFilter.suppliers.currencyCode",
           },
           {
+            $ref: "#/parameters/rowFilter.suppliers.vatNumber",
+          },
+          {
             $ref: "#/parameters/rowFilter.suppliers.website",
           },
           {
@@ -31286,9 +31574,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.suppliers.purchasingContactId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.suppliers.invoicingContactId",
           },
           {
             $ref: "#/parameters/rowFilter.suppliers.embedding",
@@ -39661,10 +39946,10 @@ export default {
             $ref: "#/parameters/rowFilter.customer.salesContactId",
           },
           {
-            $ref: "#/parameters/rowFilter.customer.invoicingContactId",
+            $ref: "#/parameters/rowFilter.customer.defaultCc",
           },
           {
-            $ref: "#/parameters/rowFilter.customer.defaultCc",
+            $ref: "#/parameters/rowFilter.customer.vatNumber",
           },
           {
             $ref: "#/parameters/select",
@@ -39792,10 +40077,10 @@ export default {
             $ref: "#/parameters/rowFilter.customer.salesContactId",
           },
           {
-            $ref: "#/parameters/rowFilter.customer.invoicingContactId",
+            $ref: "#/parameters/rowFilter.customer.defaultCc",
           },
           {
-            $ref: "#/parameters/rowFilter.customer.defaultCc",
+            $ref: "#/parameters/rowFilter.customer.vatNumber",
           },
           {
             $ref: "#/parameters/preferReturn",
@@ -39877,10 +40162,10 @@ export default {
             $ref: "#/parameters/rowFilter.customer.salesContactId",
           },
           {
-            $ref: "#/parameters/rowFilter.customer.invoicingContactId",
+            $ref: "#/parameters/rowFilter.customer.defaultCc",
           },
           {
-            $ref: "#/parameters/rowFilter.customer.defaultCc",
+            $ref: "#/parameters/rowFilter.customer.vatNumber",
           },
           {
             $ref: "#/parameters/body.customer",
@@ -45658,6 +45943,9 @@ export default {
             $ref: "#/parameters/rowFilter.quoteLinePrice.convertedShippingCost",
           },
           {
+            $ref: "#/parameters/rowFilter.quoteLinePrice.categoryMarkups",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -45771,6 +46059,9 @@ export default {
             $ref: "#/parameters/rowFilter.quoteLinePrice.convertedShippingCost",
           },
           {
+            $ref: "#/parameters/rowFilter.quoteLinePrice.categoryMarkups",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -45836,6 +46127,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.quoteLinePrice.convertedShippingCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.quoteLinePrice.categoryMarkups",
           },
           {
             $ref: "#/parameters/body.quoteLinePrice",
@@ -49486,6 +49780,9 @@ export default {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.company.vatNumber",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -49617,6 +49914,9 @@ export default {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.company.vatNumber",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -49700,6 +50000,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.vatNumber",
           },
           {
             $ref: "#/parameters/body.company",
@@ -50086,6 +50389,213 @@ export default {
           },
         },
         tags: ["user"],
+      },
+    },
+    "/companyAccountsReceivableBillingAddress": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.addressLine1",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.addressLine2",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.city",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.state",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.postalCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.countryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.phone",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.fax",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.email",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.updatedBy",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/companyAccountsReceivableBillingAddress",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["companyAccountsReceivableBillingAddress"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.companyAccountsReceivableBillingAddress",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["companyAccountsReceivableBillingAddress"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.addressLine1",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.addressLine2",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.city",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.state",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.postalCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.countryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.phone",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.fax",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.email",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.updatedBy",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["companyAccountsReceivableBillingAddress"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.addressLine1",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.addressLine2",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.city",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.state",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.postalCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.countryCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.phone",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.fax",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.email",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyAccountsReceivableBillingAddress.updatedBy",
+          },
+          {
+            $ref: "#/parameters/body.companyAccountsReceivableBillingAddress",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["companyAccountsReceivableBillingAddress"],
       },
     },
     "/externalLink": {
@@ -53341,6 +53851,12 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.taxAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.requestedDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.receivedDate",
+          },
+          {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.thumbnailPath",
           },
           {
@@ -55516,6 +56032,12 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrders.supplierShippingCost",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrders.createdByFullName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrders.createdByEmail",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -55705,10 +56227,10 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.purchasingContactId",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.invoicingContactId",
+            $ref: "#/parameters/rowFilter.supplier.defaultCc",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.defaultCc",
+            $ref: "#/parameters/rowFilter.supplier.vatNumber",
           },
           {
             $ref: "#/parameters/select",
@@ -55836,10 +56358,10 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.purchasingContactId",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.invoicingContactId",
+            $ref: "#/parameters/rowFilter.supplier.defaultCc",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.defaultCc",
+            $ref: "#/parameters/rowFilter.supplier.vatNumber",
           },
           {
             $ref: "#/parameters/preferReturn",
@@ -55921,10 +56443,10 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.purchasingContactId",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.invoicingContactId",
+            $ref: "#/parameters/rowFilter.supplier.defaultCc",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.defaultCc",
+            $ref: "#/parameters/rowFilter.supplier.vatNumber",
           },
           {
             $ref: "#/parameters/body.supplier",
@@ -62278,6 +62800,21 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.jobTravelerIncludeWorkInstructions",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.accountsPayableEmail",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsReceivableEmail",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsPayableAddress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsReceivableAddress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.quoteLineCategoryMarkups",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -62415,6 +62952,21 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.jobTravelerIncludeWorkInstructions",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.accountsPayableEmail",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsReceivableEmail",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsPayableAddress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsReceivableAddress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.quoteLineCategoryMarkups",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -62504,6 +63056,21 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.jobTravelerIncludeWorkInstructions",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsPayableEmail",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsReceivableEmail",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsPayableAddress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.accountsReceivableAddress",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.quoteLineCategoryMarkups",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -70468,6 +71035,67 @@ export default {
       },
       type: "object",
     },
+    companyAccountsPayableBillingAddress: {
+      required: ["id"],
+      properties: {
+        id: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          default: "Accounts Payable",
+          format: "text",
+          type: "string",
+        },
+        addressLine1: {
+          format: "text",
+          type: "string",
+        },
+        addressLine2: {
+          format: "text",
+          type: "string",
+        },
+        city: {
+          format: "text",
+          type: "string",
+        },
+        state: {
+          format: "text",
+          type: "string",
+        },
+        postalCode: {
+          format: "text",
+          type: "string",
+        },
+        countryCode: {
+          format: "text",
+          type: "string",
+        },
+        phone: {
+          format: "text",
+          type: "string",
+        },
+        fax: {
+          format: "text",
+          type: "string",
+        },
+        email: {
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     customerShipping: {
       required: ["customerId", "companyId"],
       properties: {
@@ -71436,6 +72064,30 @@ export default {
           type: "string",
         },
         supplierCountryName: {
+          format: "text",
+          type: "string",
+        },
+        supplierTaxId: {
+          format: "text",
+          type: "string",
+        },
+        supplierVatNumber: {
+          format: "text",
+          type: "string",
+        },
+        supplierContactName: {
+          format: "text",
+          type: "string",
+        },
+        supplierContactEmail: {
+          format: "text",
+          type: "string",
+        },
+        companyCountryCode: {
+          format: "text",
+          type: "string",
+        },
+        companyCountryName: {
           format: "text",
           type: "string",
         },
@@ -75092,6 +75744,40 @@ export default {
           format: "text",
           type: "string",
         },
+        shipmentCustomerName: {
+          format: "text",
+          type: "string",
+        },
+        shipmentAddressLine1: {
+          format: "text",
+          type: "string",
+        },
+        shipmentAddressLine2: {
+          format: "text",
+          type: "string",
+        },
+        shipmentCity: {
+          format: "text",
+          type: "string",
+        },
+        shipmentStateProvince: {
+          format: "text",
+          type: "string",
+        },
+        shipmentPostalCode: {
+          format: "text",
+          type: "string",
+        },
+        shipmentCountryCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `country.alpha2`.<fk table='country' column='alpha2'/>",
+          format: "text",
+          type: "string",
+        },
+        shipmentCountryName: {
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -75488,6 +76174,13 @@ export default {
           format: "numeric",
           type: "number",
         },
+        tags: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
         website: {
           format: "text",
           type: "string",
@@ -75533,18 +76226,16 @@ export default {
           format: "text",
           type: "string",
         },
-        invoicingContactId: {
-          description:
-            "Note:\nThis is a Foreign Key to `customerContact.id`.<fk table='customerContact' column='id'/>",
-          format: "text",
-          type: "string",
-        },
         defaultCc: {
           format: "text[]",
           items: {
             type: "string",
           },
           type: "array",
+        },
+        vatNumber: {
+          format: "text",
+          type: "string",
         },
         externalId: {
           format: "jsonb",
@@ -76462,6 +77153,29 @@ export default {
           type: "string",
         },
         ownerId: {
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        suggestionNotificationGroup: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        auditLogEnabled: {
+          format: "boolean",
+          type: "boolean",
+        },
+        vatNumber: {
+          format: "text",
+          type: "string",
+        },
+        countryName: {
           format: "text",
           type: "string",
         },
@@ -81205,6 +81919,14 @@ export default {
           format: "numeric",
           type: "number",
         },
+        requestedDate: {
+          format: "date",
+          type: "string",
+        },
+        receivedDate: {
+          format: "date",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -83425,6 +84147,10 @@ export default {
           format: "text",
           type: "string",
         },
+        vatNumber: {
+          format: "text",
+          type: "string",
+        },
         website: {
           format: "text",
           type: "string",
@@ -83444,12 +84170,6 @@ export default {
           type: "number",
         },
         purchasingContactId: {
-          description:
-            "Note:\nThis is a Foreign Key to `supplierContact.id`.<fk table='supplierContact' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        invoicingContactId: {
           description:
             "Note:\nThis is a Foreign Key to `supplierContact.id`.<fk table='supplierContact' column='id'/>",
           format: "text",
@@ -87258,18 +87978,16 @@ export default {
           format: "text",
           type: "string",
         },
-        invoicingContactId: {
-          description:
-            "Note:\nThis is a Foreign Key to `customerContact.id`.<fk table='customerContact' column='id'/>",
-          format: "text",
-          type: "string",
-        },
         defaultCc: {
           format: "text[]",
           items: {
             type: "string",
           },
           type: "array",
+        },
+        vatNumber: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -90364,6 +91082,9 @@ export default {
           format: "numeric",
           type: "number",
         },
+        categoryMarkups: {
+          format: "jsonb",
+        },
       },
       type: "object",
     },
@@ -92246,6 +92967,10 @@ export default {
           format: "boolean",
           type: "boolean",
         },
+        vatNumber: {
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -92444,6 +93169,67 @@ export default {
           default: false,
           format: "boolean",
           type: "boolean",
+        },
+      },
+      type: "object",
+    },
+    companyAccountsReceivableBillingAddress: {
+      required: ["id"],
+      properties: {
+        id: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          default: "Accounts Receivable",
+          format: "text",
+          type: "string",
+        },
+        addressLine1: {
+          format: "text",
+          type: "string",
+        },
+        addressLine2: {
+          format: "text",
+          type: "string",
+        },
+        city: {
+          format: "text",
+          type: "string",
+        },
+        state: {
+          format: "text",
+          type: "string",
+        },
+        postalCode: {
+          format: "text",
+          type: "string",
+        },
+        countryCode: {
+          format: "text",
+          type: "string",
+        },
+        phone: {
+          format: "text",
+          type: "string",
+        },
+        fax: {
+          format: "text",
+          type: "string",
+        },
+        email: {
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -94066,6 +94852,14 @@ export default {
           format: "numeric",
           type: "number",
         },
+        requestedDate: {
+          format: "date",
+          type: "string",
+        },
+        receivedDate: {
+          format: "date",
+          type: "string",
+        },
         thumbnailPath: {
           format: "text",
           type: "string",
@@ -95114,6 +95908,14 @@ export default {
           format: "numeric",
           type: "number",
         },
+        createdByFullName: {
+          format: "text",
+          type: "string",
+        },
+        createdByEmail: {
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -95307,18 +96109,16 @@ export default {
           format: "text",
           type: "string",
         },
-        invoicingContactId: {
-          description:
-            "Note:\nThis is a Foreign Key to `supplierContact.id`.<fk table='supplierContact' column='id'/>",
-          format: "text",
-          type: "string",
-        },
         defaultCc: {
           format: "text[]",
           items: {
             type: "string",
           },
           type: "array",
+        },
+        vatNumber: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -98634,6 +99434,27 @@ export default {
           format: "boolean",
           type: "boolean",
         },
+        accountsPayableEmail: {
+          format: "text",
+          type: "string",
+        },
+        accountsReceivableEmail: {
+          format: "text",
+          type: "string",
+        },
+        accountsPayableAddress: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        accountsReceivableAddress: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        quoteLineCategoryMarkups: {
+          format: "jsonb",
+        },
       },
       type: "object",
     },
@@ -100924,6 +101745,93 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.companyAccountsPayableBillingAddress": {
+      name: "companyAccountsPayableBillingAddress",
+      description: "companyAccountsPayableBillingAddress",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/companyAccountsPayableBillingAddress",
+      },
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.addressLine1": {
+      name: "addressLine1",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.addressLine2": {
+      name: "addressLine2",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.city": {
+      name: "city",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.state": {
+      name: "state",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.postalCode": {
+      name: "postalCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.countryCode": {
+      name: "countryCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.phone": {
+      name: "phone",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.fax": {
+      name: "fax",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.email": {
+      name: "email",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsPayableBillingAddress.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.customerShipping": {
       name: "customerShipping",
       description: "customerShipping",
@@ -102009,6 +102917,42 @@ export default {
     },
     "rowFilter.purchaseOrderLocations.supplierCountryName": {
       name: "supplierCountryName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLocations.supplierTaxId": {
+      name: "supplierTaxId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLocations.supplierVatNumber": {
+      name: "supplierVatNumber",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLocations.supplierContactName": {
+      name: "supplierContactName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLocations.supplierContactEmail": {
+      name: "supplierContactEmail",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLocations.companyCountryCode": {
+      name: "companyCountryCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLocations.companyCountryName": {
+      name: "companyCountryName",
       required: false,
       in: "query",
       type: "string",
@@ -106198,6 +107142,54 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.salesInvoiceLocations.shipmentCustomerName": {
+      name: "shipmentCustomerName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLocations.shipmentAddressLine1": {
+      name: "shipmentAddressLine1",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLocations.shipmentAddressLine2": {
+      name: "shipmentAddressLine2",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLocations.shipmentCity": {
+      name: "shipmentCity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLocations.shipmentStateProvince": {
+      name: "shipmentStateProvince",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLocations.shipmentPostalCode": {
+      name: "shipmentPostalCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLocations.shipmentCountryCode": {
+      name: "shipmentCountryCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLocations.shipmentCountryName": {
+      name: "shipmentCountryName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.itemLedger": {
       name: "itemLedger",
       description: "itemLedger",
@@ -106597,6 +107589,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.customers.tags": {
+      name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.customers.website": {
       name: "website",
       required: false,
@@ -106651,14 +107649,14 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.customers.invoicingContactId": {
-      name: "invoicingContactId",
+    "rowFilter.customers.defaultCc": {
+      name: "defaultCc",
       required: false,
       in: "query",
       type: "string",
     },
-    "rowFilter.customers.defaultCc": {
-      name: "defaultCc",
+    "rowFilter.customers.vatNumber": {
+      name: "vatNumber",
       required: false,
       in: "query",
       type: "string",
@@ -107700,6 +108698,36 @@ export default {
     },
     "rowFilter.companies.ownerId": {
       name: "ownerId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.suggestionNotificationGroup": {
+      name: "suggestionNotificationGroup",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.auditLogEnabled": {
+      name: "auditLogEnabled",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.vatNumber": {
+      name: "vatNumber",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.countryName": {
+      name: "countryName",
       required: false,
       in: "query",
       type: "string",
@@ -113065,6 +114093,18 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.purchaseOrderLine.requestedDate": {
+      name: "requestedDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLine.receivedDate": {
+      name: "receivedDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.stockTransferLines": {
       name: "stockTransferLines",
       description: "stockTransferLines",
@@ -115476,6 +116516,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.suppliers.vatNumber": {
+      name: "vatNumber",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.suppliers.website": {
       name: "website",
       required: false,
@@ -115502,12 +116548,6 @@ export default {
     },
     "rowFilter.suppliers.purchasingContactId": {
       name: "purchasingContactId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.suppliers.invoicingContactId": {
-      name: "invoicingContactId",
       required: false,
       in: "query",
       type: "string",
@@ -119818,14 +120858,14 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.customer.invoicingContactId": {
-      name: "invoicingContactId",
+    "rowFilter.customer.defaultCc": {
+      name: "defaultCc",
       required: false,
       in: "query",
       type: "string",
     },
-    "rowFilter.customer.defaultCc": {
-      name: "defaultCc",
+    "rowFilter.customer.vatNumber": {
+      name: "vatNumber",
       required: false,
       in: "query",
       type: "string",
@@ -123451,6 +124491,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.quoteLinePrice.categoryMarkups": {
+      name: "categoryMarkups",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.attributeDataType": {
       name: "attributeDataType",
       description: "attributeDataType",
@@ -125493,6 +126539,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.company.vatNumber": {
+      name: "vatNumber",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.salesOrderLocations": {
       name: "salesOrderLocations",
       description: "salesOrderLocations",
@@ -125744,6 +126796,93 @@ export default {
     },
     "rowFilter.user.acknowledgedITAR": {
       name: "acknowledgedITAR",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.companyAccountsReceivableBillingAddress": {
+      name: "companyAccountsReceivableBillingAddress",
+      description: "companyAccountsReceivableBillingAddress",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/companyAccountsReceivableBillingAddress",
+      },
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.addressLine1": {
+      name: "addressLine1",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.addressLine2": {
+      name: "addressLine2",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.city": {
+      name: "city",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.state": {
+      name: "state",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.postalCode": {
+      name: "postalCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.countryCode": {
+      name: "countryCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.phone": {
+      name: "phone",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.fax": {
+      name: "fax",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.email": {
+      name: "email",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companyAccountsReceivableBillingAddress.updatedBy": {
+      name: "updatedBy",
       required: false,
       in: "query",
       type: "string",
@@ -127533,6 +128672,18 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.purchaseOrderLines.requestedDate": {
+      name: "requestedDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLines.receivedDate": {
+      name: "receivedDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.purchaseOrderLines.thumbnailPath": {
       name: "thumbnailPath",
       required: false,
@@ -128727,6 +129878,18 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.purchaseOrders.createdByFullName": {
+      name: "createdByFullName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrders.createdByEmail": {
+      name: "createdByEmail",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.openSalesOrderLines": {
       name: "openSalesOrderLines",
       description: "openSalesOrderLines",
@@ -128955,14 +130118,14 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.supplier.invoicingContactId": {
-      name: "invoicingContactId",
+    "rowFilter.supplier.defaultCc": {
+      name: "defaultCc",
       required: false,
       in: "query",
       type: "string",
     },
-    "rowFilter.supplier.defaultCc": {
-      name: "defaultCc",
+    "rowFilter.supplier.vatNumber": {
+      name: "vatNumber",
       required: false,
       in: "query",
       type: "string",
@@ -132590,6 +133753,36 @@ export default {
     },
     "rowFilter.companySettings.jobTravelerIncludeWorkInstructions": {
       name: "jobTravelerIncludeWorkInstructions",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.accountsPayableEmail": {
+      name: "accountsPayableEmail",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.accountsReceivableEmail": {
+      name: "accountsReceivableEmail",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.accountsPayableAddress": {
+      name: "accountsPayableAddress",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.accountsReceivableAddress": {
+      name: "accountsReceivableAddress",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.quoteLineCategoryMarkups": {
+      name: "quoteLineCategoryMarkups",
       required: false,
       in: "query",
       type: "string",

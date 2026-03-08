@@ -142,6 +142,10 @@ CREATE OR REPLACE VIEW "companies" WITH(SECURITY_INVOKER=true) AS
 
 
 
+
+
+
+
 DROP VIEW IF EXISTS "suppliers";
 CREATE OR REPLACE VIEW "suppliers" WITH(SECURITY_INVOKER=true) AS
       SELECT
@@ -179,7 +183,6 @@ CREATE OR REPLACE VIEW "suppliers" WITH(SECURITY_INVOKER=true) AS
         s.tags,
         s."taxPercent",
         s."purchasingContactId",
-        s."purchasingLocationId",
         s.embedding,
         s."defaultCc",
         st.name AS "type",
@@ -241,7 +244,6 @@ CREATE OR REPLACE VIEW "customers" WITH(SECURITY_INVOKER=true) AS
     c."customFields",
     c."currencyCode",
     c."salesContactId",
-    c."salesLocationId",
     c."defaultCc",
     c."vatNumber",
     (

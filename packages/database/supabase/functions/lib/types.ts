@@ -4333,7 +4333,6 @@ export type Database = {
           name: string
           phone: string | null
           salesContactId: string | null
-          salesLocationId: string | null
           tags: string[] | null
           taxId: string | null
           taxPercent: number
@@ -4360,7 +4359,6 @@ export type Database = {
           name: string
           phone?: string | null
           salesContactId?: string | null
-          salesLocationId?: string | null
           tags?: string[] | null
           taxId?: string | null
           taxPercent?: number
@@ -4387,7 +4385,6 @@ export type Database = {
           name?: string
           phone?: string | null
           salesContactId?: string | null
-          salesLocationId?: string | null
           tags?: string[] | null
           taxId?: string | null
           taxPercent?: number
@@ -4556,13 +4553,6 @@ export type Database = {
             columns: ["salesContactId"]
             isOneToOne: false
             referencedRelation: "customerContact"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customer_salesLocationId_fkey"
-            columns: ["salesLocationId"]
-            isOneToOne: false
-            referencedRelation: "customerLocation"
             referencedColumns: ["id"]
           },
           {
@@ -33318,48 +33308,6 @@ export type Database = {
           },
         ]
       }
-      searchIndex_6c79NxG3ZDag1uLg7D2uMy: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
       searchIndexRegistry: {
         Row: {
           companyId: string
@@ -35646,7 +35594,6 @@ export type Database = {
           name: string
           phone: string | null
           purchasingContactId: string | null
-          purchasingLocationId: string | null
           supplierStatusId: string | null
           supplierTypeId: string | null
           tags: string[] | null
@@ -35673,7 +35620,6 @@ export type Database = {
           name: string
           phone?: string | null
           purchasingContactId?: string | null
-          purchasingLocationId?: string | null
           supplierStatusId?: string | null
           supplierTypeId?: string | null
           tags?: string[] | null
@@ -35700,7 +35646,6 @@ export type Database = {
           name?: string
           phone?: string | null
           purchasingContactId?: string | null
-          purchasingLocationId?: string | null
           supplierStatusId?: string | null
           supplierTypeId?: string | null
           tags?: string[] | null
@@ -35857,13 +35802,6 @@ export type Database = {
             columns: ["purchasingContactId"]
             isOneToOne: false
             referencedRelation: "supplierContact"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_purchasingLocationId_fkey"
-            columns: ["purchasingLocationId"]
-            isOneToOne: false
-            referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
@@ -43802,7 +43740,6 @@ export type Database = {
           orderCount: number | null
           phone: string | null
           salesContactId: string | null
-          salesLocationId: string | null
           status: string | null
           tags: string[] | null
           taxId: string | null
@@ -43973,13 +43910,6 @@ export type Database = {
             columns: ["salesContactId"]
             isOneToOne: false
             referencedRelation: "customerContact"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customer_salesLocationId_fkey"
-            columns: ["salesLocationId"]
-            isOneToOne: false
-            referencedRelation: "customerLocation"
             referencedColumns: ["id"]
           },
           {
@@ -49269,6 +49199,8 @@ export type Database = {
       }
       purchaseOrderLocations: {
         Row: {
+          companyCountryCode: string | null
+          companyCountryName: string | null
           customerAddressLine1: string | null
           customerAddressLine2: string | null
           customerCity: string | null
@@ -49303,14 +49235,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52444,6 +52376,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
+            columns: ["shipmentCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
             columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -52451,21 +52390,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55220,7 +55145,6 @@ export type Database = {
           partCount: number | null
           phone: string | null
           purchasingContactId: string | null
-          purchasingLocationId: string | null
           status: string | null
           supplierStatusId: string | null
           supplierTypeId: string | null
@@ -55379,13 +55303,6 @@ export type Database = {
             columns: ["purchasingContactId"]
             isOneToOne: false
             referencedRelation: "supplierContact"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_purchasingLocationId_fkey"
-            columns: ["purchasingLocationId"]
-            isOneToOne: false
-            referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
@@ -56177,6 +56094,7 @@ export type Database = {
           laborUnit: Database["public"]["Enums"]["factor"]
           machineTime: number
           machineUnit: Database["public"]["Enums"]["factor"]
+          operationDueDate: string
           operationOrder: number
           operationOrderType: Database["public"]["Enums"]["methodOperationOrder"]
           operationQuantity: number
@@ -56216,6 +56134,7 @@ export type Database = {
           laborUnit: Database["public"]["Enums"]["factor"]
           machineTime: number
           machineUnit: Database["public"]["Enums"]["factor"]
+          operationDueDate: string
           operationOrder: number
           operationOrderType: Database["public"]["Enums"]["methodOperationOrder"]
           operationQuantity: number
@@ -56255,6 +56174,7 @@ export type Database = {
           laborUnit: Database["public"]["Enums"]["factor"]
           machineTime: number
           machineUnit: Database["public"]["Enums"]["factor"]
+          operationDueDate: string
           operationOrder: number
           operationOrderType: Database["public"]["Enums"]["methodOperationOrder"]
           operationQuantity: number
@@ -56633,6 +56553,7 @@ export type Database = {
           laborUnit: Database["public"]["Enums"]["factor"]
           machineTime: number
           machineUnit: Database["public"]["Enums"]["factor"]
+          operationDueDate: string
           operationOrder: number
           operationOrderType: Database["public"]["Enums"]["methodOperationOrder"]
           operationQuantity: number
@@ -57343,6 +57264,7 @@ export type Database = {
           laborUnit: Database["public"]["Enums"]["factor"]
           machineTime: number
           machineUnit: Database["public"]["Enums"]["factor"]
+          operationDueDate: string
           operationOrder: number
           operationOrderType: Database["public"]["Enums"]["methodOperationOrder"]
           operationQuantity: number
