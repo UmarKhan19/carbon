@@ -647,39 +647,6 @@ export default function SalesSettingsRoute() {
           companySettings={companySettings}
           fetcher={fetcher}
         />
-        <Card>
-          <HStack className="justify-between items-start">
-            <CardHeader>
-              <CardTitle>Sales Terms &amp; Conditions</CardTitle>
-              <CardDescription>
-                Define the terms and conditions for quotes and sales orders
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              {salesTermsStatus === "draft" ? (
-                <Badge variant="secondary">Draft</Badge>
-              ) : (
-                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
-              )}
-            </CardAction>
-          </HStack>
-          <CardContent>
-            {permissions.can("update", "settings") ? (
-              <Editor
-                initialValue={(terms?.salesTerms ?? {}) as JSONContent}
-                onUpload={onUploadImage}
-                onChange={handleUpdateSalesTerms}
-              />
-            ) : (
-              <div
-                className="prose dark:prose-invert"
-                dangerouslySetInnerHTML={{
-                  __html: generateHTML(terms?.salesTerms as JSONContent)
-                }}
-              />
-            )}
-          </CardContent>
-        </Card>
       </VStack>
     </ScrollArea>
   );
