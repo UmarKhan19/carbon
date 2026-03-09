@@ -286,8 +286,8 @@ export function useOperation({
     finishModal,
     issueModal,
     serialModal,
-    isOverdue: operation.operationDueDate
-      ? new Date(operation.operationDueDate) < new Date()
+    isOverdue: operation.jobDueDate
+      ? new Date(operation.jobDueDate) < new Date()
       : false,
     selectedMaterial,
     setSelectedMaterial,

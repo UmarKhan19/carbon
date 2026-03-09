@@ -251,7 +251,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         assignee: op.assignee,
         tags: op.tags,
         description: op.description,
-        dueDate: op.operationDueDate,
+        dueDate: op.jobDueDate,
         duration:
           operation.setupDuration +
           operation.laborDuration +

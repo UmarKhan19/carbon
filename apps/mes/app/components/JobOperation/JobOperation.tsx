@@ -568,11 +568,9 @@ export const JobOperation = ({
                 >
                   {["ASAP", "No Deadline"].includes(operation.jobDeadlineType)
                     ? operation.jobDeadlineType
-                    : operation.operationDueDate
+                    : operation.jobDueDate
                       ? `Due ${formatRelativeTime(
-                          convertDateStringToIsoString(
-                            operation.operationDueDate
-                          )
+                          convertDateStringToIsoString(operation.jobDueDate)
                         )}`
                       : "–"}
                 </span>
@@ -660,17 +658,17 @@ export const JobOperation = ({
                           operation.jobDeadlineType
                         )
                           ? operation.jobDeadlineType
-                          : operation.operationDueDate
+                          : operation.jobDueDate
                             ? `Due ${formatRelativeTime(
                                 convertDateStringToIsoString(
-                                  operation.operationDueDate
+                                  operation.jobDueDate
                                 )
                               )}`
                             : "–"}
                       </Heading>
                       <span className="text-muted-foreground text-sm">
-                        {operation.operationDueDate
-                          ? formatDate(operation.operationDueDate)
+                        {operation.jobDueDate
+                          ? formatDate(operation.jobDueDate)
                           : null}
                       </span>
                     </VStack>
@@ -1962,10 +1960,10 @@ export const JobOperation = ({
                           operation.jobDeadlineType
                         )
                           ? operation.jobDeadlineType
-                          : operation.operationDueDate
+                          : operation.jobDueDate
                             ? `Due ${formatRelativeTime(
                                 convertDateStringToIsoString(
-                                  operation.operationDueDate
+                                  operation.jobDueDate
                                 )
                               )}`
                             : "–"}
