@@ -21,7 +21,6 @@ export {
   scrapReasons,
   sequences,
   unitOfMeasures,
-  supplierStatuses as supplierStauses,
 } from "./seed.data.ts";
 
 import { groups as _groups } from "./seed.data.ts";

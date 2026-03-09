@@ -94,7 +94,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     entityType: "supplier",
     getTitle: (r) => r.name,
     getLink: (r) => `/x/supplier/${r.id}`,
-    getTags: (r) => [r.supplierTypeName, r.supplierStatusName].filter(Boolean),
+    getTags: (r) => [r.supplierTypeName, r.supplierStatus].filter(Boolean),
     getMetadata: (r) => ({ taxId: r.taxId }),
     enrichRecord: async (record, client) => {
       const { data: suppType } = await client
@@ -102,15 +102,9 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .select("name")
         .eq("id", record.supplierTypeId)
         .single();
-      const { data: suppStatus } = await client
-        .from("supplierStatus")
-        .select("name")
-        .eq("id", record.supplierStatusId)
-        .single();
       return {
         ...record,
         supplierTypeName: suppType?.name,
-        supplierStatusName: suppStatus?.name,
       };
     },
   },

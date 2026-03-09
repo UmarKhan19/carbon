@@ -21,7 +21,6 @@ import {
   postingGroupSales,
   scrapReasons,
   sequences,
-  supplierStauses,
   unitOfMeasures,
 } from "../lib/seed.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
@@ -149,18 +148,6 @@ serve(async (req: Request) => {
             active: true,
           },
         ])
-        .execute();
-
-      // supplier status
-      await trx
-        .insertInto("supplierStatus")
-        .values(
-          supplierStauses.map((name) => ({
-            name,
-            companyId,
-            createdBy: "system",
-          }))
-        )
         .execute();
 
       // customer status

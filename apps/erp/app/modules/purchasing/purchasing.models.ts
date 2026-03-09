@@ -60,6 +60,21 @@ export const purchaseOrderStatusType = [
   "Closed"
 ] as const;
 
+export const supplierStatusType = [
+  "Active",
+  "Inactive",
+  "Pending",
+  "Rejected"
+] as const;
+
+export const supplierQuoteStatusType = [
+  "Draft",
+  "Active",
+  "Expired",
+  "Declined",
+  "Cancelled"
+] as const;
+
 export const externalSupplierQuoteValidator = z.object({
   digitalSupplierQuoteSubmittedBy: zfd.text(
     z.string().min(1, { message: "Name is required" })
@@ -283,7 +298,7 @@ export const selectedLinesValidator = z.record(z.string(), selectedLineSchema);
 export const supplierValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
-  supplierStatusId: zfd.text(z.string().optional()),
+  supplierStatus: z.enum(supplierStatusType).optional().nullable(),
   supplierTypeId: zfd.text(z.string().optional()),
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
@@ -342,19 +357,6 @@ export const supplierTypeValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" })
 });
-
-export const supplierStatusValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" })
-});
-
-export const supplierQuoteStatusType = [
-  "Draft",
-  "Active",
-  "Expired",
-  "Declined",
-  "Cancelled"
-] as const;
 
 export const supplierQuoteValidator = z
   .object({

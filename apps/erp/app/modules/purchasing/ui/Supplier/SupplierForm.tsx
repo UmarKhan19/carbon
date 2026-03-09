@@ -101,7 +101,7 @@ const SupplierForm = ({
                 >
                   <Input autoFocus={!isEditing} name="name" label="Name" />
                   <SupplierStatus
-                    name="supplierStatusId"
+                    name="supplierStatus"
                     label="Supplier Status"
                     placeholder="Select Supplier Status"
                   />
@@ -111,10 +111,6 @@ const SupplierForm = ({
                     placeholder="Select Supplier Type"
                   />
                   <Employee name="accountManagerId" label="Account Manager" />
-                  <Currency name="currencyCode" label="Currency" />
-                  <Input name="taxId" label="Tax ID" />
-                  <Input name="vatNumber" label="VAT Number" />
-                  <Input name="website" label="Website" />
                   {isEditing && (
                     <>
                       <SupplierContact
@@ -124,6 +120,11 @@ const SupplierForm = ({
                       />
                     </>
                   )}
+                  <Currency name="currencyCode" label="Currency" />
+                  <Input name="taxId" label="Tax ID" />
+                  <Input name="vatNumber" label="VAT Number" />
+                  <Input name="website" label="Website" />
+
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}
                   <CustomFormFields table="supplier" />
                 </div>

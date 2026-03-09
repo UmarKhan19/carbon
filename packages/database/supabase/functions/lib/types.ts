@@ -33308,6 +33308,48 @@ export type Database = {
           },
         ]
       }
+      searchIndex_WzwEWaV48VbxPNogD92qWD: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
       searchIndexRegistry: {
         Row: {
           companyId: string
@@ -35594,7 +35636,9 @@ export type Database = {
           name: string
           phone: string | null
           purchasingContactId: string | null
-          supplierStatusId: string | null
+          supplierStatus:
+            | Database["public"]["Enums"]["supplierStatusType"]
+            | null
           supplierTypeId: string | null
           tags: string[] | null
           taxId: string | null
@@ -35620,7 +35664,9 @@ export type Database = {
           name: string
           phone?: string | null
           purchasingContactId?: string | null
-          supplierStatusId?: string | null
+          supplierStatus?:
+            | Database["public"]["Enums"]["supplierStatusType"]
+            | null
           supplierTypeId?: string | null
           tags?: string[] | null
           taxId?: string | null
@@ -35646,7 +35692,9 @@ export type Database = {
           name?: string
           phone?: string | null
           purchasingContactId?: string | null
-          supplierStatusId?: string | null
+          supplierStatus?:
+            | Database["public"]["Enums"]["supplierStatusType"]
+            | null
           supplierTypeId?: string | null
           tags?: string[] | null
           taxId?: string | null
@@ -35802,13 +35850,6 @@ export type Database = {
             columns: ["purchasingContactId"]
             isOneToOne: false
             referencedRelation: "supplierContact"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_supplierStatusId_fkey"
-            columns: ["supplierStatusId"]
-            isOneToOne: false
-            referencedRelation: "supplierStatus"
             referencedColumns: ["id"]
           },
           {
@@ -38069,141 +38110,6 @@ export type Database = {
           },
           {
             foreignKeyName: "supplierShipping_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-        ]
-      }
-      supplierStatus: {
-        Row: {
-          companyId: string
-          createdAt: string
-          createdBy: string
-          customFields: Json | null
-          id: string
-          name: string
-          tags: string[] | null
-          updatedAt: string | null
-          updatedBy: string | null
-        }
-        Insert: {
-          companyId: string
-          createdAt?: string
-          createdBy: string
-          customFields?: Json | null
-          id?: string
-          name: string
-          tags?: string[] | null
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Update: {
-          companyId?: string
-          createdAt?: string
-          createdBy?: string
-          customFields?: Json | null
-          id?: string
-          name?: string
-          tags?: string[] | null
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "supplierStatus_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "company"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "customFieldTables"
-            referencedColumns: ["companyId"]
-          },
-          {
-            foreignKeyName: "supplierStatus_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "integrations"
-            referencedColumns: ["companyId"]
-          },
-          {
-            foreignKeyName: "supplierStatus_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "supplierStatus_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplierStatus_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -49235,14 +49141,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55146,7 +55052,6 @@ export type Database = {
           phone: string | null
           purchasingContactId: string | null
           status: string | null
-          supplierStatusId: string | null
           supplierTypeId: string | null
           tags: string[] | null
           taxId: string | null
@@ -55303,13 +55208,6 @@ export type Database = {
             columns: ["purchasingContactId"]
             isOneToOne: false
             referencedRelation: "supplierContact"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_supplierStatusId_fkey"
-            columns: ["supplierStatusId"]
-            isOneToOne: false
-            referencedRelation: "supplierStatus"
             referencedColumns: ["id"]
           },
           {
@@ -58110,6 +58008,7 @@ export type Database = {
         | "Draft"
         | "Declined"
         | "Cancelled"
+      supplierStatusType: "Active" | "Inactive" | "Pending" | "Rejected"
       supplySourceType: "Purchase Order" | "Production Order"
       tableViewType: "Public" | "Private"
       trackedEntityStatus: "Available" | "Reserved" | "On Hold" | "Consumed"
@@ -59267,6 +59166,7 @@ export const Constants = {
         "Declined",
         "Cancelled",
       ],
+      supplierStatusType: ["Active", "Inactive", "Pending", "Rejected"],
       supplySourceType: ["Purchase Order", "Production Order"],
       tableViewType: ["Public", "Private"],
       trackedEntityStatus: ["Available", "Reserved", "On Hold", "Consumed"],

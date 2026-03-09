@@ -30,7 +30,8 @@ import { Tags } from "~/components/Form";
 import { useSupplierTypes } from "~/components/Form/SupplierType";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
-import type { SupplierDetail, SupplierStatus } from "~/modules/purchasing";
+import type { SupplierDetail } from "~/modules/purchasing";
+import { SupplierStatusIndicator } from "~/modules/purchasing/ui/Supplier/SupplierStatusIndicator";
 import type { action } from "~/routes/x+/settings+/tags";
 import { path } from "~/utils/path";
 
@@ -58,14 +59,6 @@ const SupplierHeader = () => {
   const supplierType = supplierTypes?.find(
     (type) => type.value === routeData?.supplier?.supplierTypeId
   )?.label;
-
-  const sharedSupplierData = useRouteData<{
-    supplierStatuses: SupplierStatus[];
-  }>(path.to.supplierRoot);
-
-  const supplierStatus = sharedSupplierData?.supplierStatuses?.find(
-    (status) => status.id === routeData?.supplier?.supplierStatusId
-  )?.name;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const onUpdateTags = useCallback(
@@ -126,8 +119,10 @@ const SupplierHeader = () => {
               <CardAttribute>
                 <CardAttributeLabel>Status</CardAttributeLabel>
                 <CardAttributeValue>
-                  {supplierStatus ? (
-                    <Enumerable value={supplierStatus!} />
+                  {routeData?.supplier?.status ? (
+                    <SupplierStatusIndicator
+                      status={routeData.supplier.status as "Active"}
+                    />
                   ) : (
                     "-"
                   )}
@@ -173,20 +168,6 @@ const SupplierHeader = () => {
                   </ValidatedForm>
                 </CardAttributeValue>
               </CardAttribute>
-
-              {/* {permissions.is("employee") && (
-              <CardAttribute>
-                <CardAttributeLabel>Assignee</CardAttributeLabel>
-                <CardAttributeValue>
-                  <Assignee
-                    id={supplierId}
-                    table="supplier"
-                    value={assignee ?? ""}
-                    isReadOnly={!permissions.can("update", "purchasing")}
-                  />
-                </CardAttributeValue>
-              </CardAttribute>
-            )} */}
             </CardAttributes>
           </CardContent>
         </Card>
