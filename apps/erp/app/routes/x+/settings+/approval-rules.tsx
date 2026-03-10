@@ -59,18 +59,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
     (r) => r.documentType === "qualityDocument"
   );
 
+  const supplierRules = enrichedRules.filter(
+    (r) => r.documentType === "supplier"
+  );
+
   return {
     poRules,
-    qdRules
+    qdRules,
+    supplierRules
   };
 }
 
 export default function ApprovalSettingsRoute() {
-  const { poRules, qdRules } = useLoaderData<typeof loader>();
+  const { poRules, qdRules, supplierRules } = useLoaderData<typeof loader>();
 
   return (
     <>
-      <ApprovalRules poRules={poRules} qdRules={qdRules} />
+      <ApprovalRules
+        poRules={poRules}
+        qdRules={qdRules}
+        supplierRules={supplierRules}
+      />
       <Outlet />
     </>
   );

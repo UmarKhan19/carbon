@@ -114,6 +114,23 @@ export async function approveRequest(
         if (!qdUpdate) {
           throw new Error("Failed to update quality document status");
         }
+      } else if (documentType === "supplier") {
+        const supplierUpdate = await trx
+          .updateTable("supplier")
+          .set({
+            supplierStatus: "Active",
+            approvedBy: userId,
+            approvalDate: now.split("T")[0],
+            updatedBy: userId,
+            updatedAt: now
+          })
+          .where("id", "=", documentId)
+          .returning(["id"])
+          .executeTakeFirst();
+
+        if (!supplierUpdate) {
+          throw new Error("Failed to update supplier status");
+        }
       }
 
       return updatedApproval;
@@ -1117,6 +1134,23 @@ export async function rejectRequest(
         }
       }
       // Note: qualityDocument rejection doesn't change status (stays Draft)
+
+      if (documentType === "supplier") {
+        const supplierUpdate = await trx
+          .updateTable("supplier")
+          .set({
+            supplierStatus: "Rejected",
+            updatedBy: userId,
+            updatedAt: now
+          })
+          .where("id", "=", documentId)
+          .returning(["id"])
+          .executeTakeFirst();
+
+        if (!supplierUpdate) {
+          throw new Error("Failed to update supplier status");
+        }
+      }
 
       return updatedApproval;
     });

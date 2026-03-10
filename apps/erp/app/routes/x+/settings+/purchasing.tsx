@@ -1,8 +1,8 @@
 import { error, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import {
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Input,
   Select,
@@ -54,6 +54,7 @@ import {
   updateDefaultSupplierCc,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
+  updateSupplierApprovalSetting,
   updateSupplierQuoteNotificationSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -108,6 +109,27 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
+    case "supplierApproval":
+      const supplierApprovalEnabled =
+        formData.get("supplierApproval") === "true";
+      const supplierApprovalResult = await updateSupplierApprovalSetting(
+        client,
+        companyId,
+        supplierApprovalEnabled
+      );
+
+      if (supplierApprovalResult.error) {
+        return {
+          success: false,
+          message: supplierApprovalResult.error.message
+        };
+      }
+
+      return {
+        success: true,
+        message: `Supplier approval ${supplierApprovalEnabled ? "enabled" : "disabled"}`
+      };
+
     case "accountsPayableAddressToggle":
       const apToggleEnabled = formData.get("enabled") === "true";
       const apToggleResult = await updateAccountsPayableAddressSetting(
@@ -269,6 +291,22 @@ export default function PurchasingSettingsRoute() {
   }, [fetcher.data?.message, fetcher.data?.success]);
 
   const toggleFetcher = useFetcher<typeof action>();
+
+  const [supplierApprovalEnabled, setSupplierApprovalEnabled] = useState(
+    companySettings.supplierApproval ?? false
+  );
+
+  const handleSupplierApprovalToggle = useCallback(
+    (checked: boolean) => {
+      setSupplierApprovalEnabled(checked);
+      toggleFetcher.submit(
+        { intent: "supplierApproval", supplierApproval: checked.toString() },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
+
   const [apAddressEnabled, setApAddressEnabled] = useState(
     companySettings.accountsPayableAddress ?? false
   );
@@ -332,6 +370,7 @@ export default function PurchasingSettingsRoute() {
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
         <Heading size="h3">Purchasing</Heading>
+
         <Card>
           <HStack className="justify-between items-start">
             <CardHeader>
@@ -488,6 +527,23 @@ export default function PurchasingSettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
+        </Card>
+        <Card>
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>Supplier Approval Required</CardTitle>
+                <CardDescription>
+                  Require approval before suppliers can be set to Active
+                </CardDescription>
+              </div>
+              <Switch
+                checked={supplierApprovalEnabled}
+                onCheckedChange={handleSupplierApprovalToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
         </Card>
         <Card>
           <ValidatedForm

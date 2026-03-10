@@ -186,7 +186,7 @@ const Option = ({
 
       {/* Content */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-medium">{name}</span>
+        <span className="truncate">{name}</span>
         {itemIsGroup && memberCount > 0 && (
           <span className="text-xs text-muted-foreground">
             {memberCount} {memberCount === 1 ? "member" : "members"}

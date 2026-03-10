@@ -14,7 +14,11 @@ import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import { getCurrencyByCode } from "../accounting/accounting.service";
 import type { PurchaseInvoice } from "../invoicing/types";
-import { upsertExternalLink } from "../shared/shared.service";
+import {
+  canApproveRequest,
+  getLatestApprovalRequestForDocument,
+  upsertExternalLink
+} from "../shared/shared.service";
 import type {
   purchaseOrderDeliveryValidator,
   purchaseOrderLineValidator,
@@ -397,6 +401,49 @@ export async function getSupplier(
   return client.from("suppliers").select("*").eq("id", supplierId).single();
 }
 
+type ApprovalContext = {
+  approvalRequest: { id: string } | null;
+  canApprove: boolean;
+};
+
+export async function getSupplierApprovalContext(
+  serviceRole: SupabaseClient<Database>,
+  supplierId: string,
+  status: string | null,
+  companyId: string,
+  userId: string
+): Promise<ApprovalContext> {
+  const latest = await getLatestApprovalRequestForDocument(
+    serviceRole,
+    "supplier",
+    supplierId
+  );
+
+  const req = latest.data;
+
+  const canApprove = await canApproveRequest(
+    serviceRole,
+    {
+      amount: req?.amount ?? null,
+      documentType: "supplier",
+      companyId
+    },
+    userId
+  );
+
+  if (!req || req.status !== "Pending" || !req.requestedBy || !req.id) {
+    return {
+      approvalRequest: null,
+      canApprove
+    };
+  }
+
+  return {
+    approvalRequest: { id: req.id },
+    canApprove
+  };
+}
+
 export async function getSupplierContact(
   client: SupabaseClient<Database>,
   supplierContactId: string
@@ -706,7 +753,10 @@ export async function getSuppliers(
   }
 
   if (args.status) {
-    query = query.eq("status", args.status);
+    query = query.eq(
+      "status",
+      args.status as "Active" | "Inactive" | "Pending" | "Rejected"
+    );
   }
 
   query = setGenericQueryFilters(query, args, [

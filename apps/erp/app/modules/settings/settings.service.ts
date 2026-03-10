@@ -755,6 +755,17 @@ export async function updatePurchasePriceUpdateTimingSetting(
     .eq("id", companyId);
 }
 
+export async function updateSupplierApprovalSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  supplierApproval: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ supplierApproval }))
+    .eq("id", companyId);
+}
+
 export async function updateAccountsPayableAddressSetting(
   client: SupabaseClient<Database>,
   companyId: string,

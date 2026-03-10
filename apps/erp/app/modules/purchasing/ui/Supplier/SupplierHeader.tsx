@@ -1,6 +1,8 @@
 import { ValidatedForm } from "@carbon/form";
 import {
+  Button,
   Card,
+  CardAction,
   CardAttribute,
   CardAttributeLabel,
   CardAttributes,
@@ -16,11 +18,25 @@ import {
   DropdownMenuTrigger,
   HStack,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { useCallback } from "react";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import { formatDate } from "@carbon/utils";
+import { useCallback, useState } from "react";
+import {
+  LuCheckCheck,
+  LuClipboardCheck,
+  LuEllipsisVertical,
+  LuTrash,
+  LuX
+} from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { EmployeeAvatar } from "~/components";
@@ -30,22 +46,32 @@ import { Tags } from "~/components/Form";
 import { useSupplierTypes } from "~/components/Form/SupplierType";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { useSettings } from "~/hooks/useSettings";
 import type { SupplierDetail } from "~/modules/purchasing";
 import { SupplierStatusIndicator } from "~/modules/purchasing/ui/Supplier/SupplierStatusIndicator";
+import type { ApprovalDecision } from "~/modules/shared/types";
 import type { action } from "~/routes/x+/settings+/tags";
 import { path } from "~/utils/path";
+import SupplierApprovalModal from "./SupplierApprovalModal";
 
 const SupplierHeader = () => {
   const { supplierId } = useParams();
 
   if (!supplierId) throw new Error("Could not find supplierId");
   const fetcher = useFetcher<typeof action>();
+  const requestApprovalFetcher = useFetcher();
   const permissions = usePermissions();
   const { company } = useUser();
+  const settings = useSettings();
   const deleteModal = useDisclosure();
+  const makeInactiveModal = useDisclosure();
+  const [approvalDecision, setApprovalDecision] =
+    useState<ApprovalDecision | null>(null);
   const routeData = useRouteData<{
     supplier: SupplierDetail;
     tags: { name: string }[];
+    approvalRequest: { id: string } | null;
+    canApprove: boolean;
   }>(path.to.supplier(supplierId));
 
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
@@ -59,6 +85,32 @@ const SupplierHeader = () => {
   const supplierType = supplierTypes?.find(
     (type) => type.value === routeData?.supplier?.supplierTypeId
   )?.label;
+
+  const status = routeData?.supplier?.status ?? null;
+  const isPending = status === "Pending";
+  const approvalRequestId = routeData?.approvalRequest?.id;
+  const hasApprovalRequest = !!approvalRequestId;
+  const canApprove = routeData?.canApprove ?? false;
+  const isApprovalRequired = settings.supplierApproval ?? false;
+
+  const submitRequestApproval = () => {
+    const formData = new FormData();
+    formData.append("intent", "request-approval");
+    requestApprovalFetcher.submit(formData, {
+      method: "post",
+      action: path.to.supplierApproval(supplierId)
+    });
+  };
+
+  const makeInactiveFetcher = useFetcher();
+  const submitMakeInactive = () => {
+    const formData = new FormData();
+    formData.append("intent", "make-inactive");
+    makeInactiveFetcher.submit(formData, {
+      method: "post",
+      action: path.to.supplierApproval(supplierId)
+    });
+  };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const onUpdateTags = useCallback(
@@ -113,6 +165,53 @@ const SupplierHeader = () => {
                 </DropdownMenu>
               </CardTitle>
             </CardHeader>
+            <CardAction className="flex h-full flex-row items-center gap-2">
+              {isApprovalRequired &&
+                status !== "Active" &&
+                !hasApprovalRequest && (
+                  <Button
+                    leftIcon={<LuClipboardCheck />}
+                    variant="primary"
+                    isDisabled={
+                      !permissions.can("update", "purchasing") ||
+                      requestApprovalFetcher.state !== "idle"
+                    }
+                    isLoading={requestApprovalFetcher.state !== "idle"}
+                    onClick={submitRequestApproval}
+                  >
+                    Request Approval
+                  </Button>
+                )}
+              {status === "Active" && canApprove && (
+                <Button
+                  leftIcon={<LuX />}
+                  variant="secondary"
+                  onClick={makeInactiveModal.onOpen}
+                >
+                  Make Inactive
+                </Button>
+              )}
+              {isPending && hasApprovalRequest && (
+                <>
+                  <Button
+                    leftIcon={<LuCheckCheck />}
+                    variant="primary"
+                    isDisabled={!canApprove}
+                    onClick={() => setApprovalDecision("Approved")}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    leftIcon={<LuX />}
+                    variant="destructive"
+                    isDisabled={!canApprove}
+                    onClick={() => setApprovalDecision("Rejected")}
+                  >
+                    Reject
+                  </Button>
+                </>
+              )}
+            </CardAction>
           </HStack>
           <CardContent>
             <CardAttributes>
@@ -146,6 +245,24 @@ const SupplierHeader = () => {
                   )}
                 </CardAttributeValue>
               </CardAttribute>
+              {routeData?.supplier?.approvedBy && (
+                <CardAttribute>
+                  <CardAttributeLabel>Approved By</CardAttributeLabel>
+                  <CardAttributeValue>
+                    <EmployeeAvatar
+                      employeeId={routeData.supplier.approvedBy}
+                    />
+                  </CardAttributeValue>
+                </CardAttribute>
+              )}
+              {routeData?.supplier?.approvalDate && (
+                <CardAttribute>
+                  <CardAttributeLabel>Approval Date</CardAttributeLabel>
+                  <CardAttributeValue>
+                    {formatDate(routeData.supplier.approvalDate)}
+                  </CardAttributeValue>
+                </CardAttribute>
+              )}
               <CardAttribute>
                 <CardAttributeValue>
                   <ValidatedForm
@@ -182,7 +299,48 @@ const SupplierHeader = () => {
           onSubmit={deleteModal.onClose}
         />
       )}
+      {makeInactiveModal.isOpen && (
+        <Modal
+          open
+          onOpenChange={(open) => {
+            if (!open) makeInactiveModal.onClose();
+          }}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>Deactivate Supplier</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              Are you sure you want to deactivate {routeData?.supplier?.name}?
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="secondary" onClick={makeInactiveModal.onClose}>
+                Cancel
+              </Button>
+              <Button
+                isLoading={makeInactiveFetcher.state !== "idle"}
+                isDisabled={makeInactiveFetcher.state !== "idle"}
+                onClick={() => {
+                  submitMakeInactive();
+                  makeInactiveModal.onClose();
+                }}
+              >
+                Deactivate
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
       {auditLogDrawer}
+      {approvalDecision && approvalRequestId && (
+        <SupplierApprovalModal
+          supplierName={routeData?.supplier?.name ?? undefined}
+          approvalRequestId={approvalRequestId}
+          decision={approvalDecision}
+          onClose={() => setApprovalDecision(null)}
+        />
+      )}
     </>
   );
 };

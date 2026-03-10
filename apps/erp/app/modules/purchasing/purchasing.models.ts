@@ -309,6 +309,32 @@ export const supplierValidator = z.object({
   // defaultCc: z.array(z.string().email()).default([])
 });
 
+export const supplierApprovalValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  supplierStatus: z.enum(supplierStatusType, {
+    errorMap: (issue, ctx) => ({
+      message: "Supplier status is required"
+    })
+  }),
+  supplierTypeId: zfd.text(z.string().optional()),
+  accountManagerId: zfd.text(z.string().optional()),
+  currencyCode: zfd.text(z.string().optional()),
+  purchasingContactId: zfd.text(z.string().optional()),
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional()),
+  website: zfd.text(z.string().optional())
+  // defaultCc: z.array(z.string().email()).default([])
+});
+
+export const supplierApprovalDecisionValidator = z.object({
+  approvalRequestId: z
+    .string()
+    .min(1, { message: "Approval request is required" }),
+  decision: z.enum(["Approved", "Rejected"]),
+  notes: zfd.text(z.string().optional())
+});
+
 export const supplierContactValidator = z.object({
   id: zfd.text(z.string().optional()),
   ...contact,

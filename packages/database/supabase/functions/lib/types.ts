@@ -2948,6 +2948,7 @@ export type Database = {
           rfqReadyNotificationGroup: string[]
           salesJobCompletedNotificationGroup: string[]
           shelfLabelSize: string | null
+          supplierApproval: boolean
           supplierQuoteNotificationGroup: string[]
           useMetric: boolean
         }
@@ -2981,6 +2982,7 @@ export type Database = {
           rfqReadyNotificationGroup?: string[]
           salesJobCompletedNotificationGroup?: string[]
           shelfLabelSize?: string | null
+          supplierApproval?: boolean
           supplierQuoteNotificationGroup?: string[]
           useMetric?: boolean
         }
@@ -3014,6 +3016,7 @@ export type Database = {
           rfqReadyNotificationGroup?: string[]
           salesJobCompletedNotificationGroup?: string[]
           shelfLabelSize?: string | null
+          supplierApproval?: boolean
           supplierQuoteNotificationGroup?: string[]
           useMetric?: boolean
         }
@@ -35622,6 +35625,8 @@ export type Database = {
       supplier: {
         Row: {
           accountManagerId: string | null
+          approvalDate: string | null
+          approvedBy: string | null
           assignee: string | null
           companyId: string
           createdAt: string
@@ -35650,6 +35655,8 @@ export type Database = {
         }
         Insert: {
           accountManagerId?: string | null
+          approvalDate?: string | null
+          approvedBy?: string | null
           assignee?: string | null
           companyId: string
           createdAt?: string
@@ -35678,6 +35685,8 @@ export type Database = {
         }
         Update: {
           accountManagerId?: string | null
+          approvalDate?: string | null
+          approvedBy?: string | null
           assignee?: string | null
           companyId?: string
           createdAt?: string
@@ -35736,6 +35745,41 @@ export type Database = {
           {
             foreignKeyName: "supplier_accountManagerId_fkey"
             columns: ["accountManagerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -52839,14 +52883,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55034,6 +55078,8 @@ export type Database = {
       suppliers: {
         Row: {
           accountManagerId: string | null
+          approvalDate: string | null
+          approvedBy: string | null
           assignee: string | null
           companyId: string | null
           createdAt: string | null
@@ -55051,7 +55097,7 @@ export type Database = {
           partCount: number | null
           phone: string | null
           purchasingContactId: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["supplierStatusType"] | null
           supplierTypeId: string | null
           tags: string[] | null
           taxId: string | null
@@ -55094,6 +55140,41 @@ export type Database = {
           {
             foreignKeyName: "supplier_accountManagerId_fkey"
             columns: ["accountManagerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_approvedBy_fkey"
+            columns: ["approvedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -57557,7 +57638,7 @@ export type Database = {
     }
     Enums: {
       accountingPeriodStatus: "Inactive" | "Active"
-      approvalDocumentType: "purchaseOrder" | "qualityDocument"
+      approvalDocumentType: "purchaseOrder" | "qualityDocument" | "supplier"
       approvalStatus: "Pending" | "Approved" | "Rejected" | "Cancelled"
       configurationParameterDataType:
         | "text"
@@ -58671,7 +58752,7 @@ export const Constants = {
   public: {
     Enums: {
       accountingPeriodStatus: ["Inactive", "Active"],
-      approvalDocumentType: ["purchaseOrder", "qualityDocument"],
+      approvalDocumentType: ["purchaseOrder", "qualityDocument", "supplier"],
       approvalStatus: ["Pending", "Approved", "Rejected", "Cancelled"],
       configurationParameterDataType: [
         "text",

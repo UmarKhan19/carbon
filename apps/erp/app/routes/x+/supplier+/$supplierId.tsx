@@ -1,10 +1,11 @@
-import { error } from "@carbon/auth";
+import { error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect } from "react-router";
 import {
   getSupplier,
+  getSupplierApprovalContext,
   getSupplierContacts,
   getSupplierLocations
 } from "~/modules/purchasing";
@@ -20,7 +21,7 @@ export const handle: Handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     view: "purchasing"
   });
 
@@ -44,11 +45,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const serviceRole = getCarbonServiceRole();
+  const status = supplier.data?.status ?? null;
+  const approval = await getSupplierApprovalContext(
+    serviceRole,
+    supplierId,
+    status,
+    companyId,
+    userId
+  );
+
   return {
     supplier: supplier.data,
     contacts: contacts.data ?? [],
     locations: locations.data ?? [],
-    tags: tags.data ?? []
+    tags: tags.data ?? [],
+    ...approval
   };
 }
 
