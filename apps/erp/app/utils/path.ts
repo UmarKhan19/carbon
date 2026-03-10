@@ -890,6 +890,7 @@ export const path = {
     jobOperationProcedureSync: `${x}/job/methods/operation/procedure/sync`,
     jobOperationTool: (id: string) =>
       generatePath(`${x}/job/methods/operation/tool/${id}`),
+    jobOperationDueDate: `${x}/job/methods/operation/due-date`,
     jobOperationStatus: `${x}/job/methods/operation/status`,
     jobOperationStepRecords: (id: string) =>
       generatePath(`${x}/job/${id}/steps`),

@@ -153,9 +153,11 @@ import {
 import { getProductionEventsPage } from "../../production.service";
 import type { Job, JobOperation } from "../../types";
 import { JobOperationStatus, JobOperationTags } from "./JobOperationStatus";
+import { OperationDueDatePicker } from "./OperationDueDatePicker";
 
 export type Operation = z.infer<typeof jobOperationValidator> & {
   assignee: string | null;
+  dueDate?: string | null;
   status: JobOperation["status"];
   tags: string[] | null;
   workInstruction: JSONContent | null;
@@ -265,6 +267,10 @@ function makeItem(
           />
         </HStack>
         <HStack>
+          <OperationDueDatePicker
+            operationId={operation.id!}
+            dueDate={operation.dueDate ?? null}
+          />
           <JobOperationTags operation={operation} availableTags={tags} />
           <Tooltip>
             <TooltipTrigger asChild>

@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { ValidatedForm } from "@carbon/form";
+import { DatePicker, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   BarProgress,
@@ -43,7 +43,6 @@ import {
 import { useFetcher, useNavigate, useParams } from "react-router";
 import { Assignee, Empty, Hyperlink, TimeTypeIcon } from "~/components";
 import {
-  DatePicker,
   Hidden,
   Location,
   NumberControlled,
@@ -62,6 +61,7 @@ import { getDeadlineIcon } from "~/modules/production/ui/Jobs/Deadline";
 import { JobStartModal } from "~/modules/production/ui/Jobs/JobHeader";
 import { JobOperationStatus } from "~/modules/production/ui/Jobs/JobOperationStatus";
 import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
+import { OperationDueDatePicker } from "~/modules/production/ui/Jobs/OperationDueDatePicker";
 import { path } from "~/utils/path";
 import type {
   Opportunity,
@@ -472,7 +472,11 @@ function JobDetails({ job }: { job: Job }) {
                               100,
                             100
                           )}
-                          value={`${operation.quantityComplete ?? 0}/${operation.targetQuantity ?? operation.operationQuantity ?? 0}`}
+                          value={`${operation.quantityComplete ?? 0}/${
+                            operation.targetQuantity ??
+                            operation.operationQuantity ??
+                            0
+                          }`}
                         />
                       </div>
                     )}
@@ -511,6 +515,7 @@ function JobDetails({ job }: { job: Job }) {
                         );
                       }}
                     />
+
                     <Assignee
                       id={operation.id!}
                       table="jobOperation"
@@ -525,6 +530,17 @@ function JobDetails({ job }: { job: Job }) {
                         );
                       }}
                       value={operation.assignee ?? undefined}
+                    />
+                    <OperationDueDatePicker
+                      operationId={operation.id!}
+                      dueDate={operation.dueDate}
+                      onChange={(dueDate) =>
+                        setJobOperations((prev) =>
+                          prev.map((op) =>
+                            op.id === operation.id ? { ...op, dueDate } : op
+                          )
+                        )
+                      }
                     />
                   </HStack>
                 </div>
