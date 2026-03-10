@@ -8,10 +8,19 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   HStack,
+  IconButton,
+  useDisclosure,
   VStack
 } from "@carbon/react";
 import { useCallback } from "react";
+import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { EmployeeAvatar } from "~/components";
@@ -19,7 +28,8 @@ import { useAuditLog } from "~/components/AuditLog";
 import { Enumerable } from "~/components/Enumerable";
 import { Tags } from "~/components/Form";
 import { useCustomerTypes } from "~/components/Form/CustomerType";
-import { useRouteData, useUser } from "~/hooks";
+import { ConfirmDelete } from "~/components/Modals";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import type { action } from "~/routes/x+/settings+/tags";
 import { path } from "~/utils/path";
 import type { CustomerDetail, CustomerStatus } from "../../types";
@@ -29,7 +39,9 @@ const CustomerHeader = () => {
 
   if (!customerId) throw new Error("Could not find customerId");
   const fetcher = useFetcher<typeof action>();
+  const permissions = usePermissions();
   const { company } = useUser();
+  const deleteModal = useDisclosure();
   const routeData = useRouteData<{
     customer: CustomerDetail;
     tags: { name: string }[];
@@ -44,7 +56,7 @@ const CustomerHeader = () => {
     entityType: "customer",
     entityId: customerId,
     companyId: company.id,
-    variant: "card-action"
+    variant: "dropdown"
   });
 
   const sharedCustomerData = useRouteData<{
@@ -54,7 +66,6 @@ const CustomerHeader = () => {
     (status) => status.id === routeData?.customer?.customerStatusId
   )?.name;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const onUpdateTags = useCallback(
     (value: string[]) => {
       const formData = new FormData();
@@ -81,9 +92,32 @@ const CustomerHeader = () => {
         <Card>
           <HStack className="justify-between items-start">
             <CardHeader>
-              <CardTitle>{routeData?.customer?.name}</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <span>{routeData?.customer?.name}</span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <IconButton
+                      aria-label="More options"
+                      icon={<LuEllipsisVertical />}
+                      variant="secondary"
+                      size="sm"
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {auditLogTrigger}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      disabled={!permissions.can("delete", "sales")}
+                      destructive
+                      onClick={deleteModal.onOpen}
+                    >
+                      <DropdownMenuIcon icon={<LuTrash />} />
+                      Delete Customer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardTitle>
             </CardHeader>
-            {auditLogTrigger}
           </HStack>
           <CardContent>
             <CardAttributes>
@@ -154,6 +188,16 @@ const CustomerHeader = () => {
           </CardContent>
         </Card>
       </VStack>
+      {deleteModal.isOpen && (
+        <ConfirmDelete
+          action={path.to.deleteCustomer(customerId)}
+          isOpen={deleteModal.isOpen}
+          name={routeData?.customer?.name!}
+          text={`Are you sure you want to delete ${routeData?.customer?.name!}? This cannot be undone.`}
+          onCancel={deleteModal.onClose}
+          onSubmit={deleteModal.onClose}
+        />
+      )}
       {auditLogDrawer}
     </>
   );

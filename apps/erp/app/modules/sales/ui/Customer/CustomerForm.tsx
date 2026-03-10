@@ -130,6 +130,8 @@ const CustomerForm = ({
                     }}
                   />
 
+                  <Input name="taxId" label="Tax ID" />
+                  <Input name="vatNumber" label="VAT Number" />
                   <Input name="website" label="Website" />
 
                   {isEditing && (
@@ -138,11 +140,6 @@ const CustomerForm = ({
                         customer={initialValues.id}
                         name="salesContactId"
                         label="Sales Contact"
-                      />
-                      <CustomerContact
-                        customer={initialValues.id}
-                        name="invoicingContactId"
-                        label="Invoicing Contact"
                       />
                     </>
                   )}

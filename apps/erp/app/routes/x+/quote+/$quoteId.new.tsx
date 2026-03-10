@@ -105,36 +105,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       );
     }
-
-    // Fix BOM material costs: replace average cost with price break values
-    const buyMaterials = await serviceRole
-      .from("quoteMaterial")
-      .select("id, itemId, unitCost")
-      .eq("quoteLineId", quoteLineId)
-      .eq("methodType", "Buy");
-
-    const buyItemIds = [
-      ...new Set((buyMaterials.data ?? []).map((m) => m.itemId))
-    ];
-    const bomPriceMap = await getSupplierPriceBreaksForItems(
-      serviceRole,
-      buyItemIds
-    );
-
-    for (const mat of buyMaterials.data ?? []) {
-      const price = lookupBuyPriceFromMap(
-        mat.itemId,
-        1,
-        bomPriceMap,
-        mat.unitCost
-      );
-      if (price !== mat.unitCost) {
-        await serviceRole
-          .from("quoteMaterial")
-          .update({ unitCost: price })
-          .eq("id", mat.id);
-      }
-    }
   }
 
   throw redirect(path.to.quoteLine(quoteId, quoteLineId));

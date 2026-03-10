@@ -33,6 +33,7 @@ import { getLocalTimeZone, today } from "@internationalized/date";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuChevronDown,
+  LuChevronRight,
   LuCirclePlus,
   LuInfo,
   LuRefreshCcw,
@@ -43,16 +44,34 @@ import {
   useCurrencyFormatter,
   usePermissions,
   useRouteData,
+  useSettings,
   useUser
 } from "~/hooks";
 import { path } from "~/utils/path";
-import { quoteLineAdditionalChargesValidator } from "../../sales.models";
+import {
+  type CostCategoryKey,
+  costCategoryKeys,
+  quoteLineAdditionalChargesValidator,
+  quoteLineCategoryMarkupsValidator
+} from "../../sales.models";
 import type {
   Costs,
   Quotation,
   QuotationLine,
   QuotationPrice
 } from "../../types";
+
+const categoryLabels: Record<CostCategoryKey, string> = {
+  materialCost: "Material",
+  partCost: "Part",
+  toolCost: "Tool",
+  consumableCost: "Consumable",
+  serviceCost: "Service",
+  laborCost: "Labor",
+  machineCost: "Machine",
+  overheadCost: "Overhead",
+  outsideCost: "Outside"
+};
 
 const QuoteLinePricing = ({
   line,
@@ -82,6 +101,8 @@ const QuoteLinePricing = ({
     taxPercent: line.taxPercent ?? 0
   });
 
+  const [showCategoryMarkups, setShowCategoryMarkups] = useState(false);
+
   useEffect(() => {
     setEditableFields((prev) => ({
       ...prev,
@@ -96,6 +117,34 @@ const QuoteLinePricing = ({
     line.additionalCharges,
     line.taxPercent
   ]);
+
+  const settings = useSettings();
+  const defaultCategoryMarkups = useMemo(() => {
+    const raw = quoteLineCategoryMarkupsValidator.parse(
+      (settings as Record<string, unknown>).quoteLineCategoryMarkups ?? {}
+    );
+    // Settings stores decimals (0.5 = 50%), but quote line markups use whole numbers (50 = 50%)
+    const converted: Record<string, number> = {};
+    for (const [key, value] of Object.entries(raw)) {
+      converted[key] = value * 100;
+    }
+    return converted;
+  }, [settings]);
+
+  const categoryMarkupsByQuantity = useMemo(() => {
+    const result: Record<number, Record<string, number>> = {};
+    for (const quantity of quantities) {
+      const priceMarkups = quoteLineCategoryMarkupsValidator.parse(
+        (editableFields.prices[quantity] as Record<string, unknown>)
+          ?.categoryMarkups ?? {}
+      );
+      result[quantity] =
+        Object.keys(priceMarkups).length > 0
+          ? priceMarkups
+          : defaultCategoryMarkups;
+    }
+    return result;
+  }, [editableFields.prices, quantities, defaultCategoryMarkups]);
 
   const unitPricePrecision = line.unitPricePrecision ?? 2;
 
@@ -211,21 +260,39 @@ const QuoteLinePricing = ({
     [additionalCharges, carbon, lineId]
   );
 
-  const unitCostsByQuantity = quantities.map((quantity, index) => {
+  const costsByQuantity = quantities.map((quantity) => {
     const costs = getLineCosts(quantity);
-    const totalCost =
-      (costs.consumableCost +
-        costs.laborCost +
-        costs.machineCost +
-        costs.materialCost +
-        costs.overheadCost +
-        costs.partCost +
-        costs.serviceCost +
-        costs.toolCost +
-        costs.outsideCost) /
-      quantity;
-    return totalCost;
+    return {
+      materialCost: costs.materialCost / quantity,
+      partCost: costs.partCost / quantity,
+      toolCost: costs.toolCost / quantity,
+      consumableCost: costs.consumableCost / quantity,
+      serviceCost: costs.serviceCost / quantity,
+      laborCost: costs.laborCost / quantity,
+      machineCost: costs.machineCost / quantity,
+      overheadCost: costs.overheadCost / quantity,
+      outsideCost: costs.outsideCost / quantity
+    };
   });
+
+  const unitCostsByQuantity = costsByQuantity.map((costs) =>
+    Object.values(costs).reduce((sum, v) => sum + v, 0)
+  );
+
+  const computeUnitPriceFromMarkups = (
+    categoryCosts: Record<CostCategoryKey, number>,
+    markups: Record<string, number>
+  ): number => {
+    return costCategoryKeys.reduce((sum, key) => {
+      const cost = categoryCosts[key] ?? 0;
+      const markup = markups[key] ?? 0;
+      return sum + cost * (1 + markup / 100);
+    }, 0);
+  };
+
+  const visibleCategories = costCategoryKeys.filter((key: CostCategoryKey) =>
+    costsByQuantity.some((costs) => costs[key] > 0)
+  );
 
   const netPricesByQuantity = quantities.map((quantity, index) => {
     const price = editableFields.prices[quantity]?.unitPrice ?? 0;
@@ -235,10 +302,33 @@ const QuoteLinePricing = ({
   });
 
   const onRecalculate = (markup: number) => {
+    const newMarkups: Record<string, number> = {};
+    for (const key of costCategoryKeys) {
+      newMarkups[key] = markup;
+    }
+
+    const newCategoryMarkupsByQuantity: Record<
+      string,
+      Record<string, number>
+    > = {};
+    for (const quantity of quantities) {
+      newCategoryMarkupsByQuantity[quantity] = newMarkups;
+    }
+
+    const unitPricesByQuantity = costsByQuantity.map((costs) =>
+      computeUnitPriceFromMarkups(costs, newMarkups)
+    );
+
     const formData = new FormData();
-    formData.append("markup", markup.toString());
-    formData.append("unitCostsByQuantity", JSON.stringify(unitCostsByQuantity));
+    formData.append(
+      "unitPricesByQuantity",
+      JSON.stringify(unitPricesByQuantity)
+    );
     formData.append("quantities", JSON.stringify(quantities));
+    formData.append(
+      "categoryMarkupsByQuantity",
+      JSON.stringify(newCategoryMarkupsByQuantity)
+    );
     fetcher.submit(formData, {
       method: "post",
       action: path.to.quoteLineRecalculatePrice(quoteId, lineId)
@@ -279,6 +369,54 @@ const QuoteLinePricing = ({
       }
     },
     [carbon, line.itemId]
+  );
+
+  const onUpdateCategoryMarkup = useCallback(
+    async (category: CostCategoryKey, quantity: number, value: number) => {
+      const existingMarkups = categoryMarkupsByQuantity[quantity] ?? {};
+      const newMarkups = {
+        ...existingMarkups,
+        [category]: value
+      };
+
+      const quantityIndex = quantities.indexOf(quantity);
+      const categoryCosts = costsByQuantity[quantityIndex];
+      const unitPrice = computeUnitPriceFromMarkups(categoryCosts, newMarkups);
+
+      setEditableFields((prev) => ({
+        ...prev,
+        prices: {
+          ...prev.prices,
+          [quantity]: {
+            ...prev.prices[quantity],
+            categoryMarkups: newMarkups,
+            unitPrice
+          }
+        }
+      }));
+
+      const priceUpdate = await carbon
+        ?.from("quoteLinePrice")
+        .update({
+          categoryMarkups: newMarkups,
+          unitPrice
+        })
+        .eq("quoteLineId", lineId)
+        .eq("quantity", quantity);
+
+      if (priceUpdate?.error) {
+        console.error(priceUpdate.error);
+        toast.error("Failed to update category markups");
+      }
+    },
+    [
+      categoryMarkupsByQuantity,
+      carbon,
+      lineId,
+      costsByQuantity,
+      quantities,
+      quoteId
+    ]
   );
 
   const onUpdatePrice = useCallback(
@@ -561,6 +699,7 @@ const QuoteLinePricing = ({
                 })}
               </Tr>
             )}
+
             {isEmployee && (
               <Tr>
                 <Td className="border-r border-border">
@@ -611,6 +750,91 @@ const QuoteLinePricing = ({
                   );
                 })}
               </Tr>
+            )}
+            {isEmployee && hasCalculatedCost && (
+              <>
+                <Tr>
+                  <Td className="border-r border-border">
+                    <Button
+                      variant="ghost"
+                      className="-ml-3"
+                      rightIcon={
+                        showCategoryMarkups ? (
+                          <LuChevronDown />
+                        ) : (
+                          <LuChevronRight />
+                        )
+                      }
+                      onClick={() =>
+                        setShowCategoryMarkups(!showCategoryMarkups)
+                      }
+                    >
+                      Markup by Category
+                    </Button>
+                  </Td>
+                  {quantities.map((quantity) => (
+                    <Td key={quantity.toString()} />
+                  ))}
+                </Tr>
+                {showCategoryMarkups &&
+                  visibleCategories.map((category: CostCategoryKey) => {
+                    return (
+                      <Tr key={category}>
+                        <Td className="border-r border-border pl-8">
+                          <span>{categoryLabels[category]}</span>
+                        </Td>
+                        {quantities.map((quantity, index) => {
+                          const categoryCost =
+                            costsByQuantity[index]?.[category] ?? 0;
+                          const markupValue =
+                            categoryMarkupsByQuantity[quantity]?.[category] ??
+                            0;
+                          return (
+                            <Td key={quantity.toString()}>
+                              {categoryCost > 0 ? (
+                                <VStack spacing={0}>
+                                  <NumberField
+                                    value={markupValue / 100}
+                                    formatOptions={{
+                                      style: "percent",
+                                      maximumFractionDigits: 2
+                                    }}
+                                    minValue={0}
+                                    onChange={(value) => {
+                                      const percent = value * 100;
+                                      if (
+                                        Number.isFinite(percent) &&
+                                        percent !== markupValue
+                                      ) {
+                                        onUpdateCategoryMarkup(
+                                          category,
+                                          quantity,
+                                          percent
+                                        );
+                                      }
+                                    }}
+                                  >
+                                    <NumberInput
+                                      className="border-0 -ml-3 shadow-none disabled:bg-transparent disabled:opacity-100"
+                                      isDisabled={!isEditable}
+                                      size="sm"
+                                      min={0}
+                                    />
+                                  </NumberField>
+                                  <span className="text-xs text-muted-foreground">
+                                    {unitPriceFormatter.format(categoryCost)}
+                                  </span>
+                                </VStack>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </Td>
+                          );
+                        })}
+                      </Tr>
+                    );
+                  })}
+              </>
             )}
             <Tr>
               <Td className="border-r border-border">

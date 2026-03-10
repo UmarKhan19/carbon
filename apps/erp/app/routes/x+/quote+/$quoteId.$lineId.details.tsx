@@ -23,6 +23,7 @@ import type {
   QuoteMethod
 } from "~/modules/sales";
 import {
+  calculatePricesForQuantities,
   getConfigurationParametersByQuoteLineId,
   getModelByQuoteLineId,
   getOpportunityLineDocuments,
@@ -176,6 +177,32 @@ export async function action({ request, params }: ActionFunctionArgs) {
         error(updateQuotationLine.error, "Failed to update quote line")
       )
     );
+  }
+
+  if (d.methodType === "Make" && d.quantity?.length) {
+    const serviceRole = getCarbonServiceRole();
+    const existingPrices = await serviceRole
+      .from("quoteLinePrice")
+      .select("quantity")
+      .eq("quoteLineId", lineId);
+
+    const existingQuantities = new Set(
+      (existingPrices.data ?? []).map((p) => p.quantity)
+    );
+
+    const addedQuantities = d.quantity.filter(
+      (q) => !existingQuantities.has(q)
+    );
+
+    if (addedQuantities.length > 0) {
+      await calculatePricesForQuantities(
+        serviceRole,
+        quoteId,
+        lineId,
+        addedQuantities,
+        userId
+      );
+    }
   }
 
   throw redirect(path.to.quoteLine(quoteId, lineId));

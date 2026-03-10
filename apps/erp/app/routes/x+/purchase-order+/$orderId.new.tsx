@@ -63,19 +63,20 @@ export default function NewPurchaseOrderLineRoute() {
   if (!orderId) throw new Error("Could not find purchase order id");
 
   const initialValues = {
+    conversionFactor: 1,
+    exchangeRate: 1,
+    inventoryUnitOfMeasureCode: "",
+    itemId: "",
     purchaseOrderId: orderId,
     purchaseOrderLineType: "Item" as MethodItemType,
-    itemId: "",
     purchaseQuantity: 1,
-    supplierUnitPrice: 0,
+    purchaseUnitOfMeasureCode: "",
+    requestedDate: undefined,
+    setupPrice: 0,
+    shelfId: "",
     supplierShippingCost: 0,
     supplierTaxAmount: 0,
-    exchangeRate: 1,
-    setupPrice: 0,
-    purchaseUnitOfMeasureCode: "",
-    inventoryUnitOfMeasureCode: "",
-    conversionFactor: 1,
-    shelfId: ""
+    supplierUnitPrice: 0
   };
 
   return <PurchaseOrderLineForm initialValues={initialValues} />;

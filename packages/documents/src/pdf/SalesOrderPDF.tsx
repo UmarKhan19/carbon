@@ -1,9 +1,9 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { formatCityStatePostalCode } from "@carbon/utils";
+import { formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
-import type { PDF } from "../types";
+import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import {
   getLineDescription,
   getLineDescriptionDetails,
@@ -12,12 +12,22 @@ import {
   getTotal
 } from "../utils/sales-order";
 import { getCurrencyFormatter } from "../utils/shared";
-import { Header, Note, Template } from "./components";
+import {
+  Header,
+  Note,
+  PartyDetails,
+  ShipBillDetails,
+  Template
+} from "./components";
 
 interface SalesOrderPDFProps extends PDF {
   salesOrder: Database["public"]["Views"]["salesOrders"]["Row"];
   salesOrderLines: Database["public"]["Views"]["salesOrderLines"]["Row"][];
   salesOrderLocations: Database["public"]["Views"]["salesOrderLocations"]["Row"];
+  companySettings?:
+    | Database["public"]["Tables"]["companySettings"]["Row"]
+    | null;
+  accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
   paymentTerms: { id: string; name: string }[];
   shippingMethods: { id: string; name: string }[];
   terms: JSONContent;
@@ -44,7 +54,9 @@ const tw = createTw({
 });
 
 const SalesOrderPDF = ({
+  accountsReceivableBillingAddress,
   company,
+  companySettings,
   locale,
   meta,
   salesOrder,
@@ -84,20 +96,6 @@ const SalesOrderPDF = ({
     (method) => method.id === salesOrder?.shippingMethodId
   );
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return null;
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-    } catch {
-      return dateStr;
-    }
-  };
-
   let rowIndex = 0;
 
   return (
@@ -113,69 +111,61 @@ const SalesOrderPDF = ({
         company={company}
         title="Sales Order"
         documentId={salesOrder?.salesOrderId}
+        date={salesOrder?.orderDate}
+        currencyCode={salesOrder?.currencyCode}
       />
 
-      {/* Ship To & Bill To */}
-      <View style={tw("border border-gray-200 mb-4")}>
-        <View style={tw("flex flex-row")}>
-          <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Ship To
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {customerName && (
-                <Text style={tw("font-bold")}>{customerName}</Text>
-              )}
-              {customerAddressLine1 && (
-                <Text style={tw("mt-1")}>{customerAddressLine1}</Text>
-              )}
-              {customerAddressLine2 && <Text>{customerAddressLine2}</Text>}
-              {(customerCity ||
-                customerStateProvince ||
-                customerPostalCode) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    customerCity,
-                    customerStateProvince,
-                    customerPostalCode
-                  )}
-                </Text>
-              )}
-              {customerCountryName && <Text>{customerCountryName}</Text>}
-            </View>
-          </View>
-          <View style={tw("w-1/2 p-3")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Bill To
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {paymentCustomerName && (
-                <Text style={tw("font-bold")}>{paymentCustomerName}</Text>
-              )}
-              {paymentAddressLine1 && (
-                <Text style={tw("mt-1")}>{paymentAddressLine1}</Text>
-              )}
-              {paymentAddressLine2 && <Text>{paymentAddressLine2}</Text>}
-              {(paymentCity || paymentStateProvince || paymentPostalCode) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    paymentCity,
-                    paymentStateProvince,
-                    paymentPostalCode
-                  )}
-                </Text>
-              )}
-              {paymentCountryName && <Text>{paymentCountryName}</Text>}
-            </View>
-          </View>
-        </View>
-      </View>
+      <PartyDetails
+        company={company}
+        companyAddressOverride={
+          accountsReceivableBillingAddress
+            ? {
+                name: accountsReceivableBillingAddress.name,
+                addressLine1: accountsReceivableBillingAddress.addressLine1,
+                addressLine2: accountsReceivableBillingAddress.addressLine2,
+                city: accountsReceivableBillingAddress.city,
+                stateProvince: accountsReceivableBillingAddress.state,
+                postalCode: accountsReceivableBillingAddress.postalCode,
+                countryCode: accountsReceivableBillingAddress.countryCode
+              }
+            : undefined
+        }
+        companyLabel="Seller"
+        counterParty={{
+          name: customerName,
+          addressLine1: customerAddressLine1,
+          addressLine2: customerAddressLine2,
+          city: customerCity,
+          stateProvince: customerStateProvince,
+          postalCode: customerPostalCode,
+          countryCode: customerCountryName
+        }}
+        counterPartyLabel="Buyer"
+        accountsReceivableEmail={companySettings?.accountsReceivableEmail}
+      />
 
-      {/* Order Details */}
+      <ShipBillDetails
+        shipTo={{
+          name: customerName,
+          addressLine1: customerAddressLine1,
+          addressLine2: customerAddressLine2,
+          city: customerCity,
+          stateProvince: customerStateProvince,
+          postalCode: customerPostalCode,
+          countryCode: customerCountryName
+        }}
+        billTo={{
+          name: paymentCustomerName,
+          addressLine1: paymentAddressLine1,
+          addressLine2: paymentAddressLine2,
+          city: paymentCity,
+          stateProvince: paymentStateProvince,
+          postalCode: paymentPostalCode,
+          countryCode: paymentCountryName
+        }}
+      />
+
+      {/* Order Details & Notes */}
       <View style={tw("border border-gray-200 mb-4")}>
         <View style={tw("flex flex-row")}>
           <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
@@ -201,20 +191,27 @@ const SalesOrderPDF = ({
                   Promised: {formatDate(salesOrder.receiptPromisedDate)}
                 </Text>
               )}
+              {shippingMethod && <Text>Shipping: {shippingMethod.name}</Text>}
+              {salesOrder?.shippingTermName && (
+                <Text>Shipping Terms: {salesOrder.shippingTermName}</Text>
+              )}
+              {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>
             <Text
               style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
             >
-              Shipping & Payment
+              Notes
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
-              {shippingMethod && <Text>Method: {shippingMethod.name}</Text>}
-              {salesOrder?.shippingTermName && (
-                <Text>Terms: {salesOrder.shippingTermName}</Text>
+              {Object.keys(salesOrder?.externalNotes ?? {}).length > 0 ? (
+                <Note
+                  content={(salesOrder.externalNotes ?? {}) as JSONContent}
+                />
+              ) : (
+                <Text style={tw("text-gray-400")}>None</Text>
               )}
-              {paymentTerm && <Text>Payment: {paymentTerm.name}</Text>}
             </View>
           </View>
         </View>
@@ -355,16 +352,8 @@ const SalesOrderPDF = ({
         </View>
       </View>
 
-      {/* Notes & Terms */}
-      <View style={tw("flex flex-col gap-3 w-full")}>
-        {Object.keys(salesOrder.externalNotes ?? {}).length > 0 && (
-          <Note
-            title="Notes"
-            content={(salesOrder.externalNotes ?? {}) as JSONContent}
-          />
-        )}
-        <Note title="Standard Terms & Conditions" content={terms} />
-      </View>
+      {/* Terms */}
+      <Note title="Standard Terms & Conditions" content={terms} />
     </Template>
   );
 };

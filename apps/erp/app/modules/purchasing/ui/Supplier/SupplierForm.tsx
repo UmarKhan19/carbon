@@ -112,6 +112,8 @@ const SupplierForm = ({
                   />
                   <Employee name="accountManagerId" label="Account Manager" />
                   <Currency name="currencyCode" label="Currency" />
+                  <Input name="taxId" label="Tax ID" />
+                  <Input name="vatNumber" label="VAT Number" />
                   <Input name="website" label="Website" />
                   {isEditing && (
                     <>
@@ -119,11 +121,6 @@ const SupplierForm = ({
                         supplier={initialValues.id}
                         name="purchasingContactId"
                         label="Purchasing Contact"
-                      />
-                      <SupplierContact
-                        supplier={initialValues.id}
-                        name="invoicingContactId"
-                        label="Invoicing Contact"
                       />
                     </>
                   )}

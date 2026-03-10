@@ -733,6 +733,7 @@ export const path = {
       generatePath(`${x}/inventory/shelves/delete/${id}`),
     deleteShippingMethod: (id: string) =>
       generatePath(`${x}/inventory/shipping-methods/delete/${id}`),
+    deleteSupplier: (id: string) => generatePath(`${x}/supplier/${id}/delete`),
     deleteSupplierContact: (supplierId: string, id: string) =>
       generatePath(`${x}/supplier/${supplierId}/contacts/delete/${id}`),
     deleteSupplierLocation: (supplierId: string, id: string) =>

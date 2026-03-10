@@ -124,6 +124,7 @@ const IssuePDF = ({
         company={company}
         title="Issue Report"
         documentId={nonConformance.nonConformanceId}
+        date={nonConformance.openDate}
       />
 
       {/* Issue Details */}

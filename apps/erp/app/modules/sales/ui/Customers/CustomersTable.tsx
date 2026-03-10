@@ -257,7 +257,7 @@ const CustomersTable = memo(
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete
+            Delete Customer
           </MenuItem>
         </>
       ),

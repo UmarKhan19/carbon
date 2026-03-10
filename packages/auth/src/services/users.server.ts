@@ -162,7 +162,11 @@ export async function deactivateEmployee(
         .delete()
         .eq("id", userId)
         .eq("companyId", companyId),
-      serviceRole.from("employeeJob").delete().eq("id", userId)
+      serviceRole
+        .from("employeeJob")
+        .delete()
+        .eq("id", userId)
+        .eq("companyId", companyId)
     ]);
 
   if (updatePermissions.error) {

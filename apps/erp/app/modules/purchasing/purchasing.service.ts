@@ -89,6 +89,13 @@ export async function deletePurchaseOrderLine(
     .eq("id", purchaseOrderLineId);
 }
 
+export async function deleteSupplier(
+  client: SupabaseClient<Database>,
+  supplierId: string
+) {
+  return client.from("supplier").delete().eq("id", supplierId);
+}
+
 export async function deleteSupplierContact(
   client: SupabaseClient<Database>,
   supplierId: string,

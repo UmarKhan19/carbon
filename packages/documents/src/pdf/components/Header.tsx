@@ -1,4 +1,4 @@
-import { formatCityStatePostalCode } from "@carbon/utils";
+import { formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { Company } from "../../types";
@@ -7,6 +7,8 @@ type HeaderProps = {
   company: Company;
   title: string;
   documentId?: string | null;
+  date?: string | null;
+  currencyCode?: string | null;
 };
 
 const tw = createTw({
@@ -28,7 +30,13 @@ const tw = createTw({
   }
 });
 
-const Header = ({ company, title, documentId }: HeaderProps) => {
+const Header = ({
+  company,
+  title,
+  documentId,
+  date,
+  currencyCode
+}: HeaderProps) => {
   return (
     <>
       <View style={tw("flex flex-row justify-between mb-1")}>
@@ -49,28 +57,6 @@ const Header = ({ company, title, documentId }: HeaderProps) => {
               </Text>
             </View>
           )}
-
-          <View
-            style={tw(
-              "text-[10px] text-gray-600 {company.logoLightIcon ? 'mt-0.5' : '-mt-2'}"
-            )}
-          >
-            {company.logoLightIcon && company.name && (
-              <Text style={tw("font-semibold text-black")}>{company.name}</Text>
-            )}
-            {company.addressLine1 && <Text>{company.addressLine1}</Text>}
-            {(company.city || company.stateProvince || company.postalCode) && (
-              <Text>
-                {formatCityStatePostalCode(
-                  company.city,
-                  company.stateProvince,
-                  company.postalCode
-                )}
-              </Text>
-            )}
-            {company.phone && <Text>{company.phone}</Text>}
-            {company.website && <Text>{company.website}</Text>}
-          </View>
         </View>
         <View style={tw("flex flex-col items-end justify-start")}>
           <Text style={tw("text-2xl font-bold text-gray-800 tracking-tight")}>
@@ -80,7 +66,17 @@ const Header = ({ company, title, documentId }: HeaderProps) => {
             <Text
               style={tw("text-sm font-bold text-gray-600 tracking-tight -mt-4")}
             >
-              #{documentId}
+              {documentId}
+            </Text>
+          )}
+          {date && (
+            <Text style={tw("text-sm font-bold text-gray-600 tracking-tight")}>
+              Date: {formatDate(date)}
+            </Text>
+          )}
+          {currencyCode && (
+            <Text style={tw("text-sm font-bold text-gray-600 tracking-tight")}>
+              Currency: {currencyCode}
             </Text>
           )}
         </View>

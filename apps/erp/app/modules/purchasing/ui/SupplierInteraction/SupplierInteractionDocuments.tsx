@@ -20,7 +20,7 @@ import {
   Tr,
   toast
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import { convertKbToString, formatDate } from "@carbon/utils";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -85,6 +85,7 @@ const SupplierInteractionDocuments = ({
               <Tr>
                 <Th>Name</Th>
                 <Th>Size</Th>
+                <Th>Created</Th>
                 <Th></Th>
               </Tr>
             </Thead>
@@ -120,6 +121,11 @@ const SupplierInteractionDocuments = ({
                       {convertKbToString(
                         Math.floor((attachment.metadata?.size ?? 0) / 1024)
                       )}
+                    </Td>
+                    <Td className="text-xs font-mono">
+                      {attachment.created_at
+                        ? formatDate(attachment.created_at)
+                        : "--"}
                     </Td>
                     <Td>
                       <div className="flex justify-end gap-2">

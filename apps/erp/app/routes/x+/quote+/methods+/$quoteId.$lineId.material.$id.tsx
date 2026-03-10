@@ -4,7 +4,11 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { quoteMaterialValidator, upsertQuoteMaterial } from "~/modules/sales";
+import {
+  quoteMaterialValidator,
+  recalculateQuoteLinePrices,
+  upsertQuoteMaterial
+} from "~/modules/sales";
 import { setCustomFields } from "~/utils/form";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -65,6 +69,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       )
     );
   }
+
+  await recalculateQuoteLinePrices(serviceRole, quoteId, lineId, userId);
 
   return {
     id: quoteMaterialId,

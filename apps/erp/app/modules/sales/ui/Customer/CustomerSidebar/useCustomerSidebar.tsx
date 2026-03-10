@@ -49,7 +49,7 @@ export function useCustomerSidebar({ contacts, locations }: Props) {
       shortcut: "Command+Shift+l"
     },
     {
-      name: "Payment Terms",
+      name: "Payment",
       to: path.to.customerPayment(customerId),
       role: ["employee"],
       icon: <LuCreditCard />,

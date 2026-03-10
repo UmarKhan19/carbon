@@ -8,6 +8,8 @@ import { setGenericQueryFilters } from "~/utils/query";
 import { interpolateSequenceDate } from "~/utils/string";
 import { sanitize } from "~/utils/supabase";
 import type {
+  accountsPayableBillingAddressValidator,
+  accountsReceivableBillingAddressValidator,
   apiKeyValidator,
   companyValidator,
   kanbanOutputTypes,
@@ -15,6 +17,52 @@ import type {
   sequenceValidator,
   webhookValidator
 } from "./settings.models";
+
+export async function getAccountsPayableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyAccountsPayableBillingAddress")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+}
+
+export async function getAccountsReceivableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyAccountsReceivableBillingAddress")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+}
+
+export async function updateAccountsPayableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  data: z.infer<typeof accountsPayableBillingAddressValidator>,
+  updatedBy: string
+) {
+  return client
+    .from("companyAccountsPayableBillingAddress")
+    .update(sanitize({ ...data, updatedBy }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  data: z.infer<typeof accountsReceivableBillingAddressValidator>,
+  updatedBy: string
+) {
+  return client
+    .from("companyAccountsReceivableBillingAddress")
+    .update(sanitize({ ...data, updatedBy }))
+    .eq("id", companyId);
+}
 
 export async function deleteApiKey(
   client: SupabaseClient<Database>,
@@ -707,6 +755,52 @@ export async function updatePurchasePriceUpdateTimingSetting(
     .eq("id", companyId);
 }
 
+export async function updateAccountsPayableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsReceivableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsPayableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableEmail: accountsPayableEmail ?? null }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({ accountsReceivableEmail: accountsReceivableEmail ?? null })
+    )
+    .eq("id", companyId);
+}
+
 export async function updateDefaultSupplierCc(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -726,6 +820,17 @@ export async function updateDefaultCustomerCc(
   return client
     .from("companySettings")
     .update(sanitize({ defaultCustomerCc }))
+    .eq("id", companyId);
+}
+
+export async function updateQuoteLineCategoryMarkups(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  quoteLineCategoryMarkups: Record<string, number>
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ quoteLineCategoryMarkups }))
     .eq("id", companyId);
 }
 

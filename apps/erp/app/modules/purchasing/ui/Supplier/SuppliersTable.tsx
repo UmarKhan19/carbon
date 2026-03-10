@@ -1,7 +1,14 @@
-import { Badge, Button, HStack, MenuIcon, MenuItem } from "@carbon/react";
+import {
+  Badge,
+  Button,
+  HStack,
+  MenuIcon,
+  MenuItem,
+  useDisclosure
+} from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   LuBookMarked,
   LuCalendar,
@@ -13,6 +20,7 @@ import {
   LuShapes,
   LuStar,
   LuTag,
+  LuTrash,
   LuUser
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
@@ -25,6 +33,7 @@ import {
 } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useSupplierTypes } from "~/components/Form/SupplierType";
+import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import type { Supplier, SupplierStatus } from "~/modules/purchasing";
@@ -43,6 +52,10 @@ const SuppliersTable = memo(
     const navigate = useNavigate();
     const permissions = usePermissions();
     const [people] = usePeople();
+    const deleteModal = useDisclosure();
+    const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+      null
+    );
     const supplierTypes = useSupplierTypes();
 
     const customColumns = useCustomColumns<Supplier>("supplier");
@@ -258,12 +271,25 @@ const SuppliersTable = memo(
 
     const renderContextMenu = useMemo(
       () => (row: Supplier) => (
-        <MenuItem onClick={() => navigate(path.to.supplier(row.id!))}>
-          <MenuIcon icon={<LuPencil />} />
-          Edit Supplier
-        </MenuItem>
+        <>
+          <MenuItem onClick={() => navigate(path.to.supplier(row.id!))}>
+            <MenuIcon icon={<LuPencil />} />
+            Edit Supplier
+          </MenuItem>
+          <MenuItem
+            destructive
+            disabled={!permissions.can("delete", "purchasing")}
+            onClick={() => {
+              setSelectedSupplier(row);
+              deleteModal.onOpen();
+            }}
+          >
+            <MenuIcon icon={<LuTrash />} />
+            Delete Supplier
+          </MenuItem>
+        </>
       ),
-      [navigate]
+      [navigate, deleteModal, permissions]
     );
 
     return (
@@ -310,6 +336,22 @@ const SuppliersTable = memo(
           table="supplier"
           withSavedView
         />
+        {selectedSupplier && selectedSupplier.id && (
+          <ConfirmDelete
+            action={path.to.deleteSupplier(selectedSupplier.id)}
+            isOpen={deleteModal.isOpen}
+            name={selectedSupplier.name!}
+            text={`Are you sure you want to delete ${selectedSupplier.name!}? This cannot be undone.`}
+            onCancel={() => {
+              deleteModal.onClose();
+              setSelectedSupplier(null);
+            }}
+            onSubmit={() => {
+              deleteModal.onClose();
+              setSelectedSupplier(null);
+            }}
+          />
+        )}
       </>
     );
   }

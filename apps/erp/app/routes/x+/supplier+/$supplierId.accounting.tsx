@@ -1,82 +1,15 @@
-import { assertIsPost, error, success } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
-import { flash } from "@carbon/auth/session.server";
-import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "react-router";
-import { data, redirect, useParams } from "react-router";
-import { useRouteData } from "~/hooks";
-import type { SupplierDetail } from "~/modules/purchasing";
-import {
-  supplierAccountingValidator,
-  updateSupplierAccounting
-} from "~/modules/purchasing";
-import SupplierAccountingForm from "~/modules/purchasing/ui/Supplier/SupplierAccountingForm";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useParams } from "react-router";
 import { path } from "~/utils/path";
 
-export async function action({ request }: ActionFunctionArgs) {
-  assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    create: "purchasing"
-  });
-  const formData = await request.formData();
-  const validation = await validator(supplierAccountingValidator).validate(
-    formData
-  );
-
-  if (validation.error) {
-    return validationError(validation.error);
-  }
-
-  const { id, ...d } = validation.data;
-
-  if (!id) {
-    throw redirect(
-      path.to.supplierAccounting(id),
-      await flash(request, error(null, "Failed to update supplier accounting"))
-    );
-  }
-
-  const update = await updateSupplierAccounting(client, {
-    id,
-    ...d,
-    updatedBy: userId
-  });
-
-  if (update.error) {
-    throw redirect(
-      path.to.supplierAccounting(id),
-      await flash(
-        request,
-        error(update.error, "Failed to update supplier accounting")
-      )
-    );
-  }
-
-  return data(
-    null,
-    await flash(request, success("Updated supplier accounting"))
-  );
+export async function loader({ params }: LoaderFunctionArgs) {
+  const { supplierId } = params;
+  if (!supplierId) throw new Error("Could not find supplierId");
+  return redirect(path.to.supplierDetails(supplierId));
 }
 
 export default function SupplierAccountingRoute() {
   const { supplierId } = useParams();
   if (!supplierId) throw new Error("Could not find supplierId");
-  const routeData = useRouteData<{ supplier: SupplierDetail }>(
-    path.to.supplier(supplierId)
-  );
-
-  if (!routeData?.supplier) return null;
-
-  const initialValues = {
-    id: routeData?.supplier?.id ?? undefined,
-    supplierTypeId: routeData?.supplier?.supplierTypeId ?? undefined,
-    taxId: routeData?.supplier?.taxId ?? ""
-  };
-
-  return (
-    <SupplierAccountingForm
-      key={initialValues.id}
-      initialValues={initialValues}
-    />
-  );
+  return null;
 }

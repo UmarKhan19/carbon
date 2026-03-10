@@ -2246,6 +2246,7 @@ export async function upsertQuoteLinePrices(
     discountPercent: number;
     quantity: number;
     createdBy: string;
+    categoryMarkups?: Record<string, number>;
   }[]
 ) {
   const existingPrices = await client
@@ -2282,6 +2283,7 @@ export async function upsertQuoteLinePrices(
       {
         discountPercent: number;
         leadTime: number;
+        categoryMarkups: unknown;
       }
     >
   >((acc, price) => {
@@ -2290,29 +2292,19 @@ export async function upsertQuoteLinePrices(
   }, {});
 
   const pricesWithExistingDiscountsAndLeadTimes = quoteLinePrices.map((p) => {
-    if (p.quantity in pricesByQuantity) {
-      return {
-        ...p,
-        unitPrice: Number(
-          // Round the unit price to the precision of the quote line
-          p.unitPrice.toFixed(
-            quoteLineUnitPricePrecision.data?.unitPricePrecision ?? 2
-          )
-        ),
-        discountPercent: pricesByQuantity[p.quantity].discountPercent,
-        leadTime: pricesByQuantity[p.quantity].leadTime,
-        quoteId: quoteId,
-        exchangeRate: quoteExchangeRate.data?.exchangeRate ?? 1
-      };
-    }
+    const existing = pricesByQuantity[p.quantity];
+    const roundedUnitPrice = Number(
+      p.unitPrice.toFixed(
+        quoteLineUnitPricePrecision.data?.unitPricePrecision ?? 2
+      )
+    );
+
     return {
       ...p,
-      unitPrice: Number(
-        // Round the unit price to the precision of the quote line
-        p.unitPrice.toFixed(
-          quoteLineUnitPricePrecision.data?.unitPricePrecision ?? 2
-        )
-      ),
+      unitPrice: roundedUnitPrice,
+      discountPercent: existing?.discountPercent ?? p.discountPercent,
+      leadTime: existing?.leadTime ?? p.leadTime,
+      categoryMarkups: p.categoryMarkups ?? existing?.categoryMarkups ?? {},
       quoteId: quoteId,
       exchangeRate: quoteExchangeRate.data?.exchangeRate ?? 1
     };
@@ -2321,6 +2313,471 @@ export async function upsertQuoteLinePrices(
   return client
     .from("quoteLinePrice")
     .insert(pricesWithExistingDiscountsAndLeadTimes);
+}
+
+async function buildCostEffects(
+  client: SupabaseClient<Database>,
+  quoteLineId: string
+) {
+  const { getSupplierPriceBreaksForItems } = await import(
+    "~/modules/items/items.service"
+  );
+  const { lookupBuyPriceFromMap } = await import(
+    "~/modules/shared/shared.service"
+  );
+  const { costCategoryKeys } = await import("~/modules/sales/sales.models");
+
+  const operationsResult = await client
+    .from("quoteOperation")
+    .select("*")
+    .eq("quoteLineId", quoteLineId);
+
+  const operations = operationsResult.data ?? [];
+
+  // Fix Buy material costs
+  const buyMaterials = await client
+    .from("quoteMaterial")
+    .select("id, itemId, unitCost")
+    .eq("quoteLineId", quoteLineId)
+    .eq("methodType", "Buy");
+
+  const buyItemIds = [
+    ...new Set((buyMaterials.data ?? []).map((m) => m.itemId))
+  ];
+  const priceMap = await getSupplierPriceBreaksForItems(client, buyItemIds);
+
+  for (const mat of buyMaterials.data ?? []) {
+    const price = lookupBuyPriceFromMap(mat.itemId, 1, priceMap, mat.unitCost);
+    if (price !== mat.unitCost) {
+      await client
+        .from("quoteMaterial")
+        .update({ unitCost: price })
+        .eq("id", mat.id);
+    }
+  }
+
+  // Build method tree
+  const rootMethod = await client
+    .from("quoteMakeMethod")
+    .select("id")
+    .eq("quoteLineId", quoteLineId)
+    .is("parentMaterialId", null)
+    .single();
+
+  if (rootMethod.error) return null;
+
+  const treeResult = await client.rpc("get_quote_methods_by_method_id", {
+    mid: rootMethod.data.id
+  });
+
+  if (treeResult.error || !treeResult.data) return null;
+
+  type TreeNode = {
+    id: string;
+    data: (typeof treeResult.data)[number];
+    children: TreeNode[];
+  };
+
+  const rootItems: TreeNode[] = [];
+  const lookup: Record<string, TreeNode> = {};
+
+  for (const item of treeResult.data) {
+    const itemId = item.methodMaterialId;
+    const parentId = item.parentMaterialId;
+
+    if (!lookup[itemId]) {
+      lookup[itemId] = {
+        id: itemId,
+        children: [],
+        data: item
+      };
+    } else {
+      lookup[itemId].data = item;
+    }
+
+    if (!parentId) {
+      rootItems.push(lookup[itemId]);
+    } else {
+      if (!lookup[parentId]) {
+        lookup[parentId] = {
+          id: parentId,
+          children: [],
+          data: {} as (typeof treeResult.data)[number]
+        };
+      }
+      lookup[parentId].children.push(lookup[itemId]);
+    }
+  }
+
+  type CostEffects = Record<string, ((qty: number) => number)[]>;
+  const effects: CostEffects = {};
+  for (const key of costCategoryKeys) {
+    effects[key] = [];
+  }
+
+  function normalizeTime(
+    time: number,
+    unit: string
+  ): { fixedHours: number; hoursPerUnit: number } {
+    let fixedHours = 0;
+    let hoursPerUnit = 0;
+    switch (unit) {
+      case "Total Hours":
+        fixedHours = time;
+        break;
+      case "Total Minutes":
+        fixedHours = time / 60;
+        break;
+      case "Hours/Piece":
+        hoursPerUnit = time;
+        break;
+      case "Hours/100 Pieces":
+        hoursPerUnit = time / 100;
+        break;
+      case "Hours/1000 Pieces":
+        hoursPerUnit = time / 1000;
+        break;
+      case "Minutes/Piece":
+        hoursPerUnit = time / 60;
+        break;
+      case "Minutes/100 Pieces":
+        hoursPerUnit = time / 100 / 60;
+        break;
+      case "Minutes/1000 Pieces":
+        hoursPerUnit = time / 1000 / 60;
+        break;
+      case "Pieces/Hour":
+        hoursPerUnit = 1 / time;
+        break;
+      case "Pieces/Minute":
+        hoursPerUnit = 1 / (time / 60);
+        break;
+      case "Seconds/Piece":
+        hoursPerUnit = time / 3600;
+        break;
+    }
+    return { fixedHours, hoursPerUnit };
+  }
+
+  function pushBuyCostEffect(
+    itemId: string,
+    itemType: string,
+    quantity: number,
+    unitCost: number
+  ) {
+    const costFn = (outerQty: number) => {
+      const requestedQty = quantity * outerQty;
+      return (
+        lookupBuyPriceFromMap(itemId, requestedQty, priceMap, unitCost) *
+        requestedQty
+      );
+    };
+    const key =
+      itemType === "Material"
+        ? "materialCost"
+        : itemType === "Part"
+          ? "partCost"
+          : itemType === "Tool"
+            ? "toolCost"
+            : itemType === "Consumable"
+              ? "consumableCost"
+              : itemType === "Service"
+                ? "serviceCost"
+                : null;
+    if (key) effects[key].push(costFn);
+  }
+
+  function walkTree(node: TreeNode, parentQuantity: number) {
+    const d = node.data;
+    const qty = d.quantity * parentQuantity;
+
+    if (d.methodType === "Buy") {
+      pushBuyCostEffect(d.itemId, d.itemType, qty, d.unitCost);
+    } else if (d.methodType === "Pick") {
+      const costFn = (outerQty: number) => d.unitCost * qty * outerQty;
+      const key =
+        d.itemType === "Material"
+          ? "materialCost"
+          : d.itemType === "Part"
+            ? "partCost"
+            : d.itemType === "Tool"
+              ? "toolCost"
+              : d.itemType === "Consumable"
+                ? "consumableCost"
+                : d.itemType === "Service"
+                  ? "serviceCost"
+                  : null;
+      if (key) effects[key].push(costFn);
+    }
+
+    const nodeOps = operations.filter(
+      (o) => o.quoteMakeMethodId === d.quoteMaterialMakeMethodId
+    );
+
+    for (const op of nodeOps) {
+      if (op.operationType === "Inside") {
+        if (op.setupTime) {
+          const { fixedHours, hoursPerUnit } = normalizeTime(
+            op.setupTime,
+            op.setupUnit
+          );
+          effects.laborCost.push((outerQty) => {
+            return (
+              hoursPerUnit * outerQty * qty * (op.laborRate ?? 0) +
+              fixedHours * (op.laborRate ?? 0)
+            );
+          });
+          effects.overheadCost.push((outerQty) => {
+            return (
+              hoursPerUnit * outerQty * qty * (op.overheadRate ?? 0) +
+              fixedHours * (op.overheadRate ?? 0)
+            );
+          });
+        }
+
+        let laborFixedHours = 0;
+        let laborHoursPerUnit = 0;
+        let machineFixedHours = 0;
+        let machineHoursPerUnit = 0;
+
+        if (op.laborTime) {
+          const n = normalizeTime(op.laborTime, op.laborUnit);
+          laborFixedHours = n.fixedHours;
+          laborHoursPerUnit = n.hoursPerUnit;
+          effects.laborCost.push((outerQty) => {
+            return (
+              laborHoursPerUnit * outerQty * qty * (op.laborRate ?? 0) +
+              laborFixedHours * (op.laborRate ?? 0)
+            );
+          });
+        }
+
+        if (op.machineTime) {
+          const n = normalizeTime(op.machineTime, op.machineUnit);
+          machineFixedHours = n.fixedHours;
+          machineHoursPerUnit = n.hoursPerUnit;
+          effects.machineCost.push((outerQty) => {
+            return (
+              machineHoursPerUnit * outerQty * qty * (op.machineRate ?? 0) +
+              machineFixedHours * (op.machineRate ?? 0)
+            );
+          });
+        }
+
+        const hpu = Math.max(laborHoursPerUnit, machineHoursPerUnit);
+        const fh = Math.max(laborFixedHours, machineFixedHours);
+        effects.overheadCost.push((outerQty) => {
+          if (hpu * outerQty * qty > fh) {
+            return hpu * outerQty * qty * (op.overheadRate ?? 0);
+          }
+          return fh * (op.overheadRate ?? 0);
+        });
+      } else if (op.operationType === "Outside") {
+        effects.outsideCost.push((outerQty) => {
+          const cost = op.operationUnitCost * qty * outerQty;
+          return Math.max(op.operationMinimumCost, cost);
+        });
+      }
+    }
+
+    for (const child of node.children) {
+      walkTree(child, qty);
+    }
+  }
+
+  for (const root of rootItems) {
+    walkTree(root, 1);
+  }
+
+  return { effects, costCategoryKeys };
+}
+
+export async function calculatePricesForQuantities(
+  client: SupabaseClient<Database>,
+  quoteId: string,
+  quoteLineId: string,
+  quantities: number[],
+  userId: string
+) {
+  if (!quantities.length) return;
+
+  const { costCategoryKeys } = await import("~/modules/sales/sales.models");
+
+  // 1. Fetch quote (with companyId) and line in parallel
+  const [quoteResult, lineResult] = await Promise.all([
+    client
+      .from("quote")
+      .select("companyId, exchangeRate")
+      .eq("id", quoteId)
+      .single(),
+    client
+      .from("quoteLine")
+      .select("unitPricePrecision")
+      .eq("id", quoteLineId)
+      .single()
+  ]);
+
+  if (quoteResult.error || lineResult.error) return;
+
+  // Fetch settings filtered by company (required for service-role access)
+  const settingsResult = await client
+    .from("companySettings")
+    .select("quoteLineCategoryMarkups")
+    .eq("id", quoteResult.data.companyId)
+    .single();
+
+  if (settingsResult.error) return;
+
+  const exchangeRate = quoteResult.data.exchangeRate ?? 1;
+  const precision = lineResult.data.unitPricePrecision ?? 2;
+
+  // Parse default markups (settings stores decimals, convert to whole numbers)
+  const rawMarkups =
+    (settingsResult.data.quoteLineCategoryMarkups as Record<string, number>) ??
+    {};
+  const defaultMarkups: Record<string, number> = {};
+  for (const [key, value] of Object.entries(rawMarkups)) {
+    defaultMarkups[key] = value * 100;
+  }
+
+  // 2. Build cost effects
+  const result = await buildCostEffects(client, quoteLineId);
+  if (!result) return;
+
+  const { effects } = result;
+
+  // 3. Compute prices for each quantity
+  const priceRows = quantities.map((qty) => {
+    const categoryCosts: Record<string, number> = {};
+    for (const key of costCategoryKeys) {
+      const total = effects[key].reduce((acc, fn) => acc + fn(qty), 0);
+      categoryCosts[key] = qty > 0 ? total / qty : 0;
+    }
+
+    const unitPrice = costCategoryKeys.reduce((sum, key) => {
+      const cost = categoryCosts[key] ?? 0;
+      const markup = defaultMarkups[key] ?? 0;
+      return sum + cost * (1 + markup / 100);
+    }, 0);
+
+    return {
+      quoteId,
+      quoteLineId,
+      quantity: qty,
+      unitPrice: Number(unitPrice.toFixed(precision)),
+      categoryMarkups: defaultMarkups,
+      exchangeRate,
+      createdBy: userId,
+      leadTime: 0,
+      discountPercent: 0
+    };
+  });
+
+  // 4. Insert price rows
+  await client.from("quoteLinePrice").insert(priceRows);
+}
+
+export async function recalculateQuoteLinePrices(
+  client: SupabaseClient<Database>,
+  quoteId: string,
+  quoteLineId: string,
+  userId: string
+) {
+  const { costCategoryKeys } = await import("~/modules/sales/sales.models");
+
+  // 1. Fetch existing price rows
+  const existingPrices = await client
+    .from("quoteLinePrice")
+    .select("*")
+    .eq("quoteLineId", quoteLineId);
+
+  if (!existingPrices.data?.length) return;
+
+  // 2. Fetch line precision and company default markups
+  const [lineResult, quoteResult] = await Promise.all([
+    client
+      .from("quoteLine")
+      .select("unitPricePrecision")
+      .eq("id", quoteLineId)
+      .single(),
+    client.from("quote").select("companyId").eq("id", quoteId).single()
+  ]);
+
+  const precision = lineResult.data?.unitPricePrecision ?? 2;
+
+  // Fetch default markups to use as fallback for legacy rows without categoryMarkups
+  let defaultMarkups: Record<string, number> = {};
+  if (quoteResult.data?.companyId) {
+    const settingsResult = await client
+      .from("companySettings")
+      .select("quoteLineCategoryMarkups")
+      .eq("id", quoteResult.data.companyId)
+      .single();
+
+    const rawDefaults =
+      (settingsResult.data?.quoteLineCategoryMarkups as Record<
+        string,
+        number
+      >) ?? {};
+    for (const [key, value] of Object.entries(rawDefaults)) {
+      defaultMarkups[key] = value * 100;
+    }
+  }
+
+  // 3. Build cost effects
+  const result = await buildCostEffects(client, quoteLineId);
+  if (!result) return;
+
+  const { effects } = result;
+
+  // 4. Recompute prices using each row's stored categoryMarkups
+  const updatedRows = existingPrices.data.map((row) => {
+    const qty = row.quantity;
+    const rowMarkups = (row.categoryMarkups as Record<string, number>) ?? {};
+    const markups =
+      Object.keys(rowMarkups).length > 0 ? rowMarkups : defaultMarkups;
+
+    const categoryCosts: Record<string, number> = {};
+    for (const key of costCategoryKeys) {
+      const total = effects[key].reduce((acc, fn) => acc + fn(qty), 0);
+      categoryCosts[key] = qty > 0 ? total / qty : 0;
+    }
+
+    const unitPrice = costCategoryKeys.reduce((sum, key) => {
+      const cost = categoryCosts[key] ?? 0;
+      const markup = markups[key] ?? 0;
+      return sum + cost * (1 + markup / 100);
+    }, 0);
+
+    return {
+      quoteId: row.quoteId,
+      quoteLineId: row.quoteLineId,
+      quantity: row.quantity,
+      unitPrice: Number(unitPrice.toFixed(precision)),
+      categoryMarkups: markups,
+      exchangeRate: row.exchangeRate,
+      createdBy: row.createdBy,
+      updatedBy: userId,
+      leadTime: row.leadTime,
+      discountPercent: row.discountPercent
+    };
+  });
+
+  // 5. Delete existing and re-insert with updated prices
+  const deleteResult = await client
+    .from("quoteLinePrice")
+    .delete()
+    .eq("quoteLineId", quoteLineId);
+
+  if (deleteResult.error) {
+    throw new Error(`Failed to delete prices: ${deleteResult.error.message}`);
+  }
+
+  const insertResult = await client.from("quoteLinePrice").insert(updatedRows);
+
+  if (insertResult.error) {
+    throw new Error(`Failed to insert prices: ${insertResult.error.message}`);
+  }
 }
 
 export async function upsertQuoteLineMethod(

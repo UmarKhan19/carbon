@@ -412,7 +412,7 @@ export async function action({ request }: ActionFunctionArgs) {
                     (supplier.taxPercent ?? 0)) /
                   100,
                 supplierShippingCost: 0,
-                promisedDate: earliestDueDate ?? undefined,
+                requestedDate: earliestDueDate ?? undefined,
                 locationId,
                 companyId,
                 createdBy: userId

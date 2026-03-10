@@ -184,6 +184,7 @@ export const purchaseOrderLineValidator = z
     promisedDate: zfd.text(z.string().optional()),
     purchaseQuantity: zfd.numeric(z.number().optional()),
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
+    requestedDate: zfd.text(z.string().optional()),
     shelfId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
@@ -287,7 +288,8 @@ export const supplierValidator = z.object({
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
-  invoicingContactId: zfd.text(z.string().optional()),
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
@@ -332,7 +334,8 @@ export const supplierShippingValidator = z.object({
 export const supplierAccountingValidator = z.object({
   id: zfd.text(z.string()),
   supplierTypeId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional())
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional())
 });
 
 export const supplierTypeValidator = z.object({
