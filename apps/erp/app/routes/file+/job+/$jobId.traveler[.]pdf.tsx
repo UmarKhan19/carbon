@@ -1,6 +1,6 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { JobTravelerPageContent } from "@carbon/documents/pdf";
+import { Footer, JobTravelerPageContent } from "@carbon/documents/pdf";
 import type { JSONContent } from "@carbon/react";
 import { flattenTree, generateBomIds } from "@carbon/utils";
 import {
@@ -173,7 +173,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const styles = StyleSheet.create({
     body: {
       fontFamily: "Inter",
-      padding: "20px 40px",
+      padding: "20px 40px 50px 40px",
       color: "#000000",
       backgroundColor: "#FFFFFF"
     }
@@ -204,6 +204,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
               companySettings.data?.jobTravelerIncludeWorkInstructions ?? false
             }
           />
+          <Footer />
         </Page>
       ))}
     </Document>
