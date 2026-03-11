@@ -299,7 +299,10 @@ export const selectedLinesValidator = z.record(z.string(), selectedLineSchema);
 export const supplierValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
-  supplierStatus: z.enum(supplierStatusType).optional().nullable(),
+  supplierStatus: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.enum(supplierStatusType).optional().nullable()
+  ),
   supplierTypeId: zfd.text(z.string().optional()),
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
