@@ -236,22 +236,22 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
         accessorKey: "quantity",
         header: "Quantity",
         cell: ({ row }) => {
+          const quantity = row.original.quantity;
+          const quantityComplete = row.original.quantityComplete ?? 0;
+
           if (
-            ["Ready", "Paused", "In Progress", "Completed"].includes(
+            ["In Progress", "Released", "Paused"].includes(
               row.original.status ?? ""
             )
           ) {
             return (
               <BarProgress
-                progress={
-                  ((row.original.quantityComplete ?? 0) /
-                    (row.original.quantity ?? 0)) *
-                  100
-                }
+                progress={(quantityComplete / (quantity ?? 0)) * 100}
+                value={`${quantityComplete}/${quantity}`}
               />
             );
           }
-          return row.original.quantity;
+          return quantity;
         },
         meta: {
           icon: <LuHash />,
