@@ -13,6 +13,7 @@ import {
 } from "@carbon/react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
+import { useParams } from "react-router";
 import type { z } from "zod";
 import {
   Currency,
@@ -26,11 +27,13 @@ import {
   SupplierContact,
   SupplierLocation
 } from "~/components/Form";
-import { usePermissions, useSettings } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 import {
   purchaseOrderTypeType,
   purchaseOrderValidator
 } from "~/modules/purchasing";
+import { path } from "~/utils/path";
+import { isPurchaseOrderLocked } from "../../purchasing.models";
 
 type PurchaseOrderFormValues = z.infer<typeof purchaseOrderValidator>;
 
@@ -52,6 +55,14 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
     supplierContactId: initialValues.supplierContactId
   });
   const isEditing = initialValues.id !== undefined;
+
+  const { orderId } = useParams();
+  const routeData = useRouteData<{ purchaseOrder: { status: string } }>(
+    orderId ? path.to.purchaseOrder(orderId) : ""
+  );
+  const isLocked =
+    isPurchaseOrderLocked(routeData?.purchaseOrder?.status) ||
+    routeData?.purchaseOrder?.status === "Closed";
 
   const onSupplierChange = async (
     newValue: {
@@ -183,7 +194,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
           <Submit
             isDisabled={
               isEditing
-                ? !permissions.can("update", "purchasing")
+                ? isLocked || !permissions.can("update", "purchasing")
                 : !permissions.can("create", "purchasing")
             }
           >

@@ -20,8 +20,11 @@ import {
   SupplierContact,
   SupplierLocation
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
-import { purchaseOrderPaymentValidator } from "~/modules/purchasing";
+import { usePermissions, useRouteData } from "~/hooks";
+import {
+  isPurchaseOrderLocked,
+  purchaseOrderPaymentValidator
+} from "~/modules/purchasing";
 import type { action } from "~/routes/x+/purchase-order+/$orderId.payment";
 import { path } from "~/utils/path";
 
@@ -36,6 +39,13 @@ const PurchaseOrderPaymentForm = ({
   if (!orderId) {
     throw new Error("orderId not found");
   }
+
+  const routeData = useRouteData<{
+    purchaseOrder: { status: string };
+  }>(path.to.purchaseOrder(orderId));
+
+  const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
+  const isClosed = routeData?.purchaseOrder?.status === "Closed";
 
   const fetcher = useFetcher<typeof action>();
   const permissions = usePermissions();
@@ -82,7 +92,11 @@ const PurchaseOrderPaymentForm = ({
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "purchasing")}>
+          <Submit
+            isDisabled={
+              isLocked || isClosed || !permissions.can("update", "purchasing")
+            }
+          >
             Save
           </Submit>
         </CardFooter>

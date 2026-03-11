@@ -8,6 +8,8 @@ import { redirect, useParams } from "react-router";
 import { useUser } from "~/hooks";
 import type { PurchaseInvoice } from "~/modules/invoicing";
 import {
+  getPurchaseInvoice,
+  isPurchaseInvoiceLocked,
   PurchaseInvoiceLineForm,
   purchaseInvoiceLineValidator,
   upsertPurchaseInvoiceLine
@@ -18,12 +20,39 @@ import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "invoicing"
-  });
 
   const { invoiceId } = params;
   if (!invoiceId) throw new Error("Could not find invoiceId");
+
+  // Check if PI is locked
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "invoicing"
+  });
+
+  const purchaseInvoice = await getPurchaseInvoice(viewClient, invoiceId);
+  if (purchaseInvoice.error) {
+    throw redirect(
+      path.to.purchaseInvoiceDetails(invoiceId),
+      await flash(
+        request,
+        error(purchaseInvoice.error, "Failed to load purchase invoice")
+      )
+    );
+  }
+
+  if (isPurchaseInvoiceLocked(purchaseInvoice.data?.status)) {
+    throw redirect(
+      path.to.purchaseInvoiceDetails(invoiceId),
+      await flash(
+        request,
+        error(null, "Cannot modify a confirmed purchase invoice.")
+      )
+    );
+  }
+
+  const { client, companyId, userId } = await requirePermissions(request, {
+    create: "invoicing"
+  });
 
   const formData = await request.formData();
   const validation = await validator(purchaseInvoiceLineValidator).validate(

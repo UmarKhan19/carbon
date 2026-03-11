@@ -15,8 +15,11 @@ import {
   useLoaderData,
   useParams
 } from "react-router";
+import { useRouteData } from "~/hooks";
 import {
+  getPurchaseInvoice,
   getPurchaseInvoiceLine,
+  isPurchaseInvoiceLocked,
   PurchaseInvoiceLineForm,
   purchaseInvoiceLineValidator,
   upsertPurchaseInvoiceLine
@@ -49,13 +52,40 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    create: "invoicing"
-  });
 
   const { invoiceId, lineId } = params;
   if (!invoiceId) throw new Error("Could not find invoiceId");
   if (!lineId) throw new Error("Could not find lineId");
+
+  // Check if PI is locked
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "invoicing"
+  });
+
+  const purchaseInvoice = await getPurchaseInvoice(viewClient, invoiceId);
+  if (purchaseInvoice.error) {
+    throw redirect(
+      path.to.purchaseInvoiceLine(invoiceId, lineId),
+      await flash(
+        request,
+        error(purchaseInvoice.error, "Failed to load purchase invoice")
+      )
+    );
+  }
+
+  if (isPurchaseInvoiceLocked(purchaseInvoice.data?.status)) {
+    throw redirect(
+      path.to.purchaseInvoiceLine(invoiceId, lineId),
+      await flash(
+        request,
+        error(null, "Cannot modify a confirmed purchase invoice.")
+      )
+    );
+  }
+
+  const { client, userId } = await requirePermissions(request, {
+    create: "invoicing"
+  });
 
   const formData = await request.formData();
   const validation = await validator(purchaseInvoiceLineValidator).validate(
@@ -113,6 +143,13 @@ export default function EditPurchaseInvoiceLineRoute() {
   if (!invoiceId) throw notFound("invoiceId not found");
   if (!lineId) throw notFound("lineId not found");
 
+  const routeData = useRouteData<{
+    purchaseInvoice: { status: string };
+  }>(path.to.purchaseInvoice(invoiceId));
+  const isReadOnly = isPurchaseInvoiceLocked(
+    routeData?.purchaseInvoice?.status
+  );
+
   const [items] = useItems();
   const { purchaseInvoiceLine, files } = useLoaderData<typeof loader>();
 
@@ -151,6 +188,7 @@ export default function EditPurchaseInvoiceLineRoute() {
         table="purchaseInvoiceLine"
         title="Notes"
         subTitle={getItemReadableId(items, purchaseInvoiceLine?.itemId) ?? ""}
+        isReadOnly={isReadOnly}
         internalNotes={purchaseInvoiceLine?.internalNotes as JSONContent}
       />
 
@@ -168,6 +206,7 @@ export default function EditPurchaseInvoiceLineRoute() {
               id={invoiceId}
               lineId={lineId}
               type="Purchase Invoice"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>

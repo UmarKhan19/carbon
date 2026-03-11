@@ -17,6 +17,7 @@ import type {
 } from "~/modules/invoicing";
 import {
   getPurchaseInvoice,
+  isPurchaseInvoiceLocked,
   PurchaseInvoiceSummary,
   purchaseInvoiceValidator,
   upsertPurchaseInvoice
@@ -57,12 +58,39 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    update: "invoicing"
-  });
 
   const { invoiceId: id } = params;
   if (!id) throw new Error("Could not find invoiceId");
+
+  // Check if PI is locked
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "invoicing"
+  });
+
+  const purchaseInvoice = await getPurchaseInvoice(viewClient, id);
+  if (purchaseInvoice.error) {
+    throw redirect(
+      path.to.purchaseInvoice(id),
+      await flash(
+        request,
+        error(purchaseInvoice.error, "Failed to load purchase invoice")
+      )
+    );
+  }
+
+  if (isPurchaseInvoiceLocked(purchaseInvoice.data?.status)) {
+    throw redirect(
+      path.to.purchaseInvoice(id),
+      await flash(
+        request,
+        error(null, "Cannot modify a confirmed purchase invoice.")
+      )
+    );
+  }
+
+  const { client, userId } = await requirePermissions(request, {
+    update: "invoicing"
+  });
 
   const formData = await request.formData();
   const validation = await validator(purchaseInvoiceValidator).validate(
@@ -149,6 +177,8 @@ export default function PurchaseInvoiceBasicRoute() {
 
   const { company } = useUser();
 
+  const isReadOnly = isPurchaseInvoiceLocked(purchaseInvoice.status);
+
   return (
     <Fragment key={invoiceId}>
       <PurchaseInvoiceSummary onEditShippingCost={handleEditShippingCost} />
@@ -157,6 +187,7 @@ export default function PurchaseInvoiceBasicRoute() {
         id={invoiceId}
         title="Notes"
         table="purchaseInvoice"
+        isReadOnly={isReadOnly}
         internalNotes={internalNotes}
       />
       <Suspense
@@ -174,6 +205,7 @@ export default function PurchaseInvoiceBasicRoute() {
               attachments={resolvedFiles}
               id={invoiceId}
               type="Purchase Invoice"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>

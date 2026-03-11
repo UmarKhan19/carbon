@@ -43,6 +43,7 @@ import type { action } from "~/routes/x+/items+/update";
 import type { action as exchangeRateAction } from "~/routes/x+/purchase-order+/$orderId.exchange-rate";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
+import { isPurchaseOrderLocked } from "../../purchasing.models";
 import type { PurchaseOrder, SupplierQuote } from "../../types";
 
 const PurchaseOrderProperties = () => {
@@ -124,9 +125,8 @@ const PurchaseOrderProperties = () => {
 
   const isDisabled =
     !permissions.can("update", "purchasing") ||
-    !["Draft", "To Review", "Needs Approval"].includes(
-      routeData?.purchaseOrder?.status ?? ""
-    );
+    isPurchaseOrderLocked(routeData?.purchaseOrder?.status) ||
+    routeData?.purchaseOrder?.status === "Closed";
 
   return (
     <VStack
@@ -205,7 +205,7 @@ const PurchaseOrderProperties = () => {
         table="purchaseOrder"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={!permissions.can("update", "purchasing")}
+        isReadOnly={isDisabled}
       />
 
       <ValidatedForm
@@ -323,6 +323,7 @@ const PurchaseOrderProperties = () => {
           name="orderDate"
           label="Order Date"
           inline
+          isDisabled={isDisabled}
           onChange={(date) => {
             onUpdate("orderDate", date);
           }}
@@ -343,6 +344,7 @@ const PurchaseOrderProperties = () => {
           name="receiptRequestedDate"
           label="Receipt Requested Date"
           inline
+          isDisabled={isDisabled}
           onChange={(date) => {
             onUpdate("receiptRequestedDate", date);
           }}
@@ -363,6 +365,7 @@ const PurchaseOrderProperties = () => {
           name="receiptPromisedDate"
           label="Receipt Promised Date"
           inline
+          isDisabled={isDisabled}
           onChange={(date) => {
             onUpdate("receiptPromisedDate", date);
           }}
@@ -382,6 +385,7 @@ const PurchaseOrderProperties = () => {
           name="deliveryDate"
           label="Delivery Date"
           inline
+          isDisabled={isDisabled}
           onChange={(date) => {
             onUpdate("deliveryDate", date);
           }}

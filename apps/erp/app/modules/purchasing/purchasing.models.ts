@@ -520,39 +520,16 @@ export const PURCHASE_ORDER_LOCKED_STATUSES = [
   "Completed"
 ] as const;
 
-/**
- * Purchase Order statuses that allow normal editing
- */
-export const PURCHASE_ORDER_EDITABLE_STATUSES = [
-  "Draft",
-  "Planned",
-  "Needs Approval",
-  "Rejected"
-] as const;
-
 export type PurchaseOrderLockedStatus =
   (typeof PURCHASE_ORDER_LOCKED_STATUSES)[number];
-export type PurchaseOrderEditableStatus =
-  (typeof PURCHASE_ORDER_EDITABLE_STATUSES)[number];
 
 /**
  * Check if a PO status is "locked" (finalized/approved)
  */
 export function isPurchaseOrderLocked(
-  status: (typeof purchaseOrderStatusType)[number] | null | undefined
+  status: (typeof purchaseOrderStatusType)[number] | string | null | undefined
 ): boolean {
   return PURCHASE_ORDER_LOCKED_STATUSES.includes(
     status as PurchaseOrderLockedStatus
-  );
-}
-
-/**
- * Check if a PO status allows normal editing
- */
-export function isPurchaseOrderEditable(
-  status: (typeof purchaseOrderStatusType)[number] | null | undefined
-): boolean {
-  return PURCHASE_ORDER_EDITABLE_STATUSES.includes(
-    status as PurchaseOrderEditableStatus
   );
 }

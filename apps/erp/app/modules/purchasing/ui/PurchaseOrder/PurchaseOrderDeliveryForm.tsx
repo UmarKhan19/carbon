@@ -153,10 +153,7 @@ const PurchaseOrderDeliveryForm = forwardRef<
         <CardFooter>
           <Submit
             isDisabled={
-              isClosed ||
-              (isLocked
-                ? !permissions.can("delete", "purchasing")
-                : !permissions.can("update", "purchasing"))
+              isLocked || isClosed || !permissions.can("update", "purchasing")
             }
           >
             Save

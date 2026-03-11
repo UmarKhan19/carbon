@@ -20,7 +20,10 @@ import {
 } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { PurchaseInvoice } from "~/modules/invoicing";
-import { purchaseInvoiceDeliveryValidator } from "~/modules/invoicing";
+import {
+  isPurchaseInvoiceLocked,
+  purchaseInvoiceDeliveryValidator
+} from "~/modules/invoicing";
 import type { action } from "~/routes/x+/purchase-invoice+/$invoiceId.delivery";
 import { path } from "~/utils/path";
 
@@ -47,8 +50,8 @@ const PurchaseInvoiceDeliveryForm = forwardRef<
     purchaseInvoice: PurchaseInvoice;
   }>(path.to.purchaseInvoice(invoiceId));
 
-  const isEditable = ["Draft", "To Review"].includes(
-    routeData?.purchaseInvoice?.status ?? ""
+  const isEditable = !isPurchaseInvoiceLocked(
+    routeData?.purchaseInvoice?.status
   );
 
   const permissions = usePermissions();

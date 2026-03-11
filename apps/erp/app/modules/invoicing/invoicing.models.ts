@@ -25,6 +25,17 @@ export const purchaseInvoiceStatusType = [
   "Overdue"
 ] as const;
 
+/**
+ * Purchase Invoice is locked (non-editable) when status is anything other than Draft.
+ * Once posted/confirmed, no edits are allowed regardless of permission level.
+ * The only way to make changes is to reopen it to Draft first.
+ */
+export function isPurchaseInvoiceLocked(
+  status: (typeof purchaseInvoiceStatusType)[number] | string | null | undefined
+): boolean {
+  return status !== null && status !== undefined && status !== "Draft";
+}
+
 export const salesInvoiceLineType = [
   "Part",
   // "Service",

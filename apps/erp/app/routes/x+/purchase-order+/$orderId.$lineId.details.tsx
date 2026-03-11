@@ -15,7 +15,7 @@ import {
   useParams
 } from "react-router";
 import { CadModel } from "~/components";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
 import {
   getPurchaseOrder,
   getPurchaseOrderLine,
@@ -96,10 +96,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const isLocked = isPurchaseOrderLocked(purchaseOrder.data?.status);
+  if (isLocked || purchaseOrder.data?.status === "Closed") {
+    throw redirect(
+      path.to.purchaseOrderLine(orderId, lineId),
+      await flash(
+        request,
+        error(null, "Cannot modify a confirmed purchase order.")
+      )
+    );
+  }
 
-  // If locked, require delete permission; otherwise require update permission
   const { client, userId } = await requirePermissions(request, {
-    ...(isLocked ? { delete: "purchasing" } : { update: "purchasing" })
+    update: "purchasing"
   });
 
   const formData = await request.formData();
@@ -143,6 +151,12 @@ export default function EditPurchaseOrderLineRoute() {
   if (!lineId) throw new Error("lineId not found");
 
   const permissions = usePermissions();
+  const routeData = useRouteData<{
+    purchaseOrder: { status: string };
+  }>(path.to.purchaseOrder(orderId));
+  const isReadOnly =
+    isPurchaseOrderLocked(routeData?.purchaseOrder?.status) ||
+    routeData?.purchaseOrder?.status === "Closed";
 
   const { line, files } = useLoaderData<typeof loader>();
 
@@ -182,6 +196,7 @@ export default function EditPurchaseOrderLineRoute() {
         table="purchaseOrderLine"
         title="Notes"
         subTitle={line.itemReadableId ?? ""}
+        isReadOnly={isReadOnly}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
       />
@@ -200,12 +215,13 @@ export default function EditPurchaseOrderLineRoute() {
               id={orderId}
               lineId={lineId}
               type="Purchase Order"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>
       </Suspense>
       <CadModel
-        isReadOnly={!permissions.can("update", "purchasing")}
+        isReadOnly={isReadOnly || !permissions.can("update", "purchasing")}
         metadata={{
           itemId: line?.itemId ?? undefined
         }}

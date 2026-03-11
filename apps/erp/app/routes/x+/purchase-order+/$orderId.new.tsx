@@ -5,6 +5,8 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect, useParams } from "react-router";
 import {
+  getPurchaseOrder,
+  isPurchaseOrderLocked,
   purchaseOrderLineValidator,
   upsertPurchaseOrderLine
 } from "~/modules/purchasing";
@@ -15,12 +17,42 @@ import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing"
-  });
 
   const { orderId } = params;
   if (!orderId) throw new Error("Could not find orderId");
+
+  // First check with view permission to verify PO status
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "purchasing"
+  });
+
+  const purchaseOrder = await getPurchaseOrder(viewClient, orderId);
+  if (purchaseOrder.error) {
+    throw redirect(
+      path.to.purchaseOrderDetails(orderId),
+      await flash(
+        request,
+        error(purchaseOrder.error, "Failed to load purchase order")
+      )
+    );
+  }
+
+  if (
+    isPurchaseOrderLocked(purchaseOrder.data?.status) ||
+    purchaseOrder.data?.status === "Closed"
+  ) {
+    throw redirect(
+      path.to.purchaseOrderDetails(orderId),
+      await flash(
+        request,
+        error(null, "Cannot modify a confirmed purchase order.")
+      )
+    );
+  }
+
+  const { client, companyId, userId } = await requirePermissions(request, {
+    create: "purchasing"
+  });
 
   const formData = await request.formData();
   const validation = await validator(purchaseOrderLineValidator).validate(

@@ -175,13 +175,12 @@ const PurchaseOrderLineForm = ({
     })();
   });
 
-  const isDisabled = isClosed
-    ? true
-    : isEditing
-      ? isLocked
-        ? !permissions.can("delete", "purchasing")
-        : !permissions.can("update", "purchasing")
-      : !permissions.can("create", "purchasing");
+  const isDisabled =
+    isLocked ||
+    isClosed ||
+    (isEditing
+      ? !permissions.can("update", "purchasing")
+      : !permissions.can("create", "purchasing"));
 
   const deleteDisclosure = useDisclosure();
   const currencyFormatter = useCurrencyFormatter();

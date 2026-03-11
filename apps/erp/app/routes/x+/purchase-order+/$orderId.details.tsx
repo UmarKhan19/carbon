@@ -219,6 +219,10 @@ export default function PurchaseOrderBasicRoute() {
 
   const { company } = useUser();
 
+  const isReadOnly =
+    isPurchaseOrderLocked(orderData.purchaseOrder.status) ||
+    orderData.purchaseOrder.status === "Closed";
+
   return (
     <>
       <SupplierInteractionState interaction={orderData.interaction} />
@@ -228,6 +232,7 @@ export default function PurchaseOrderBasicRoute() {
         id={orderData.purchaseOrder.id}
         title="Notes"
         table="purchaseOrder"
+        isReadOnly={isReadOnly}
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />
@@ -246,6 +251,7 @@ export default function PurchaseOrderBasicRoute() {
               id={orderId}
               interactionId={orderData.purchaseOrder.supplierInteractionId!}
               type="Purchase Order"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>

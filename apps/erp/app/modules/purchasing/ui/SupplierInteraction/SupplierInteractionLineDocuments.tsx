@@ -182,6 +182,7 @@ const useSupplierInteractionLineDocuments = ({
 type SupplierInteractionLineDocumentsProps = {
   files: FileObject[];
   id: string;
+  isReadOnly?: boolean;
   lineId: string;
   type: SupportedDocument;
 };
@@ -189,6 +190,7 @@ type SupplierInteractionLineDocumentsProps = {
 const SupplierInteractionLineDocuments = ({
   files,
   id,
+  isReadOnly,
   lineId,
   type
 }: SupplierInteractionLineDocumentsProps) => {
@@ -228,11 +230,13 @@ const SupplierInteractionLineDocuments = ({
             <CardTitle>Files</CardTitle>
           </CardHeader>
           <CardAction>
-            <SupplierInteractionLineDocumentForm
-              id={id}
-              type={type}
-              lineId={lineId}
-            />
+            {!isReadOnly && (
+              <SupplierInteractionLineDocumentForm
+                id={id}
+                type={type}
+                lineId={lineId}
+              />
+            )}
           </CardAction>
         </HStack>
         <CardContent>
@@ -307,7 +311,7 @@ const SupplierInteractionLineDocuments = ({
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               destructive
-                              disabled={!canDelete}
+                              disabled={!canDelete || isReadOnly}
                               onClick={() => deleteFile(file)}
                             >
                               Delete
@@ -331,7 +335,7 @@ const SupplierInteractionLineDocuments = ({
               )}
             </Tbody>
           </Table>
-          <FileDropzone onDrop={onDrop} />
+          {!isReadOnly && <FileDropzone onDrop={onDrop} />}
         </CardContent>
       </Card>
     </>

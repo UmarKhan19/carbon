@@ -37,6 +37,7 @@ type SupplierInteractionDocumentsProps = {
   attachments: FileObject[];
   id: string;
   interactionId: string;
+  isReadOnly?: boolean;
   type:
     | "Supplier Quote"
     | "Purchase Order"
@@ -48,6 +49,7 @@ const SupplierInteractionDocuments = ({
   attachments,
   id,
   interactionId,
+  isReadOnly,
   type
 }: SupplierInteractionDocumentsProps) => {
   const { canDelete, download, deleteAttachment, getPath, upload } =
@@ -72,11 +74,13 @@ const SupplierInteractionDocuments = ({
             <CardTitle>Files</CardTitle>
           </CardHeader>
           <CardAction>
-            <SupplierInteractionDocumentForm
-              interactionId={interactionId}
-              id={id}
-              type={type}
-            />
+            {!isReadOnly && (
+              <SupplierInteractionDocumentForm
+                interactionId={interactionId}
+                id={id}
+                type={type}
+              />
+            )}
           </CardAction>
         </HStack>
         <CardContent>
@@ -145,7 +149,7 @@ const SupplierInteractionDocuments = ({
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               destructive
-                              disabled={!canDelete}
+                              disabled={!canDelete || isReadOnly}
                               onClick={() => deleteAttachment(attachment)}
                             >
                               Delete
@@ -168,7 +172,7 @@ const SupplierInteractionDocuments = ({
               )}
             </Tbody>
           </Table>
-          <FileDropzone onDrop={onDrop} />
+          {!isReadOnly && <FileDropzone onDrop={onDrop} />}
         </CardContent>
       </Card>
 

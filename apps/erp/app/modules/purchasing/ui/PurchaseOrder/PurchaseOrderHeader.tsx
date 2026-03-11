@@ -160,6 +160,8 @@ const PurchaseOrderHeader = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
+                    isLocked ||
+                    routeData?.purchaseOrder?.status === "Closed" ||
                     !permissions.can("delete", "purchasing") ||
                     !permissions.is("employee") ||
                     (isNeedsApproval && !routeData?.canDelete)

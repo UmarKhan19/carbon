@@ -36,10 +36,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const isLocked = isPurchaseOrderLocked(purchaseOrder.data?.status);
+  if (isLocked || purchaseOrder.data?.status === "Closed") {
+    throw redirect(
+      path.to.purchaseOrderDetails(orderId),
+      await flash(
+        request,
+        error(null, "Cannot modify a confirmed purchase order.")
+      )
+    );
+  }
 
-  // If locked, require delete permission; otherwise require update permission
   const { client, userId } = await requirePermissions(request, {
-    ...(isLocked ? { delete: "purchasing" } : { update: "purchasing" })
+    update: "purchasing"
   });
 
   const formData = await request.formData();

@@ -40,6 +40,7 @@ import type { action as statusAction } from "~/routes/x+/purchase-invoice+/$invo
 import { useItems } from "~/stores";
 import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
+import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 import PurchaseInvoicePostModal from "./PurchaseInvoicePostModal";
 
 const PurchaseInvoiceHeader = () => {
@@ -201,6 +202,9 @@ const PurchaseInvoiceHeader = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
+                    isPurchaseInvoiceLocked(
+                      routeData?.purchaseInvoice?.status
+                    ) ||
                     !permissions.can("delete", "invoicing") ||
                     !permissions.is("employee")
                   }

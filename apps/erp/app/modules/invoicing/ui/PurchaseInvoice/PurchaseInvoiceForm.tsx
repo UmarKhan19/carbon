@@ -13,6 +13,7 @@ import {
 } from "@carbon/react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
+import { useParams } from "react-router";
 import type { z } from "zod";
 import {
   Currency,
@@ -28,8 +29,10 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import PaymentTerm from "~/components/Form/PaymentTerm";
-import { usePermissions, useSettings } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 import { purchaseInvoiceValidator } from "~/modules/invoicing";
+import { path } from "~/utils/path";
+import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 
 type PurchaseInvoiceFormValues = z.infer<typeof purchaseInvoiceValidator>;
 
@@ -42,6 +45,12 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const settings = useSettings();
   const { carbon } = useCarbon();
   const isEditing = initialValues.id !== undefined;
+
+  const { invoiceId } = useParams();
+  const routeData = useRouteData<{ purchaseInvoice: { status: string } }>(
+    invoiceId ? path.to.purchaseInvoice(invoiceId) : ""
+  );
+  const isLocked = isPurchaseInvoiceLocked(routeData?.purchaseInvoice?.status);
 
   const [invoiceSupplier, setInvoiceSupplier] = useState<{
     id: string | undefined;
@@ -259,7 +268,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
           <Submit
             isDisabled={
               isEditing
-                ? !permissions.can("update", "invoicing")
+                ? isLocked || !permissions.can("update", "invoicing")
                 : !permissions.can("create", "invoicing")
             }
           >
