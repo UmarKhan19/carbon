@@ -72,6 +72,11 @@ const SupplierHeader = () => {
     tags: { name: string }[];
     approvalRequest: { id: string } | null;
     canApprove: boolean;
+    decision: {
+      status: "Approved" | "Rejected";
+      decisionBy: string;
+      decisionAt: string;
+    } | null;
   }>(path.to.supplier(supplierId));
 
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
@@ -245,24 +250,44 @@ const SupplierHeader = () => {
                   )}
                 </CardAttributeValue>
               </CardAttribute>
-              {routeData?.supplier?.approvedBy && (
-                <CardAttribute>
-                  <CardAttributeLabel>Approved By</CardAttributeLabel>
-                  <CardAttributeValue>
-                    <EmployeeAvatar
-                      employeeId={routeData.supplier.approvedBy}
-                    />
-                  </CardAttributeValue>
-                </CardAttribute>
-              )}
-              {routeData?.supplier?.approvalDate && (
-                <CardAttribute>
-                  <CardAttributeLabel>Approval Date</CardAttributeLabel>
-                  <CardAttributeValue>
-                    {formatDate(routeData.supplier.approvalDate)}
-                  </CardAttributeValue>
-                </CardAttribute>
-              )}
+              {routeData?.decision?.status === "Approved" &&
+                status === "Active" && (
+                  <>
+                    <CardAttribute>
+                      <CardAttributeLabel>Approved By</CardAttributeLabel>
+                      <CardAttributeValue>
+                        <EmployeeAvatar
+                          employeeId={routeData.decision.decisionBy}
+                        />
+                      </CardAttributeValue>
+                    </CardAttribute>
+                    <CardAttribute>
+                      <CardAttributeLabel>Approval Date</CardAttributeLabel>
+                      <CardAttributeValue>
+                        {formatDate(routeData.decision.decisionAt)}
+                      </CardAttributeValue>
+                    </CardAttribute>
+                  </>
+                )}
+              {routeData?.decision?.status === "Rejected" &&
+                status === "Rejected" && (
+                  <>
+                    <CardAttribute>
+                      <CardAttributeLabel>Rejected By</CardAttributeLabel>
+                      <CardAttributeValue>
+                        <EmployeeAvatar
+                          employeeId={routeData.decision.decisionBy}
+                        />
+                      </CardAttributeValue>
+                    </CardAttribute>
+                    <CardAttribute>
+                      <CardAttributeLabel>Rejected Date</CardAttributeLabel>
+                      <CardAttributeValue>
+                        {formatDate(routeData.decision.decisionAt)}
+                      </CardAttributeValue>
+                    </CardAttribute>
+                  </>
+                )}
               <CardAttribute>
                 <CardAttributeValue>
                   <ValidatedForm

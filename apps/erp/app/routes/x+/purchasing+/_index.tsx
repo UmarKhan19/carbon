@@ -68,6 +68,7 @@ import type { PurchaseOrder, SupplierQuote } from "~/modules/purchasing";
 import { getPurchasingDocumentsAssignedToMe } from "~/modules/purchasing";
 import { KPIs } from "~/modules/purchasing/purchasing.models";
 import { PurchasingStatus } from "~/modules/purchasing/ui/PurchaseOrder";
+import { SupplierStatusIndicator } from "~/modules/purchasing/ui/Supplier/SupplierStatusIndicator";
 import { SupplierQuoteStatus } from "~/modules/purchasing/ui/SupplierQuote";
 import {
   type ApprovalRequest,
@@ -125,11 +126,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
       .map((approval: ApprovalRequest) => approval.documentId!)
       .filter((id): id is string => !!id) ?? [];
 
+  // Extract supplier IDs that need approval and user can approve
+  const approvalSupplierIds =
+    pendingApprovals.data
+      ?.filter(
+        (approval: ApprovalRequest) =>
+          approval.documentType === "supplier" && approval.documentId
+      )
+      .map((approval: ApprovalRequest) => approval.documentId!)
+      .filter((id): id is string => !!id) ?? [];
+
   const [
     openPurchaseOrders,
     openPurchaseInvoices,
     openSupplierQuotes,
-    purchaseOrdersNeedingApproval
+    purchaseOrdersNeedingApproval,
+    suppliersNeedingApproval
   ] = await Promise.all([
     client
       .from("purchaseOrder")
@@ -164,6 +176,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
           .eq("status", "Needs Approval")
           .eq("companyId", companyId)
           .in("id", approvalPoIds)
+      : { data: [], error: null },
+    approvalSupplierIds.length > 0
+      ? client
+          .from("supplier")
+          .select("id, name, supplierStatus")
+          .eq("supplierStatus", "Pending")
+          .eq("companyId", companyId)
+          .in("id", approvalSupplierIds)
       : { data: [], error: null }
   ]);
 
@@ -178,6 +198,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     openSupplierQuotes: openSupplierQuotes,
     openPurchaseInvoices: openPurchaseInvoices,
     purchaseOrdersNeedingApproval: purchaseOrdersNeedingApproval,
+    suppliersNeedingApproval: suppliersNeedingApproval,
     assignedToMe: assignedToMePromise
   };
 }
@@ -188,6 +209,7 @@ export default function PurchaseDashboard() {
     openSupplierQuotes,
     openPurchaseInvoices,
     purchaseOrdersNeedingApproval,
+    suppliersNeedingApproval,
     assignedToMe
   } = useLoaderData<typeof loader>();
 
@@ -701,6 +723,9 @@ export default function PurchaseDashboard() {
                     purchaseOrdersNeedingApproval={
                       purchaseOrdersNeedingApproval.data ?? []
                     }
+                    suppliersNeedingApproval={
+                      suppliersNeedingApproval.data ?? []
+                    }
                   />
                 )}
               </Await>
@@ -714,13 +739,14 @@ export default function PurchaseDashboard() {
 
 type AssignedDocument = {
   id: string;
-  type: "purchaseOrder" | "supplierQuote" | "purchaseInvoice";
+  type: "purchaseOrder" | "supplierQuote" | "purchaseInvoice" | "supplier";
   [key: string]: unknown;
 };
 
 function AssignedDocumentsTable({
   assignedDocs,
-  purchaseOrdersNeedingApproval
+  purchaseOrdersNeedingApproval,
+  suppliersNeedingApproval
 }: {
   assignedDocs: Array<{ id: string; type: string; [key: string]: unknown }>;
   purchaseOrdersNeedingApproval: Array<{
@@ -730,6 +756,11 @@ function AssignedDocumentsTable({
     supplierId: string | null;
     assignee: string | null;
     createdAt: string | null;
+  }>;
+  suppliersNeedingApproval: Array<{
+    id: string;
+    name: string;
+    supplierStatus: string | null;
   }>;
 }) {
   // Merge assigned docs with purchase orders needing approval
@@ -747,7 +778,16 @@ function AssignedDocumentsTable({
       type: "purchaseOrder" as const
     }));
 
-  const allDocs = [...assignedDocs, ...approvalDocs] as AssignedDocument[];
+  const supplierDocs = suppliersNeedingApproval.map((doc) => ({
+    ...doc,
+    type: "supplier" as const
+  }));
+
+  const allDocs = [
+    ...assignedDocs,
+    ...approvalDocs,
+    ...supplierDocs
+  ] as AssignedDocument[];
 
   if (allDocs.length === 0) {
     return (
@@ -783,6 +823,18 @@ function DocumentRow({ doc }: { doc: AssignedDocument }) {
       return <SupplierQuoteRow doc={doc as unknown as SupplierQuote} />;
     case "purchaseInvoice":
       return <PurchaseInvoiceRow doc={doc as unknown as PurchaseInvoice} />;
+    case "supplier":
+      return (
+        <SupplierApprovalRow
+          doc={
+            doc as unknown as {
+              id: string;
+              name: string;
+              supplierStatus: string | null;
+            }
+          }
+        />
+      );
     default:
       return null;
   }
@@ -848,6 +900,26 @@ function PurchaseInvoiceRow({ doc }: { doc: PurchaseInvoice }) {
       <Td>
         <SupplierAvatar supplierId={doc.supplierId} />
       </Td>
+    </Tr>
+  );
+}
+
+function SupplierApprovalRow({
+  doc
+}: {
+  doc: { id: string; name: string; supplierStatus: string | null };
+}) {
+  return (
+    <Tr>
+      <Td>
+        <Hyperlink to={path.to.supplier(doc.id)}>
+          <SupplierAvatar supplierId={doc.id} />
+        </Hyperlink>
+      </Td>
+      <Td>
+        <SupplierStatusIndicator status={doc.supplierStatus as "Pending"} />
+      </Td>
+      <Td>-</Td>
     </Tr>
   );
 }

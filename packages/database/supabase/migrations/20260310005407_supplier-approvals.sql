@@ -1,10 +1,7 @@
 ALTER TABLE "companySettings" ADD COLUMN "supplierApproval" BOOLEAN NOT NULL DEFAULT false;
 ALTER TYPE "approvalDocumentType" ADD VALUE 'supplier';
 
-ALTER TABLE "supplier" ADD COLUMN "approvalDate" DATE;
-ALTER TABLE "supplier" ADD COLUMN "approvedBy" TEXT REFERENCES "user"("id") ON DELETE SET NULL;
-
--- Recreate suppliers view to include approvalDate and approvedBy
+-- Recreate suppliers view
 DROP VIEW IF EXISTS "suppliers";
 CREATE OR REPLACE VIEW "suppliers" WITH(SECURITY_INVOKER=true) AS
       SELECT
@@ -25,8 +22,6 @@ CREATE OR REPLACE VIEW "suppliers" WITH(SECURITY_INVOKER=true) AS
         s."currencyCode",
         s."vatNumber",
         s.website,
-        s."approvalDate",
-        s."approvedBy",
         (
           SELECT COALESCE(
             jsonb_object_agg(
@@ -78,3 +73,36 @@ CREATE OR REPLACE VIEW "suppliers" WITH(SECURITY_INVOKER=true) AS
       ORDER BY sc."supplierId", sc.id
     ) pc
       ON pc.id = s.id;
+
+-- Recreate approvalRequests view to include supplier document type
+DROP VIEW IF EXISTS "approvalRequests";
+CREATE OR REPLACE VIEW "approvalRequests" WITH (SECURITY_INVOKER=true) AS
+SELECT
+  ar."id",
+  ar."documentType",
+  ar."documentId",
+  ar."status",
+  ar."requestedBy",
+  ar."requestedAt",
+  ar."decisionBy",
+  ar."decisionAt",
+  ar."decisionNotes",
+  ar."companyId",
+  ar."createdAt",
+  CASE
+    WHEN ar."documentType" = 'purchaseOrder' THEN po."purchaseOrderId"
+    WHEN ar."documentType" = 'qualityDocument' THEN qd."name"
+    WHEN ar."documentType" = 'supplier' THEN sup."name"
+    ELSE NULL
+  END AS "documentReadableId",
+  CASE
+    WHEN ar."documentType" = 'purchaseOrder' THEN s."name"
+    WHEN ar."documentType" = 'qualityDocument' THEN qd."description"
+    WHEN ar."documentType" = 'supplier' THEN NULL
+    ELSE NULL
+  END AS "documentDescription"
+FROM "approvalRequest" ar
+LEFT JOIN "purchaseOrder" po ON ar."documentType" = 'purchaseOrder' AND ar."documentId" = po."id"
+LEFT JOIN "supplier" s ON po."supplierId" = s."id"
+LEFT JOIN "qualityDocument" qd ON ar."documentType" = 'qualityDocument' AND ar."documentId" = qd."id"
+LEFT JOIN "supplier" sup ON ar."documentType" = 'supplier' AND ar."documentId" = sup."id";

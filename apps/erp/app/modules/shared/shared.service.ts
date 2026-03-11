@@ -119,8 +119,6 @@ export async function approveRequest(
           .updateTable("supplier")
           .set({
             supplierStatus: "Active",
-            approvedBy: userId,
-            approvalDate: now.split("T")[0],
             updatedBy: userId,
             updatedAt: now
           })

@@ -79,7 +79,7 @@ const Group = ({ group }: { group: OptionGroup }) => {
           group.expanded ? onGroupCollapse(group.uid) : onGroupExpand(group.uid)
         }
         className={cn(
-          "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-2 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-muted/50",
+          "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-2 hover:bg-muted/50 text-sm",
           isFocused && "bg-muted/50"
         )}
       >

@@ -404,6 +404,11 @@ export async function getSupplier(
 type ApprovalContext = {
   approvalRequest: { id: string } | null;
   canApprove: boolean;
+  decision: {
+    status: "Approved" | "Rejected";
+    decisionBy: string;
+    decisionAt: string;
+  } | null;
 };
 
 export async function getSupplierApprovalContext(
@@ -431,16 +436,43 @@ export async function getSupplierApprovalContext(
     userId
   );
 
+  // Look for the latest terminal decision (Approved or Rejected)
+  let decision: ApprovalContext["decision"] = null;
+  const terminalRequest = await serviceRole
+    .from("approvalRequest")
+    .select("status, decisionBy, decisionAt")
+    .eq("documentType", "supplier")
+    .eq("documentId", supplierId)
+    .in("status", ["Approved", "Rejected"])
+    .order("decisionAt", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (
+    terminalRequest.data?.decisionBy &&
+    terminalRequest.data?.decisionAt &&
+    (terminalRequest.data.status === "Approved" ||
+      terminalRequest.data.status === "Rejected")
+  ) {
+    decision = {
+      status: terminalRequest.data.status,
+      decisionBy: terminalRequest.data.decisionBy,
+      decisionAt: terminalRequest.data.decisionAt
+    };
+  }
+
   if (!req || req.status !== "Pending" || !req.requestedBy || !req.id) {
     return {
       approvalRequest: null,
-      canApprove
+      canApprove,
+      decision
     };
   }
 
   return {
     approvalRequest: { id: req.id },
-    canApprove
+    canApprove,
+    decision
   };
 }
 

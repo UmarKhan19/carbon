@@ -35625,8 +35625,6 @@ export type Database = {
       supplier: {
         Row: {
           accountManagerId: string | null
-          approvalDate: string | null
-          approvedBy: string | null
           assignee: string | null
           companyId: string
           createdAt: string
@@ -35655,8 +35653,6 @@ export type Database = {
         }
         Insert: {
           accountManagerId?: string | null
-          approvalDate?: string | null
-          approvedBy?: string | null
           assignee?: string | null
           companyId: string
           createdAt?: string
@@ -35685,8 +35681,6 @@ export type Database = {
         }
         Update: {
           accountManagerId?: string | null
-          approvalDate?: string | null
-          approvedBy?: string | null
           assignee?: string | null
           companyId?: string
           createdAt?: string
@@ -35745,41 +35739,6 @@ export type Database = {
           {
             foreignKeyName: "supplier_accountManagerId_fkey"
             columns: ["accountManagerId"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -55078,8 +55037,6 @@ export type Database = {
       suppliers: {
         Row: {
           accountManagerId: string | null
-          approvalDate: string | null
-          approvedBy: string | null
           assignee: string | null
           companyId: string | null
           createdAt: string | null
@@ -55140,41 +55097,6 @@ export type Database = {
           {
             foreignKeyName: "supplier_accountManagerId_fkey"
             columns: ["accountManagerId"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "supplier_approvedBy_fkey"
-            columns: ["approvedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
