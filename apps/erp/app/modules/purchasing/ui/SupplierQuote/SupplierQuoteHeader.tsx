@@ -23,9 +23,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  Status,
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { useMemo } from "react";
 import {
   LuCheckCheck,
   LuChevronDown,
@@ -47,8 +49,9 @@ import { Link, useFetcher, useParams, useRevalidator } from "react-router";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 
+import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
 
 import type {
@@ -70,6 +73,7 @@ const SupplierQuoteHeader = () => {
   const permissions = usePermissions();
   const revalidator = useRevalidator();
 
+  const settings = useSettings();
   const routeData = useRouteData<{
     quote: SupplierQuote;
     lines: SupplierQuoteLine[];
@@ -79,6 +83,15 @@ const SupplierQuoteHeader = () => {
       supplier: { id: string; name: string };
     })[];
   }>(path.to.supplierQuote(id));
+
+  const [suppliers] = useSuppliers();
+  const isSupplierApproved = useMemo(
+    () =>
+      !settings?.supplierApproval ||
+      suppliers.find((s) => s.id === routeData?.quote?.supplierId)
+        ?.supplierStatus === "Active",
+    [settings?.supplierApproval, routeData?.quote?.supplierId, suppliers]
+  );
 
   const isOutsideProcessing =
     routeData?.quote?.supplierQuoteType === "Outside Processing";
@@ -156,6 +169,9 @@ const SupplierQuoteHeader = () => {
                 {routeData?.quote?.supplierQuoteType}
               </Badge>
             )}
+            {settings?.supplierApproval && !isSupplierApproved && (
+              <Status color="red">Unapproved Supplier</Status>
+            )}
           </HStack>
           <HStack>
             <DropdownMenu>
@@ -225,7 +241,10 @@ const SupplierQuoteHeader = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      isDisabled={!permissions.can("update", "purchasing")}
+                      isDisabled={
+                        !permissions.can("update", "purchasing") ||
+                        !isSupplierApproved
+                      }
                       variant="primary"
                       leftIcon={<LuShoppingCart />}
                       rightIcon={<LuChevronDown />}
@@ -246,7 +265,10 @@ const SupplierQuoteHeader = () => {
                 </DropdownMenu>
               ) : (
                 <Button
-                  isDisabled={!permissions.can("update", "purchasing")}
+                  isDisabled={
+                    !permissions.can("update", "purchasing") ||
+                    !isSupplierApproved
+                  }
                   variant="primary"
                   leftIcon={<LuShoppingCart />}
                   onClick={convertToOrderModal.onOpen}

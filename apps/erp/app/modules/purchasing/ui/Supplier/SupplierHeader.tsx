@@ -191,6 +191,8 @@ const SupplierHeader = () => {
                 <Button
                   leftIcon={<LuX />}
                   variant="secondary"
+                  isLoading={makeInactiveFetcher.state !== "idle"}
+                  isDisabled={makeInactiveFetcher.state !== "idle"}
                   onClick={makeInactiveModal.onOpen}
                 >
                   Make Inactive
@@ -201,7 +203,10 @@ const SupplierHeader = () => {
                   <Button
                     leftIcon={<LuCheckCheck />}
                     variant="primary"
-                    isDisabled={!canApprove}
+                    isLoading={requestApprovalFetcher.state !== "idle"}
+                    isDisabled={
+                      !canApprove || requestApprovalFetcher.state !== "idle"
+                    }
                     onClick={() => setApprovalDecision("Approved")}
                   >
                     Approve
@@ -209,7 +214,10 @@ const SupplierHeader = () => {
                   <Button
                     leftIcon={<LuX />}
                     variant="destructive"
-                    isDisabled={!canApprove}
+                    isLoading={requestApprovalFetcher.state !== "idle"}
+                    isDisabled={
+                      !canApprove || requestApprovalFetcher.state !== "idle"
+                    }
                     onClick={() => setApprovalDecision("Rejected")}
                   >
                     Reject

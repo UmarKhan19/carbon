@@ -23,6 +23,7 @@ import {
   getPurchaseOrder,
   getPurchaseOrderLines,
   getPurchaseOrderLocations,
+  getSupplier,
   getSupplierContact,
   purchaseOrderFinalizeValidator,
   updatePurchaseOrderStatus
@@ -76,6 +77,27 @@ export async function action(args: ActionFunctionArgs) {
         error("You are not authorized to finalize this purchase order")
       )
     );
+  }
+
+  // Check supplier approval status
+  const companySettingsCheck = await getCompanySettings(serviceRole, companyId);
+  if (
+    companySettingsCheck.data?.supplierApproval &&
+    purchaseOrder.data.supplierId
+  ) {
+    const supplier = await getSupplier(
+      serviceRole,
+      purchaseOrder.data.supplierId
+    );
+    if (supplier.data?.supplierStatus !== "Active") {
+      throw redirect(
+        path.to.purchaseOrder(orderId),
+        await flash(
+          request,
+          error("Cannot finalize: supplier is not approved (Active)")
+        )
+      );
+    }
   }
 
   const orderAmount = purchaseOrder.data.orderTotal ?? 0;

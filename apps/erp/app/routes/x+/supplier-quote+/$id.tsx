@@ -107,7 +107,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     interaction: supplierInteraction.data,
     exchangeRate,
     siblingQuotes: siblingQuotesData,
-    defaultCc
+    defaultCc,
+    supplier: supplier?.data ?? null
   };
 }
 

@@ -13,10 +13,11 @@ import {
   Heading,
   HStack,
   IconButton,
+  Status,
   useDisclosure
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
   LuCheckCheck,
@@ -32,16 +33,18 @@ import { Link, useFetcher, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { usePermissions, useRouteData, useSettings, useUser } from "~/hooks";
 import type { PurchaseInvoice, PurchaseInvoiceLine } from "~/modules/invoicing";
 import { PurchaseInvoicingStatus } from "~/modules/invoicing";
 import type { action as statusAction } from "~/routes/x+/purchase-invoice+/$invoiceId.status";
 import { useItems } from "~/stores";
+import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
 import PurchaseInvoicePostModal from "./PurchaseInvoicePostModal";
 
 const PurchaseInvoiceHeader = () => {
   const permissions = usePermissions();
+  const settings = useSettings();
   const { invoiceId } = useParams();
   const { company } = useUser();
   const postingModal = useDisclosure();
@@ -68,10 +71,23 @@ const PurchaseInvoiceHeader = () => {
   if (!invoiceId) throw new Error("invoiceId not found");
 
   const [items] = useItems();
+  const [suppliers] = useSuppliers();
   const routeData = useRouteData<{
     purchaseInvoice: PurchaseInvoice;
     purchaseInvoiceLines: PurchaseInvoiceLine[];
   }>(path.to.purchaseInvoice(invoiceId));
+
+  const isSupplierApproved = useMemo(
+    () =>
+      !settings?.supplierApproval ||
+      suppliers.find((s) => s.id === routeData?.purchaseInvoice?.supplierId)
+        ?.supplierStatus === "Active",
+    [
+      settings?.supplierApproval,
+      routeData?.purchaseInvoice?.supplierId,
+      suppliers
+    ]
+  );
 
   if (!routeData?.purchaseInvoice) throw new Error("purchaseInvoice not found");
   const { purchaseInvoice } = routeData;
@@ -199,6 +215,9 @@ const PurchaseInvoiceHeader = () => {
             <PurchaseInvoicingStatus
               status={routeData?.purchaseInvoice?.status}
             />
+            {settings?.supplierApproval && !isSupplierApproved && (
+              <Status color="red">Unapproved Supplier</Status>
+            )}
           </HStack>
           <HStack>
             {relatedDocs.purchaseOrders.length === 1 && (
@@ -269,7 +288,8 @@ const PurchaseInvoiceHeader = () => {
               isDisabled={
                 isPosted ||
                 routeData?.purchaseInvoiceLines?.length === 0 ||
-                !permissions.can("update", "invoicing")
+                !permissions.can("update", "invoicing") ||
+                !isSupplierApproved
               }
             >
               Post

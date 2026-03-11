@@ -26,7 +26,7 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { usePermissions, useRouteData, useSettings, useUser } from "~/hooks";
 import type { action as exchangeRateAction } from "~/routes/x+/purchase-invoice+/$invoiceId.exchange-rate";
 import type { action } from "~/routes/x+/purchase-invoice+/update";
 import { path } from "~/utils/path";
@@ -99,6 +99,7 @@ const PurchaseInvoiceProperties = () => {
   );
 
   const permissions = usePermissions();
+  const settings = useSettings();
   const optimisticAssignment = useOptimisticAssignment({
     id: invoiceId,
     table: "purchaseInvoice"
@@ -188,6 +189,7 @@ const PurchaseInvoiceProperties = () => {
           name="supplierId"
           inline
           isReadOnly={isDisabled}
+          onlyApproved={settings?.supplierApproval ?? false}
           onChange={(value) => {
             if (value?.value) {
               onUpdate("supplierId", value.value);
@@ -234,6 +236,7 @@ const PurchaseInvoiceProperties = () => {
           label="Invoice Supplier"
           inline
           isReadOnly={isDisabled}
+          onlyApproved={settings?.supplierApproval ?? false}
           onChange={(value) => {
             if (value?.value) {
               onUpdate("invoiceSupplierId", value.value);

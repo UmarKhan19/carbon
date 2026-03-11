@@ -28,7 +28,7 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import PaymentTerm from "~/components/Form/PaymentTerm";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useSettings } from "~/hooks";
 import { purchaseInvoiceValidator } from "~/modules/invoicing";
 
 type PurchaseInvoiceFormValues = z.infer<typeof purchaseInvoiceValidator>;
@@ -39,6 +39,7 @@ type PurchaseInvoiceFormProps = {
 
 const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const permissions = usePermissions();
+  const settings = useSettings();
   const { carbon } = useCarbon();
   const isEditing = initialValues.id !== undefined;
 
@@ -180,6 +181,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 name="supplierId"
                 label="Supplier"
                 onChange={onSupplierChange}
+                onlyApproved={settings?.supplierApproval ?? false}
               />
               <Input name="supplierReference" label="Supplier Invoice Number" />
 
@@ -188,6 +190,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label="Invoice Supplier"
                 value={invoiceSupplier.id}
                 onChange={onInvoiceSupplierChange}
+                onlyApproved={settings?.supplierApproval ?? false}
               />
               <SupplierLocation
                 name="invoiceSupplierLocationId"
