@@ -89,7 +89,6 @@ export async function action(args: ActionFunctionArgs) {
   const {
     notification,
     supplierContact: supplierContactId,
-    sendAttachments,
     cc: ccSelections
   } = validation.data;
 
@@ -113,24 +112,52 @@ export async function action(args: ActionFunctionArgs) {
           throw new Error("Failed to get supplier quote");
         if (!user.data) throw new Error("Failed to get user");
 
-        // Fetch all line items and their attached documents if sendAttachments is enabled
         const attachments: Array<{ filename: string; content: string }> = [];
 
-        if (sendAttachments) {
-          // Fetch top-level supplier interaction documents
-          const interactionId = supplierQuote.data.supplierInteractionId;
-          if (interactionId) {
-            const topDocs = await getSupplierInteractionDocuments(
+        // Fetch top-level supplier interaction documents
+        const interactionId = supplierQuote.data.supplierInteractionId;
+        if (interactionId) {
+          const topDocs = await getSupplierInteractionDocuments(
+            client,
+            companyId,
+            interactionId
+          );
+
+          for (const doc of topDocs) {
+            const { data: fileData } = await client.storage
+              .from("private")
+              .download(
+                `${companyId}/supplier-interaction/${interactionId}/${doc.name}`
+              );
+
+            if (fileData) {
+              const arrayBuffer = await fileData.arrayBuffer();
+              const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+              attachments.push({
+                filename: doc.name,
+                content: base64
+              });
+            }
+          }
+        }
+
+        // Fetch line-level supplier interaction documents
+        const lines = await getSupplierQuoteLines(client, id);
+
+        if (lines.data) {
+          for (const line of lines.data) {
+            const docs = await getSupplierInteractionLineDocuments(
               client,
               companyId,
-              interactionId
+              line.id ?? ""
             );
 
-            for (const doc of topDocs) {
+            for (const doc of docs) {
               const { data: fileData } = await client.storage
                 .from("private")
                 .download(
-                  `${companyId}/supplier-interaction/${interactionId}/${doc.name}`
+                  `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
                 );
 
               if (fileData) {
@@ -141,37 +168,6 @@ export async function action(args: ActionFunctionArgs) {
                   filename: doc.name,
                   content: base64
                 });
-              }
-            }
-          }
-
-          // Fetch line-level supplier interaction documents
-          const lines = await getSupplierQuoteLines(client, id);
-
-          if (lines.data) {
-            for (const line of lines.data) {
-              const docs = await getSupplierInteractionLineDocuments(
-                client,
-                companyId,
-                line.id ?? ""
-              );
-
-              for (const doc of docs) {
-                const { data: fileData } = await client.storage
-                  .from("private")
-                  .download(
-                    `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
-                  );
-
-                if (fileData) {
-                  const arrayBuffer = await fileData.arrayBuffer();
-                  const base64 = Buffer.from(arrayBuffer).toString("base64");
-
-                  attachments.push({
-                    filename: doc.name,
-                    content: base64
-                  });
-                }
               }
             }
           }
