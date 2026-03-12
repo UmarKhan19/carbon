@@ -16,6 +16,7 @@ export type CreatableComboboxProps = Omit<
   "onChange"
 > & {
   autoSelectSingleOption?: boolean;
+  isClearable?: boolean;
   name: string;
   label?: string | JSX.Element;
   helperText?: string;
@@ -35,6 +36,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
   (
     {
       autoSelectSingleOption = false,
+      isClearable,
       name,
       label,
       helperText,
@@ -96,7 +98,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
           ref={ref}
           {...props}
           value={value?.replace(/"/g, '\\"')}
-          isClearable={isOptional && !props.isReadOnly}
+          isClearable={isClearable ?? (isOptional && !props.isReadOnly)}
           label={label}
           className="w-full"
           onChange={(newValue) => {
