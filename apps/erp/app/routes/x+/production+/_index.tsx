@@ -67,6 +67,7 @@ import {
   Empty,
   Hyperlink
 } from "~/components";
+import { GradientBar } from "~/components/GradientBar";
 import { useUser } from "~/hooks/useUser";
 import type { ActiveProductionEvent } from "~/modules/production";
 import { getActiveProductionEvents, KPIs } from "~/modules/production";
@@ -431,7 +432,7 @@ export default function ProductionDashboard() {
               </DropdownMenu>
             </CardAction>
           </HStack>
-          <CardContent className="max-h-[600px] min-h-[320px] flex-col gap-4">
+          <CardContent className="min-h-[320px] flex-col gap-4">
             <VStack className="pl-[3px]" spacing={0}>
               {isFetching ? (
                 <div className="flex flex-col gap-0.5 w-full">
@@ -524,7 +525,7 @@ export default function ProductionDashboard() {
                         <Bar
                           dataKey="value"
                           fill="var(--color-value)"
-                          radius={2}
+                          shape={GradientBar}
                         >
                           <LabelList
                             dataKey="value"
@@ -574,12 +575,12 @@ export default function ProductionDashboard() {
                         <Bar
                           dataKey="actual"
                           fill="var(--color-actual)"
-                          radius={2}
+                          shape={GradientBar}
                         />
                         <Bar
                           dataKey="estimate"
                           fill="var(--color-estimate)"
-                          radius={2}
+                          shape={GradientBar}
                         />
                       </>
                     )}
@@ -600,7 +601,7 @@ export default function ProductionDashboard() {
                         <Bar
                           dataKey="value"
                           fill="var(--color-value)"
-                          radius={2}
+                          shape={GradientBar}
                         />
                       </>
                     )}

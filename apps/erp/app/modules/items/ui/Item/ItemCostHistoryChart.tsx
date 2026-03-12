@@ -48,6 +48,7 @@ import {
 import { Link } from "react-router";
 import { Bar, CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { SupplierAvatar } from "~/components";
+import { GradientBar } from "~/components/GradientBar";
 import { useCurrencyFormatter } from "~/hooks";
 import type { ItemCostHistory } from "~/modules/items";
 import { useSuppliers } from "~/stores";
@@ -249,7 +250,11 @@ export function ItemCostHistoryChart({
                   }}
                   connectNulls
                 />
-                <Bar dataKey="cost" fill="var(--color-cost)" />
+                <Bar
+                  dataKey="cost"
+                  fill="var(--color-cost)"
+                  shape={GradientBar}
+                />
               </LineChart>
             </ChartContainer>
           </TabsContent>

@@ -1270,7 +1270,7 @@ export const path = {
     purchasing: `${x}/purchasing`,
     purchasingPlanning: `${x}/purchasing/planning`,
     purchasingSettings: `${x}/settings/purchasing`,
-    quality: `${x}/quality/issues`,
+    quality: `${x}/quality`,
     qualityActions: `${x}/quality/actions`,
     qualityDocument: (id: string) =>
       generatePath(`${x}/quality-document/${id}`),

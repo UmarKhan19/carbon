@@ -46,19 +46,52 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
+  // Fetch containment action tasks to determine containment status per issue
+  const issueIds = (issues.data ?? []).map((i) => i.id);
+  const { data: containmentTasks } =
+    issueIds.length > 0
+      ? await client
+          .from("nonConformanceActionTask")
+          .select(
+            "nonConformanceId, status, nonConformanceRequiredAction!inner(name)"
+          )
+          .eq("companyId", companyId)
+          .eq("nonConformanceRequiredAction.name", "Containment Action")
+          .in("nonConformanceId", issueIds)
+      : { data: [] };
+
+  const containmentStatuses: Record<string, string> = {};
+  for (const task of containmentTasks ?? []) {
+    if (task.status === "In Progress" || task.status === "Completed") {
+      containmentStatuses[task.nonConformanceId] = "Contained";
+    }
+  }
+  for (const issue of issues.data ?? []) {
+    if (!containmentStatuses[issue.id]) {
+      containmentStatuses[issue.id] = "Uncontained";
+    }
+  }
+
   return {
     issues: issues.data ?? [],
     count: issues.count ?? 0,
-    types: nonConformanceTypes.data ?? []
+    types: nonConformanceTypes.data ?? [],
+    containmentStatuses
   };
 }
 
 export default function IssuesRoute() {
-  const { issues, count, types } = useLoaderData<typeof loader>();
+  const { issues, count, types, containmentStatuses } =
+    useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={0} className="h-full">
-      <IssuesTable data={issues} count={count} types={types} />
+      <IssuesTable
+        data={issues}
+        count={count}
+        types={types}
+        containmentStatuses={containmentStatuses}
+      />
       <Outlet />
     </VStack>
   );

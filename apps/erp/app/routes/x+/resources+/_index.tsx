@@ -56,6 +56,7 @@ import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Empty, Hyperlink } from "~/components";
 import { useWorkCenters } from "~/components/Form/WorkCenters";
+import { GradientBar } from "~/components/GradientBar";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import type { maintenanceSource } from "~/modules/resources/resources.models";
 import { MaintenanceKPIs } from "~/modules/resources/resources.models";
@@ -581,7 +582,11 @@ export default function MaintenanceDashboard() {
                       />
                     }
                   />
-                  <Bar dataKey="value" fill="var(--color-value)" radius={2} />
+                  <Bar
+                    dataKey="value"
+                    fill="var(--color-value)"
+                    shape={GradientBar}
+                  />
                 </BarChart>
               </ChartContainer>
             ) : (
@@ -652,7 +657,11 @@ export default function MaintenanceDashboard() {
                       />
                     }
                   />
-                  <Bar dataKey="value" fill="var(--color-value)" radius={2} />
+                  <Bar
+                    dataKey="value"
+                    fill="var(--color-value)"
+                    shape={GradientBar}
+                  />
                 </BarChart>
               </ChartContainer>
             )}
