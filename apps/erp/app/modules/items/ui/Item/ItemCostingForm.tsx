@@ -55,6 +55,7 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
               name="itemPostingGroupId"
               label="Item Group"
               helperText="Group used together with the supplier type, customer type, and location to determine the account"
+              isClearable
             />
             {/* <Select
               name="costingMethod"
