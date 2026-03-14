@@ -80,7 +80,9 @@ const ChartOfAccountForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? `${initialValues.number}` : "New Account"}
+              {isEditing
+                ? (initialValues.number ?? initialValues.name)
+                : "New Account"}
             </DrawerTitle>
             {isEditing && (
               <DrawerDescription>{initialValues.name}</DrawerDescription>

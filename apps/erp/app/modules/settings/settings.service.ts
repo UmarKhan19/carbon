@@ -711,6 +711,74 @@ export async function updatePurchasePriceUpdateTimingSetting(
     .eq("id", companyId);
 }
 
+export async function updateSupplierApprovalSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  supplierApproval: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ supplierApproval }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsPayableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsReceivableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsPayableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableEmail: accountsPayableEmail ?? null }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({ accountsReceivableEmail: accountsReceivableEmail ?? null })
+    )
+    .eq("id", companyId);
+}
+
+export async function updateQuoteLineCategoryMarkups(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  quoteLineCategoryMarkups: Record<string, number>
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ quoteLineCategoryMarkups }))
+    .eq("id", companyId);
+}
+
 export async function updatePurchasingPdfThumbnails(
   client: SupabaseClient<Database>,
   companyId: string,

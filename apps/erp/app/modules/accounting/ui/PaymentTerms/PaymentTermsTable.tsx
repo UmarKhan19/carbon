@@ -36,7 +36,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
         header: "Name",
         cell: ({ row }) => (
           <Hyperlink to={`${row.original.id}?${params.toString()}`}>
-            {row.original.name}
+            <Enumerable value={row.original.name} />
           </Hyperlink>
         ),
         meta: {

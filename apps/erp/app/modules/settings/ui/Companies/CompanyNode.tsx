@@ -1,3 +1,4 @@
+import { CountryFlag } from "@carbon/form";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +42,14 @@ function CompanyNodeComponent({ data }: NodeProps & { data: CompanyNodeData }) {
         style={{ minWidth: isElimination ? 140 : 170, maxWidth: 220 }}
       >
         <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
-          <LuBuilding2 className="size-4 text-muted-foreground" />
+          {company.countryCode && !isElimination ? (
+            <CountryFlag
+              countryCode={company.countryCode}
+              className="flex h-5 w-7 overflow-hidden rounded-sm"
+            />
+          ) : (
+            <LuBuilding2 className="size-4 text-muted-foreground" />
+          )}
         </div>
 
         <div className="flex flex-col gap-0.5 overflow-hidden min-w-0">

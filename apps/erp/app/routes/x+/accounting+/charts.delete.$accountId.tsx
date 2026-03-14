@@ -65,7 +65,7 @@ export default function DeleteAccountRoute() {
     <ConfirmDelete
       action={path.to.deleteAccountingCharts(accountId)}
       name={account.name}
-      text={`Are you sure you want to delete the account: ${account.name} (${account.number})? This cannot be undone.`}
+      text={`Are you sure you want to delete the account: ${account.name}${account.number ? ` (${account.number})` : ""}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

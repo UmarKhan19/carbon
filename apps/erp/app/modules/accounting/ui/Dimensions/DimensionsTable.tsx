@@ -1,11 +1,11 @@
-import { Checkbox, MenuIcon, MenuItem } from "@carbon/react";
+import { Badge, Checkbox, MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
   LuBoxes,
-  LuHash,
   LuPencil,
+  LuShapes,
   LuTrash
 } from "react-icons/lu";
 import { useNavigate } from "react-router";
@@ -60,12 +60,24 @@ const DimensionsTable = memo(({ data, count }: DimensionsTableProps) => {
         header: "Values",
         cell: ({ row }) => {
           if (row.original.entityType === "Custom") {
-            return row.original.dimensionValue?.length ?? 0;
+            const values =
+              row.original.dimensionValue?.map((v) => v.name) ?? [];
+            if (values.length === 0) return 0;
+
+            const displayValues = values.slice(0, 3);
+            const remainingCount = values.length - 3;
+
+            return (
+              <div className="max-w-[320px] truncate">
+                {displayValues.join(", ")}
+                {remainingCount > 0 && ` +${remainingCount}`}
+              </div>
+            );
           }
-          return <span className="text-muted-foreground">From entity</span>;
+          return <Badge variant="gray">Inherited</Badge>;
         },
         meta: {
-          icon: <LuHash />
+          icon: <LuShapes />
         }
       },
       {

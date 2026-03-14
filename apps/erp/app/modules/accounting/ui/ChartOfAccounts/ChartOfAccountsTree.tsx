@@ -152,9 +152,11 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
 
               {/* Account number + name */}
               <div className="flex flex-1 items-center gap-2 overflow-hidden">
-                <span className="text-muted-foreground shrink-0">
-                  {account.number ?? ""}
-                </span>
+                {!isGroup && account.number && (
+                  <span className="text-muted-foreground shrink-0">
+                    {account.number}
+                  </span>
+                )}
                 <span className="truncate">{account.name}</span>
               </div>
 

@@ -1,3 +1,4 @@
+import { CountryFlag } from "@carbon/form";
 import { IconButton } from "@carbon/react";
 import { LuBuilding2, LuChevronRight, LuPlus, LuTrash2 } from "react-icons/lu";
 import type { Company } from "../../types";
@@ -37,7 +38,14 @@ function CompaniesRow({
         )}
 
         <div className="flex size-8 shrink-0 items-center justify-center bg-muted">
-          <LuBuilding2 className="size-3.5 text-muted-foreground" />
+          {company.countryCode && !isElimination ? (
+            <CountryFlag
+              countryCode={company.countryCode}
+              className="flex h-4 w-6 overflow-hidden rounded-sm"
+            />
+          ) : (
+            <LuBuilding2 className="size-3.5 text-muted-foreground" />
+          )}
         </div>
 
         <div className="flex flex-col gap-0 min-w-0">

@@ -5,6 +5,7 @@ import {
   // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Input,
+  PhoneInput,
   Select,
   Submit,
   ValidatedForm,
@@ -459,8 +460,8 @@ export default function PurchasingSettingsRoute() {
                   <Input name="state" label="State / Province" />
                   <Input name="postalCode" label="Postal Code" />
                   <Country name="countryCode" />
-                  <Input name="phone" label="Phone" />
-                  <Input name="fax" label="Fax" />
+                  <PhoneInput name="phone" label="Phone" />
+                  <PhoneInput name="fax" label="Fax" />
                 </div>
               </CardContent>
               <CardFooter>

@@ -6,6 +6,7 @@ import {
   Boolean,
   Input,
   Number,
+  PhoneInput,
   Submit,
   ValidatedForm,
   validator
@@ -439,8 +440,8 @@ export default function SalesSettingsRoute() {
                   <Input name="state" label="State / Province" />
                   <Input name="postalCode" label="Postal Code" />
                   <Country name="countryCode" />
-                  <Input name="phone" label="Phone" />
-                  <Input name="fax" label="Fax" />
+                  <PhoneInput name="phone" label="Phone" />
+                  <PhoneInput name="fax" label="Fax" />
                 </div>
               </CardContent>
               <CardFooter>

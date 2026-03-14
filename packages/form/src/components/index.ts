@@ -5,6 +5,7 @@ import ArrayNumeric from "./ArrayNumeric";
 import Boolean from "./Boolean";
 import type { ComboboxProps } from "./Combobox";
 import Combobox from "./Combobox";
+import { CountryFlag } from "./CountryFlag";
 import type { CreatableComboboxProps } from "./CreatableCombobox";
 import CreatableCombobox from "./CreatableCombobox";
 import type { CreatableMultiSelectProps } from "./CreatableMultiSelect";
@@ -37,6 +38,7 @@ export {
   ArrayNumeric,
   Boolean,
   Combobox,
+  CountryFlag,
   CreatableCombobox,
   CreatableMultiSelect,
   DatePicker,
