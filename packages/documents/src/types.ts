@@ -28,8 +28,12 @@ export type Meta = {
   subject?: string;
 };
 
-export type Company = Database["public"]["Tables"]["company"]["Row"];
+export type Company = Database["public"]["Views"]["companies"]["Row"];
 export type CompanySettings =
   Database["public"]["Tables"]["companySettings"]["Row"];
 export type QuoteCustomerDetails =
   Database["public"]["Views"]["quoteCustomerDetails"]["Row"];
+export type AccountsPayableBillingAddress =
+  Database["public"]["Tables"]["companyAccountsPayableBillingAddress"]["Row"];
+export type AccountsReceivableBillingAddress =
+  Database["public"]["Tables"]["companyAccountsReceivableBillingAddress"]["Row"];

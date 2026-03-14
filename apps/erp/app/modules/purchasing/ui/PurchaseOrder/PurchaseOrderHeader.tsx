@@ -12,9 +12,10 @@ import {
   HStack,
   IconButton,
   SplitButton,
+  Status,
   useDisclosure
 } from "@carbon/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   LuCheckCheck,
   LuChevronDown,
@@ -37,11 +38,12 @@ import { Link, useFetcher, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { usePermissions, useRouteData, useSettings, useUser } from "~/hooks";
 import { ReceiptStatus } from "~/modules/inventory/ui/Receipts";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
 import PurchaseInvoicingStatus from "~/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicingStatus";
 import type { ApprovalDecision } from "~/modules/shared/types";
+import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
 import { isPurchaseOrderLocked } from "../../purchasing.models";
 import type { PurchaseOrder, PurchaseOrderLine } from "../../types";
@@ -60,6 +62,7 @@ const PurchaseOrderHeader = () => {
   const { company } = useUser();
   const { toggleExplorer, toggleProperties } = usePanels();
 
+  const settings = useSettings();
   const routeData = useRouteData<{
     purchaseOrder: PurchaseOrder;
     lines: PurchaseOrderLine[];
@@ -68,7 +71,21 @@ const PurchaseOrderHeader = () => {
     canReopen: boolean;
     canDelete: boolean;
     defaultCc: string[];
+    supplier: { supplierStatus: string | null } | null;
   }>(path.to.purchaseOrder(orderId));
+
+  const [suppliers] = useSuppliers();
+  const isSupplierApproved = useMemo(
+    () =>
+      !settings?.supplierApproval ||
+      suppliers.find((s) => s.id === routeData?.purchaseOrder?.supplierId)
+        ?.supplierStatus === "Active",
+    [
+      settings?.supplierApproval,
+      routeData?.purchaseOrder?.supplierId,
+      suppliers
+    ]
+  );
 
   if (!routeData?.purchaseOrder)
     throw new Error("Failed to load purchase order");
@@ -143,6 +160,7 @@ const PurchaseOrderHeader = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
+                    isLocked ||
                     !permissions.can("delete", "purchasing") ||
                     !permissions.is("employee") ||
                     (isNeedsApproval && !routeData?.canDelete)
@@ -160,6 +178,9 @@ const PurchaseOrderHeader = () => {
               <Badge variant="default">
                 {routeData?.purchaseOrder?.purchaseOrderType}
               </Badge>
+            )}
+            {settings?.supplierApproval && !isSupplierApproved && (
+              <Status color="red">Unapproved Supplier</Status>
             )}
           </HStack>
           <HStack>
@@ -204,7 +225,9 @@ const PurchaseOrderHeader = () => {
               isDisabled={
                 !["Draft", "Planned"].includes(
                   routeData?.purchaseOrder?.status ?? ""
-                ) || routeData?.lines.length === 0
+                ) ||
+                routeData?.lines.length === 0 ||
+                !isSupplierApproved
               }
               dropdownItems={[
                 {
@@ -214,7 +237,9 @@ const PurchaseOrderHeader = () => {
                   disabled:
                     !["Draft"].includes(
                       routeData?.purchaseOrder?.status ?? ""
-                    ) || routeData?.lines.length === 0
+                    ) ||
+                    routeData?.lines.length === 0 ||
+                    !isSupplierApproved
                 }
               ]}
             >
@@ -492,10 +517,7 @@ const PurchaseOrderHeader = () => {
                 isDisabled={
                   ["Draft"].includes(routeData?.purchaseOrder?.status ?? "") ||
                   statusFetcher.state !== "idle" ||
-                  // Locked POs require delete permission to reopen
-                  (isLocked
-                    ? !permissions.can("delete", "purchasing")
-                    : !permissions.can("update", "purchasing")) ||
+                  !permissions.can("update", "purchasing") ||
                   (isNeedsApproval && !routeData?.canReopen)
                 }
                 isLoading={

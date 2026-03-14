@@ -26,11 +26,12 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { usePermissions, useRouteData, useSettings, useUser } from "~/hooks";
 import type { action as exchangeRateAction } from "~/routes/x+/purchase-invoice+/$invoiceId.exchange-rate";
 import type { action } from "~/routes/x+/purchase-invoice+/update";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
+import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 import type { PurchaseInvoice } from "../../types";
 
 const PurchaseInvoiceProperties = () => {
@@ -99,6 +100,7 @@ const PurchaseInvoiceProperties = () => {
   );
 
   const permissions = usePermissions();
+  const settings = useSettings();
   const optimisticAssignment = useOptimisticAssignment({
     id: invoiceId,
     table: "purchaseInvoice"
@@ -110,9 +112,7 @@ const PurchaseInvoiceProperties = () => {
 
   const isDisabled =
     !permissions.can("update", "invoicing") ||
-    !["Draft", "To Review", "Overdue"].includes(
-      routeData?.purchaseInvoice?.status ?? ""
-    );
+    isPurchaseInvoiceLocked(routeData?.purchaseInvoice?.status);
 
   return (
     <VStack
@@ -174,7 +174,7 @@ const PurchaseInvoiceProperties = () => {
         table="purchaseInvoice"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={!permissions.can("update", "invoicing")}
+        isReadOnly={isDisabled}
       />
 
       <ValidatedForm
@@ -188,6 +188,7 @@ const PurchaseInvoiceProperties = () => {
           name="supplierId"
           inline
           isReadOnly={isDisabled}
+          onlyApproved={settings?.supplierApproval ?? false}
           onChange={(value) => {
             if (value?.value) {
               onUpdate("supplierId", value.value);
@@ -234,6 +235,7 @@ const PurchaseInvoiceProperties = () => {
           label="Invoice Supplier"
           inline
           isReadOnly={isDisabled}
+          onlyApproved={settings?.supplierApproval ?? false}
           onChange={(value) => {
             if (value?.value) {
               onUpdate("invoiceSupplierId", value.value);
@@ -302,6 +304,7 @@ const PurchaseInvoiceProperties = () => {
           name="dateIssued"
           label="Date Issued"
           inline
+          isDisabled={isDisabled}
           onChange={(date) => {
             onUpdate("dateIssued", date);
           }}
@@ -321,6 +324,7 @@ const PurchaseInvoiceProperties = () => {
           name="dateDue"
           label="Date Due"
           inline
+          isDisabled={isDisabled}
           onChange={(date) => {
             onUpdate("dateDue", date);
           }}
@@ -340,6 +344,7 @@ const PurchaseInvoiceProperties = () => {
           name="datePaid"
           label="Date Paid"
           inline
+          isDisabled={isDisabled}
           onChange={(date) => {
             onUpdate("datePaid", date);
           }}

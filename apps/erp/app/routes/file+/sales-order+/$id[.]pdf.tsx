@@ -11,7 +11,11 @@ import {
   getSalesOrderLines,
   getSalesTerms
 } from "~/modules/sales";
-import { getCompany, getCompanySettings } from "~/modules/settings";
+import {
+  getAccountsReceivableBillingAddress,
+  getCompany,
+  getCompanySettings
+} from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 import { getLocale } from "~/utils/request";
 
@@ -26,6 +30,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const [
     company,
     companySettings,
+    arBillingAddress,
     salesOrder,
     salesOrderLines,
     salesOrderLocations,
@@ -35,6 +40,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   ] = await Promise.all([
     getCompany(client, companyId),
     getCompanySettings(client, companyId),
+    getAccountsReceivableBillingAddress(client, companyId),
     getSalesOrder(client, id),
     getSalesOrderLines(client, id),
     getSalesOrderCustomerDetails(client, id),
@@ -115,6 +121,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const stream = await renderToStream(
     <SalesOrderPDF
       company={company.data}
+      companySettings={companySettings.data}
       locale={locale}
       meta={{
         author: "Carbon",
@@ -124,6 +131,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       salesOrder={salesOrder.data}
       salesOrderLines={salesOrderLines.data ?? []}
       salesOrderLocations={salesOrderLocations.data}
+      accountsReceivableBillingAddress={
+        companySettings.data?.accountsReceivableAddress
+          ? arBillingAddress.data
+          : null
+      }
       terms={(terms?.data?.salesTerms ?? {}) as JSONContent}
       paymentTerms={paymentTerms.data ?? []}
       shippingMethods={shippingMethods.data ?? []}

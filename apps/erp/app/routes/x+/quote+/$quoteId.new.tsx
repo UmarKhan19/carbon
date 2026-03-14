@@ -6,6 +6,8 @@ import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getSupplierPriceBreaksForItems } from "~/modules/items";
 import {
+  getQuote,
+  isQuoteLocked,
   quoteLineValidator,
   upsertQuoteLine,
   upsertQuoteLineMethod,
@@ -13,6 +15,7 @@ import {
 } from "~/modules/sales";
 import { lookupBuyPriceFromMap } from "~/modules/shared";
 import { setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -23,6 +26,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { quoteId } = params;
   if (!quoteId) throw new Error("Could not find quoteId");
+
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "sales"
+  });
+  const quote = await getQuote(viewClient, quoteId);
+  await requireUnlocked({
+    request,
+    isLocked: isQuoteLocked(quote.data?.status),
+    redirectTo: path.to.quote(quoteId),
+    message: "Cannot modify a locked quote. Reopen it first."
+  });
 
   const formData = await request.formData();
   const validation = await validator(quoteLineValidator).validate(formData);
@@ -104,36 +118,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           error(upsertMethod.error, "Failed to create quote line method.")
         )
       );
-    }
-
-    // Fix BOM material costs: replace average cost with price break values
-    const buyMaterials = await serviceRole
-      .from("quoteMaterial")
-      .select("id, itemId, unitCost")
-      .eq("quoteLineId", quoteLineId)
-      .eq("methodType", "Buy");
-
-    const buyItemIds = [
-      ...new Set((buyMaterials.data ?? []).map((m) => m.itemId))
-    ];
-    const bomPriceMap = await getSupplierPriceBreaksForItems(
-      serviceRole,
-      buyItemIds
-    );
-
-    for (const mat of buyMaterials.data ?? []) {
-      const price = lookupBuyPriceFromMap(
-        mat.itemId,
-        1,
-        bomPriceMap,
-        mat.unitCost
-      );
-      if (price !== mat.unitCost) {
-        await serviceRole
-          .from("quoteMaterial")
-          .update({ unitCost: price })
-          .eq("id", mat.id);
-      }
     }
   }
 

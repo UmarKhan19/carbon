@@ -57,7 +57,6 @@ const PurchaseOrderDeliveryForm = forwardRef<
   }>(path.to.purchaseOrder(orderId));
 
   const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
-  const isClosed = routeData?.purchaseOrder?.status === "Closed";
 
   const permissions = usePermissions();
   const fetcher = useFetcher<typeof action>();
@@ -98,6 +97,7 @@ const PurchaseOrderDeliveryForm = forwardRef<
         validator={purchaseOrderDeliveryValidator}
         defaultValues={initialValues}
         fetcher={fetcher}
+        isDisabled={isLocked}
       >
         <CardHeader>
           <CardTitle>Shipping</CardTitle>
@@ -151,14 +151,7 @@ const PurchaseOrderDeliveryForm = forwardRef<
           </div>
         </CardContent>
         <CardFooter>
-          <Submit
-            isDisabled={
-              isClosed ||
-              (isLocked
-                ? !permissions.can("delete", "purchasing")
-                : !permissions.can("update", "purchasing"))
-            }
-          >
+          <Submit isDisabled={!permissions.can("update", "purchasing")}>
             Save
           </Submit>
         </CardFooter>

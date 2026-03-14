@@ -1,10 +1,14 @@
-import { assertIsPost, error } from "@carbon/auth";
+import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { quoteOperationValidator, upsertQuoteOperation } from "~/modules/sales";
+import {
+  quoteOperationValidator,
+  recalculateQuoteLinePrices,
+  upsertQuoteOperation
+} from "~/modules/sales";
 import { setCustomFields } from "~/utils/form";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -62,6 +66,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       )
     );
   }
+
+  const serviceRole = getCarbonServiceRole();
+  await recalculateQuoteLinePrices(serviceRole, quoteId, lineId, userId);
 
   return {
     id: quoteOperationId,

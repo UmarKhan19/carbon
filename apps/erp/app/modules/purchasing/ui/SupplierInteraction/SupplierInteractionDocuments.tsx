@@ -20,7 +20,7 @@ import {
   Tr,
   toast
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import { convertKbToString, formatDate } from "@carbon/utils";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -37,6 +37,7 @@ type SupplierInteractionDocumentsProps = {
   attachments: FileObject[];
   id: string;
   interactionId: string;
+  isReadOnly?: boolean;
   type:
     | "Supplier Quote"
     | "Purchase Order"
@@ -48,6 +49,7 @@ const SupplierInteractionDocuments = ({
   attachments,
   id,
   interactionId,
+  isReadOnly,
   type
 }: SupplierInteractionDocumentsProps) => {
   const { canDelete, download, deleteAttachment, getPath, upload } =
@@ -72,11 +74,13 @@ const SupplierInteractionDocuments = ({
             <CardTitle>Files</CardTitle>
           </CardHeader>
           <CardAction>
-            <SupplierInteractionDocumentForm
-              interactionId={interactionId}
-              id={id}
-              type={type}
-            />
+            {!isReadOnly && (
+              <SupplierInteractionDocumentForm
+                interactionId={interactionId}
+                id={id}
+                type={type}
+              />
+            )}
           </CardAction>
         </HStack>
         <CardContent>
@@ -85,6 +89,7 @@ const SupplierInteractionDocuments = ({
               <Tr>
                 <Th>Name</Th>
                 <Th>Size</Th>
+                <Th>Created</Th>
                 <Th></Th>
               </Tr>
             </Thead>
@@ -121,6 +126,11 @@ const SupplierInteractionDocuments = ({
                         Math.floor((attachment.metadata?.size ?? 0) / 1024)
                       )}
                     </Td>
+                    <Td className="text-xs font-mono">
+                      {attachment.created_at
+                        ? formatDate(attachment.created_at)
+                        : "--"}
+                    </Td>
                     <Td>
                       <div className="flex justify-end gap-2">
                         <DropdownMenu>
@@ -139,7 +149,7 @@ const SupplierInteractionDocuments = ({
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               destructive
-                              disabled={!canDelete}
+                              disabled={!canDelete || isReadOnly}
                               onClick={() => deleteAttachment(attachment)}
                             >
                               Delete
@@ -162,7 +172,7 @@ const SupplierInteractionDocuments = ({
               )}
             </Tbody>
           </Table>
-          <FileDropzone onDrop={onDrop} />
+          {!isReadOnly && <FileDropzone onDrop={onDrop} />}
         </CardContent>
       </Card>
 

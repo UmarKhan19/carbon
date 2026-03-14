@@ -102,6 +102,7 @@ const PackingSlipPDF = ({
         company={company}
         title="Packing Slip"
         documentId={shipment?.shipmentId}
+        date={shipment?.postingDate}
       />
 
       {/* Ship To */}

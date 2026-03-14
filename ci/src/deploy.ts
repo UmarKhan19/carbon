@@ -44,6 +44,7 @@ export type Workspace = {
   quickbooks_client_secret: string | null;
   quickbooks_webhook_secret: string | null;
   resend_api_key: string | null;
+  resend_domain: string | null;
   session_secret: string | null;
   slack_bot_token: string | null;
   slack_client_id: string | null;
@@ -119,6 +120,7 @@ async function deploy(): Promise<void> {
         quickbooks_client_secret,
         quickbooks_webhook_secret,
         resend_api_key,
+        resend_domain,
         session_secret,
         slack_bot_token,
         slack_client_secret,
@@ -288,6 +290,7 @@ async function deploy(): Promise<void> {
           QUICKBOOKS_CLIENT_SECRET: quickbooks_client_secret ?? undefined,
           QUICKBOOKS_WEBHOOK_SECRET: quickbooks_webhook_secret ?? undefined,
           RESEND_API_KEY: resend_api_key,
+          RESEND_DOMAIN: resend_domain ?? "carbon.ms",
           SESSION_SECRET: session_secret,
           SLACK_BOT_TOKEN: slack_bot_token ?? undefined,
           SLACK_CLIENT_ID: slack_client_id ?? undefined,

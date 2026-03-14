@@ -52,10 +52,13 @@ const KanbanLabelPDF = ({
   const LETTER_WIDTH = 8.5 * 72;
   const LETTER_HEIGHT = 11 * 72;
 
+  // Reserve space for the footer (page number) at the bottom
+  const footerHeight = 35;
+
   // Calculate label dimensions for 2x3 layout with margins
   const margin = 36; // 0.5 inch margins
   const labelWidth = (LETTER_WIDTH - 2 * margin) / columns;
-  const labelHeight = (LETTER_HEIGHT - 2 * margin) / rows;
+  const labelHeight = (LETTER_HEIGHT - 2 * margin - footerHeight) / rows;
 
   // Calculate how many pages we need
   const labelsPerPage = rows * columns;

@@ -79,7 +79,12 @@ const StockTransferPDF = ({
       <View style={tw("flex flex-col")}>
         {/* Header Section - Always at the top */}
         <View style={tw("mb-4")}>
-          <Header company={company} title={title} />
+          <Header
+            company={company}
+            title={title}
+            documentId={stockTransfer?.stockTransferId}
+            date={stockTransfer?.createdAt}
+          />
           <Summary company={company} items={details} />
         </View>
 

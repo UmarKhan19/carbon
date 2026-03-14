@@ -25,6 +25,17 @@ export const purchaseInvoiceStatusType = [
   "Overdue"
 ] as const;
 
+/**
+ * Purchase Invoice is locked (non-editable) when status is anything other than Draft.
+ * Once posted/confirmed, no edits are allowed regardless of permission level.
+ * The only way to make changes is to reopen it to Draft first.
+ */
+export function isPurchaseInvoiceLocked(
+  status: (typeof purchaseInvoiceStatusType)[number] | string | null | undefined
+): boolean {
+  return status !== null && status !== undefined && status !== "Draft";
+}
+
 export const salesInvoiceLineType = [
   "Part",
   // "Service",
@@ -48,6 +59,16 @@ export const salesInvoiceStatusType = [
   "Overdue"
 ] as const;
 
+/**
+ * Sales Invoice is locked (non-editable) when status is anything other than Draft.
+ * Once posted/confirmed, no edits are allowed regardless of permission level.
+ */
+export function isSalesInvoiceLocked(
+  status: string | null | undefined
+): boolean {
+  return status !== null && status !== undefined && status !== "Draft";
+}
+
 export const purchaseInvoiceValidator = z.object({
   id: zfd.text(z.string().optional()),
   invoiceId: zfd.text(z.string().optional()),
@@ -55,7 +76,7 @@ export const purchaseInvoiceValidator = z.object({
   supplierReference: zfd.text(z.string().optional()),
   paymentTermId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
-  locationId: zfd.text(z.string().optional()),
+  locationId: z.string().min(1, { message: "Location is required" }),
   invoiceSupplierId: zfd.text(z.string().optional()),
   invoiceSupplierContactId: zfd.text(z.string().optional()),
   invoiceSupplierLocationId: zfd.text(z.string().optional()),
@@ -153,7 +174,7 @@ export const salesInvoiceValidator = z.object({
   customerReference: zfd.text(z.string().optional()),
   paymentTermId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
-  locationId: zfd.text(z.string().optional()),
+  locationId: z.string().min(1, { message: "Location is required" }),
   invoiceCustomerId: zfd.text(z.string().optional()),
   invoiceCustomerContactId: zfd.text(z.string().optional()),
   invoiceCustomerLocationId: zfd.text(z.string().optional()),

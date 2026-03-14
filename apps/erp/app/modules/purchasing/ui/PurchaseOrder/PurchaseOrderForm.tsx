@@ -13,23 +13,27 @@ import {
 } from "@carbon/react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
+import { useParams } from "react-router";
 import type { z } from "zod";
 import {
   Currency,
   CustomFormFields,
   Hidden,
   Input,
+  Location,
   SequenceOrCustomId,
   Submit,
   Supplier,
   SupplierContact,
   SupplierLocation
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 import {
   purchaseOrderTypeType,
   purchaseOrderValidator
 } from "~/modules/purchasing";
+import { path } from "~/utils/path";
+import { isPurchaseOrderLocked } from "../../purchasing.models";
 
 type PurchaseOrderFormValues = z.infer<typeof purchaseOrderValidator>;
 
@@ -39,6 +43,7 @@ type PurchaseOrderFormProps = {
 
 const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
   const permissions = usePermissions();
+  const settings = useSettings();
   const { carbon } = useCarbon();
   const [supplier, setSupplier] = useState<{
     id: string | undefined;
@@ -50,6 +55,12 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
     supplierContactId: initialValues.supplierContactId
   });
   const isEditing = initialValues.id !== undefined;
+
+  const { orderId } = useParams();
+  const routeData = useRouteData<{ purchaseOrder: { status: string } }>(
+    orderId ? path.to.purchaseOrder(orderId) : ""
+  );
+  const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
   const onSupplierChange = async (
     newValue: {
@@ -101,6 +112,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
         validator={purchaseOrderValidator}
         defaultValues={initialValues}
         className="w-full"
+        isDisabled={isEditing && isLocked}
       >
         <CardHeader>
           <CardTitle>
@@ -136,6 +148,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 name="supplierId"
                 label="Supplier"
                 onChange={onSupplierChange}
+                onlyApproved={settings?.supplierApproval ?? false}
               />
               <Input name="supplierReference" label="Supplier Order Number" />
               <SupplierLocation
@@ -150,6 +163,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 value={supplier.supplierContactId}
               />
 
+              <Location name="locationId" label="Location" />
               <Currency
                 name="currencyCode"
                 label="Currency"

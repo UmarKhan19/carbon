@@ -60,6 +60,27 @@ export const purchaseOrderStatusType = [
   "Closed"
 ] as const;
 
+export const supplierStatusType = [
+  "Active",
+  "Inactive",
+  "Pending",
+  "Rejected"
+] as const;
+
+export const supplierQuoteStatusType = [
+  "Draft",
+  "Active",
+  "Expired",
+  "Declined",
+  "Cancelled"
+] as const;
+
+export function isSupplierQuoteLocked(
+  status: string | null | undefined
+): boolean {
+  return status !== null && status !== undefined && status !== "Draft";
+}
+
 export const externalSupplierQuoteValidator = z.object({
   digitalSupplierQuoteSubmittedBy: zfd.text(
     z.string().min(1, { message: "Name is required" })
@@ -98,6 +119,7 @@ export const purchaseOrderValidator = z.object({
     })
   }),
   supplierId: z.string().min(1, { message: "Supplier is required" }),
+  locationId: zfd.text(z.string().optional()),
   supplierLocationId: zfd.text(z.string().optional()),
   supplierContactId: zfd.text(z.string().optional()),
   supplierReference: zfd.text(z.string().optional()),
@@ -110,7 +132,6 @@ export const supplierQuoteFinalizeValidator = z
   .object({
     notification: z.enum(["Email", "Share"]).optional(),
     supplierContact: zfd.text(z.string().optional()),
-    sendAttachments: zfd.checkbox(),
     cc: z.array(z.string()).optional()
   })
   .refine(
@@ -184,6 +205,7 @@ export const purchaseOrderLineValidator = z
     promisedDate: zfd.text(z.string().optional()),
     purchaseQuantity: zfd.numeric(z.number().optional()),
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
+    requestedDate: zfd.text(z.string().optional()),
     shelfId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
@@ -282,14 +304,44 @@ export const selectedLinesValidator = z.record(z.string(), selectedLineSchema);
 export const supplierValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
-  supplierStatusId: zfd.text(z.string().optional()),
+  supplierStatus: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.enum(supplierStatusType).optional().nullable()
+  ),
   supplierTypeId: zfd.text(z.string().optional()),
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
-  invoicingContactId: zfd.text(z.string().optional()),
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
+});
+
+export const supplierApprovalValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  supplierStatus: z.enum(supplierStatusType, {
+    errorMap: (issue, ctx) => ({
+      message: "Supplier status is required"
+    })
+  }),
+  supplierTypeId: zfd.text(z.string().optional()),
+  accountManagerId: zfd.text(z.string().optional()),
+  currencyCode: zfd.text(z.string().optional()),
+  purchasingContactId: zfd.text(z.string().optional()),
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional()),
+  website: zfd.text(z.string().optional())
+  // defaultCc: z.array(z.string().email()).default([])
+});
+
+export const supplierApprovalDecisionValidator = z.object({
+  approvalRequestId: z
+    .string()
+    .min(1, { message: "Approval request is required" }),
+  decision: z.enum(["Approved", "Rejected"]),
+  notes: zfd.text(z.string().optional())
 });
 
 export const supplierContactValidator = z.object({
@@ -332,26 +384,14 @@ export const supplierShippingValidator = z.object({
 export const supplierAccountingValidator = z.object({
   id: zfd.text(z.string()),
   supplierTypeId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional())
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional())
 });
 
 export const supplierTypeValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" })
 });
-
-export const supplierStatusValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" })
-});
-
-export const supplierQuoteStatusType = [
-  "Draft",
-  "Active",
-  "Expired",
-  "Declined",
-  "Cancelled"
-] as const;
 
 export const supplierQuoteValidator = z
   .object({
@@ -485,42 +525,20 @@ export const PURCHASE_ORDER_LOCKED_STATUSES = [
   "To Receive",
   "To Receive and Invoice",
   "To Invoice",
-  "Completed"
-] as const;
-
-/**
- * Purchase Order statuses that allow normal editing
- */
-export const PURCHASE_ORDER_EDITABLE_STATUSES = [
-  "Draft",
-  "Planned",
-  "Needs Approval",
-  "Rejected"
+  "Completed",
+  "Closed"
 ] as const;
 
 export type PurchaseOrderLockedStatus =
   (typeof PURCHASE_ORDER_LOCKED_STATUSES)[number];
-export type PurchaseOrderEditableStatus =
-  (typeof PURCHASE_ORDER_EDITABLE_STATUSES)[number];
 
 /**
  * Check if a PO status is "locked" (finalized/approved)
  */
 export function isPurchaseOrderLocked(
-  status: (typeof purchaseOrderStatusType)[number] | null | undefined
+  status: (typeof purchaseOrderStatusType)[number] | string | null | undefined
 ): boolean {
   return PURCHASE_ORDER_LOCKED_STATUSES.includes(
     status as PurchaseOrderLockedStatus
-  );
-}
-
-/**
- * Check if a PO status allows normal editing
- */
-export function isPurchaseOrderEditable(
-  status: (typeof purchaseOrderStatusType)[number] | null | undefined
-): boolean {
-  return PURCHASE_ORDER_EDITABLE_STATUSES.includes(
-    status as PurchaseOrderEditableStatus
   );
 }

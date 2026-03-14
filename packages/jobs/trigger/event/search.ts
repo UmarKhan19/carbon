@@ -94,7 +94,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     entityType: "supplier",
     getTitle: (r) => r.name,
     getLink: (r) => `/x/supplier/${r.id}`,
-    getTags: (r) => [r.supplierTypeName, r.supplierStatusName].filter(Boolean),
+    getTags: (r) => [r.supplierTypeName, r.supplierStatus].filter(Boolean),
     getMetadata: (r) => ({ taxId: r.taxId }),
     enrichRecord: async (record, client) => {
       const { data: suppType } = await client
@@ -102,15 +102,9 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .select("name")
         .eq("id", record.supplierTypeId)
         .single();
-      const { data: suppStatus } = await client
-        .from("supplierStatus")
-        .select("name")
-        .eq("id", record.supplierStatusId)
-        .single();
       return {
         ...record,
         supplierTypeName: suppType?.name,
-        supplierStatusName: suppStatus?.name,
       };
     },
   },
@@ -180,7 +174,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     entityType: "salesInvoice",
     getTitle: (r) => r.invoiceId,
     getDescription: (r) => r.customerName || "",
-    getLink: (r) => `/x/invoicing/sales/${r.id}`,
+    getLink: (r) => `/x/sales-invoice/${r.id}`,
     getTags: (r) => [r.status].filter(Boolean),
     getMetadata: (r) => ({ totalAmount: r.totalAmount, dateDue: r.dateDue }),
     enrichRecord: async (record, client) => {
@@ -196,7 +190,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     entityType: "purchaseInvoice",
     getTitle: (r) => r.invoiceId,
     getDescription: (r) => r.supplierName || "",
-    getLink: (r) => `/x/invoicing/purchasing/${r.id}`,
+    getLink: (r) => `/x/purchase-invoice/${r.id}`,
     getTags: (r) => [r.status].filter(Boolean),
     getMetadata: (r) => ({ totalAmount: r.totalAmount, dateDue: r.dateDue }),
     enrichRecord: async (record, client) => {

@@ -1,3 +1,4 @@
+import { Footer } from "./components";
 import IssuePDF from "./IssuePDF";
 import JobTravelerPDF, { JobTravelerPageContent } from "./JobTravelerPDF";
 import KanbanLabelPDF from "./KanbanLabelPDF";
@@ -9,6 +10,7 @@ import SalesInvoicePDF from "./SalesInvoicePDF";
 import SalesOrderPDF from "./SalesOrderPDF";
 import StockTransferPDF from "./StockTransferPDF";
 export {
+  Footer,
   IssuePDF,
   JobTravelerPageContent,
   JobTravelerPDF,

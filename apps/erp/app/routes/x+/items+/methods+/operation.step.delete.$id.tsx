@@ -3,7 +3,10 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { deleteMethodOperationStep } from "~/modules/items";
+import {
+  assertMethodOperationIsDraft,
+  deleteMethodOperationStep
+} from "~/modules/items";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -15,6 +18,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!id) {
     throw new Error("id not found");
   }
+
+  const step = await client
+    .from("methodOperationStep")
+    .select("operationId")
+    .eq("id", id)
+    .single();
+
+  if (step.error || !step.data) {
+    throw new Error("Step not found");
+  }
+
+  await assertMethodOperationIsDraft(client, step.data.operationId);
 
   const deleteOperationStep = await deleteMethodOperationStep(client, id);
   if (deleteOperationStep.error) {

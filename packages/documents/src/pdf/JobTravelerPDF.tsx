@@ -261,7 +261,12 @@ export const JobTravelerPageContent = ({
     <View style={tw("flex flex-col")}>
       {/* Original Header Section with company logo and job title */}
       <View style={tw("mb-6")}>
-        <Header company={company} title="Job Traveler" documentId={job.jobId} />
+        <Header
+          company={company}
+          title="Job Traveler"
+          documentId={job.jobId}
+          date={job.startDate}
+        />
       </View>
 
       {/* Job Header Section with detailed information */}

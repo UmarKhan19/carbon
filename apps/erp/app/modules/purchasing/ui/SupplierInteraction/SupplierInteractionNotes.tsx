@@ -27,6 +27,7 @@ const SupplierInteractionNotes = ({
   id,
   table,
   title,
+  isReadOnly,
   internalNotes: initialInternalNotes,
   externalNotes: initialExternalNotes
 }: {
@@ -38,6 +39,7 @@ const SupplierInteractionNotes = ({
     | "purchaseInvoice"
     | "purchasingRfq";
   title: string;
+  isReadOnly?: boolean;
   internalNotes?: JSONContent;
   externalNotes?: JSONContent;
 }) => {
@@ -128,7 +130,7 @@ const SupplierInteractionNotes = ({
           </HStack>
           <CardContent>
             <TabsContent value="internal">
-              {permissions.can("update", "sales") ? (
+              {!isReadOnly && permissions.can("update", "sales") ? (
                 <Editor
                   initialValue={(internalNotes ?? {}) as JSONContent}
                   onUpload={onUploadImage}
@@ -148,7 +150,7 @@ const SupplierInteractionNotes = ({
             </TabsContent>
             {["purchaseOrder", "purchaseInvoice"].includes(table) && (
               <TabsContent value="external">
-                {permissions.can("update", "sales") ? (
+                {!isReadOnly && permissions.can("update", "sales") ? (
                   <Editor
                     initialValue={(externalNotes ?? {}) as JSONContent}
                     onUpload={onUploadImage}

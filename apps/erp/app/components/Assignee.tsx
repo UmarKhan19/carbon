@@ -147,7 +147,7 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
                   icon={<LuSettings2 />}
                   size="sm"
                   variant="secondary"
-                  isDisabled={!permissions.is("employee")}
+                  isDisabled={isReadOnly || !permissions.is("employee")}
                 />
               )}
             </PopoverTrigger>

@@ -3,7 +3,7 @@ import { VStack } from "@carbon/react";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Outlet } from "react-router";
 import { getShippingTermsList } from "~/modules/inventory";
-import { getSupplierStatuses, getSupplierTypes } from "~/modules/purchasing";
+import { getSupplierTypes } from "~/modules/purchasing";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -23,17 +23,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   const [
-    supplierTypes,
-    supplierStatuses
+    supplierTypes
     // shippingTerms,
   ] = await Promise.all([
     getSupplierTypes(client, companyId),
-    getSupplierStatuses(client, companyId),
     getShippingTermsList(client, companyId)
   ]);
 
   return {
-    supplierStatuses: supplierStatuses.data ?? [],
     supplierTypes: supplierTypes.data ?? []
     // shippingTerms: shippingTerms.data ?? [],
   };

@@ -8,6 +8,8 @@ import { setGenericQueryFilters } from "~/utils/query";
 import { interpolateSequenceDate } from "~/utils/string";
 import { sanitize } from "~/utils/supabase";
 import type {
+  accountsPayableBillingAddressValidator,
+  accountsReceivableBillingAddressValidator,
   apiKeyValidator,
   companyValidator,
   kanbanOutputTypes,
@@ -16,6 +18,52 @@ import type {
   subsidiaryValidator,
   webhookValidator
 } from "./settings.models";
+
+export async function getAccountsPayableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyAccountsPayableBillingAddress")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+}
+
+export async function getAccountsReceivableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyAccountsReceivableBillingAddress")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+}
+
+export async function updateAccountsPayableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  data: z.infer<typeof accountsPayableBillingAddressValidator>,
+  updatedBy: string
+) {
+  return client
+    .from("companyAccountsPayableBillingAddress")
+    .update(sanitize({ ...data, updatedBy }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  data: z.infer<typeof accountsReceivableBillingAddressValidator>,
+  updatedBy: string
+) {
+  return client
+    .from("companyAccountsReceivableBillingAddress")
+    .update(sanitize({ ...data, updatedBy }))
+    .eq("id", companyId);
+}
 
 export async function deactivateWebhooks(
   client: SupabaseClient<Database>,

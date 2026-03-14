@@ -2032,6 +2032,24 @@ export async function updateJobOperationStatus(
     .single();
 }
 
+export async function updateJobOperationDueDate(
+  client: SupabaseClient<Database>,
+  id: string,
+  dueDate: string | null,
+  updatedBy: string
+) {
+  return client
+    .from("jobOperation")
+    .update({
+      dueDate,
+      updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select()
+    .single();
+}
+
 export async function updateProcedureStepOrder(
   client: SupabaseClient<Database>,
   updates: {

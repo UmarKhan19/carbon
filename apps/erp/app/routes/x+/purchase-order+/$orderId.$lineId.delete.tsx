@@ -5,8 +5,11 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
   deletePurchaseOrderLine,
-  getPurchaseOrderLine
+  getPurchaseOrder,
+  getPurchaseOrderLine,
+  isPurchaseOrderLocked
 } from "~/modules/purchasing";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -16,6 +19,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { lineId, orderId } = params;
   if (!lineId) throw notFound("lineId not found");
   if (!orderId) throw notFound("orderId not found");
+
+  const purchaseOrder = await getPurchaseOrder(client, orderId);
+  await requireUnlocked({
+    request,
+    isLocked: isPurchaseOrderLocked(purchaseOrder.data?.status),
+    redirectTo: path.to.purchaseOrderDetails(orderId),
+    message: "Cannot delete lines on a confirmed purchase order."
+  });
 
   const purchaseOrderLine = await getPurchaseOrderLine(client, lineId);
   if (purchaseOrderLine.error) {
@@ -39,6 +50,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { lineId, orderId } = params;
   if (!lineId) throw notFound("Could not find lineId");
   if (!orderId) throw notFound("Could not find orderId");
+
+  const purchaseOrder = await getPurchaseOrder(client, orderId);
+  await requireUnlocked({
+    request,
+    isLocked: isPurchaseOrderLocked(purchaseOrder.data?.status),
+    redirectTo: path.to.purchaseOrderDetails(orderId),
+    message: "Cannot delete lines on a confirmed purchase order."
+  });
 
   const { error: deleteTypeError } = await deletePurchaseOrderLine(
     client,

@@ -815,11 +815,32 @@ const Quote = ({
     }
   }, [fetcher.state, submitModal, declineModal]);
 
-  // Initialize selected lines - don't select by default
+  // Initialize selected lines from existing pricing data
   const [selectedLines, setSelectedLines] = useState<
     Record<string, Record<number, SelectedLine>>
   >(() => {
-    return {};
+    const initial: Record<string, Record<number, SelectedLine>> = {};
+    for (const price of quoteLinePrices) {
+      if (!price.supplierQuoteLineId) continue;
+      if (
+        (price.supplierUnitPrice && price.supplierUnitPrice > 0) ||
+        (price.leadTime && price.leadTime > 0)
+      ) {
+        if (!initial[price.supplierQuoteLineId]) {
+          initial[price.supplierQuoteLineId] = {};
+        }
+        initial[price.supplierQuoteLineId][price.quantity] = {
+          quantity: price.quantity,
+          supplierUnitPrice: price.supplierUnitPrice ?? 0,
+          unitPrice: price.unitPrice ?? 0,
+          leadTime: price.leadTime ?? 0,
+          shippingCost: price.shippingCost ?? 0,
+          supplierShippingCost: price.supplierShippingCost ?? 0,
+          supplierTaxAmount: price.supplierTaxAmount ?? 0
+        };
+      }
+    }
+    return initial;
   });
 
   // Handler to save notes for a line

@@ -24,7 +24,7 @@ export const buttonVariants = cva(
         primary:
           "bg-gradient-to-br from-primary/90 to-primary text-primary-foreground hover:bg-primary/90 saturate-[105%] shadow-[inset_0px_0.5px_0px_rgb(255_255_255_/_0.32)] before:pointer-events-none before:bg-gradient-to-b before:transition-opacity before:duration-100 before:ease before:from-white/[0.12] before:absolute before:inset-0 before:z-[1] before:rounded before:opacity-0 hover:before:opacity-100 active:before:opacity-0",
         active:
-          "bg-active text-active-foreground hover:bg-active/90 hover:text-active-foreground shadow-button-base before:hidden",
+          "bg-active text-active-foreground hover:bg-active/90 hover:text-active-foreground dark:shadow-button-base before:hidden",
         secondary:
           "bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 shadow-button-base",
         solid:

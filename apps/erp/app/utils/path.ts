@@ -174,7 +174,6 @@ export const path = {
         generatePath(`${api}/purchasing/supplier-locations/${id}`),
       supplierProcesses: (id?: string) =>
         generatePath(`${api}/purchasing/supplier-processes/${id}`),
-      supplierStatuses: `${api}/purchasing/supplier-statuses`,
       supplierTypes: `${api}/purchasing/supplier-types`,
       tags: (table?: string) =>
         generatePath(`${api}/shared/tags?table=${table}`),
@@ -726,6 +725,7 @@ export const path = {
       generatePath(`${x}/inventory/shelves/delete/${id}`),
     deleteShippingMethod: (id: string) =>
       generatePath(`${x}/inventory/shipping-methods/delete/${id}`),
+    deleteSupplier: (id: string) => generatePath(`${x}/supplier/${id}/delete`),
     deleteSupplierContact: (supplierId: string, id: string) =>
       generatePath(`${x}/supplier/${supplierId}/contacts/delete/${id}`),
     deleteSupplierLocation: (supplierId: string, id: string) =>
@@ -736,8 +736,6 @@ export const path = {
       generatePath(`${x}/supplier-quote/${id}/delete`),
     deleteSupplierQuoteLine: (id: string, lineId: string) =>
       generatePath(`${x}/supplier-quote/${id}/${lineId}/delete`),
-    deleteSupplierStatus: (id: string) =>
-      generatePath(`${x}/purchasing/supplier-statuses/delete/${id}`),
     deleteSupplierType: (id: string) =>
       generatePath(`${x}/purchasing/supplier-types/delete/${id}`),
     deleteSuggestion: (id: string) =>
@@ -882,6 +880,7 @@ export const path = {
     jobOperationProcedureSync: `${x}/job/methods/operation/procedure/sync`,
     jobOperationTool: (id: string) =>
       generatePath(`${x}/job/methods/operation/tool/${id}`),
+    jobOperationDueDate: `${x}/job/methods/operation/due-date`,
     jobOperationStatus: `${x}/job/methods/operation/status`,
     jobOperationStepRecords: (id: string) =>
       generatePath(`${x}/job/${id}/steps`),
@@ -1139,7 +1138,6 @@ export const path = {
     newSupplierQuote: `${x}/supplier-quote/new`,
     newSupplierQuoteLine: (id: string) =>
       generatePath(`${x}/supplier-quote/${id}/new`),
-    newSupplierStatus: `${x}/purchasing/supplier-statuses/new`,
     newSupplierType: `${x}/purchasing/supplier-types/new`,
     newTag: `${x}/settings/tags/new`,
     newTool: `${x}/tool/new`,
@@ -1501,6 +1499,8 @@ export const path = {
       generatePath(`${x}/warehouse-transfer/${transferId}/details/${lineId}`),
     shippingMethods: `${x}/inventory/shipping-methods`,
     supplier: (id: string) => generatePath(`${x}/supplier/${id}`),
+    supplierApproval: (id: string) =>
+      generatePath(`${x}/supplier/${id}/approval`),
     suppliers: `${x}/purchasing/suppliers`,
     supplierAccounts: `${x}/users/suppliers`,
     supplierAccounting: (id: string) =>
@@ -1540,9 +1540,6 @@ export const path = {
     supplierQuoteStatus: (id: string) =>
       generatePath(`${x}/supplier-quote/${id}/status`),
     supplierRoot: `${x}/supplier`,
-    supplierStatus: (id: string) =>
-      generatePath(`${x}/purchasing/supplier-statuses/${id}`),
-    supplierStatuses: `${x}/purchasing/supplier-statuses`,
     supplierType: (id: string) =>
       generatePath(`${x}/purchasing/supplier-types/${id}`),
     supplierTypes: `${x}/purchasing/supplier-types`,

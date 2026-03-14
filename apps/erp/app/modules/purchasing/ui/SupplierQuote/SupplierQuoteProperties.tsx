@@ -29,6 +29,7 @@ import type { action } from "~/routes/x+/items+/update";
 import type { action as exchangeRateAction } from "~/routes/x+/supplier-quote+/$id.exchange-rate";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
+import { isSupplierQuoteLocked } from "../../purchasing.models";
 import type { SupplierQuote } from "../../types";
 
 const SupplierQuoteProperties = () => {
@@ -108,10 +109,11 @@ const SupplierQuoteProperties = () => {
 
   const isDisabled =
     !permissions.can("update", "purchasing") ||
-    !["Draft", "Active"].includes(routeData?.quote?.status ?? "");
+    isSupplierQuoteLocked(routeData?.quote?.status);
 
   return (
     <VStack
+      key={routeData?.quote?.id}
       spacing={4}
       className="w-96 bg-card h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent border-l border-border px-4 py-2 text-sm"
     >
@@ -168,7 +170,7 @@ const SupplierQuoteProperties = () => {
         table="supplierQuote"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={!permissions.can("update", "purchasing")}
+        isReadOnly={isDisabled}
       />
       <ValidatedForm
         defaultValues={{ supplierId: routeData?.quote?.supplierId }}

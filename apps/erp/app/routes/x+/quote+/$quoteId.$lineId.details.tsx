@@ -23,9 +23,11 @@ import type {
   QuoteMethod
 } from "~/modules/sales";
 import {
+  calculatePricesForQuantities,
   getConfigurationParametersByQuoteLineId,
   getModelByQuoteLineId,
   getOpportunityLineDocuments,
+  getQuote,
   getQuoteLine,
   getQuoteLinePrices,
   getQuoteMaterialsByMethodId,
@@ -33,6 +35,7 @@ import {
   getQuoteOperationsByMethodId,
   getRelatedPricesForQuoteLine,
   getRootQuoteMakeMethod,
+  isQuoteLocked,
   quoteLineValidator,
   upsertQuoteLine
 } from "~/modules/sales";
@@ -53,6 +56,7 @@ import QuoteLinePricingHistory from "~/modules/sales/ui/Quotes/QuoteLinePricingH
 import QuoteLineRiskRegister from "~/modules/sales/ui/Quotes/QuoteLineRiskRegister";
 import { getTagsList, type SupplierPriceMap } from "~/modules/shared";
 import { getCustomFields, setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -150,6 +154,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!quoteId) throw new Error("Could not find quoteId");
   if (!lineId) throw new Error("Could not find lineId");
 
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "sales"
+  });
+  const quote = await getQuote(viewClient, quoteId);
+  await requireUnlocked({
+    request,
+    isLocked: isQuoteLocked(quote.data?.status),
+    redirectTo: path.to.quote(quoteId),
+    message: "Cannot modify a locked quote. Reopen it first."
+  });
+
   const formData = await request.formData();
 
   const validation = await validator(quoteLineValidator).validate(formData);
@@ -176,6 +191,32 @@ export async function action({ request, params }: ActionFunctionArgs) {
         error(updateQuotationLine.error, "Failed to update quote line")
       )
     );
+  }
+
+  if (d.methodType === "Make" && d.quantity?.length) {
+    const serviceRole = getCarbonServiceRole();
+    const existingPrices = await serviceRole
+      .from("quoteLinePrice")
+      .select("quantity")
+      .eq("quoteLineId", lineId);
+
+    const existingQuantities = new Set(
+      (existingPrices.data ?? []).map((p) => p.quantity)
+    );
+
+    const addedQuantities = d.quantity.filter(
+      (q) => !existingQuantities.has(q)
+    );
+
+    if (addedQuantities.length > 0) {
+      await calculatePricesForQuantities(
+        serviceRole,
+        quoteId,
+        lineId,
+        addedQuantities,
+        userId
+      );
+    }
   }
 
   throw redirect(path.to.quoteLine(quoteId, lineId));
@@ -207,6 +248,8 @@ export default function QuoteLine() {
     quote: Quotation;
     supplierPriceMap: SupplierPriceMap;
   }>(path.to.quote(quoteId));
+
+  const isReadOnly = isQuoteLocked(quoteData?.quote?.status);
 
   const methodTree = useMemo(
     () => quoteData?.methods?.find((m) => m.data.quoteLineId === line.id),
@@ -250,6 +293,7 @@ export default function QuoteLine() {
         subTitle={line.itemReadableId ?? ""}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
+        isReadOnly={isReadOnly}
       />
 
       {methodData && (
@@ -335,6 +379,7 @@ export default function QuoteLine() {
               itemId={line?.itemId}
               modelUpload={line ?? undefined}
               type="Quote"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>

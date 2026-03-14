@@ -26,7 +26,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import { convertKbToString, formatDate } from "@carbon/utils";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -377,6 +377,7 @@ type OpportunityLineDocumentsProps = {
   itemId?: string | null;
   type: "Request for Quote" | "Sales Order" | "Quote" | "Sales Invoice";
   modelUpload?: ModelUpload;
+  isReadOnly?: boolean;
 };
 
 const OpportunityLineDocuments = ({
@@ -385,11 +386,12 @@ const OpportunityLineDocuments = ({
   lineId,
   itemId,
   modelUpload,
-  type
+  type,
+  isReadOnly: isReadOnlyProp
 }: OpportunityLineDocumentsProps) => {
   const {
-    canDelete,
-    canUpdate,
+    canDelete: canDeleteBase,
+    canUpdate: canUpdateBase,
     download,
     downloadModel,
     deleteFile,
@@ -404,6 +406,8 @@ const OpportunityLineDocuments = ({
     itemId,
     type
   });
+  const canDelete = isReadOnlyProp ? false : canDeleteBase;
+  const canUpdate = isReadOnlyProp ? false : canUpdateBase;
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -434,12 +438,14 @@ const OpportunityLineDocuments = ({
             <CardTitle>Files</CardTitle>
           </CardHeader>
           <CardAction>
-            <OpportunityLineDocumentForm
-              id={id}
-              type={type}
-              lineId={lineId}
-              itemId={itemId}
-            />
+            {!isReadOnlyProp && (
+              <OpportunityLineDocumentForm
+                id={id}
+                type={type}
+                lineId={lineId}
+                itemId={itemId}
+              />
+            )}
           </CardAction>
         </HStack>
         <CardContent>
@@ -449,6 +455,7 @@ const OpportunityLineDocuments = ({
                 <Th>Name</Th>
                 <Th>Size</Th>
                 <Th>Bucket</Th>
+                <Th>Created</Th>
                 <Th />
               </Tr>
             </Thead>
@@ -478,6 +485,7 @@ const OpportunityLineDocuments = ({
                   <Td>
                     <Enumerable value="Model" />
                   </Td>
+                  <Td className="text-xs font-mono">--</Td>
                   <Td>
                     <div className="flex justify-end w-full">
                       <DropdownMenu>
@@ -573,6 +581,9 @@ const OpportunityLineDocuments = ({
                         }
                       />
                     </Td>
+                    <Td className="text-xs font-mono">
+                      {file.created_at ? formatDate(file.created_at) : "--"}
+                    </Td>
                     <Td>
                       <div className="flex justify-end w-full">
                         <DropdownMenu>
@@ -633,7 +644,7 @@ const OpportunityLineDocuments = ({
               {allFiles.length === 0 && !modelUpload && (
                 <Tr>
                   <Td
-                    colSpan={4}
+                    colSpan={5}
                     className="py-8 text-muted-foreground text-center"
                   >
                     No files
@@ -642,7 +653,7 @@ const OpportunityLineDocuments = ({
               )}
             </Tbody>
           </Table>
-          <FileDropzone onDrop={onDrop} />
+          {!isReadOnlyProp && <FileDropzone onDrop={onDrop} />}
         </CardContent>
       </Card>
     </>

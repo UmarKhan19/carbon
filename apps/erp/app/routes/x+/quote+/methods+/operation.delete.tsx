@@ -1,9 +1,11 @@
+import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
+import { recalculateQuoteLinePrices } from "~/modules/sales";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, userId } = await requirePermissions(request, {
     delete: "sales"
   });
 
@@ -19,6 +21,13 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
+  // Fetch the operation's quoteId/quoteLineId before deleting
+  const op = await client
+    .from("quoteOperation")
+    .select("quoteId, quoteLineId")
+    .eq("id", id)
+    .single();
+
   const { error } = await client.from("quoteOperation").delete().eq("id", id);
 
   if (error) {
@@ -27,6 +36,16 @@ export async function action({ request }: ActionFunctionArgs) {
       {
         status: 400
       }
+    );
+  }
+
+  if (op.data) {
+    const serviceRole = getCarbonServiceRole();
+    await recalculateQuoteLinePrices(
+      serviceRole,
+      op.data.quoteId,
+      op.data.quoteLineId,
+      userId
     );
   }
 

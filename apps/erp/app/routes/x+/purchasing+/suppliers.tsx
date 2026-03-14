@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
-import { getSupplierStatuses, getSuppliers } from "~/modules/purchasing";
+import { getSuppliers } from "~/modules/purchasing";
 import { SuppliersTable } from "~/modules/purchasing/ui/Supplier";
 import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
@@ -31,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  const [suppliers, supplierStatuses, tags] = await Promise.all([
+  const [suppliers, tags] = await Promise.all([
     getSuppliers(client, companyId, {
       search,
       type,
@@ -41,7 +41,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       sorts,
       filters
     }),
-    getSupplierStatuses(client, companyId),
     getTagsList(client, companyId, "supplier")
   ]);
 
@@ -55,23 +54,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return {
     count: suppliers.count ?? 0,
     suppliers: suppliers.data ?? [],
-    supplierStatuses: supplierStatuses.data ?? [],
     tags: tags.data ?? []
   };
 }
 
 export default function PurchasingSuppliersRoute() {
-  const { count, suppliers, supplierStatuses, tags } =
-    useLoaderData<typeof loader>();
+  const { count, suppliers, tags } = useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={0} className="h-full">
-      <SuppliersTable
-        data={suppliers}
-        count={count}
-        supplierStatuses={supplierStatuses}
-        tags={tags}
-      />
+      <SuppliersTable data={suppliers} count={count} tags={tags} />
       <Outlet />
     </VStack>
   );

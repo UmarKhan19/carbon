@@ -3,13 +3,18 @@ import { PurchaseOrderPDF } from "@carbon/documents/pdf";
 import type { JSONContent } from "@carbon/react";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
+import { getPaymentTermsList } from "~/modules/accounting";
 import {
   getPurchaseOrder,
   getPurchaseOrderLines,
   getPurchaseOrderLocations,
   getPurchasingTerms
 } from "~/modules/purchasing";
-import { getCompany, getCompanySettings } from "~/modules/settings";
+import {
+  getAccountsPayableBillingAddress,
+  getCompany,
+  getCompanySettings
+} from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 import { getLocale } from "~/utils/request";
 
@@ -24,17 +29,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const [
     company,
     companySettings,
+    apBillingAddress,
     purchaseOrder,
     purchaseOrderLines,
     purchaseOrderLocations,
-    terms
+    terms,
+    paymentTerms
   ] = await Promise.all([
     getCompany(client, companyId),
     getCompanySettings(client, companyId),
+    getAccountsPayableBillingAddress(client, companyId),
     getPurchaseOrder(client, orderId),
     getPurchaseOrderLines(client, orderId),
     getPurchaseOrderLocations(client, orderId),
-    getPurchasingTerms(client, companyId)
+    getPurchasingTerms(client, companyId),
+    getPaymentTermsList(client, companyId)
   ]);
 
   if (company.error) {
@@ -109,7 +118,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const stream = await renderToStream(
     <PurchaseOrderPDF
       company={company.data}
+      companySettings={companySettings.data}
+      accountsPayableBillingAddress={
+        companySettings.data?.accountsPayableAddress
+          ? apBillingAddress.data
+          : null
+      }
       locale={locale}
+      paymentTerms={paymentTerms.data ?? []}
       purchaseOrder={purchaseOrder.data}
       purchaseOrderLines={purchaseOrderLines.data ?? []}
       purchaseOrderLocations={purchaseOrderLocations.data}

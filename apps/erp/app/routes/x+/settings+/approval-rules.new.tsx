@@ -27,7 +27,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const typeParam = url.searchParams.get("type");
   const documentType: ApprovalDocumentType | null =
-    typeParam === "purchaseOrder" || typeParam === "qualityDocument"
+    typeParam === "purchaseOrder" ||
+    typeParam === "qualityDocument" ||
+    typeParam === "supplier"
       ? typeParam
       : null;
 

@@ -27,9 +27,12 @@ import {
   SupplierStatus,
   SupplierType
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useSettings } from "~/hooks";
 import type { Supplier } from "~/modules/purchasing";
-import { supplierValidator } from "~/modules/purchasing";
+import {
+  supplierApprovalValidator,
+  supplierValidator
+} from "~/modules/purchasing";
 import { path } from "~/utils/path";
 
 type SupplierFormProps = {
@@ -45,6 +48,8 @@ const SupplierForm = ({
 }: SupplierFormProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<Supplier>>();
+  const settings = useSettings();
+  const supplierApprovalRequired = settings?.supplierApproval ?? false;
 
   useEffect(() => {
     if (type !== "modal") return;
@@ -69,9 +74,14 @@ const SupplierForm = ({
         <ModalCard onClose={onClose}>
           <ModalCardContent size="medium">
             <ValidatedForm
+              key={initialValues.supplierStatus}
               method="post"
               action={isEditing ? undefined : path.to.newSupplier}
-              validator={supplierValidator}
+              validator={
+                supplierApprovalRequired
+                  ? supplierApprovalValidator
+                  : supplierValidator
+              }
               defaultValues={initialValues}
               fetcher={fetcher}
             >
@@ -101,9 +111,10 @@ const SupplierForm = ({
                 >
                   <Input autoFocus={!isEditing} name="name" label="Name" />
                   <SupplierStatus
-                    name="supplierStatusId"
+                    name="supplierStatus"
                     label="Supplier Status"
                     placeholder="Select Supplier Status"
+                    disabled={supplierApprovalRequired}
                   />
                   <SupplierType
                     name="supplierTypeId"
@@ -111,8 +122,6 @@ const SupplierForm = ({
                     placeholder="Select Supplier Type"
                   />
                   <Employee name="accountManagerId" label="Account Manager" />
-                  <Currency name="currencyCode" label="Currency" />
-                  <Input name="website" label="Website" />
                   {isEditing && (
                     <>
                       <SupplierContact
@@ -120,13 +129,13 @@ const SupplierForm = ({
                         name="purchasingContactId"
                         label="Purchasing Contact"
                       />
-                      <SupplierContact
-                        supplier={initialValues.id}
-                        name="invoicingContactId"
-                        label="Invoicing Contact"
-                      />
                     </>
                   )}
+                  <Currency name="currencyCode" label="Currency" />
+                  <Input name="taxId" label="Tax ID" />
+                  <Input name="vatNumber" label="VAT Number" />
+                  <Input name="website" label="Website" />
+
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}
                   <CustomFormFields table="supplier" />
                 </div>

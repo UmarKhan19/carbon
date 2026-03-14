@@ -10,12 +10,14 @@ import { forwardRef, useEffect } from "react";
 
 import { flushSync } from "react-dom";
 import { useControlField, useField } from "../hooks";
+import { useFormStateContext } from "../internal/formStateContext";
 
 export type CreatableComboboxProps = Omit<
   CreatableComboboxBaseProps,
   "onChange"
 > & {
   autoSelectSingleOption?: boolean;
+  isClearable?: boolean;
   name: string;
   label?: string | JSX.Element;
   helperText?: string;
@@ -35,6 +37,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
   (
     {
       autoSelectSingleOption = false,
+      isClearable,
       name,
       label,
       helperText,
@@ -47,6 +50,9 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
   ) => {
     const { getInputProps, error } = useField(name);
     const [value, setValue] = useControlField<string | undefined>(name);
+    const formState = useFormStateContext();
+    const isReadOnly =
+      formState.isReadOnly || formState.isDisabled || props.isReadOnly;
 
     useEffect(() => {
       if (props.value !== null && props.value !== undefined)
@@ -96,7 +102,8 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
           ref={ref}
           {...props}
           value={value?.replace(/"/g, '\\"')}
-          isClearable={isOptional && !props.isReadOnly}
+          isClearable={isClearable ?? (isOptional && !isReadOnly)}
+          isReadOnly={isReadOnly}
           label={label}
           className="w-full"
           onChange={(newValue) => {

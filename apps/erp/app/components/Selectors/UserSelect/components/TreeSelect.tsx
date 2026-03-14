@@ -79,7 +79,7 @@ const Group = ({ group }: { group: OptionGroup }) => {
           group.expanded ? onGroupCollapse(group.uid) : onGroupExpand(group.uid)
         }
         className={cn(
-          "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-2 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-muted/50",
+          "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-2 hover:bg-muted/50 text-sm",
           isFocused && "bg-muted/50"
         )}
       >
@@ -186,7 +186,7 @@ const Option = ({
 
       {/* Content */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-medium">{name}</span>
+        <span className="truncate">{name}</span>
         {itemIsGroup && memberCount > 0 && (
           <span className="text-xs text-muted-foreground">
             {memberCount} {memberCount === 1 ? "member" : "members"}

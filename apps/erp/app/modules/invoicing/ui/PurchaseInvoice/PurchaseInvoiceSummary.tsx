@@ -30,6 +30,7 @@ import {
 } from "~/hooks";
 import { useItems } from "~/stores";
 import { getPrivateUrl, path } from "~/utils/path";
+import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 import type {
   PurchaseInvoice,
   PurchaseInvoiceDelivery,
@@ -354,8 +355,8 @@ const PurchaseInvoiceSummary = ({
     currency: routeData?.purchaseInvoice?.currencyCode ?? "USD"
   });
 
-  const isEditable = ["Draft", "To Review"].includes(
-    routeData?.purchaseInvoice?.status ?? ""
+  const isEditable = !isPurchaseInvoiceLocked(
+    routeData?.purchaseInvoice?.status
   );
 
   // Calculate totals

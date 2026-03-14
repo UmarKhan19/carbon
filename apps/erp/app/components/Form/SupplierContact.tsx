@@ -79,6 +79,7 @@ const SupplierContact = (props: SupplierContactSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
+        placeholder="Select Contact"
         inline={props.inline ? SupplierContactPreview : undefined}
         label={props?.label ?? "Supplier Contact"}
         onChange={onChange}

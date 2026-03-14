@@ -21,7 +21,7 @@ import {
   Tr,
   toast
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import { convertKbToString, formatDate } from "@carbon/utils";
 import { useDndContext, useDraggable } from "@dnd-kit/core";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
@@ -48,13 +48,15 @@ type OpportunityDocumentsProps = {
   opportunity: Opportunity;
   id: string;
   type: "Sales Order" | "Request for Quote" | "Quote" | "Sales Invoice";
+  isReadOnly?: boolean;
 };
 
 const OpportunityDocuments = ({
   attachments,
   opportunity,
   id,
-  type
+  type,
+  isReadOnly: isReadOnlyProp
 }: OpportunityDocumentsProps) => {
   const { canDelete, download, deleteAttachment, getPath, upload } =
     useOpportunityDocuments({
@@ -62,6 +64,7 @@ const OpportunityDocuments = ({
       id,
       type
     });
+  const effectiveCanDelete = isReadOnlyProp ? false : canDelete;
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -94,11 +97,13 @@ const OpportunityDocuments = ({
             <CardTitle>Files</CardTitle>
           </CardHeader>
           <CardAction>
-            <OpportunityDocumentForm
-              opportunityId={opportunity.id}
-              id={id}
-              type={type}
-            />
+            {!isReadOnlyProp && (
+              <OpportunityDocumentForm
+                opportunityId={opportunity.id}
+                id={id}
+                type={type}
+              />
+            )}
           </CardAction>
         </HStack>
         <CardContent>
@@ -107,6 +112,7 @@ const OpportunityDocuments = ({
               <Tr>
                 <Th>Name</Th>
                 <Th>Size</Th>
+                <Th>Created</Th>
                 <Th></Th>
               </Tr>
             </Thead>
@@ -124,6 +130,11 @@ const OpportunityDocuments = ({
                       {convertKbToString(
                         Math.floor((attachment.metadata?.size ?? 0) / 1024)
                       )}
+                    </Td>
+                    <Td className="text-xs font-mono">
+                      {attachment.created_at
+                        ? formatDate(attachment.created_at)
+                        : "--"}
                     </Td>
                     <Td>
                       <div className="flex justify-end gap-2">
@@ -143,7 +154,7 @@ const OpportunityDocuments = ({
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               destructive
-                              disabled={!canDelete}
+                              disabled={!effectiveCanDelete}
                               onClick={() => deleteAttachment(attachment)}
                             >
                               Delete
@@ -166,7 +177,7 @@ const OpportunityDocuments = ({
               )}
             </Tbody>
           </Table>
-          <FileDropzone onDrop={onDrop} />
+          {!isReadOnlyProp && <FileDropzone onDrop={onDrop} />}
         </CardContent>
       </Card>
 

@@ -41,8 +41,10 @@ import {
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
-import { Reorder } from "framer-motion";
+import type { DragControls } from "framer-motion";
+import { Reorder, useDragControls } from "framer-motion";
 import { nanoid } from "nanoid";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -201,19 +203,21 @@ export default function QualityDocumentExplorer() {
               disabled={isDisabled}
             >
               {sortOrder.map((sortId) => (
-                <Reorder.Item
+                <DraggableStepItem
                   key={sortId}
-                  value={sortId}
-                  dragListener={!isDisabled}
+                  stepId={sortId}
+                  isDisabled={isDisabled}
                 >
-                  <QualityDocumentStepItem
-                    key={sortId}
-                    isDisabled={isDisabled}
-                    attribute={stepMap[sortId]}
-                    onDelete={onDeleteStep}
-                    onEdit={onEditAttribute}
-                  />
-                </Reorder.Item>
+                  {(dragControls) => (
+                    <QualityDocumentStepItem
+                      isDisabled={isDisabled}
+                      attribute={stepMap[sortId]}
+                      onDelete={onDeleteStep}
+                      onEdit={onEditAttribute}
+                      dragControls={dragControls}
+                    />
+                  )}
+                </DraggableStepItem>
               ))}
             </Reorder.Group>
           ) : (
@@ -282,18 +286,42 @@ export default function QualityDocumentExplorer() {
   );
 }
 
+function DraggableStepItem({
+  stepId,
+  isDisabled,
+  children
+}: {
+  stepId: string;
+  isDisabled: boolean;
+  children: (dragControls: DragControls) => ReactNode;
+}) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      key={stepId}
+      value={stepId}
+      dragListener={false}
+      dragControls={dragControls}
+    >
+      {children(dragControls)}
+    </Reorder.Item>
+  );
+}
+
 type QualityDocumentStepProps = {
   attribute: QualityDocumentStep;
   isDisabled: boolean;
   onEdit: (attribute: QualityDocumentStep) => void;
   onDelete: (attribute: QualityDocumentStep) => void;
+  dragControls?: DragControls;
 };
 
 function QualityDocumentStepItem({
   attribute,
   isDisabled,
   onEdit,
-  onDelete
+  onDelete,
+  dragControls
 }: QualityDocumentStepProps) {
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
@@ -311,7 +339,11 @@ function QualityDocumentStepItem({
         icon={<LuGripVertical />}
         variant="ghost"
         disabled={isDisabled}
-        className="cursor-grab"
+        className="cursor-grab active:cursor-grabbing"
+        onPointerDown={(e) => {
+          if (!isDisabled && dragControls) dragControls.start(e);
+        }}
+        style={{ touchAction: "none" }}
       />
       <VStack spacing={0} className="flex-grow">
         <HStack>

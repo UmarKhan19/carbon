@@ -8,22 +8,49 @@ import { redirect, useParams } from "react-router";
 import { useUser } from "~/hooks";
 import type { PurchaseInvoice } from "~/modules/invoicing";
 import {
+  getPurchaseInvoice,
+  isPurchaseInvoiceLocked,
   PurchaseInvoiceLineForm,
   purchaseInvoiceLineValidator,
   upsertPurchaseInvoiceLine
 } from "~/modules/invoicing";
 import type { MethodItemType } from "~/modules/shared";
 import { setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "invoicing"
-  });
 
   const { invoiceId } = params;
   if (!invoiceId) throw new Error("Could not find invoiceId");
+
+  // Check if PI is locked
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "invoicing"
+  });
+
+  const purchaseInvoice = await getPurchaseInvoice(viewClient, invoiceId);
+  if (purchaseInvoice.error) {
+    throw redirect(
+      path.to.purchaseInvoiceDetails(invoiceId),
+      await flash(
+        request,
+        error(purchaseInvoice.error, "Failed to load purchase invoice")
+      )
+    );
+  }
+
+  await requireUnlocked({
+    request,
+    isLocked: isPurchaseInvoiceLocked(purchaseInvoice.data?.status),
+    redirectTo: path.to.purchaseInvoiceDetails(invoiceId),
+    message: "Cannot modify a confirmed purchase invoice."
+  });
+
+  const { client, companyId, userId } = await requirePermissions(request, {
+    create: "invoicing"
+  });
 
   const formData = await request.formData();
   const validation = await validator(purchaseInvoiceLineValidator).validate(

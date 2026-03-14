@@ -14,7 +14,11 @@ import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import { getCurrencyByCode } from "../accounting/accounting.service";
 import type { PurchaseInvoice } from "../invoicing/types";
-import { upsertExternalLink } from "../shared/shared.service";
+import {
+  canApproveRequest,
+  getLatestApprovalRequestForDocument,
+  upsertExternalLink
+} from "../shared/shared.service";
 import type {
   purchaseOrderDeliveryValidator,
   purchaseOrderLineValidator,
@@ -31,7 +35,6 @@ import type {
   supplierQuoteStatusType,
   supplierQuoteValidator,
   supplierShippingValidator,
-  supplierStatusValidator,
   supplierTypeValidator,
   supplierValidator
 } from "./purchasing.models";
@@ -87,6 +90,13 @@ export async function deletePurchaseOrderLine(
     .from("purchaseOrderLine")
     .delete()
     .eq("id", purchaseOrderLineId);
+}
+
+export async function deleteSupplier(
+  client: SupabaseClient<Database>,
+  supplierId: string
+) {
+  return client.from("supplier").delete().eq("id", supplierId);
 }
 
 export async function deleteSupplierContact(
@@ -160,13 +170,6 @@ export async function deleteSupplierQuoteLine(
   id: string
 ) {
   return client.from("supplierQuoteLine").delete().eq("id", id);
-}
-
-export async function deleteSupplierStatus(
-  client: SupabaseClient<Database>,
-  supplierStatusId: string
-) {
-  return client.from("supplierStatus").delete().eq("id", supplierStatusId);
 }
 
 export async function deleteSupplierType(
@@ -396,6 +399,81 @@ export async function getSupplier(
   supplierId: string
 ) {
   return client.from("suppliers").select("*").eq("id", supplierId).single();
+}
+
+type ApprovalContext = {
+  approvalRequest: { id: string } | null;
+  canApprove: boolean;
+  decision: {
+    status: "Approved" | "Rejected";
+    decisionBy: string;
+    decisionAt: string;
+  } | null;
+};
+
+export async function getSupplierApprovalContext(
+  serviceRole: SupabaseClient<Database>,
+  supplierId: string,
+  status: string | null,
+  companyId: string,
+  userId: string
+): Promise<ApprovalContext> {
+  const latest = await getLatestApprovalRequestForDocument(
+    serviceRole,
+    "supplier",
+    supplierId
+  );
+
+  const req = latest.data;
+
+  const canApprove = await canApproveRequest(
+    serviceRole,
+    {
+      amount: req?.amount ?? null,
+      documentType: "supplier",
+      companyId
+    },
+    userId
+  );
+
+  // Look for the latest terminal decision (Approved or Rejected)
+  let decision: ApprovalContext["decision"] = null;
+  const terminalRequest = await serviceRole
+    .from("approvalRequest")
+    .select("status, decisionBy, decisionAt")
+    .eq("documentType", "supplier")
+    .eq("documentId", supplierId)
+    .in("status", ["Approved", "Rejected"])
+    .order("decisionAt", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (
+    terminalRequest.data?.decisionBy &&
+    terminalRequest.data?.decisionAt &&
+    (terminalRequest.data.status === "Approved" ||
+      terminalRequest.data.status === "Rejected")
+  ) {
+    decision = {
+      status: terminalRequest.data.status,
+      decisionBy: terminalRequest.data.decisionBy,
+      decisionAt: terminalRequest.data.decisionAt
+    };
+  }
+
+  if (!req || req.status !== "Pending" || !req.requestedBy || !req.id) {
+    return {
+      approvalRequest: null,
+      canApprove,
+      decision
+    };
+  }
+
+  return {
+    approvalRequest: { id: req.id },
+    canApprove,
+    decision
+  };
 }
 
 export async function getSupplierContact(
@@ -707,7 +785,10 @@ export async function getSuppliers(
   }
 
   if (args.status) {
-    query = query.eq("supplierStatusId", args.status);
+    query = query.eq(
+      "status",
+      args.status as "Active" | "Inactive" | "Pending" | "Rejected"
+    );
   }
 
   query = setGenericQueryFilters(query, args, [
@@ -726,51 +807,6 @@ export async function getSuppliersList(
   }>(client, "supplier", "id, name", (query) =>
     query.eq("companyId", companyId).order("name")
   );
-}
-
-export async function getSupplierStatus(
-  client: SupabaseClient<Database>,
-  supplierStatusId: string
-) {
-  return client
-    .from("supplierStatus")
-    .select("*")
-    .eq("id", supplierStatusId)
-    .single();
-}
-
-export async function getSupplierStatuses(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  args?: GenericQueryFilters & { search: string | null }
-) {
-  let query = client
-    .from("supplierStatus")
-    .select("*", { count: "exact" })
-    .eq("companyId", companyId);
-
-  if (args?.search) {
-    query = query.ilike("name", `%${args.search}%`);
-  }
-
-  if (args) {
-    query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
-    ]);
-  }
-
-  return query;
-}
-
-export async function getSupplierStatusesList(
-  client: SupabaseClient<Database>,
-  companyId: string
-) {
-  return client
-    .from("supplierStatus")
-    .select("id, name")
-    .eq("companyId", companyId)
-    .order("name");
 }
 
 export async function getSupplierType(
@@ -1273,13 +1309,17 @@ export async function upsertPurchaseOrder(
     purchaseOrder.exchangeRateUpdatedAt = new Date().toISOString();
   }
 
-  const locationId = purchaser?.data?.locationId ?? null;
+  const locationId =
+    purchaseOrder.locationId ?? purchaser?.data?.locationId ?? null;
+
+  // locationId is not a column on purchaseOrder -- it belongs on the delivery record
+  const { locationId: _locationId, ...purchaseOrderData } = purchaseOrder;
 
   const order = await client
     .from("purchaseOrder")
     .insert([
       {
-        ...purchaseOrder,
+        ...purchaseOrderData,
         supplierInteractionId: supplierInteraction.data?.id,
         status: purchaseOrder.status ?? "Draft"
       }
@@ -1632,34 +1672,6 @@ export async function upsertSupplierQuoteLine(
     .insert([supplierQuoteLine])
     .select("id")
     .single();
-}
-
-export async function upsertSupplierStatus(
-  client: SupabaseClient<Database>,
-  supplierStatus:
-    | (Omit<z.infer<typeof supplierStatusValidator>, "id"> & {
-        companyId: string;
-        createdBy: string;
-        customFields?: Json;
-      })
-    | (Omit<z.infer<typeof supplierStatusValidator>, "id"> & {
-        id: string;
-        updatedBy: string;
-        customFields?: Json;
-      })
-) {
-  if ("createdBy" in supplierStatus) {
-    return client
-      .from("supplierStatus")
-      .insert([supplierStatus])
-      .select("id")
-      .single();
-  } else {
-    return client
-      .from("supplierStatus")
-      .update(sanitize(supplierStatus))
-      .eq("id", supplierStatus.id);
-  }
 }
 
 export async function upsertSupplierType(

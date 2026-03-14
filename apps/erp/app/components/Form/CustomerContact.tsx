@@ -57,6 +57,7 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
+        placeholder="Select Contact"
         inline={props.inline ? CustomerContactPreview : undefined}
         label={props?.label ?? "Customer Contact"}
         onChange={onChange}

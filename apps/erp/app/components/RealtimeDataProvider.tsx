@@ -114,7 +114,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
         id: string;
         name: string;
         website: string;
-      }>(carbon, "supplier", "id, name, website", (query) =>
+        supplierStatus: string;
+      }>(carbon, "supplier", "id, name, website, supplierStatus", (query) =>
         query.eq("companyId", companyId).order("name")
       ),
       fetchAllFromTable<{
@@ -332,7 +333,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                     {
                       id: inserted.id,
                       name: inserted.name,
-                      website: inserted.website
+                      website: inserted.website,
+                      supplierStatus: inserted.supplierStatus
                     }
                   ].sort((a, b) => a.name.localeCompare(b.name))
                 );
@@ -346,7 +348,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                         return {
                           ...p,
                           name: updated.name,
-                          website: updated.website
+                          website: updated.website,
+                          supplierStatus: updated.supplierStatus
                         };
                       }
                       return p;

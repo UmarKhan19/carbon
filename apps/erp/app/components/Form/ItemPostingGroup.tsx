@@ -1,4 +1,4 @@
-import type { ComboboxProps } from "@carbon/form";
+import type { CreatableComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { useDisclosure, useMount } from "@carbon/react";
 import { useMemo, useRef, useState } from "react";
@@ -8,7 +8,10 @@ import ItemPostingGroupForm from "~/modules/items/ui/ItemPostingGroups/ItemPosti
 import { path } from "~/utils/path";
 import { Enumerable } from "../Enumerable";
 
-type ItemPostingGroupSelectProps = Omit<ComboboxProps, "options" | "inline"> & {
+type ItemPostingGroupSelectProps = Omit<
+  CreatableComboboxProps,
+  "options" | "inline"
+> & {
   inline?: boolean;
 };
 

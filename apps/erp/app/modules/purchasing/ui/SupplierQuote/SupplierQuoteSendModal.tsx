@@ -1,9 +1,7 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
-  Checkbox,
   Copy,
-  HStack,
   Input,
   InputGroup,
   InputRightElement,
@@ -50,8 +48,6 @@ const SupplierQuoteSendModal = ({
   const [notificationType, setNotificationType] = useState(
     canEmail ? "Email" : "Share"
   );
-  const [sendAttachments, setSendAttachments] = useState(true);
-
   const digitalQuoteUrl =
     externalLinkId && typeof window !== "undefined"
       ? `${window.location.origin}${path.to.externalSupplierQuote(
@@ -112,7 +108,6 @@ const SupplierQuoteSendModal = ({
           defaultValues={{
             notification: notificationType as "Email" | "Share",
             supplierContact: quote?.supplierContactId ?? undefined,
-            sendAttachments: sendAttachments,
             cc: defaultCc
           }}
           fetcher={fetcher}
@@ -171,19 +166,6 @@ const SupplierQuoteSendModal = ({
                     supplier={quote?.supplierId ?? undefined}
                   />
                   <EmailRecipients name="cc" label="CC" type="employee" />
-                  <HStack spacing={2}>
-                    <Checkbox
-                      id="sendAttachments"
-                      name="sendAttachments"
-                      isChecked={sendAttachments}
-                      onCheckedChange={(checked) =>
-                        setSendAttachments(checked === true)
-                      }
-                    />
-                    <label htmlFor="sendAttachments" className="text-sm">
-                      Send documents attached to line items
-                    </label>
-                  </HStack>
                 </>
               )}
             </VStack>

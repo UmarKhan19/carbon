@@ -114,7 +114,15 @@ const CustomerForm = ({
                     placeholder="Select Customer Type"
                   />
                   <Employee name="accountManagerId" label="Account Manager" />
-
+                  {isEditing && (
+                    <>
+                      <CustomerContact
+                        customer={initialValues.id}
+                        name="salesContactId"
+                        label="Sales Contact"
+                      />
+                    </>
+                  )}
                   <Currency name="currencyCode" label="Currency" />
 
                   <Number
@@ -130,22 +138,10 @@ const CustomerForm = ({
                     }}
                   />
 
+                  <Input name="taxId" label="Tax ID" />
+                  <Input name="vatNumber" label="VAT Number" />
                   <Input name="website" label="Website" />
 
-                  {isEditing && (
-                    <>
-                      <CustomerContact
-                        customer={initialValues.id}
-                        name="salesContactId"
-                        label="Sales Contact"
-                      />
-                      <CustomerContact
-                        customer={initialValues.id}
-                        name="invoicingContactId"
-                        label="Invoicing Contact"
-                      />
-                    </>
-                  )}
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}
                   <CustomFormFields table="customer" />
                 </div>
