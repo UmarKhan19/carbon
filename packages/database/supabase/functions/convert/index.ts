@@ -287,6 +287,10 @@ serve(async (req: Request) => {
 
         let purchaseInvoiceId = "";
 
+        const company = await client.from("company").select("companyGroupId").eq("id", companyId).single();
+        if (company.error) throw new Error("Failed to fetch company");
+        const companyGroupId = company.data.companyGroupId;
+
         await db.transaction().execute(async (trx) => {
           purchaseInvoiceId = await getNextSequence(
             trx,
@@ -318,6 +322,7 @@ serve(async (req: Request) => {
               totalTax: 0,
               balance: uninvoicedSubtotal ?? 0,
               companyId,
+              companyGroupId,
               createdBy: userId,
             })
             .returning(["id"])
@@ -363,6 +368,7 @@ serve(async (req: Request) => {
               exchangeRate: line.exchangeRate ?? 1,
               jobOperationId: line.jobOperationId,
               companyId,
+              companyGroupId,
               createdBy: userId,
             }));
 
@@ -516,6 +522,7 @@ serve(async (req: Request) => {
                   ),
                   createdBy: userId,
                   companyId,
+                  companyGroupId: company.data!.companyGroupId,
                   exchangeRate: quote.data.exchangeRate ?? 1,
                   taxPercent: line.taxPercent,
                   shippingCost: selectedLines![line.id!].shippingCost,
@@ -632,6 +639,10 @@ serve(async (req: Request) => {
         if (!salesOrderShipment.data)
           throw new Error("Purchase order delivery not found");
 
+        const company = await client.from("company").select("companyGroupId").eq("id", companyId).single();
+        if (company.error) throw new Error("Failed to fetch company");
+        const companyGroupId = company.data.companyGroupId;
+
         const uninvoicedLines = salesOrderLines?.data?.reduce<
           (typeof salesOrderLines)["data"]
         >((acc, line) => {
@@ -736,6 +747,7 @@ serve(async (req: Request) => {
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
                 companyId,
+                companyGroupId,
                 createdBy: userId,
               });
             }
@@ -1179,6 +1191,10 @@ serve(async (req: Request) => {
         if (!salesOrderShipment.data)
           throw new Error("Purchase order delivery not found");
 
+        const company = await client.from("company").select("companyGroupId").eq("id", companyId).single();
+        if (company.error) throw new Error("Failed to fetch company");
+        const companyGroupId = company.data.companyGroupId;
+
         const uninvoicedLines = salesOrderLines?.data?.reduce<
           (typeof salesOrderLines)["data"]
         >((acc, line) => {
@@ -1293,6 +1309,7 @@ serve(async (req: Request) => {
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
                 companyId,
+                companyGroupId,
                 createdBy: userId,
               });
             }
@@ -1469,6 +1486,7 @@ serve(async (req: Request) => {
                   supplierTaxAmount: selectedLines![line.id!].supplierTaxAmount,
                   createdBy: userId,
                   companyId,
+                  companyGroupId: company.data!.companyGroupId,
                 };
               });
 

@@ -48,6 +48,14 @@ serve(async (req: Request) => {
       companyId
     );
 
+    const companyRecord = await client
+      .from("company")
+      .select("companyGroupId")
+      .eq("id", companyId)
+      .single();
+    if (companyRecord.error) throw new Error("Failed to fetch company");
+    const companyGroupId = companyRecord.data.companyGroupId;
+
     const [receipt, receiptLines, receiptLineTracking] = await Promise.all([
       client.from("receipt").select("*").eq("id", receiptId).single(),
       client.from("receiptLine").select("*").eq("receiptId", receiptId),
@@ -459,6 +467,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
 
                   journalLineInserts.push({
@@ -483,6 +492,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
                 }
 
@@ -515,6 +525,7 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
 
               // credit the direct cost applied account
@@ -531,6 +542,7 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
             } else {
               // debit the overhead account
@@ -547,6 +559,7 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
 
               // credit the overhead cost applied account
@@ -563,6 +576,7 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
             }
 
@@ -582,6 +596,7 @@ serve(async (req: Request) => {
               ),
               journalLineReference,
               companyId,
+              companyGroupId,
             });
 
             // credit the accounts payable account
@@ -598,6 +613,7 @@ serve(async (req: Request) => {
               ),
               journalLineReference,
               companyId,
+              companyGroupId,
             });
           }
 
@@ -641,6 +657,7 @@ serve(async (req: Request) => {
                 documentLineReference: `receipt:${receiptLine.lineId}`,
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
 
               journalLineInserts.push({
@@ -657,6 +674,7 @@ serve(async (req: Request) => {
                 documentLineReference: `receipt:${receiptLine.lineId}`,
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
             } else {
               journalLineInserts.push({
@@ -673,6 +691,7 @@ serve(async (req: Request) => {
                 documentLineReference: `receipt:${receiptLine.lineId}`,
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
 
               journalLineInserts.push({
@@ -689,6 +708,7 @@ serve(async (req: Request) => {
                 documentLineReference: `receipt:${receiptLine.lineId}`,
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
             }
           }
@@ -1062,6 +1082,7 @@ serve(async (req: Request) => {
               documentLineReference: `transfer-receipt:${receiptLine.lineId}`,
               journalLineReference,
               companyId,
+              companyGroupId,
             });
 
             // Debit (add) inventory to destination location
@@ -1076,6 +1097,7 @@ serve(async (req: Request) => {
               documentLineReference: `transfer-receipt:${receiptLine.lineId}`,
               journalLineReference,
               companyId,
+              companyGroupId,
             });
           }
         }

@@ -15715,9 +15715,6 @@ export default {
             $ref: "#/parameters/rowFilter.companies.slackChannel",
           },
           {
-            $ref: "#/parameters/rowFilter.companies.ownerId",
-          },
-          {
             $ref: "#/parameters/rowFilter.companies.createdAt",
           },
           {
@@ -15725,6 +15722,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companies.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.active",
           },
           {
             $ref: "#/parameters/rowFilter.companies.vatNumber",
@@ -15743,9 +15752,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companies.employeeType",
-          },
-          {
-            $ref: "#/parameters/rowFilter.companies.companyGroupName",
           },
           {
             $ref: "#/parameters/select",
@@ -25426,6 +25432,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate",
           },
           {
@@ -25626,6 +25635,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId",
+          },
+          {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate",
           },
           {
@@ -25778,6 +25790,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId",
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate",
@@ -48688,9 +48703,6 @@ export default {
             $ref: "#/parameters/rowFilter.company.slackChannel",
           },
           {
-            $ref: "#/parameters/rowFilter.company.ownerId",
-          },
-          {
             $ref: "#/parameters/rowFilter.company.createdAt",
           },
           {
@@ -48698,6 +48710,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.active",
           },
           {
             $ref: "#/parameters/rowFilter.company.vatNumber",
@@ -48822,9 +48846,6 @@ export default {
             $ref: "#/parameters/rowFilter.company.slackChannel",
           },
           {
-            $ref: "#/parameters/rowFilter.company.ownerId",
-          },
-          {
             $ref: "#/parameters/rowFilter.company.createdAt",
           },
           {
@@ -48832,6 +48853,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.active",
           },
           {
             $ref: "#/parameters/rowFilter.company.vatNumber",
@@ -48910,9 +48943,6 @@ export default {
             $ref: "#/parameters/rowFilter.company.slackChannel",
           },
           {
-            $ref: "#/parameters/rowFilter.company.ownerId",
-          },
-          {
             $ref: "#/parameters/rowFilter.company.createdAt",
           },
           {
@@ -48920,6 +48950,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.company.auditLogEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.parentCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.isEliminationEntity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.active",
           },
           {
             $ref: "#/parameters/rowFilter.company.vatNumber",
@@ -51442,6 +51484,9 @@ export default {
             $ref: "#/parameters/rowFilter.companyGroup.updatedAt",
           },
           {
+            $ref: "#/parameters/rowFilter.companyGroup.ownerId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -51519,6 +51564,9 @@ export default {
             $ref: "#/parameters/rowFilter.companyGroup.updatedAt",
           },
           {
+            $ref: "#/parameters/rowFilter.companyGroup.ownerId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -51548,6 +51596,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companyGroup.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companyGroup.ownerId",
           },
           {
             $ref: "#/parameters/body.companyGroup",
@@ -53057,6 +53108,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.taxAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.companyGroupId",
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.requestedDate",
@@ -76534,10 +76588,6 @@ export default {
           format: "text",
           type: "string",
         },
-        ownerId: {
-          format: "text",
-          type: "string",
-        },
         createdAt: {
           format: "timestamp with time zone",
           type: "string",
@@ -76550,6 +76600,26 @@ export default {
           type: "array",
         },
         auditLogEnabled: {
+          format: "boolean",
+          type: "boolean",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        parentCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        isEliminationEntity: {
+          format: "boolean",
+          type: "boolean",
+        },
+        active: {
           format: "boolean",
           type: "boolean",
         },
@@ -76579,10 +76649,6 @@ export default {
           type: "string",
         },
         employeeType: {
-          format: "text",
-          type: "string",
-        },
-        companyGroupName: {
           format: "text",
           type: "string",
         },
@@ -81011,6 +81077,10 @@ export default {
           format: "numeric",
           type: "number",
         },
+        companyGroupId: {
+          format: "text",
+          type: "string",
+        },
         requestedDate: {
           format: "date",
           type: "string",
@@ -82638,7 +82708,6 @@ export default {
     account: {
       required: [
         "id",
-        "number",
         "name",
         "incomeBalance",
         "active",
@@ -92148,10 +92217,6 @@ export default {
           format: "text",
           type: "string",
         },
-        ownerId: {
-          format: "text",
-          type: "string",
-        },
         createdAt: {
           default: "now()",
           format: "timestamp with time zone",
@@ -92166,6 +92231,28 @@ export default {
         },
         auditLogEnabled: {
           default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        parentCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        isEliminationEntity: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        active: {
+          default: true,
           format: "boolean",
           type: "boolean",
         },
@@ -93256,6 +93343,12 @@ export default {
           format: "timestamp with time zone",
           type: "string",
         },
+        ownerId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -94134,6 +94227,10 @@ export default {
         taxAmount: {
           format: "numeric",
           type: "number",
+        },
+        companyGroupId: {
+          format: "text",
+          type: "string",
         },
         requestedDate: {
           format: "date",
@@ -107907,12 +108004,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.companies.ownerId": {
-      name: "ownerId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.companies.createdAt": {
       name: "createdAt",
       required: false,
@@ -107927,6 +108018,30 @@ export default {
     },
     "rowFilter.companies.auditLogEnabled": {
       name: "auditLogEnabled",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.parentCompanyId": {
+      name: "parentCompanyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.isEliminationEntity": {
+      name: "isEliminationEntity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companies.active": {
+      name: "active",
       required: false,
       in: "query",
       type: "string",
@@ -107963,12 +108078,6 @@ export default {
     },
     "rowFilter.companies.employeeType": {
       name: "employeeType",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.companies.companyGroupName": {
-      name: "companyGroupName",
       required: false,
       in: "query",
       type: "string",
@@ -112970,6 +113079,12 @@ export default {
     },
     "rowFilter.purchaseOrderLine.taxAmount": {
       name: "taxAmount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLine.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",
@@ -125459,12 +125574,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.company.ownerId": {
-      name: "ownerId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.company.createdAt": {
       name: "createdAt",
       required: false,
@@ -125479,6 +125588,30 @@ export default {
     },
     "rowFilter.company.auditLogEnabled": {
       name: "auditLogEnabled",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.parentCompanyId": {
+      name: "parentCompanyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.isEliminationEntity": {
+      name: "isEliminationEntity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.active": {
+      name: "active",
       required: false,
       in: "query",
       type: "string",
@@ -126680,6 +126813,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.companyGroup.ownerId": {
+      name: "ownerId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.nonConformanceSupplier": {
       name: "nonConformanceSupplier",
       description: "nonConformanceSupplier",
@@ -127702,6 +127841,12 @@ export default {
     },
     "rowFilter.purchaseOrderLines.taxAmount": {
       name: "taxAmount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.purchaseOrderLines.companyGroupId": {
+      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string",

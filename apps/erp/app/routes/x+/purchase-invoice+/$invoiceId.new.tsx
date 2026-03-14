@@ -48,9 +48,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a confirmed purchase invoice."
   });
 
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "invoicing"
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      create: "invoicing"
+    });
 
   const formData = await request.formData();
   const validation = await validator(purchaseInvoiceLineValidator).validate(
@@ -67,6 +68,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const createPurchaseInvoiceLine = await upsertPurchaseInvoiceLine(client, {
     ...d,
     companyId,
+    companyGroupId,
     createdBy: userId,
     customFields: setCustomFields(formData)
   });

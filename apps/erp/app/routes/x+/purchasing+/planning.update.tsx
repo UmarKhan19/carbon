@@ -19,11 +19,12 @@ const itemsValidator = z
   .array();
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing",
-    role: "employee",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      create: "purchasing",
+      role: "employee",
+      bypassRls: true
+    });
 
   const { items, action, locationId } = await request.json();
 
@@ -415,6 +416,7 @@ export async function action({ request }: ActionFunctionArgs) {
                 requestedDate: earliestDueDate ?? undefined,
                 locationId,
                 companyId,
+                companyGroupId,
                 createdBy: userId
               }
             );

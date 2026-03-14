@@ -80,7 +80,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a locked sales invoice. Reopen it first."
   });
 
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     create: "invoicing"
   });
 
@@ -115,6 +115,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const updateSalesInvoiceLine = await upsertSalesInvoiceLine(client, {
     id: lineId,
     ...d,
+    companyGroupId,
     updatedBy: userId,
     customFields: setCustomFields(formData)
   });

@@ -106,7 +106,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a locked sales order. Reopen it first."
   });
 
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     create: "sales"
   });
 
@@ -137,6 +137,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const updateSalesOrderLine = await upsertSalesOrderLine(client, {
     id: lineId,
     ...d,
+    companyGroupId,
     updatedBy: userId,
     customFields: setCustomFields(formData)
   });

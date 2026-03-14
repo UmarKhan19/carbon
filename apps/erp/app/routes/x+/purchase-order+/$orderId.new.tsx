@@ -45,9 +45,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a confirmed purchase order."
   });
 
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing"
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      create: "purchasing"
+    });
 
   const formData = await request.formData();
   const validation = await validator(purchaseOrderLineValidator).validate(
@@ -64,6 +65,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const createPurchaseOrderLine = await upsertPurchaseOrderLine(client, {
     ...d,
     companyId,
+    companyGroupId,
     createdBy: userId,
     customFields: setCustomFields(formData)
   });

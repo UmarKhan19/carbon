@@ -47,6 +47,14 @@ serve(async (req: Request) => {
       companyId
     );
 
+    const companyRecord = await client
+      .from("company")
+      .select("companyGroupId")
+      .eq("id", companyId)
+      .single();
+    if (companyRecord.error) throw new Error("Failed to fetch company");
+    const companyGroupId = companyRecord.data.companyGroupId;
+
     const [salesInvoice, salesInvoiceLines, salesInvoiceShipment] =
       await Promise.all([
         client.from("salesInvoice").select("*").eq("id", invoiceId).single(),
@@ -307,6 +315,7 @@ serve(async (req: Request) => {
                       externalDocumentId: salesInvoice.data?.customerReference,
                       journalLineReference,
                       companyId,
+                      companyGroupId,
                     });
 
                     // creidt the cost of goods sold account
@@ -324,6 +333,7 @@ serve(async (req: Request) => {
                       externalDocumentId: salesInvoice.data?.customerReference,
                       journalLineReference,
                       companyId,
+                      companyGroupId,
                     });
                   }
 
@@ -346,6 +356,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
 
                   // debit the accounts receivable account
@@ -362,6 +373,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
                 } // if the line is associated with a sales order line, we do accrual/reversing
                 else {
@@ -387,6 +399,7 @@ serve(async (req: Request) => {
                       : null,
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
 
                   // Debit the accounts receivable account
@@ -405,6 +418,7 @@ serve(async (req: Request) => {
                       : null,
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
 
                   // For inventory items, handle COGS and inventory
@@ -432,6 +446,7 @@ serve(async (req: Request) => {
                         : null,
                       journalLineReference,
                       companyId,
+                      companyGroupId,
                     });
 
                     // Credit inventory account
@@ -454,6 +469,7 @@ serve(async (req: Request) => {
                         : null,
                       journalLineReference,
                       companyId,
+                      companyGroupId,
                     });
                   }
                 }
@@ -741,6 +757,7 @@ serve(async (req: Request) => {
           documentLineReference: entry.documentLineReference,
           journalLineReference: entry.journalLineReference,
           companyId,
+          companyGroupId,
         }));
 
         // Create reversing item ledger entries

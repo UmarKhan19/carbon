@@ -384,6 +384,7 @@ serve(async (req: Request) => {
                   externalDocumentId: purchaseInvoice.data?.supplierReference,
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
 
                 // creidt the direct cost applied account
@@ -397,6 +398,7 @@ serve(async (req: Request) => {
                   externalDocumentId: purchaseInvoice.data?.supplierReference,
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
               } else {
                 // debit the overhead account
@@ -410,6 +412,7 @@ serve(async (req: Request) => {
                   externalDocumentId: purchaseInvoice.data?.supplierReference,
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
 
                 // creidt the overhead cost applied account
@@ -424,6 +427,7 @@ serve(async (req: Request) => {
                   externalDocumentId: purchaseInvoice.data?.supplierReference,
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
               }
 
@@ -443,6 +447,7 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
 
               // credit the accounts payable account
@@ -459,6 +464,7 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
+                companyGroupId,
               });
             } // if the line is associated with a purchase order line, we do accrual/reversing
             else {
@@ -597,6 +603,7 @@ serve(async (req: Request) => {
                           : null,
                         journalLineReference,
                         companyId,
+                        companyGroupId,
                       });
 
                       journalLineInserts.push({
@@ -623,6 +630,7 @@ serve(async (req: Request) => {
                           ),
                         journalLineReference,
                         companyId,
+                        companyGroupId,
                       });
                     }
 
@@ -657,6 +665,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
 
                   // creidt the direct cost applied account
@@ -677,6 +686,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
                 } else {
                   // debit the overhead account
@@ -696,6 +706,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
 
                   // creidt the overhead cost applied account
@@ -716,6 +727,7 @@ serve(async (req: Request) => {
                     ),
                     journalLineReference,
                     companyId,
+                    companyGroupId,
                   });
                 }
 
@@ -738,6 +750,7 @@ serve(async (req: Request) => {
                   ),
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
 
                 // credit the accounts payable account
@@ -757,6 +770,7 @@ serve(async (req: Request) => {
                   ),
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
               }
 
@@ -788,6 +802,7 @@ serve(async (req: Request) => {
                     : null,
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
 
                 // credit the inventory interim accrual account
@@ -811,6 +826,7 @@ serve(async (req: Request) => {
                     : null,
                   journalLineReference,
                   companyId,
+                  companyGroupId,
                 });
               }
             }
@@ -863,6 +879,7 @@ serve(async (req: Request) => {
             ),
             journalLineReference,
             companyId,
+            companyGroupId,
           });
 
           // credit the direct cost applied account
@@ -879,6 +896,7 @@ serve(async (req: Request) => {
             ),
             journalLineReference,
             companyId,
+            companyGroupId,
           });
 
           journalLineReference = nanoid();
@@ -897,6 +915,7 @@ serve(async (req: Request) => {
             ),
             journalLineReference,
             companyId,
+            companyGroupId,
           });
 
           // credit the accounts payable account
@@ -913,6 +932,7 @@ serve(async (req: Request) => {
             ),
             journalLineReference,
             companyId,
+            companyGroupId,
           });
           break;
         }

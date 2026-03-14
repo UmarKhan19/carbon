@@ -188,7 +188,7 @@ export type Database = {
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
           isGroup: boolean
           name: string
-          number: string
+          number: string | null
           parentId: string | null
           tags: string[] | null
           updatedAt: string | null
@@ -209,7 +209,7 @@ export type Database = {
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
           isGroup?: boolean
           name: string
-          number: string
+          number?: string | null
           parentId?: string | null
           tags?: string[] | null
           updatedAt?: string | null
@@ -230,7 +230,7 @@ export type Database = {
           incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"]
           isGroup?: boolean
           name?: string
-          number?: string
+          number?: string | null
           parentId?: string | null
           tags?: string[] | null
           updatedAt?: string | null
@@ -2225,7 +2225,6 @@ export type Database = {
           logoLight: string | null
           logoLightIcon: string | null
           name: string
-          ownerId: string | null
           parentCompanyId: string | null
           phone: string | null
           postalCode: string | null
@@ -2256,7 +2255,6 @@ export type Database = {
           logoLight?: string | null
           logoLightIcon?: string | null
           name: string
-          ownerId?: string | null
           parentCompanyId?: string | null
           phone?: string | null
           postalCode?: string | null
@@ -2287,7 +2285,6 @@ export type Database = {
           logoLight?: string | null
           logoLightIcon?: string | null
           name?: string
-          ownerId?: string | null
           parentCompanyId?: string | null
           phone?: string | null
           postalCode?: string | null
@@ -2376,104 +2373,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
-          },
-        ]
-      }
-      companyGroup: {
-        Row: {
-          createdAt: string
-          createdBy: string | null
-          id: string
-          name: string
-          updatedAt: string | null
-          updatedBy: string | null
-        }
-        Insert: {
-          createdAt?: string
-          createdBy?: string | null
-          id?: string
-          name: string
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Update: {
-          createdAt?: string
-          createdBy?: string | null
-          id?: string
-          name?: string
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "companyGroup_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "companyGroup_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companyGroup_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
           },
         ]
       }
@@ -2628,6 +2527,142 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+        ]
+      }
+      companyGroup: {
+        Row: {
+          createdAt: string
+          createdBy: string | null
+          id: string
+          name: string
+          ownerId: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          createdAt?: string
+          createdBy?: string | null
+          id?: string
+          name: string
+          ownerId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          createdAt?: string
+          createdBy?: string | null
+          id?: string
+          name?: string
+          ownerId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companyGroup_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "companyGroup_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "companyGroup_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companyGroup_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -42401,7 +42436,6 @@ export type Database = {
           baseCurrencyCode: string | null
           city: string | null
           companyGroupId: string | null
-          companyGroupName: string | null
           companyId: string | null
           countryCode: string | null
           countryName: string | null
@@ -42416,7 +42450,6 @@ export type Database = {
           logoLight: string | null
           logoLightIcon: string | null
           name: string | null
-          ownerId: string | null
           parentCompanyId: string | null
           phone: string | null
           postalCode: string | null
@@ -47032,14 +47065,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -48077,6 +48110,7 @@ export type Database = {
           accountNumber: string | null
           assetId: string | null
           autodeskUrn: string | null
+          companyGroupId: string | null
           companyId: string | null
           conversionFactor: number | null
           createdAt: string | null
@@ -48137,6 +48171,20 @@ export type Database = {
           updatedBy: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "purchaseOrderLine_accountNumber_fkey"
+            columns: ["accountNumber", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_accountNumber_fkey"
+            columns: ["accountNumber", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["number", "companyGroupId"]
+          },
           {
             foreignKeyName: "purchaseOrderLine_createdBy_fkey"
             columns: ["createdBy"]
@@ -51521,14 +51569,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52064,14 +52112,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56793,6 +56841,28 @@ export type Database = {
     }
     Enums: {
       accountingPeriodStatus: "Inactive" | "Active"
+      accountType:
+        | "Bank"
+        | "Cash"
+        | "Accounts Receivable"
+        | "Accounts Payable"
+        | "Inventory"
+        | "Fixed Asset"
+        | "Accumulated Depreciation"
+        | "Other Current Asset"
+        | "Other Asset"
+        | "Other Current Liability"
+        | "Long Term Liability"
+        | "Equity - No Close"
+        | "Equity - Close"
+        | "Retained Earnings"
+        | "Income"
+        | "Cost of Goods Sold"
+        | "Expense"
+        | "Other Income"
+        | "Other Expense"
+        | "Tax"
+        | "Investments"
       approvalDocumentType: "purchaseOrder" | "qualityDocument" | "supplier"
       approvalStatus: "Pending" | "Approved" | "Rejected" | "Cancelled"
       configurationParameterDataType:
@@ -57895,6 +57965,29 @@ export const Constants = {
   public: {
     Enums: {
       accountingPeriodStatus: ["Inactive", "Active"],
+      accountType: [
+        "Bank",
+        "Cash",
+        "Accounts Receivable",
+        "Accounts Payable",
+        "Inventory",
+        "Fixed Asset",
+        "Accumulated Depreciation",
+        "Other Current Asset",
+        "Other Asset",
+        "Other Current Liability",
+        "Long Term Liability",
+        "Equity - No Close",
+        "Equity - Close",
+        "Retained Earnings",
+        "Income",
+        "Cost of Goods Sold",
+        "Expense",
+        "Other Income",
+        "Other Expense",
+        "Tax",
+        "Investments",
+      ],
       approvalDocumentType: ["purchaseOrder", "qualityDocument", "supplier"],
       approvalStatus: ["Pending", "Approved", "Rejected", "Cancelled"],
       configurationParameterDataType: [
