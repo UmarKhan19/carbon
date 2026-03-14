@@ -837,8 +837,7 @@ export const JobOperation = ({
 
                                           <BarProgress
                                             label="Steps"
-                                            gradient
-                                            invertGradient
+                                            variant="duration"
                                             progress={
                                               (attributes.filter((a) =>
                                                 a.jobOperationStepRecord.some(
@@ -1744,8 +1743,7 @@ export const JobOperation = ({
                                     <div className="flex flex-col justify-center items-end gap-1">
                                       <BarProgress
                                         label="Steps"
-                                        gradient
-                                        invertGradient
+                                        variant="duration"
                                         progress={
                                           (attributes.filter((a) =>
                                             a.jobOperationStepRecord.some(
@@ -2073,15 +2071,9 @@ export const JobOperation = ({
                       })}
                     </span>
                     <BarProgress
-                      gradient
-                      invertGradient
+                      variant="duration"
                       progress={
                         (progress.setup / operation.setupDuration) * 100
-                      }
-                      activeClassName={
-                        progress.setup > operation.setupDuration
-                          ? "bg-red-500"
-                          : "bg-emerald-500"
                       }
                     />
                   </>
@@ -2104,15 +2096,9 @@ export const JobOperation = ({
                       })}
                     </span>
                     <BarProgress
-                      gradient
-                      invertGradient
+                      variant="duration"
                       progress={
                         (progress.labor / operation.laborDuration) * 100
-                      }
-                      activeClassName={
-                        progress.labor > operation.laborDuration
-                          ? "bg-red-500"
-                          : "bg-emerald-500"
                       }
                     />
                   </>
@@ -2135,15 +2121,9 @@ export const JobOperation = ({
                       })}
                     </span>
                     <BarProgress
-                      gradient
-                      invertGradient
+                      variant="duration"
                       progress={
                         (progress.machine / operation.machineDuration) * 100
-                      }
-                      activeClassName={
-                        progress.machine > operation.machineDuration
-                          ? "bg-red-500"
-                          : "bg-emerald-500"
                       }
                     />
                   </>

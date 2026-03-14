@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
   Combobox,
-  DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -54,7 +53,7 @@ import {
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { Empty, Hyperlink } from "~/components";
+import { DateSelect, Empty, Hyperlink } from "~/components";
 import { useWorkCenters } from "~/components/Form/WorkCenters";
 import { GradientBar } from "~/components/GradientBar";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
@@ -62,7 +61,7 @@ import type { maintenanceSource } from "~/modules/resources/resources.models";
 import { MaintenanceKPIs } from "~/modules/resources/resources.models";
 import MaintenanceSource from "~/modules/resources/ui/Maintenance/MaintenanceSource";
 import MaintenanceStatus from "~/modules/resources/ui/Maintenance/MaintenanceStatus";
-import { chartIntervals } from "~/modules/shared/shared.models";
+
 import type { loader as kpiLoader } from "~/routes/api+/resources.kpi.$key";
 
 import { path } from "~/utils/path";
@@ -175,8 +174,6 @@ export default function MaintenanceDashboard() {
     return { start, end };
   });
 
-  const selectedInterval =
-    chartIntervals.find((i) => i.key === interval) || chartIntervals[1];
   const selectedKpiData =
     MaintenanceKPIs.find((k) => k.key === selectedKpi) || MaintenanceKPIs[0];
 
@@ -455,40 +452,6 @@ export default function MaintenanceDashboard() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    rightIcon={<LuChevronDown />}
-                    className="hover:bg-background/80"
-                  >
-                    <span>
-                      {selectedInterval.key === "custom"
-                        ? selectedInterval.label
-                        : `Last ${selectedInterval.label}`}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="bottom" align="start">
-                  <DropdownMenuRadioGroup
-                    value={interval}
-                    onValueChange={onIntervalChange}
-                  >
-                    {chartIntervals.map((i) => (
-                      <DropdownMenuRadioItem key={i.key} value={i.key}>
-                        {i.key === "custom" ? i.label : `Last ${i.label}`}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {interval === "custom" && (
-                <DateRangePicker
-                  size="sm"
-                  value={dateRange}
-                  onChange={setDateRange}
-                />
-              )}
               <Combobox
                 asButton
                 value={workCenterId}
@@ -499,7 +462,13 @@ export default function MaintenanceDashboard() {
               />
             </div>
           </CardHeader>
-          <CardAction>
+          <CardAction className="flex-row items-center gap-2">
+            <DateSelect
+              value={interval}
+              onValueChange={onIntervalChange}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton

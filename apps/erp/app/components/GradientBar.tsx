@@ -18,8 +18,8 @@ export function GradientBar(props: unknown): React.JSX.Element {
     <g>
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={fill} stopOpacity={0.3} />
-          <stop offset="100%" stopColor={fill} stopOpacity={0.03} />
+          <stop offset="0%" stopColor={fill} stopOpacity={0.4} />
+          <stop offset="100%" stopColor={fill} stopOpacity={0.4} />
         </linearGradient>
       </defs>
       <path d={d} fill={`url(#${gradientId})`} />

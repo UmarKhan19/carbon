@@ -224,8 +224,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           Number(item?.duration) >= 0 && (
             <HStack>
               <BarProgress
-                gradient
-                invertGradient
+                variant="duration"
                 progress={Math.min(
                   progress && item.duration
                     ? (progress / item.duration) * 100

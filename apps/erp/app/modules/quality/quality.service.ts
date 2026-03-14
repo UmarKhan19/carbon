@@ -352,7 +352,7 @@ export async function getQualityDashboardIssues(
   return client
     .from("issues")
     .select(
-      "id, nonConformanceId, name, status, priority, source, nonConformanceTypeId, openDate, closeDate, assignee, createdAt"
+      "id, nonConformanceId, name, status, priority, source, nonConformanceTypeId, openDate, closeDate, assignee, createdAt, containmentStatus"
     )
     .eq("companyId", companyId);
 }
@@ -385,44 +385,8 @@ export async function getIssues(
     );
   }
 
-  // Handle containmentStatus custom filter (not a direct column)
-  let filteredArgs = args;
-  if (args?.filters) {
-    const containmentFilter = args.filters.find(
-      (f) => f.column === "containmentStatus"
-    );
-    if (containmentFilter?.value) {
-      filteredArgs = {
-        ...args,
-        filters: args.filters.filter((f) => f.column !== "containmentStatus")
-      };
-
-      const { data: containedTasks } = await client
-        .from("nonConformanceActionTask")
-        .select("nonConformanceId, nonConformanceRequiredAction!inner(name)")
-        .eq("companyId", companyId)
-        .eq("nonConformanceRequiredAction.name", "Containment Action")
-        .in("status", ["In Progress", "Completed"]);
-
-      const containedIds = [
-        ...new Set((containedTasks ?? []).map((t) => t.nonConformanceId))
-      ];
-
-      if (containmentFilter.value === "Contained") {
-        query =
-          containedIds.length > 0
-            ? query.in("id", containedIds)
-            : query.eq("id", "__none__");
-      } else if (containmentFilter.value === "Uncontained") {
-        if (containedIds.length > 0) {
-          query = query.not("id", "in", `(${containedIds.join(",")})`);
-        }
-      }
-    }
-  }
-
-  if (filteredArgs) {
-    query = setGenericQueryFilters(query, filteredArgs, [
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
       { column: "nonConformanceId", ascending: false }
     ]);
   }

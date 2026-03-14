@@ -44754,6 +44754,7 @@ export type Database = {
           assignee: string | null
           closeDate: string | null
           companyId: string | null
+          containmentStatus: string | null
           content: Json | null
           createdAt: string | null
           createdBy: string | null

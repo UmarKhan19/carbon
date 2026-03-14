@@ -3,16 +3,19 @@ import {
   Badge,
   Button,
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
-  DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
   HStack,
+  IconButton,
   NumberField,
   NumberInput,
   Table,
@@ -26,16 +29,21 @@ import {
 import type { ChartConfig } from "@carbon/react/Chart";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent
 } from "@carbon/react/Chart";
 import { today } from "@internationalized/date";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useMemo, useState } from "react";
+import { CSVLink } from "react-csv";
 import {
   LuArrowUpRight,
   LuChevronDown,
   LuClock,
+  LuEllipsisVertical,
+  LuFile,
   LuInbox,
   LuListChecks,
   LuShieldAlert,
@@ -49,13 +57,12 @@ import {
   BarChart,
   CartesianGrid,
   ComposedChart,
-  Legend,
   Line,
   ReferenceLine,
   XAxis,
   YAxis
 } from "recharts";
-import { Empty, Hyperlink } from "~/components";
+import { DateSelect, Empty, Hyperlink } from "~/components";
 import { GradientBar } from "~/components/GradientBar";
 import {
   getIssueTypesList,
@@ -63,7 +70,7 @@ import {
   getQualityDashboardIssues
 } from "~/modules/quality";
 import IssueStatus from "~/modules/quality/ui/Issue/IssueStatus";
-import { chartIntervals } from "~/modules/shared/shared.models";
+
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -96,6 +103,7 @@ const qualityChartConfig = {
   opened: { label: "Opened", color: "hsl(var(--primary))" },
   closed: { label: "Closed", color: "hsl(var(--chart-2))" },
   runningTotal: { label: "Running Total", color: "hsl(var(--chart-1))" },
+  target: { label: "Target", color: "hsl(var(--destructive))" },
   count: { label: "Count" },
   "0-4 weeks": { label: "0-4 weeks", color: "hsl(var(--success))" },
   "5-8 weeks": { label: "5-8 weeks", color: "hsl(var(--chart-4))" },
@@ -106,21 +114,25 @@ const qualityChartConfig = {
 const weeklyLegendPayload = [
   {
     value: "Opened",
+    dataKey: "opened",
     type: "square" as const,
     color: qualityChartConfig.opened.color
   },
   {
     value: "Closed",
+    dataKey: "closed",
     type: "square" as const,
     color: qualityChartConfig.closed.color
   },
   {
     value: "Running Total",
+    dataKey: "runningTotal",
     type: "line" as const,
     color: qualityChartConfig.runningTotal.color
   },
   {
     value: "Target",
+    dataKey: "target",
     type: "line" as const,
     color: "hsl(var(--destructive))"
   }
@@ -228,18 +240,16 @@ export default function QualityDashboard() {
   const { issues, actionTasks, issueTypes, assignedToMe } =
     useLoaderData<typeof loader>();
   const [selectedChart, setSelectedChart] = useState("weeklyTracking");
-  const [interval, setInterval] = useState("year");
+  const [interval, setInterval] = useState("month");
   const [target, setTarget] = useState(20);
   const [dateRange, setDateRange] = useState<DateRange | null>(() => {
     const end = today("UTC");
-    const start = end.add({ years: -1 });
+    const start = end.add({ months: -1 });
     return { start, end };
   });
 
   const selectedChartData =
     QualityCharts.find((c) => c.key === selectedChart) || QualityCharts[0];
-  const selectedInterval =
-    chartIntervals.find((i) => i.key === interval) || chartIntervals[3];
 
   const onIntervalChange = (value: string) => {
     const end = today("UTC");
@@ -254,20 +264,6 @@ export default function QualityDashboard() {
     }
     setInterval(value);
   };
-
-  // Build containment map: nonConformanceId -> containment task info
-  const containmentMap = useMemo(() => {
-    const map = new Map<string, { status: string; assignee: string | null }>();
-    for (const task of actionTasks) {
-      if (task.actionName === "Containment Action") {
-        map.set(task.nonConformanceId, {
-          status: task.status,
-          assignee: task.assignee
-        });
-      }
-    }
-    return map;
-  }, [actionTasks]);
 
   // Issue type lookup
   const typeNameMap = useMemo(() => {
@@ -289,19 +285,17 @@ export default function QualityDashboard() {
     ).length;
   }, [actionTasks]);
 
-  // --- KPI: Uncontained + On the Line ---
+  // --- KPI: Uncontained + Contained ---
   const { uncontainedCount, containedCount } = useMemo(() => {
     let uncontained = 0;
     let contained = 0;
 
     for (const issue of issues) {
       if (issue.status === "Closed") continue;
-
-      const containment = containmentMap.get(issue.id);
-      if (!containment || containment.status === "Pending") {
-        uncontained++;
-      } else if (containment.status === "In Progress") {
+      if (issue.containmentStatus === "Contained") {
         contained++;
+      } else {
+        uncontained++;
       }
     }
 
@@ -309,7 +303,7 @@ export default function QualityDashboard() {
       uncontainedCount: uncontained,
       containedCount: contained
     };
-  }, [issues, containmentMap]);
+  }, [issues]);
 
   // --- Recently Created ---
   const recentlyCreated = useMemo(() => {
@@ -394,9 +388,8 @@ export default function QualityDashboard() {
       weeklyData.length > 0
         ? weeklyData[weeklyData.length - 1].runningTotal
         : 0;
-    const totalOpened = weeklyData.reduce((sum, d) => sum + d.opened, 0);
     const totalClosed = weeklyData.reduce((sum, d) => sum + d.closed, 0);
-    return { currentOpen: currentTotal, totalOpened, totalClosed };
+    return { currentOpen: currentTotal, totalClosed };
   }, [weeklyData]);
 
   // --- NCR Status ---
@@ -450,30 +443,23 @@ export default function QualityDashboard() {
   // --- Containment Progress by Criticality ---
   const containmentProgressData = useMemo(() => {
     const grid: Record<string, Record<string, number>> = {
-      "In Progress": { Critical: 0, High: 0, Medium: 0, Low: 0 },
-      Pending: { Critical: 0, High: 0, Medium: 0, Low: 0 }
+      Contained: { Critical: 0, High: 0, Medium: 0, Low: 0 },
+      Uncontained: { Critical: 0, High: 0, Medium: 0, Low: 0 }
     };
 
     for (const issue of filteredIssues) {
       if (issue.status === "Closed") continue;
-      const containment = containmentMap.get(issue.id);
-      const cStatus =
-        !containment || containment.status === "Pending"
-          ? "Pending"
-          : containment.status === "In Progress"
-            ? "In Progress"
-            : null;
-
-      if (cStatus && issue.priority && grid[cStatus]) {
+      const cStatus = issue.containmentStatus ?? "Uncontained";
+      if (issue.priority && grid[cStatus]) {
         grid[cStatus][issue.priority]++;
       }
     }
 
-    return ["In Progress", "Pending"].map((status) => ({
+    return ["Contained", "Uncontained"].map((status) => ({
       status,
       ...grid[status]
     }));
-  }, [filteredIssues, containmentMap]);
+  }, [filteredIssues]);
 
   // --- Weeks Open by Criticality ---
   const weeksOpenData = useMemo(() => {
@@ -556,6 +542,92 @@ export default function QualityDashboard() {
         return totalB - totalA;
       });
   }, [filteredIssues, typeNameMap]);
+
+  const csvData = useMemo(() => {
+    switch (selectedChart) {
+      case "weeklyTracking":
+        return [
+          ["Week", "Opened", "Closed", "Running Total"],
+          ...weeklyData.map((d) => [d.week, d.opened, d.closed, d.runningTotal])
+        ];
+      case "ncrStatus":
+        return [
+          ["Status", "Count"],
+          ...ncrStatusData.map((d) => [d.status, d.count])
+        ];
+      case "statusByCriticality":
+        return [
+          ["Status", "Critical", "High", "Medium", "Low"],
+          ...statusByCriticalityData.map((d) => [
+            d.status,
+            d.Critical,
+            d.High,
+            d.Medium,
+            d.Low
+          ])
+        ];
+      case "containmentProgress":
+        return [
+          ["Status", "Critical", "High", "Medium", "Low"],
+          ...containmentProgressData.map((d) => [
+            d.status,
+            d.Critical,
+            d.High,
+            d.Medium,
+            d.Low
+          ])
+        ];
+      case "weeksOpen":
+        return [
+          ["Criticality", "0-4 weeks", "5-8 weeks", "9-12 weeks", "13+ weeks"],
+          ...weeksOpenData.map((d) => [
+            d.criticality,
+            d["0-4 weeks"],
+            d["5-8 weeks"],
+            d["9-12 weeks"],
+            d["13+ weeks"]
+          ])
+        ];
+      case "ncrsByTypeCriticality":
+        return [
+          ["Type", "Critical", "High", "Medium", "Low"],
+          ...ncrsByTypeCriticalityData.map((d) => [
+            d.type,
+            d.Critical,
+            d.High,
+            d.Medium,
+            d.Low
+          ])
+        ];
+      case "ncrsByTypeProgress":
+        return [
+          ["Type", "Registered", "In Progress", "Closed"],
+          ...ncrsByTypeProgressData.map((d) => [
+            d.type,
+            d.Registered,
+            d["In Progress"],
+            d.Closed
+          ])
+        ];
+      default:
+        return [];
+    }
+  }, [
+    selectedChart,
+    weeklyData,
+    ncrStatusData,
+    statusByCriticalityData,
+    containmentProgressData,
+    weeksOpenData,
+    ncrsByTypeCriticalityData,
+    ncrsByTypeProgressData
+  ]);
+
+  const csvFilename = useMemo(() => {
+    const startDate = dateRange?.start.toString();
+    const endDate = dateRange?.end.toString();
+    return `${selectedChartData.label.replace(/ /g, "_")}_${startDate}_to_${endDate}.csv`;
+  }, [dateRange, selectedChartData.label]);
 
   return (
     <div className="flex flex-col gap-4 w-full p-4 h-[calc(100dvh-var(--header-height))] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-muted-foreground">
@@ -690,58 +762,52 @@ export default function QualityDashboard() {
                   </DropdownMenuRadioGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    rightIcon={<LuChevronDown />}
-                    className="hover:bg-background/80"
-                  >
-                    <span>
-                      {selectedInterval.key === "custom"
-                        ? selectedInterval.label
-                        : `Last ${selectedInterval.label}`}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="bottom" align="start">
-                  <DropdownMenuRadioGroup
-                    value={interval}
-                    onValueChange={onIntervalChange}
-                  >
-                    {chartIntervals.map((i) => (
-                      <DropdownMenuRadioItem key={i.key} value={i.key}>
-                        {i.key === "custom" ? i.label : `Last ${i.label}`}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {interval === "custom" && (
-                <DateRangePicker
-                  size="sm"
-                  value={dateRange}
-                  onChange={setDateRange}
-                />
-              )}
             </div>
           </CardHeader>
-          {selectedChart === "weeklyTracking" && (
-            <div className="flex items-center gap-1 pr-4">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                Target:
-              </span>
-              <NumberField
-                value={target}
-                onChange={(v) => setTarget(v)}
-                minValue={0}
-                aria-label="Target"
-              >
-                <NumberInput size="sm" className="w-16" />
-              </NumberField>
-            </div>
-          )}
+          <CardAction className="flex-row items-center gap-2">
+            {selectedChart === "weeklyTracking" && (
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  Target:
+                </span>
+                <NumberField
+                  value={target}
+                  onChange={(v) => setTarget(v)}
+                  minValue={0}
+                  aria-label="Target"
+                >
+                  <NumberInput size="sm" className="w-16" />
+                </NumberField>
+              </div>
+            )}
+            <DateSelect
+              value={interval}
+              onValueChange={onIntervalChange}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <IconButton
+                  variant="secondary"
+                  icon={<LuEllipsisVertical />}
+                  aria-label="More"
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <CSVLink
+                    data={csvData}
+                    filename={csvFilename}
+                    className="flex flex-row items-center gap-2"
+                  >
+                    <DropdownMenuIcon icon={<LuFile />} />
+                    Export CSV
+                  </CSVLink>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </CardAction>
         </HStack>
         <CardContent className="flex-col gap-4">
           {selectedChart === "weeklyTracking" && (
@@ -752,13 +818,6 @@ export default function QualityDashboard() {
                 </span>
                 <span className="text-2xl font-semibold tracking-tight">
                   {weeklyStats.currentOpen}
-                </span>
-              </VStack>
-              <div className="w-px h-8 bg-border" />
-              <VStack spacing={0}>
-                <span className="text-xs text-muted-foreground">Opened</span>
-                <span className="text-2xl font-semibold tracking-tight text-blue-500">
-                  {weeklyStats.totalOpened}
                 </span>
               </VStack>
               <div className="w-px h-8 bg-border" />
@@ -792,7 +851,10 @@ export default function QualityDashboard() {
                       <ChartTooltipContent labelFormatter={formatWeekLabel} />
                     }
                   />
-                  <Legend payload={weeklyLegendPayload} />
+                  <ChartLegend
+                    payload={weeklyLegendPayload}
+                    content={<ChartLegendContent />}
+                  />
                   {target > 0 && (
                     <ReferenceLine
                       y={target}
@@ -821,10 +883,10 @@ export default function QualityDashboard() {
                     isAnimationActive={false}
                   />
                   <Line
-                    type="monotone"
+                    type="natural"
                     dataKey="runningTotal"
                     stroke="var(--color-runningTotal)"
-                    strokeWidth={2}
+                    strokeWidth={2.5}
                     dot={false}
                     isAnimationActive={false}
                   />
@@ -862,7 +924,7 @@ export default function QualityDashboard() {
                   <XAxis dataKey="status" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
+                  <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="Critical"
                     fill="var(--color-Critical)"
@@ -905,7 +967,7 @@ export default function QualityDashboard() {
                   <XAxis dataKey="status" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend />
+                  <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="Critical"
                     fill="var(--color-Critical)"
@@ -952,7 +1014,7 @@ export default function QualityDashboard() {
                   />
                   <YAxis tickLine={false} axisLine={false} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend verticalAlign="bottom" />
+                  <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="0-4 weeks"
                     fill="hsl(var(--success))"
@@ -995,7 +1057,7 @@ export default function QualityDashboard() {
                   <XAxis dataKey="type" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend verticalAlign="bottom" />
+                  <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="Critical"
                     fill="var(--color-Critical)"
@@ -1042,7 +1104,7 @@ export default function QualityDashboard() {
                   <XAxis dataKey="type" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Legend verticalAlign="bottom" />
+                  <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="Registered"
                     fill="var(--color-Registered)"

@@ -1,0 +1,42 @@
+# Ralphy Configuration
+# https://github.com/michaelshimeles/ralphy
+
+# Project info
+project:
+  name: "carbon"
+  language: "TypeScript"
+  framework: "React Router (Remix), SST"
+  description: "Manufacturing system (ERP, MES, Academy) - monorepo with turborepo"
+
+# Commands
+commands:
+  test: "npm test"
+  lint: "npm run lint"
+  build: "npm run build"
+  typecheck: "npm run typecheck"
+  dev: "npm run dev"
+
+# Rules - instructions the AI MUST follow
+rules:
+  - "Check llm/cache/ files before exploring the codebase directly"
+  - "Check llm/workflows/ for relevant workflow files when told to do a workflow"
+  - "Make every change as simple as possible - minimize code impact"
+  - "Identify root causes - avoid temporary fixes"
+  - "Touch only what is necessary - avoid introducing new bugs"
+  - "Use Biome for formatting and linting"
+  - "Filter out node_modules, .vercel, and .turbo from searches"
+  - "Update llm/cache/ after commits with new codebase knowledge"
+  - "Never rebuild the database to test changes"
+
+# Boundaries - files/folders the AI should not modify
+boundaries:
+  never_touch:
+    - "*.lock"
+    - "node_modules/**"
+    - ".turbo/**"
+    - ".vercel/**"
+    - "patches/**"
+
+# Capabilities
+capabilities:
+  browser: "auto"

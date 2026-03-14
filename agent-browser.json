@@ -1,0 +1,6 @@
+{
+  "sessionName": "carbon",
+  "headed": false,
+  "contentBoundaries": true,
+  "maxOutput": 50000
+}
