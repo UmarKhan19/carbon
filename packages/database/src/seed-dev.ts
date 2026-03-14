@@ -323,8 +323,8 @@ async function seedDev() {
       // Seed non-conformance required actions
       for (const nca of nonConformanceRequiredActions) {
         await client.query(
-          `INSERT INTO "nonConformanceRequiredAction" (name, "companyId", "createdBy") VALUES ($1, $2, 'system')`,
-          [nca.name, companyId]
+          `INSERT INTO "nonConformanceRequiredAction" (name, "systemType", "companyId", "createdBy") VALUES ($1, $2, $3, 'system')`,
+          [nca.name, "systemType" in nca ? nca.systemType : null, companyId]
         );
       }
 
