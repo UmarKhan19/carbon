@@ -267,20 +267,20 @@ serve(async (req: Request) => {
           .values(currencies.map((c) => ({ ...c, companyGroupId })))
           .execute();
 
-        // Insert accounts in order, resolving parentNumber to parentId
-        const accountIdByNumber: Record<string, string> = {};
-        for (const { parentNumber, ...acc } of accounts) {
+        // Insert accounts in order, resolving parentKey to parentId
+        const accountIdByKey: Record<string, string> = {};
+        for (const { key, parentKey, ...acc } of accounts) {
           const result = await trx
             .insertInto("account")
             .values({
               ...acc,
               companyGroupId,
-              parentId: parentNumber ? accountIdByNumber[parentNumber] ?? null : null,
+              parentId: parentKey ? accountIdByKey[parentKey] ?? null : null,
             })
-            .returning(["id", "number"])
+            .returning(["id"])
             .execute();
-          if (result[0]?.id && result[0]?.number) {
-            accountIdByNumber[result[0].number] = result[0].id;
+          if (result[0]?.id) {
+            accountIdByKey[key] = result[0].id;
           }
         }
       }

@@ -359,12 +359,12 @@ async function seedDev() {
         );
       }
 
-      // Seed accounts (chart of accounts) - insert in order, resolving parentNumber to parentId
-      const accountIdByNumber: Record<string, string> = {};
-      for (const { parentNumber, ...acc } of accounts) {
+      // Seed accounts (chart of accounts) - insert in order, resolving parentKey to parentId
+      const accountIdByKey: Record<string, string> = {};
+      for (const { key, parentKey, ...acc } of accounts) {
         const result = await client.query(
           `INSERT INTO account (number, name, "isGroup", "accountType", "incomeBalance", class, "parentId", "companyGroupId", "createdBy")
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'system') RETURNING id, number`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'system') RETURNING id`,
           [
             acc.number,
             acc.name,
@@ -372,12 +372,12 @@ async function seedDev() {
             acc.accountType,
             acc.incomeBalance,
             acc.class,
-            parentNumber ? (accountIdByNumber[parentNumber] ?? null) : null,
+            parentKey ? (accountIdByKey[parentKey] ?? null) : null,
             companyGroupId
           ]
         );
-        if (result.rows[0]?.id && result.rows[0]?.number) {
-          accountIdByNumber[result.rows[0].number] = result.rows[0].id;
+        if (result.rows[0]?.id) {
+          accountIdByKey[key] = result.rows[0].id;
         }
       }
 
