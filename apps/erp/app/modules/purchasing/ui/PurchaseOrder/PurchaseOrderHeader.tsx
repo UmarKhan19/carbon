@@ -29,6 +29,7 @@ import {
   LuLoaderCircle,
   LuPanelLeft,
   LuPanelRight,
+  LuPenLine,
   LuTrash,
   LuTruck,
   LuX
@@ -39,6 +40,7 @@ import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useSettings, useUser } from "~/hooks";
+import { useIntegrations } from "~/hooks/useIntegrations";
 import { ReceiptStatus } from "~/modules/inventory/ui/Receipts";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
 import PurchaseInvoicingStatus from "~/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicingStatus";
@@ -49,6 +51,7 @@ import { isPurchaseOrderLocked } from "../../purchasing.models";
 import type { PurchaseOrder, PurchaseOrderLine } from "../../types";
 import PurchaseOrderApprovalModal from "./PurchaseOrderApprovalModal";
 import PurchaseOrderFinalizeModal from "./PurchaseOrderFinalizeModal";
+import PurchaseOrderSignatureModal from "./PurchaseOrderSignatureModal";
 import PurchasingStatus from "./PurchasingStatus";
 import {
   usePurchaseOrder,
@@ -112,8 +115,12 @@ const PurchaseOrderHeader = () => {
     variant: "dropdown"
   });
 
+  const integrations = useIntegrations();
+  const hasDocuSign = integrations.has("docusign");
+
   const finalizeDisclosure = useDisclosure();
   const deleteModal = useDisclosure();
+  const signatureModal = useDisclosure();
   const [approvalDecision, setApprovalDecision] =
     useState<ApprovalDecision | null>(null);
 
@@ -205,6 +212,24 @@ const PurchaseOrderHeader = () => {
                     PDF
                   </a>
                 </DropdownMenuItem>
+                {hasDocuSign && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={signatureModal.onOpen}
+                      disabled={
+                        ![
+                          "Planned",
+                          "To Receive",
+                          "To Receive and Invoice"
+                        ].includes(routeData?.purchaseOrder?.status ?? "")
+                      }
+                    >
+                      <DropdownMenuIcon icon={<LuPenLine />} />
+                      Request Signature
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -569,6 +594,12 @@ const PurchaseOrderHeader = () => {
           fetcher={approvalFetcher}
           onClose={() => setApprovalDecision(null)}
           defaultCc={routeData?.defaultCc ?? []}
+        />
+      )}
+      {signatureModal.isOpen && (
+        <PurchaseOrderSignatureModal
+          purchaseOrder={routeData?.purchaseOrder}
+          onClose={signatureModal.onClose}
         />
       )}
       {auditLogDrawer}

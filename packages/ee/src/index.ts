@@ -1,3 +1,4 @@
+import { DocuSign } from "./docusign/config";
 import { ExchangeRates } from "./exchange-rates/config";
 import { Jira } from "./jira/config";
 import { Linear } from "./linear/config";
@@ -29,6 +30,7 @@ export type {
 
 export const integrations = [
   // Radan,
+  DocuSign,
   ExchangeRates,
   Jira,
   Linear,
@@ -42,6 +44,7 @@ export const integrations = [
   Zapier
 ];
 
+export { DocuSign } from "./docusign/config";
 export { Jira } from "./jira/config";
 export { Logo as OnshapeLogo, Onshape } from "./onshape/config";
 // TODO: export as @carbon/ee/paperless

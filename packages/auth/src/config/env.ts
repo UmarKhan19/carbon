@@ -18,6 +18,7 @@ declare global {
       SUPABASE_ANON_KEY: string;
       VERCEL_URL: string;
       VERCEL_ENV: string;
+      DOCUSIGN_CLIENT_ID: string;
       QUICKBOOKS_CLIENT_ID: string;
       XERO_CLIENT_ID: string;
     };
@@ -31,6 +32,10 @@ declare global {
       CARBON_API_URL: string;
       CLOUDFLARE_TURNSTILE_SITE_KEY: string;
       CLOUDFLARE_TURNSTILE_SECRET_KEY: string;
+      DOCUSIGN_CLIENT_ID: string;
+      DOCUSIGN_CLIENT_SECRET: string;
+      DOCUSIGN_OAUTH_REDIRECT_URL: string;
+      DOCUSIGN_ACCOUNT_ID: string;
       DOMAIN: string;
       ERP_URL: string;
       JIRA_CLIENT_ID: string;
@@ -142,6 +147,23 @@ export const CLOUDFLARE_TURNSTILE_SECRET_KEY = getEnv(
   "CLOUDFLARE_TURNSTILE_SECRET_KEY",
   { isRequired: false }
 );
+
+export const DOCUSIGN_CLIENT_ID = getEnv("DOCUSIGN_CLIENT_ID", {
+  isRequired: false
+});
+export const DOCUSIGN_CLIENT_SECRET = getEnv("DOCUSIGN_CLIENT_SECRET", {
+  isRequired: false,
+  isSecret: true
+});
+export const DOCUSIGN_OAUTH_REDIRECT_URL = getEnv(
+  "DOCUSIGN_OAUTH_REDIRECT_URL",
+  {
+    isRequired: false
+  }
+);
+export const DOCUSIGN_ACCOUNT_ID = getEnv("DOCUSIGN_ACCOUNT_ID", {
+  isRequired: false
+});
 
 export const DOMAIN = getEnv("DOMAIN", { isRequired: false }); // preview environments need no domain
 export const EXCHANGE_RATES_API_KEY = getEnv("EXCHANGE_RATES_API_KEY", {
@@ -365,6 +387,7 @@ export function getBrowserEnv() {
     CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
     CONTROLLED_ENVIRONMENT,
+    DOCUSIGN_CLIENT_ID,
     ERP_URL,
     GOOGLE_PLACES_API_KEY,
     JIRA_CLIENT_ID,
