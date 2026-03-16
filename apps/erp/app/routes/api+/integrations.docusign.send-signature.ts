@@ -1,3 +1,4 @@
+import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import {
   getDocuSignClient,
@@ -16,9 +17,7 @@ const sendSignatureSchema = z.object({
   signerName: z.string().min(1, "Signer name is required"),
   signerEmail: z.string().email("Valid email is required"),
   emailSubject: z.string().min(1, "Email subject is required"),
-  emailBody: z.string().optional(),
-  documentBase64: z.string().min(1, "Document is required"),
-  documentName: z.string().min(1, "Document name is required")
+  emailBody: z.string().optional()
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -42,10 +41,47 @@ export async function action({ request }: ActionFunctionArgs) {
       signerName,
       signerEmail,
       emailSubject,
-      emailBody,
-      documentBase64,
-      documentName
+      emailBody
     } = parsed.data;
+
+    // Retrieve the stored PO PDF from Supabase Storage server-side
+    const serviceRole = getCarbonServiceRole();
+
+    const documentResult = await serviceRole
+      .from("document")
+      .select("path, name")
+      .eq("companyId", companyId)
+      .eq("sourceDocument", "Purchase Order")
+      .eq("sourceDocumentId", purchaseOrderId)
+      .order("createdAt", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (documentResult.error || !documentResult.data) {
+      return data(
+        {
+          error:
+            "Purchase order PDF not found. Please finalize the purchase order first."
+        },
+        { status: 404 }
+      );
+    }
+
+    const { path: storagePath, name: documentName } = documentResult.data;
+
+    const downloadResult = await serviceRole.storage
+      .from("private")
+      .download(storagePath);
+
+    if (downloadResult.error || !downloadResult.data) {
+      return data(
+        { error: "Failed to download purchase order PDF from storage." },
+        { status: 500 }
+      );
+    }
+
+    const buffer = Buffer.from(await downloadResult.data.arrayBuffer());
+    const documentBase64 = buffer.toString("base64");
 
     const docusign = getDocuSignClient();
 

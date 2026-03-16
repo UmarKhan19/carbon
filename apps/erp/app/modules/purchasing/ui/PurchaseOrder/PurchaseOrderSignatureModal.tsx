@@ -15,9 +15,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher, useParams } from "react-router";
-import { path } from "~/utils/path";
 import type { PurchaseOrder } from "../../types";
 
 type PurchaseOrderSignatureModalProps = {
@@ -56,7 +55,6 @@ const PurchaseOrderSignatureModal = ({
   const [emailBody, setEmailBody] = useState(
     "Please review and sign the attached purchase order."
   );
-  const [isSending, setIsSending] = useState(false);
 
   // Check existing signature status on mount
   // biome-ignore lint/correctness/useExhaustiveDependencies: statusFetcher.load changes on every render
@@ -68,66 +66,31 @@ const PurchaseOrderSignatureModal = ({
     ? statusFetcher.data.envelope
     : null;
 
-  const handleSend = useCallback(async () => {
+  const handleSend = () => {
     if (!signerName || !signerEmail || !emailSubject) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
-    setIsSending(true);
-
-    try {
-      // Fetch the PO PDF
-      const pdfResponse = await fetch(path.to.file.purchaseOrder(orderId));
-
-      if (!pdfResponse.ok) {
-        toast.error("Failed to generate purchase order PDF.");
-        setIsSending(false);
-        return;
+    sendFetcher.submit(
+      {
+        purchaseOrderId: orderId,
+        signerName,
+        signerEmail,
+        emailSubject,
+        emailBody
+      },
+      {
+        method: "POST",
+        action: "/api/integrations/docusign/send-signature",
+        encType: "application/json"
       }
-
-      const pdfBuffer = await pdfResponse.arrayBuffer();
-      const base64 = btoa(
-        new Uint8Array(pdfBuffer).reduce(
-          (data, byte) => data + String.fromCharCode(byte),
-          ""
-        )
-      );
-
-      sendFetcher.submit(
-        {
-          purchaseOrderId: orderId,
-          signerName,
-          signerEmail,
-          emailSubject,
-          emailBody,
-          documentBase64: base64,
-          documentName: `${purchaseOrder?.purchaseOrderId ?? "PurchaseOrder"}.pdf`
-        },
-        {
-          method: "POST",
-          action: "/api/integrations/docusign/send-signature",
-          encType: "application/json"
-        }
-      );
-    } catch {
-      toast.error("An error occurred while sending the document.");
-      setIsSending(false);
-    }
-  }, [
-    signerName,
-    signerEmail,
-    emailSubject,
-    emailBody,
-    orderId,
-    purchaseOrder?.purchaseOrderId,
-    sendFetcher
-  ]);
+    );
+  };
 
   // Handle send response
   useEffect(() => {
     if (sendFetcher.state === "idle" && sendFetcher.data) {
-      setIsSending(false);
       const result = sendFetcher.data as { success?: boolean; error?: string };
       if (result.success) {
         toast.success("Document sent for signature.");
@@ -263,7 +226,7 @@ const PurchaseOrderSignatureModal = ({
             {!existingEnvelope && (
               <Button
                 variant="primary"
-                isLoading={isSending || sendFetcher.state !== "idle"}
+                isLoading={sendFetcher.state !== "idle"}
                 isDisabled={!signerName || !signerEmail || !emailSubject}
                 onClick={handleSend}
               >
