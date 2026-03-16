@@ -8,6 +8,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
+import type { sendDocuSignEnvelopeTask } from "@carbon/jobs/trigger/send-docusign-envelope";
 import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
 import { NotificationEvent } from "@carbon/notifications";
 import { VStack } from "@carbon/react";
@@ -280,6 +281,53 @@ export async function action(args: ActionFunctionArgs) {
           }
         } catch (err) {
           console.error("Failed to send email after approval:", err);
+        }
+      }
+
+      // Send PO to DocuSign for signature (additive — runs alongside email)
+      if (supplierContact && file && fileName) {
+        try {
+          const [docuSignIntegration, contactResult, companyResult] =
+            await Promise.all([
+              serviceRole
+                .from("companyIntegration")
+                .select("active")
+                .eq("companyId", companyId)
+                .eq("id", "docusign")
+                .maybeSingle(),
+              getSupplierContact(serviceRole, supplierContact),
+              getCompany(serviceRole, companyId)
+            ]);
+
+          if (
+            docuSignIntegration.data?.active === true &&
+            contactResult.data?.contact?.email &&
+            companyResult.data
+          ) {
+            const signerName = [
+              contactResult.data.contact.firstName,
+              contactResult.data.contact.lastName
+            ]
+              .filter(Boolean)
+              .join(" ");
+
+            await tasks.trigger<typeof sendDocuSignEnvelopeTask>(
+              "send-docusign-envelope",
+              {
+                companyId,
+                orderId,
+                purchaseOrderId: purchaseOrder.data.purchaseOrderId,
+                documentBase64: Buffer.from(file).toString("base64"),
+                fileName,
+                signerName: signerName || contactResult.data.contact.email,
+                signerEmail: contactResult.data.contact.email,
+                companyName: companyResult.data.name
+              }
+            );
+          }
+        } catch (err) {
+          // DocuSign sending is non-blocking — log but don't fail approval
+          console.error("Failed to trigger DocuSign envelope:", err);
         }
       }
 
