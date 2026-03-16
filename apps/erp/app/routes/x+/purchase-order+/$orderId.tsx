@@ -469,6 +469,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     canDelete = isRequester;
   }
 
+  // Check for DocuSign signature status (non-blocking)
+  const docusignMapping = await client
+    .from("externalIntegrationMapping")
+    .select("metadata")
+    .eq("entityType", "purchaseOrder")
+    .eq("entityId", orderId)
+    .eq("integration", "docusign")
+    .eq("companyId", companyId)
+    .maybeSingle();
+
+  const docusignStatus = docusignMapping.data?.metadata as {
+    envelopeId?: string;
+    status?: string;
+    signerName?: string;
+    signerEmail?: string;
+    subject?: string;
+    sentAt?: string;
+  } | null;
+
   return {
     purchaseOrder: purchaseOrder.data,
     purchaseOrderDelivery: purchaseOrderDelivery.data,
@@ -484,7 +503,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     canApprove,
     canReopen,
     canDelete,
-    defaultCc
+    defaultCc,
+    docusignStatus
   };
 }
 

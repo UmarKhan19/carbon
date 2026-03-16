@@ -58,6 +58,24 @@ import {
   usePurchaseOrderRelatedDocuments
 } from "./usePurchaseOrder";
 
+function getDocuSignStatusColor(
+  status: string
+): "green" | "blue" | "red" | "gray" {
+  switch (status) {
+    case "completed":
+    case "signed":
+      return "green";
+    case "sent":
+    case "delivered":
+      return "blue";
+    case "declined":
+    case "voided":
+      return "red";
+    default:
+      return "gray";
+  }
+}
+
 const PurchaseOrderHeader = () => {
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
@@ -75,6 +93,14 @@ const PurchaseOrderHeader = () => {
     canDelete: boolean;
     defaultCc: string[];
     supplier: { supplierStatus: string | null } | null;
+    docusignStatus: {
+      envelopeId?: string;
+      status?: string;
+      signerName?: string;
+      signerEmail?: string;
+      subject?: string;
+      sentAt?: string;
+    } | null;
   }>(path.to.purchaseOrder(orderId));
 
   const [suppliers] = useSuppliers();
@@ -188,6 +214,13 @@ const PurchaseOrderHeader = () => {
             )}
             {settings?.supplierApproval && !isSupplierApproved && (
               <Status color="red">Unapproved Supplier</Status>
+            )}
+            {hasDocuSign && routeData?.docusignStatus?.status && (
+              <Status
+                color={getDocuSignStatusColor(routeData.docusignStatus.status)}
+              >
+                Signature: {routeData.docusignStatus.status}
+              </Status>
             )}
           </HStack>
           <HStack>
