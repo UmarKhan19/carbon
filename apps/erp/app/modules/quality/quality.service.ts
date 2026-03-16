@@ -349,12 +349,7 @@ export async function getQualityDashboardIssues(
   client: SupabaseClient<Database>,
   companyId: string
 ) {
-  return client
-    .from("issues")
-    .select(
-      "id, nonConformanceId, name, status, priority, source, nonConformanceTypeId, openDate, closeDate, assignee, createdAt, containmentStatus"
-    )
-    .eq("companyId", companyId);
+  return client.from("issues").select("*").eq("companyId", companyId);
 }
 
 export async function getQualityDashboardSupplierIssues(

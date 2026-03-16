@@ -230,7 +230,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     actionTasks: actionTasks.data ?? [],
     issueTypes: issueTypes.data ?? [],
     supplierIssues: supplierIssues.data ?? [],
-    qualityIssueTarget: companySettings.data?.qualityIssueTarget ?? 20,
+    qualityIssueTarget: companySettings.data?.qualityIssueTarget,
     assignedToMe
   };
 }
