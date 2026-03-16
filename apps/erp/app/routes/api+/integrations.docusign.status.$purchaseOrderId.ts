@@ -35,7 +35,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     // Fetch latest status from DocuSign
     const docusign = getDocuSignClient();
-    const envelope = await docusign.getEnvelope(companyId, mapping.envelopeId);
+    const envelope = await docusign.getEnvelopeStatus(
+      companyId,
+      mapping.envelopeId
+    );
 
     if (envelope && envelope.status !== mapping.status) {
       // Update stored status
