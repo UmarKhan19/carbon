@@ -436,6 +436,9 @@ export const path = {
     chartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/${id}`),
     chartOfAccounts: `${x}/accounting/charts`,
+    trialBalance: `${x}/accounting/trial-balance`,
+    balanceSheet: `${x}/accounting/balance-sheet`,
+    incomeStatement: `${x}/accounting/income-statement`,
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
@@ -480,8 +483,9 @@ export const path = {
       generatePath(`${x}/quote/${id}/convert`),
     convertSupplierQuoteToOrder: (id: string) =>
       generatePath(`${x}/supplier-quote/${id}/convert`),
-    currency: (id: string) => generatePath(`${x}/accounting/currencies/${id}`),
-    currencies: `${x}/accounting/currencies`,
+    exchangeRate: (id: string) =>
+      generatePath(`${x}/accounting/exchange-rates/${id}`),
+    exchangeRates: `${x}/accounting/exchange-rates`,
     dimension: (id: string) => generatePath(`${x}/accounting/dimensions/${id}`),
     dimensions: `${x}/accounting/dimensions`,
     customer: (id: string) => generatePath(`${x}/customer/${id}`),
@@ -553,8 +557,8 @@ export const path = {
       generatePath(`${x}/part/${itemId}/rule/delete/${field}`),
     deleteContractor: (id: string) =>
       generatePath(`${x}/resources/contractors/delete/${id}`),
-    deleteCurrency: (id: string) =>
-      generatePath(`${x}/accounting/currencies/delete/${id}`),
+    deleteExchangeRate: (id: string) =>
+      generatePath(`${x}/accounting/exchange-rates/delete/${id}`),
     deleteDimension: (id: string) =>
       generatePath(`${x}/accounting/dimensions/delete/${id}`),
     deleteCustomer: (id: string) => generatePath(`${x}/customer/${id}/delete`),
@@ -1001,7 +1005,7 @@ export const path = {
     newConsumableSupplier: (id: string) =>
       generatePath(`${x}/consumable/${id}/purchasing/new`),
     newContractor: `${x}/resources/contractors/new`,
-    newCurrency: `${x}/accounting/currencies/new`,
+    newExchangeRate: `${x}/accounting/exchange-rates/new`,
     newDimension: `${x}/accounting/dimensions/new`,
     newCustomer: `${x}/customer/new`,
     newCustomerAccount: `${x}/users/customers/new`,

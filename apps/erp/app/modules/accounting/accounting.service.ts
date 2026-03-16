@@ -16,6 +16,92 @@ import type {
 } from "./accounting.models";
 import type { Transaction } from "./types";
 
+export async function getTrialBalance(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  companyId: string | null,
+  args: {
+    startDate: string | null;
+    endDate: string | null;
+  }
+) {
+  return client.rpc("trialBalance", {
+    p_company_group_id: companyGroupId,
+    p_company_id: companyId,
+    from_date:
+      args.startDate ?? getDateNYearsAgo(50).toISOString().split("T")[0],
+    to_date: args.endDate ?? new Date().toISOString().split("T")[0]
+  });
+}
+
+export async function getFinancialStatementBalances(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  companyId: string | null,
+  args: {
+    startDate: string | null;
+    endDate: string | null;
+  }
+) {
+  let accountsQuery = client
+    .from("accounts")
+    .select("*")
+    .eq("companyGroupId", companyGroupId)
+    .eq("active", true)
+    .order("number", { ascending: true });
+
+  const balancesQuery = client.rpc("accountTreeBalancesByCompany", {
+    p_company_group_id: companyGroupId,
+    p_company_id: companyId,
+    from_date:
+      args.startDate ?? getDateNYearsAgo(50).toISOString().split("T")[0],
+    to_date: args.endDate ?? new Date().toISOString().split("T")[0]
+  });
+
+  const [accountsResponse, balancesResponse] = await Promise.all([
+    accountsQuery,
+    balancesQuery
+  ]);
+
+  if (accountsResponse.error) return accountsResponse;
+  if (balancesResponse.error) return balancesResponse;
+
+  const balancesByAccountId = (
+    balancesResponse.data as unknown as (Transaction & { accountId: string })[]
+  ).reduce<Record<string, Transaction>>((acc, row) => {
+    acc[row.accountId] = {
+      number: row.number,
+      netChange: row.netChange,
+      balance: row.balance,
+      balanceAtDate: row.balanceAtDate
+    };
+    return acc;
+  }, {});
+
+  return {
+    data: (accountsResponse.data ?? []).map((account) => ({
+      ...account,
+      netChange: balancesByAccountId[account.id]?.netChange ?? 0,
+      balance: balancesByAccountId[account.id]?.balance ?? 0,
+      balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
+    })),
+    error: null
+  };
+}
+
+export async function getCompaniesInGroup(
+  client: SupabaseClient<Database>,
+  companyGroupId: string
+) {
+  return client
+    .from("company")
+    .select("id, name, baseCurrencyCode, isEliminationEntity")
+    .eq("companyGroupId", companyGroupId)
+    .eq("active", true)
+    .eq("isEliminationEntity", false)
+    .order("name", { ascending: true });
+}
+
 export async function deleteAccount(
   client: SupabaseClient<Database>,
   accountId: string
@@ -566,4 +652,21 @@ export async function deleteDimension(
     .from("dimension")
     .update({ active: false })
     .eq("id", dimensionId);
+}
+
+export async function getExchangeRateHistory(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  currencyCode: string
+) {
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  return client
+    .from("exchangeRateHistory")
+    .select("effectiveDate, rate")
+    .eq("companyGroupId", companyGroupId)
+    .eq("currencyCode", currencyCode)
+    .gte("effectiveDate", sixMonthsAgo.toISOString().split("T")[0])
+    .order("effectiveDate", { ascending: true });
 }

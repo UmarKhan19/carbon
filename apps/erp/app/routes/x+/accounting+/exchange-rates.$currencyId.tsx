@@ -11,15 +11,16 @@ import { data, redirect, useLoaderData } from "react-router";
 import {
   currencyValidator,
   getCurrency,
+  getExchangeRateHistory,
   upsertCurrency
 } from "~/modules/accounting";
-import { CurrencyForm } from "~/modules/accounting/ui/Currencies";
+import { ExchangeRateForm } from "~/modules/accounting/ui/ExchangeRates";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
 import { currenciesQuery } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyGroupId } = await requirePermissions(request, {
     view: "accounting",
     role: "employee"
   });
@@ -28,9 +29,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!currencyId) throw notFound("currencyId not found");
 
   const currency = await getCurrency(client, currencyId);
+  const exchangeRateHistory = currency.data
+    ? await getExchangeRateHistory(client, companyGroupId, currency.data.code)
+    : { data: [] };
 
   return {
-    currency: currency?.data ?? null
+    currency: currency?.data ?? null,
+    exchangeRateHistory: exchangeRateHistory?.data ?? []
   };
 }
 
@@ -63,14 +68,14 @@ export async function action({ request }: ActionFunctionArgs) {
       {},
       await flash(
         request,
-        error(updateCurrency.error, "Failed to update currency")
+        error(updateCurrency.error, "Failed to update exchange rate")
       )
     );
   }
 
   throw redirect(
-    `${path.to.currencies}?${getParams(request)}`,
-    await flash(request, success("Updated currency"))
+    `${path.to.exchangeRates}?${getParams(request)}`,
+    await flash(request, success("Updated exchange rate"))
   );
 }
 
@@ -79,17 +84,24 @@ export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
   return await serverAction();
 }
 
-export default function EditCurrencysRoute() {
-  const { currency } = useLoaderData<typeof loader>();
+export default function EditExchangeRateRoute() {
+  const { currency, exchangeRateHistory } = useLoaderData<typeof loader>();
 
   const initialValues = {
     id: currency?.id ?? undefined,
     name: currency?.name ?? "",
     code: currency?.code ?? "",
     exchangeRate: currency?.exchangeRate ?? 1,
+    historicalExchangeRate: currency?.historicalExchangeRate ?? undefined,
     decimalPlaces: currency?.decimalPlaces ?? 2,
     ...getCustomFields(currency?.customFields)
   };
 
-  return <CurrencyForm key={initialValues.id} initialValues={initialValues} />;
+  return (
+    <ExchangeRateForm
+      key={initialValues.id}
+      initialValues={initialValues}
+      exchangeRateHistory={exchangeRateHistory}
+    />
+  );
 }

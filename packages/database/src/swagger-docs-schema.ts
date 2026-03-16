@@ -24717,6 +24717,177 @@ export default {
         tags: ["salesOrderFavorite"],
       },
     },
+    "/exchangeRateHistory": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.rate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.effectiveDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/exchangeRateHistory",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["exchangeRateHistory"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.exchangeRateHistory",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["exchangeRateHistory"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.rate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.effectiveDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["exchangeRateHistory"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.rate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.effectiveDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.exchangeRateHistory.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.exchangeRateHistory",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["exchangeRateHistory"],
+      },
+    },
     "/materialFinishes": {
       get: {
         parameters: [
@@ -41113,6 +41284,9 @@ export default {
             $ref: "#/parameters/rowFilter.currency.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.currency.historicalExchangeRate",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -41208,6 +41382,9 @@ export default {
             $ref: "#/parameters/rowFilter.currency.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.currency.historicalExchangeRate",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -41255,6 +41432,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.currency.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.currency.historicalExchangeRate",
           },
           {
             $ref: "#/parameters/body.currency",
@@ -63924,6 +64104,53 @@ export default {
         tags: ["(rpc) sync_contact_to_parent"],
       },
     },
+    "/rpc/accountTreeBalancesByCompany": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                from_date: {
+                  format: "date",
+                  type: "string",
+                },
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+                to_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) accountTreeBalancesByCompany"],
+      },
+    },
     "/rpc/check_operation_dependencies": {
       post: {
         parameters: [
@@ -65961,6 +66188,62 @@ export default {
         tags: ["(rpc) upsert_to_search_index"],
       },
     },
+    "/rpc/translateTrialBalance": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_period_end: {
+                  format: "date",
+                  type: "string",
+                },
+                p_period_start: {
+                  format: "date",
+                  type: "string",
+                },
+                p_target_currency: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: [
+                "p_company_group_id",
+                "p_company_id",
+                "p_target_currency",
+                "p_period_end",
+              ],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) translateTrialBalance"],
+      },
+    },
     "/rpc/prevent_posted_sales_invoice_deletion": {
       post: {
         parameters: [
@@ -66417,6 +66700,53 @@ export default {
           },
         },
         tags: ["(rpc) get_radan_v1"],
+      },
+    },
+    "/rpc/trialBalance": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                from_date: {
+                  format: "date",
+                  type: "string",
+                },
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+                to_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) trialBalance"],
       },
     },
     "/rpc/uuid_to_base58": {
@@ -80565,6 +80895,61 @@ export default {
       },
       type: "object",
     },
+    exchangeRateHistory: {
+      required: [
+        "id",
+        "currencyCode",
+        "rate",
+        "effectiveDate",
+        "companyGroupId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('exr'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        currencyCode: {
+          format: "text",
+          type: "string",
+        },
+        rate: {
+          format: "numeric",
+          type: "number",
+        },
+        effectiveDate: {
+          format: "date",
+          type: "string",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     materialFinishes: {
       properties: {
         id: {
@@ -82710,6 +83095,7 @@ export default {
         "id",
         "name",
         "incomeBalance",
+        "consolidatedRate",
         "active",
         "createdBy",
         "createdAt",
@@ -82742,6 +83128,7 @@ export default {
           type: "string",
         },
         consolidatedRate: {
+          default: "Current",
           enum: ["Average", "Current", "Historical"],
           format: 'public."glConsolidatedRate"',
           type: "string",
@@ -88440,6 +88827,10 @@ export default {
             "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
           format: "text",
           type: "string",
+        },
+        historicalExchangeRate: {
+          format: "numeric",
+          type: "number",
         },
       },
       type: "object",
@@ -112492,6 +112883,69 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.exchangeRateHistory": {
+      name: "exchangeRateHistory",
+      description: "exchangeRateHistory",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/exchangeRateHistory",
+      },
+    },
+    "rowFilter.exchangeRateHistory.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.currencyCode": {
+      name: "currencyCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.rate": {
+      name: "rate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.effectiveDate": {
+      name: "effectiveDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.exchangeRateHistory.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.materialFinishes": {
       name: "materialFinishes",
       description: "materialFinishes",
@@ -121335,6 +121789,12 @@ export default {
     },
     "rowFilter.currency.companyGroupId": {
       name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.currency.historicalExchangeRate": {
+      name: "historicalExchangeRate",
       required: false,
       in: "query",
       type: "string",

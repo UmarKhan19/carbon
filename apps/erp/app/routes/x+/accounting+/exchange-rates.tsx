@@ -3,14 +3,14 @@ import { VStack } from "@carbon/react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, useLoaderData } from "react-router";
 import { getCurrencies } from "~/modules/accounting";
-import { CurrenciesTable } from "~/modules/accounting/ui/Currencies";
+import { ExchangeRatesTable } from "~/modules/accounting/ui/ExchangeRates";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Currencies",
-  to: path.to.currencies
+  breadcrumb: "Exchange Rates",
+  to: path.to.exchangeRates
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -34,12 +34,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export default function CurrenciesRoute() {
+export default function ExchangeRatesRoute() {
   const { data, count } = useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={0} className="h-full">
-      <CurrenciesTable data={data ?? []} count={count ?? 0} />
+      <ExchangeRatesTable data={data ?? []} count={count ?? 0} />
       <Outlet />
     </VStack>
   );

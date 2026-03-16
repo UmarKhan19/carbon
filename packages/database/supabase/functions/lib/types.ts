@@ -178,9 +178,7 @@ export type Database = {
           active: boolean
           class: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId: string
-          consolidatedRate:
-            | Database["public"]["Enums"]["glConsolidatedRate"]
-            | null
+          consolidatedRate: Database["public"]["Enums"]["glConsolidatedRate"]
           createdAt: string
           createdBy: string
           customFields: Json | null
@@ -199,9 +197,7 @@ export type Database = {
           active?: boolean
           class?: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId: string
-          consolidatedRate?:
-            | Database["public"]["Enums"]["glConsolidatedRate"]
-            | null
+          consolidatedRate?: Database["public"]["Enums"]["glConsolidatedRate"]
           createdAt?: string
           createdBy: string
           customFields?: Json | null
@@ -220,9 +216,7 @@ export type Database = {
           active?: boolean
           class?: Database["public"]["Enums"]["glAccountClass"] | null
           companyGroupId?: string
-          consolidatedRate?:
-            | Database["public"]["Enums"]["glConsolidatedRate"]
-            | null
+          consolidatedRate?: Database["public"]["Enums"]["glConsolidatedRate"]
           createdAt?: string
           createdBy?: string
           customFields?: Json | null
@@ -4096,6 +4090,7 @@ export type Database = {
           customFields: Json | null
           decimalPlaces: number
           exchangeRate: number
+          historicalExchangeRate: number | null
           id: string
           tags: string[] | null
           updatedAt: string | null
@@ -4110,6 +4105,7 @@ export type Database = {
           customFields?: Json | null
           decimalPlaces?: number
           exchangeRate?: number
+          historicalExchangeRate?: number | null
           id?: string
           tags?: string[] | null
           updatedAt?: string | null
@@ -4124,6 +4120,7 @@ export type Database = {
           customFields?: Json | null
           decimalPlaces?: number
           exchangeRate?: number
+          historicalExchangeRate?: number | null
           id?: string
           tags?: string[] | null
           updatedAt?: string | null
@@ -7501,6 +7498,64 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+        ]
+      }
+      exchangeRateHistory: {
+        Row: {
+          companyGroupId: string
+          createdAt: string
+          createdBy: string
+          currencyCode: string
+          effectiveDate: string
+          id: string
+          rate: number
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyGroupId: string
+          createdAt?: string
+          createdBy: string
+          currencyCode: string
+          effectiveDate: string
+          id?: string
+          rate: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyGroupId?: string
+          createdAt?: string
+          createdBy?: string
+          currencyCode?: string
+          effectiveDate?: string
+          id?: string
+          rate?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchangeRateHistory_companyGroupId_fkey"
+            columns: ["companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "companyGroup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exchangeRateHistory_currencyCode_fkey"
+            columns: ["currencyCode", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "exchangeRateHistory_currencyCode_fkey"
+            columns: ["currencyCode", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "currency"
+            referencedColumns: ["code", "companyGroupId"]
           },
         ]
       }
@@ -55123,6 +55178,20 @@ export type Database = {
           netChange: number
         }[]
       }
+      accountTreeBalancesByCompany: {
+        Args: {
+          from_date?: string
+          p_company_group_id: string
+          p_company_id?: string
+          to_date?: string
+        }
+        Returns: {
+          accountId: string
+          balance: number
+          balanceAtDate: number
+          netChange: number
+        }[]
+      }
       attach_event_trigger: {
         Args: { sync_functions?: string[]; table_name_text: string }
         Returns: undefined
@@ -56793,6 +56862,39 @@ export type Database = {
           table_name: string
         }
         Returns: undefined
+      }
+      translateTrialBalance: {
+        Args: {
+          p_company_group_id: string
+          p_company_id: string
+          p_period_end: string
+          p_period_start?: string
+          p_target_currency: string
+        }
+        Returns: {
+          accountId: string
+          exchangeRate: number
+          localBalance: number
+          translatedBalance: number
+        }[]
+      }
+      trialBalance: {
+        Args: {
+          from_date?: string
+          p_company_group_id: string
+          p_company_id?: string
+          to_date?: string
+        }
+        Returns: {
+          accountClass: Database["public"]["Enums"]["glAccountClass"]
+          accountId: string
+          accountName: string
+          accountNumber: string
+          creditBalance: number
+          debitBalance: number
+          incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
+          netChange: number
+        }[]
       }
       update_receipt_line_batch_tracking: {
         Args: {

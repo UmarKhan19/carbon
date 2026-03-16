@@ -1,15 +1,42 @@
 import {
   LuAxis3D,
   LuBetweenHorizontalStart,
+  LuCalendar1,
   LuEuro,
+  LuFileSpreadsheet,
   LuHandCoins,
-  LuSheet
+  LuScale,
+  LuSheet,
+  LuTrendingUp
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
 const accountingRoutes: AuthenticatedRouteGroup[] = [
+  {
+    name: "Reports",
+    routes: [
+      {
+        name: "Trial Balance",
+        to: path.to.trialBalance,
+        role: "employee",
+        icon: <LuFileSpreadsheet />
+      },
+      {
+        name: "Balance Sheet",
+        to: path.to.balanceSheet,
+        role: "employee",
+        icon: <LuScale />
+      },
+      {
+        name: "Income Statement",
+        to: path.to.incomeStatement,
+        role: "employee",
+        icon: <LuTrendingUp />
+      }
+    ]
+  },
   {
     name: "Manage",
     routes: [
@@ -31,12 +58,6 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
     name: "Configure",
     routes: [
       {
-        name: "Currencies",
-        to: path.to.currencies,
-        role: "employee",
-        icon: <LuEuro />
-      },
-      {
         name: "Default Accounts",
         to: path.to.accountingDefaults,
         icon: <LuBetweenHorizontalStart />,
@@ -48,11 +69,18 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
         role: "employee",
         icon: <LuAxis3D />
       },
-      // {
-      //   name: "Fiscal Year",
-      //   to: path.to.fiscalYears,
-      //   role: "employee",
-      // },
+      {
+        name: "Exchange Rates",
+        to: path.to.exchangeRates,
+        role: "employee",
+        icon: <LuEuro />
+      },
+      {
+        name: "Fiscal Year",
+        to: path.to.fiscalYears,
+        role: "employee",
+        icon: <LuCalendar1 />
+      },
       {
         name: "Payment Terms",
         to: path.to.paymentTerms,

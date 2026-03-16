@@ -621,30 +621,14 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          const journal = await trx
-            .insertInto("journal")
-            .values({
-              accountingPeriodId,
-              description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
-              postingDate: today,
-              companyId,
-            })
-            .returning(["id"])
-            .execute();
-
-          const journalId = journal[0].id;
-          if (!journalId) throw new Error("Failed to insert journal");
-
-          await trx
-            .insertInto("journalLine")
-            .values(
-              journalLineInserts.map((journalLine) => ({
-                ...journalLine,
-                journalId,
-              }))
-            )
-            .returning(["id"])
-            .execute();
+          // TODO: re-enable journal inserts once accounting dimensions are finalized
+          console.log("journal", {
+            accountingPeriodId,
+            description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
+            postingDate: today,
+            companyId,
+          });
+          console.log("journalLines", JSON.stringify(journalLineInserts, null, 2));
 
           if (itemLedgerInserts.length > 0) {
             await trx
@@ -868,32 +852,14 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          // Create reversing journal
-          const journal = await trx
-            .insertInto("journal")
-            .values({
-              accountingPeriodId,
-              description: `VOID Sales Invoice ${salesInvoice.data?.invoiceId}`,
-              postingDate: today,
-              companyId,
-            })
-            .returning(["id"])
-            .execute();
-
-          const journalId = journal[0].id;
-          if (!journalId) throw new Error("Failed to insert journal");
-
-          // Insert reversing journal entries
-          await trx
-            .insertInto("journalLine")
-            .values(
-              reversingJournalEntries.map((journalLine) => ({
-                ...journalLine,
-                journalId,
-              }))
-            )
-            .returning(["id"])
-            .execute();
+          // TODO: re-enable journal inserts once accounting dimensions are finalized
+          console.log("journal", {
+            accountingPeriodId,
+            description: `VOID Sales Invoice ${salesInvoice.data?.invoiceId}`,
+            postingDate: today,
+            companyId,
+          });
+          console.log("journalLines", JSON.stringify(reversingJournalEntries, null, 2));
 
           // Insert reversing item ledger entries
           if (reversingItemLedgerEntries.length > 0) {

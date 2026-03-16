@@ -155,7 +155,10 @@ export const currencyValidator = z.object({
   id: zfd.text(z.string().optional()),
   code: z.string().min(1, { message: "Code is required" }),
   decimalPlaces: zfd.numeric(z.number().min(0).max(4)),
-  exchangeRate: zfd.numeric(z.number().min(0, { message: "Rate is required" }))
+  exchangeRate: zfd.numeric(z.number().min(0, { message: "Rate is required" })),
+  historicalExchangeRate: zfd.numeric(
+    z.number().min(0, { message: "Rate must be positive" }).optional()
+  )
 });
 
 export const defaultBalanceSheetAccountValidator = z.object({

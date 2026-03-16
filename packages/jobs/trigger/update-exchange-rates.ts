@@ -222,6 +222,35 @@ export const updateExchangeRates = schedules.task({
           console.log(
             `Successfully updated currencies for company ${integration.companyId}`
           );
+
+          // Record daily spot rates in exchange rate history for consolidation
+          const today = new Date().toISOString().split("T")[0];
+          const historyRecords = updates
+            .filter((u) => u.code !== baseCurrencyCode)
+            .map((u) => ({
+              currencyCode: u.code,
+              rate: u.exchangeRate,
+              effectiveDate: today,
+              companyGroupId: company.data.companyGroupId!,
+              createdBy: "system",
+            }));
+
+          if (historyRecords.length > 0) {
+            const { error: historyError } = await serviceRole
+              .from("exchangeRateHistory")
+              .upsert(historyRecords, {
+                onConflict: "currencyCode,effectiveDate,companyGroupId",
+              });
+            if (historyError) {
+              console.error(
+                `Error recording exchange rate history: ${JSON.stringify(historyError)}`
+              );
+            } else {
+              console.log(
+                `Recorded ${historyRecords.length} daily rates in exchange rate history`
+              );
+            }
+          }
         }
       } catch (err) {
         console.error(

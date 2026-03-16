@@ -9,12 +9,12 @@ import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { path } from "~/utils/path";
 import type { Currency } from "../../types";
 
-type CurrenciesTableProps = {
+type ExchangeRatesTableProps = {
   data: Currency[];
   count: number;
 };
 
-const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
+const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -62,12 +62,12 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
             disabled={!permissions.can("update", "accounting")}
             onClick={() => {
               navigate(
-                `${path.to.currency(row.id as string)}?${params.toString()}`
+                `${path.to.exchangeRate(row.id as string)}?${params.toString()}`
               );
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Currency
+            Edit Exchange Rate
           </MenuItem>
         </>
       );
@@ -81,10 +81,10 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
       columns={columns}
       count={count}
       renderContextMenu={renderContextMenu}
-      title="Currencies"
+      title="Exchange Rates"
     />
   );
 });
 
-CurrenciesTable.displayName = "CurrenciesTable";
-export default CurrenciesTable;
+ExchangeRatesTable.displayName = "ExchangeRatesTable";
+export default ExchangeRatesTable;

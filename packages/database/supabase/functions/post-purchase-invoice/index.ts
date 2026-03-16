@@ -1071,30 +1071,14 @@ serve(async (req: Request) => {
           .execute();
       }
 
-      const journal = await trx
-        .insertInto("journal")
-        .values({
-          accountingPeriodId,
-          description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
-          postingDate: today,
-          companyId,
-        })
-        .returning(["id"])
-        .execute();
-
-      const journalId = journal[0].id;
-      if (!journalId) throw new Error("Failed to insert journal");
-
-      await trx
-        .insertInto("journalLine")
-        .values(
-          journalLineInserts.map((journalLine) => ({
-            ...journalLine,
-            journalId,
-          }))
-        )
-        .returning(["id"])
-        .execute();
+      // TODO: re-enable journal inserts once accounting dimensions are finalized
+      console.log("journal", {
+        accountingPeriodId,
+        description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
+        postingDate: today,
+        companyId,
+      });
+      console.log("journalLines", JSON.stringify(journalLineInserts, null, 2));
 
       if (itemLedgerInserts.length > 0) {
         await trx
