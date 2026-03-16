@@ -8,6 +8,7 @@ declare global {
       CARBON_API_URL: string;
       CLOUDFLARE_TURNSTILE_SITE_KEY: string;
       CONTROLLED_ENVIRONMENT: string;
+      DOCUSIGN_INTEGRATION_KEY: string;
       ERP_URL: string;
       JIRA_CLIENT_ID: string;
       MES_URL: string;
@@ -31,6 +32,10 @@ declare global {
       CARBON_API_URL: string;
       CLOUDFLARE_TURNSTILE_SITE_KEY: string;
       CLOUDFLARE_TURNSTILE_SECRET_KEY: string;
+      DOCUSIGN_INTEGRATION_KEY: string;
+      DOCUSIGN_SECRET_KEY: string;
+      DOCUSIGN_OAUTH_REDIRECT_URL: string;
+      DOCUSIGN_ACCOUNT_ID: string;
       DOMAIN: string;
       ERP_URL: string;
       JIRA_CLIENT_ID: string;
@@ -285,6 +290,20 @@ export const XERO_WEBHOOK_SECRET = getEnv("XERO_WEBHOOK_SECRET", {
   isSecret: true
 });
 
+export const DOCUSIGN_INTEGRATION_KEY = getEnv("DOCUSIGN_INTEGRATION_KEY", {
+  isRequired: false
+});
+export const DOCUSIGN_SECRET_KEY = getEnv("DOCUSIGN_SECRET_KEY", {
+  isRequired: false,
+  isSecret: true
+});
+export const DOCUSIGN_OAUTH_REDIRECT_URL = getEnv("DOCUSIGN_OAUTH_REDIRECT_URL", {
+  isRequired: false
+});
+export const DOCUSIGN_ACCOUNT_ID = getEnv("DOCUSIGN_ACCOUNT_ID", {
+  isRequired: false
+});
+
 export const JIRA_CLIENT_ID = getEnv("JIRA_CLIENT_ID", {
   isRequired: false
 });
@@ -365,6 +384,7 @@ export function getBrowserEnv() {
     CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
     CONTROLLED_ENVIRONMENT,
+    DOCUSIGN_INTEGRATION_KEY,
     ERP_URL,
     GOOGLE_PLACES_API_KEY,
     JIRA_CLIENT_ID,
