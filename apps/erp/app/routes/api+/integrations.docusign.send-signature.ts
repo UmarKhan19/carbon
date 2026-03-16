@@ -50,12 +50,25 @@ export async function action({ request }: ActionFunctionArgs) {
     const docusign = getDocuSignClient();
 
     const envelope = await docusign.createEnvelope(companyId, {
-      documentBase64,
-      documentName,
-      signerName,
-      signerEmail,
       emailSubject,
-      emailBody
+      emailBody,
+      documents: [
+        {
+          documentBase64,
+          name: documentName,
+          fileExtension: "pdf",
+          documentId: "1"
+        }
+      ],
+      signers: [
+        {
+          email: signerEmail,
+          name: signerName,
+          recipientId: "1",
+          routingOrder: "1"
+        }
+      ],
+      status: "sent"
     });
 
     if (!envelope) {
