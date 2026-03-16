@@ -5,11 +5,12 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
+  ToggleGroup,
+  ToggleGroupItem
 } from "@carbon/react";
 import type { DateRange } from "@react-types/datepicker";
-import { motion } from "framer-motion";
-import { Fragment, useId, useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import { LuCalendar } from "react-icons/lu";
 
 type DateSelectOption = {
@@ -24,7 +25,6 @@ interface DateSelectProps {
   showCustom?: boolean;
   dateRange?: DateRange | null;
   onDateRangeChange?: (dateRange: DateRange | null) => void;
-  itemWidth?: string;
   className?: string;
 }
 
@@ -35,115 +35,96 @@ const defaultOptions: DateSelectOption[] = [
   { value: "year", label: "1Y" }
 ];
 
-export function DateSelect({
-  value,
-  onValueChange,
-  options = defaultOptions,
-  showCustom = true,
-  dateRange,
-  onDateRangeChange,
-  itemWidth,
-  className
-}: DateSelectProps) {
-  const layoutId = useId();
+const DateSelect = forwardRef<HTMLDivElement, DateSelectProps>(
+  (
+    {
+      value,
+      onValueChange,
+      options = defaultOptions,
+      showCustom = true,
+      dateRange,
+      onDateRangeChange,
+      className
+    },
+    ref
+  ) => {
+    const allOptions = useMemo(() => {
+      if (!showCustom) return options;
+      return [...options, { value: "custom", label: "Custom" }];
+    }, [options, showCustom]);
 
-  const allOptions = useMemo(() => {
-    if (!showCustom) return options;
-    return [...options, { value: "custom", label: "Custom" }];
-  }, [options, showCustom]);
+    return (
+      <div
+        ref={ref}
+        className={cn("inline-flex items-center gap-2", className)}
+      >
+        {/* Compact dropdown for small screens */}
+        <Select value={value} onValueChange={onValueChange}>
+          <SelectTrigger className="md:hidden w-auto h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {allOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-  const computedWidth = useMemo(() => {
-    if (itemWidth) return itemWidth;
-    const longest = Math.max(...options.map((o) => o.label.length));
-    return `${longest + 2.5}ch`;
-  }, [options, itemWidth]);
-
-  return (
-    <div className={cn("inline-flex items-center gap-2", className)}>
-      {/* Compact dropdown for small screens */}
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="md:hidden w-auto h-8 text-xs">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {allOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+        {/* Segmented control for md+ screens */}
+        <ToggleGroup
+          type="single"
+          value={value}
+          onValueChange={(v) => {
+            if (v) onValueChange(v);
+          }}
+          className="hidden md:inline-flex gap-0 rounded-full border border-border bg-muted p-0.5 shadow-sm"
+        >
+          {options.map((option) => (
+            <ToggleGroupItem
+              key={option.value}
+              value={option.value}
+              className={cn(
+                "h-7 rounded-full px-3 text-xs font-medium",
+                "bg-transparent text-muted-foreground",
+                "hover:bg-background/50 hover:text-foreground",
+                "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
+                "transition-all duration-200"
+              )}
+            >
               {option.label}
-            </SelectItem>
+            </ToggleGroupItem>
           ))}
-        </SelectContent>
-      </Select>
+          {showCustom && (
+            <ToggleGroupItem
+              value="custom"
+              className={cn(
+                "h-7 w-7 rounded-full p-0",
+                "bg-transparent text-muted-foreground",
+                "hover:bg-background/50 hover:text-foreground",
+                "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
+                "transition-all duration-200"
+              )}
+            >
+              <LuCalendar className="size-3.5" />
+            </ToggleGroupItem>
+          )}
+        </ToggleGroup>
 
-      {/* Pill segmented control for md+ screens */}
-      <div className="date-select hidden md:inline-flex items-center bg-muted">
-        {options.map((option, index) => (
-          <Fragment key={option.value}>
-            {index > 0 && <span className="date-select-separator" />}
-            <button
-              type="button"
-              onClick={() => onValueChange(option.value)}
-              className={cn(
-                "date-select-item relative py-1.5 text-sm font-medium text-center",
-                "text-muted-foreground transition-colors",
-                value === option.value
-                  ? "text-foreground"
-                  : "hover:text-foreground hover:bg-background/50"
-              )}
-              style={{
-                width: computedWidth,
-                WebkitTapHighlightColor: "transparent"
-              }}
-            >
-              {value === option.value && (
-                <motion.span
-                  layoutId={layoutId}
-                  className="absolute inset-0 z-10 date-select-active bg-background"
-                  transition={{ type: "spring", bounce: 0, duration: 0.35 }}
-                />
-              )}
-              <span className="relative z-20">{option.label}</span>
-            </button>
-          </Fragment>
-        ))}
-        {showCustom && (
-          <>
-            <span className="date-select-separator" />
-            <button
-              type="button"
-              onClick={() => onValueChange("custom")}
-              className={cn(
-                "date-select-item relative aspect-square text-sm text-center",
-                "text-muted-foreground transition-colors",
-                "flex items-center justify-center",
-                value === "custom"
-                  ? "text-foreground"
-                  : "hover:text-foreground hover:bg-background/50"
-              )}
-              style={{
-                width: "2rem",
-                height: "2rem",
-                WebkitTapHighlightColor: "transparent"
-              }}
-            >
-              {value === "custom" && (
-                <motion.span
-                  layoutId={layoutId}
-                  className="absolute inset-0 z-10 date-select-active bg-background"
-                  transition={{ type: "spring", bounce: 0, duration: 0.35 }}
-                />
-              )}
-              <LuCalendar className="relative z-20 size-3.5" />
-            </button>
-          </>
+        {value === "custom" && onDateRangeChange && (
+          <DateRangePicker
+            value={dateRange}
+            onChange={onDateRangeChange}
+            size="sm"
+          />
         )}
       </div>
-      {value === "custom" && onDateRangeChange && (
-        <DateRangePicker
-          value={dateRange}
-          onChange={onDateRangeChange}
-          size="sm"
-        />
-      )}
-    </div>
-  );
-}
+    );
+  }
+);
+
+DateSelect.displayName = "DateSelect";
+
+export { DateSelect };
+export type { DateSelectProps, DateSelectOption };

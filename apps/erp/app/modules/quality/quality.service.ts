@@ -345,35 +345,6 @@ export async function getIssue(
     .single();
 }
 
-export async function getQualityDashboardIssues(
-  client: SupabaseClient<Database>,
-  companyId: string
-) {
-  return client.from("issues").select("*").eq("companyId", companyId);
-}
-
-export async function getQualityDashboardSupplierIssues(
-  client: SupabaseClient<Database>,
-  companyId: string
-) {
-  return client
-    .from("nonConformanceSupplier")
-    .select("nonConformanceId, supplier:supplier(id, name)")
-    .eq("companyId", companyId);
-}
-
-export async function getQualityDashboardActionTasks(
-  client: SupabaseClient<Database>,
-  companyId: string
-) {
-  return client
-    .from("nonConformanceActionTask")
-    .select(
-      "id, nonConformanceId, status, assignee, ...nonConformanceRequiredAction(actionName:name)"
-    )
-    .eq("companyId", companyId);
-}
-
 export async function getIssues(
   client: SupabaseClient<Database>,
   companyId: string,

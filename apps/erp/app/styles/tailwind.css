@@ -238,31 +238,6 @@ p.is-editor-empty:first-child:before {
   border-top-color: #6041d0;
 }
 
-.date-select {
-  border-radius: 9999px;
-  padding: 3px;
-  border: 1px solid hsl(var(--border));
-  box-shadow: var(--button-base-shadow);
-}
-
-.date-select-item {
-  border-radius: 9999px;
-  cursor: pointer;
-}
-
-.date-select-active {
-  border-radius: 9999px;
-  box-shadow: var(--button-base-shadow);
-  will-change: transform;
-}
-
-.date-select-separator {
-  width: 1px;
-  align-self: stretch;
-  margin: 6px 3px;
-  background: hsl(var(--muted-foreground) / 0.2);
-  flex-shrink: 0;
-}
 
 @keyframes hexloader {
   0%,

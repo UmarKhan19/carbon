@@ -7,6 +7,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Combobox,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -34,7 +35,7 @@ import {
 } from "@carbon/react/Chart";
 import { today } from "@internationalized/date";
 import type { DateRange } from "@react-types/datepicker";
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
 import {
   LuArrowUpRight,
@@ -51,7 +52,7 @@ import {
   LuShieldX
 } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
-import { Await, Link, useLoaderData } from "react-router";
+import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import {
   Bar,
   BarChart,
@@ -67,14 +68,10 @@ import {
   YAxis
 } from "recharts";
 import { DateSelect, Empty, Hyperlink } from "~/components";
-import {
-  getIssueTypesList,
-  getQualityDashboardActionTasks,
-  getQualityDashboardIssues,
-  getQualityDashboardSupplierIssues
-} from "~/modules/quality";
+import { getIssueTypesList, QualityKPIs } from "~/modules/quality";
 import IssueStatus from "~/modules/quality/ui/Issue/IssueStatus";
 import { getCompanySettings } from "~/modules/settings";
+import type { loader as kpiLoader } from "~/routes/api+/quality.kpi.$key";
 
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -85,7 +82,6 @@ export const handle: Handle = {
 };
 
 const OPEN_ISSUE_STATUSES = ["Registered", "In Progress"] as const;
-const OPEN_ACTION_STATUSES = ["Pending", "In Progress"] as const;
 
 const categoryKeys = new Set([
   "type",
@@ -95,7 +91,7 @@ const categoryKeys = new Set([
   "week"
 ]);
 
-function StackedBar(props: unknown): React.JSX.Element {
+function StackedBar(props: unknown): JSX.Element {
   const { x, y, width, height, fill } = props as {
     x: number;
     y: number;
@@ -120,26 +116,19 @@ function StackedBar(props: unknown): React.JSX.Element {
 function percentageFormatter(
   value: number | string,
   name: string,
-  item: { payload?: Record<string, unknown> }
+  item: { payload?: Record<string, unknown> },
+  index: number,
+  payload: Record<string, unknown>
 ) {
-  const total = item.payload
-    ? Object.entries(item.payload)
+  const row = payload ?? item?.payload;
+  const total = row
+    ? Object.entries(row)
         .filter(([k]) => !categoryKeys.has(k))
         .reduce((sum, [, v]) => sum + (typeof v === "number" ? v : 0), 0)
     : 0;
   const pct = total > 0 ? Math.round(((value as number) / total) * 100) : 0;
   return `${value} (${pct}%)`;
 }
-
-const QualityCharts = [
-  { key: "weeklyTracking", label: "Issue Trend" },
-  { key: "statusByCriticality", label: "Status Distribution" },
-  { key: "paretoByType", label: "Pareto by Type" },
-  { key: "ncrsByType", label: "NCRs by Type" },
-  { key: "sourceAnalysis", label: "Source Analysis" },
-  { key: "supplierQuality", label: "Supplier Quality" },
-  { key: "weeksOpen", label: "Weeks Open" }
-] as const;
 
 const qualityChartConfig = {
   Critical: { label: "Critical", color: "hsl(var(--destructive))" },
@@ -206,74 +195,70 @@ export async function loader({ request }: LoaderFunctionArgs) {
     role: "employee"
   });
 
-  const [issues, actionTasks, issueTypes, companySettings, supplierIssues] =
-    await Promise.all([
-      getQualityDashboardIssues(client, companyId),
-      getQualityDashboardActionTasks(client, companyId),
-      getIssueTypesList(client, companyId),
-      getCompanySettings(client, companyId),
-      getQualityDashboardSupplierIssues(client, companyId)
-    ]);
+  const [
+    openIssues,
+    uncontainedIssues,
+    containedIssues,
+    openActions,
+    issueTypes,
+    companySettings,
+    recentlyCreated
+  ] = await Promise.all([
+    client
+      .from("issues")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Registered", "In Progress"]),
+    client
+      .from("issues")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Registered", "In Progress"])
+      .eq("containmentStatus", "Uncontained"),
+    client
+      .from("issues")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Registered", "In Progress"])
+      .eq("containmentStatus", "Contained"),
+    client
+      .from("nonConformanceActionTask")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Pending", "In Progress"]),
+    getIssueTypesList(client, companyId),
+    getCompanySettings(client, companyId),
+    client
+      .from("issues")
+      .select("id, nonConformanceId, name, status, priority, createdAt")
+      .eq("companyId", companyId)
+      .order("createdAt", { ascending: false })
+      .limit(10)
+  ]);
 
   const assignedToMe = client
     .from("issues")
     .select("id, nonConformanceId, name, status, priority")
     .eq("companyId", companyId)
     .eq("assignee", userId)
-    .in("status", OPEN_ISSUE_STATUSES)
+    .in("status", ["Registered", "In Progress"])
     .order("createdAt", { ascending: false })
     .limit(10)
     .then((result) => result.data ?? []);
 
   return {
-    issues: issues.data ?? [],
-    actionTasks: actionTasks.data ?? [],
+    openIssuesCount: openIssues.count ?? 0,
+    uncontainedCount: uncontainedIssues.count ?? 0,
+    containedCount: containedIssues.count ?? 0,
+    openActionsCount: openActions.count ?? 0,
     issueTypes: issueTypes.data ?? [],
-    supplierIssues: supplierIssues.data ?? [],
     qualityIssueTarget: companySettings.data?.qualityIssueTarget,
+    recentlyCreated: recentlyCreated.data ?? [],
     assignedToMe
   };
 }
 
-// --- ISO Week Helpers ---
-
-function getISOWeekYear(date: Date): { year: number; week: number } {
-  const d = new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
-  );
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const week = Math.ceil(
-    ((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7
-  );
-  return { year: d.getUTCFullYear(), week };
-}
-
-function formatWeekKey(year: number, week: number): string {
-  return `${year}-W${String(week).padStart(2, "0")}`;
-}
-
-function weekKeyFromDate(dateStr: string): string {
-  const { year, week } = getISOWeekYear(new Date(dateStr));
-  return formatWeekKey(year, week);
-}
-
-function generateWeekKeys(startDate: Date, endDate: Date): string[] {
-  const keys: string[] = [];
-  const current = new Date(startDate);
-  current.setDate(current.getDate() - ((current.getDay() + 6) % 7));
-
-  while (current <= endDate) {
-    const { year, week } = getISOWeekYear(current);
-    keys.push(formatWeekKey(year, week));
-    current.setDate(current.getDate() + 7);
-  }
-  return keys;
-}
-
 // --- Priority Helpers ---
-
-const priorityOrder = ["Critical", "High", "Medium", "Low"] as const;
 
 function getPriorityVariant(priority: string | null) {
   switch (priority) {
@@ -294,23 +279,37 @@ function getPriorityVariant(priority: string | null) {
 
 export default function QualityDashboard() {
   const {
-    issues,
-    actionTasks,
+    openIssuesCount,
+    uncontainedCount,
+    containedCount,
+    openActionsCount,
     issueTypes,
-    supplierIssues,
-    assignedToMe,
-    qualityIssueTarget
+    qualityIssueTarget,
+    recentlyCreated,
+    assignedToMe
   } = useLoaderData<typeof loader>();
+
   const [selectedChart, setSelectedChart] = useState("weeklyTracking");
   const [interval, setInterval] = useState("month");
+  const [issueTypeId, setIssueTypeId] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | null>(() => {
     const end = today("UTC");
     const start = end.add({ months: -1 });
     return { start, end };
   });
 
+  const kpiFetcher = useFetcher<typeof kpiLoader>();
+  const avgFetcher = useFetcher<typeof kpiLoader>();
+
   const selectedChartData =
-    QualityCharts.find((c) => c.key === selectedChart) || QualityCharts[0];
+    QualityKPIs.find((c) => c.key === selectedChart) || QualityKPIs[0];
+
+  const typeOptions = useMemo(() => {
+    return [
+      { label: "All Types", value: "all" },
+      ...issueTypes.map((t) => ({ label: t.name, value: t.id }))
+    ];
+  }, [issueTypes]);
 
   const onIntervalChange = (value: string) => {
     const end = today("UTC");
@@ -326,367 +325,46 @@ export default function QualityDashboard() {
     setInterval(value);
   };
 
-  // Issue type lookup
-  const typeNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const t of issueTypes) {
-      map.set(t.id, t.name);
-    }
-    return map;
-  }, [issueTypes]);
+  // Fetch chart data when filters change
+  useEffect(() => {
+    if (!dateRange?.start || !dateRange?.end) return;
+    const params = `?start=${dateRange.start.toString()}&end=${dateRange.end.toString()}&interval=${interval}${
+      issueTypeId === "all" ? "" : `&issueTypeId=${issueTypeId}`
+    }`;
+    kpiFetcher.load(path.to.api.qualityKpi(selectedChart) + params);
+    avgFetcher.load(path.to.api.qualityKpi("avgDaysToClose") + params);
+  }, [selectedChart, dateRange, interval, issueTypeId]);
 
-  // --- KPI Counts ---
-  const openIssuesCount = useMemo(() => {
-    return issues.filter((i) => i.status !== "Closed").length;
-  }, [issues]);
-
-  const openActionsCount = useMemo(() => {
-    return actionTasks.filter(
-      (t) => t.status === "Pending" || t.status === "In Progress"
-    ).length;
-  }, [actionTasks]);
-
-  // --- KPI: Uncontained + Contained ---
-  const { uncontainedCount, containedCount } = useMemo(() => {
-    let uncontained = 0;
-    let contained = 0;
-
-    for (const issue of issues) {
-      if (issue.status === "Closed") continue;
-      if (issue.containmentStatus === "Contained") {
-        contained++;
-      } else {
-        uncontained++;
-      }
-    }
-
-    return {
-      uncontainedCount: uncontained,
-      containedCount: contained
-    };
-  }, [issues]);
-
-  // --- Recently Created ---
-  const recentlyCreated = useMemo(() => {
-    return [...issues]
-      .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
-      .slice(0, 10);
-  }, [issues]);
-
-  // --- Filtered Issues (for chart date range) ---
-  const filteredIssues = useMemo(() => {
-    if (!dateRange?.start || !dateRange?.end) return issues;
-    const start = dateRange.start.toString();
-    const end = dateRange.end.toString();
-    return issues.filter((issue) => {
-      const date = (issue.createdAt ?? issue.openDate ?? "").slice(0, 10);
-      if (!date) return true;
-      return date >= start && date <= end;
-    });
-  }, [issues, dateRange]);
-
-  const avgDaysToClose = useMemo(() => {
-    let total = 0;
-    let count = 0;
-    for (const issue of filteredIssues) {
-      if (issue.status !== "Closed" || !issue.openDate || !issue.closeDate)
-        continue;
-      const days = Math.floor(
-        (new Date(issue.closeDate).getTime() -
-          new Date(issue.openDate).getTime()) /
-          (24 * 60 * 60 * 1000)
-      );
-      if (days >= 0) {
-        total += days;
-        count++;
-      }
-    }
-    return count > 0 ? Math.round(total / count) : null;
-  }, [filteredIssues]);
-
-  // --- Weekly Tracking ---
-  const weeklyData = useMemo(() => {
-    const endDate = dateRange?.end
-      ? new Date(dateRange.end.toString())
-      : new Date();
-    const startDate = dateRange?.start
-      ? new Date(dateRange.start.toString())
-      : (() => {
-          const d = new Date(endDate);
-          d.setDate(d.getDate() - 52 * 7);
-          return d;
-        })();
-
-    const allWeekKeys = generateWeekKeys(startDate, endDate);
-    const weekMap = new Map<string, { opened: number; closed: number }>();
-    for (const key of allWeekKeys) {
-      weekMap.set(key, { opened: 0, closed: 0 });
-    }
-
-    let baseline = 0;
-    const startKey = allWeekKeys[0];
-
-    for (const issue of issues) {
-      if (!issue.openDate) continue;
-      const openKey = weekKeyFromDate(issue.openDate);
-
-      if (openKey < startKey) {
-        if (!issue.closeDate || weekKeyFromDate(issue.closeDate) >= startKey) {
-          baseline++;
-        }
-      } else if (weekMap.has(openKey)) {
-        const entry = weekMap.get(openKey)!;
-        entry.opened++;
-      }
-
-      if (issue.closeDate) {
-        const closeKey = weekKeyFromDate(issue.closeDate);
-        if (closeKey < startKey) {
-          // Closed before the window — already accounted for
-        } else if (weekMap.has(closeKey)) {
-          const entry = weekMap.get(closeKey)!;
-          entry.closed++;
-        }
-      }
-    }
-
-    let running = baseline;
-    return allWeekKeys.map((week) => {
-      const entry = weekMap.get(week)!;
-      running += entry.opened - entry.closed;
-      return {
-        week,
-        opened: entry.opened,
-        closed: entry.closed,
-        runningTotal: running
-      };
-    });
-  }, [issues, dateRange]);
-
+  // Derived from fetcher data (lightweight client-side derivation)
   const weeklyStats = useMemo(() => {
-    const currentTotal =
-      weeklyData.length > 0
-        ? weeklyData[weeklyData.length - 1].runningTotal
-        : 0;
-    const totalClosed = weeklyData.reduce((sum, d) => sum + d.closed, 0);
-    return { currentOpen: currentTotal, totalClosed };
-  }, [weeklyData]);
+    const meta = (kpiFetcher.data as any)?.meta;
+    if (meta)
+      return { currentOpen: meta.currentOpen, totalClosed: meta.totalClosed };
+    return { currentOpen: 0, totalClosed: 0 };
+  }, [kpiFetcher.data]);
 
-  // --- Status Distribution (Donut) ---
-  const statusDonutData = useMemo(() => {
-    const counts: Record<string, number> = {
-      Registered: 0,
-      "In Progress": 0,
-      Closed: 0
-    };
-    for (const issue of filteredIssues) {
-      if (counts[issue.status] !== undefined) {
-        counts[issue.status]++;
-      }
-    }
-    return [
-      {
-        name: "Registered",
-        value: counts.Registered,
-        fill: "hsl(var(--chart-5))"
-      },
-      {
-        name: "In Progress",
-        value: counts["In Progress"],
-        fill: "hsl(var(--chart-1))"
-      },
-      { name: "Closed", value: counts.Closed, fill: "hsl(var(--success))" }
-    ];
-  }, [filteredIssues]);
+  const avgDaysToClose = (avgFetcher.data?.data as any)?.[0]?.value ?? null;
 
-  // --- Source Analysis (Internal vs External × Priority) ---
-  const sourceAnalysisData = useMemo(() => {
-    const grid: Record<string, Record<string, number>> = {};
-    for (const p of priorityOrder) {
-      grid[p] = { Internal: 0, External: 0 };
-    }
-    for (const issue of filteredIssues) {
-      if (!issue.priority || !issue.source) continue;
-      if (grid[issue.priority]) {
-        grid[issue.priority][issue.source]++;
-      }
-    }
-    return priorityOrder.map((priority) => ({
-      priority,
-      ...grid[priority]
-    }));
-  }, [filteredIssues]);
-
-  // --- Weeks Open by Criticality ---
-  const weeksOpenData = useMemo(() => {
-    const now = Date.now();
-    const grid: Record<string, Record<string, number>> = {};
-    for (const p of priorityOrder) {
-      grid[p] = {
-        "0-4 weeks": 0,
-        "5-8 weeks": 0,
-        "9-12 weeks": 0,
-        "13+ weeks": 0
-      };
-    }
-
-    for (const issue of filteredIssues) {
-      if (issue.status === "Closed" || !issue.openDate || !issue.priority)
-        continue;
-      const weeksOpen = Math.floor(
-        (now - new Date(issue.openDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
-      );
-      let bucket: string;
-      if (weeksOpen <= 4) bucket = "0-4 weeks";
-      else if (weeksOpen <= 8) bucket = "5-8 weeks";
-      else if (weeksOpen <= 12) bucket = "9-12 weeks";
-      else bucket = "13+ weeks";
-
-      if (grid[issue.priority]) {
-        grid[issue.priority][bucket]++;
-      }
-    }
-
-    return priorityOrder.map((criticality) => ({
-      criticality,
-      ...grid[criticality]
-    }));
-  }, [filteredIssues]);
-
-  // --- Pareto by Type ---
-  const paretoData = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const issue of filteredIssues) {
-      const typeName =
-        typeNameMap.get(issue.nonConformanceTypeId ?? "") ?? "Unknown";
-      counts[typeName] = (counts[typeName] || 0) + 1;
-    }
-    const sorted = Object.entries(counts)
-      .map(([type, count]) => ({ type, count }))
-      .sort((a, b) => b.count - a.count);
-
-    const total = sorted.reduce((sum, d) => sum + d.count, 0);
-    let cumulative = 0;
-    return sorted.map((d) => {
-      cumulative += d.count;
-      return {
-        ...d,
-        cumulative: total > 0 ? Math.round((cumulative / total) * 100) : 0
-      };
-    });
-  }, [filteredIssues, typeNameMap]);
-
-  // --- NCRs by Type (Stacked by Criticality) ---
-  const ncrsByTypeData = useMemo(() => {
-    const grid: Record<string, Record<string, number>> = {};
-    for (const issue of filteredIssues) {
-      const typeName =
-        typeNameMap.get(issue.nonConformanceTypeId ?? "") ?? "Unknown";
-      if (!grid[typeName]) {
-        grid[typeName] = { Critical: 0, High: 0, Medium: 0, Low: 0 };
-      }
-      if (issue.priority) {
-        grid[typeName][issue.priority]++;
-      }
-    }
-    return Object.entries(grid)
-      .map(([type, counts]) => ({ type, ...counts }))
-      .sort((a, b) => {
-        const totalA =
-          (a.Critical ?? 0) + (a.High ?? 0) + (a.Medium ?? 0) + (a.Low ?? 0);
-        const totalB =
-          (b.Critical ?? 0) + (b.High ?? 0) + (b.Medium ?? 0) + (b.Low ?? 0);
-        return totalB - totalA;
-      });
-  }, [filteredIssues, typeNameMap]);
-
-  // --- Supplier Quality ---
-  const supplierQualityData = useMemo(() => {
-    // Build a set of issue IDs in the current date range
-    const filteredIds = new Set(filteredIssues.map((i) => i.id));
-    const counts: Record<string, { name: string; count: number }> = {};
-    for (const si of supplierIssues) {
-      if (!filteredIds.has(si.nonConformanceId)) continue;
-      const supplier = si.supplier as { id: string; name: string } | null;
-      if (!supplier) continue;
-      if (!counts[supplier.id]) {
-        counts[supplier.id] = { name: supplier.name, count: 0 };
-      }
-      counts[supplier.id].count++;
-    }
-    return Object.values(counts)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
-  }, [filteredIssues, supplierIssues]);
-
+  // CSV export
   const csvData = useMemo(() => {
-    switch (selectedChart) {
-      case "weeklyTracking":
-        return [
-          ["Week", "Opened", "Closed", "Running Total"],
-          ...weeklyData.map((d) => [d.week, d.opened, d.closed, d.runningTotal])
-        ];
-      case "statusByCriticality":
-        return [
-          ["Status", "Count"],
-          ...statusDonutData.map((d) => [d.name, d.value])
-        ];
-      case "paretoByType":
-        return [
-          ["Type", "Count", "Cumulative %"],
-          ...paretoData.map((d) => [d.type, d.count, `${d.cumulative}%`])
-        ];
-      case "ncrsByType":
-        return [
-          ["Type", "Critical", "High", "Medium", "Low"],
-          ...ncrsByTypeData.map((d) => [
-            d.type,
-            d.Critical,
-            d.High,
-            d.Medium,
-            d.Low
-          ])
-        ];
-      case "sourceAnalysis":
-        return [
-          ["Priority", "Internal", "External"],
-          ...sourceAnalysisData.map((d) => [d.priority, d.Internal, d.External])
-        ];
-      case "supplierQuality":
-        return [
-          ["Supplier", "NCR Count"],
-          ...supplierQualityData.map((d) => [d.name, d.count])
-        ];
-      case "weeksOpen":
-        return [
-          ["Criticality", "0-4 weeks", "5-8 weeks", "9-12 weeks", "13+ weeks"],
-          ...weeksOpenData.map((d) => [
-            d.criticality,
-            d["0-4 weeks"],
-            d["5-8 weeks"],
-            d["9-12 weeks"],
-            d["13+ weeks"]
-          ])
-        ];
-      default:
-        return [];
-    }
-  }, [
-    selectedChart,
-    weeklyData,
-    statusDonutData,
-    paretoData,
-    ncrsByTypeData,
-    sourceAnalysisData,
-    supplierQualityData,
-    weeksOpenData
-  ]);
+    const data = kpiFetcher.data?.data;
+    if (!data || !Array.isArray(data) || data.length === 0) return [];
+    const keys = Object.keys(data[0]);
+    return [keys, ...data.map((d: any) => keys.map((k) => d[k]))];
+  }, [kpiFetcher.data?.data]);
 
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
     return `${selectedChartData.label.replace(/ /g, "_")}_${startDate}_to_${endDate}.csv`;
   }, [dateRange, selectedChartData.label]);
+
+  // Chart data from fetcher
+  const chartData = kpiFetcher.data?.data ?? [];
+
+  // Target: prefer meta value from API, fall back to loader value
+  const effectiveTarget =
+    (kpiFetcher.data as any)?.meta?.qualityIssueTarget ?? qualityIssueTarget;
 
   return (
     <div className="flex flex-col gap-4 w-full p-4 h-[calc(100dvh-var(--header-height))] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-muted-foreground">
@@ -783,7 +461,7 @@ export default function QualityDashboard() {
                 asChild
               >
                 <Link
-                  to={`${path.to.qualityActions}?filter=status:in:${OPEN_ACTION_STATUSES.join(",")}`}
+                  to={`${path.to.qualityActions}?filter=status:in:Pending,In Progress`}
                 >
                   View
                 </Link>
@@ -828,7 +506,7 @@ export default function QualityDashboard() {
                     value={selectedChart}
                     onValueChange={setSelectedChart}
                   >
-                    {QualityCharts.map((chart) => (
+                    {QualityKPIs.map((chart) => (
                       <DropdownMenuRadioItem key={chart.key} value={chart.key}>
                         {chart.label}
                       </DropdownMenuRadioItem>
@@ -836,6 +514,14 @@ export default function QualityDashboard() {
                   </DropdownMenuRadioGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Combobox
+                asButton
+                value={issueTypeId}
+                onChange={setIssueTypeId}
+                options={typeOptions}
+                size="sm"
+                className="font-medium text-sm min-w-[160px]"
+              />
             </div>
           </CardHeader>
           <CardAction className="flex-row items-center gap-2">
@@ -895,7 +581,7 @@ export default function QualityDashboard() {
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                <ComposedChart data={weeklyData}>
+                <ComposedChart data={chartData}>
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey="week"
@@ -914,9 +600,9 @@ export default function QualityDashboard() {
                     payload={weeklyLegendPayload}
                     content={<ChartLegendContent />}
                   />
-                  {qualityIssueTarget > 0 && (
+                  {effectiveTarget > 0 && (
                     <ReferenceLine
-                      y={qualityIssueTarget}
+                      y={effectiveTarget}
                       stroke="hsl(var(--destructive))"
                       strokeDasharray="3 3"
                       label={{
@@ -941,7 +627,7 @@ export default function QualityDashboard() {
                     radius={2}
                     isAnimationActive={false}
                   />
-                  {weeklyData.some((d) => d.runningTotal !== 0) && (
+                  {(chartData as any[]).some((d) => d.runningTotal !== 0) && (
                     <Line
                       type="natural"
                       dataKey="runningTotal"
@@ -955,7 +641,7 @@ export default function QualityDashboard() {
               </ChartContainer>
             )}
 
-            {selectedChart === "statusByCriticality" && (
+            {selectedChart === "statusDistribution" && (
               <ChartContainer
                 config={qualityChartConfig}
                 className="w-full h-full"
@@ -964,7 +650,7 @@ export default function QualityDashboard() {
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
                   <Pie
-                    data={statusDonutData}
+                    data={chartData}
                     dataKey="value"
                     nameKey="name"
                     innerRadius="50%"
@@ -972,13 +658,13 @@ export default function QualityDashboard() {
                     paddingAngle={2}
                     isAnimationActive={false}
                   >
-                    {statusDonutData.map((entry) => (
+                    {(chartData as any[]).map((entry) => (
                       <Cell key={entry.name} fill={entry.fill} />
                     ))}
                     <Label
                       content={({ viewBox }) => {
                         if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          const total = statusDonutData.reduce(
+                          const total = (chartData as any[]).reduce(
                             (s, d) => s + d.value,
                             0
                           );
@@ -1017,7 +703,7 @@ export default function QualityDashboard() {
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                <ComposedChart data={paretoData}>
+                <ComposedChart data={chartData}>
                   <CartesianGrid vertical={false} />
                   <XAxis dataKey="type" tickLine={false} axisLine={false} />
                   <YAxis yAxisId="left" tickLine={false} axisLine={false} />
@@ -1057,7 +743,7 @@ export default function QualityDashboard() {
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                <BarChart data={ncrsByTypeData}>
+                <BarChart data={chartData}>
                   <CartesianGrid vertical={false} />
                   <XAxis dataKey="type" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
@@ -1112,7 +798,7 @@ export default function QualityDashboard() {
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                <BarChart data={sourceAnalysisData} layout="vertical">
+                <BarChart data={chartData} layout="vertical">
                   <CartesianGrid horizontal={false} />
                   <XAxis type="number" tickLine={false} axisLine={false} />
                   <YAxis
@@ -1155,9 +841,9 @@ export default function QualityDashboard() {
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                {supplierQualityData.length > 0 ? (
+                {(chartData as any[]).length > 0 ? (
                   <BarChart
-                    data={supplierQualityData}
+                    data={chartData}
                     layout="vertical"
                     margin={{ left: 20 }}
                   >
@@ -1193,7 +879,7 @@ export default function QualityDashboard() {
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                <BarChart data={weeksOpenData}>
+                <BarChart data={chartData}>
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey="criticality"
