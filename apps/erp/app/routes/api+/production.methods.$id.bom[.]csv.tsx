@@ -3,7 +3,12 @@ import type { LoaderFunctionArgs } from "react-router";
 import { flattenTree } from "~/components/TreeView";
 import type { JobOperation } from "~/modules/production";
 import { getJobMethodTree } from "~/modules/production";
-import { calculateTotalQuantity, generateBomIds } from "~/utils/bom";
+import type { BomOperation } from "~/utils/bom";
+import {
+  calculateMadePartCosts,
+  calculateTotalQuantity,
+  generateBomIds
+} from "~/utils/bom";
 import { makeDurations } from "~/utils/duration";
 
 const bomHeaders = [
@@ -78,6 +83,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ...new Set(methods.map((method) => method.data.jobMakeMethodId))
   ];
 
+  const methodOperations = await client
+    .from("jobOperation")
+    .select(
+      "*, ...process(processName:name), ...workCenter(workCenterName:name), ...jobMakeMethod(parentMaterialId, item(readableIdWithRevision))"
+    )
+    .in("jobMakeMethodId", makeMethodIds)
+    .eq("companyId", companyId);
+
   let operationsByMakeMethodId: Record<
     string,
     Array<
@@ -88,37 +101,53 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     >
   > = {};
 
-  if (withOperations) {
-    const methodOperations = await client
-      .from("jobOperation")
-      .select(
-        "*, ...process(processName:name), ...workCenter(workCenterName:name), ...jobMakeMethod(parentMaterialId, item(readableIdWithRevision))"
-      )
-      .in("jobMakeMethodId", makeMethodIds)
-      .eq("companyId", companyId);
-    if (methodOperations.data) {
-      operationsByMakeMethodId = methodOperations.data.reduce<
-        typeof operationsByMakeMethodId
-      >((acc, operation) => {
-        const transformedOperation = {
-          ...operation,
-          jobMakeMethod: operation.item
-            ? {
-                parentMaterialId: operation.parentMaterialId,
-                item: {
-                  readableIdWithRevision: operation.item.readableIdWithRevision
-                }
+  if (methodOperations.data) {
+    operationsByMakeMethodId = methodOperations.data.reduce<
+      typeof operationsByMakeMethodId
+    >((acc, operation) => {
+      const transformedOperation = {
+        ...operation,
+        jobMakeMethod: operation.item
+          ? {
+              parentMaterialId: operation.parentMaterialId,
+              item: {
+                readableIdWithRevision: operation.item.readableIdWithRevision
               }
-            : null
-        };
-        acc[operation.jobMakeMethodId ?? ""] = [
-          ...(acc[operation.jobMakeMethodId ?? ""] || []),
-          transformedOperation
-        ];
-        return acc;
-      }, {});
-    }
+            }
+          : null
+      };
+      acc[operation.jobMakeMethodId ?? ""] = [
+        ...(acc[operation.jobMakeMethodId ?? ""] || []),
+        transformedOperation
+      ];
+      return acc;
+    }, {});
   }
+
+  // Build BomOperation map for cost calculation
+  const bomOperationsByKey: Record<string, BomOperation[]> = {};
+  for (const [key, ops] of Object.entries(operationsByMakeMethodId)) {
+    bomOperationsByKey[key] = ops.map((op) => ({
+      operationType: op.operationType,
+      setupTime: op.setupTime,
+      setupUnit: op.setupUnit,
+      laborTime: op.laborTime,
+      laborUnit: op.laborUnit,
+      machineTime: op.machineTime,
+      machineUnit: op.machineUnit,
+      operationUnitCost: op.operationUnitCost,
+      operationMinimumCost: op.operationMinimumCost,
+      laborRate: op.laborRate ?? 0,
+      machineRate: op.machineRate ?? 0,
+      overheadRate: op.overheadRate ?? 0
+    }));
+  }
+
+  const computedCosts = calculateMadePartCosts(
+    methods,
+    bomOperationsByKey,
+    (node) => node.data.jobMaterialMakeMethodId
+  );
 
   const bomIds = generateBomIds(methods);
 
@@ -126,13 +155,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   methods.forEach((node, index) => {
     const total = calculateTotalQuantity(node, methods);
-    const totalCost = total * (node.data.unitCost || 0);
+    const unitCost = computedCosts.get(node.id) ?? node.data.unitCost ?? 0;
+    const totalCost = total * unitCost;
 
     csv += `${bomIds[index]},${
       node.data.itemReadableId
     },"${node.data.description?.replace(/"/g, '""')}",${
       node.data.quantity
-    },${total},${node.data.unitCost},${totalCost},,${node.data.methodType},${
+    },${total},${unitCost},${totalCost},,${node.data.methodType},${
       node.data.itemType
     },${node.level},${node.data.version || ""}\n`;
 

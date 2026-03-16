@@ -3,7 +3,12 @@ import type { Database } from "@carbon/database";
 import type { LoaderFunctionArgs } from "react-router";
 import { flattenTree } from "~/components/TreeView";
 import { getQuoteMethodTrees } from "~/modules/sales";
-import { calculateTotalQuantity, generateBomIds } from "~/utils/bom";
+import type { BomOperation } from "~/utils/bom";
+import {
+  calculateMadePartCosts,
+  calculateTotalQuantity,
+  generateBomIds
+} from "~/utils/bom";
 import { makeDurations } from "~/utils/duration";
 
 const bomHeaders = [
@@ -83,6 +88,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ...new Set(flattenedMethods.map((method) => method.data.quoteMakeMethodId))
   ];
 
+  const quoteOperations = await client
+    .from("quoteOperation")
+    .select(
+      "*, ...process(processName:name), ...workCenter(workCenterName:name)"
+    )
+    .in("quoteMakeMethodId", makeMethodIds)
+    .eq("companyId", companyId);
+
   let operationsByMakeMethodId: Record<
     string,
     Array<
@@ -93,27 +106,43 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     >
   > = {};
 
-  if (withOperations) {
-    const quoteOperations = await client
-      .from("quoteOperation")
-      .select(
-        "*, ...process(processName:name), ...workCenter(workCenterName:name)"
-      )
-      .in("quoteMakeMethodId", makeMethodIds)
-      .eq("companyId", companyId);
-    if (quoteOperations.data) {
-      operationsByMakeMethodId = quoteOperations.data.reduce(
-        (acc, operation) => {
-          acc[operation.quoteMakeMethodId ?? ""] = [
-            ...(acc[operation.quoteMakeMethodId ?? ""] || []),
-            operation
-          ];
-          return acc;
-        },
-        {} as typeof operationsByMakeMethodId
-      );
-    }
+  if (quoteOperations.data) {
+    operationsByMakeMethodId = quoteOperations.data.reduce(
+      (acc, operation) => {
+        acc[operation.quoteMakeMethodId ?? ""] = [
+          ...(acc[operation.quoteMakeMethodId ?? ""] || []),
+          operation
+        ];
+        return acc;
+      },
+      {} as typeof operationsByMakeMethodId
+    );
   }
+
+  // Build BomOperation map for cost calculation
+  const bomOperationsByKey: Record<string, BomOperation[]> = {};
+  for (const [key, ops] of Object.entries(operationsByMakeMethodId)) {
+    bomOperationsByKey[key] = ops.map((op) => ({
+      operationType: op.operationType,
+      setupTime: op.setupTime,
+      setupUnit: op.setupUnit,
+      laborTime: op.laborTime,
+      laborUnit: op.laborUnit,
+      machineTime: op.machineTime,
+      machineUnit: op.machineUnit,
+      operationUnitCost: op.operationUnitCost,
+      operationMinimumCost: op.operationMinimumCost,
+      laborRate: op.laborRate ?? 0,
+      machineRate: op.machineRate ?? 0,
+      overheadRate: op.overheadRate ?? 0
+    }));
+  }
+
+  const computedCosts = calculateMadePartCosts(
+    flattenedMethods,
+    bomOperationsByKey,
+    (node) => node.data.quoteMaterialMakeMethodId
+  );
 
   const bomIds = generateBomIds(flattenedMethods);
 
@@ -134,13 +163,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   flattenedMethods.forEach((node, index) => {
     const total = calculateTotalQuantity(node, flattenedMethods);
-    const totalCost = total * (node.data.unitCost || 0);
+    const unitCost = computedCosts.get(node.id) ?? node.data.unitCost ?? 0;
+    const totalCost = total * unitCost;
 
     csv += `${bomIds[index]},${
       node.data.itemReadableId
     },"${node.data.description?.replace(/"/g, '""')}",${
       node.data.quantity
-    },${total},${node.data.unitCost},${totalCost},${node.data.methodType},${
+    },${total},${unitCost},${totalCost},${node.data.methodType},${
       node.data.itemType
     },${node.level},${node.data.version || ""}\n`;
 
