@@ -56,7 +56,6 @@ import type { LoaderFunctionArgs } from "react-router";
 import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { CustomerAvatar, DateSelect, Empty, Hyperlink } from "~/components";
-import { GradientBar } from "~/components/GradientBar";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import { KPIs } from "~/modules/sales/sales.models";
 import { getSalesDocumentsAssignedToMe } from "~/modules/sales/sales.service";
@@ -600,11 +599,7 @@ export default function SalesDashboard() {
                       />
                     }
                   />
-                  <Bar
-                    dataKey="value"
-                    fill="var(--color-value)"
-                    shape={GradientBar}
-                  />
+                  <Bar dataKey="value" fill="var(--color-value)" radius={2} />
                 </BarChart>
               </ChartContainer>
             )}

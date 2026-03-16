@@ -19181,6 +19181,9 @@ export type Database = {
           createdBy: string
           id: string
           name: string
+          systemType:
+            | Database["public"]["Enums"]["nonConformanceSystemActionType"]
+            | null
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -19191,6 +19194,9 @@ export type Database = {
           createdBy: string
           id?: string
           name: string
+          systemType?:
+            | Database["public"]["Enums"]["nonConformanceSystemActionType"]
+            | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -19201,6 +19207,9 @@ export type Database = {
           createdBy?: string
           id?: string
           name?: string
+          systemType?:
+            | Database["public"]["Enums"]["nonConformanceSystemActionType"]
+            | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -57785,6 +57794,12 @@ export type Database = {
       nonConformancePriority: "Low" | "Medium" | "High" | "Critical"
       nonConformanceSource: "Internal" | "External"
       nonConformanceStatus: "Registered" | "In Progress" | "Closed"
+      nonConformanceSystemActionType:
+        | "containment"
+        | "corrective"
+        | "preventive"
+        | "verification"
+        | "communication"
       nonConformanceTaskStatus:
         | "Pending"
         | "In Progress"
@@ -58924,6 +58939,13 @@ export const Constants = {
       nonConformancePriority: ["Low", "Medium", "High", "Critical"],
       nonConformanceSource: ["Internal", "External"],
       nonConformanceStatus: ["Registered", "In Progress", "Closed"],
+      nonConformanceSystemActionType: [
+        "containment",
+        "corrective",
+        "preventive",
+        "verification",
+        "communication",
+      ],
       nonConformanceTaskStatus: [
         "Pending",
         "In Progress",

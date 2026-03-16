@@ -357,6 +357,16 @@ export async function getQualityDashboardIssues(
     .eq("companyId", companyId);
 }
 
+export async function getQualityDashboardSupplierIssues(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("nonConformanceSupplier")
+    .select("nonConformanceId, supplier:supplier(id, name)")
+    .eq("companyId", companyId);
+}
+
 export async function getQualityDashboardActionTasks(
   client: SupabaseClient<Database>,
   companyId: string

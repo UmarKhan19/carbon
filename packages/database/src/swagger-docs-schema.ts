@@ -8275,6 +8275,9 @@ export default {
             $ref: "#/parameters/rowFilter.nonConformanceRequiredAction.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.nonConformanceRequiredAction.systemType",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -8358,6 +8361,9 @@ export default {
             $ref: "#/parameters/rowFilter.nonConformanceRequiredAction.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.nonConformanceRequiredAction.systemType",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -8393,6 +8399,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.nonConformanceRequiredAction.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.nonConformanceRequiredAction.systemType",
           },
           {
             $ref: "#/parameters/body.nonConformanceRequiredAction",
@@ -10850,6 +10859,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.issues.items",
+          },
+          {
+            $ref: "#/parameters/rowFilter.issues.containmentStatus",
           },
           {
             $ref: "#/parameters/select",
@@ -73079,6 +73091,17 @@ export default {
           format: "text",
           type: "string",
         },
+        systemType: {
+          enum: [
+            "containment",
+            "corrective",
+            "preventive",
+            "verification",
+            "communication",
+          ],
+          format: 'public."nonConformanceSystemActionType"',
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -74398,6 +74421,10 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        containmentStatus: {
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -103990,6 +104017,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.nonConformanceRequiredAction.systemType": {
+      name: "systemType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.invite": {
       name: "invite",
       description: "invite",
@@ -105567,6 +105600,12 @@ export default {
     },
     "rowFilter.issues.items": {
       name: "items",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.issues.containmentStatus": {
+      name: "containmentStatus",
       required: false,
       in: "query",
       type: "string",

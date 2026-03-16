@@ -59,7 +59,6 @@ import type { LoaderFunctionArgs } from "react-router";
 import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { DateSelect, Empty, Hyperlink, SupplierAvatar } from "~/components";
-import { GradientBar } from "~/components/GradientBar";
 import { useUser } from "~/hooks";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import type { PurchaseInvoice } from "~/modules/invoicing";
@@ -614,11 +613,7 @@ export default function PurchaseDashboard() {
                     />
                   }
                 />
-                <Bar
-                  dataKey="value"
-                  fill="var(--color-value)"
-                  shape={GradientBar}
-                />
+                <Bar dataKey="value" fill="var(--color-value)" radius={2} />
               </BarChart>
             </ChartContainer>
           </Loading>

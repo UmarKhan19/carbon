@@ -16,8 +16,6 @@ import {
   DropdownMenuTrigger,
   HStack,
   IconButton,
-  NumberField,
-  NumberInput,
   Table,
   Tbody,
   Td,
@@ -40,12 +38,14 @@ import { Suspense, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
 import {
   LuArrowUpRight,
+  LuCalendarClock,
   LuChevronDown,
+  LuCircleAlert,
+  LuClipboardList,
   LuClock,
   LuEllipsisVertical,
   LuFile,
   LuInbox,
-  LuListChecks,
   LuShieldAlert,
   LuShieldCheck,
   LuShieldX
@@ -56,20 +56,25 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   ComposedChart,
+  Label,
   Line,
+  Pie,
+  PieChart,
   ReferenceLine,
   XAxis,
   YAxis
 } from "recharts";
 import { DateSelect, Empty, Hyperlink } from "~/components";
-import { GradientBar } from "~/components/GradientBar";
 import {
   getIssueTypesList,
   getQualityDashboardActionTasks,
-  getQualityDashboardIssues
+  getQualityDashboardIssues,
+  getQualityDashboardSupplierIssues
 } from "~/modules/quality";
 import IssueStatus from "~/modules/quality/ui/Issue/IssueStatus";
+import { getCompanySettings } from "~/modules/settings";
 
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -82,32 +87,79 @@ export const handle: Handle = {
 const OPEN_ISSUE_STATUSES = ["Registered", "In Progress"] as const;
 const OPEN_ACTION_STATUSES = ["Pending", "In Progress"] as const;
 
+const categoryKeys = new Set([
+  "type",
+  "status",
+  "criticality",
+  "priority",
+  "week"
+]);
+
+function StackedBar(props: unknown): React.JSX.Element {
+  const { x, y, width, height, fill } = props as {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    fill: string;
+  };
+  if (!height || height <= 0 || !width || width <= 0) return <g />;
+  const gap = 2;
+  return (
+    <rect
+      x={x}
+      y={y}
+      width={width}
+      height={Math.max(height - gap, 0)}
+      fill={fill}
+      rx={2}
+    />
+  );
+}
+
+function percentageFormatter(
+  value: number | string,
+  name: string,
+  item: { payload?: Record<string, unknown> }
+) {
+  const total = item.payload
+    ? Object.entries(item.payload)
+        .filter(([k]) => !categoryKeys.has(k))
+        .reduce((sum, [, v]) => sum + (typeof v === "number" ? v : 0), 0)
+    : 0;
+  const pct = total > 0 ? Math.round(((value as number) / total) * 100) : 0;
+  return `${value} (${pct}%)`;
+}
+
 const QualityCharts = [
   { key: "weeklyTracking", label: "Issue Trend" },
-  { key: "ncrStatus", label: "NCR Status" },
-  { key: "statusByCriticality", label: "Status by Criticality" },
-  { key: "containmentProgress", label: "Containment Progress" },
-  { key: "weeksOpen", label: "Weeks Open" },
-  { key: "ncrsByTypeCriticality", label: "NCRs by Type (Criticality)" },
-  { key: "ncrsByTypeProgress", label: "NCRs by Type (Progress)" }
+  { key: "statusByCriticality", label: "Status Distribution" },
+  { key: "paretoByType", label: "Pareto by Type" },
+  { key: "ncrsByType", label: "NCRs by Type" },
+  { key: "sourceAnalysis", label: "Source Analysis" },
+  { key: "supplierQuality", label: "Supplier Quality" },
+  { key: "weeksOpen", label: "Weeks Open" }
 ] as const;
 
 const qualityChartConfig = {
   Critical: { label: "Critical", color: "hsl(var(--destructive))" },
-  High: { label: "High", color: "hsl(var(--chart-1))" },
-  Medium: { label: "Medium", color: "hsl(var(--chart-4))" },
+  High: { label: "High", color: "hsl(var(--chart-5))" },
+  Medium: { label: "Medium", color: "hsl(var(--chart-1))" },
   Low: { label: "Low", color: "hsl(var(--success))" },
-  Registered: { label: "Registered", color: "hsl(var(--chart-1))" },
-  "In Progress": { label: "In Progress", color: "hsl(var(--primary))" },
-  Closed: { label: "Closed", color: "hsl(var(--chart-2))" },
-  opened: { label: "Opened", color: "hsl(var(--primary))" },
-  closed: { label: "Closed", color: "hsl(var(--chart-2))" },
-  runningTotal: { label: "Running Total", color: "hsl(var(--chart-1))" },
+  Registered: { label: "Registered", color: "hsl(var(--chart-5))" },
+  "In Progress": { label: "In Progress", color: "hsl(var(--chart-1))" },
+  Closed: { label: "Closed", color: "hsl(var(--success))" },
+  opened: { label: "Opened", color: "hsl(var(--chart-5))" },
+  closed: { label: "Closed", color: "hsl(var(--success))" },
+  runningTotal: { label: "Running Total", color: "hsl(var(--chart-4))" },
   target: { label: "Target", color: "hsl(var(--destructive))" },
   count: { label: "Count" },
+  cumulative: { label: "Cumulative %", color: "hsl(var(--chart-5))" },
+  Internal: { label: "Internal", color: "hsl(var(--chart-1))" },
+  External: { label: "External", color: "hsl(var(--chart-5))" },
   "0-4 weeks": { label: "0-4 weeks", color: "hsl(var(--success))" },
   "5-8 weeks": { label: "5-8 weeks", color: "hsl(var(--chart-4))" },
-  "9-12 weeks": { label: "9-12 weeks", color: "hsl(var(--chart-1))" },
+  "9-12 weeks": { label: "9-12 weeks", color: "hsl(var(--chart-5))" },
   "13+ weeks": { label: "13+ weeks", color: "hsl(var(--destructive))" }
 } satisfies ChartConfig;
 
@@ -154,11 +206,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     role: "employee"
   });
 
-  const [issues, actionTasks, issueTypes] = await Promise.all([
-    getQualityDashboardIssues(client, companyId),
-    getQualityDashboardActionTasks(client, companyId),
-    getIssueTypesList(client, companyId)
-  ]);
+  const [issues, actionTasks, issueTypes, companySettings, supplierIssues] =
+    await Promise.all([
+      getQualityDashboardIssues(client, companyId),
+      getQualityDashboardActionTasks(client, companyId),
+      getIssueTypesList(client, companyId),
+      getCompanySettings(client, companyId),
+      getQualityDashboardSupplierIssues(client, companyId)
+    ]);
 
   const assignedToMe = client
     .from("issues")
@@ -174,6 +229,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     issues: issues.data ?? [],
     actionTasks: actionTasks.data ?? [],
     issueTypes: issueTypes.data ?? [],
+    supplierIssues: supplierIssues.data ?? [],
+    qualityIssueTarget: companySettings.data?.qualityIssueTarget ?? 20,
     assignedToMe
   };
 }
@@ -217,7 +274,6 @@ function generateWeekKeys(startDate: Date, endDate: Date): string[] {
 // --- Priority Helpers ---
 
 const priorityOrder = ["Critical", "High", "Medium", "Low"] as const;
-const statusOrder = ["Closed", "In Progress", "Registered"] as const;
 
 function getPriorityVariant(priority: string | null) {
   switch (priority) {
@@ -237,11 +293,16 @@ function getPriorityVariant(priority: string | null) {
 // --- Component ---
 
 export default function QualityDashboard() {
-  const { issues, actionTasks, issueTypes, assignedToMe } =
-    useLoaderData<typeof loader>();
+  const {
+    issues,
+    actionTasks,
+    issueTypes,
+    supplierIssues,
+    assignedToMe,
+    qualityIssueTarget
+  } = useLoaderData<typeof loader>();
   const [selectedChart, setSelectedChart] = useState("weeklyTracking");
   const [interval, setInterval] = useState("month");
-  const [target, setTarget] = useState(20);
   const [dateRange, setDateRange] = useState<DateRange | null>(() => {
     const end = today("UTC");
     const start = end.add({ months: -1 });
@@ -324,6 +385,25 @@ export default function QualityDashboard() {
     });
   }, [issues, dateRange]);
 
+  const avgDaysToClose = useMemo(() => {
+    let total = 0;
+    let count = 0;
+    for (const issue of filteredIssues) {
+      if (issue.status !== "Closed" || !issue.openDate || !issue.closeDate)
+        continue;
+      const days = Math.floor(
+        (new Date(issue.closeDate).getTime() -
+          new Date(issue.openDate).getTime()) /
+          (24 * 60 * 60 * 1000)
+      );
+      if (days >= 0) {
+        total += days;
+        count++;
+      }
+    }
+    return count > 0 ? Math.round(total / count) : null;
+  }, [filteredIssues]);
+
   // --- Weekly Tracking ---
   const weeklyData = useMemo(() => {
     const endDate = dateRange?.end
@@ -392,12 +472,12 @@ export default function QualityDashboard() {
     return { currentOpen: currentTotal, totalClosed };
   }, [weeklyData]);
 
-  // --- NCR Status ---
-  const ncrStatusData = useMemo(() => {
+  // --- Status Distribution (Donut) ---
+  const statusDonutData = useMemo(() => {
     const counts: Record<string, number> = {
-      Closed: 0,
+      Registered: 0,
       "In Progress": 0,
-      Registered: 0
+      Closed: 0
     };
     for (const issue of filteredIssues) {
       if (counts[issue.status] !== undefined) {
@@ -406,58 +486,34 @@ export default function QualityDashboard() {
     }
     return [
       {
-        status: "Closed",
-        count: counts.Closed,
-        fill: "hsl(var(--chart-2))"
+        name: "Registered",
+        value: counts.Registered,
+        fill: "hsl(var(--chart-5))"
       },
       {
-        status: "In Progress",
-        count: counts["In Progress"],
-        fill: "hsl(var(--primary))"
-      },
-      {
-        status: "Registered",
-        count: counts.Registered,
+        name: "In Progress",
+        value: counts["In Progress"],
         fill: "hsl(var(--chart-1))"
-      }
+      },
+      { name: "Closed", value: counts.Closed, fill: "hsl(var(--success))" }
     ];
   }, [filteredIssues]);
 
-  // --- Status by Criticality ---
-  const statusByCriticalityData = useMemo(() => {
+  // --- Source Analysis (Internal vs External × Priority) ---
+  const sourceAnalysisData = useMemo(() => {
     const grid: Record<string, Record<string, number>> = {};
-    for (const status of statusOrder) {
-      grid[status] = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+    for (const p of priorityOrder) {
+      grid[p] = { Internal: 0, External: 0 };
     }
     for (const issue of filteredIssues) {
-      if (grid[issue.status] && issue.priority) {
-        grid[issue.status][issue.priority]++;
+      if (!issue.priority || !issue.source) continue;
+      if (grid[issue.priority]) {
+        grid[issue.priority][issue.source]++;
       }
     }
-    return statusOrder.map((status) => ({
-      status,
-      ...grid[status]
-    }));
-  }, [filteredIssues]);
-
-  // --- Containment Progress by Criticality ---
-  const containmentProgressData = useMemo(() => {
-    const grid: Record<string, Record<string, number>> = {
-      Contained: { Critical: 0, High: 0, Medium: 0, Low: 0 },
-      Uncontained: { Critical: 0, High: 0, Medium: 0, Low: 0 }
-    };
-
-    for (const issue of filteredIssues) {
-      if (issue.status === "Closed") continue;
-      const cStatus = issue.containmentStatus ?? "Uncontained";
-      if (issue.priority && grid[cStatus]) {
-        grid[cStatus][issue.priority]++;
-      }
-    }
-
-    return ["Contained", "Uncontained"].map((status) => ({
-      status,
-      ...grid[status]
+    return priorityOrder.map((priority) => ({
+      priority,
+      ...grid[priority]
     }));
   }, [filteredIssues]);
 
@@ -497,8 +553,31 @@ export default function QualityDashboard() {
     }));
   }, [filteredIssues]);
 
-  // --- NCRs by Type and Criticality ---
-  const ncrsByTypeCriticalityData = useMemo(() => {
+  // --- Pareto by Type ---
+  const paretoData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const issue of filteredIssues) {
+      const typeName =
+        typeNameMap.get(issue.nonConformanceTypeId ?? "") ?? "Unknown";
+      counts[typeName] = (counts[typeName] || 0) + 1;
+    }
+    const sorted = Object.entries(counts)
+      .map(([type, count]) => ({ type, count }))
+      .sort((a, b) => b.count - a.count);
+
+    const total = sorted.reduce((sum, d) => sum + d.count, 0);
+    let cumulative = 0;
+    return sorted.map((d) => {
+      cumulative += d.count;
+      return {
+        ...d,
+        cumulative: total > 0 ? Math.round((cumulative / total) * 100) : 0
+      };
+    });
+  }, [filteredIssues, typeNameMap]);
+
+  // --- NCRs by Type (Stacked by Criticality) ---
+  const ncrsByTypeData = useMemo(() => {
     const grid: Record<string, Record<string, number>> = {};
     for (const issue of filteredIssues) {
       const typeName =
@@ -521,27 +600,24 @@ export default function QualityDashboard() {
       });
   }, [filteredIssues, typeNameMap]);
 
-  // --- NCRs by Type and Progress ---
-  const ncrsByTypeProgressData = useMemo(() => {
-    const grid: Record<string, Record<string, number>> = {};
-    for (const issue of filteredIssues) {
-      const typeName =
-        typeNameMap.get(issue.nonConformanceTypeId ?? "") ?? "Unknown";
-      if (!grid[typeName]) {
-        grid[typeName] = { Registered: 0, "In Progress": 0, Closed: 0 };
+  // --- Supplier Quality ---
+  const supplierQualityData = useMemo(() => {
+    // Build a set of issue IDs in the current date range
+    const filteredIds = new Set(filteredIssues.map((i) => i.id));
+    const counts: Record<string, { name: string; count: number }> = {};
+    for (const si of supplierIssues) {
+      if (!filteredIds.has(si.nonConformanceId)) continue;
+      const supplier = si.supplier as { id: string; name: string } | null;
+      if (!supplier) continue;
+      if (!counts[supplier.id]) {
+        counts[supplier.id] = { name: supplier.name, count: 0 };
       }
-      grid[typeName][issue.status]++;
+      counts[supplier.id].count++;
     }
-    return Object.entries(grid)
-      .map(([type, counts]) => ({ type, ...counts }))
-      .sort((a, b) => {
-        const totalA =
-          (a.Registered ?? 0) + (a["In Progress"] ?? 0) + (a.Closed ?? 0);
-        const totalB =
-          (b.Registered ?? 0) + (b["In Progress"] ?? 0) + (b.Closed ?? 0);
-        return totalB - totalA;
-      });
-  }, [filteredIssues, typeNameMap]);
+    return Object.values(counts)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+  }, [filteredIssues, supplierIssues]);
 
   const csvData = useMemo(() => {
     switch (selectedChart) {
@@ -550,32 +626,36 @@ export default function QualityDashboard() {
           ["Week", "Opened", "Closed", "Running Total"],
           ...weeklyData.map((d) => [d.week, d.opened, d.closed, d.runningTotal])
         ];
-      case "ncrStatus":
-        return [
-          ["Status", "Count"],
-          ...ncrStatusData.map((d) => [d.status, d.count])
-        ];
       case "statusByCriticality":
         return [
-          ["Status", "Critical", "High", "Medium", "Low"],
-          ...statusByCriticalityData.map((d) => [
-            d.status,
+          ["Status", "Count"],
+          ...statusDonutData.map((d) => [d.name, d.value])
+        ];
+      case "paretoByType":
+        return [
+          ["Type", "Count", "Cumulative %"],
+          ...paretoData.map((d) => [d.type, d.count, `${d.cumulative}%`])
+        ];
+      case "ncrsByType":
+        return [
+          ["Type", "Critical", "High", "Medium", "Low"],
+          ...ncrsByTypeData.map((d) => [
+            d.type,
             d.Critical,
             d.High,
             d.Medium,
             d.Low
           ])
         ];
-      case "containmentProgress":
+      case "sourceAnalysis":
         return [
-          ["Status", "Critical", "High", "Medium", "Low"],
-          ...containmentProgressData.map((d) => [
-            d.status,
-            d.Critical,
-            d.High,
-            d.Medium,
-            d.Low
-          ])
+          ["Priority", "Internal", "External"],
+          ...sourceAnalysisData.map((d) => [d.priority, d.Internal, d.External])
+        ];
+      case "supplierQuality":
+        return [
+          ["Supplier", "NCR Count"],
+          ...supplierQualityData.map((d) => [d.name, d.count])
         ];
       case "weeksOpen":
         return [
@@ -588,39 +668,18 @@ export default function QualityDashboard() {
             d["13+ weeks"]
           ])
         ];
-      case "ncrsByTypeCriticality":
-        return [
-          ["Type", "Critical", "High", "Medium", "Low"],
-          ...ncrsByTypeCriticalityData.map((d) => [
-            d.type,
-            d.Critical,
-            d.High,
-            d.Medium,
-            d.Low
-          ])
-        ];
-      case "ncrsByTypeProgress":
-        return [
-          ["Type", "Registered", "In Progress", "Closed"],
-          ...ncrsByTypeProgressData.map((d) => [
-            d.type,
-            d.Registered,
-            d["In Progress"],
-            d.Closed
-          ])
-        ];
       default:
         return [];
     }
   }, [
     selectedChart,
     weeklyData,
-    ncrStatusData,
-    statusByCriticalityData,
-    containmentProgressData,
-    weeksOpenData,
-    ncrsByTypeCriticalityData,
-    ncrsByTypeProgressData
+    statusDonutData,
+    paretoData,
+    ncrsByTypeData,
+    sourceAnalysisData,
+    supplierQualityData,
+    weeksOpenData
   ]);
 
   const csvFilename = useMemo(() => {
@@ -632,10 +691,10 @@ export default function QualityDashboard() {
   return (
     <div className="flex flex-col gap-4 w-full p-4 h-[calc(100dvh-var(--header-height))] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-muted-foreground">
       {/* KPI Cards */}
-      <div className="grid w-full gap-4 grid-cols-1 lg:grid-cols-4">
+      <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex-row gap-2">
-            <LuShieldX className="text-muted-foreground" />
+            <LuCircleAlert className="text-muted-foreground" />
             <CardTitle>Open Issues</CardTitle>
           </CardHeader>
           <CardContent>
@@ -651,7 +710,7 @@ export default function QualityDashboard() {
                 <Link
                   to={`${path.to.issues}?filter=status:in:${OPEN_ISSUE_STATUSES.join(",")}`}
                 >
-                  View Open Issues
+                  View
                 </Link>
               </Button>
             </HStack>
@@ -661,7 +720,7 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuShieldAlert className="text-muted-foreground" />
-            <CardTitle>Uncontained Issues</CardTitle>
+            <CardTitle>Uncontained</CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -676,7 +735,7 @@ export default function QualityDashboard() {
                 <Link
                   to={`${path.to.issues}?filter=containmentStatus:eq:Uncontained`}
                 >
-                  View Uncontained
+                  View
                 </Link>
               </Button>
             </HStack>
@@ -686,7 +745,7 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuShieldCheck className="text-muted-foreground" />
-            <CardTitle>Contained Issues</CardTitle>
+            <CardTitle>Contained</CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -701,7 +760,7 @@ export default function QualityDashboard() {
                 <Link
                   to={`${path.to.issues}?filter=containmentStatus:eq:Contained`}
                 >
-                  View Contained
+                  View
                 </Link>
               </Button>
             </HStack>
@@ -710,7 +769,7 @@ export default function QualityDashboard() {
 
         <Card>
           <CardHeader className="flex-row gap-2">
-            <LuListChecks className="text-muted-foreground" />
+            <LuClipboardList className="text-muted-foreground" />
             <CardTitle>Open Actions</CardTitle>
           </CardHeader>
           <CardContent>
@@ -726,10 +785,25 @@ export default function QualityDashboard() {
                 <Link
                   to={`${path.to.qualityActions}?filter=status:in:${OPEN_ACTION_STATUSES.join(",")}`}
                 >
-                  View Open Actions
+                  View
                 </Link>
               </Button>
             </HStack>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex-row gap-2">
+            <LuCalendarClock className="text-muted-foreground" />
+            <CardTitle>Avg Days to Close</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <h3 className="text-5xl font-medium tracking-tighter">
+              {avgDaysToClose !== null ? avgDaysToClose : "—"}
+            </h3>
+            <span className="text-xs text-muted-foreground">
+              in selected period
+            </span>
           </CardContent>
         </Card>
       </div>
@@ -765,21 +839,6 @@ export default function QualityDashboard() {
             </div>
           </CardHeader>
           <CardAction className="flex-row items-center gap-2">
-            {selectedChart === "weeklyTracking" && (
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  Target:
-                </span>
-                <NumberField
-                  value={target}
-                  onChange={(v) => setTarget(v)}
-                  minValue={0}
-                  aria-label="Target"
-                >
-                  <NumberInput size="sm" className="w-16" />
-                </NumberField>
-              </div>
-            )}
             <DateSelect
               value={interval}
               onValueChange={onIntervalChange}
@@ -855,9 +914,9 @@ export default function QualityDashboard() {
                     payload={weeklyLegendPayload}
                     content={<ChartLegendContent />}
                   />
-                  {target > 0 && (
+                  {qualityIssueTarget > 0 && (
                     <ReferenceLine
-                      y={target}
+                      y={qualityIssueTarget}
                       stroke="hsl(var(--destructive))"
                       strokeDasharray="3 3"
                       label={{
@@ -872,45 +931,27 @@ export default function QualityDashboard() {
                     dataKey="opened"
                     fill="var(--color-opened)"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
                     isAnimationActive={false}
                   />
                   <Bar
                     dataKey="closed"
                     fill="var(--color-closed)"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
                     isAnimationActive={false}
                   />
-                  <Line
-                    type="natural"
-                    dataKey="runningTotal"
-                    stroke="var(--color-runningTotal)"
-                    strokeWidth={2.5}
-                    dot={false}
-                    isAnimationActive={false}
-                  />
+                  {weeklyData.some((d) => d.runningTotal !== 0) && (
+                    <Line
+                      type="natural"
+                      dataKey="runningTotal"
+                      stroke="var(--color-runningTotal)"
+                      strokeWidth={2.5}
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  )}
                 </ComposedChart>
-              </ChartContainer>
-            )}
-
-            {selectedChart === "ncrStatus" && (
-              <ChartContainer
-                config={qualityChartConfig}
-                className="w-full h-full"
-              >
-                <BarChart data={ncrStatusData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="status" tickLine={false} axisLine={false} />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey="count"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                </BarChart>
               </ChartContainer>
             )}
 
@@ -919,84 +960,231 @@ export default function QualityDashboard() {
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                <BarChart data={statusByCriticalityData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="status" tickLine={false} axisLine={false} />
-                  <YAxis tickLine={false} axisLine={false} />
+                <PieChart>
                   <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Pie
+                    data={statusDonutData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius="50%"
+                    outerRadius="80%"
+                    paddingAngle={2}
+                    isAnimationActive={false}
+                  >
+                    {statusDonutData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                    <Label
+                      content={({ viewBox }) => {
+                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                          const total = statusDonutData.reduce(
+                            (s, d) => s + d.value,
+                            0
+                          );
+                          return (
+                            <text
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              textAnchor="middle"
+                            >
+                              <tspan
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                className="fill-foreground text-3xl font-bold"
+                              >
+                                {total}
+                              </tspan>
+                              <tspan
+                                x={viewBox.cx}
+                                y={(viewBox.cy ?? 0) + 20}
+                                className="fill-muted-foreground text-xs"
+                              >
+                                Total
+                              </tspan>
+                            </text>
+                          );
+                        }
+                      }}
+                    />
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+            )}
+
+            {selectedChart === "paretoByType" && (
+              <ChartContainer
+                config={qualityChartConfig}
+                className="w-full h-full"
+              >
+                <ComposedChart data={paretoData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="type" tickLine={false} axisLine={false} />
+                  <YAxis yAxisId="left" tickLine={false} axisLine={false} />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    tickLine={false}
+                    axisLine={false}
+                    domain={[0, 100]}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="count"
+                    fill="hsl(var(--chart-1))"
+                    maxBarSize={48}
+                    radius={2}
+                    isAnimationActive={false}
+                  />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="cumulative"
+                    stroke="var(--color-cumulative)"
+                    strokeWidth={2.5}
+                    dot={{ r: 3 }}
+                    isAnimationActive={false}
+                  />
+                </ComposedChart>
+              </ChartContainer>
+            )}
+
+            {selectedChart === "ncrsByType" && (
+              <ChartContainer
+                config={qualityChartConfig}
+                className="w-full h-full"
+              >
+                <BarChart data={ncrsByTypeData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="type" tickLine={false} axisLine={false} />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent formatter={percentageFormatter} />
+                    }
+                  />
                   <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="Critical"
                     fill="var(--color-Critical)"
+                    stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                   <Bar
                     dataKey="High"
                     fill="var(--color-High)"
+                    stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                   <Bar
                     dataKey="Medium"
                     fill="var(--color-Medium)"
+                    stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                   <Bar
                     dataKey="Low"
                     fill="var(--color-Low)"
+                    stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                 </BarChart>
               </ChartContainer>
             )}
 
-            {selectedChart === "containmentProgress" && (
+            {selectedChart === "sourceAnalysis" && (
               <ChartContainer
                 config={qualityChartConfig}
                 className="w-full h-full"
               >
-                <BarChart data={containmentProgressData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="status" tickLine={false} axisLine={false} />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                <BarChart data={sourceAnalysisData} layout="vertical">
+                  <CartesianGrid horizontal={false} />
+                  <XAxis type="number" tickLine={false} axisLine={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="priority"
+                    tickLine={false}
+                    axisLine={false}
+                    width={80}
+                  />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent formatter={percentageFormatter} />
+                    }
+                  />
                   <ChartLegend content={<ChartLegendContent />} />
                   <Bar
-                    dataKey="Critical"
-                    fill="var(--color-Critical)"
-                    maxBarSize={48}
-                    shape={GradientBar}
+                    dataKey="Internal"
+                    fill="var(--color-Internal)"
+                    stackId="stack"
+                    maxBarSize={32}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                   <Bar
-                    dataKey="High"
-                    fill="var(--color-High)"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="Medium"
-                    fill="var(--color-Medium)"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="Low"
-                    fill="var(--color-Low)"
-                    maxBarSize={48}
-                    shape={GradientBar}
+                    dataKey="External"
+                    fill="var(--color-External)"
+                    stackId="stack"
+                    maxBarSize={32}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                 </BarChart>
+              </ChartContainer>
+            )}
+
+            {selectedChart === "supplierQuality" && (
+              <ChartContainer
+                config={qualityChartConfig}
+                className="w-full h-full"
+              >
+                {supplierQualityData.length > 0 ? (
+                  <BarChart
+                    data={supplierQualityData}
+                    layout="vertical"
+                    margin={{ left: 20 }}
+                  >
+                    <CartesianGrid horizontal={false} />
+                    <XAxis type="number" tickLine={false} axisLine={false} />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tickLine={false}
+                      axisLine={false}
+                      width={120}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--chart-1))"
+                      maxBarSize={28}
+                      radius={2}
+                      isAnimationActive={false}
+                    />
+                  </BarChart>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <Empty />
+                  </div>
+                )}
               </ChartContainer>
             )}
 
@@ -1013,120 +1201,46 @@ export default function QualityDashboard() {
                     axisLine={false}
                   />
                   <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent formatter={percentageFormatter} />
+                    }
+                  />
                   <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="0-4 weeks"
                     fill="hsl(var(--success))"
+                    stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                   <Bar
                     dataKey="5-8 weeks"
                     fill="hsl(var(--chart-4))"
+                    stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                   <Bar
                     dataKey="9-12 weeks"
-                    fill="hsl(var(--chart-1))"
+                    fill="hsl(var(--chart-5))"
+                    stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                   <Bar
                     dataKey="13+ weeks"
                     fill="hsl(var(--destructive))"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                </BarChart>
-              </ChartContainer>
-            )}
-
-            {selectedChart === "ncrsByTypeCriticality" && (
-              <ChartContainer
-                config={qualityChartConfig}
-                className="w-full h-full"
-              >
-                <BarChart data={ncrsByTypeCriticalityData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="type" tickLine={false} axisLine={false} />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <ChartLegend content={<ChartLegendContent />} />
-                  <Bar
-                    dataKey="Critical"
-                    fill="var(--color-Critical)"
                     stackId="stack"
                     maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="High"
-                    fill="var(--color-High)"
-                    stackId="stack"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="Medium"
-                    fill="var(--color-Medium)"
-                    stackId="stack"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="Low"
-                    fill="var(--color-Low)"
-                    stackId="stack"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                </BarChart>
-              </ChartContainer>
-            )}
-
-            {selectedChart === "ncrsByTypeProgress" && (
-              <ChartContainer
-                config={qualityChartConfig}
-                className="w-full h-full"
-              >
-                <BarChart data={ncrsByTypeProgressData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="type" tickLine={false} axisLine={false} />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <ChartLegend content={<ChartLegendContent />} />
-                  <Bar
-                    dataKey="Registered"
-                    fill="var(--color-Registered)"
-                    stackId="stack"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="In Progress"
-                    fill="hsl(var(--primary))"
-                    stackId="stack"
-                    maxBarSize={48}
-                    shape={GradientBar}
-                    isAnimationActive={false}
-                  />
-                  <Bar
-                    dataKey="Closed"
-                    fill="var(--color-Closed)"
-                    stackId="stack"
-                    maxBarSize={48}
-                    shape={GradientBar}
+                    radius={2}
+                    shape={StackedBar}
                     isAnimationActive={false}
                   />
                 </BarChart>

@@ -67,7 +67,6 @@ import {
   Empty,
   Hyperlink
 } from "~/components";
-import { GradientBar } from "~/components/GradientBar";
 import { useUser } from "~/hooks/useUser";
 import type { ActiveProductionEvent } from "~/modules/production";
 import { getActiveProductionEvents, KPIs } from "~/modules/production";
@@ -494,7 +493,7 @@ export default function ProductionDashboard() {
                         <Bar
                           dataKey="value"
                           fill="var(--color-value)"
-                          shape={GradientBar}
+                          radius={2}
                         >
                           <LabelList
                             dataKey="value"
@@ -544,12 +543,12 @@ export default function ProductionDashboard() {
                         <Bar
                           dataKey="actual"
                           fill="var(--color-actual)"
-                          shape={GradientBar}
+                          radius={2}
                         />
                         <Bar
                           dataKey="estimate"
                           fill="var(--color-estimate)"
-                          shape={GradientBar}
+                          radius={2}
                         />
                       </>
                     )}
@@ -570,7 +569,7 @@ export default function ProductionDashboard() {
                         <Bar
                           dataKey="value"
                           fill="var(--color-value)"
-                          shape={GradientBar}
+                          radius={2}
                         />
                       </>
                     )}

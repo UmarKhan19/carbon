@@ -47,7 +47,11 @@ CREATE INDEX "nonConformanceRequiredAction_systemType_idx"
   ON "nonConformanceRequiredAction" ("systemType")
   WHERE "systemType" IS NOT NULL;
 
--- 7. Updated issues view — uses systemType instead of name
+-- 7. Quality issue target setting
+ALTER TABLE "companySettings"
+  ADD COLUMN "qualityIssueTarget" INTEGER NOT NULL DEFAULT 20;
+
+-- 8. Updated issues view — uses systemType instead of name
 CREATE OR REPLACE VIEW "issues" WITH(SECURITY_INVOKER=true) AS
   SELECT
     ncr.*,
