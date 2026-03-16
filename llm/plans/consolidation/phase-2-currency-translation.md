@@ -4,7 +4,7 @@
 
 Translate foreign subsidiary financials into the parent company's reporting currency. When a subsidiary uses a different `baseCurrencyCode` than the parent, its balances must be translated using the appropriate exchange rates before consolidation.
 
-This phase introduces exchange rate types, translation logic, and the Currency Translation Adjustment (CTA) calculation that flows into account 3200 (Reserves - Currency Translation).
+This phase introduces exchange rate types, translation logic, and the Currency Translation Adjustment (CTA) calculation that flows into the `currencyTranslationAccount` default account.
 
 **Standalone value:** Even without full consolidation, finance teams need to see subsidiary financials expressed in the parent's currency for comparison and reporting.
 
@@ -22,7 +22,7 @@ This follows **IAS 21 / ASC 830** conventions:
 | Income statement (revenue, expenses) | Average rate for the period | `Average` |
 | Equity accounts | Historical rate (rate at time of investment/event) | `Historical` |
 
-The difference between translated assets and translated (liabilities + equity) is the **Currency Translation Adjustment (CTA)**, which flows to account 3200.
+The difference between translated assets and translated (liabilities + equity) is the **Currency Translation Adjustment (CTA)**, which flows to the `currencyTranslationAccount` from `accountDefault`.
 
 ## Database Changes
 
@@ -117,7 +117,13 @@ ALTER TABLE "account" ALTER COLUMN "consolidatedRate" SET DEFAULT 'Current'::"gl
 
 Also update `seed.data.ts` to include `consolidatedRate` on each account entry so new company groups get the correct defaults.
 
-### 2d. New RPC: `translateTrialBalance`
+### 2d. Add `currencyTranslationAccount` to `accountDefault`
+
+Add a new column to `accountDefault` so the CTA account is dynamically configurable rather than hardcoded. Backfill existing rows with "3200" and add FK constraint. Also add `currencyTranslationAccount: "3200"` to `accountDefaults` in `seed.data.ts`, the validator in `accounting.models.ts`, and the UI form in `AccountDefaultsForm.tsx`.
+
+**Note:** This was already implemented as part of the migration and seed data changes.
+
+### 2e. New RPC: `translateTrialBalance`
 
 ```sql
 CREATE OR REPLACE FUNCTION "translateTrialBalance" (
@@ -219,7 +225,7 @@ $$;
 ```
 CTA = Total Translated Assets - Total Translated (Liabilities + Equity)
 ```
-This amount is assigned to account 3200 (Reserves - Currency Translation).
+This amount is assigned to the `currencyTranslationAccount` from `accountDefault` (defaults to 3200 - Reserves (Currency Translation)).
 
 ### Migration
 
@@ -329,7 +335,7 @@ When viewing a foreign subsidiary (where `company.baseCurrencyCode != parentComp
 
 1. Add a "Show Translated" toggle to `ReportFilters`
 2. When enabled, show two columns: "Local Currency" and "Translated ({parentCurrency})"
-3. At the bottom of the balance sheet, show a "Currency Translation Adjustment" row mapped to account 3200
+3. At the bottom of the balance sheet, show a "Currency Translation Adjustment" row mapped to the `currencyTranslationAccount` from `accountDefault`
 
 ## Data Flow
 
@@ -370,7 +376,7 @@ UI renders dual-column report with CTA row on balance sheet
   - Average rate to Income Statement accounts (`consolidatedRate = 'Average'`)
   - Historical rate to Equity accounts (`consolidatedRate = 'Historical'`)
 - [ ] CTA calculated correctly: translated total assets = translated total (liabilities + equity + CTA)
-- [ ] CTA assigned to account 3200 (Reserves - Currency Translation)
+- [ ] CTA assigned to the `currencyTranslationAccount` from `accountDefault`
 - [ ] Report pages show dual-currency columns when viewing a translated subsidiary
 - [ ] Same-currency companies see no translation (rate = 1, no CTA)
 - [ ] Missing exchange rates fall back gracefully (closing rate, then 1.0)

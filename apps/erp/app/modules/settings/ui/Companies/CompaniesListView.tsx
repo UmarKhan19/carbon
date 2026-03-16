@@ -108,13 +108,9 @@ export function CompaniesListView({
 
   return (
     <div className="bg-card overflow-hidden">
-      <div className="grid grid-cols-[1fr_auto] items-center border-b border-border bg-muted/50 px-4 py-2.5">
-        <span className="text-xs font-medium text-muted-foreground">
-          Company
-        </span>
-        <span className="text-xs font-medium text-muted-foreground">
-          Actions
-        </span>
+      <div className="grid grid-cols-[1fr_auto] items-center border-b border-border bg-card h-11 px-6">
+        <span className="text-sm font-medium text-foreground/80">Company</span>
+        <span className="text-sm font-medium text-foreground/80">Actions</span>
       </div>
       {roots.map((root) => (
         <CompaniesRow

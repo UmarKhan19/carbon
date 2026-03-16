@@ -12,48 +12,47 @@ import {
 } from "@xyflow/react";
 import { useEffect, useMemo } from "react";
 import "@xyflow/react/dist/style.css";
-import type { Company } from "../../types";
-import { CompanyNode } from "./CompanyNode";
-import { getLayoutedElements } from "./layout-utils";
+import { getLayoutedElements } from "~/modules/settings/ui/Companies/layout-utils";
+import type { DepartmentTreeNode } from "../../types";
+import { DepartmentNode } from "./DepartmentNode";
 
 const nodeTypes: NodeTypes = {
-  subsidiary: CompanyNode
+  department: DepartmentNode
 };
 
-interface CompaniesTreeViewProps {
-  companies: Company[];
+interface DepartmentsTreeViewProps {
+  departments: DepartmentTreeNode[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onAddChild: (parentId: string) => void;
 }
 
-export function CompaniesTreeView({
-  companies,
+export function DepartmentsTreeView({
+  departments,
   onEdit,
   onDelete,
   onAddChild
-}: CompaniesTreeViewProps) {
+}: DepartmentsTreeViewProps) {
   const { initialNodes, initialEdges } = useMemo(() => {
-    const nodes: Node[] = companies.map((company) => ({
-      id: company.id!,
-      type: "subsidiary",
+    const nodes: Node[] = departments.map((department) => ({
+      id: department.id!,
+      type: "department",
       position: { x: 0, y: 0 },
       draggable: false,
       data: {
-        company,
-        isEliminationEntity: company.isEliminationEntity,
+        department,
         onEdit,
         onDelete,
         onAddChild
       }
     }));
 
-    const edges: Edge[] = companies
-      .filter((c) => c.parentCompanyId !== null)
-      .map((company) => ({
-        id: `${company.parentCompanyId}-${company.id}`,
-        source: company.parentCompanyId!,
-        target: company.id!,
+    const edges: Edge[] = departments
+      .filter((d) => d.parentDepartmentId !== null)
+      .map((department) => ({
+        id: `${department.parentDepartmentId}-${department.id}`,
+        source: department.parentDepartmentId!,
+        target: department.id!,
         type: "smoothstep",
         style: { stroke: "hsl(var(--border))", strokeWidth: 1.5 }
       }));
@@ -65,7 +64,7 @@ export function CompaniesTreeView({
     );
 
     return { initialNodes: layoutedNodes, initialEdges: layoutedEdges };
-  }, [companies, onEdit, onDelete, onAddChild]);
+  }, [departments, onEdit, onDelete, onAddChild]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -76,7 +75,7 @@ export function CompaniesTreeView({
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   return (
-    <div className="h-[calc(100dvh-(var(--header-height))-61px)] w-full overflow-hidden">
+    <div className="h-[calc(100dvh-(var(--header-height))-61px)] w-full overflow-hidden bg-card">
       <ReactFlow
         nodes={nodes}
         edges={edges}

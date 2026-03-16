@@ -80,6 +80,10 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
 
   return (
     <ScrollArea className="h-[calc(100dvh-var(--header-height)-61px)] w-full">
+      <div className="sticky top-0 z-10 flex h-11 items-center pr-4 text-sm font-medium text-foreground/80 border-b border-border bg-card">
+        <div className="flex-1 px-4">Account</div>
+        <span className="w-32 text-right px-4">Balance</span>
+      </div>
       <TreeView<Chart>
         tree={tree}
         nodes={nodes}

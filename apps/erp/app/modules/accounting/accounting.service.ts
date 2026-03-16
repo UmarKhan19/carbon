@@ -14,7 +14,7 @@ import type {
   fiscalYearSettingsValidator,
   paymentTermValidator
 } from "./accounting.models";
-import type { Transaction } from "./types";
+import type { Transaction, TranslatedBalance } from "./types";
 
 export async function getTrialBalance(
   client: SupabaseClient<Database>,
@@ -95,7 +95,7 @@ export async function getCompaniesInGroup(
 ) {
   return client
     .from("company")
-    .select("id, name, baseCurrencyCode, isEliminationEntity")
+    .select("id, name, baseCurrencyCode, parentCompanyId, isEliminationEntity")
     .eq("companyGroupId", companyGroupId)
     .eq("active", true)
     .eq("isEliminationEntity", false)
@@ -652,6 +652,62 @@ export async function deleteDimension(
     .from("dimension")
     .update({ active: false })
     .eq("id", dimensionId);
+}
+
+export async function translateCompanyBalances(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  companyId: string,
+  targetCurrency: string,
+  periodEnd: string,
+  periodStart?: string
+): Promise<{
+  data: TranslatedBalance[] | null;
+  cta: number;
+  error: string | null;
+}> {
+  const { data, error } = await client.rpc("translateTrialBalance", {
+    p_company_group_id: companyGroupId,
+    p_company_id: companyId,
+    p_target_currency: targetCurrency,
+    p_period_end: periodEnd,
+    p_period_start: periodStart ?? null
+  });
+
+  if (error) {
+    return { data: null, cta: 0, error: error.message };
+  }
+
+  const rows = (data ?? []) as unknown as TranslatedBalance[];
+
+  // Look up each account's class to compute CTA
+  const accountIds = rows.map((r) => r.accountId);
+  const { data: accounts } = await client
+    .from("account")
+    .select("id, class")
+    .in("id", accountIds);
+
+  const classById = new Map((accounts ?? []).map((a) => [a.id, a.class]));
+
+  let totalTranslatedAssets = 0;
+  let totalTranslatedLiabilitiesAndEquity = 0;
+
+  for (const row of rows) {
+    const cls = classById.get(row.accountId);
+    if (cls === "Asset") {
+      totalTranslatedAssets += Number(row.translatedBalance);
+    } else {
+      // Liability, Equity, Revenue, Expense (but income statement
+      // accounts net to retained earnings on balance sheet)
+      totalTranslatedLiabilitiesAndEquity += Number(row.translatedBalance);
+    }
+  }
+
+  // CTA = translated assets - translated (liabilities + equity)
+  // A balanced sheet means assets = liabilities + equity + CTA
+  const cta = totalTranslatedAssets - totalTranslatedLiabilitiesAndEquity;
+
+  return { data: rows, cta, error: null };
 }
 
 export async function getExchangeRateHistory(

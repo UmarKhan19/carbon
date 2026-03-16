@@ -26230,6 +26230,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -26415,6 +26418,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -26552,6 +26558,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount",
           },
           {
             $ref: "#/parameters/body.accountDefault",
@@ -81640,6 +81649,7 @@ export default {
         "reverseChargeSalesTaxPayableAccount",
         "retainedEarningsAccount",
         "companyGroupId",
+        "currencyTranslationAccount",
       ],
       properties: {
         companyId: {
@@ -81811,6 +81821,10 @@ export default {
           type: "string",
         },
         companyGroupId: {
+          format: "text",
+          type: "string",
+        },
+        currencyTranslationAccount: {
           format: "text",
           type: "string",
         },
@@ -113965,6 +113979,12 @@ export default {
     },
     "rowFilter.accountDefault.companyGroupId": {
       name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accountDefault.currencyTranslationAccount": {
+      name: "currencyTranslationAccount",
       required: false,
       in: "query",
       type: "string",

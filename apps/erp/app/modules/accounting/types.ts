@@ -364,3 +364,15 @@ export type Transaction = {
   balanceAtDate: number;
   balance: number;
 };
+
+export type TranslatedBalance = {
+  accountId: string;
+  localBalance: number;
+  exchangeRate: number;
+  translatedBalance: number;
+};
+
+export type TranslatedTransaction = Transaction & {
+  translatedBalance?: number;
+  exchangeRate?: number;
+};

@@ -159,3 +159,5 @@ BEGIN
   WHERE a."isGroup" = false;
 END;
 $$;
+
+-- currencyTranslationAccount column and FK are added in 20260315000000_reset-chart-of-accounts.sql

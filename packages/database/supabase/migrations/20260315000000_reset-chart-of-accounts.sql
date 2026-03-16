@@ -51,6 +51,7 @@ ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_salesTaxP
 ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_reverseChargeSalesTaxPayableAccount_fkey";
 ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_purchaseTaxPayableAccount_fkey";
 ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_retainedEarningsAccount_fkey";
+ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_currencyTranslationAccount_fkey";
 
 -- journalLine
 ALTER TABLE "journalLine" DROP CONSTRAINT IF EXISTS "journalLine_accountNumber_fkey";
@@ -276,6 +277,9 @@ $$;
 -- Phase 5: Insert accountDefaults for every company
 -- ============================================================
 
+-- Add currencyTranslationAccount column
+ALTER TABLE "accountDefault" ADD COLUMN IF NOT EXISTS "currencyTranslationAccount" TEXT;
+
 INSERT INTO "accountDefault" (
   "companyId", "companyGroupId",
   "salesAccount", "salesDiscountAccount", "costOfGoodsSoldAccount", "purchaseAccount",
@@ -291,7 +295,7 @@ INSERT INTO "accountDefault" (
   "bankLocalCurrencyAccount", "bankForeignCurrencyAccount", "prepaymentAccount",
   "payablesAccount", "inventoryReceivedNotInvoicedAccount", "inventoryShippedNotInvoicedAccount",
   "salesTaxPayableAccount", "purchaseTaxPayableAccount", "reverseChargeSalesTaxPayableAccount",
-  "retainedEarningsAccount"
+  "retainedEarningsAccount", "currencyTranslationAccount"
 )
 SELECT
   c.id,
@@ -309,9 +313,11 @@ SELECT
   '1020', '1030', '2110',
   '2010', '2120', '2130',
   '2210', '2220', '2230',
-  '3100'
+  '3100', '3200'
 FROM company c
 WHERE c."companyGroupId" IS NOT NULL;
+
+ALTER TABLE "accountDefault" ALTER COLUMN "currencyTranslationAccount" SET NOT NULL;
 
 
 -- ============================================================
@@ -400,6 +406,8 @@ ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_purchaseTaxPayableAc
   FOREIGN KEY ("purchaseTaxPayableAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_retainedEarningsAccount_fkey"
   FOREIGN KEY ("retainedEarningsAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_currencyTranslationAccount_fkey"
+  FOREIGN KEY ("currencyTranslationAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- journalLine
 ALTER TABLE "journalLine" ADD CONSTRAINT "journalLine_accountNumber_fkey"

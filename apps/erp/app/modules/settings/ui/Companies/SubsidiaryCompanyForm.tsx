@@ -18,10 +18,12 @@ const SubsidiaryCompanyForm = ({
 }: CompanyFormProps) => {
   const routeData = useRouteData<{ companies: Company[] }>(path.to.companies);
   const parentCompanyOptions =
-    routeData?.companies.map((c) => ({
-      value: c.id ?? "",
-      label: c.name ?? ""
-    })) ?? [];
+    routeData?.companies
+      .filter((c) => !c.isEliminationEntity)
+      .map((c) => ({
+        value: c.id ?? "",
+        label: c.name ?? ""
+      })) ?? [];
 
   return (
     <>

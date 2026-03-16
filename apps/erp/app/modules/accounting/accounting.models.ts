@@ -221,6 +221,9 @@ export const defaultBalanceSheetAccountValidator = z.object({
   }),
   retainedEarningsAccount: z.string().min(1, {
     message: "Retained earnings account is required"
+  }),
+  currencyTranslationAccount: z.string().min(1, {
+    message: "Currency translation account is required"
   })
 });
 

@@ -52,8 +52,6 @@ export default function SubsidiariesRoute() {
   const { companies } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
-  console.log({ companies });
-
   const handleDelete = useCallback(
     (id: string) => {
       navigate(path.to.deleteCompany(id));

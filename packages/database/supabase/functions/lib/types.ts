@@ -339,6 +339,7 @@ export type Database = {
           companyGroupId: string
           companyId: string
           costOfGoodsSoldAccount: string
+          currencyTranslationAccount: string
           customerPaymentDiscountAccount: string
           directCostAppliedAccount: string
           interestAccount: string
@@ -383,6 +384,7 @@ export type Database = {
           companyGroupId: string
           companyId: string
           costOfGoodsSoldAccount: string
+          currencyTranslationAccount: string
           customerPaymentDiscountAccount: string
           directCostAppliedAccount: string
           interestAccount: string
@@ -427,6 +429,7 @@ export type Database = {
           companyGroupId?: string
           companyId?: string
           costOfGoodsSoldAccount?: string
+          currencyTranslationAccount?: string
           customerPaymentDiscountAccount?: string
           directCostAppliedAccount?: string
           interestAccount?: string
@@ -614,6 +617,20 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_costOfGoodsSoldAccount_fkey"
             columns: ["costOfGoodsSoldAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_currencyTranslationAccount_fkey"
+            columns: ["currencyTranslationAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_currencyTranslationAccount_fkey"
+            columns: ["currencyTranslationAccount", "companyGroupId"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["number", "companyGroupId"]

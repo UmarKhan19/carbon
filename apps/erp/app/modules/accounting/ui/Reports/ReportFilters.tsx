@@ -8,7 +8,7 @@ import {
   PopoverTrigger
 } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
-import { LuCalendarDays, LuX } from "react-icons/lu";
+import { LuCalendarDays, LuLanguages, LuX } from "react-icons/lu";
 import { useUrlParams } from "~/hooks";
 import CompanySelector from "./CompanySelector";
 
@@ -20,16 +20,21 @@ type Company = {
 type ReportFiltersProps = {
   companies: Company[];
   selectedCompanyId: string | null;
+  isForeignCurrency?: boolean;
+  parentCurrency?: string | null;
 };
 
 const ReportFilters = ({
   companies,
-  selectedCompanyId
+  selectedCompanyId,
+  isForeignCurrency = false,
+  parentCurrency
 }: ReportFiltersProps) => {
   const [params, setParams] = useUrlParams();
 
   const startDate = params.get("startDate");
   const endDate = params.get("endDate");
+  const showTranslated = params.get("showTranslated") === "true";
 
   return (
     <div className="flex px-4 py-3 items-center space-x-4 justify-between bg-card border-b border-border w-full">
@@ -68,6 +73,19 @@ const ReportFilters = ({
             </div>
           </PopoverContent>
         </Popover>
+        {isForeignCurrency && parentCurrency && (
+          <Button
+            variant={showTranslated ? "primary" : "secondary"}
+            leftIcon={<LuLanguages />}
+            onClick={() =>
+              setParams({
+                showTranslated: showTranslated ? undefined : "true"
+              })
+            }
+          >
+            Show in {parentCurrency}
+          </Button>
+        )}
         {[...params.entries()].length > 0 && (
           <Button
             variant="secondary"
@@ -76,7 +94,8 @@ const ReportFilters = ({
               setParams({
                 companyId: undefined,
                 startDate: undefined,
-                endDate: undefined
+                endDate: undefined,
+                showTranslated: undefined
               })
             }
           >

@@ -232,6 +232,14 @@ const categoryGroups: CategoryGroup[] = [
         description: "Equity account for accumulated profits or losses",
         accountType: "balance",
         badgeType: "Equity"
+      },
+      {
+        name: "currencyTranslationAccount",
+        label: "Currency Translation",
+        description:
+          "Equity account for currency translation adjustments (CTA)",
+        accountType: "balance",
+        badgeType: "Equity"
       }
     ]
   },

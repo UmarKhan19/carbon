@@ -1,4 +1,4 @@
-import { error, notFound, success } from "@carbon/auth";
+import { error, getCarbonServiceRole, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -27,7 +27,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  await requirePermissions(request, {
     delete: "settings"
   });
 
@@ -39,7 +39,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const { error: deleteError } = await deleteSubsidiary(client, id);
+  const { error: deleteError } = await deleteSubsidiary(
+    getCarbonServiceRole(),
+    id
+  );
   if (deleteError) {
     throw redirect(
       path.to.companies,
