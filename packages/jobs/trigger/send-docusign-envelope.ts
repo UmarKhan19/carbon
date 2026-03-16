@@ -21,7 +21,10 @@ export const sendDocuSignEnvelopeTask = task({
     companyId: string;
     orderId: string;
     purchaseOrderId: string;
-    documentBase64: string;
+    /** Base64-encoded PDF content. Either this or storagePath must be provided. */
+    documentBase64?: string;
+    /** Supabase Storage path to the PDF. Used as fallback when documentBase64 is not provided. */
+    storagePath?: string;
     fileName: string;
     signerName: string;
     signerEmail: string;
@@ -31,7 +34,6 @@ export const sendDocuSignEnvelopeTask = task({
       companyId,
       orderId,
       purchaseOrderId,
-      documentBase64,
       fileName,
       signerName,
       signerEmail,
@@ -49,7 +51,32 @@ export const sendDocuSignEnvelopeTask = task({
       return { success: false, reason: "integration_inactive" };
     }
 
-    // 2. Create the envelope via DocuSign API
+    // 2. Resolve the document content — either from base64 or Supabase Storage
+    let documentBase64 = payload.documentBase64;
+
+    if (!documentBase64 && payload.storagePath) {
+      console.info(`Downloading PDF from storage: ${payload.storagePath}`);
+      const { data, error } = await serviceRole.storage
+        .from("private")
+        .download(payload.storagePath);
+
+      if (error || !data) {
+        console.error("Failed to download PDF from storage:", error?.message);
+        return { success: false, reason: "storage_download_failed" };
+      }
+
+      const buffer = Buffer.from(await data.arrayBuffer());
+      documentBase64 = buffer.toString("base64");
+    }
+
+    if (!documentBase64) {
+      console.error(
+        "No document content provided: supply either documentBase64 or storagePath"
+      );
+      return { success: false, reason: "no_document_content" };
+    }
+
+    // 3. Create the envelope via DocuSign API
     const client = getDocuSignClient();
     const emailSubject = `Purchase Order ${purchaseOrderId} from ${companyName} — Signature Required`;
 
@@ -89,7 +116,7 @@ export const sendDocuSignEnvelopeTask = task({
       `DocuSign envelope created: ${envelope.envelopeId} for PO ${purchaseOrderId}`
     );
 
-    // 3. Store the envelope mapping in externalIntegrationMapping
+    // 4. Store the envelope mapping in externalIntegrationMapping
     const linkResult = await linkPurchaseOrderToEnvelope(
       serviceRole,
       companyId,
