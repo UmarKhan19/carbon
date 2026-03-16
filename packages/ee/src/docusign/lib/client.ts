@@ -1,155 +1,27 @@
-import {
-  DOCUSIGN_CLIENT_ID,
-  DOCUSIGN_CLIENT_SECRET,
-  getCarbonServiceRole
-} from "@carbon/auth";
-import { getDocuSignIntegration, updateDocuSignCredentials } from "./service";
+import { getCarbonServiceRole } from "@carbon/auth";
+import { getDocuSignIntegration } from "./service";
 import type {
-  DocuSignCredentials,
+  DocuSignCreateEnvelopeInput,
   DocuSignEnvelopeDetails,
   DocuSignEnvelopeResponse,
-  DocuSignTokenResponse,
-  DocuSignUserInfoResponse
+  DocuSignSettings
 } from "./types";
-
-const DOCUSIGN_AUTH_URL = "https://account-d.docusign.com";
-const DOCUSIGN_OAUTH_TOKEN_URL = `${DOCUSIGN_AUTH_URL}/oauth/token`;
-const DOCUSIGN_USERINFO_URL = `${DOCUSIGN_AUTH_URL}/oauth/userinfo`;
+import { DOCUSIGN_BASE_URLS } from "./types";
 
 /**
- * Exchange authorization code for access and refresh tokens.
- */
-export async function exchangeCodeForTokens(
-  code: string,
-  redirectUri: string
-): Promise<{
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-} | null> {
-  try {
-    const credentials = btoa(`${DOCUSIGN_CLIENT_ID}:${DOCUSIGN_CLIENT_SECRET}`);
-
-    const response = await fetch(DOCUSIGN_OAUTH_TOKEN_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: redirectUri
-      }).toString()
-    });
-
-    if (!response.ok) {
-      console.error(
-        "Failed to exchange DocuSign code for tokens:",
-        response.status,
-        await response.text()
-      );
-      return null;
-    }
-
-    const data = (await response.json()) as DocuSignTokenResponse;
-
-    return {
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token,
-      expiresIn: data.expires_in
-    };
-  } catch (e) {
-    console.error("Error exchanging DocuSign code for tokens:", e);
-    return null;
-  }
-}
-
-/**
- * Refresh access token using refresh token.
- */
-export async function refreshAccessToken(refreshToken: string): Promise<{
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-} | null> {
-  try {
-    const credentials = btoa(`${DOCUSIGN_CLIENT_ID}:${DOCUSIGN_CLIENT_SECRET}`);
-
-    const response = await fetch(DOCUSIGN_OAUTH_TOKEN_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken
-      }).toString()
-    });
-
-    if (!response.ok) {
-      console.error(
-        "Failed to refresh DocuSign token:",
-        response.status,
-        await response.text()
-      );
-      return null;
-    }
-
-    const data = (await response.json()) as DocuSignTokenResponse;
-
-    return {
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token,
-      expiresIn: data.expires_in
-    };
-  } catch (e) {
-    console.error("Error refreshing DocuSign token:", e);
-    return null;
-  }
-}
-
-/**
- * Get user info including account details.
- */
-export async function getUserInfo(
-  accessToken: string
-): Promise<DocuSignUserInfoResponse | null> {
-  try {
-    const response = await fetch(DOCUSIGN_USERINFO_URL, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-
-    if (!response.ok) {
-      console.error(
-        "Failed to get DocuSign user info:",
-        response.status,
-        await response.text()
-      );
-      return null;
-    }
-
-    return (await response.json()) as DocuSignUserInfoResponse;
-  } catch (e) {
-    console.error("Error getting DocuSign user info:", e);
-    return null;
-  }
-}
-
-/**
- * DocuSign eSignature API client.
+ * DocuSign eSignature REST API client.
+ *
+ * Uses API key-based authentication (Integration Key + Secret Key) with Basic Auth.
+ * Settings are stored in `companyIntegration.metadata` per company.
+ *
+ * Designed to accept generic document buffers + metadata so it can be reused
+ * for document types beyond Purchase Orders (e.g., invoices, sales orders).
  */
 export class DocuSignClient {
   /**
-   * Get authentication headers, refreshing token if needed.
+   * Retrieve DocuSign settings for a company from the database.
    */
-  async getAuthHeaders(companyId: string): Promise<{
-    headers: Record<string, string>;
-    credentials: DocuSignCredentials;
-  }> {
+  async getSettings(companyId: string): Promise<DocuSignSettings> {
     const serviceRole = getCarbonServiceRole();
     const { data } = await getDocuSignIntegration(serviceRole, companyId);
     const integration = data?.[0];
@@ -158,68 +30,71 @@ export class DocuSignClient {
       throw new Error("DocuSign integration not found for company");
     }
 
-    const metadata = integration.metadata as {
-      credentials: DocuSignCredentials;
-    };
-    const credentials = metadata.credentials;
+    const metadata = integration.metadata as Record<string, unknown>;
 
-    // Check if token needs refresh (5 min buffer)
-    const now = Date.now();
-    if (credentials.expiresAt - now < 5 * 60 * 1000) {
-      const refreshed = await refreshAccessToken(credentials.refreshToken);
-      if (refreshed) {
-        const newCredentials: DocuSignCredentials = {
-          ...credentials,
-          accessToken: refreshed.accessToken,
-          refreshToken: refreshed.refreshToken,
-          expiresAt: now + refreshed.expiresIn * 1000
-        };
+    const integrationKey = metadata.integrationKey as string | undefined;
+    const secretKey = metadata.secretKey as string | undefined;
+    const accountId = metadata.accountId as string | undefined;
+    const environment =
+      (metadata.environment as "sandbox" | "production") ?? "sandbox";
 
-        await updateDocuSignCredentials(serviceRole, companyId, newCredentials);
-
-        return {
-          headers: {
-            Authorization: `Bearer ${refreshed.accessToken}`,
-            Accept: "application/json",
-            "Content-Type": "application/json"
-          },
-          credentials: newCredentials
-        };
-      }
+    if (!integrationKey || !secretKey || !accountId) {
+      throw new Error(
+        "DocuSign integration is missing required settings (integrationKey, secretKey, accountId)"
+      );
     }
 
     return {
-      headers: {
-        Authorization: `Bearer ${credentials.accessToken}`,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      credentials
+      integrationKey,
+      secretKey,
+      accountId,
+      webhookSecret: (metadata.webhookSecret as string) ?? undefined,
+      environment
     };
   }
 
   /**
-   * Make an API request to DocuSign eSignature REST API.
+   * Build authentication headers using Basic Auth (Integration Key + Secret Key).
+   */
+  private buildAuthHeaders(settings: DocuSignSettings): Record<string, string> {
+    const credentials = btoa(
+      `${settings.integrationKey}:${settings.secretKey}`
+    );
+    return {
+      Authorization: `Basic ${credentials}`,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    };
+  }
+
+  /**
+   * Resolve the base API URL for a given environment.
+   */
+  private getBaseUrl(environment: "sandbox" | "production"): string {
+    return DOCUSIGN_BASE_URLS[environment];
+  }
+
+  /**
+   * Make an authenticated request to the DocuSign eSignature REST API.
    */
   async request<T>(
     companyId: string,
     path: string,
     options?: RequestInit
   ): Promise<T> {
-    const { headers, credentials } = await this.getAuthHeaders(companyId);
-    const baseUri = credentials.baseUri;
-    const accountId = credentials.accountId;
+    const settings = await this.getSettings(companyId);
+    const baseUrl = this.getBaseUrl(settings.environment);
+    const headers = this.buildAuthHeaders(settings);
 
-    const response = await fetch(
-      `${baseUri}/restapi/v2.1/accounts/${accountId}${path}`,
-      {
-        ...options,
-        headers: {
-          ...headers,
-          ...(options?.headers || {})
-        }
+    const url = `${baseUrl}/v2.1/accounts/${settings.accountId}${path}`;
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...(options?.headers || {})
       }
-    );
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -228,7 +103,9 @@ export class DocuSignClient {
         response.status,
         errorText
       );
-      throw new Error(`DocuSign API error: ${response.status}`);
+      throw new Error(
+        `DocuSign API error: ${response.status} ${response.statusText}`
+      );
     }
 
     if (response.status === 204) {
@@ -239,58 +116,65 @@ export class DocuSignClient {
   }
 
   /**
-   * Create and send an envelope with a document for signing.
+   * Create and send an envelope with documents for signing.
+   *
+   * Accepts generic document input so this can be used for POs, invoices, etc.
    */
   async createEnvelope(
     companyId: string,
-    input: {
-      documentBase64: string;
-      documentName: string;
-      signerName: string;
-      signerEmail: string;
-      emailSubject: string;
-      emailBody?: string;
-    }
+    input: DocuSignCreateEnvelopeInput
   ): Promise<DocuSignEnvelopeResponse | null> {
     try {
+      const documents = input.documents.map((doc, index) => ({
+        documentBase64: doc.documentBase64,
+        name: doc.name,
+        fileExtension: doc.fileExtension ?? "pdf",
+        documentId: doc.documentId ?? String(index + 1)
+      }));
+
+      const signers = input.signers.map((signer, index) => ({
+        email: signer.email,
+        name: signer.name,
+        recipientId: signer.recipientId ?? String(index + 1),
+        routingOrder: signer.routingOrder ?? String(index + 1),
+        tabs: {
+          signHereTabs: [
+            {
+              anchorString: signer.anchorString ?? "/sig1/",
+              anchorUnits: "pixels",
+              anchorXOffset: "0",
+              anchorYOffset: "0"
+            }
+          ]
+        }
+      }));
+
+      const body: Record<string, unknown> = {
+        emailSubject: input.emailSubject,
+        emailBlurb: input.emailBody ?? "",
+        documents,
+        recipients: { signers },
+        status: input.status ?? "sent"
+      };
+
+      if (input.customFields) {
+        body.customFields = {
+          textCustomFields: Object.entries(input.customFields).map(
+            ([name, value]) => ({
+              name,
+              value,
+              show: "false"
+            })
+          )
+        };
+      }
+
       return await this.request<DocuSignEnvelopeResponse>(
         companyId,
         "/envelopes",
         {
           method: "POST",
-          body: JSON.stringify({
-            emailSubject: input.emailSubject,
-            emailBlurb: input.emailBody ?? "",
-            documents: [
-              {
-                documentBase64: input.documentBase64,
-                name: input.documentName,
-                fileExtension: "pdf",
-                documentId: "1"
-              }
-            ],
-            recipients: {
-              signers: [
-                {
-                  email: input.signerEmail,
-                  name: input.signerName,
-                  recipientId: "1",
-                  routingOrder: "1",
-                  tabs: {
-                    signHereTabs: [
-                      {
-                        anchorString: "/sig1/",
-                        anchorUnits: "pixels",
-                        anchorXOffset: "0",
-                        anchorYOffset: "0"
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            status: "sent"
-          })
+          body: JSON.stringify(body)
         }
       );
     } catch (e) {
@@ -300,9 +184,9 @@ export class DocuSignClient {
   }
 
   /**
-   * Get envelope details/status.
+   * Get envelope status and details including recipient information.
    */
-  async getEnvelope(
+  async getEnvelopeStatus(
     companyId: string,
     envelopeId: string
   ): Promise<DocuSignEnvelopeDetails | null> {
@@ -312,13 +196,57 @@ export class DocuSignClient {
         `/envelopes/${envelopeId}?include=recipients`
       );
     } catch (e) {
-      console.error("Error getting DocuSign envelope:", e);
+      console.error("Error getting DocuSign envelope status:", e);
       return null;
     }
   }
 
   /**
-   * Void an envelope that has been sent.
+   * Download the signed/completed document from an envelope.
+   *
+   * Returns the document as an ArrayBuffer (raw PDF bytes).
+   * Pass documentId "combined" to get all documents merged into one PDF.
+   */
+  async getEnvelopeDocument(
+    companyId: string,
+    envelopeId: string,
+    documentId = "combined"
+  ): Promise<ArrayBuffer | null> {
+    try {
+      const settings = await this.getSettings(companyId);
+      const baseUrl = this.getBaseUrl(settings.environment);
+      const credentials = btoa(
+        `${settings.integrationKey}:${settings.secretKey}`
+      );
+
+      const url = `${baseUrl}/v2.1/accounts/${settings.accountId}/envelopes/${envelopeId}/documents/${documentId}`;
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Basic ${credentials}`,
+          Accept: "application/pdf"
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          "Error downloading DocuSign document:",
+          response.status,
+          errorText
+        );
+        return null;
+      }
+
+      return await response.arrayBuffer();
+    } catch (e) {
+      console.error("Error downloading DocuSign document:", e);
+      return null;
+    }
+  }
+
+  /**
+   * Void an envelope that has been sent but not yet completed.
    */
   async voidEnvelope(
     companyId: string,
@@ -364,7 +292,7 @@ export class DocuSignClient {
   }
 
   /**
-   * Health check - verify the integration is working.
+   * Health check — verify the integration settings are valid by fetching account info.
    */
   async healthcheck(companyId: string): Promise<boolean> {
     try {
