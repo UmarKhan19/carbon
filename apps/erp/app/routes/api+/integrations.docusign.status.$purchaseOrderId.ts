@@ -2,7 +2,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import {
   getDocuSignClient,
   getDocuSignEnvelopeFromPurchaseOrder,
-  updateEnvelopeStatus
+  updatePurchaseOrderEnvelopeStatus
 } from "@carbon/ee/docusign";
 import type { LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -42,7 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     if (envelope && envelope.status !== mapping.status) {
       // Update stored status
-      await updateEnvelopeStatus(
+      await updatePurchaseOrderEnvelopeStatus(
         client,
         companyId,
         purchaseOrderId,
