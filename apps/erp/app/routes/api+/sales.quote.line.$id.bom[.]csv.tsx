@@ -70,6 +70,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
+  if (!quote.data?.quoteId) {
+    throw new Error("Failed to fetch quote");
+  }
   const methodTrees = await getQuoteMethodTrees(client, quote.data?.quoteId);
 
   if (methodTrees.error) {
