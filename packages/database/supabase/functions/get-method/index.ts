@@ -1802,6 +1802,7 @@ serve(async (req: Request) => {
                   processId,
                   op.operationSupplierProcessId
                 ),
+                operationMinimumCost: op.operationMinimumCost ?? 0,
                 tags: op.tags ?? [],
                 workInstruction: (!node.data.isRoot || parts.workInstructions) ? op.workInstruction : {},
                 companyId,
