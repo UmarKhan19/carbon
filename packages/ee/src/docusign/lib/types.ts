@@ -1,11 +1,22 @@
 import { z } from "zod";
 
+// -- OAuth credentials (stored in companyIntegration.metadata.credentials) --
+
+export type DocuSignCredentials = {
+  accessToken: string;
+  refreshToken: string;
+  /** Absolute timestamp in ms when the access token expires */
+  expiresAt: number;
+  /** The DocuSign account ID resolved from /oauth/userinfo */
+  accountId: string;
+  /** The base URI for REST API calls (e.g. https://demo.docusign.net/restapi) */
+  accountBaseUri: string;
+};
+
 // -- Integration settings (stored in companyIntegration.metadata) --
 
 export type DocuSignSettings = {
-  integrationKey: string;
-  secretKey: string;
-  accountId: string;
+  credentials: DocuSignCredentials;
   webhookSecret?: string;
   environment: "sandbox" | "production";
 };
@@ -15,6 +26,13 @@ export type DocuSignSettings = {
 export const DOCUSIGN_BASE_URLS = {
   sandbox: "https://demo.docusign.net/restapi",
   production: "https://na1.docusign.net/restapi"
+} as const;
+
+// -- OAuth URL mapping by environment --
+
+export const DOCUSIGN_OAUTH_URLS = {
+  sandbox: "https://account-d.docusign.com",
+  production: "https://account.docusign.com"
 } as const;
 
 // -- Envelope status --
@@ -123,7 +141,7 @@ export const DocuSignWebhookPayloadSchema = z.object({
   apiVersion: z.string().optional(),
   uri: z.string().optional(),
   retryCount: z.number().optional(),
-  configurationId: z.string().optional(),
+  configurationId: z.coerce.string().optional(),
   generatedDateTime: z.string().optional(),
   data: z.object({
     accountId: z.string(),
@@ -144,6 +162,7 @@ export const DocuSignWebhookPayloadSchema = z.object({
           .optional()
       })
       .passthrough()
+      .optional()
   })
 });
 

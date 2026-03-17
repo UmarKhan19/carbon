@@ -377,8 +377,14 @@ export async function getIntegrationHealth(
     integration.metadata as Record<string, any>
   );
 
+  if (!status) {
+    console.warn(
+      `[Integrations] Health check failed for "${integration.id}" (company: ${companyId})`
+    );
+  }
+
   await redis.set(key, status ? "1" : "0", {
-    ex: INTEGRATION_CACHE_TTL * 5 // Cache for 5 minutes
+    ex: INTEGRATION_CACHE_TTL * 5 // Cache for 5 hours
   });
 
   return {

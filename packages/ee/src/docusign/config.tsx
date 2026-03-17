@@ -1,18 +1,16 @@
+import { DOCUSIGN_CLIENT_ID } from "@carbon/auth";
 import { Copy, Input, InputGroup, InputRightElement } from "@carbon/react";
 import { isBrowser } from "@carbon/utils";
 import type { SVGProps } from "react";
 import { z } from "zod";
 import { defineIntegration } from "../fns";
+import { getDocuSignClient } from "./lib";
 
-const BASE_URLS = {
-  sandbox: "https://demo.docusign.net/restapi",
-  production: "https://na1.docusign.net/restapi"
-} as const;
-
+console.log(DOCUSIGN_CLIENT_ID);
 export const DocuSign = defineIntegration({
   name: "DocuSign",
   id: "docusign",
-  active: true,
+  active: !!DOCUSIGN_CLIENT_ID,
   category: "Document Signing",
   logo: Logo,
   description:
@@ -20,28 +18,14 @@ export const DocuSign = defineIntegration({
   shortDescription: "Send purchase orders for e-signature via DocuSign.",
   setupInstructions: SetupInstructions,
   images: [],
+  oauth: {
+    authUrl: "https://account-d.docusign.com/oauth/auth",
+    clientId: DOCUSIGN_CLIENT_ID!,
+    redirectUri: "/api/integrations/docusign/oauth",
+    scopes: ["signature", "extended"],
+    tokenUrl: "https://account-d.docusign.com/oauth/token"
+  },
   settings: [
-    {
-      name: "integrationKey",
-      label: "Integration Key",
-      type: "text",
-      required: true,
-      value: ""
-    },
-    {
-      name: "secretKey",
-      label: "Secret Key",
-      type: "text",
-      required: true,
-      value: ""
-    },
-    {
-      name: "accountId",
-      label: "Account ID",
-      type: "text",
-      required: true,
-      value: ""
-    },
     {
       name: "webhookSecret",
       label: "Webhook Secret (HMAC)",
@@ -70,11 +54,6 @@ export const DocuSign = defineIntegration({
     }
   ],
   schema: z.object({
-    integrationKey: z
-      .string()
-      .min(1, { message: "Integration Key is required" }),
-    secretKey: z.string().min(1, { message: "Secret Key is required" }),
-    accountId: z.string().min(1, { message: "Account ID is required" }),
     webhookSecret: z.string().optional(),
     environment: z.enum(["sandbox", "production"])
   }),
@@ -82,34 +61,11 @@ export const DocuSign = defineIntegration({
 });
 
 async function healthcheck(
-  _companyId: string,
-  metadata: Record<string, unknown>
+  companyId: string,
+  _metadata: Record<string, unknown>
 ): Promise<boolean> {
-  const integrationKey = metadata.integrationKey as string | undefined;
-  const secretKey = metadata.secretKey as string | undefined;
-  const accountId = metadata.accountId as string | undefined;
-  const environment =
-    (metadata.environment as "sandbox" | "production") ?? "sandbox";
-
-  if (!integrationKey || !secretKey || !accountId) {
-    return false;
-  }
-
-  try {
-    const baseUrl = BASE_URLS[environment];
-    const credentials = btoa(`${integrationKey}:${secretKey}`);
-
-    const response = await fetch(`${baseUrl}/v2.1/accounts/${accountId}`, {
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        Accept: "application/json"
-      }
-    });
-
-    return response.ok;
-  } catch {
-    return false;
-  }
+  const client = getDocuSignClient();
+  return await client.healthcheck(companyId);
 }
 
 function SetupInstructions({ companyId }: { companyId: string }) {
@@ -120,18 +76,13 @@ function SetupInstructions({ companyId }: { companyId: string }) {
   return (
     <>
       <p className="text-sm text-muted-foreground">
-        To integrate DocuSign with Carbon, log into your DocuSign developer
-        account and navigate to the "Apps and Keys" page.
-      </p>
-      <p className="text-sm text-muted-foreground">
-        Create a new app or use an existing one. Copy the "Integration Key" and
-        "Secret Key" from the app settings, and the "API Account ID" from the
-        top of the page.
+        To integrate DocuSign with Carbon, click the "Connect" button above to
+        authorize Carbon with your DocuSign account.
       </p>
       <p className="text-sm text-muted-foreground">
         To receive real-time status updates, set up a DocuSign Connect webhook
-        using the URL below. Enable HMAC verification and paste the HMAC key
-        into the "Webhook Secret" field.
+        in your DocuSign admin portal using the URL below. Enable HMAC
+        verification and paste the HMAC key into the "Webhook Secret" field.
       </p>
       <InputGroup className="mb-8">
         <Input value={webhookUrl} readOnly />
@@ -139,11 +90,6 @@ function SetupInstructions({ companyId }: { companyId: string }) {
           <Copy text={webhookUrl} />
         </InputRightElement>
       </InputGroup>
-      <p className="text-sm text-muted-foreground">
-        Paste your Integration Key, Secret Key, and Account ID into the fields
-        below. Select the environment that matches your DocuSign account
-        (Sandbox for testing, Production for live use).
-      </p>
     </>
   );
 }

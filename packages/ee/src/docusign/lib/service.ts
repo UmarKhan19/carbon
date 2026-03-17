@@ -1,7 +1,7 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { DocuSignEnvelopeMapping } from "./types";
+import type { DocuSignCredentials, DocuSignEnvelopeMapping } from "./types";
 import { DocuSignEnvelopeMappingSchema } from "./types";
 
 /**
@@ -17,6 +17,36 @@ export async function getDocuSignIntegration(
     .eq("companyId", companyId)
     .eq("id", "docusign")
     .limit(1);
+}
+
+/**
+ * Update the stored OAuth credentials for a company's DocuSign integration.
+ * Called by the client after a token refresh.
+ */
+export async function updateDocuSignCredentials(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  credentials: DocuSignCredentials
+) {
+  const { data: existing } = await client
+    .from("companyIntegration")
+    .select("metadata")
+    .eq("companyId", companyId)
+    .eq("id", "docusign")
+    .single();
+
+  const metadata = (existing?.metadata as Record<string, unknown>) ?? {};
+
+  return await client
+    .from("companyIntegration")
+    .update({
+      metadata: {
+        ...metadata,
+        credentials
+      } as unknown as Record<string, unknown>
+    })
+    .eq("companyId", companyId)
+    .eq("id", "docusign");
 }
 
 /**

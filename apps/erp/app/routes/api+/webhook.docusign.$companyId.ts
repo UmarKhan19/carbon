@@ -15,6 +15,7 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import {
   DocuSignWebhookPayloadSchema,
+  getDocuSignClient,
   getEntityByEnvelopeId
 } from "@carbon/ee/docusign";
 import type { processSignedDocumentTask } from "@carbon/jobs/trigger/process-signed-document";
@@ -159,7 +160,32 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const { envelopeId } = parsed.data.data;
-  const envelopeStatus = parsed.data.data.envelopeSummary.status;
+
+  // Resolve the envelope summary — either from the webhook payload or by
+  // fetching it from the DocuSign API when the payload only contains IDs.
+  let envelopeSummary = parsed.data.data.envelopeSummary;
+
+  if (!envelopeSummary) {
+    console.log(
+      `DocuSign webhook: no envelopeSummary in payload for ${envelopeId}, fetching from API`
+    );
+    const client = getDocuSignClient();
+    const fetched = await client.getEnvelopeStatus(companyId, envelopeId);
+
+    if (!fetched) {
+      console.error(
+        `DocuSign webhook: failed to fetch envelope ${envelopeId} from API`
+      );
+      return data(
+        { success: false, error: "Failed to fetch envelope details" },
+        { status: 500 }
+      );
+    }
+
+    envelopeSummary = fetched;
+  }
+
+  const envelopeStatus = envelopeSummary.status;
 
   console.log(
     `DocuSign webhook: envelope ${envelopeId} status changed to "${envelopeStatus}" (company: ${companyId})`
@@ -182,7 +208,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   // Build updated metadata with the new status and timestamps
   const existingMetadata = (entity.metadata ?? {}) as Record<string, unknown>;
-  const envelopeSummary = parsed.data.data.envelopeSummary;
 
   const updatedMetadata: Record<string, unknown> = {
     ...existingMetadata,
