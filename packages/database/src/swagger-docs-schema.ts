@@ -10861,7 +10861,7 @@ export default {
             $ref: "#/parameters/rowFilter.issues.items",
           },
           {
-            $ref: "#/parameters/rowFilter.issues.containmentStatus",
+            $ref: "#/parameters/rowFilter.issues.ContainmentStatus",
           },
           {
             $ref: "#/parameters/select",
@@ -62656,6 +62656,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.supplierApproval",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -62811,6 +62814,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.supplierApproval",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -62918,6 +62924,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.supplierApproval",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -73093,11 +73102,11 @@ export default {
         },
         systemType: {
           enum: [
-            "containment",
-            "corrective",
-            "preventive",
-            "verification",
-            "communication",
+            "Containment",
+            "Corrective",
+            "Preventive",
+            "Verification",
+            "Communication",
           ],
           format: 'public."nonConformanceSystemActionType"',
           type: "string",
@@ -74422,7 +74431,7 @@ export default {
           },
           type: "array",
         },
-        containmentStatus: {
+        ContainmentStatus: {
           format: "text",
           type: "string",
         },
@@ -99079,6 +99088,7 @@ export default {
         "includeThumbnailsOnPurchasingPdfs",
         "jobTravelerIncludeWorkInstructions",
         "supplierApproval",
+        "qualityIssueTarget",
       ],
       properties: {
         id: {
@@ -99263,6 +99273,11 @@ export default {
           default: false,
           format: "boolean",
           type: "boolean",
+        },
+        qualityIssueTarget: {
+          default: 20,
+          format: "integer",
+          type: "integer",
         },
       },
       type: "object",
@@ -105604,8 +105619,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.issues.containmentStatus": {
-      name: "containmentStatus",
+    "rowFilter.issues.ContainmentStatus": {
+      name: "ContainmentStatus",
       required: false,
       in: "query",
       type: "string",
@@ -133541,6 +133556,12 @@ export default {
     },
     "rowFilter.companySettings.supplierApproval": {
       name: "supplierApproval",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.qualityIssueTarget": {
+      name: "qualityIssueTarget",
       required: false,
       in: "query",
       type: "string",

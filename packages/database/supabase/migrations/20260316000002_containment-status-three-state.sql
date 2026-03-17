@@ -1,9 +1,9 @@
--- Three-state containment: Contained / Uncontained / N/A
--- Previously all issues without an active containment task defaulted to 'Uncontained',
--- but not every issue requires containment. Now:
---   Contained   = containment task exists and is In Progress or Completed
---   Uncontained = containment task exists but is Pending or Skipped
---   N/A         = no containment task at all
+-- Three-state Containment: Contained / Uncontained / N/A
+-- Previously all issues without an active Containment task defaulted to 'Uncontained',
+-- but not every issue requires Containment. Now:
+--   Contained   = Containment task exists and is In Progress or Completed
+--   Uncontained = Containment task exists but is Pending or Skipped
+--   N/A         = no Containment task at all
 
 CREATE OR REPLACE VIEW "issues" WITH(SECURITY_INVOKER=true) AS
   SELECT
@@ -14,17 +14,17 @@ CREATE OR REPLACE VIEW "issues" WITH(SECURITY_INVOKER=true) AS
         SELECT 1 FROM "nonConformanceActionTask" ncat
         JOIN "nonConformanceRequiredAction" ncra ON ncat."actionTypeId" = ncra.id
         WHERE ncat."nonConformanceId" = ncr.id
-          AND ncra."systemType" = 'containment'
+          AND ncra."systemType" = 'Containment'
           AND ncat.status IN ('In Progress', 'Completed')
       ) THEN 'Contained'
       WHEN EXISTS (
         SELECT 1 FROM "nonConformanceActionTask" ncat
         JOIN "nonConformanceRequiredAction" ncra ON ncat."actionTypeId" = ncra.id
         WHERE ncat."nonConformanceId" = ncr.id
-          AND ncra."systemType" = 'containment'
+          AND ncra."systemType" = 'Containment'
       ) THEN 'Uncontained'
       ELSE 'N/A'
-    END AS "containmentStatus"
+    END AS "ContainmentStatus"
   FROM "nonConformance" ncr
   LEFT JOIN (
     SELECT "nonConformanceId", array_agg("itemId"::text) as items

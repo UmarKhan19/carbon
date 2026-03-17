@@ -1,6 +1,6 @@
 -- 1. Create enum
 CREATE TYPE "nonConformanceSystemActionType" AS ENUM (
-  'containment', 'corrective', 'preventive', 'verification', 'communication'
+  'Containment', 'Corrective', 'Preventive', 'Verification', 'Communication'
 );
 
 -- 2. Add column
@@ -8,11 +8,11 @@ ALTER TABLE "nonConformanceRequiredAction"
   ADD COLUMN "systemType" "nonConformanceSystemActionType";
 
 -- 3. Backfill existing seeded records (match by name + createdBy = 'system')
-UPDATE "nonConformanceRequiredAction" SET "systemType" = 'containment'   WHERE name = 'Containment Action'    AND "createdBy" = 'system';
-UPDATE "nonConformanceRequiredAction" SET "systemType" = 'corrective'    WHERE name = 'Corrective Action'     AND "createdBy" = 'system';
-UPDATE "nonConformanceRequiredAction" SET "systemType" = 'preventive'    WHERE name = 'Preventive Action'     AND "createdBy" = 'system';
-UPDATE "nonConformanceRequiredAction" SET "systemType" = 'verification'  WHERE name = 'Verification'          AND "createdBy" = 'system';
-UPDATE "nonConformanceRequiredAction" SET "systemType" = 'communication' WHERE name = 'Customer Communication' AND "createdBy" = 'system';
+UPDATE "nonConformanceRequiredAction" SET "systemType" = 'Containment'   WHERE name = 'Containment Action'    AND "createdBy" = 'system';
+UPDATE "nonConformanceRequiredAction" SET "systemType" = 'Corrective'    WHERE name = 'Corrective Action'     AND "createdBy" = 'system';
+UPDATE "nonConformanceRequiredAction" SET "systemType" = 'Preventive'    WHERE name = 'Preventive Action'     AND "createdBy" = 'system';
+UPDATE "nonConformanceRequiredAction" SET "systemType" = 'Verification'  WHERE name = 'Verification'          AND "createdBy" = 'system';
+UPDATE "nonConformanceRequiredAction" SET "systemType" = 'Communication' WHERE name = 'Customer Communication' AND "createdBy" = 'system';
 
 -- 4. Partial unique index — each company gets at most one of each system type
 CREATE UNIQUE INDEX "nonConformanceRequiredAction_companyId_systemType_unique"
@@ -61,11 +61,11 @@ CREATE OR REPLACE VIEW "issues" WITH(SECURITY_INVOKER=true) AS
         SELECT 1 FROM "nonConformanceActionTask" ncat
         JOIN "nonConformanceRequiredAction" ncra ON ncat."actionTypeId" = ncra.id
         WHERE ncat."nonConformanceId" = ncr.id
-          AND ncra."systemType" = 'containment'
+          AND ncra."systemType" = 'Containment'
           AND ncat.status IN ('In Progress', 'Completed')
       ) THEN 'Contained'
       ELSE 'Uncontained'
-    END AS "containmentStatus"
+    END AS "ContainmentStatus"
   FROM "nonConformance" ncr
   LEFT JOIN (
     SELECT "nonConformanceId", array_agg("itemId"::text) as items

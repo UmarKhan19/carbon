@@ -44766,7 +44766,7 @@ export type Database = {
           assignee: string | null
           closeDate: string | null
           companyId: string | null
-          containmentStatus: string | null
+          ContainmentStatus: string | null
           content: Json | null
           createdAt: string | null
           createdBy: string | null
@@ -56269,6 +56269,7 @@ export type Database = {
           daysRemaining: number
           demandAccumulationPeriod: number
           demandAccumulationSafetyStock: number
+          demandForecast: number
           dimension: string
           dimensionId: string
           finish: string
@@ -56299,7 +56300,6 @@ export type Database = {
           reorderPoint: number
           reorderQuantity: number
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
-          tags: string[]
           thumbnailPath: string
           type: Database["public"]["Enums"]["itemType"]
           unitOfMeasureCode: string
@@ -57798,11 +57798,11 @@ export type Database = {
       nonConformanceSource: "Internal" | "External"
       nonConformanceStatus: "Registered" | "In Progress" | "Closed"
       nonConformanceSystemActionType:
-        | "containment"
-        | "corrective"
-        | "preventive"
-        | "verification"
-        | "communication"
+        | "Containment"
+        | "Corrective"
+        | "Preventive"
+        | "Verification"
+        | "Communication"
       nonConformanceTaskStatus:
         | "Pending"
         | "In Progress"
@@ -58943,11 +58943,11 @@ export const Constants = {
       nonConformanceSource: ["Internal", "External"],
       nonConformanceStatus: ["Registered", "In Progress", "Closed"],
       nonConformanceSystemActionType: [
-        "containment",
-        "corrective",
-        "preventive",
-        "verification",
-        "communication",
+        "Containment",
+        "Corrective",
+        "Preventive",
+        "Verification",
+        "Communication",
       ],
       nonConformanceTaskStatus: [
         "Pending",
