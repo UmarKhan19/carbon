@@ -88,8 +88,8 @@ const DateSelect = forwardRef<HTMLDivElement, DateSelectProps>(
               className={cn(
                 "h-7 rounded-full px-3 text-xs font-medium",
                 "bg-transparent text-muted-foreground",
-                "hover:bg-background/50 hover:text-foreground",
-                "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
+                "hover:bg-active hover:text-active-foreground hover:data-[state=on]:bg-active",
+                "data-[state=on]:bg-active data-[state=on]:text-active-foreground data-[state=on]:shadow-sm",
                 "transition-all duration-200"
               )}
             >
@@ -102,8 +102,8 @@ const DateSelect = forwardRef<HTMLDivElement, DateSelectProps>(
               className={cn(
                 "h-7 w-7 rounded-full p-0",
                 "bg-transparent text-muted-foreground",
-                "hover:bg-background/50 hover:text-foreground",
-                "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
+                "hover:bg-active hover:text-active-foreground",
+                "data-[state=on]:bg-active data-[state=on]:text-active-foreground data-[state=on]:shadow-sm",
                 "transition-all duration-200"
               )}
             >

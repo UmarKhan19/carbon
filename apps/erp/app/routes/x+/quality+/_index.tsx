@@ -22,8 +22,7 @@ import {
   Td,
   Th,
   Thead,
-  Tr,
-  VStack
+  Tr
 } from "@carbon/react";
 import type { ChartConfig } from "@carbon/react/Chart";
 import {
@@ -114,13 +113,12 @@ function StackedBar(props: unknown): JSX.Element {
 }
 
 function percentageFormatter(
-  value: number | string,
-  name: string,
-  item: { payload?: Record<string, unknown> },
-  index: number,
-  payload: Record<string, unknown>
+  value: unknown,
+  _name: unknown,
+  item: { payload?: Record<string, unknown> }
 ) {
-  const row = payload ?? item?.payload;
+  if (Array.isArray(value)) return `${value.join(", ")}`;
+  const row = item?.payload;
   const total = row
     ? Object.entries(row)
         .filter(([k]) => !categoryKeys.has(k))
@@ -140,7 +138,6 @@ const qualityChartConfig = {
   Closed: { label: "Closed", color: "hsl(var(--success))" },
   opened: { label: "Opened", color: "hsl(var(--chart-5))" },
   closed: { label: "Closed", color: "hsl(var(--success))" },
-  runningTotal: { label: "Running Total", color: "hsl(var(--chart-4))" },
   target: { label: "Target", color: "hsl(var(--destructive))" },
   count: { label: "Count" },
   cumulative: { label: "Cumulative %", color: "hsl(var(--chart-5))" },
@@ -164,12 +161,6 @@ const weeklyLegendPayload = [
     dataKey: "closed",
     type: "square" as const,
     color: qualityChartConfig.closed.color
-  },
-  {
-    value: "Running Total",
-    dataKey: "runningTotal",
-    type: "line" as const,
-    color: qualityChartConfig.runningTotal.color
   },
   {
     value: "Target",
@@ -326,6 +317,7 @@ export default function QualityDashboard() {
   };
 
   // Fetch chart data when filters change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: don't include the load functions
   useEffect(() => {
     if (!dateRange?.start || !dateRange?.end) return;
     const params = `?start=${dateRange.start.toString()}&end=${dateRange.end.toString()}&interval=${interval}${
@@ -334,14 +326,6 @@ export default function QualityDashboard() {
     kpiFetcher.load(path.to.api.qualityKpi(selectedChart) + params);
     avgFetcher.load(path.to.api.qualityKpi("avgDaysToClose") + params);
   }, [selectedChart, dateRange, interval, issueTypeId]);
-
-  // Derived from fetcher data (lightweight client-side derivation)
-  const weeklyStats = useMemo(() => {
-    const meta = (kpiFetcher.data as any)?.meta;
-    if (meta)
-      return { currentOpen: meta.currentOpen, totalClosed: meta.totalClosed };
-    return { currentOpen: 0, totalClosed: 0 };
-  }, [kpiFetcher.data]);
 
   const avgDaysToClose = (avgFetcher.data?.data as any)?.[0]?.value ?? null;
 
@@ -555,26 +539,6 @@ export default function QualityDashboard() {
           </CardAction>
         </HStack>
         <CardContent className="flex-col gap-4">
-          {selectedChart === "weeklyTracking" && (
-            <HStack className="gap-8 mb-4">
-              <VStack spacing={0}>
-                <span className="text-xs text-muted-foreground">
-                  Currently Open
-                </span>
-                <span className="text-2xl font-semibold tracking-tight">
-                  {weeklyStats.currentOpen}
-                </span>
-              </VStack>
-              <div className="w-px h-8 bg-border" />
-              <VStack spacing={0}>
-                <span className="text-xs text-muted-foreground">Closed</span>
-                <span className="text-2xl font-semibold tracking-tight text-green-500">
-                  {weeklyStats.totalClosed}
-                </span>
-              </VStack>
-            </HStack>
-          )}
-
           <div className="h-[30dvw] md:h-[23dvw] min-h-[300px]">
             {selectedChart === "weeklyTracking" && (
               <ChartContainer
@@ -627,16 +591,6 @@ export default function QualityDashboard() {
                     radius={2}
                     isAnimationActive={false}
                   />
-                  {(chartData as any[]).some((d) => d.runningTotal !== 0) && (
-                    <Line
-                      type="natural"
-                      dataKey="runningTotal"
-                      stroke="var(--color-runningTotal)"
-                      strokeWidth={2.5}
-                      dot={false}
-                      isAnimationActive={false}
-                    />
-                  )}
                 </ComposedChart>
               </ChartContainer>
             )}
@@ -995,9 +949,9 @@ function IssueTable({
   data
 }: {
   data: {
-    id: string;
+    id: string | null;
     nonConformanceId: string | null;
-    status: string;
+    status: string | null;
     priority: string | null;
   }[];
 }) {
@@ -1011,41 +965,48 @@ function IssueTable({
         </Tr>
       </Thead>
       <Tbody>
-        {data.map((issue) => (
-          <Tr key={issue.id}>
-            <Td>
-              <Hyperlink to={path.to.issue(issue.id)}>
-                <HStack spacing={1}>
-                  <LuShieldX className="size-4" />
-                  <span>{issue.nonConformanceId}</span>
-                </HStack>
-              </Hyperlink>
-            </Td>
-            <Td>
-              <IssueStatus
-                status={
-                  issue.status as "Registered" | "In Progress" | "Closed" | null
-                }
-              />
-            </Td>
-            <Td>
-              {issue.priority && (
-                <Badge
-                  variant={
-                    getPriorityVariant(issue.priority) as
-                      | "red"
-                      | "orange"
-                      | "yellow"
-                      | "green"
-                      | "gray"
+        {data.map((issue) => {
+          if (!issue.id) return null;
+          return (
+            <Tr key={issue.id}>
+              <Td>
+                <Hyperlink to={path.to.issue(issue.id)}>
+                  <HStack spacing={1}>
+                    <LuShieldX className="size-4" />
+                    <span>{issue.nonConformanceId}</span>
+                  </HStack>
+                </Hyperlink>
+              </Td>
+              <Td>
+                <IssueStatus
+                  status={
+                    issue.status as
+                      | "Registered"
+                      | "In Progress"
+                      | "Closed"
+                      | null
                   }
-                >
-                  {issue.priority}
-                </Badge>
-              )}
-            </Td>
-          </Tr>
-        ))}
+                />
+              </Td>
+              <Td>
+                {issue.priority && (
+                  <Badge
+                    variant={
+                      getPriorityVariant(issue.priority) as
+                        | "red"
+                        | "orange"
+                        | "yellow"
+                        | "green"
+                        | "gray"
+                    }
+                  >
+                    {issue.priority}
+                  </Badge>
+                )}
+              </Td>
+            </Tr>
+          );
+        })}
       </Tbody>
     </Table>
   );

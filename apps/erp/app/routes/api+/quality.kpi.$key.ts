@@ -9,7 +9,7 @@ import { getCompanySettings } from "~/modules/settings";
 
 function getISOWeekYear(date: Date): { year: number; week: number } {
   const d = new Date(
-    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
   );
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
@@ -82,21 +82,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         weekMap.set(k, { opened: 0, closed: 0 });
       }
 
-      let baseline = 0;
       const startKey = allWeekKeys[0];
 
       for (const issue of issues) {
         if (!issue.openDate) continue;
         const openKey = weekKeyFromDate(issue.openDate);
 
-        if (openKey < startKey) {
-          if (
-            !issue.closeDate ||
-            weekKeyFromDate(issue.closeDate) >= startKey
-          ) {
-            baseline++;
-          }
-        } else if (weekMap.has(openKey)) {
+        if (weekMap.has(openKey)) {
           weekMap.get(openKey)!.opened++;
         }
 
@@ -108,20 +100,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         }
       }
 
-      let running = baseline;
       const data = allWeekKeys.map((week) => {
         const entry = weekMap.get(week)!;
-        running += entry.opened - entry.closed;
         return {
           week,
           opened: entry.opened,
-          closed: entry.closed,
-          runningTotal: running
+          closed: entry.closed
         };
       });
 
-      const currentOpen =
-        data.length > 0 ? data[data.length - 1].runningTotal : 0;
       const totalClosed = data.reduce((sum, d) => sum + d.closed, 0);
 
       return {
@@ -129,7 +116,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         previousPeriodData: [],
         meta: {
           qualityIssueTarget: settingsResult.data?.qualityIssueTarget ?? 20,
-          currentOpen,
           totalClosed
         }
       };
@@ -149,7 +135,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         Closed: 0
       };
       for (const issue of issues.data ?? []) {
-        if (counts[issue.status] !== undefined) {
+        if (issue.status && counts[issue.status] !== undefined) {
           counts[issue.status]++;
         }
       }
@@ -289,7 +275,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         .from("nonConformanceSupplier")
         .select("nonConformanceId, supplier:supplier(id, name)")
         .eq("companyId", companyId)
-        .in("nonConformanceId", issueIds);
+        .in("nonConformanceId", issueIds as string[]);
 
       const counts: Record<string, { name: string; count: number }> = {};
       for (const si of supplierIssues.data ?? []) {
