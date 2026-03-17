@@ -56,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const quote = await client
-    .from("quoteLine")
+    .from("quoteLines")
     .select("quoteId, quantity, itemReadableId")
     .eq("id", id)
     .single();

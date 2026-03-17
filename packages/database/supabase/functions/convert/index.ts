@@ -1183,14 +1183,17 @@ serve(async (req: Request) => {
           (typeof salesOrderLines)["data"]
         >((acc, line) => {
           if (line.id in quantitiesByLine) {
-            // Deduct any previously invoiced quantity
-            const remainingQuantity =
-              quantitiesByLine[line.id] - (line.quantityInvoiced ?? 0);
+            const shippedInThisShipment = quantitiesByLine[line.id];
+            const remainingToInvoice = line.quantityToInvoice ?? 0;
+            const quantityToInvoice = Math.min(
+              shippedInThisShipment,
+              remainingToInvoice
+            );
 
-            if (remainingQuantity > 0) {
+            if (quantityToInvoice > 0) {
               acc.push({
                 ...line,
-                quantityToInvoice: remainingQuantity,
+                quantityToInvoice,
               });
             }
           }
