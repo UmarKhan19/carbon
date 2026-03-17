@@ -159,7 +159,8 @@ export async function linkEntityToEnvelope(
     .delete()
     .eq("entityType", input.entityType)
     .eq("entityId", input.entityId)
-    .eq("integration", "docusign");
+    .eq("integration", "docusign")
+    .eq("companyId", companyId);
 
   // Create the new mapping
   return await client.from("externalIntegrationMapping").insert({

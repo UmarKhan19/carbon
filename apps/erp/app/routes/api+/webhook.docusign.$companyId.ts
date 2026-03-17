@@ -132,6 +132,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         { status: 401 }
       );
     }
+  } else {
+    console.warn(
+      `DocuSign webhook: no webhookSecret configured for company ${companyId} — HMAC verification skipped. Configure a webhook secret in integration settings for production use.`
+    );
   }
 
   // Parse the webhook payload

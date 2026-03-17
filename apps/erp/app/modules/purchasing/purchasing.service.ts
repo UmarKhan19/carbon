@@ -2090,3 +2090,69 @@ export async function getPurchasingRFQSuppliersWithLinks(
     .select("*, supplier:supplierId(id, name)")
     .eq("purchasingRfqId", purchasingRfqId);
 }
+
+/**
+ * Trigger a DocuSign envelope for a purchase order (non-blocking).
+ *
+ * Checks if the DocuSign integration is active, resolves the supplier
+ * contact's email, and triggers the background task. Failures are logged
+ * but never propagated — callers should not depend on this succeeding.
+ */
+export async function triggerDocuSignForPurchaseOrder(
+  serviceRole: SupabaseClient<Database>,
+  params: {
+    companyId: string;
+    orderId: string;
+    purchaseOrderId: string;
+    supplierContactId: string;
+    file: ArrayBuffer;
+    fileName: string;
+  }
+) {
+  const { tasks } = await import("@trigger.dev/sdk");
+  const { getCompany } = await import("~/modules/settings");
+
+  try {
+    const [docuSignIntegration, contactResult, companyResult] =
+      await Promise.all([
+        serviceRole
+          .from("companyIntegration")
+          .select("active")
+          .eq("companyId", params.companyId)
+          .eq("id", "docusign")
+          .maybeSingle(),
+        getSupplierContact(serviceRole, params.supplierContactId),
+        getCompany(serviceRole, params.companyId)
+      ]);
+
+    if (
+      docuSignIntegration.data?.active === true &&
+      contactResult.data?.contact?.email &&
+      companyResult.data
+    ) {
+      const signerName = [
+        contactResult.data.contact.firstName,
+        contactResult.data.contact.lastName
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      type SendDocuSignEnvelopeTask =
+        typeof import("@carbon/jobs/trigger/send-docusign-envelope").sendDocuSignEnvelopeTask;
+
+      await tasks.trigger<SendDocuSignEnvelopeTask>("send-docusign-envelope", {
+        companyId: params.companyId,
+        orderId: params.orderId,
+        purchaseOrderId: params.purchaseOrderId,
+        documentBase64: Buffer.from(params.file).toString("base64"),
+        fileName: params.fileName,
+        signerName: signerName || contactResult.data.contact.email,
+        signerEmail: contactResult.data.contact.email,
+        companyName: companyResult.data.name
+      });
+    }
+  } catch (err) {
+    // DocuSign sending is non-blocking — log but don't fail the caller
+    console.error("Failed to trigger DocuSign envelope:", err);
+  }
+}

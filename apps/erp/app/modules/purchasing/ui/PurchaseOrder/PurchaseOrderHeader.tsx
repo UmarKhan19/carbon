@@ -1,3 +1,4 @@
+import { getDocuSignStatusColor } from "@carbon/ee/docusign";
 import {
   Badge,
   Button,
@@ -35,7 +36,6 @@ import {
   LuX
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
-
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -57,24 +57,6 @@ import {
   usePurchaseOrder,
   usePurchaseOrderRelatedDocuments
 } from "./usePurchaseOrder";
-
-function getDocuSignStatusColor(
-  status: string
-): "green" | "blue" | "red" | "gray" {
-  switch (status) {
-    case "completed":
-    case "signed":
-      return "green";
-    case "sent":
-    case "delivered":
-      return "blue";
-    case "declined":
-    case "voided":
-      return "red";
-    default:
-      return "gray";
-  }
-}
 
 const PurchaseOrderHeader = () => {
   const { orderId } = useParams();

@@ -68,7 +68,6 @@ export function IntegrationCard({
     await integration?.onClientUninstall?.();
   };
 
-  console.log(integration);
   return (
     <Card>
       <div className="pt-6 px-6 h-16 flex items-center justify-between gap-6">

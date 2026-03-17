@@ -6,7 +6,6 @@ import { z } from "zod";
 import { defineIntegration } from "../fns";
 import { getDocuSignClient } from "./lib";
 
-console.log(DOCUSIGN_CLIENT_ID);
 export const DocuSign = defineIntegration({
   name: "DocuSign",
   id: "docusign",
@@ -19,6 +18,10 @@ export const DocuSign = defineIntegration({
   setupInstructions: SetupInstructions,
   images: [],
   oauth: {
+    // TODO: authUrl should be dynamic based on the saved environment setting.
+    // Currently hardcoded to sandbox. The integration framework's OAuthConfig
+    // only supports a static string — when it supports a function or the card
+    // reads saved settings, this should use DOCUSIGN_OAUTH_URLS[environment].
     authUrl: "https://account-d.docusign.com/oauth/auth",
     clientId: DOCUSIGN_CLIENT_ID!,
     redirectUri: "/api/integrations/docusign/oauth",

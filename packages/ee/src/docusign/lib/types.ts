@@ -49,6 +49,27 @@ export const DocuSignEnvelopeStatusEnum = z.enum([
 
 export type DocuSignEnvelopeStatus = z.infer<typeof DocuSignEnvelopeStatusEnum>;
 
+/**
+ * Map a DocuSign envelope status to a badge color variant.
+ */
+export function getDocuSignStatusColor(
+  status: string
+): "green" | "blue" | "red" | "gray" {
+  switch (status) {
+    case "completed":
+    case "signed":
+      return "green";
+    case "sent":
+    case "delivered":
+      return "blue";
+    case "declined":
+    case "voided":
+      return "red";
+    default:
+      return "gray";
+  }
+}
+
 // -- Document input (generic — works for POs, invoices, etc.) --
 
 export type DocuSignDocumentInput = {

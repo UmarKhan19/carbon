@@ -8,7 +8,6 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
-import type { sendDocuSignEnvelopeTask } from "@carbon/jobs/trigger/send-docusign-envelope";
 import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
 import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
@@ -27,6 +26,7 @@ import {
   getSupplier,
   getSupplierContact,
   purchaseOrderFinalizeValidator,
+  triggerDocuSignForPurchaseOrder,
   updatePurchaseOrderStatus
 } from "~/modules/purchasing";
 import { getCompany, getCompanySettings } from "~/modules/settings";
@@ -368,49 +368,14 @@ export async function action(args: ActionFunctionArgs) {
 
   // Send PO to DocuSign for signature (additive — runs alongside email)
   if (supplierContact) {
-    try {
-      const [docuSignIntegration, contactResult, companyResult] =
-        await Promise.all([
-          serviceRole
-            .from("companyIntegration")
-            .select("active")
-            .eq("companyId", companyId)
-            .eq("id", "docusign")
-            .maybeSingle(),
-          getSupplierContact(serviceRole, supplierContact),
-          getCompany(serviceRole, companyId)
-        ]);
-
-      if (
-        docuSignIntegration.data?.active === true &&
-        contactResult.data?.contact?.email &&
-        companyResult.data
-      ) {
-        const signerName = [
-          contactResult.data.contact.firstName,
-          contactResult.data.contact.lastName
-        ]
-          .filter(Boolean)
-          .join(" ");
-
-        await tasks.trigger<typeof sendDocuSignEnvelopeTask>(
-          "send-docusign-envelope",
-          {
-            companyId,
-            orderId,
-            purchaseOrderId: purchaseOrder.data.purchaseOrderId,
-            documentBase64: Buffer.from(file).toString("base64"),
-            fileName,
-            signerName: signerName || contactResult.data.contact.email,
-            signerEmail: contactResult.data.contact.email,
-            companyName: companyResult.data.name
-          }
-        );
-      }
-    } catch (err) {
-      // DocuSign sending is non-blocking — log but don't fail finalization
-      console.error("Failed to trigger DocuSign envelope:", err);
-    }
+    await triggerDocuSignForPurchaseOrder(serviceRole, {
+      companyId,
+      orderId,
+      purchaseOrderId: purchaseOrder.data.purchaseOrderId,
+      supplierContactId: supplierContact,
+      file,
+      fileName
+    });
   }
 
   throw redirect(

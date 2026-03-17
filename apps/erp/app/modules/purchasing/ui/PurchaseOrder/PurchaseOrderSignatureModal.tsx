@@ -10,7 +10,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  Status,
   Textarea,
   toast,
   VStack
@@ -62,10 +61,6 @@ const PurchaseOrderSignatureModal = ({
     statusFetcher.load(`/api/integrations/docusign/status/${orderId}`);
   }, [orderId]);
 
-  const existingEnvelope = statusFetcher.data?.hasEnvelope
-    ? statusFetcher.data.envelope
-    : null;
-
   const handleSend = () => {
     if (!signerName || !signerEmail || !emailSubject) {
       toast.error("Please fill in all required fields.");
@@ -101,22 +96,6 @@ const PurchaseOrderSignatureModal = ({
     }
   }, [sendFetcher.state, sendFetcher.data, onClose]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-      case "signed":
-        return "green";
-      case "sent":
-      case "delivered":
-        return "blue";
-      case "declined":
-      case "voided":
-        return "red";
-      default:
-        return "gray";
-    }
-  };
-
   return (
     <Modal
       open
@@ -128,111 +107,64 @@ const PurchaseOrderSignatureModal = ({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>
-            {existingEnvelope ? "Signature Status" : "Request Signature"}
-          </ModalTitle>
+          <ModalTitle>{"Request Signature"}</ModalTitle>
           <ModalDescription>
-            {existingEnvelope
-              ? "View the current signature status for this purchase order."
-              : "Send this purchase order to a signer via DocuSign."}
+            {"Send this purchase order to a signer via DocuSign."}
           </ModalDescription>
         </ModalHeader>
-        <ModalBody>
-          {existingEnvelope ? (
-            <VStack spacing={4}>
-              <HStack>
-                <Label className="font-medium">Status</Label>
-                <Status color={getStatusColor(existingEnvelope.status)}>
-                  {existingEnvelope.status}
-                </Status>
-              </HStack>
-              <div>
-                <Label className="font-medium">Signer</Label>
-                <p className="text-sm text-muted-foreground">
-                  {existingEnvelope.signerName} ({existingEnvelope.signerEmail})
-                </p>
-              </div>
-              <div>
-                <Label className="font-medium">Subject</Label>
-                <p className="text-sm text-muted-foreground">
-                  {existingEnvelope.subject}
-                </p>
-              </div>
-              {existingEnvelope.sentAt && (
-                <div>
-                  <Label className="font-medium">Sent</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(existingEnvelope.sentAt).toLocaleString()}
-                  </p>
-                </div>
-              )}
-              {existingEnvelope.completedDateTime && (
-                <div>
-                  <Label className="font-medium">Completed</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(
-                      existingEnvelope.completedDateTime
-                    ).toLocaleString()}
-                  </p>
-                </div>
-              )}
-            </VStack>
-          ) : (
-            <VStack spacing={4}>
-              <div>
-                <Label htmlFor="signerName">Signer Name *</Label>
-                <Input
-                  id="signerName"
-                  value={signerName}
-                  onChange={(e) => setSignerName(e.target.value)}
-                  placeholder="Enter signer's full name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="signerEmail">Signer Email *</Label>
-                <Input
-                  id="signerEmail"
-                  type="email"
-                  value={signerEmail}
-                  onChange={(e) => setSignerEmail(e.target.value)}
-                  placeholder="Enter signer's email address"
-                />
-              </div>
-              <div>
-                <Label htmlFor="emailSubject">Email Subject *</Label>
-                <Input
-                  id="emailSubject"
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="emailBody">Message (Optional)</Label>
-                <Textarea
-                  id="emailBody"
-                  value={emailBody}
-                  onChange={(e) => setEmailBody(e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </VStack>
-          )}
+        <ModalBody className="flex-col">
+          <VStack className="w-full items-stretch" spacing={4}>
+            <div>
+              <Label htmlFor="signerName">Signer Name *</Label>
+              <Input
+                id="signerName"
+                value={signerName}
+                onChange={(e) => setSignerName(e.target.value)}
+                placeholder="Enter signer's full name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="signerEmail">Signer Email *</Label>
+              <Input
+                id="signerEmail"
+                type="email"
+                value={signerEmail}
+                onChange={(e) => setSignerEmail(e.target.value)}
+                placeholder="Enter signer's email address"
+              />
+            </div>
+            <div>
+              <Label htmlFor="emailSubject">Email Subject *</Label>
+              <Input
+                id="emailSubject"
+                value={emailSubject}
+                onChange={(e) => setEmailSubject(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="emailBody">Message (Optional)</Label>
+              <Textarea
+                id="emailBody"
+                value={emailBody}
+                onChange={(e) => setEmailBody(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </VStack>
         </ModalBody>
         <ModalFooter>
           <HStack>
             <Button variant="secondary" onClick={onClose}>
-              {existingEnvelope ? "Close" : "Cancel"}
+              Cancel
             </Button>
-            {!existingEnvelope && (
-              <Button
-                variant="primary"
-                isLoading={sendFetcher.state !== "idle"}
-                isDisabled={!signerName || !signerEmail || !emailSubject}
-                onClick={handleSend}
-              >
-                Send for Signature
-              </Button>
-            )}
+            <Button
+              variant="primary"
+              isLoading={sendFetcher.state !== "idle"}
+              isDisabled={!signerName || !signerEmail || !emailSubject}
+              onClick={handleSend}
+            >
+              Send for Signature
+            </Button>
           </HStack>
         </ModalFooter>
       </ModalContent>

@@ -115,7 +115,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     // Store the mapping between the PO and the envelope
-    await linkPurchaseOrderToEnvelope(client, companyId, {
+    const linkResult = await linkPurchaseOrderToEnvelope(client, companyId, {
       purchaseOrderId,
       envelopeId: envelope.envelopeId,
       signerName,
@@ -123,6 +123,20 @@ export async function action({ request }: ActionFunctionArgs) {
       subject: emailSubject,
       status: envelope.status
     });
+
+    if (linkResult.error) {
+      console.error(
+        "Failed to store envelope mapping:",
+        linkResult.error.message
+      );
+      // Envelope was already created in DocuSign, return success but with warning
+      return {
+        success: true,
+        envelopeId: envelope.envelopeId,
+        status: envelope.status,
+        mappingError: linkResult.error.message
+      };
+    }
 
     return {
       success: true,

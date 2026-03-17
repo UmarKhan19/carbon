@@ -48,8 +48,9 @@ export const processSignedDocumentTask = task({
     );
 
     if (!pdfBuffer) {
-      console.error(`Failed to download signed PDF for envelope ${envelopeId}`);
-      return { success: false, reason: "download_failed" };
+      throw new Error(
+        `Failed to download signed PDF for envelope ${envelopeId}`
+      );
     }
 
     console.log(
@@ -98,11 +99,9 @@ export const processSignedDocumentTask = task({
       });
 
     if (uploadResult.error) {
-      console.error(
-        "Failed to upload signed PDF to storage:",
-        uploadResult.error.message
+      throw new Error(
+        `Failed to upload signed PDF to storage: ${uploadResult.error.message}`
       );
-      return { success: false, reason: "upload_failed" };
     }
 
     console.log(`Signed PDF uploaded to: ${storagePath}`);

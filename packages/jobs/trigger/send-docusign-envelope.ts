@@ -1,6 +1,7 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import {
   getDocuSignClient,
+  getDocuSignEnvelopeFromPurchaseOrder,
   getDocuSignIntegration,
   linkPurchaseOrderToEnvelope,
 } from "@carbon/ee/docusign";
@@ -51,6 +52,28 @@ export const sendDocuSignEnvelopeTask = task({
       return { success: false, reason: "integration_inactive" };
     }
 
+    // 1b. Check if an active envelope already exists for this PO
+    const existingEnvelope = await getDocuSignEnvelopeFromPurchaseOrder(
+      serviceRole,
+      companyId,
+      orderId
+    );
+
+    if (
+      existingEnvelope &&
+      ["sent", "delivered", "created"].includes(existingEnvelope.status)
+    ) {
+      console.info(
+        `DocuSign envelope already exists for PO ${purchaseOrderId} with status "${existingEnvelope.status}", skipping`
+      );
+      return {
+        success: true,
+        skipped: true,
+        reason: "active_envelope_exists",
+        envelopeId: existingEnvelope.envelopeId,
+      };
+    }
+
     // 2. Resolve the document content — either from base64 or Supabase Storage
     let documentBase64 = payload.documentBase64;
 
@@ -61,8 +84,9 @@ export const sendDocuSignEnvelopeTask = task({
         .download(payload.storagePath);
 
       if (error || !data) {
-        console.error("Failed to download PDF from storage:", error?.message);
-        return { success: false, reason: "storage_download_failed" };
+        throw new Error(
+          `Failed to download PDF from storage: ${error?.message ?? "no data"}`
+        );
       }
 
       const buffer = Buffer.from(await data.arrayBuffer());
@@ -108,8 +132,9 @@ export const sendDocuSignEnvelopeTask = task({
     });
 
     if (!envelope) {
-      console.error("Failed to create DocuSign envelope");
-      return { success: false, reason: "envelope_creation_failed" };
+      throw new Error(
+        `Failed to create DocuSign envelope for PO ${purchaseOrderId}`
+      );
     }
 
     console.info(

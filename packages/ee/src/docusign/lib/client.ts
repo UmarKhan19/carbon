@@ -425,9 +425,10 @@ export class DocuSignClient {
 
       const url = `${credentials.accountBaseUri}/v2.1/accounts/${credentials.accountId}/envelopes/${envelopeId}/documents/${documentId}`;
 
+      const { "Content-Type": _, ...getHeaders } = headers;
       const response = await fetch(url, {
         headers: {
-          ...headers,
+          ...getHeaders,
           Accept: "application/pdf"
         }
       });
