@@ -59,7 +59,7 @@ export function useUser(): User {
       company: data.company,
       groups: data.groups,
       defaults: data.defaults ?? { locationId: null },
-      flags: (data.user.flags as UserFlags) ?? {}
+      flags: data.user.flags ?? {}
     };
   }
 

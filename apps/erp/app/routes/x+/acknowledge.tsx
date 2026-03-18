@@ -1,6 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { userFlagValidator } from "~/modules/users";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, userId } = await requirePermissions(request, {});
@@ -30,12 +31,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Generic flag handling — covers training dismissals and any future flags
   if (intent === "flag") {
-    const flag = formData.get("flag") as string;
-    const value = formData.get("value") !== "false";
+    const parsed = userFlagValidator.safeParse({
+      flag: formData.get("flag"),
+      value: formData.get("value") === "true"
+    });
 
-    if (!flag) {
-      return { success: false, message: "Missing flag key" };
+    if (!parsed.success) {
+      return { success: false, message: parsed.error.issues[0].message };
     }
+
+    const { flag, value } = parsed.data;
 
     const { data: user } = await client
       .from("user")
@@ -43,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
       .eq("id", userId)
       .single();
 
-    const currentFlags = (user?.flags as Record<string, boolean>) ?? {};
+    const currentFlags = (user?.flags as Record<string, boolean> | null) ?? {};
     const updatedFlags = { ...currentFlags, [flag]: value };
 
     const updateResult = await client
