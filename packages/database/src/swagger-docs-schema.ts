@@ -10861,7 +10861,7 @@ export default {
             $ref: "#/parameters/rowFilter.issues.items",
           },
           {
-            $ref: "#/parameters/rowFilter.issues.ContainmentStatus",
+            $ref: "#/parameters/rowFilter.issues.containmentStatus",
           },
           {
             $ref: "#/parameters/select",
@@ -74431,7 +74431,7 @@ export default {
           },
           type: "array",
         },
-        ContainmentStatus: {
+        containmentStatus: {
           format: "text",
           type: "string",
         },
@@ -105617,8 +105617,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.issues.ContainmentStatus": {
-      name: "ContainmentStatus",
+    "rowFilter.issues.containmentStatus": {
+      name: "containmentStatus",
       required: false,
       in: "query",
       type: "string",
