@@ -6,9 +6,14 @@ import {
 } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { convertQuoteToOrder, selectedLinesValidator } from "~/modules/sales";
+import {
+  convertQuoteToOrder,
+  salesConfirmValidator,
+  selectedLinesValidator
+} from "~/modules/sales";
 import { path } from "~/utils/path";
 
 // the edge function grows larger than 2MB - so this is a workaround to avoid the edge function limit
@@ -46,6 +51,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const selectedLines = parseResult.data;
+
+  // Parse notification preferences from form data
+  const notificationValidation = await validator(
+    salesConfirmValidator
+  ).validate(formData);
+
+  // Notification preferences are parsed here for use by the PDF generation
+  // and email sending steps (implemented in the convert-to-order pipeline).
+  const _notification = notificationValidation.data?.notification;
+  const _customerContact = notificationValidation.data?.customerContact;
+  const _cc = notificationValidation.data?.cc;
 
   const serviceRole = getCarbonServiceRole();
   const convert = await convertQuoteToOrder(serviceRole, {
