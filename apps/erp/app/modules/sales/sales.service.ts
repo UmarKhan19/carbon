@@ -26,6 +26,7 @@ import type {
   customerPaymentValidator,
   customerShippingValidator,
   customerStatusValidator,
+  customerTaxValidator,
   customerTypeValidator,
   customerValidator,
   getMethodValidator,
@@ -1712,6 +1713,30 @@ export async function updateCustomerShipping(
     .from("customerShipping")
     .update(sanitize(customerShipping))
     .eq("customerId", customerShipping.customerId);
+}
+
+export async function getCustomerTax(
+  client: SupabaseClient<Database>,
+  customerId: string
+) {
+  return client
+    .from("customerTax")
+    .select("*")
+    .eq("customerId", customerId)
+    .single();
+}
+
+export async function updateCustomerTax(
+  client: SupabaseClient<Database>,
+  customerTax: z.infer<typeof customerTaxValidator> & {
+    updatedBy: string;
+    taxExemptionCertificatePath?: string | null;
+  }
+) {
+  return client
+    .from("customerTax")
+    .update(sanitize(customerTax))
+    .eq("customerId", customerTax.customerId);
 }
 
 export async function upsertCustomerStatus(

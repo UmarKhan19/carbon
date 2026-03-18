@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
   HStack,
   IconButton,
+  Status,
   useDisclosure,
   VStack
 } from "@carbon/react";
@@ -45,6 +46,7 @@ const CustomerHeader = () => {
   const routeData = useRouteData<{
     customer: CustomerDetail;
     tags: { name: string }[];
+    customerTax: { taxExempt: boolean } | null;
   }>(path.to.customer(customerId));
 
   const customerTypes = useCustomerTypes();
@@ -146,6 +148,16 @@ const CustomerHeader = () => {
                     />
                   ) : (
                     "-"
+                  )}
+                </CardAttributeValue>
+              </CardAttribute>
+              <CardAttribute>
+                <CardAttributeLabel>Tax Status</CardAttributeLabel>
+                <CardAttributeValue>
+                  {routeData?.customerTax?.taxExempt ? (
+                    <Status color="red">Exempt</Status>
+                  ) : (
+                    <Status color="green">Taxable</Status>
                   )}
                 </CardAttributeValue>
               </CardAttribute>

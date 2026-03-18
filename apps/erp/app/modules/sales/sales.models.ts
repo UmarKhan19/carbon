@@ -46,9 +46,7 @@ export const salesRFQStatusType = [
 
 export const customerAccountingValidator = z.object({
   id: zfd.text(z.string()),
-  customerTypeId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional())
+  customerTypeId: zfd.text(z.string().optional())
 });
 
 export const customerContactValidator = z.object({
@@ -70,15 +68,46 @@ export const customerValidator = z.object({
   customerTypeId: zfd.text(z.string().optional()),
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional()),
   taxPercent: zfd.numeric(
     z.number().min(0).max(1, { message: "Tax percent must be between 0 and 1" })
   ),
-  vatNumber: zfd.text(z.string().optional()),
   salesContactId: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
+
+export const taxExemptionReasons = [
+  "Resale",
+  "Government",
+  "Nonprofit",
+  "Agriculture",
+  "Industrial",
+  "Export",
+  "Medical",
+  "Educational",
+  "Religious",
+  "Other"
+] as const;
+
+export const customerTaxValidator = z
+  .object({
+    customerId: z.string().min(1),
+    taxId: zfd.text(z.string().optional()),
+    vatNumber: zfd.text(z.string().optional()),
+    taxExempt: z.coerce.boolean().default(false),
+    taxExemptionReason: z.preprocess(
+      (val) => (val === "" ? undefined : val),
+      z.enum(taxExemptionReasons).optional().nullable()
+    ),
+    taxExemptionCertificateNumber: zfd.text(z.string().optional())
+  })
+  .refine(
+    (data) => !data.taxExempt || (data.taxExempt && data.taxExemptionReason),
+    {
+      message: "Exemption reason is required when tax exempt",
+      path: ["taxExemptionReason"]
+    }
+  );
 
 export const customerPaymentValidator = z.object({
   customerId: z.string().min(1, { message: "Customer is required" }),

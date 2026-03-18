@@ -7,7 +7,8 @@ import {
   getSupplier,
   getSupplierApprovalContext,
   getSupplierContacts,
-  getSupplierLocations
+  getSupplierLocations,
+  getSupplierTax
 } from "~/modules/purchasing";
 import SupplierHeader from "~/modules/purchasing/ui/Supplier/SupplierHeader";
 import SupplierSidebar from "~/modules/purchasing/ui/Supplier/SupplierSidebar";
@@ -28,11 +29,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { supplierId } = params;
   if (!supplierId) throw new Error("Could not find supplierId");
 
-  const [supplier, contacts, locations, tags] = await Promise.all([
+  const [supplier, contacts, locations, tags, supplierTax] = await Promise.all([
     getSupplier(client, supplierId),
     getSupplierContacts(client, supplierId),
     getSupplierLocations(client, supplierId),
-    getTagsList(client, companyId, "supplier")
+    getTagsList(client, companyId, "supplier"),
+    getSupplierTax(client, supplierId)
   ]);
 
   if (supplier.error) {
@@ -60,6 +62,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     contacts: contacts.data ?? [],
     locations: locations.data ?? [],
     tags: tags.data ?? [],
+    supplierTax: supplierTax.data,
     ...approval
   };
 }

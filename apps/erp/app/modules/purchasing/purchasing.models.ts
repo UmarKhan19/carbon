@@ -2,6 +2,7 @@ import { getLocalTimeZone, today } from "@internationalized/date";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { address, contact } from "~/types/validators";
+import { taxExemptionReasons } from "../sales/sales.models";
 import { methodItemType } from "../shared";
 
 export const KPIs = [
@@ -312,8 +313,6 @@ export const supplierValidator = z.object({
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
@@ -330,11 +329,29 @@ export const supplierApprovalValidator = z.object({
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
+
+export const supplierTaxValidator = z
+  .object({
+    supplierId: z.string().min(1),
+    taxId: zfd.text(z.string().optional()),
+    vatNumber: zfd.text(z.string().optional()),
+    taxExempt: z.coerce.boolean().default(false),
+    taxExemptionReason: z.preprocess(
+      (val) => (val === "" ? undefined : val),
+      z.enum(taxExemptionReasons).optional().nullable()
+    ),
+    taxExemptionCertificateNumber: zfd.text(z.string().optional())
+  })
+  .refine(
+    (data) => !data.taxExempt || (data.taxExempt && data.taxExemptionReason),
+    {
+      message: "Exemption reason is required when tax exempt",
+      path: ["taxExemptionReason"]
+    }
+  );
 
 export const supplierApprovalDecisionValidator = z.object({
   approvalRequestId: z
@@ -383,9 +400,7 @@ export const supplierShippingValidator = z.object({
 
 export const supplierAccountingValidator = z.object({
   id: zfd.text(z.string()),
-  supplierTypeId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional())
+  supplierTypeId: zfd.text(z.string().optional())
 });
 
 export const supplierTypeValidator = z.object({

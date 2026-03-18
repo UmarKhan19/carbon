@@ -6,6 +6,7 @@ import {
   LuLayoutList,
   LuMapPin,
   LuPackageSearch,
+  LuReceipt,
   LuShieldAlert
 } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -52,6 +53,13 @@ export function useSupplierSidebar({ contacts, locations }: Props) {
       role: ["employee"],
       icon: <LuCreditCard />,
       shortcut: "Command+Shift+p"
+    },
+    {
+      name: "Tax",
+      to: path.to.supplierTax(supplierId),
+      role: ["employee"],
+      icon: <LuReceipt />,
+      shortcut: "Command+Shift+t"
     },
     {
       name: "Processes",
