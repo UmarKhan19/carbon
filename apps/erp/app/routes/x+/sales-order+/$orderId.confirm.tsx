@@ -1,26 +1,20 @@
 import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { SalesOrderEmail } from "@carbon/documents/email";
 import { validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
 import { getSalesOrderStatus } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { renderAsync } from "@react-email/components";
-import { tasks } from "@trigger.dev/sdk";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
-import { getPaymentTermsList } from "~/modules/accounting";
-import { generateAndAttachSalesOrderPdf } from "~/modules/documents";
+import {
+  generateAndAttachSalesOrderPdf,
+  sendSalesOrderEmail
+} from "~/modules/documents";
 import { runMRP } from "~/modules/production/production.service";
 import {
-  getCustomerContact,
   getSalesOrder,
-  getSalesOrderCustomerDetails,
   getSalesOrderLines,
   salesConfirmValidator
 } from "~/modules/sales";
-import { getCompany } from "~/modules/settings";
-import { getUser } from "~/modules/users/users.server";
 import { loader as pdfLoader } from "~/routes/file+/sales-order+/$id[.]pdf";
 
 export async function action(args: ActionFunctionArgs) {
@@ -113,99 +107,24 @@ export async function action(args: ActionFunctionArgs) {
             };
           }
 
-          const [
-            company,
-            customer,
-            salesOrder,
-            salesOrderLines,
-            salesOrderLocations,
-            seller,
-            paymentTerms
-          ] = await Promise.all([
-            getCompany(serviceRole, companyId),
-            getCustomerContact(serviceRole, customerContact),
-            getSalesOrder(serviceRole, orderId),
-            getSalesOrderLines(serviceRole, orderId),
-            getSalesOrderCustomerDetails(serviceRole, orderId),
-            getUser(serviceRole, userId),
-            getPaymentTermsList(serviceRole, companyId)
-          ]);
-
-          if (!customer?.data?.contact) {
-            return {
-              success: false,
-              message: "Failed to get customer contact"
-            };
-          }
-          if (!company.data) {
-            return {
-              success: false,
-              message: "Failed to get company"
-            };
-          }
-          if (!seller.data) {
-            return {
-              success: false,
-              message: "Failed to get user"
-            };
-          }
-          if (!salesOrder.data) {
-            return {
-              success: false,
-              message: "Failed to get sales order"
-            };
-          }
-          if (!salesOrderLocations.data) {
-            return {
-              success: false,
-              message: "Failed to get sales order locations"
-            };
-          }
-
-          if (!paymentTerms.data) {
-            return {
-              success: false,
-              message: "Failed to get payment terms"
-            };
-          }
-
-          const emailTemplate = SalesOrderEmail({
-            company: company.data,
-            locale: locales?.[0] ?? "en-US",
-            salesOrder: salesOrder.data,
-            salesOrderLines: salesOrderLines.data ?? [],
-            salesOrderLocations: salesOrderLocations.data,
-            recipient: {
-              email: customer.data.contact.email,
-              firstName: customer.data.contact.firstName ?? undefined,
-              lastName: customer.data.contact.lastName ?? undefined
-            },
-            sender: {
-              email: seller.data.email,
-              firstName: seller.data.firstName,
-              lastName: seller.data.lastName
-            },
-            paymentTerms: paymentTerms.data
+          const emailResult = await sendSalesOrderEmail({
+            salesOrderId: orderId,
+            companyId,
+            userId,
+            customerContactId: customerContact,
+            cc: ccSelections,
+            file,
+            fileName,
+            serviceRole,
+            locales
           });
 
-          const html = await renderAsync(emailTemplate);
-          const text = await renderAsync(emailTemplate, { plainText: true });
-
-          await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
-            to: [seller.data.email, customer.data.contact.email],
-            cc: ccSelections?.length ? ccSelections : undefined,
-            from: seller.data.email,
-            subject: `Order ${salesOrder.data.salesOrderId} from ${company.data.name}`,
-            html,
-            text,
-            attachments: [
-              {
-                content: Buffer.from(file).toString("base64"),
-                filename: fileName
-              }
-            ],
-            companyId
-          });
+          if (!emailResult.success) {
+            return {
+              success: false,
+              message: emailResult.message ?? "Failed to send email"
+            };
+          }
           // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
         } catch (err) {
           return {
