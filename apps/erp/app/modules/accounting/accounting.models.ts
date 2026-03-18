@@ -337,14 +337,21 @@ export const costLedgerValidator = z.object({
   costPostedToGL: z.number()
 });
 
+export const costCenterValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  parentCostCenterId: zfd.text(z.string().optional())
+});
+
 export const dimensionEntityTypes = [
+  "CostCenter",
   "Custom",
-  "Location",
-  "ItemPostingGroup",
-  "SupplierType",
   "CustomerType",
   "Department",
-  "Employee"
+  "Employee",
+  "ItemPostingGroup",
+  "Location",
+  "SupplierType"
 ] as const;
 
 export const dimensionValidator = z.object({

@@ -2,6 +2,7 @@ import {
   LuAxis3D,
   LuBetweenHorizontalStart,
   LuCalendar1,
+  LuCircleDollarSign,
   LuEuro,
   LuFileSpreadsheet,
   LuHandCoins,
@@ -57,6 +58,12 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
   {
     name: "Configure",
     routes: [
+      {
+        name: "Cost Centers",
+        to: path.to.costCenters,
+        role: "employee",
+        icon: <LuCircleDollarSign />
+      },
       {
         name: "Default Accounts",
         to: path.to.accountingDefaults,

@@ -13,6 +13,7 @@ import { useState } from "react";
 import {
   LuBoxes,
   LuBuilding,
+  LuCircleDollarSign,
   LuContainer,
   LuMapPin,
   LuTags,
@@ -41,7 +42,8 @@ const entityTypeIcons: Record<string, React.ReactNode> = {
   SupplierType: <LuContainer className="w-4 h-4 text-emerald-600 mr-2" />,
   CustomerType: <LuUsers className="w-4 h-4 text-yellow-600 mr-2" />,
   Department: <LuBuilding className="w-4 h-4 text-red-600 mr-2" />,
-  Employee: <LuUser className="w-4 h-4 text-indigo-600 mr-2" />
+  Employee: <LuUser className="w-4 h-4 text-indigo-600 mr-2" />,
+  CostCenter: <LuCircleDollarSign className="w-4 h-4 text-teal-600 mr-2" />
 };
 
 const entityTypeLabels: Record<string, string> = {
@@ -51,7 +53,8 @@ const entityTypeLabels: Record<string, string> = {
   SupplierType: "Supplier Type",
   CustomerType: "Customer Type",
   Department: "Department",
-  Employee: "Employee"
+  Employee: "Employee",
+  CostCenter: "Cost Center"
 };
 
 const DimensionForm = ({ initialValues, onClose }: DimensionFormProps) => {

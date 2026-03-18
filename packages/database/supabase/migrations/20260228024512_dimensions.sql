@@ -5,7 +5,8 @@ CREATE TYPE "dimensionEntityType" AS ENUM (
   'SupplierType',
   'CustomerType',
   'Department',
-  'Employee'
+  'Employee',
+  'CostCenter'
 );
 
 CREATE TABLE "dimension" (

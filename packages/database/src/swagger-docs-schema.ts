@@ -34302,6 +34302,177 @@ export default {
         tags: ["quotes"],
       },
     },
+    "/costCenter": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.costCenter.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.parentCostCenterId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.customFields",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/costCenter",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["costCenter"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.costCenter",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["costCenter"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.costCenter.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.parentCostCenterId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.customFields",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["costCenter"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.costCenter.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.parentCostCenterId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.customFields",
+          },
+          {
+            $ref: "#/parameters/body.costCenter",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["costCenter"],
+      },
+    },
     "/riskRegister": {
       get: {
         parameters: [
@@ -71711,6 +71882,7 @@ export default {
             "CustomerType",
             "Department",
             "Employee",
+            "CostCenter",
           ],
           format: 'public."dimensionEntityType"',
           type: "string",
@@ -85636,6 +85808,58 @@ export default {
       },
       type: "object",
     },
+    costCenter: {
+      required: ["id", "name", "companyId", "createdBy", "createdAt"],
+      properties: {
+        id: {
+          default: "public.xid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        parentCostCenterId: {
+          description:
+            "Note:\nThis is a Foreign Key to `costCenter.id`.<fk table='costCenter' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        customFields: {
+          format: "jsonb",
+        },
+      },
+      type: "object",
+    },
     riskRegister: {
       required: [
         "id",
@@ -89928,6 +90152,7 @@ export default {
             "CustomerType",
             "Department",
             "Employee",
+            "CostCenter",
           ],
           format: 'public."dimensionEntityType"',
           type: "string",
@@ -118196,6 +118421,69 @@ export default {
     },
     "rowFilter.quotes.shippingCost": {
       name: "shippingCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.costCenter": {
+      name: "costCenter",
+      description: "costCenter",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/costCenter",
+      },
+    },
+    "rowFilter.costCenter.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.parentCostCenterId": {
+      name: "parentCostCenterId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.costCenter.customFields": {
+      name: "customFields",
       required: false,
       in: "query",
       type: "string",

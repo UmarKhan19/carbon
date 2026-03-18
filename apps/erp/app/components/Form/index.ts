@@ -34,6 +34,7 @@ import Account from "./Account";
 import AddressAutocomplete from "./AddressAutocomplete";
 import Color from "./Color";
 import ConversionFactor from "./ConversionFactor";
+import CostCenter from "./CostCenter";
 import Currency from "./Currency";
 import Customer from "./Customer";
 import CustomerContact from "./CustomerContact";
@@ -89,6 +90,7 @@ export {
   Boolean,
   Color,
   Combobox,
+  CostCenter,
   ConversionFactor,
   CreatableCombobox,
   CreatableMultiSelect,

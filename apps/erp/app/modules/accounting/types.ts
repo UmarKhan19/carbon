@@ -2,6 +2,8 @@ import type { Database } from "@carbon/database";
 import type {
   getAccount,
   getAccountsList,
+  getCostCenters,
+  getCostCentersTree,
   getCurrencies,
   getDimension,
   getDimensions,
@@ -27,6 +29,14 @@ export type AccountClass = Database["public"]["Enums"]["glAccountClass"];
 export type AccountType = Database["public"]["Enums"]["accountType"];
 
 export type Chart = Account & Transaction;
+
+export type CostCenter = NonNullable<
+  Awaited<ReturnType<typeof getCostCenters>>["data"]
+>[number];
+
+export type CostCenterTreeNode = NonNullable<
+  Awaited<ReturnType<typeof getCostCentersTree>>["data"]
+>[number];
 
 export type Currency = NonNullable<
   Awaited<ReturnType<typeof getCurrencies>>["data"]

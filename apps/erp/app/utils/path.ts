@@ -37,6 +37,7 @@ export const path = {
       customerTypes: `${api}/sales/customer-types`,
       customFieldOptions: (table: string, fieldId: string) =>
         generatePath(`${api}/settings/custom-fields/${table}/${fieldId}`),
+      costCenters: `${api}/accounting/cost-centers`,
       departments: `${api}/people/departments`,
       outstandingTrainings: `${api}/resources/trainings`,
       digitalQuote: (id: string) =>
@@ -436,6 +437,9 @@ export const path = {
     chartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/${id}`),
     chartOfAccounts: `${x}/accounting/charts`,
+    costCenter: (id: string) =>
+      generatePath(`${x}/accounting/cost-centers/${id}`),
+    costCenters: `${x}/accounting/cost-centers`,
     trialBalance: `${x}/accounting/trial-balance`,
     balanceSheet: `${x}/accounting/balance-sheet`,
     incomeStatement: `${x}/accounting/income-statement`,
@@ -537,6 +541,8 @@ export const path = {
       generatePath(`${x}/resources/abilities/delete/${id}`),
     deleteAccountingCharts: (id: string) =>
       generatePath(`${x}/accounting/charts/delete/${id}`),
+    deleteCostCenter: (id: string) =>
+      generatePath(`${x}/accounting/cost-centers/delete/${id}`),
     deleteApiKey: (id: string) =>
       generatePath(`${x}/settings/api-keys/delete/${id}`),
     deleteAttribute: (id: string) =>
@@ -999,6 +1005,7 @@ export const path = {
     newBatch: `${x}/inventory/batches/new`,
     newBulkJob: `${x}/job/bulk/new`,
     newChartOfAccount: `${x}/accounting/charts/new`,
+    newCostCenter: `${x}/accounting/cost-centers/new`,
     newCompany: `${x}/settings/company/new`,
     newCompanyInGroup: `${x}/settings/companies/new`,
     newConsumable: `${x}/consumable/new`,

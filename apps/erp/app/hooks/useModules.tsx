@@ -66,7 +66,7 @@ export function useModules() {
     {
       permission: "accounting",
       name: "Accounting",
-      to: path.to.exchangeRates,
+      to: path.to.balanceSheet,
       icon: LuLandmark
     },
     {

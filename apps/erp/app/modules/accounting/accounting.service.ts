@@ -7,6 +7,7 @@ import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import type {
   accountValidator,
+  costCenterValidator,
   currencyValidator,
   defaultBalanceSheetAccountValidator,
   defaultIncomeAcountValidator,
@@ -527,6 +528,90 @@ export async function upsertPaymentTerm(
     .from("paymentTerm")
     .update(sanitize(paymentTerm))
     .eq("id", paymentTerm.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteCostCenter(
+  client: SupabaseClient<Database>,
+  costCenterId: string
+) {
+  return client.from("costCenter").delete().eq("id", costCenterId);
+}
+
+export async function getCostCenter(
+  client: SupabaseClient<Database>,
+  costCenterId: string
+) {
+  return client.from("costCenter").select("*").eq("id", costCenterId).single();
+}
+
+export async function getCostCenters(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & { search: string | null }
+) {
+  let query = client
+    .from("costCenter")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
+      { column: "name", ascending: true }
+    ]);
+  }
+
+  return query;
+}
+
+export async function getCostCentersList(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("costCenter")
+    .select("id, name")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
+export async function getCostCentersTree(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("costCenter")
+    .select("id, name, parentCostCenterId")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
+export async function upsertCostCenter(
+  client: SupabaseClient<Database>,
+  costCenter:
+    | (Omit<z.infer<typeof costCenterValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+        customFields?: Json;
+      })
+    | (Omit<z.infer<typeof costCenterValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+        customFields?: Json;
+      })
+) {
+  if ("createdBy" in costCenter) {
+    return client.from("costCenter").insert([costCenter]).select("id").single();
+  }
+  return client
+    .from("costCenter")
+    .update(sanitize(costCenter))
+    .eq("id", costCenter.id)
     .select("id")
     .single();
 }

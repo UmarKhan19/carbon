@@ -6,39 +6,39 @@ import {
   IconButton
 } from "@carbon/react";
 import {
-  LuBuilding,
   LuChevronRight,
+  LuCircleDollarSign,
   LuEllipsisVertical,
   LuPencil,
   LuPlus,
   LuTrash2
 } from "react-icons/lu";
-import type { DepartmentTreeNode } from "../../types";
+import type { CostCenterTreeNode } from "../../types";
 
-interface DepartmentsListViewProps {
-  departments: DepartmentTreeNode[];
+interface CostCentersListViewProps {
+  costCenters: CostCenterTreeNode[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onAddChild: (parentId: string) => void;
 }
 
-function DepartmentsRow({
-  department,
-  departments,
+function CostCentersRow({
+  costCenter,
+  costCenters,
   depth,
   onEdit,
   onDelete,
   onAddChild
 }: {
-  department: DepartmentTreeNode;
-  departments: DepartmentTreeNode[];
+  costCenter: CostCenterTreeNode;
+  costCenters: CostCenterTreeNode[];
   depth: number;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onAddChild: (parentId: string) => void;
 }) {
-  const children = departments.filter(
-    (d) => d.parentDepartmentId === department.id
+  const children = costCenters.filter(
+    (c) => c.parentCostCenterId === costCenter.id
   );
 
   return (
@@ -54,12 +54,12 @@ function DepartmentsRow({
         )}
 
         <div className="flex size-8 shrink-0 items-center justify-center bg-muted">
-          <LuBuilding className="size-3.5 text-muted-foreground" />
+          <LuCircleDollarSign className="size-3.5 text-muted-foreground" />
         </div>
 
         <div className="flex flex-col gap-0 min-w-0">
           <span className="text-sm font-medium text-foreground">
-            {department.name}
+            {costCenter.name}
           </span>
         </div>
 
@@ -74,17 +74,17 @@ function DepartmentsRow({
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem onClick={() => onEdit(department.id!)}>
+              <DropdownMenuItem onClick={() => onEdit(costCenter.id!)}>
                 <LuPencil className="mr-2 size-4" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onAddChild(department.id!)}>
+              <DropdownMenuItem onClick={() => onAddChild(costCenter.id!)}>
                 <LuPlus className="mr-2 size-4" />
-                Add department
+                Add cost center
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
-                onClick={() => onDelete(department.id!)}
+                onClick={() => onDelete(costCenter.id!)}
               >
                 <LuTrash2 className="mr-2 size-4" />
                 Delete
@@ -95,10 +95,10 @@ function DepartmentsRow({
       </div>
 
       {children.map((child) => (
-        <DepartmentsRow
+        <CostCentersRow
           key={child.id}
-          department={child}
-          departments={departments}
+          costCenter={child}
+          costCenters={costCenters}
           depth={depth + 1}
           onEdit={onEdit}
           onDelete={onDelete}
@@ -109,27 +109,27 @@ function DepartmentsRow({
   );
 }
 
-export function DepartmentsListView({
-  departments,
+export function CostCentersListView({
+  costCenters,
   onEdit,
   onDelete,
   onAddChild
-}: DepartmentsListViewProps) {
-  const roots = departments.filter((d) => d.parentDepartmentId === null);
+}: CostCentersListViewProps) {
+  const roots = costCenters.filter((c) => c.parentCostCenterId === null);
 
   return (
     <div className="bg-card overflow-hidden h-full">
       <div className="grid grid-cols-[1fr_auto] items-center border-b border-border bg-card h-11 px-6">
         <span className="text-sm font-medium text-foreground/80">
-          Department
+          Cost Center
         </span>
         <span className="text-sm font-medium text-foreground/80">Actions</span>
       </div>
       {roots.map((root) => (
-        <DepartmentsRow
+        <CostCentersRow
           key={root.id}
-          department={root}
-          departments={departments}
+          costCenter={root}
+          costCenters={costCenters}
           depth={0}
           onEdit={onEdit}
           onDelete={onDelete}

@@ -1,6 +1,18 @@
 import { CountryFlag } from "@carbon/form";
-import { IconButton } from "@carbon/react";
-import { LuBuilding2, LuChevronRight, LuPlus, LuTrash2 } from "react-icons/lu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  IconButton
+} from "@carbon/react";
+import {
+  LuBuilding2,
+  LuChevronRight,
+  LuEllipsisVertical,
+  LuPlus,
+  LuTrash2
+} from "react-icons/lu";
 import type { Company } from "../../types";
 
 interface CompaniesListViewProps {
@@ -24,11 +36,14 @@ function CompaniesRow({
 }) {
   const children = companies.filter((s) => s.parentCompanyId === company.id);
   const isElimination = company.isEliminationEntity;
+  const canAddChild = !isElimination;
+  const canDelete = !!company.parentCompanyId;
+  const hasActions = canAddChild || canDelete;
 
   return (
     <div>
       <div
-        className="group flex items-center gap-3 border-b border-border px-4 py-3 transition-colors hover:bg-accent/50"
+        className="flex items-center gap-3 border-b border-border px-4 py-3 transition-colors hover:bg-accent/50"
         style={{ paddingLeft: `${depth * 28 + 16}px` }}
       >
         {children.length > 0 ? (
@@ -61,28 +76,37 @@ function CompaniesRow({
           </span>
         </div>
 
-        <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {!isElimination && (
-            <IconButton
-              variant="ghost"
-              size="sm"
-              onClick={() => onAddChild(company.id!)}
-              aria-label="Add company"
-              icon={<LuPlus />}
-            />
-          )}
-
-          {company.parentCompanyId && (
-            <IconButton
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(company.id!)}
-              aria-label="Delete"
-              icon={<LuTrash2 />}
-              className="text-destructive hover:text-destructive"
-            />
-          )}
-        </div>
+        {hasActions && (
+          <div className="ml-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Actions"
+                  icon={<LuEllipsisVertical />}
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {canAddChild && (
+                  <DropdownMenuItem onClick={() => onAddChild(company.id!)}>
+                    <LuPlus className="mr-2 size-4" />
+                    Add company
+                  </DropdownMenuItem>
+                )}
+                {canDelete && (
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onClick={() => onDelete(company.id!)}
+                  >
+                    <LuTrash2 className="mr-2 size-4" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
 
       {children.map((child) => (
