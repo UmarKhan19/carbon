@@ -10,7 +10,7 @@ import { tasks } from "@trigger.dev/sdk";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
-import { upsertDocument } from "~/modules/documents";
+import { generateAndAttachSalesOrderPdf } from "~/modules/documents";
 import { runMRP } from "~/modules/production/production.service";
 import {
   getCustomerContact,
@@ -22,7 +22,6 @@ import {
 import { getCompany } from "~/modules/settings";
 import { getUser } from "~/modules/users/users.server";
 import { loader as pdfLoader } from "~/routes/file+/sales-order+/$id[.]pdf";
-import { stripSpecialCharacters } from "~/utils/string";
 
 export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
@@ -42,9 +41,6 @@ export async function action(args: ActionFunctionArgs) {
         message: "Could not find orderId"
       };
     }
-
-    let file: ArrayBuffer;
-    let fileName: string;
 
     const serviceRole = getCarbonServiceRole();
 
@@ -70,63 +66,22 @@ export async function action(args: ActionFunctionArgs) {
       validate: Intl.DateTimeFormat.supportedLocalesOf
     });
 
+    let file: ArrayBuffer;
+    let fileName: string;
+
     try {
-      // Pass orderId as id for PDF generation
-      const pdfArgs = {
-        ...args,
-        params: { ...args.params, id: orderId }
-      };
-      const pdf = await pdfLoader(pdfArgs);
-
-      if (pdf.headers.get("content-type") !== "application/pdf") {
-        return {
-          success: false,
-          message: "Failed to generate PDF"
-        };
-      }
-
-      file = await pdf.arrayBuffer();
-      fileName = stripSpecialCharacters(
-        `${salesOrder.data.salesOrderId} - ${new Date()
-          .toISOString()
-          .slice(0, -5)}.pdf`
-      );
-
-      const documentFilePath = `${companyId}/opportunity/${salesOrder.data.opportunityId}/${fileName}`;
-
-      const documentFileUpload = await serviceRole.storage
-        .from("private")
-        .upload(documentFilePath, file, {
-          cacheControl: `${12 * 60 * 60}`,
-          contentType: "application/pdf",
-          upsert: true
-        });
-
-      if (documentFileUpload.error) {
-        return {
-          success: false,
-          message: "Failed to upload file"
-        };
-      }
-
-      const createDocument = await upsertDocument(serviceRole, {
-        path: documentFilePath,
-        name: fileName,
-        size: Math.round(file.byteLength / 1024),
-        sourceDocument: "Sales Order",
-        sourceDocumentId: orderId,
-        readGroups: [userId],
-        writeGroups: [userId],
-        createdBy: userId,
-        companyId
+      const result = await generateAndAttachSalesOrderPdf({
+        routeArgs: args,
+        salesOrderId: orderId,
+        salesOrderIdentifier: salesOrder.data.salesOrderId!,
+        opportunityId: salesOrder.data.opportunityId!,
+        companyId,
+        userId,
+        serviceRole,
+        pdfLoader
       });
-
-      if (createDocument.error) {
-        return {
-          success: false,
-          message: "Failed to create document"
-        };
-      }
+      file = result.file;
+      fileName = result.fileName;
       // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
     } catch (err) {
       return {

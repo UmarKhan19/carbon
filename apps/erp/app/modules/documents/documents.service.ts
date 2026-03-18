@@ -1,8 +1,10 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { LoaderFunctionArgs } from "react-router";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
+import { stripSpecialCharacters } from "~/utils/string";
 import { sanitize } from "~/utils/supabase";
 import { getDocumentType } from "../shared/shared.service";
 import type {
@@ -239,4 +241,89 @@ export async function updateDocumentLabels(
         }))
       );
     });
+}
+
+/**
+ * Generates a sales order PDF via the pdfLoader, uploads it to Supabase
+ * storage under the opportunity path, and creates a document DB record.
+ *
+ * Returns the PDF ArrayBuffer (useful for email attachments) and the
+ * generated file name.
+ */
+export async function generateAndAttachSalesOrderPdf(args: {
+  /** The original action/loader args from the route */
+  routeArgs: LoaderFunctionArgs;
+  /** Sales order DB id */
+  salesOrderId: string;
+  /** Human-readable sales order identifier (e.g. "SO-0001") */
+  salesOrderIdentifier: string;
+  /** Opportunity the SO belongs to */
+  opportunityId: string;
+  companyId: string;
+  userId: string;
+  /** A service-role Supabase client for storage + DB writes */
+  serviceRole: SupabaseClient<Database>;
+  /** The pdf loader imported from the sales-order pdf route */
+  pdfLoader: (args: LoaderFunctionArgs) => Promise<Response>;
+}): Promise<{ file: ArrayBuffer; fileName: string }> {
+  const {
+    routeArgs,
+    salesOrderId,
+    salesOrderIdentifier,
+    opportunityId,
+    companyId,
+    userId,
+    serviceRole,
+    pdfLoader
+  } = args;
+
+  // 1. Generate the PDF
+  const pdfArgs = {
+    ...routeArgs,
+    params: { ...routeArgs.params, id: salesOrderId }
+  };
+  const pdf = await pdfLoader(pdfArgs);
+
+  if (pdf.headers.get("content-type") !== "application/pdf") {
+    throw new Error("Failed to generate PDF");
+  }
+
+  const file = await pdf.arrayBuffer();
+  const fileName = stripSpecialCharacters(
+    `${salesOrderIdentifier} - ${new Date().toISOString().slice(0, -5)}.pdf`
+  );
+
+  // 2. Upload to Supabase storage
+  const documentFilePath = `${companyId}/opportunity/${opportunityId}/${fileName}`;
+
+  const uploadResult = await serviceRole.storage
+    .from("private")
+    .upload(documentFilePath, file, {
+      cacheControl: `${12 * 60 * 60}`,
+      contentType: "application/pdf",
+      upsert: true
+    });
+
+  if (uploadResult.error) {
+    throw new Error("Failed to upload PDF to storage");
+  }
+
+  // 3. Create the document DB record
+  const documentResult = await upsertDocument(serviceRole, {
+    path: documentFilePath,
+    name: fileName,
+    size: Math.round(file.byteLength / 1024),
+    sourceDocument: "Sales Order",
+    sourceDocumentId: salesOrderId,
+    readGroups: [userId],
+    writeGroups: [userId],
+    createdBy: userId,
+    companyId
+  });
+
+  if (documentResult.error) {
+    throw new Error("Failed to create document record");
+  }
+
+  return { file, fileName };
 }
