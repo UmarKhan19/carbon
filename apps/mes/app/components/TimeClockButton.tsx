@@ -62,13 +62,13 @@ export function TimeClockButton({ openClockEntry }: TimeClockButtonProps) {
             "font-medium",
             isClockedIn
               ? "bg-red-500 text-white hover:bg-red-600 hover:text-white"
-              : "bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white"
+              : "border-[3px] border-emerald-500 text-emerald-600 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
           )}
         >
           {isClockedIn ? (
             <LuSquare className="size-4" />
           ) : (
-            <LuPlay className="size-4" />
+            <LuPlay className="size-4 -ml-[3px]" />
           )}
           <span>{isClockedIn ? "Clock Out" : "Clock In"}</span>
           {isClockedIn && openClockEntry && (

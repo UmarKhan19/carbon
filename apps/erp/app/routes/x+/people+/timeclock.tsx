@@ -89,7 +89,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!companySettings.data?.timeClockEnabled) {
     throw redirect(
       path.to.people,
-      await flash(request, error(null, "Time clock is not enabled"))
+      await flash(
+        request,
+        error(
+          null,
+          "Time clock is not enabled. To enable this feature, go to Settings → People to Enable Time Clock."
+        )
+      )
     );
   }
 
