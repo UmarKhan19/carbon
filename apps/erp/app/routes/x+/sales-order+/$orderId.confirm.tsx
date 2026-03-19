@@ -5,16 +5,16 @@ import { getSalesOrderStatus } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
-import {
-  generateAndAttachSalesOrderPdf,
-  sendSalesOrderEmail
-} from "~/modules/documents/documents.service.server";
 import { runMRP } from "~/modules/production/production.service";
 import {
   getSalesOrder,
   getSalesOrderLines,
   salesConfirmValidator
 } from "~/modules/sales";
+import {
+  generateAndAttachSalesOrderPdf,
+  sendSalesOrderEmail
+} from "~/modules/shared/shared.server";
 import { loader as pdfLoader } from "~/routes/file+/sales-order+/$id[.]pdf";
 
 export async function action(args: ActionFunctionArgs) {

@@ -3,7 +3,6 @@ import type { notifyTask } from "@carbon/jobs/trigger/notify";
 import { NotificationEvent } from "@carbon/notifications";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
-import { generateAndAttachSalesOrderPdf } from "~/modules/documents/documents.service.server";
 import {
   convertQuoteToOrder,
   getQuoteByExternalId,
@@ -11,6 +10,7 @@ import {
   selectedLinesValidator
 } from "~/modules/sales";
 import { getCompanySettings } from "~/modules/settings";
+import { generateAndAttachSalesOrderPdf } from "~/modules/shared/shared.server";
 import { loader as pdfLoader } from "~/routes/file+/sales-order+/$id[.]pdf";
 
 export async function action(args: ActionFunctionArgs) {
