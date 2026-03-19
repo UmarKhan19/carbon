@@ -1,3 +1,4 @@
+import { Avalara } from "./avalara/config";
 import { ExchangeRates } from "./exchange-rates/config";
 import { Jira } from "./jira/config";
 import { Linear } from "./linear/config";
@@ -8,6 +9,7 @@ import { QuickBooks } from "./quickbooks/config";
 import { Resend } from "./resend/config";
 import { Sage } from "./sage/config";
 import { Slack } from "./slack/config";
+import { TaxJar } from "./taxjar/config";
 
 import { Xero } from "./xero/config";
 import { Zapier } from "./zapier/config";
@@ -28,6 +30,7 @@ export type {
 } from "./types";
 
 export const integrations = [
+  Avalara,
   // Radan,
   ExchangeRates,
   Jira,
@@ -38,10 +41,12 @@ export const integrations = [
   Resend,
   Sage,
   Slack,
+  TaxJar,
   Xero,
   Zapier
 ];
 
+export { Avalara } from "./avalara/config";
 export { Jira } from "./jira/config";
 export { Logo as OnshapeLogo, Onshape } from "./onshape/config";
 // TODO: export as @carbon/ee/paperless
@@ -49,6 +54,7 @@ export { PaperlessPartsClient } from "./paperless-parts/lib/client";
 export { QuickBooks } from "./quickbooks/config";
 export { Slack } from "./slack/config";
 export * from "./slack/lib/messages";
+export { TaxJar } from "./taxjar/config";
 export { Xero } from "./xero/config";
 
 /**
