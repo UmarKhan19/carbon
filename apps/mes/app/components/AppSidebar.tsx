@@ -42,7 +42,7 @@ import {
   LuCalendarDays,
   LuChevronDown,
   LuClipboardList,
-  LuClock,
+  LuHistory,
   LuLogOut,
   LuMapPin,
   LuMoon,
@@ -59,6 +59,7 @@ import { ERP_URL, path } from "~/utils/path";
 import { AdjustInventory } from "./AdjustInventory";
 import { EndShift } from "./EndShift";
 import Suggestion from "./Suggestion";
+import { TimeClockButton } from "./TimeClockButton";
 
 export function AppSidebar({
   activeEvents,
@@ -67,6 +68,8 @@ export function AppSidebar({
   companies,
   location,
   locations,
+  timeClockEnabled,
+  openClockEntry,
   ...props
 }: ComponentProps<typeof Sidebar> & {
   activeEvents: number;
@@ -75,6 +78,8 @@ export function AppSidebar({
   companies: Company[];
   location: string;
   locations: Location[];
+  timeClockEnabled?: boolean;
+  openClockEntry?: { id: string; clockIn: string } | null;
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -89,6 +94,11 @@ export function AppSidebar({
         <ToolsNav />
       </SidebarContent>
       <SidebarFooter>
+        {timeClockEnabled && (
+          <SidebarMenu>
+            <TimeClockButton openClockEntry={openClockEntry ?? null} />
+          </SidebarMenu>
+        )}
         <UserNav
           company={company}
           companies={companies}
@@ -162,7 +172,7 @@ export function OperationsNav({
     },
     {
       title: "Recent",
-      icon: LuClock,
+      icon: LuHistory,
       to: path.to.recent
     },
     {

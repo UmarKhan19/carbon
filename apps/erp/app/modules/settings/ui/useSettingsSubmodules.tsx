@@ -13,6 +13,7 @@ import {
   LuSheet,
   LuShoppingCart,
   LuSquareStack,
+  LuUsers,
   LuWebhook,
   LuWorkflow,
   LuWrench
@@ -71,6 +72,12 @@ const settingsRoutes: AuthenticatedRouteGroup<{
         to: path.to.itemsSettings,
         role: "employee",
         icon: <LuSquareStack />
+      },
+      {
+        name: "People",
+        to: path.to.peopleSettings,
+        role: "employee",
+        icon: <LuUsers />
       },
       {
         name: "Purchasing",

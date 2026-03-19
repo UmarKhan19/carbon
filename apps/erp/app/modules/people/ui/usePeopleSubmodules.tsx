@@ -2,6 +2,7 @@ import {
   LuBookUser,
   LuCalendarClock,
   LuCalendarHeart,
+  LuClock,
   LuListChecks,
   LuNetwork,
   LuUsers
@@ -25,6 +26,11 @@ const peopleRoutes: RouteGroup[] = [
         to: path.to.contact,
         icon: <LuBookUser />,
         table: "contact"
+      },
+      {
+        name: "Time Clock",
+        to: path.to.peopleTimeClock,
+        icon: <LuClock />
       }
     ]
   },

@@ -695,6 +695,17 @@ export async function updateJobTravelerWorkInstructions(
     .eq("id", companyId);
 }
 
+export async function updateTimeClockSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  timeClockEnabled: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ timeClockEnabled }))
+    .eq("id", companyId);
+}
+
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,

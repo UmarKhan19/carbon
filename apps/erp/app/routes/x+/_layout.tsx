@@ -31,6 +31,7 @@ import { RealtimeDataProvider } from "~/components";
 import { PrimaryNavigation, Topbar } from "~/components/Layout";
 import TrainingPanel from "~/components/TrainingPanel";
 import { useTrainingPanel } from "~/hooks/useTrainingPanel";
+import { TimeClockWarning } from "~/components/TimeClockWarning";
 import {
   getCompanies,
   getCompanyIntegrations,
@@ -38,6 +39,7 @@ import {
 } from "~/modules/settings";
 import { getCustomFieldsSchemas } from "~/modules/shared/shared.server";
 import { getSavedViews } from "~/modules/shared/shared.service";
+import { getOpenClockEntry } from "~/modules/timeclock";
 import {
   getUser,
   getUserClaims,
@@ -89,7 +91,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user,
     claims,
     groups,
-    defaults
+    defaults,
+    openClockEntry
   ] = await Promise.all([
     getCompanies(client, userId),
     getStripeCustomerByCompanyId(companyId, userId),
@@ -100,7 +103,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUser(client, userId),
     getUserClaims(userId, companyId),
     getUserGroups(client, userId),
-    getUserDefaults(client, userId, companyId)
+    getUserDefaults(client, userId, companyId),
+    getOpenClockEntry(client, userId, companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
@@ -145,12 +149,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     plan: stripeCustomer?.planId,
     role: claims?.role,
     user: user.data,
-    savedViews: savedViews.data ?? []
+    savedViews: savedViews.data ?? [],
+    openClockEntry: openClockEntry.data
+      ? { id: openClockEntry.data.id, clockIn: openClockEntry.data.clockIn }
+      : null
   });
 }
 
 export default function AuthenticatedRoute() {
-  const { session, user } = useLoaderData<typeof loader>();
+  const { session, user, companySettings, openClockEntry } =
+    useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { isOpen, training, dismiss } = useTrainingPanel();
 
@@ -201,6 +209,9 @@ export default function AuthenticatedRoute() {
                 isOpen={isOpen}
                 onDismiss={dismiss}
               />
+              {companySettings?.timeClockEnabled && (
+                <TimeClockWarning openClockEntry={openClockEntry} />
+              )}
             </TooltipProvider>
           </RealtimeDataProvider>
         </CarbonProvider>

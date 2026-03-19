@@ -1,7 +1,16 @@
-import { LuHardHat, LuList, LuStickyNote, LuUser } from "react-icons/lu";
+import {
+  LuClock,
+  LuHardHat,
+  LuList,
+  LuStickyNote,
+  LuUser
+} from "react-icons/lu";
 import type { PublicAttributes } from "~/modules/account";
 
-export function usePersonSidebar(attributeCategories: PublicAttributes[]) {
+export function usePersonSidebar(
+  attributeCategories: PublicAttributes[],
+  timeClockEnabled?: boolean
+) {
   const baseLinks = [
     {
       name: "Profile",
@@ -13,6 +22,15 @@ export function usePersonSidebar(attributeCategories: PublicAttributes[]) {
       to: "job",
       icon: <LuHardHat />
     },
+    ...(timeClockEnabled
+      ? [
+          {
+            name: "Time Clock",
+            to: "timeclock",
+            icon: <LuClock />
+          }
+        ]
+      : []),
     {
       name: "Notes",
       to: "notes",

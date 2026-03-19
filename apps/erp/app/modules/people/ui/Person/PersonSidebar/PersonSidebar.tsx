@@ -4,10 +4,14 @@ import { usePersonSidebar } from "./usePersonSidebar";
 
 type PersonSidebarProps = {
   attributeCategories: PublicAttributes[];
+  timeClockEnabled?: boolean;
 };
 
-const PersonSidebar = ({ attributeCategories }: PersonSidebarProps) => {
-  const links = usePersonSidebar(attributeCategories);
+const PersonSidebar = ({
+  attributeCategories,
+  timeClockEnabled
+}: PersonSidebarProps) => {
+  const links = usePersonSidebar(attributeCategories, timeClockEnabled);
 
   return <DetailSidebar links={links} />;
 };

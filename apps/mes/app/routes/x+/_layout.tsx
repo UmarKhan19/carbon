@@ -30,6 +30,7 @@ import {
 } from "react-router";
 import { AppSidebar } from "~/components";
 import RealtimeDataProvider from "~/components/RealtimeDataProvider";
+import { TimeClockWarning } from "~/components/TimeClockWarning";
 import { userContext } from "~/context";
 import { userMiddleware } from "~/middleware/user";
 import { getActiveMaintenanceEventsCount } from "~/services/maintenance.service";
@@ -37,6 +38,7 @@ import {
   getActiveJobCount,
   getLocationsByCompany
 } from "~/services/operations.service";
+import { getOpenClockEntry } from "~/services/timeclock.service";
 import { ERP_URL, MES_URL, path } from "~/utils/path";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -80,14 +82,21 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   // Get the location from middleware context
   const locationId = context.get(userContext)?.locationId;
 
-  let [companyPlan, locations, activeEvents] = await Promise.all([
-    getStripeCustomerByCompanyId(companyId, userId),
-    getLocationsByCompany(client, companyId),
-    getActiveJobCount(client, {
-      employeeId: userId,
-      companyId
-    })
-  ]);
+  let [companyPlan, locations, activeEvents, companySettings, openClockEntry] =
+    await Promise.all([
+      getStripeCustomerByCompanyId(companyId, userId),
+      getLocationsByCompany(client, companyId),
+      getActiveJobCount(client, {
+        employeeId: userId,
+        companyId
+      }),
+      client
+        .from("companySettings")
+        .select("timeClockEnabled")
+        .eq("id", companyId)
+        .single(),
+      getOpenClockEntry(client, userId, companyId)
+    ]);
 
   // Get active maintenance count after we have the location
   const activeMaintenanceCount = await getActiveMaintenanceEventsCount(
@@ -116,7 +125,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     location: locationId,
     locations: locations.data ?? [],
     plan: companyPlan?.planId,
-    user: user.data
+    user: user.data,
+    timeClockEnabled: companySettings.data?.timeClockEnabled ?? false,
+    openClockEntry: openClockEntry.data
+      ? { id: openClockEntry.data.id, clockIn: openClockEntry.data.clockIn }
+      : null
   });
 }
 
@@ -129,7 +142,9 @@ export default function AuthenticatedRoute() {
     companies,
     location,
     locations,
-    user
+    user,
+    timeClockEnabled,
+    openClockEntry
   } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
@@ -175,8 +190,13 @@ export default function AuthenticatedRoute() {
                   companies={companies}
                   location={location}
                   locations={locations}
+                  timeClockEnabled={timeClockEnabled}
+                  openClockEntry={openClockEntry}
                 />
                 <Outlet />
+                {timeClockEnabled && (
+                  <TimeClockWarning openClockEntry={openClockEntry} />
+                )}
               </TooltipProvider>
             </SidebarProvider>
           </RealtimeDataProvider>
