@@ -13,7 +13,7 @@ import { redirect } from "react-router";
 import {
   generateAndAttachSalesOrderPdf,
   sendSalesOrderEmail
-} from "~/modules/documents";
+} from "~/modules/documents/documents.service.server";
 import {
   convertQuoteToOrder,
   getSalesOrder,

@@ -3,7 +3,7 @@ import type { notifyTask } from "@carbon/jobs/trigger/notify";
 import { NotificationEvent } from "@carbon/notifications";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
-import { generateAndAttachSalesOrderPdf } from "~/modules/documents";
+import { generateAndAttachSalesOrderPdf } from "~/modules/documents/documents.service.server";
 import {
   convertQuoteToOrder,
   getQuoteByExternalId,
