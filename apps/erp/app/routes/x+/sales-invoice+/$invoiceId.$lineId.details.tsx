@@ -182,7 +182,6 @@ export default function EditSalesInvoiceLineRoute() {
         title="Notes"
         subTitle={getItemReadableId(items, salesInvoiceLine?.itemId) ?? ""}
         internalNotes={salesInvoiceLine?.internalNotes as JSONContent}
-        isReadOnly={isReadOnly}
       />
 
       <Suspense

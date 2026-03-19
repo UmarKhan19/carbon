@@ -158,9 +158,9 @@ const JobProperties = () => {
       ? optimisticAssignment
       : routeData?.job?.assignee;
 
-  const isDisabled =
-    !permissions.can("update", "production") ||
-    isJobLocked(routeData?.job?.status);
+  const canUpdate = permissions.can("update", "production");
+  const isLocked = isJobLocked(routeData?.job?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -321,7 +321,7 @@ const JobProperties = () => {
         table="job"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={isDisabled}
+        isReadOnly={!canUpdate}
       />
 
       <ValidatedForm
@@ -555,7 +555,6 @@ const JobProperties = () => {
         table="job"
         tags={routeData?.job.tags ?? []}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

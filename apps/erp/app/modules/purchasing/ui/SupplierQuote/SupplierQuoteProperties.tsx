@@ -107,9 +107,9 @@ const SupplierQuoteProperties = () => {
       : routeData?.quote?.assignee;
   const permissions = usePermissions();
 
-  const isDisabled =
-    !permissions.can("update", "purchasing") ||
-    isSupplierQuoteLocked(routeData?.quote?.status);
+  const canUpdate = permissions.can("update", "purchasing");
+  const isLocked = isSupplierQuoteLocked(routeData?.quote?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -170,7 +170,7 @@ const SupplierQuoteProperties = () => {
         table="supplierQuote"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={isDisabled}
+        isReadOnly={!canUpdate}
       />
       <ValidatedForm
         defaultValues={{ supplierId: routeData?.quote?.supplierId }}
@@ -371,7 +371,6 @@ const SupplierQuoteProperties = () => {
         table="quote"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

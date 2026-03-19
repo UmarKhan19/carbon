@@ -247,7 +247,6 @@ export default function JobDetailsRoute() {
           title={jobData?.job.jobId ?? ""}
           subTitle={jobData?.job.itemReadableIdWithRevision ?? ""}
           notes={notes}
-          isReadOnly={isReadOnly}
         />
 
         {methodId && (

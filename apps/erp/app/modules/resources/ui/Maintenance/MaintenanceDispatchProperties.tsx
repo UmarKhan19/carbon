@@ -205,7 +205,7 @@ const MaintenanceDispatchProperties = () => {
           table="maintenanceDispatch"
           size="sm"
           value={assignee ?? ""}
-          isReadOnly={isLocked || !permissions.can("update", "resources")}
+          isReadOnly={!permissions.can("update", "resources")}
         />
       </VStack>
 

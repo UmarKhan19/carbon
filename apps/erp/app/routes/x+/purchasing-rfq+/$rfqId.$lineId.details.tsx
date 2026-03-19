@@ -154,7 +154,6 @@ export default function PurchasingRFQLine() {
         subTitle={line.itemReadableId ?? ""}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
-        isReadOnly={isReadOnly}
       />
       <Suspense
         fallback={

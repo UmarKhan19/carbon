@@ -177,7 +177,6 @@ export default function SalesInvoiceBasicRoute() {
         title="Notes"
         table="salesInvoice"
         internalNotes={internalNotes}
-        isReadOnly={isReadOnly}
       />
       <Suspense
         key={`documents-${invoiceId}`}

@@ -13,9 +13,8 @@ import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { nanoid } from "nanoid";
 import { useState } from "react";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
-import { isStockTransferLocked, type StockTransfer } from "~/modules/inventory";
-import { getPrivateUrl, path } from "~/utils/path";
+import { usePermissions, useUser } from "~/hooks";
+import { getPrivateUrl } from "~/utils/path";
 
 const ShipmentNotes = ({
   id,
@@ -30,10 +29,6 @@ const ShipmentNotes = ({
   } = useUser();
   const { carbon } = useCarbon();
   const permissions = usePermissions();
-  const routeData = useRouteData<{
-    stockTransfer: StockTransfer;
-  }>(path.to.stockTransfer(id!));
-  const isLocked = isStockTransferLocked(routeData?.stockTransfer?.status);
   const [notes, setNotes] = useState(initialNotes ?? {});
 
   const onUploadImage = async (file: File) => {
@@ -77,7 +72,7 @@ const ShipmentNotes = ({
           <CardTitle>Stock Transfer Notes</CardTitle>
         </CardHeader>
         <CardContent>
-          {permissions.can("update", "inventory") && !isLocked ? (
+          {permissions.can("update", "inventory") ? (
             <Editor
               initialValue={(notes ?? {}) as JSONContent}
               onUpload={onUploadImage}

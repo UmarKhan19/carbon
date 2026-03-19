@@ -208,7 +208,6 @@ export default function EditSalesOrderLineRoute() {
         table="salesOrderLine"
         title="Notes"
         subTitle={line.itemReadableId ?? ""}
-        isReadOnly={isReadOnly}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
       />

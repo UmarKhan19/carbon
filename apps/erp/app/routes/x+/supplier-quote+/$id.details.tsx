@@ -153,7 +153,6 @@ export default function SupplierQuoteDetailsRoute() {
         table="supplierQuote"
         internalNotes={internalNotes}
         externalNotes={externalNotes}
-        isReadOnly={isReadOnly}
       />
       <Suspense
         key={`documents-${id}`}

@@ -113,9 +113,9 @@ const QuoteProperties = () => {
       : routeData?.quote?.assignee;
   const permissions = usePermissions();
 
-  const isDisabled =
-    !permissions.can("update", "sales") ||
-    isQuoteLocked(routeData?.quote?.status);
+  const canUpdate = permissions.can("update", "sales");
+  const isLocked = isQuoteLocked(routeData?.quote?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -175,7 +175,7 @@ const QuoteProperties = () => {
         table="quote"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={isDisabled}
+        isReadOnly={!canUpdate}
       />
       <ValidatedForm
         defaultValues={{ customerId: routeData?.quote?.customerId }}
@@ -473,7 +473,6 @@ const QuoteProperties = () => {
         table="quote"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

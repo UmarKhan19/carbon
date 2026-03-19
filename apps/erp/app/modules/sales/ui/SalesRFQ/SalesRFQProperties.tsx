@@ -93,9 +93,9 @@ const SalesRFQProperties = () => {
       : routeData?.rfqSummary?.assignee;
   const permissions = usePermissions();
 
-  const isDisabled =
-    !permissions.can("update", "sales") ||
-    isSalesRfqLocked(routeData?.rfqSummary?.status);
+  const canUpdate = permissions.can("update", "sales");
+  const isLocked = isSalesRfqLocked(routeData?.rfqSummary?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -156,7 +156,7 @@ const SalesRFQProperties = () => {
         table="salesRfq"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={isDisabled}
+        isReadOnly={!canUpdate}
       />
 
       <ValidatedForm
@@ -360,7 +360,6 @@ const SalesRFQProperties = () => {
         table="salesRfq"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

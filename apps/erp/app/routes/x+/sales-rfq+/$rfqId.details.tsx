@@ -126,7 +126,6 @@ export default function SalesRFQDetailsRoute() {
         id={rfqData.rfqSummary.id}
         table="salesRfq"
         title="Notes"
-        isReadOnly={isReadOnly}
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />

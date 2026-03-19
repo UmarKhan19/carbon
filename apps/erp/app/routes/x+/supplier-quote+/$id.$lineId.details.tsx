@@ -170,7 +170,6 @@ export default function SupplierQuoteLine() {
         subTitle={line.itemReadableId ?? ""}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
-        isReadOnly={isReadOnly}
       />
       <SupplierQuoteLinePricing
         line={line}

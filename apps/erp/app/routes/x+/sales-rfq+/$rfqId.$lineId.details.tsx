@@ -152,7 +152,6 @@ export default function SalesRFQLine() {
         table="salesRfqLine"
         title="Notes"
         subTitle={line.customerPartId ?? ""}
-        isReadOnly={isReadOnly}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
       />

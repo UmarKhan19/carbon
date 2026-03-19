@@ -293,7 +293,6 @@ export default function QuoteLine() {
         subTitle={line.itemReadableId ?? ""}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
-        isReadOnly={isReadOnly}
       />
 
       {methodData && (
