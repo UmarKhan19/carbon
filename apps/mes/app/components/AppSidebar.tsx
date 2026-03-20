@@ -70,6 +70,7 @@ export function AppSidebar({
   locations,
   timeClockEnabled,
   openClockEntry,
+  breakEntry,
   ...props
 }: ComponentProps<typeof Sidebar> & {
   activeEvents: number;
@@ -80,6 +81,7 @@ export function AppSidebar({
   locations: Location[];
   timeClockEnabled?: boolean;
   openClockEntry?: { id: string; clockIn: string } | null;
+  breakEntry?: { clockOut: string } | null;
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -96,7 +98,10 @@ export function AppSidebar({
       <SidebarFooter>
         {timeClockEnabled && (
           <SidebarMenu>
-            <TimeClockButton openClockEntry={openClockEntry ?? null} />
+            <TimeClockButton
+              openClockEntry={openClockEntry ?? null}
+              breakEntry={breakEntry}
+            />
           </SidebarMenu>
         )}
         <UserNav

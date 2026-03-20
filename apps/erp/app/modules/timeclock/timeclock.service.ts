@@ -49,6 +49,7 @@ export async function clockOut(
     updatedBy: string;
     clockOut?: string;
     note?: string;
+    type?: "shift_end" | "break";
   }
 ) {
   const open = await getOpenClockEntry(client, args.employeeId, args.companyId);
@@ -62,6 +63,7 @@ export async function clockOut(
       sanitize({
         clockOut: args.clockOut ?? new Date().toISOString(),
         note: args.note,
+        type: args.type ?? "shift_end",
         updatedBy: args.updatedBy,
         updatedAt: new Date().toISOString()
       })
@@ -147,4 +149,124 @@ export async function deleteTimeClockEntry(
   entryId: string
 ) {
   return client.from("timeClockEntry").delete().eq("id", entryId);
+}
+
+export async function isOnBreak(
+  client: SupabaseClient<Database>,
+  employeeId: string,
+  companyId: string
+): Promise<{ onBreak: boolean; breakClockOut?: string }> {
+  const open = await getOpenClockEntry(client, employeeId, companyId);
+  if (open.data) return { onBreak: false };
+
+  const { data: lastEntry } = await client
+    .from("timeClockEntry")
+    .select("type, clockOut")
+    .eq("employeeId", employeeId)
+    .eq("companyId", companyId)
+    .not("clockOut", "is", null)
+    .order("clockOut", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (lastEntry?.type === "break" && lastEntry.clockOut) {
+    return { onBreak: true, breakClockOut: lastEntry.clockOut };
+  }
+  return { onBreak: false };
+}
+
+export async function getOnBreakEmployees(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  // Get all employees whose most recent entry is a break (no open entry)
+  // We fetch recent break entries and cross-reference with who's NOT clocked in
+  const { data: recentBreaks } = await client
+    .from("timeClockDashboard")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("type", "break")
+    .not("clockOut", "is", null)
+    .order("clockOut", { ascending: false });
+
+  if (!recentBreaks) return [];
+
+  // Get currently clocked in employee IDs
+  const { data: clockedIn } = await client
+    .from("timeClockEntry")
+    .select("employeeId")
+    .eq("companyId", companyId)
+    .is("clockOut", null);
+
+  const clockedInIds = new Set((clockedIn ?? []).map((e) => e.employeeId));
+
+  // Filter to employees who are on break (not clocked back in)
+  const seen = new Set<string>();
+  return recentBreaks.filter((entry) => {
+    if (!entry.employeeId || clockedInIds.has(entry.employeeId)) return false;
+    if (seen.has(entry.employeeId)) return false;
+    seen.add(entry.employeeId);
+    return true;
+  });
+}
+
+export async function getWeeklyHoursForEmployees(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  employeeIds: string[]
+): Promise<Record<string, number>> {
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+  monday.setHours(0, 0, 0, 0);
+
+  const { data: entries } = await client
+    .from("timeClockEntry")
+    .select("employeeId, clockIn, clockOut")
+    .eq("companyId", companyId)
+    .in("employeeId", employeeIds)
+    .gte("clockIn", monday.toISOString());
+
+  const weeklyMs: Record<string, number> = {};
+  for (const entry of entries ?? []) {
+    const end = entry.clockOut
+      ? new Date(entry.clockOut).getTime()
+      : Date.now();
+    const ms = end - new Date(entry.clockIn).getTime();
+    weeklyMs[entry.employeeId] = (weeklyMs[entry.employeeId] ?? 0) + ms;
+  }
+
+  return weeklyMs;
+}
+
+export async function getScheduledEmployeesToday(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  const { data } = await client
+    .from("employeeJob")
+    .select(
+      "id, shiftId, shift:shift(id, name, startTime, endTime, sunday, monday, tuesday, wednesday, thursday, friday, saturday)"
+    )
+    .eq("companyId", companyId)
+    .not("shiftId", "is", null);
+
+  if (!data) return [];
+
+  const dayNames = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday"
+  ] as const;
+  const today = dayNames[new Date().getDay()];
+
+  return data.filter((ej) => {
+    const shift = ej.shift as Record<string, unknown> | null;
+    return shift && shift[today] === true;
+  });
 }

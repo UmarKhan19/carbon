@@ -9,7 +9,8 @@ export const clockInValidator = z.object({
 export const clockOutValidator = z.object({
   intent: z.literal("clockOut"),
   employeeId: zfd.text(z.string().optional()),
-  note: zfd.text(z.string().optional())
+  note: zfd.text(z.string().optional()),
+  type: zfd.text(z.enum(["shift_end", "break"]).optional())
 });
 
 export const updateTimeClockEntryValidator = z.object({

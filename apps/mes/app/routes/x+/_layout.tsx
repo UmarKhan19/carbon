@@ -38,7 +38,7 @@ import {
   getActiveJobCount,
   getLocationsByCompany
 } from "~/services/operations.service";
-import { getOpenClockEntry } from "~/services/timeclock.service";
+import { getOpenClockEntry, isOnBreak } from "~/services/timeclock.service";
 import { ERP_URL, MES_URL, path } from "~/utils/path";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -82,21 +82,28 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   // Get the location from middleware context
   const locationId = context.get(userContext)?.locationId;
 
-  let [companyPlan, locations, activeEvents, companySettings, openClockEntry] =
-    await Promise.all([
-      getStripeCustomerByCompanyId(companyId, userId),
-      getLocationsByCompany(client, companyId),
-      getActiveJobCount(client, {
-        employeeId: userId,
-        companyId
-      }),
-      client
-        .from("companySettings")
-        .select("timeClockEnabled")
-        .eq("id", companyId)
-        .single(),
-      getOpenClockEntry(client, userId, companyId)
-    ]);
+  let [
+    companyPlan,
+    locations,
+    activeEvents,
+    companySettings,
+    openClockEntry,
+    breakStatus
+  ] = await Promise.all([
+    getStripeCustomerByCompanyId(companyId, userId),
+    getLocationsByCompany(client, companyId),
+    getActiveJobCount(client, {
+      employeeId: userId,
+      companyId
+    }),
+    client
+      .from("companySettings")
+      .select("timeClockEnabled")
+      .eq("id", companyId)
+      .single(),
+    getOpenClockEntry(client, userId, companyId),
+    isOnBreak(client, userId, companyId)
+  ]);
 
   // Get active maintenance count after we have the location
   const activeMaintenanceCount = await getActiveMaintenanceEventsCount(
@@ -129,7 +136,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     timeClockEnabled: companySettings.data?.timeClockEnabled ?? false,
     openClockEntry: openClockEntry.data
       ? { id: openClockEntry.data.id, clockIn: openClockEntry.data.clockIn }
-      : null
+      : null,
+    breakEntry:
+      breakStatus.onBreak && breakStatus.breakClockOut
+        ? { clockOut: breakStatus.breakClockOut }
+        : null
   });
 }
 
@@ -144,7 +155,8 @@ export default function AuthenticatedRoute() {
     locations,
     user,
     timeClockEnabled,
-    openClockEntry
+    openClockEntry,
+    breakEntry
   } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
@@ -192,10 +204,14 @@ export default function AuthenticatedRoute() {
                   locations={locations}
                   timeClockEnabled={timeClockEnabled}
                   openClockEntry={openClockEntry}
+                  breakEntry={breakEntry}
                 />
                 <Outlet />
                 {timeClockEnabled && (
-                  <TimeClockWarning openClockEntry={openClockEntry} />
+                  <TimeClockWarning
+                    openClockEntry={openClockEntry}
+                    breakEntry={breakEntry}
+                  />
                 )}
               </TooltipProvider>
             </SidebarProvider>

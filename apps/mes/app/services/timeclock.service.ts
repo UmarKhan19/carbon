@@ -48,6 +48,7 @@ export async function clockOut(
     updatedBy: string;
     clockOut?: string;
     note?: string;
+    type?: "shift_end" | "break";
   }
 ) {
   const open = await getOpenClockEntry(client, args.employeeId, args.companyId);
@@ -61,11 +62,36 @@ export async function clockOut(
       sanitize({
         clockOut: args.clockOut ?? new Date().toISOString(),
         note: args.note,
+        type: args.type ?? "shift_end",
         updatedBy: args.updatedBy,
         updatedAt: new Date().toISOString()
       })
     )
     .eq("id", open.data.id);
+}
+
+export async function isOnBreak(
+  client: SupabaseClient<Database>,
+  employeeId: string,
+  companyId: string
+): Promise<{ onBreak: boolean; breakClockOut?: string }> {
+  const open = await getOpenClockEntry(client, employeeId, companyId);
+  if (open.data) return { onBreak: false };
+
+  const { data: lastEntry } = await client
+    .from("timeClockEntry")
+    .select("type, clockOut")
+    .eq("employeeId", employeeId)
+    .eq("companyId", companyId)
+    .not("clockOut", "is", null)
+    .order("clockOut", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (lastEntry?.type === "break" && lastEntry.clockOut) {
+    return { onBreak: true, breakClockOut: lastEntry.clockOut };
+  }
+  return { onBreak: false };
 }
 
 export async function updateTimeClockEntry(

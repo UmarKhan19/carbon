@@ -24,6 +24,7 @@ import {
   LuChevronLeft,
   LuChevronRight,
   LuPencil,
+  LuPlus,
   LuTrash
 } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -44,6 +45,7 @@ import {
   deleteTimeClockEntryValidator,
   getOpenClockEntry,
   getTimeClockEntries,
+  isOnBreak,
   updateTimeClockEntry,
   updateTimeClockEntryValidator
 } from "~/modules/timeclock";
@@ -129,27 +131,55 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const weekOffset = parseInt(url.searchParams.get("week") ?? "0", 10);
   const { from, to } = getWeekBounds(weekOffset);
 
-  const [entries, openEntry, companySettings] = await Promise.all([
-    getTimeClockEntries(client, {
-      employeeId: personId,
-      companyId,
-      from,
-      to
-    }),
-    getOpenClockEntry(client, personId, companyId),
-    getCompanySettings(client, companyId)
-  ]);
+  const [entries, openEntry, companySettings, employeeShift] =
+    await Promise.all([
+      getTimeClockEntries(client, {
+        employeeId: personId,
+        companyId,
+        from,
+        to
+      }),
+      getOpenClockEntry(client, personId, companyId),
+      getCompanySettings(client, companyId),
+      client
+        .from("employeeJob")
+        .select(
+          "shiftId, shift:shift(startTime, endTime, sunday, monday, tuesday, wednesday, thursday, friday, saturday)"
+        )
+        .eq("id", personId)
+        .eq("companyId", companyId)
+        .maybeSingle()
+    ]);
 
   if (!companySettings.data?.timeClockEnabled) {
     throw redirect(path.to.personDetails(personId));
   }
+
+  const shift = employeeShift?.data?.shift as {
+    startTime: string;
+    endTime: string;
+    sunday: boolean;
+    monday: boolean;
+    tuesday: boolean;
+    wednesday: boolean;
+    thursday: boolean;
+    friday: boolean;
+    saturday: boolean;
+  } | null;
+
+  const personBreakStatus = await isOnBreak(client, personId, companyId);
 
   return {
     entries: entries.data ?? [],
     openEntry: openEntry.data,
     weekOffset,
     from,
-    to
+    to,
+    shift,
+    breakEntry:
+      personBreakStatus.onBreak && personBreakStatus.breakClockOut
+        ? { clockOut: personBreakStatus.breakClockOut }
+        : null
   };
 }
 
@@ -194,7 +224,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       employeeId,
       companyId,
       updatedBy: userId,
-      note: validation.data.note
+      note: validation.data.note,
+      type: validation.data.type
     });
 
     if (result.error) {
@@ -245,11 +276,79 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return data({}, await flash(request, success("Entry deleted")));
   }
 
+  if (intent === "addEntry") {
+    const clockInVal = formData.get("clockIn") as string;
+    const clockOutVal = formData.get("clockOut") as string | null;
+    if (!clockInVal) return data({}, { status: 400 });
+
+    const result = await client.from("timeClockEntry").insert({
+      employeeId: personId,
+      companyId,
+      clockIn: clockInVal,
+      clockOut: clockOutVal || null,
+      createdBy: userId
+    });
+
+    if (result.error) {
+      return data(
+        {},
+        await flash(request, error(result.error, "Failed to add entry"))
+      );
+    }
+    return data({}, await flash(request, success("Entry added")));
+  }
+
   return data({}, { status: 400 });
 }
 
+function getShiftTimesForDate(
+  dateStr: string,
+  shift: {
+    startTime: string;
+    endTime: string;
+    sunday: boolean;
+    monday: boolean;
+    tuesday: boolean;
+    wednesday: boolean;
+    thursday: boolean;
+    friday: boolean;
+    saturday: boolean;
+  } | null
+): { clockIn: string; clockOut: string } | null {
+  if (!shift) return null;
+  // Parse YYYY-MM-DD as local date (not UTC)
+  const [year, month, day2] = dateStr.split("-").map(Number);
+  const date = new Date(year, month - 1, day2);
+  const dayNames = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday"
+  ] as const;
+  const day = dayNames[date.getDay()];
+  if (!shift[day]) return null;
+
+  const [startH, startM] = shift.startTime.split(":").map(Number);
+  const [endH, endM] = shift.endTime.split(":").map(Number);
+
+  const clockIn = new Date(date);
+  clockIn.setHours(startH, startM, 0, 0);
+
+  const clockOut = new Date(date);
+  clockOut.setHours(endH, endM, 0, 0);
+  if (clockOut <= clockIn) clockOut.setDate(clockOut.getDate() + 1);
+
+  return {
+    clockIn: toLocalDatetimeInput(clockIn.toISOString()),
+    clockOut: toLocalDatetimeInput(clockOut.toISOString())
+  };
+}
+
 export default function PersonTimeClockRoute() {
-  const { entries, openEntry, weekOffset, from, to } =
+  const { entries, openEntry, weekOffset, from, to, shift, breakEntry } =
     useLoaderData<typeof loader>();
   const { personId } = useParams();
   const fetcher = useFetcher<typeof action>();
@@ -258,6 +357,10 @@ export default function PersonTimeClockRoute() {
   const [editClockOut, setEditClockOut] = useState("");
   const [editNote, setEditNote] = useState("");
   const [, setTick] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addDate, setAddDate] = useState("");
+  const [addClockIn, setAddClockIn] = useState("");
+  const [addClockOut, setAddClockOut] = useState("");
 
   // Update live durations every minute
   useEffect(() => {
@@ -272,8 +375,27 @@ export default function PersonTimeClockRoute() {
   useEffect(() => {
     if (fetcher.data && fetcher.state === "idle") {
       setEditingId(null);
+      setShowAddForm(false);
     }
   }, [fetcher.data, fetcher.state]);
+
+  // Auto-populate shift times when date is selected for new entry
+  useEffect(() => {
+    if (!addDate) return;
+    const shiftTimes = getShiftTimesForDate(addDate, shift ?? null);
+    if (shiftTimes) {
+      setAddClockIn(shiftTimes.clockIn);
+      setAddClockOut(shiftTimes.clockOut);
+    } else {
+      // No shift for this day, default 9am-5pm
+      const [y, m, dy] = addDate.split("-").map(Number);
+      const d = new Date(y, m - 1, dy);
+      d.setHours(9, 0, 0, 0);
+      setAddClockIn(toLocalDatetimeInput(d.toISOString()));
+      d.setHours(17, 0, 0, 0);
+      setAddClockOut(toLocalDatetimeInput(d.toISOString()));
+    }
+  }, [addDate, shift]);
 
   function startEdit(entry: {
     id: string;
@@ -292,19 +414,69 @@ export default function PersonTimeClockRoute() {
       <CardHeader>
         <HStack className="justify-between items-center">
           <CardTitle>Time Clock</CardTitle>
-          <div>
+          <HStack className="gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setShowAddForm(!showAddForm);
+                setAddDate("");
+                setAddClockIn("");
+                setAddClockOut("");
+              }}
+            >
+              <LuPlus className="size-3.5" />
+              Add Entry
+            </Button>
             {openEntry ? (
-              <fetcher.Form method="post">
-                <input type="hidden" name="intent" value="clockOut" />
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  type="submit"
-                  disabled={fetcher.state !== "idle"}
+              <>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="clockOut" />
+                  <input type="hidden" name="type" value="shift_end" />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    type="submit"
+                    disabled={fetcher.state !== "idle"}
+                  >
+                    Clock Out
+                  </Button>
+                </fetcher.Form>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="clockOut" />
+                  <input type="hidden" name="type" value="break" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="submit"
+                    disabled={fetcher.state !== "idle"}
+                    className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+                  >
+                    Break
+                  </Button>
+                </fetcher.Form>
+              </>
+            ) : breakEntry ? (
+              <HStack className="gap-2 items-center">
+                <Badge
+                  variant="outline"
+                  className="text-yellow-600 border-yellow-600 text-xs"
                 >
-                  Clock Out
-                </Button>
-              </fetcher.Form>
+                  On Break · {formatDuration(breakEntry.clockOut, null)}
+                </Badge>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="clockIn" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="submit"
+                    disabled={fetcher.state !== "idle"}
+                    className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                  >
+                    Clock Back In
+                  </Button>
+                </fetcher.Form>
+              </HStack>
             ) : (
               <fetcher.Form method="post">
                 <input type="hidden" name="intent" value="clockIn" />
@@ -317,7 +489,7 @@ export default function PersonTimeClockRoute() {
                 </Button>
               </fetcher.Form>
             )}
-          </div>
+          </HStack>
         </HStack>
         {openEntry && (
           <Badge variant="outline" className="w-fit">
@@ -363,11 +535,11 @@ export default function PersonTimeClockRoute() {
 
         <TableBase className="table-fixed w-full">
           <colgroup>
-            <col className="w-[14%]" />
+            <col className="w-[16%]" />
             <col className="w-[28%]" />
             <col className="w-[28%]" />
             <col className="w-[12%]" />
-            <col className="w-[18%]" />
+            <col className="w-[16%]" />
           </colgroup>
           <Thead>
             <Tr>
@@ -379,7 +551,92 @@ export default function PersonTimeClockRoute() {
             </Tr>
           </Thead>
           <Tbody>
-            {entries.length === 0 ? (
+            {showAddForm && (
+              <Tr>
+                <Td>
+                  <select
+                    value={addDate}
+                    onChange={(e) => setAddDate(e.target.value)}
+                    className="h-8 text-xs w-full rounded-md border bg-background px-2 text-muted-foreground"
+                  >
+                    <option value="">Date</option>
+                    {Array.from({ length: 7 }, (_, i) => {
+                      const d = new Date(monday);
+                      d.setDate(monday.getDate() + i);
+                      const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                      return (
+                        <option key={val} value={val}>
+                          {d.toLocaleDateString([], {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric"
+                          })}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </Td>
+                <Td>
+                  <Input
+                    type="datetime-local"
+                    value={addClockIn}
+                    onChange={(e) => setAddClockIn(e.target.value)}
+                    className="h-8 text-xs w-full [&::-webkit-calendar-picker-indicator]:hidden"
+                  />
+                </Td>
+                <Td>
+                  <Input
+                    type="datetime-local"
+                    value={addClockOut}
+                    onChange={(e) => setAddClockOut(e.target.value)}
+                    className="h-8 text-xs w-full [&::-webkit-calendar-picker-indicator]:hidden"
+                  />
+                </Td>
+                <Td className="text-muted-foreground text-center">—</Td>
+                <Td className="text-center">
+                  <div className="flex flex-col gap-1 items-center">
+                    <fetcher.Form method="post">
+                      <input type="hidden" name="intent" value="addEntry" />
+                      <input
+                        type="hidden"
+                        name="clockIn"
+                        value={
+                          isNaN(new Date(addClockIn).getTime())
+                            ? ""
+                            : new Date(addClockIn).toISOString()
+                        }
+                      />
+                      {addClockOut &&
+                        !isNaN(new Date(addClockOut).getTime()) && (
+                          <input
+                            type="hidden"
+                            name="clockOut"
+                            value={new Date(addClockOut).toISOString()}
+                          />
+                        )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="submit"
+                        disabled={isNaN(new Date(addClockIn).getTime())}
+                        className="w-full hover:bg-emerald-100 hover:text-emerald-700"
+                      >
+                        Save
+                      </Button>
+                    </fetcher.Form>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAddForm(false)}
+                      className="w-full hover:bg-red-100 hover:text-red-700"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </Td>
+              </Tr>
+            )}
+            {entries.length === 0 && !showAddForm ? (
               <Tr>
                 <Td
                   colSpan={5}
@@ -400,7 +657,7 @@ export default function PersonTimeClockRoute() {
                         type="datetime-local"
                         value={editClockIn}
                         onChange={(e) => setEditClockIn(e.target.value)}
-                        className="h-8 text-sm w-full"
+                        className="h-8 text-xs w-full [&::-webkit-calendar-picker-indicator]:hidden"
                       />
                     </Td>
                     <Td>
@@ -408,7 +665,7 @@ export default function PersonTimeClockRoute() {
                         type="datetime-local"
                         value={editClockOut}
                         onChange={(e) => setEditClockOut(e.target.value)}
-                        className="h-8 text-sm w-full"
+                        className="h-8 text-xs w-full [&::-webkit-calendar-picker-indicator]:hidden"
                       />
                     </Td>
                     <Td className="text-muted-foreground text-center">—</Td>
@@ -428,20 +685,26 @@ export default function PersonTimeClockRoute() {
                           <input
                             type="hidden"
                             name="clockIn"
-                            value={new Date(editClockIn).toISOString()}
+                            value={
+                              isNaN(new Date(editClockIn).getTime())
+                                ? ""
+                                : new Date(editClockIn).toISOString()
+                            }
                           />
-                          {editClockOut && (
-                            <input
-                              type="hidden"
-                              name="clockOut"
-                              value={new Date(editClockOut).toISOString()}
-                            />
-                          )}
+                          {editClockOut &&
+                            !isNaN(new Date(editClockOut).getTime()) && (
+                              <input
+                                type="hidden"
+                                name="clockOut"
+                                value={new Date(editClockOut).toISOString()}
+                              />
+                            )}
                           <input type="hidden" name="note" value={editNote} />
                           <Button
                             variant="ghost"
                             size="sm"
                             type="submit"
+                            disabled={isNaN(new Date(editClockIn).getTime())}
                             className="w-full hover:bg-emerald-100 hover:text-emerald-700"
                           >
                             Save

@@ -28,6 +28,7 @@ import {
   clockIn,
   clockOut,
   getOpenClockEntry,
+  isOnBreak,
   updateTimeClockEntry
 } from "~/services/timeclock.service";
 import { path } from "~/utils/path";
@@ -115,7 +116,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const weekOffset = parseInt(url.searchParams.get("week") ?? "0", 10);
   const { from, to } = getWeekBounds(weekOffset);
 
-  const [entries, openEntry] = await Promise.all([
+  const [entries, openEntry, breakStatus] = await Promise.all([
     client
       .from("timeClockEntry")
       .select("*")
@@ -124,12 +125,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
       .gte("clockIn", from)
       .lte("clockIn", to)
       .order("clockIn", { ascending: false }),
-    getOpenClockEntry(client, userId, companyId)
+    getOpenClockEntry(client, userId, companyId),
+    isOnBreak(client, userId, companyId)
   ]);
 
   return {
     entries: entries.data ?? [],
     openEntry: openEntry.data,
+    breakEntry:
+      breakStatus.onBreak && breakStatus.breakClockOut
+        ? { clockOut: breakStatus.breakClockOut }
+        : null,
     weekOffset,
     from,
     to
@@ -152,10 +158,12 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "clockOut") {
+    const type = (formData.get("type") as string) || "shift_end";
     const result = await clockOut(client, {
       employeeId: userId,
       companyId,
-      updatedBy: userId
+      updatedBy: userId,
+      type: type as "shift_end" | "break"
     });
     return { success: !result.error, error: result.error?.message };
   }
@@ -186,7 +194,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function MESTimeClockPage() {
-  const { entries, openEntry, weekOffset, from, to } =
+  const { entries, openEntry, breakEntry, weekOffset, from, to } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -227,17 +235,54 @@ export default function MESTimeClockPage() {
           <h2 className="text-xl font-semibold">My Hours</h2>
           <div>
             {openEntry ? (
-              <fetcher.Form method="post">
-                <input type="hidden" name="intent" value="clockOut" />
-                <Button
-                  className="bg-red-500 hover:bg-red-600 text-white"
-                  size="sm"
-                  type="submit"
-                  disabled={fetcher.state !== "idle"}
+              <HStack className="gap-1">
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="clockOut" />
+                  <input type="hidden" name="type" value="shift_end" />
+                  <Button
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                    size="sm"
+                    type="submit"
+                    disabled={fetcher.state !== "idle"}
+                  >
+                    Clock Out
+                  </Button>
+                </fetcher.Form>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="clockOut" />
+                  <input type="hidden" name="type" value="break" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="submit"
+                    disabled={fetcher.state !== "idle"}
+                    className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
+                  >
+                    Break
+                  </Button>
+                </fetcher.Form>
+              </HStack>
+            ) : breakEntry ? (
+              <HStack className="gap-2 items-center">
+                <Badge
+                  variant="outline"
+                  className="text-yellow-600 border-yellow-600 text-xs"
                 >
-                  Clock Out
-                </Button>
-              </fetcher.Form>
+                  On Break · {formatDuration(breakEntry.clockOut, null)}
+                </Badge>
+                <fetcher.Form method="post">
+                  <input type="hidden" name="intent" value="clockIn" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="submit"
+                    disabled={fetcher.state !== "idle"}
+                    className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                  >
+                    Clock Back In
+                  </Button>
+                </fetcher.Form>
+              </HStack>
             ) : (
               <fetcher.Form method="post">
                 <input type="hidden" name="intent" value="clockIn" />
@@ -299,11 +344,11 @@ export default function MESTimeClockPage() {
           <CardContent>
             <TableBase className="table-fixed w-full">
               <colgroup>
-                <col className="w-[14%]" />
-                <col className="w-[28%]" />
-                <col className="w-[28%]" />
                 <col className="w-[12%]" />
-                <col className="w-[18%]" />
+                <col className="w-[30%]" />
+                <col className="w-[30%]" />
+                <col className="w-[12%]" />
+                <col className="w-[16%]" />
               </colgroup>
               <Thead>
                 <Tr>
@@ -336,7 +381,7 @@ export default function MESTimeClockPage() {
                             type="datetime-local"
                             value={editClockIn}
                             onChange={(e) => setEditClockIn(e.target.value)}
-                            className="h-8 text-sm w-full"
+                            className="h-8 text-xs w-full [&::-webkit-calendar-picker-indicator]:hidden"
                           />
                         </Td>
                         <Td>
@@ -344,7 +389,7 @@ export default function MESTimeClockPage() {
                             type="datetime-local"
                             value={editClockOut}
                             onChange={(e) => setEditClockOut(e.target.value)}
-                            className="h-8 text-sm w-full"
+                            className="h-8 text-xs w-full [&::-webkit-calendar-picker-indicator]:hidden"
                           />
                         </Td>
                         <Td className="text-muted-foreground text-center">—</Td>
@@ -364,19 +409,27 @@ export default function MESTimeClockPage() {
                               <input
                                 type="hidden"
                                 name="clockIn"
-                                value={new Date(editClockIn).toISOString()}
+                                value={
+                                  isNaN(new Date(editClockIn).getTime())
+                                    ? ""
+                                    : new Date(editClockIn).toISOString()
+                                }
                               />
-                              {editClockOut && (
-                                <input
-                                  type="hidden"
-                                  name="clockOut"
-                                  value={new Date(editClockOut).toISOString()}
-                                />
-                              )}
+                              {editClockOut &&
+                                !isNaN(new Date(editClockOut).getTime()) && (
+                                  <input
+                                    type="hidden"
+                                    name="clockOut"
+                                    value={new Date(editClockOut).toISOString()}
+                                  />
+                                )}
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 type="submit"
+                                disabled={isNaN(
+                                  new Date(editClockIn).getTime()
+                                )}
                                 className="w-full hover:bg-emerald-100 hover:text-emerald-700"
                               >
                                 Save

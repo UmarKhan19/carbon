@@ -38974,6 +38974,7 @@ export type Database = {
           employeeId: string
           id: string
           note: string | null
+          type: string
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -38987,6 +38988,7 @@ export type Database = {
           employeeId: string
           id?: string
           note?: string | null
+          type?: string
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -39000,6 +39002,7 @@ export type Database = {
           employeeId?: string
           id?: string
           note?: string | null
+          type?: string
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -52452,7 +52455,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52466,7 +52469,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55439,8 +55442,18 @@ export type Database = {
           jobTitle: string | null
           lastName: string | null
           note: string | null
+          shiftEndTime: string | null
+          shiftFriday: boolean | null
           shiftId: string | null
+          shiftMonday: boolean | null
           shiftName: string | null
+          shiftSaturday: boolean | null
+          shiftStartTime: string | null
+          shiftSunday: boolean | null
+          shiftThursday: boolean | null
+          shiftTuesday: boolean | null
+          shiftWednesday: boolean | null
+          type: string | null
           updatedAt: string | null
           updatedBy: string | null
         }

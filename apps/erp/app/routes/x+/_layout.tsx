@@ -29,9 +29,9 @@ import {
 } from "react-router";
 import { RealtimeDataProvider } from "~/components";
 import { PrimaryNavigation, Topbar } from "~/components/Layout";
+import { TimeClockWarning } from "~/components/TimeClockWarning";
 import TrainingPanel from "~/components/TrainingPanel";
 import { useTrainingPanel } from "~/hooks/useTrainingPanel";
-import { TimeClockWarning } from "~/components/TimeClockWarning";
 import {
   getCompanies,
   getCompanyIntegrations,
@@ -39,7 +39,7 @@ import {
 } from "~/modules/settings";
 import { getCustomFieldsSchemas } from "~/modules/shared/shared.server";
 import { getSavedViews } from "~/modules/shared/shared.service";
-import { getOpenClockEntry } from "~/modules/timeclock";
+import { getOpenClockEntry, isOnBreak } from "~/modules/timeclock";
 import {
   getUser,
   getUserClaims,
@@ -92,7 +92,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     claims,
     groups,
     defaults,
-    openClockEntry
+    openClockEntry,
+    breakStatus
   ] = await Promise.all([
     getCompanies(client, userId),
     getStripeCustomerByCompanyId(companyId, userId),
@@ -104,7 +105,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUserClaims(userId, companyId),
     getUserGroups(client, userId),
     getUserDefaults(client, userId, companyId),
-    getOpenClockEntry(client, userId, companyId)
+    getOpenClockEntry(client, userId, companyId),
+    isOnBreak(client, userId, companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
@@ -152,12 +154,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     savedViews: savedViews.data ?? [],
     openClockEntry: openClockEntry.data
       ? { id: openClockEntry.data.id, clockIn: openClockEntry.data.clockIn }
-      : null
+      : null,
+    breakEntry:
+      breakStatus.onBreak && breakStatus.breakClockOut
+        ? { clockOut: breakStatus.breakClockOut }
+        : null
   });
 }
 
 export default function AuthenticatedRoute() {
-  const { session, user, companySettings, openClockEntry } =
+  const { session, user, companySettings, openClockEntry, breakEntry } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { isOpen, training, dismiss } = useTrainingPanel();
@@ -210,7 +216,10 @@ export default function AuthenticatedRoute() {
                 onDismiss={dismiss}
               />
               {companySettings?.timeClockEnabled && (
-                <TimeClockWarning openClockEntry={openClockEntry} />
+                <TimeClockWarning
+                  openClockEntry={openClockEntry}
+                  breakEntry={breakEntry}
+                />
               )}
             </TooltipProvider>
           </RealtimeDataProvider>

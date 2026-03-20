@@ -19,11 +19,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === "clockOut") {
     const note = formData.get("note") as string | null;
+    const type = (formData.get("type") as string | null) ?? "shift_end";
     const result = await clockOut(client, {
       employeeId: userId,
       companyId,
       updatedBy: userId,
-      note: note ?? undefined
+      note: note ?? undefined,
+      type: type as "shift_end" | "break"
     });
     return { success: !result.error, error: result.error?.message };
   }
