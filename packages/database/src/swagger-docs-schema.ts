@@ -9205,6 +9205,9 @@ export default {
             $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.kit",
           },
           {
+            $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.itemScrapPercentage",
+          },
+          {
             $ref: "#/parameters/rowFilter.jobMaterialWithMakeMethodId.shelfName",
           },
           {
@@ -69905,7 +69908,11 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -70101,8 +70108,12 @@ export default {
           type: "string",
         },
         methodType: {
-          default: "Make",
-          enum: ["Buy", "Make", "Pick"],
+          default: "Make to Order",
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -73254,7 +73265,7 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -73303,7 +73314,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -73468,7 +73479,11 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -73570,6 +73585,10 @@ export default {
         kit: {
           format: "boolean",
           type: "boolean",
+        },
+        itemScrapPercentage: {
+          format: "numeric",
+          type: "number",
         },
         shelfName: {
           format: "text",
@@ -73920,8 +73939,12 @@ export default {
           type: "string",
         },
         methodType: {
-          default: "Buy",
-          enum: ["Buy", "Make", "Pick"],
+          default: "Purchase to Order",
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -74102,7 +74125,11 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -79554,7 +79581,11 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -84323,8 +84354,12 @@ export default {
           type: "string",
         },
         methodType: {
-          default: "Make",
-          enum: ["Buy", "Make", "Pick"],
+          default: "Make to Order",
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -85239,7 +85274,11 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -88181,7 +88220,11 @@ export default {
           type: "number",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -88673,7 +88716,11 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -88855,7 +88902,11 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -89118,7 +89169,11 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -89804,7 +89859,11 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -90414,7 +90473,11 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -91282,8 +91345,12 @@ export default {
           type: "string",
         },
         methodType: {
-          default: "Make",
-          enum: ["Buy", "Make", "Pick"],
+          default: "Make to Order",
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -92605,8 +92672,12 @@ export default {
           type: "number",
         },
         methodType: {
-          default: "Make",
-          enum: ["Buy", "Make", "Pick"],
+          default: "Purchase to Order",
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -95767,7 +95838,11 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -96443,8 +96518,12 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          default: "Buy",
-          enum: ["Buy", "Make", "Pick"],
+          default: "Purchase to Order",
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -96927,7 +97006,11 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: ["Buy", "Make", "Pick"],
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -98864,8 +98947,12 @@ export default {
           type: "string",
         },
         methodType: {
-          default: "Pick",
-          enum: ["Buy", "Make", "Pick"],
+          default: "Pull from Inventory",
+          enum: [
+            "Purchase to Order",
+            "Pull from Inventory",
+            "Make to Order",
+          ],
           format: 'public."methodType"',
           type: "string",
         },
@@ -104576,6 +104663,12 @@ export default {
     },
     "rowFilter.jobMaterialWithMakeMethodId.kit": {
       name: "kit",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.jobMaterialWithMakeMethodId.itemScrapPercentage": {
+      name: "itemScrapPercentage",
       required: false,
       in: "query",
       type: "string",

@@ -25,7 +25,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: we destructure to omit id from validation
   const { id: _id, scopes: scopesJson, expiresAt, ...d } = validation.data;
 
   // Parse scopes from JSON string

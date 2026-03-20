@@ -123,6 +123,7 @@ export function MaintenanceDispatch({
       toast.success("Maintenance dispatch created");
       onClose();
     }
+    // biome-ignore lint/correctness/useExhaustiveDependencies: onClose is a callback prop that doesn't need to trigger re-runs
   }, [fetcher.state, fetcher.data, onClose]);
 
   const onUploadImage = async (file: File) => {

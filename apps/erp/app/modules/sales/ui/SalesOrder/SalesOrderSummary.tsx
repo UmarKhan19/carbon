@@ -294,7 +294,7 @@ function LineItems({
       {lines.map((line) => {
         if (!line.id) return null;
 
-        const isMade = line.methodType === "Make";
+        const isMade = line.methodType === "Make to Order";
 
         const { jobLabel, jobVariant, jobs } = getSalesOrderJobStatus(
           salesOrder?.jobs as SalesOrderJob[] | undefined,
@@ -389,7 +389,9 @@ function LineItems({
                           className="flex items-center gap-2"
                         >
                           {line.saleQuantity}
-                          <MethodIcon type={line.methodType ?? "Pick"} />
+                          <MethodIcon
+                            type={line.methodType ?? "Pull from Inventory"}
+                          />
                         </Badge>
                         <Badge variant="green">
                           {formatter.format(

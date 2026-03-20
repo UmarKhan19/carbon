@@ -67,7 +67,7 @@ const QuoteMaterialForm = ({
     quantity: number;
   }>({
     itemId: initialValues.itemId ?? "",
-    methodType: initialValues.methodType ?? "Buy",
+    methodType: initialValues.methodType ?? "Pull from Inventory",
     description: initialValues.description ?? "",
     unitCost: initialValues.unitCost ?? 0,
     unitOfMeasureCode: initialValues.unitOfMeasureCode ?? "EA",
@@ -79,7 +79,7 @@ const QuoteMaterialForm = ({
     setItemType(value as MethodItemType);
     setItemData({
       itemId: "",
-      methodType: "" as "Buy",
+      methodType: "" as "Pull from Inventory",
       quantity: 1,
       description: "",
       unitCost: 0,
@@ -114,7 +114,7 @@ const QuoteMaterialForm = ({
     }
 
     let unitCost = itemCost.data?.unitCost ?? 0;
-    const isBuyPart = item.data?.defaultMethodType === "Buy";
+    const isBuyPart = item.data?.defaultMethodType === "Purchase to Order";
 
     if (isBuyPart) {
       unitCost = await lookupBuyPrice(itemId, itemData.quantity ?? 1, unitCost);
@@ -126,7 +126,7 @@ const QuoteMaterialForm = ({
       description: item.data?.name ?? "",
       unitCost,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Buy"
+      methodType: item.data?.defaultMethodType ?? "Purchase to Order"
     }));
   };
 
@@ -134,7 +134,8 @@ const QuoteMaterialForm = ({
     async (newQty: number) => {
       setItemData((d) => ({ ...d, quantity: newQty }));
 
-      if (itemData.methodType !== "Buy" || !itemData.itemId) return;
+      if (itemData.methodType !== "Purchase to Order" || !itemData.itemId)
+        return;
       if (!carbon) return;
 
       const itemCost = await carbon
@@ -200,7 +201,7 @@ const QuoteMaterialForm = ({
         <CardContent>
           <Hidden name="quoteMakeMethodId" />
 
-          {itemData.methodType === "Make" && (
+          {itemData.methodType === "Make to Order" && (
             <Hidden name="unitCost" value={itemData.unitCost} />
           )}
           <Hidden name="order" />
@@ -256,7 +257,7 @@ const QuoteMaterialForm = ({
                   }))
                 }
               />
-              {itemData.methodType !== "Make" && (
+              {itemData.methodType !== "Make to Order" && (
                 <NumberControlled
                   name="unitCost"
                   label="Unit Cost"

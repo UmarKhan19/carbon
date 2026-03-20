@@ -30,7 +30,6 @@ import {
   Hidden,
   Item,
   Location,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   SelectControlled,
@@ -133,7 +132,7 @@ const SalesInvoiceLineForm = ({
 
   const isEditing = initialValues.id !== undefined;
   const hasInvalidMethodType =
-    itemData.methodType === "Make" && !isSalesOrderLine;
+    itemData.methodType === "Make to Order" && !isSalesOrderLine;
   const isDisabled = !isEditable
     ? true
     : hasInvalidMethodType

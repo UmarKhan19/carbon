@@ -499,7 +499,7 @@ export async function calculateQuoteLinePrices(
     .from("quoteMaterial")
     .select("id, itemId, unitCost")
     .eq("quoteLineId", quoteLineId)
-    .eq("methodType", "Buy");
+    .eq("methodType", "Purchase to Order");
 
   const buyItemIds = [
     ...new Set((buyMaterials.data ?? []).map((m) => m.itemId)),
@@ -610,9 +610,9 @@ export async function calculateQuoteLinePrices(
   }
 
   function walkTree(node: EnhancedNode) {
-    if (node.methodType === "Buy") {
+    if (node.methodType === "Purchase to Order") {
       pushBuyCostEffect(node.itemId, node.itemType, node.quantity, node.unitCost);
-    } else if (node.methodType === "Pick") {
+    } else if (node.methodType === "Pull from Inventory") {
       const costFn = (quantity: number) =>
         node.unitCost * node.quantity * quantity;
       switch (node.itemType) {

@@ -446,7 +446,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
           <span>{node.data.itemType}</span>
         </HStack>
       </VStack>
-      {node.data.methodType === "Make" && (
+      {node.data.methodType === "Make to Order" && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
             Make Method Version
@@ -474,7 +474,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
 function getNodePath(node: FlatTreeItem<JobMethod>) {
   return node.data.isRoot
     ? path.to.jobDetails(node.data.jobId)
-    : node.data.methodType === "Make"
+    : node.data.methodType === "Make to Order"
       ? path.to.jobMakeMethod(
           node.data.jobId,
           node.data.jobMaterialMakeMethodId

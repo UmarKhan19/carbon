@@ -85,7 +85,7 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
     estimatorId: userId,
     itemId: "",
     locationId: quoteData?.quote?.locationId ?? defaults.locationId ?? "",
-    methodType: "Make" as const,
+    methodType: "Make to Order" as const,
     status: "Not Started" as const,
     quantity: [1],
     unitOfMeasureCode: "",
@@ -368,7 +368,7 @@ function QuoteLineItem({
 
   const isSelected = lineId === line.id;
   const onLineClick = (line: QuotationLine) => {
-    if (line.methodType === "Make") {
+    if (line.methodType === "Make to Order") {
       disclosure.onOpen();
     }
 
@@ -410,7 +410,7 @@ function QuoteLineItem({
         </HStack>
         <div className="absolute right-2">
           <HStack spacing={1}>
-            {line.methodType === "Make" &&
+            {line.methodType === "Make to Order" &&
               permissions.can("update", "sales") &&
               line.status !== "No Quote" && (
                 <IconButton
@@ -457,7 +457,7 @@ function QuoteLineItem({
                     View Item Master
                   </Link>
                 </DropdownMenuItem>
-                {line.methodType === "Make" && (
+                {line.methodType === "Make to Order" && (
                   <>
                     <DropdownMenuItem onClick={searchDisclosure.onOpen}>
                       <DropdownMenuIcon icon={<LuSearch />} />
@@ -563,7 +563,7 @@ function QuoteLineItem({
         </div>
       </HStack>
       {disclosure.isOpen &&
-        line.methodType === "Make" &&
+        line.methodType === "Make to Order" &&
         permissions.can("update", "sales") &&
         line.status !== "No Quote" && (
           <VStack className="border-b border-border p-1">

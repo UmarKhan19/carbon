@@ -50,7 +50,7 @@ const EmployeePermissionsForm = ({
   const { state: initialState, modules } = useMemo(
     () => fromCompanyPermissions(initialValues.permissions),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [initialValues.permissions]
   );
 
   const matrix = usePermissionMatrix({

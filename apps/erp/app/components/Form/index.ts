@@ -1,8 +1,6 @@
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Array,
   ArrayNumeric,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Combobox,
   CreatableCombobox,
@@ -14,7 +12,6 @@ import {
   Input,
   InputControlled,
   MultiSelect,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Password,

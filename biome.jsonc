@@ -95,7 +95,7 @@
         "noLabelVar": "warn",
         "noRedeclare": "error",
         "noSelfCompare": "warn",
-        "noShadowRestrictedNames": "warn",
+        "noShadowRestrictedNames": "off",
         "noSparseArray": "warn",
         "noTemplateCurlyInString": "warn",
         "noUnsafeNegation": "warn",

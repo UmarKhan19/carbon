@@ -555,15 +555,15 @@ const JobEstimatesVsActuals = ({
                       </Td>
                       <Td>{material.estimatedQuantity}</Td>
                       <Td className={cn(exceedsEstimate && "text-red-500")}>
-                        {material.methodType === "Make" ? (
-                          <MethodIcon type="Make" />
+                        {material.methodType === "Make to Order" ? (
+                          <MethodIcon type="Make to Order" />
                         ) : (
                           material.quantityIssued
                         )}
                       </Td>
 
                       <Td className={cn(exceedsEstimate && "text-red-500")}>
-                        {material.methodType !== "Make" &&
+                        {material.methodType !== "Make to Order" &&
                         material.estimatedQuantity &&
                         material.quantityIssued
                           ? percentFormatter.format(
@@ -573,7 +573,7 @@ const JobEstimatesVsActuals = ({
                           : null}
                       </Td>
                       <Td>
-                        {material.methodType === "Make" ? null : (
+                        {material.methodType === "Make to Order" ? null : (
                           <VStack spacing={0} className="py-1">
                             <span className="text-sm">
                               {currencyFormatter.format(estimatedTotalCost)}
@@ -585,7 +585,7 @@ const JobEstimatesVsActuals = ({
                         )}
                       </Td>
                       <Td>
-                        {material.methodType === "Make" ? null : (
+                        {material.methodType === "Make to Order" ? null : (
                           <VStack spacing={0} className="py-1">
                             <span
                               className={cn(

@@ -6,9 +6,7 @@ import type {
 } from "@carbon/ee";
 import { integrations as availableIntegrations } from "@carbon/ee";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Array,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Input,
   Select,

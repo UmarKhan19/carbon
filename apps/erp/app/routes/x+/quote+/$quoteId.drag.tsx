@@ -115,7 +115,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const partData = {
       id: readableId,
       name: readableId,
-      defaultMethodType: "Make" as const,
+      defaultMethodType: "Make to Order" as const,
       itemTrackingType: "Inventory" as const,
       replenishmentSystem: "Make" as const,
       revision,

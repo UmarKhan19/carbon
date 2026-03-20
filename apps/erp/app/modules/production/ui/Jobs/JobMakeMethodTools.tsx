@@ -557,6 +557,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           <ModalContent>
             <ValidatedForm
               validator={getJobMethodValidator}
+              // biome-ignore lint/suspicious/noEmptyBlockStatements: no-op handler, form uses action
               onSubmit={() => {}}
             >
               <ModalHeader>

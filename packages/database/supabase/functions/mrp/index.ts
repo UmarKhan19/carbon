@@ -108,7 +108,7 @@ serve(async (req: Request) => {
       estimatedQuantity: number;
       leadTimeOffset: number;
       replenishmentSystem: "Buy" | "Make";
-      methodType: "Make" | "Pick" | "Buy";
+      methodType: "Make to Order" | "Pull from Inventory" | "Purchase to Order";
     }
   >();
 
@@ -422,10 +422,11 @@ serve(async (req: Request) => {
             replenishmentSystem === "Buy and Make"
               ? "Buy"
               : (replenishmentSystem as "Buy" | "Make"),
-          methodType: (treeNode?.methodType ?? "Buy") as
-            | "Make"
-            | "Pick"
-            | "Buy",
+          methodType: (treeNode?.methodType ?? "Purchase to Order") as
+            | "Make to Order"
+            | "Pull from Inventory"
+            | "Purchase to Order"
+           ,
         });
       }
 
@@ -453,7 +454,7 @@ serve(async (req: Request) => {
         const totalLeadTime = accumulatedLeadTime + req.leadTimeOffset;
 
         // Skip Make+Make items - they will be produced, not procured
-        if (req.methodType === "Make" && req.replenishmentSystem === "Make") {
+        if (req.methodType === "Make to Order" && req.replenishmentSystem === "Make") {
           continue;
         }
 
@@ -473,7 +474,7 @@ serve(async (req: Request) => {
         }
 
         // If this is a Pick item with Make replenishment, recursively expand its BOM
-        if (req.methodType === "Pick" && req.replenishmentSystem === "Make") {
+        if (req.methodType === "Pull from Inventory" && req.replenishmentSystem === "Make") {
           await processRequirement(
             locationId,
             periodId,
@@ -1124,5 +1125,5 @@ type ItemRequirement = {
   baseQuantity: number; // Quantity required per unit of parent
   leadTimeOffset: number;
   replenishmentSystem: "Buy" | "Make";
-  methodType: "Make" | "Pick" | "Buy";
+  methodType: "Make to Order" | "Pull from Inventory" | "Purchase to Order";
 };

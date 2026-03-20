@@ -22,7 +22,6 @@ import {
   Input,
   InputControlled,
   ItemPostingGroup,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select,
   Submit,
@@ -70,7 +69,7 @@ const ConsumableForm = ({
   const isEditing = !!initialValues.id;
 
   const [defaultMethodType, setDefaultMethodType] = useState<string>(
-    initialValues.defaultMethodType ?? "Buy"
+    initialValues.defaultMethodType ?? "Purchase to Order"
   );
 
   const itemTrackingTypeOptions = itemTrackingTypes.map((itemTrackingType) => ({
@@ -151,7 +150,7 @@ const ConsumableForm = ({
                   replenishmentSystem="Buy"
                   value={defaultMethodType}
                   onChange={(newValue) =>
-                    setDefaultMethodType(newValue?.value ?? "Buy")
+                    setDefaultMethodType(newValue?.value ?? "Purchase to Order")
                   }
                 />
                 <UnitOfMeasure
@@ -159,7 +158,11 @@ const ConsumableForm = ({
                   label="Unit of Measure"
                 />
                 {!isEditing && (
-                  <ItemPostingGroup name="postingGroupId" label="Item Group" isClearable />
+                  <ItemPostingGroup
+                    name="postingGroupId"
+                    label="Item Group"
+                    isClearable
+                  />
                 )}
                 {!isEditing && (
                   <Number

@@ -59,7 +59,7 @@ const ApiKeyForm = ({
         ? fromApiKeyScopes(existingScopes, apiKeyPermissionModules)
         : fromApiKeyScopes(null, apiKeyPermissionModules),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [existingScopes, isEditing]
   );
 
   const matrix = usePermissionMatrix({

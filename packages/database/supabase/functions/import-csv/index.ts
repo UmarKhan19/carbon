@@ -384,7 +384,7 @@ serve(async (req: Request) => {
             replenishmentSystem: z
               .enum(["Buy", "Make", "Buy and Make"])
               .optional(),
-            defaultMethodType: z.enum(["Buy", "Make", "Pick"]).optional(),
+            defaultMethodType: z.enum(["Purchase to Order", "Make to Order", "Pull from Inventory"]).optional(),
             itemTrackingType: z.enum([
               "Inventory",
               "Non-Inventory",

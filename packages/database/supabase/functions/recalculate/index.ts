@@ -66,7 +66,7 @@ serve(async (req: Request) => {
             .select("*")
             .eq("id", jobMakeMethod.data.parentMaterialId)
             .single();
-          if (jobMaterial.data?.methodType !== "Make") {
+          if (jobMaterial.data?.methodType !== "Make to Order") {
             return new Response(JSON.stringify({ success: true }), {
               headers: { ...corsHeaders, "Content-Type": "application/json" },
               status: 200,
@@ -85,7 +85,7 @@ serve(async (req: Request) => {
             );
           }
 
-          if (jobMaterial.data.methodType !== "Make") {
+          if (jobMaterial.data.methodType !== "Make to Order") {
             console.log(
               `Job material ${jobMakeMethod.data.parentMaterialId} is not a 'Make' type. Skipping recalculation.`
             );
@@ -215,7 +215,7 @@ const updateJobQuantities = async (
   // Get scrap percentage from jobMaterial (stored at job creation time)
   // Fall back to itemReplenishment if not stored
   let scrapPercentage = 0;
-  if (tree.data.methodType === "Make") {
+  if (tree.data.methodType === "Make to Order") {
     const jobMaterial = await trx
       .selectFrom("jobMaterial")
       .select("itemScrapPercentage")
@@ -243,12 +243,12 @@ const updateJobQuantities = async (
   // totalWithScrap = target + scrap allowance (what we need to make/procure)
   // estimatedQuantity: For Make = good quantity (without scrap), For Buy/Pick = total
   const scrapQuantity =
-    tree.data.methodType === "Make" ? targetQuantity * scrapPercentage : 0;
+    tree.data.methodType === "Make to Order" ? targetQuantity * scrapPercentage : 0;
   const totalWithScrap = Math.ceil(targetQuantity + scrapQuantity);
   // For Make: estimatedQuantity is good quantity (without scrap)
   // For Buy/Pick: estimatedQuantity = total (but scrap is 0, so same as target)
   const estimatedQuantity =
-    tree.data.methodType === "Make" ? targetQuantity : totalWithScrap;
+    tree.data.methodType === "Make to Order" ? targetQuantity : totalWithScrap;
 
   // Update jobMaterial with scrap and estimated quantities
   await trx

@@ -45,7 +45,7 @@ const EmployeeTypeForm = ({ initialValues }: EmployeeTypeFormProps) => {
   const { state: initialState, modules } = useMemo(
     () => fromEmployeeTypePermissions(initialValues.permissions),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [initialValues.permissions]
   );
 
   const matrix = usePermissionMatrix({

@@ -68,7 +68,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  if (validation.data.methodType === "Make") {
+  if (validation.data.methodType === "Make to Order") {
     const promises = [
       recalculateJobMakeMethodRequirements(client, {
         id: validation.data.jobMakeMethodId,

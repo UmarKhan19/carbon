@@ -86,7 +86,6 @@ function buildIntegrationMetadata(
   };
 
   // Remove owner settings from formData since they're now in syncConfig
-  // biome-ignore lint/correctness/noUnusedVariables: destructuring to exclude from restFormData
   const {
     customerOwner: _customerOwner,
     vendorOwner: _vendorOwner,

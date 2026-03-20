@@ -105,7 +105,7 @@ const paperlessPartsSchema = z.object({
 });
 
 const integrationSchema = z.object({
-  methodType: z.enum(["Buy", "Pick"]).optional(),
+  methodType: z.enum(["Purchase to Order", "Pull from Inventory"]).optional(),
   trackingType: z.enum(["Inventory", "Non-Inventory", "Batch"]).optional(),
   usePaperlessOrderNumber: z.boolean().optional(),
   billOfProcessBlackList: z.array(z.string()).optional(),
@@ -150,11 +150,11 @@ export const paperlessPartsTask = task({
       integration.data.metadata
     );
     let usePaperlessOrderNumber = false;
-    let methodType: "Buy" | "Pick" = "Pick";
+    let methodType: "Purchase to Order" | "Pull from Inventory" = "Pull from Inventory";
     let trackingType: "Inventory" | "Non-Inventory" | "Batch" = "Inventory";
     let billOfProcessBlackList: string[] = [];
     if (integrationData.success) {
-      methodType = integrationData.data.methodType ?? "Pick";
+      methodType = integrationData.data.methodType ?? "Pull from Inventory";
       trackingType = integrationData.data.trackingType ?? "Inventory";
       if (integrationData.data.usePaperlessOrderNumber) {
         usePaperlessOrderNumber = true;

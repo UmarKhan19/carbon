@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-const methodType = ["Buy", "Make", "Pick"] as const;
+const methodType = [
+  "Purchase to Order",
+  "Make to Order",
+  "Pull from Inventory"
+] as const;
 const replenishmentSystems = ["Buy", "Make", "Buy and Make"] as const;
 
 export const onShapeDataValidator = z

@@ -128,7 +128,7 @@ const Tool = ({ name, label, helperText, ...props }: ToolSelectProps) => {
             itemTrackingType: "Inventory",
             unitOfMeasureCode: "EA",
             replenishmentSystem: "Buy",
-            defaultMethodType: "Buy",
+            defaultMethodType: "Pull from Inventory",
             active: true,
             unitCost: 0,
             tags: []

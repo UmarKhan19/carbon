@@ -22,7 +22,6 @@ import {
   Hidden,
   Input,
   Location,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Processes,
   StandardFactor,

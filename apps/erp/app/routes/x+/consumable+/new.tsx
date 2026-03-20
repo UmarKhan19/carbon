@@ -70,7 +70,7 @@ export default function ConsumablesNewRoute() {
     description: "",
     itemTrackingType: "Non-Inventory" as "Non-Inventory",
     replenishmentSystem: "Buy" as const,
-    defaultMethodType: "Buy" as const,
+    defaultMethodType: "Purchase to Order" as const,
     unitOfMeasureCode: "EA",
     unitCost: 0,
     active: true,

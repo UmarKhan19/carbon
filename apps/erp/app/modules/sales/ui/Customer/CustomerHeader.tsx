@@ -83,7 +83,7 @@ const CustomerHeader = () => {
       });
     },
 
-    [customerId]
+    [customerId, fetcher.submit]
   );
 
   return (

@@ -352,7 +352,9 @@ const Item = ({
             replenishmentSystem: props?.replenishmentSystem ?? "Make",
             unitOfMeasureCode: "EA",
             defaultMethodType:
-              props?.replenishmentSystem === "Buy" ? "Pick" : "Make",
+              props?.replenishmentSystem === "Buy"
+                ? "Pull from Inventory"
+                : "Make to Order",
             unitCost: 0,
             lotSize: 0,
             tags: []
@@ -374,7 +376,7 @@ const Item = ({
             itemTrackingType: "Non-Inventory",
             unitOfMeasureCode: "EA",
             replenishmentSystem: "Buy",
-            defaultMethodType: "Buy",
+            defaultMethodType: "Pull from Inventory",
             unitCost: 0,
             tags: []
           }}
@@ -397,7 +399,7 @@ const Item = ({
             itemTrackingType: "Inventory",
             unitOfMeasureCode: "EA",
             replenishmentSystem: "Buy",
-            defaultMethodType: "Buy",
+            defaultMethodType: "Pull from Inventory",
             unitCost: 0,
             tags: []
           }}
@@ -421,7 +423,9 @@ const Item = ({
             unitOfMeasureCode: "EA",
             replenishmentSystem: props?.replenishmentSystem ?? "Buy",
             defaultMethodType:
-              props?.replenishmentSystem === "Buy" ? "Pick" : "Make",
+              props?.replenishmentSystem === "Buy"
+                ? "Pull from Inventory"
+                : "Make to Order",
             unitCost: 0,
             tags: []
           }}

@@ -580,7 +580,7 @@ export async function getOrCreateMaterial(
     input: PaperlessPartsMaterialInput;
     createdBy: string;
     companyId: string;
-    defaultMethodType: "Buy" | "Pick";
+    defaultMethodType: "Purchase to Order" | "Pull from Inventory";
     defaultTrackingType: "Inventory" | "Non-Inventory" | "Batch";
   }
 ): Promise<{
@@ -1970,7 +1970,7 @@ export async function createPartFromComponent(
       number,
       NonNullable<z.infer<typeof OrderItemSchema>["components"]>[number]
     >;
-    defaultMethodType: "Buy" | "Pick";
+    defaultMethodType: "Purchase to Order" | "Pull from Inventory";
     defaultTrackingType: "Inventory" | "Non-Inventory" | "Batch";
     billOfProcessBlackList?: string[];
   }
@@ -2107,10 +2107,12 @@ export async function createPartFromComponent(
 
         const childIsPurchased =
           (childComponent as any)?.obtain_method === "purchased";
-        const methodType = childIsPurchased ? "Buy" : "Make";
+        const methodType = childIsPurchased
+          ? "Purchase to Order"
+          : "Make to Order";
 
         let materialMakeMethodId: string | undefined;
-        if (methodType === "Make") {
+        if (methodType === "Make to Order") {
           const materialMakeMethod = await carbon
             .from("makeMethod")
             .select("id")
@@ -2122,7 +2124,7 @@ export async function createPartFromComponent(
         materials.push({
           itemId: childItemId,
           itemType: "Part",
-          methodType: methodType ?? "Pick",
+          methodType: methodType ?? "Pull from Inventory",
           materialMakeMethodId,
           quantity:
             childRef.quantity ?? (childComponent as any)?.innate_quantity ?? 1,
@@ -2223,7 +2225,7 @@ export async function createPartFromComponent(
       description: component.description,
       type: "Part",
       replenishmentSystem: isPurchased ? "Buy" : "Make",
-      defaultMethodType: isPurchased ? "Buy" : "Make",
+      defaultMethodType: isPurchased ? "Purchase to Order" : "Make to Order",
       itemTrackingType: "Non-Inventory",
       unitOfMeasureCode: "EA",
       active: true,
@@ -2420,7 +2422,7 @@ export async function getOrCreatePart(
       number,
       NonNullable<z.infer<typeof OrderItemSchema>["components"]>[number]
     >;
-    defaultMethodType: "Buy" | "Pick";
+    defaultMethodType: "Purchase to Order" | "Pull from Inventory";
     defaultTrackingType: "Inventory" | "Non-Inventory" | "Batch";
     billOfProcessBlackList?: string[];
   }
@@ -2550,7 +2552,7 @@ export async function insertOrderLines(
     companyId: string;
     createdBy: string;
     orderItems: z.infer<typeof OrderSchema>["order_items"];
-    defaultMethodType: "Buy" | "Pick";
+    defaultMethodType: "Purchase to Order" | "Pull from Inventory";
     defaultTrackingType: "Inventory" | "Non-Inventory" | "Batch";
     billOfProcessBlackList?: string[];
   }
@@ -2796,7 +2798,7 @@ export async function insertQuoteLines(
     companyId: string;
     createdBy: string;
     quoteItems: QuoteItem[];
-    defaultMethodType: "Buy" | "Pick";
+    defaultMethodType: "Purchase to Order" | "Pull from Inventory";
     defaultTrackingType: "Inventory" | "Non-Inventory" | "Batch";
     billOfProcessBlackList?: string[];
   }
@@ -2935,7 +2937,7 @@ export async function insertQuoteLines(
           quoteId,
           itemId,
           description: component.description || component.part_name || "",
-          methodType: rootMethodType as "Make" | "Buy",
+          methodType: rootMethodType as "Make to Order" | "Purchase to Order",
           quantity: quantities.length > 0 ? quantities : null,
           unitOfMeasureCode: "EA",
           status: "Not Started",
@@ -3212,7 +3214,7 @@ export async function insertQuoteLines(
                       quoteMakeMethodId,
                       itemId: childItemId,
                       itemType: "Part",
-                      methodType: "Make",
+                      methodType: "Make to Order",
                       description:
                         childItemResult.data?.name ??
                         (childComponent as any).description ??
@@ -3304,7 +3306,7 @@ export async function insertQuoteLines(
                         quoteMakeMethodId,
                         itemId: childItemId,
                         itemType: "Part",
-                        methodType: "Buy",
+                        methodType: "Pull from Inventory",
                         description:
                           childItemResult.data?.name ??
                           (childComponent as any).description ??

@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
           .in("id", items as string[])
           .eq("companyId", companyId);
       }
-      if (field === "defaultMethodType" && value !== "Pick") {
+      if (field === "defaultMethodType" && value !== "Pull from Inventory") {
         return await client
           .from("item")
           .update({
@@ -393,6 +393,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return partUpdate;
         }
         if (itemUpdates.error) {
+          return itemUpdates;
         }
         return itemUpdates;
       }
@@ -460,6 +461,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return consumableUpdate;
         }
         if (consumableItemUpdates.error) {
+          return consumableItemUpdates;
         }
         return consumableItemUpdates;
       }
@@ -525,6 +527,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return materialUpdate;
         }
         if (materialItemUpdates.error) {
+          return materialItemUpdates;
         }
         return materialItemUpdates;
       }
@@ -587,6 +590,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return toolUpdate;
         }
         if (toolItemUpdates.error) {
+          return toolItemUpdates;
         }
         return toolItemUpdates;
       }

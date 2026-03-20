@@ -18,14 +18,12 @@ import { useFetcher } from "react-router";
 import type { z } from "zod";
 import { TrackingTypeIcon } from "~/components";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Array,
   CustomFormFields,
   DefaultMethodType,
   Hidden,
   InputControlled,
   ItemPostingGroup,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select,
   Submit,
@@ -117,7 +115,7 @@ const MaterialForm = ({
   const useCustomId = companySettings.materialGeneratedIds === false;
 
   const [defaultMethodType, setDefaultMethodType] = useState<string>(
-    initialValues.defaultMethodType ?? "Buy"
+    initialValues.defaultMethodType ?? "Purchase to Order"
   );
 
   const itemTrackingTypeOptions = itemTrackingTypes.map((itemTrackingType) => ({
@@ -301,7 +299,11 @@ const MaterialForm = ({
                   minValue={0}
                 />
 
-                <ItemPostingGroup name="postingGroupId" label="Item Group" isClearable />
+                <ItemPostingGroup
+                  name="postingGroupId"
+                  label="Item Group"
+                  isClearable
+                />
                 <Array name="sizes" label="Sizes" />
 
                 <CustomFormFields table="material" tags={initialValues.tags} />

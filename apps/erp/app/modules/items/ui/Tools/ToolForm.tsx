@@ -35,7 +35,6 @@ import {
   Input,
   InputControlled,
   ItemPostingGroup,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select,
   Submit,
@@ -177,7 +176,7 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
     initialValues.replenishmentSystem ?? "Buy"
   );
   const [defaultMethodType, setDefaultMethodType] = useState<string>(
-    initialValues.defaultMethodType ?? "Buy"
+    initialValues.defaultMethodType ?? "Purchase to Order"
   );
   const itemReplenishmentSystemOptions =
     itemReplenishmentSystems.map((itemReplenishmentSystem) => ({
@@ -263,9 +262,9 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                   onChange={(newValue) => {
                     setReplenishmentSystem(newValue?.value ?? "Buy");
                     if (newValue?.value === "Buy") {
-                      setDefaultMethodType("Buy");
+                      setDefaultMethodType("Purchase to Order");
                     } else {
-                      setDefaultMethodType("Make");
+                      setDefaultMethodType("Make to Order");
                     }
                   }}
                 />
@@ -275,7 +274,7 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                   replenishmentSystem={replenishmentSystem}
                   value={defaultMethodType}
                   onChange={(newValue) =>
-                    setDefaultMethodType(newValue?.value ?? "Buy")
+                    setDefaultMethodType(newValue?.value ?? "Purchase to Order")
                   }
                 />
 
@@ -284,7 +283,11 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                   label="Unit of Measure"
                 />
                 {!isEditing && (
-                  <ItemPostingGroup name="postingGroupId" label="Item Group" isClearable />
+                  <ItemPostingGroup
+                    name="postingGroupId"
+                    label="Item Group"
+                    isClearable
+                  />
                 )}
                 {!isEditing && (
                   <Number

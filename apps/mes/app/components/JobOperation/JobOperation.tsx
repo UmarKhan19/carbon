@@ -1061,14 +1061,15 @@ export const JobOperation = ({
                                                 isKit={material.kit ?? false}
                                                 className="mr-2"
                                               />
-                                              {material.methodType === "Make" &&
-                                              material.kit
+                                              {material.methodType ===
+                                                "Make to Order" && material.kit
                                                 ? "Kit"
                                                 : material.methodType}
                                             </Badge>
                                             <LuArrowLeft
                                               className={cn(
-                                                material.methodType === "Make"
+                                                material.methodType ===
+                                                  "Make to Order"
                                                   ? "rotate-180"
                                                   : ""
                                               )}
@@ -1076,7 +1077,8 @@ export const JobOperation = ({
                                             <Badge variant="secondary">
                                               <LuGitPullRequest className="size-3 mr-1" />
                                               {material.shelfName ??
-                                                (material.methodType === "Make"
+                                                (material.methodType ===
+                                                "Make to Order"
                                                   ? "WIP"
                                                   : "Default Shelf")}
                                             </Badge>
@@ -1098,13 +1100,14 @@ export const JobOperation = ({
                                               material.quantity)}
                                         </Td>
                                         <Td>
-                                          {material.methodType === "Make" &&
+                                          {material.methodType ===
+                                            "Make to Order" &&
                                           material.requiresBatchTracking ===
                                             false &&
                                           material.requiresSerialTracking ===
                                             false ? (
                                             <MethodIcon
-                                              type="Make"
+                                              type="Make to Order"
                                               isKit={material.kit ?? false}
                                             />
                                           ) : parentIsSerial &&
@@ -1119,7 +1122,8 @@ export const JobOperation = ({
                                           )}
                                         </Td>
                                         <Td className="text-right">
-                                          {material.methodType !== "Make" &&
+                                          {material.methodType !==
+                                            "Make to Order" &&
                                             material.requiresBatchTracking ===
                                               false &&
                                             material.requiresSerialTracking ===
@@ -1225,7 +1229,8 @@ export const JobOperation = ({
                                                     className="mr-2"
                                                   />
                                                   {kittedChild.methodType ===
-                                                    "Make" && kittedChild.kit
+                                                    "Make to Order" &&
+                                                  kittedChild.kit
                                                     ? "Kit"
                                                     : kittedChild.methodType}
                                                 </Badge>
@@ -1247,13 +1252,13 @@ export const JobOperation = ({
                                               </Td>
                                               <Td>
                                                 {kittedChild.methodType ===
-                                                  "Make" &&
+                                                  "Make to Order" &&
                                                 kittedChild.requiresBatchTracking ===
                                                   false &&
                                                 kittedChild.requiresSerialTracking ===
                                                   false ? (
                                                   <MethodIcon
-                                                    type="Make"
+                                                    type="Make to Order"
                                                     isKit={
                                                       kittedChild.kit ?? false
                                                     }
@@ -1273,7 +1278,7 @@ export const JobOperation = ({
                                               </Td>
                                               <Td className="text-right">
                                                 {kittedChild.methodType !==
-                                                  "Make" &&
+                                                  "Make to Order" &&
                                                   kittedChild.requiresBatchTracking ===
                                                     false &&
                                                   kittedChild.requiresSerialTracking ===

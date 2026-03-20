@@ -53,7 +53,7 @@ const Part = ({ itemReplenishmentSystem, ...props }: PartSelectProps) => {
             description: "",
             itemTrackingType: "Inventory" as "Inventory",
             replenishmentSystem: itemReplenishmentSystem ?? "Buy and Make",
-            defaultMethodType: "Buy",
+            defaultMethodType: "Pull from Inventory",
             unitOfMeasureCode: "EA",
             unitCost: 0,
             lotSize: 0,

@@ -321,7 +321,10 @@ const SalesOrderHeader = () => {
               lines={
                 routeData?.salesOrder?.lines as Array<{
                   id: string;
-                  methodType: "Buy" | "Make" | "Pick";
+                  methodType:
+                    | "Purchase to Order"
+                    | "Make to Order"
+                    | "Pull from Inventory";
                   saleQuantity: number;
                 }>
               }

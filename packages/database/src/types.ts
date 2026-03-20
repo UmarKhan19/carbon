@@ -45043,6 +45043,7 @@ export type Database = {
           itemId: string | null
           itemReadableId: string | null
           itemReadableIdWithoutRevision: string | null
+          itemScrapPercentage: number | null
           itemType: string | null
           jobId: string | null
           jobMakeMethodId: string | null
@@ -52259,13 +52260,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
             columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -52274,6 +52268,13 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52816,14 +52817,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56363,7 +56364,6 @@ export type Database = {
         Args: { jid: string }
         Returns: {
           description: string
-          externalId: Json
           isRoot: boolean
           itemId: string
           itemReadableId: string
@@ -56513,7 +56513,6 @@ export type Database = {
           name: string
           quantityFromProductionOrderInShelf: number
           quantityFromProductionOrderNotInShelf: number
-          quantityInTransitToShelf: number
           quantityIssued: number
           quantityOnHandInShelf: number
           quantityOnHandNotInShelf: number
@@ -56521,7 +56520,6 @@ export type Database = {
           quantityOnPurchaseOrder: number
           quantityOnSalesOrder: number
           quantityPerParent: number
-          shelfId: string
           shelfName: string
           thumbnailPath: string
           type: Database["public"]["Enums"]["itemType"]
@@ -57767,7 +57765,10 @@ export type Database = {
       maintenanceSource: "Scheduled" | "Reactive" | "Non-Conformance"
       makeMethodStatus: "Draft" | "Active" | "Archived"
       methodOperationOrder: "After Previous" | "With Previous"
-      methodType: "Buy" | "Make" | "Pick"
+      methodType:
+        | "Purchase to Order"
+        | "Pull from Inventory"
+        | "Make to Order"
       module:
         | "Accounting"
         | "Documents"
@@ -58910,7 +58911,11 @@ export const Constants = {
       maintenanceSource: ["Scheduled", "Reactive", "Non-Conformance"],
       makeMethodStatus: ["Draft", "Active", "Archived"],
       methodOperationOrder: ["After Previous", "With Previous"],
-      methodType: ["Buy", "Make", "Pick"],
+      methodType: [
+        "Purchase to Order",
+        "Pull from Inventory",
+        "Make to Order",
+      ],
       module: [
         "Accounting",
         "Documents",

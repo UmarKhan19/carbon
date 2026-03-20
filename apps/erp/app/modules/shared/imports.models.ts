@@ -3,7 +3,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 // to avoid a circular dependency
-const methodType = ["Buy", "Make", "Pick"] as const;
+const methodType = [
+  "Purchase to Order",
+  "Pull from Inventory",
+  "Make to Order"
+] as const;
 const itemReplenishmentSystems = ["Buy", "Make", "Buy and Make"] as const;
 const itemTrackingTypes = [
   "Inventory",
@@ -685,8 +689,8 @@ export const fieldMappings = {
       enumData: {
         description:
           "How a part should be produced when it is required in production",
-        options: ["Buy", "Pick"],
-        default: "Buy"
+        options: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
+        default: "Purchase to Order"
       }
     },
     itemTrackingType: {
@@ -768,7 +772,7 @@ export const fieldMappings = {
         description:
           "The method type of the part, which describes whether it is bought or made",
         options: methodType,
-        default: "Pick"
+        default: "Pull from Inventory"
       }
     },
     quantity: {
