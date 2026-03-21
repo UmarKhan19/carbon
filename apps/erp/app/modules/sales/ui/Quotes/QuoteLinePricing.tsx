@@ -6,7 +6,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Checkbox,
   cn,
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +17,7 @@ import {
   Input,
   NumberField,
   NumberInput,
+  Switch,
   Table,
   Tbody,
   Td,
@@ -1094,7 +1094,8 @@ const QuoteLinePricing = ({
                         <HStack spacing={1} className="items-center pr-1">
                           <Tooltip>
                             <TooltipTrigger>
-                              <Checkbox
+                              <Switch
+                                variant="small"
                                 checked={charge.taxable !== false}
                                 disabled={!isEditable}
                                 onCheckedChange={(checked) =>
@@ -1103,7 +1104,6 @@ const QuoteLinePricing = ({
                                     checked === true
                                   )
                                 }
-                                className="mt-1"
                               />
                             </TooltipTrigger>
                             <TooltipContent>Taxable</TooltipContent>
