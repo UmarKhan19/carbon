@@ -228,6 +228,7 @@ export const salesInvoiceLineValidator = z
     accountNumber: zfd.text(z.string().optional()),
     assetId: zfd.text(z.string().optional()),
     addOnCost: zfd.numeric(z.number().optional().default(0)),
+    nonTaxableAddOnCost: zfd.numeric(z.number().optional().default(0)),
     description: zfd.text(z.string().optional()),
     quantity: zfd.numeric(z.number().optional()),
     unitOfMeasureCode: z

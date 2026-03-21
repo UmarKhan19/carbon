@@ -77,12 +77,14 @@ const LineItems = ({
           (line.convertedUnitPrice ?? 0) * (line.quantity ?? 0);
         const total =
           (lineSubtotal + (line.addOnCost ?? 0) + (line.shippingCost ?? 0)) *
-          (1 + (line.taxPercent ?? 0));
+            (1 + (line.taxPercent ?? 0)) +
+          (line.nonTaxableAddOnCost ?? 0);
         const customerTotal =
           (customerSubtotal +
             (line.convertedAddOnCost ?? 0) +
             (line.convertedShippingCost ?? 0)) *
-          (1 + (line.taxPercent ?? 0));
+            (1 + (line.taxPercent ?? 0)) +
+          (line.convertedNonTaxableAddOnCost ?? 0);
 
         const lineTaxAmount =
           (line.taxPercent ?? 0) *
@@ -357,7 +359,8 @@ const SalesInvoiceSummary = ({
       const lineSubtotal =
         (line.unitPrice ?? 0) * (line.quantity ?? 0) +
         (line.shippingCost ?? 0) +
-        (line.addOnCost ?? 0);
+        (line.addOnCost ?? 0) +
+        (line.nonTaxableAddOnCost ?? 0);
       return acc + lineSubtotal;
     }, 0) ?? 0;
 
@@ -366,7 +369,8 @@ const SalesInvoiceSummary = ({
       const lineSubtotal =
         (line.convertedUnitPrice ?? 0) * (line.quantity ?? 0) +
         (line.convertedShippingCost ?? 0) +
-        (line.convertedAddOnCost ?? 0);
+        (line.convertedAddOnCost ?? 0) +
+        (line.convertedNonTaxableAddOnCost ?? 0);
 
       return acc + lineSubtotal;
     }, 0) ?? 0;

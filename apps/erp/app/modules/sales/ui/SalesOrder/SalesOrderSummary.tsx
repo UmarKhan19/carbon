@@ -89,7 +89,9 @@ const SalesOrderSummary = ({
       const lineTotal =
         (line.convertedUnitPrice ?? 0) * (line.saleQuantity ?? 0);
       const addOns =
-        (line.convertedAddOnCost ?? 0) + (line.convertedShippingCost ?? 0);
+        (line.convertedAddOnCost ?? 0) +
+        (line.convertedNonTaxableAddOnCost ?? 0) +
+        (line.convertedShippingCost ?? 0);
       return acc + lineTotal + addOns;
     }, 0) ?? 0;
 
@@ -97,9 +99,9 @@ const SalesOrderSummary = ({
     routeData?.lines?.reduce((acc, line) => {
       const lineTotal =
         (line.convertedUnitPrice ?? 0) * (line.saleQuantity ?? 0);
-      const addOns =
+      const taxableAddOns =
         (line.convertedAddOnCost ?? 0) + (line.convertedShippingCost ?? 0);
-      return acc + (lineTotal + addOns) * (line.taxPercent ?? 0);
+      return acc + (lineTotal + taxableAddOns) * (line.taxPercent ?? 0);
     }, 0) ?? 0;
 
   const convertedShippingCost =
@@ -366,7 +368,8 @@ function LineItems({
                               (line?.saleQuantity ?? 0) +
                               (line?.convertedAddOnCost ?? 0) +
                               (line?.convertedShippingCost ?? 0)) *
-                            (1 + (line?.taxPercent ?? 0))
+                              (1 + (line?.taxPercent ?? 0)) +
+                            (line?.convertedNonTaxableAddOnCost ?? 0)
                           }
                           format={{
                             style: "currency",
@@ -392,11 +395,7 @@ function LineItems({
                           <MethodIcon type={line.methodType ?? "Pick"} />
                         </Badge>
                         <Badge variant="green">
-                          {formatter.format(
-                            (line.unitPrice ?? 0) +
-                              (line.addOnCost ?? 0) +
-                              (line.shippingCost ?? 0)
-                          )}{" "}
+                          {formatter.format(line.unitPrice ?? 0)}{" "}
                           {line.unitOfMeasureCode}
                         </Badge>
                         {(line.taxPercent ?? 0) > 0 ? (
@@ -524,6 +523,22 @@ function LineItems({
                       </Tr>
                     )}
 
+                    {Number(line.nonTaxableAddOnCost ?? 0) > 0 && (
+                      <Tr>
+                        <Td>Non-Taxable Charges</Td>
+                        <Td className="text-right">
+                          <MotionNumber
+                            value={line.nonTaxableAddOnCost ?? 0}
+                            format={{
+                              style: "currency",
+                              currency: currencyCode
+                            }}
+                            locales={locale}
+                          />
+                        </Td>
+                      </Tr>
+                    )}
+
                     <Tr key="subtotal">
                       <Td>Subtotal</Td>
                       <Td className="text-right">
@@ -532,6 +547,7 @@ function LineItems({
                             (line.convertedUnitPrice ?? 0) *
                               (line.saleQuantity ?? 0) +
                             (line.convertedAddOnCost ?? 0) +
+                            (line.convertedNonTaxableAddOnCost ?? 0) +
                             (line.convertedShippingCost ?? 0)
                           }
                           format={{
@@ -574,7 +590,8 @@ function LineItems({
                               (line.saleQuantity ?? 0) +
                               (line.convertedAddOnCost ?? 0) +
                               (line.convertedShippingCost ?? 0)) *
-                            (1 + (line.taxPercent ?? 0))
+                              (1 + (line.taxPercent ?? 0)) +
+                            (line.convertedNonTaxableAddOnCost ?? 0)
                           }
                           format={{
                             style: "currency",

@@ -532,6 +532,30 @@ const LinePricingOptions = ({
     return acc;
   }, {});
 
+  const taxableAdditionalChargesByQuantity =
+    line.quantity?.reduce(
+      (acc, quantity) => {
+        const charges = Object.values(line.additionalCharges ?? {}).reduce(
+          (chargeAcc, charge) => {
+            if (charge.taxable === false) return chargeAcc;
+            const amount = charge.amounts?.[quantity];
+            return chargeAcc + amount;
+          },
+          0
+        );
+        acc[quantity] = charges;
+        return acc;
+      },
+      {} as Record<number, number>
+    ) ?? {};
+
+  const convertedTaxableAdditionalChargesByQuantity = Object.entries(
+    taxableAdditionalChargesByQuantity
+  ).reduce<Record<number, number>>((acc, [quantity, amount]) => {
+    acc[Number(quantity)] = amount * quoteExchangeRate;
+    return acc;
+  }, {});
+
   // Sort options by quantity from least to greatest
   const sortedOptions = [...options].sort((a, b) => a.quantity - b.quantity);
 
@@ -558,6 +582,13 @@ const LinePricingOptions = ({
                   additionalChargesByQuantity[selectedOption.quantity] || 0,
                 convertedAddOn:
                   convertedAdditionalChargesByQuantity[
+                    selectedOption.quantity
+                  ] || 0,
+                taxableAddOn:
+                  taxableAdditionalChargesByQuantity[selectedOption.quantity] ||
+                  0,
+                convertedTaxableAddOn:
+                  convertedTaxableAdditionalChargesByQuantity[
                     selectedOption.quantity
                   ] || 0,
                 shippingCost: selectedOption.shippingCost ?? 0,

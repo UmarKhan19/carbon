@@ -43,6 +43,20 @@ export function getLineSubtotal(
     return (
       line.saleQuantity * line.convertedUnitPrice +
       (line.convertedAddOnCost ?? 0) +
+      (line.convertedNonTaxableAddOnCost ?? 0) +
+      (line.convertedShippingCost ?? 0)
+    );
+  }
+  return 0;
+}
+
+export function getLineTaxableSubtotal(
+  line: Database["public"]["Views"]["salesOrderLines"]["Row"]
+) {
+  if (line?.saleQuantity && line?.convertedUnitPrice) {
+    return (
+      line.saleQuantity * line.convertedUnitPrice +
+      (line.convertedAddOnCost ?? 0) +
       (line.convertedShippingCost ?? 0)
     );
   }
@@ -53,9 +67,11 @@ export function getLineTaxesAndFees(
   line: Database["public"]["Views"]["salesOrderLines"]["Row"]
 ) {
   const taxPercent = line.taxPercent ?? 0;
-  const tax = getLineSubtotal(line) * taxPercent;
+  const tax = getLineTaxableSubtotal(line) * taxPercent;
   const fees =
-    (line.convertedAddOnCost ?? 0) + (line.convertedShippingCost ?? 0);
+    (line.convertedAddOnCost ?? 0) +
+    (line.convertedNonTaxableAddOnCost ?? 0) +
+    (line.convertedShippingCost ?? 0);
   return tax + fees;
 }
 
@@ -63,7 +79,7 @@ export function getLineTotal(
   line: Database["public"]["Views"]["salesOrderLines"]["Row"]
 ) {
   const taxPercent = line.taxPercent ?? 0;
-  const tax = getLineSubtotal(line) * taxPercent;
+  const tax = getLineTaxableSubtotal(line) * taxPercent;
   return getLineSubtotal(line) + tax;
 }
 

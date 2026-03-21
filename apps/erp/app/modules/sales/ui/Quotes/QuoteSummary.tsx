@@ -43,6 +43,8 @@ type SelectedLine = {
   convertedNetUnitPrice: number;
   addOn: number;
   convertedAddOn: number;
+  taxableAddOn: number;
+  convertedTaxableAddOn: number;
   leadTime: number;
   shippingCost: number;
   convertedShippingCost: number;
@@ -55,6 +57,8 @@ type SelectedLine = {
 const deselectedLine: SelectedLine = {
   addOn: 0,
   convertedAddOn: 0,
+  taxableAddOn: 0,
+  convertedTaxableAddOn: 0,
   netUnitPrice: 0,
   convertedNetUnitPrice: 0,
   quantity: 0,
@@ -184,11 +188,15 @@ const LineItems = ({
                       <MotionNumber
                         className="font-bold text-xl"
                         value={
+                          (selectedLine.convertedNetUnitPrice ?? 0) *
+                            (selectedLine.quantity ?? 0) +
+                          (selectedLine.convertedAddOn ?? 0) +
+                          (selectedLine.convertedShippingCost ?? 0) +
                           ((selectedLine.convertedNetUnitPrice ?? 0) *
                             (selectedLine.quantity ?? 0) +
-                            (selectedLine.convertedAddOn ?? 0) +
+                            (selectedLine.convertedTaxableAddOn ?? 0) +
                             (selectedLine.convertedShippingCost ?? 0)) *
-                          (1 + (selectedLine.taxPercent ?? 0))
+                            (selectedLine.taxPercent ?? 0)
                         }
                         format={{
                           style: "currency",
@@ -303,6 +311,33 @@ const LinePricingOptions = ({
     { 0: 0 }
   );
 
+  const taxableAdditionalChargesByQuantity =
+    line.quantity?.reduce(
+      (acc, quantity) => {
+        const charges = Object.values(line.additionalCharges ?? {}).reduce(
+          (chargeAcc, charge) => {
+            if (charge.taxable === false) return chargeAcc;
+            const amount = charge.amounts?.[quantity];
+            return chargeAcc + amount;
+          },
+          0
+        );
+        acc[quantity] = charges;
+        return acc;
+      },
+      { 0: 0 } as Record<number, number>
+    ) ?? {};
+
+  const convertedTaxableAdditionalChargesByQuantity = Object.entries(
+    taxableAdditionalChargesByQuantity
+  ).reduce<Record<number, number>>(
+    (acc, [quantity, amount]) => {
+      acc[Number(quantity)] = amount * quoteExchangeRate;
+      return acc;
+    },
+    { 0: 0 }
+  );
+
   const additionalCharges: { name: string; amount: number }[] = [];
   if (selectedLine.convertedShippingCost) {
     additionalCharges.push({
@@ -350,6 +385,13 @@ const LinePricingOptions = ({
                   additionalChargesByQuantity[selectedOption.quantity] || 0,
                 convertedAddOn:
                   convertedAdditionalChargesByQuantity[
+                    selectedOption.quantity
+                  ] || 0,
+                taxableAddOn:
+                  taxableAdditionalChargesByQuantity[selectedOption.quantity] ||
+                  0,
+                convertedTaxableAddOn:
+                  convertedTaxableAdditionalChargesByQuantity[
                     selectedOption.quantity
                   ] || 0,
                 leadTime: selectedOption.leadTime,
@@ -550,7 +592,7 @@ const LinePricingOptions = ({
                     value={
                       ((selectedLine.convertedNetUnitPrice ?? 0) *
                         selectedLine.quantity +
-                        (selectedLine.convertedAddOn ?? 0) +
+                        (selectedLine.convertedTaxableAddOn ?? 0) +
                         (selectedLine.convertedShippingCost ?? 0)) *
                       (selectedLine.taxPercent ?? 0)
                     }
@@ -568,11 +610,15 @@ const LinePricingOptions = ({
                 <Td className="text-right">
                   <MotionNumber
                     value={
+                      (selectedLine.convertedNetUnitPrice ?? 0) *
+                        selectedLine.quantity +
+                      (selectedLine.convertedAddOn ?? 0) +
+                      (selectedLine.convertedShippingCost ?? 0) +
                       ((selectedLine.convertedNetUnitPrice ?? 0) *
                         selectedLine.quantity +
-                        (selectedLine.convertedAddOn ?? 0) +
+                        (selectedLine.convertedTaxableAddOn ?? 0) +
                         (selectedLine.convertedShippingCost ?? 0)) *
-                      (1 + (selectedLine.taxPercent ?? 0))
+                        (selectedLine.taxPercent ?? 0)
                     }
                     format={{
                       style: "currency",
@@ -682,6 +728,34 @@ const QuoteSummary = ({
             {} as Record<number, number>
           ) ?? {};
 
+        const taxableAdditionalChargesByQuantity =
+          line.quantity?.reduce(
+            (acc, quantity) => {
+              const charges = Object.values(
+                line.additionalCharges ?? {}
+              ).reduce((chargeAcc, charge) => {
+                if (charge.taxable === false) return chargeAcc;
+                const amount = charge.amounts?.[quantity];
+                return chargeAcc + amount;
+              }, 0);
+              acc[quantity] = charges;
+              return acc;
+            },
+            {} as Record<number, number>
+          ) ?? {};
+
+        const convertedTaxableAdditionalChargesByQuantity =
+          Object.entries(taxableAdditionalChargesByQuantity).reduce<
+            Record<number, number>
+          >(
+            (acc, [quantity, amount]) => {
+              acc[Number(quantity)] =
+                amount * (routeData?.quote.exchangeRate ?? 1);
+              return acc;
+            },
+            {} as Record<number, number>
+          ) ?? {};
+
         acc[line.id] = {
           quantity: price.quantity ?? 0,
           netUnitPrice: price.netUnitPrice ?? 0,
@@ -689,6 +763,9 @@ const QuoteSummary = ({
           addOn: additionalChargesByQuantity[price.quantity] || 0,
           convertedAddOn:
             convertedAdditionalChargesByQuantity[price.quantity] || 0,
+          taxableAddOn: taxableAdditionalChargesByQuantity[price.quantity] || 0,
+          convertedTaxableAddOn:
+            convertedTaxableAdditionalChargesByQuantity[price.quantity] || 0,
           leadTime: price.leadTime,
           shippingCost: price.shippingCost ?? 0,
           convertedShippingCost: price.convertedShippingCost ?? 0,
@@ -722,7 +799,7 @@ const QuoteSummary = ({
     return (
       acc +
       ((line.convertedNetUnitPrice ?? 0) * line.quantity +
-        (line.convertedAddOn ?? 0) +
+        (line.convertedTaxableAddOn ?? 0) +
         (line.convertedShippingCost ?? 0)) *
         (line.taxPercent ?? 0)
     );

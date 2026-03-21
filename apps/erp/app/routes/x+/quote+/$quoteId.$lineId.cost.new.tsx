@@ -46,7 +46,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       ...parsedCharges.data,
       [id]: {
         description: "Additional Charges",
-        amounts: {}
+        amounts: {},
+        taxable: true
       }
     },
     updatedBy: userId

@@ -88,6 +88,8 @@ export default function NewSalesOrderLineRoute() {
     shelfId: "",
     unitOfMeasureCode: "",
     unitPrice: 0,
+    addOnCost: 0,
+    nonTaxableAddOnCost: 0,
     locationId:
       salesOrderData?.salesOrder?.locationId ?? defaults.locationId ?? "",
     taxPercent: salesOrderData?.customer?.taxPercent ?? 0,

@@ -155,6 +155,7 @@ export default function EditSalesInvoiceLineRoute() {
     itemId: salesInvoiceLine?.itemId ?? "",
     accountNumber: salesInvoiceLine?.accountNumber ?? "",
     addOnCost: salesInvoiceLine?.addOnCost ?? 0,
+    nonTaxableAddOnCost: salesInvoiceLine?.nonTaxableAddOnCost ?? 0,
     assetId: salesInvoiceLine?.assetId ?? "",
     description: salesInvoiceLine?.description ?? "",
     quantity: salesInvoiceLine?.quantity ?? 1,

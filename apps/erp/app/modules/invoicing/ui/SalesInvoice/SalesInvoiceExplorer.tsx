@@ -62,6 +62,7 @@ export default function SalesInvoiceExplorer() {
     unitPrice: 0,
     shippingCost: 0,
     addOnCost: 0,
+    nonTaxableAddOnCost: 0,
     taxAmount: 0,
     exchangeRate: salesInvoiceData?.salesInvoice?.exchangeRate ?? 1
   };

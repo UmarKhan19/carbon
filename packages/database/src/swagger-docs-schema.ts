@@ -49117,6 +49117,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -49296,6 +49302,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -49427,6 +49439,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
           },
           {
             $ref: "#/parameters/body.salesOrderLine",
@@ -62092,6 +62110,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.convertedNonTaxableAddOnCost",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -62253,6 +62277,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.convertedNonTaxableAddOnCost",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -62366,6 +62396,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.convertedNonTaxableAddOnCost",
           },
           {
             $ref: "#/parameters/body.salesInvoiceLine",
@@ -73254,7 +73290,7 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -73303,7 +73339,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -92459,6 +92495,7 @@ export default {
         "methodType",
         "shippingCost",
         "taxPercent",
+        "nonTaxableAddOnCost",
       ],
       properties: {
         id: {
@@ -92654,6 +92691,15 @@ export default {
         sentDate: {
           format: "date",
           type: "string",
+        },
+        nonTaxableAddOnCost: {
+          default: 0,
+          format: "numeric",
+          type: "number",
+        },
+        convertedNonTaxableAddOnCost: {
+          format: "numeric",
+          type: "number",
         },
       },
       type: "object",
@@ -98825,6 +98871,7 @@ export default {
         "companyId",
         "createdAt",
         "createdBy",
+        "nonTaxableAddOnCost",
       ],
       properties: {
         id: {
@@ -99003,6 +99050,15 @@ export default {
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
           type: "string",
+        },
+        nonTaxableAddOnCost: {
+          default: 0,
+          format: "numeric",
+          type: "number",
+        },
+        convertedNonTaxableAddOnCost: {
+          format: "numeric",
+          type: "number",
         },
       },
       type: "object",
@@ -126149,6 +126205,18 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.salesOrderLine.nonTaxableAddOnCost": {
+      name: "nonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesOrderLine.convertedNonTaxableAddOnCost": {
+      name: "convertedNonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.purchaseOrderFavorite": {
       name: "purchaseOrderFavorite",
       description: "purchaseOrderFavorite",
@@ -133300,6 +133368,18 @@ export default {
     },
     "rowFilter.salesInvoiceLine.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLine.nonTaxableAddOnCost": {
+      name: "nonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLine.convertedNonTaxableAddOnCost": {
+      name: "convertedNonTaxableAddOnCost",
       required: false,
       in: "query",
       type: "string",

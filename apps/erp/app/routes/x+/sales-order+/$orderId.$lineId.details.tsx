@@ -172,6 +172,8 @@ export default function EditSalesOrderLineRoute() {
 
   const isReadOnly = isSalesOrderLocked(orderData.salesOrder.status);
 
+  console.log({ line });
+
   const initialValues = {
     id: line?.id ?? undefined,
     salesOrderId: line?.salesOrderId ?? "",
@@ -184,6 +186,7 @@ export default function EditSalesOrderLineRoute() {
     description: line?.description ?? "",
     locationId: line?.locationId ?? "",
     methodType: line?.methodType ?? "Make",
+    nonTaxableAddOnCost: line?.nonTaxableAddOnCost ?? 0,
     promisedDate: line?.promisedDate ?? undefined,
     saleQuantity: line?.saleQuantity ?? 1,
     setupPrice: line?.setupPrice ?? 0,

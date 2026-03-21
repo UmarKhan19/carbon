@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
   HStack,
   IconButton,
+  Label,
   ModalCard,
   ModalCardBody,
   ModalCardContent,
@@ -26,7 +27,7 @@ import {
 import { getItemReadableId } from "@carbon/utils";
 import { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { LuTrash } from "react-icons/lu";
+import { LuChevronRight, LuPlus, LuTrash, LuTruck } from "react-icons/lu";
 import { useParams } from "react-router";
 import type { z } from "zod";
 import { MethodIcon } from "~/components";
@@ -191,6 +192,7 @@ const SalesOrderLineForm = ({
     }));
   };
 
+  const costsDisclosure = useDisclosure();
   const deleteDisclosure = useDisclosure();
   const [items] = useItems();
 
@@ -243,9 +245,7 @@ const SalesOrderLineForm = ({
                           </Badge>
                           <Badge variant="green">
                             {currencyFormatter.format(
-                              (initialValues?.unitPrice ?? 0) +
-                                (initialValues?.addOnCost ?? 0) +
-                                (initialValues?.shippingCost ?? 0)
+                              initialValues?.unitPrice ?? 0
                             )}{" "}
                             {initialValues?.unitOfMeasureCode}
                           </Badge>
@@ -377,37 +377,6 @@ const SalesOrderLineForm = ({
                             }))
                           }
                         />
-                        <Number
-                          name="shippingCost"
-                          label="Shipping Cost"
-                          minValue={0}
-                          formatOptions={{
-                            style: "currency",
-                            currency: baseCurrency
-                          }}
-                        />
-                        <Number
-                          name="addOnCost"
-                          label="Add-On Cost"
-                          formatOptions={{
-                            style: "currency",
-                            currency: baseCurrency
-                          }}
-                        />
-
-                        <Number
-                          name="taxPercent"
-                          label="Tax Percent"
-                          minValue={0}
-                          maxValue={1}
-                          step={0.0001}
-                          formatOptions={{
-                            style: "percent",
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 2
-                          }}
-                        />
-
                         <DatePicker name="promisedDate" label="Promised Date" />
                         {[
                           "Part",
@@ -449,6 +418,121 @@ const SalesOrderLineForm = ({
                     )}
                     <CustomFormFields table="salesOrderLine" />
                   </div>
+
+                  {lineType !== "Comment" && (
+                    <div className="w-full">
+                      <div className="w-full border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 mt-4">
+                        <HStack
+                          className="w-full justify-between cursor-pointer"
+                          onClick={costsDisclosure.onToggle}
+                        >
+                          <Label>Tax &amp; Additional Costs</Label>
+                          <HStack>
+                            {(initialValues?.taxPercent ?? 0) > 0 && (
+                              <Badge variant="red">
+                                {percentFormatter.format(
+                                  initialValues?.taxPercent ?? 0
+                                )}{" "}
+                                Tax
+                              </Badge>
+                            )}
+                            {(initialValues?.shippingCost ?? 0) > 0 && (
+                              <Badge
+                                variant="secondary"
+                                className="flex items-center gap-1"
+                              >
+                                <LuTruck />
+                                <span>
+                                  {currencyFormatter.format(
+                                    initialValues?.shippingCost ?? 0
+                                  )}
+                                </span>
+                              </Badge>
+                            )}
+                            {(initialValues?.addOnCost ?? 0) > 0 ||
+                              ((initialValues?.nonTaxableAddOnCost ?? 0) >
+                                0 && (
+                                <Badge
+                                  variant="secondary"
+                                  className="flex items-center gap-1"
+                                >
+                                  <LuPlus />
+                                  <span>
+                                    {currencyFormatter.format(
+                                      (initialValues?.addOnCost ?? 0) +
+                                        (initialValues?.nonTaxableAddOnCost ??
+                                          0)
+                                    )}{" "}
+                                    Add-On
+                                  </span>
+                                </Badge>
+                              ))}
+
+                            <IconButton
+                              icon={<LuChevronRight />}
+                              aria-label={
+                                costsDisclosure.isOpen
+                                  ? "Collapse Costs"
+                                  : "Expand Costs"
+                              }
+                              variant="ghost"
+                              size="md"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                costsDisclosure.onToggle();
+                              }}
+                              className={`transition-transform ${
+                                costsDisclosure.isOpen ? "rotate-90" : ""
+                              }`}
+                            />
+                          </HStack>
+                        </HStack>
+                        <div
+                          className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
+                            costsDisclosure.isOpen ? "" : "hidden"
+                          }`}
+                        >
+                          <Number
+                            name="taxPercent"
+                            label="Tax Percent"
+                            minValue={0}
+                            maxValue={1}
+                            step={0.0001}
+                            formatOptions={{
+                              style: "percent",
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2
+                            }}
+                          />
+                          <Number
+                            name="shippingCost"
+                            label="Shipping Cost"
+                            minValue={0}
+                            formatOptions={{
+                              style: "currency",
+                              currency: baseCurrency
+                            }}
+                          />
+                          <Number
+                            name="addOnCost"
+                            label="Add-On Cost"
+                            formatOptions={{
+                              style: "currency",
+                              currency: baseCurrency
+                            }}
+                          />
+                          <Number
+                            name="nonTaxableAddOnCost"
+                            label="Non-Taxable Add-On Cost"
+                            formatOptions={{
+                              style: "currency",
+                              currency: baseCurrency
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </VStack>
               </ModalCardBody>
               <ModalCardFooter>
