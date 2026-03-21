@@ -171,15 +171,19 @@ const QuotePDF = ({
       const netExtendedPrice = price?.convertedNetExtendedPrice ?? 0;
       const additionalCharges = line.additionalCharges ?? {};
       const quantity = line.quantity[0];
-      const fees = Object.values(additionalCharges).reduce((acc, charge) => {
-        let amount = charge.amounts?.[quantity] ?? 0;
-        if (shouldConvertCurrency) {
-          amount *= exchangeRate;
-        }
-        return acc + amount;
-      }, 0);
+      const taxableFees = Object.values(additionalCharges).reduce(
+        (acc, charge) => {
+          if (charge.taxable === false) return acc;
+          let amount = charge.amounts?.[quantity] ?? 0;
+          if (shouldConvertCurrency) {
+            amount *= exchangeRate;
+          }
+          return acc + amount;
+        },
+        0
+      );
       const lineShipping = price?.convertedShippingCost ?? 0;
-      const taxableAmount = netExtendedPrice + fees + lineShipping;
+      const taxableAmount = netExtendedPrice + taxableFees + lineShipping;
       return total + taxableAmount * (line.taxPercent ?? 0);
     }, 0);
   };
@@ -353,11 +357,21 @@ const QuotePDF = ({
                     }
                     return acc + amount;
                   }, 0);
+                  const taxableAdditionalCharge = Object.values(
+                    additionalCharges
+                  ).reduce((acc, charge) => {
+                    if (charge.taxable === false) return acc;
+                    let amount = charge.amounts?.[quantity] ?? 0;
+                    if (shouldConvertCurrency) {
+                      amount *= exchangeRate;
+                    }
+                    return acc + amount;
+                  }, 0);
                   const shippingCost = price?.convertedShippingCost ?? 0;
                   const taxPercent = line.taxPercent ?? 0;
-                  const totalBeforeTax =
-                    netExtendedPrice + additionalCharge + shippingCost;
-                  const taxAmount = totalBeforeTax * taxPercent;
+                  const taxableBeforeTax =
+                    netExtendedPrice + taxableAdditionalCharge + shippingCost;
+                  const taxAmount = taxableBeforeTax * taxPercent;
                   const totalTaxAndFees =
                     additionalCharge + shippingCost + taxAmount;
                   const totalPrice = netExtendedPrice + totalTaxAndFees;

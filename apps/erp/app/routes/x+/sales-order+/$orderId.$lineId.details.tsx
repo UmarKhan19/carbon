@@ -184,6 +184,7 @@ export default function EditSalesOrderLineRoute() {
     description: line?.description ?? "",
     locationId: line?.locationId ?? "",
     methodType: line?.methodType ?? "Make to Order",
+    nonTaxableAddOnCost: line?.nonTaxableAddOnCost ?? 0,
     promisedDate: line?.promisedDate ?? undefined,
     saleQuantity: line?.saleQuantity ?? 1,
     setupPrice: line?.setupPrice ?? 0,

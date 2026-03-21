@@ -152,11 +152,8 @@ export default function OperationRoute() {
     thumbnailPath,
     trackedEntities,
     workCenter,
-    nonConformanceActions,
-    bomIdMap
+    nonConformanceActions
   } = useLoaderData<typeof loader>();
-
-  console.log({ bomIdMap });
 
   return (
     <JobOperation

@@ -21,8 +21,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const field = formData.get("field");
   const value = formData.get("value");
 
-  console.log({ ids, field, value });
-
   if (typeof field !== "string") {
     return { error: { message: "Invalid form data" }, data: null };
   }

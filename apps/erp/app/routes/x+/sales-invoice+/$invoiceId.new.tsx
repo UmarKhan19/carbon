@@ -104,6 +104,7 @@ export default function NewSalesInvoiceLineRoute() {
     unitPrice: 0,
     shippingCost: 0,
     addOnCost: 0,
+    nonTaxableAddOnCost: 0,
     taxPercent: 0,
     exchangeRate: salesInvoiceData?.salesInvoice?.exchangeRate ?? 1
   };

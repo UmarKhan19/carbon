@@ -70,8 +70,6 @@ const MaintenanceDispatchProperties = () => {
       ? optimisticAssignment
       : (routeData?.dispatch?.assignee?.id ?? null);
 
-  console.log({ optimisticAssignment, routeData: routeData?.dispatch });
-
   const fetcher = useFetcher<{ error?: { message: string } }>();
   const eventFetcher = useFetcher<{ error?: { message: string } }>();
 
