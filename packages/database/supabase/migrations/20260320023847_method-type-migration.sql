@@ -1,6 +1,5 @@
 -- Method Type Refactor Migration
 -- Renames: Buy -> Purchase to Order, Pick -> Pull from Inventory, Make -> Make to Order
--- Removes: Dropship to Supplier, Ship to Supplier, Kit
 --
 -- Strategy: Convert enum columns to text, drop old enum, create new enum, convert back.
 -- This avoids ever having both old and new values in the enum.

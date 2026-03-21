@@ -294,6 +294,40 @@ const ToolProperties = () => {
 
       <ValidatedForm
         defaultValues={{
+          replenishmentSystem:
+            routeData?.toolSummary?.replenishmentSystem ?? undefined
+        }}
+        validator={z.object({
+          replenishmentSystem: z.string()
+        })}
+        className="w-full"
+      >
+        <Select
+          name="replenishmentSystem"
+          label="Replenishment"
+          inline={(value) => (
+            <Badge variant="secondary">
+              <ReplenishmentSystemIcon type={value} className="mr-2" />
+              <span>{value}</span>
+            </Badge>
+          )}
+          options={itemReplenishmentSystems.map((system) => ({
+            value: system,
+            label: (
+              <span className="flex items-center gap-2">
+                <ReplenishmentSystemIcon type={system} />
+                {system}
+              </span>
+            )
+          }))}
+          onChange={(value) => {
+            onUpdate("replenishmentSystem", value?.value ?? null);
+          }}
+        />
+      </ValidatedForm>
+
+      <ValidatedForm
+        defaultValues={{
           itemTrackingType:
             routeData?.toolSummary?.itemTrackingType ?? undefined
         }}
@@ -346,7 +380,12 @@ const ToolProperties = () => {
             </Badge>
           )}
           options={methodType
-            .filter((type) => type !== "Make")
+            .filter((type) => {
+              const replenishment = routeData?.toolSummary?.replenishmentSystem;
+              if (replenishment === "Buy") return type !== "Make to Order";
+              if (replenishment === "Make") return type !== "Purchase to Order";
+              return true;
+            })
             .map((type) => ({
               value: type,
               label: (
@@ -358,40 +397,6 @@ const ToolProperties = () => {
             }))}
           onChange={(value) => {
             onUpdate("defaultMethodType", value?.value ?? null);
-          }}
-        />
-      </ValidatedForm>
-
-      <ValidatedForm
-        defaultValues={{
-          replenishmentSystem:
-            routeData?.toolSummary?.replenishmentSystem ?? undefined
-        }}
-        validator={z.object({
-          replenishmentSystem: z.string()
-        })}
-        className="w-full"
-      >
-        <Select
-          name="replenishmentSystem"
-          label="Replenishment"
-          inline={(value) => (
-            <Badge variant="secondary">
-              <ReplenishmentSystemIcon type={value} className="mr-2" />
-              <span>{value}</span>
-            </Badge>
-          )}
-          options={itemReplenishmentSystems.map((system) => ({
-            value: system,
-            label: (
-              <span className="flex items-center gap-2">
-                <ReplenishmentSystemIcon type={system} />
-                {system}
-              </span>
-            )
-          }))}
-          onChange={(value) => {
-            onUpdate("replenishmentSystem", value?.value ?? null);
           }}
         />
       </ValidatedForm>

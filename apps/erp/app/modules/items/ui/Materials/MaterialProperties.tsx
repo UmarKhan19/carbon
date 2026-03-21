@@ -454,7 +454,7 @@ const MaterialProperties = () => {
               </Badge>
             )}
             options={methodType
-              .filter((type) => type !== "Make")
+              .filter((type) => type !== "Make to Order")
               .map((type) => ({
                 value: type,
                 label: (

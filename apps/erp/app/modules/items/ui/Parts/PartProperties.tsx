@@ -315,6 +315,40 @@ const PartProperties = () => {
 
       <ValidatedForm
         defaultValues={{
+          replenishmentSystem:
+            routeData?.partSummary?.replenishmentSystem ?? undefined
+        }}
+        validator={z.object({
+          replenishmentSystem: z.string()
+        })}
+        className="w-full"
+      >
+        <Select
+          name="replenishmentSystem"
+          label="Replenishment"
+          inline={(value) => (
+            <Badge variant="secondary">
+              <ReplenishmentSystemIcon type={value} className="mr-2" />
+              <span>{value}</span>
+            </Badge>
+          )}
+          options={itemReplenishmentSystems.map((system) => ({
+            value: system,
+            label: (
+              <span className="flex items-center gap-2">
+                <ReplenishmentSystemIcon type={system} />
+                {system}
+              </span>
+            )
+          }))}
+          onChange={(value) => {
+            onUpdate("replenishmentSystem", value?.value ?? null);
+          }}
+        />
+      </ValidatedForm>
+
+      <ValidatedForm
+        defaultValues={{
           itemTrackingType:
             routeData?.partSummary?.itemTrackingType ?? undefined
         }}
@@ -366,51 +400,24 @@ const PartProperties = () => {
               <span>{value}</span>
             </Badge>
           )}
-          options={methodType.map((type) => ({
-            value: type,
-            label: (
-              <span className="flex items-center gap-2">
-                <MethodIcon type={type} />
-                {type}
-              </span>
-            )
-          }))}
+          options={methodType
+            .filter((type) => {
+              const replenishment = routeData?.partSummary?.replenishmentSystem;
+              if (replenishment === "Buy") return type !== "Make to Order";
+              if (replenishment === "Make") return type !== "Purchase to Order";
+              return true;
+            })
+            .map((type) => ({
+              value: type,
+              label: (
+                <span className="flex items-center gap-2">
+                  <MethodIcon type={type} />
+                  {type}
+                </span>
+              )
+            }))}
           onChange={(value) => {
             onUpdate("defaultMethodType", value?.value ?? null);
-          }}
-        />
-      </ValidatedForm>
-
-      <ValidatedForm
-        defaultValues={{
-          replenishmentSystem:
-            routeData?.partSummary?.replenishmentSystem ?? undefined
-        }}
-        validator={z.object({
-          replenishmentSystem: z.string()
-        })}
-        className="w-full"
-      >
-        <Select
-          name="replenishmentSystem"
-          label="Replenishment"
-          inline={(value) => (
-            <Badge variant="secondary">
-              <ReplenishmentSystemIcon type={value} className="mr-2" />
-              <span>{value}</span>
-            </Badge>
-          )}
-          options={itemReplenishmentSystems.map((system) => ({
-            value: system,
-            label: (
-              <span className="flex items-center gap-2">
-                <ReplenishmentSystemIcon type={system} />
-                {system}
-              </span>
-            )
-          }))}
-          onChange={(value) => {
-            onUpdate("replenishmentSystem", value?.value ?? null);
           }}
         />
       </ValidatedForm>

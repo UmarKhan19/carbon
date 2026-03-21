@@ -31,8 +31,12 @@ export async function action({ request }: ActionFunctionArgs) {
           .update({
             // @ts-expect-error
             [field]: value,
-            // @ts-expect-error
-            defaultMethodType: value,
+            defaultMethodType:
+              value === "Make"
+                ? "Make to Order"
+                : value === "Buy"
+                  ? "Purchase to Order"
+                  : "Pull from Inventory",
             updatedBy: userId,
             updatedAt: new Date().toISOString()
           })
@@ -43,10 +47,14 @@ export async function action({ request }: ActionFunctionArgs) {
         return await client
           .from("item")
           .update({
-            // @ts-expect-error
+            // @ts-expect-error - value is a valid method type
             defaultMethodType: value,
-            // @ts-expect-error
-            replenishmentSystem: value,
+            replenishmentSystem:
+              value === "Make to Order"
+                ? "Make"
+                : value === "Purchase to Order"
+                  ? "Buy"
+                  : "Buy and Make",
             updatedBy: userId,
             updatedAt: new Date().toISOString()
           })
