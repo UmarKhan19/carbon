@@ -34294,6 +34294,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLines.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.salesInvoiceLines.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesInvoiceLines.convertedNonTaxableAddOnCost",
+          },
+          {
             $ref: "#/parameters/rowFilter.salesInvoiceLines.itemReadableId",
           },
           {
@@ -40658,6 +40664,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLines.sentDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLines.nonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLines.convertedNonTaxableAddOnCost",
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLines.itemReadableId",
@@ -69944,11 +69956,7 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -70145,11 +70153,7 @@ export default {
         },
         methodType: {
           default: "Make to Order",
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -73515,11 +73519,7 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -73975,12 +73975,8 @@ export default {
           type: "string",
         },
         methodType: {
-          default: "Purchase to Order",
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          default: "Pull from Inventory",
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -74161,11 +74157,7 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -79617,11 +79609,7 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -84391,11 +84379,7 @@ export default {
         },
         methodType: {
           default: "Make to Order",
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -85310,11 +85294,7 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -85444,6 +85424,14 @@ export default {
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
           type: "string",
+        },
+        nonTaxableAddOnCost: {
+          format: "numeric",
+          type: "number",
+        },
+        convertedNonTaxableAddOnCost: {
+          format: "numeric",
+          type: "number",
         },
         itemReadableId: {
           format: "text",
@@ -88256,11 +88244,7 @@ export default {
           type: "number",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -88305,6 +88289,14 @@ export default {
         sentDate: {
           format: "date",
           type: "string",
+        },
+        nonTaxableAddOnCost: {
+          format: "numeric",
+          type: "number",
+        },
+        convertedNonTaxableAddOnCost: {
+          format: "numeric",
+          type: "number",
         },
         itemReadableId: {
           format: "text",
@@ -88752,11 +88744,7 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -88938,11 +88926,7 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -89205,11 +89189,7 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -89895,11 +89875,7 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -90509,11 +90485,7 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -91382,11 +91354,7 @@ export default {
         },
         methodType: {
           default: "Make to Order",
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -92709,12 +92677,8 @@ export default {
           type: "number",
         },
         methodType: {
-          default: "Purchase to Order",
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          default: "Pull from Inventory",
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -95884,11 +95848,7 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -96564,12 +96524,8 @@ export default {
           type: "string",
         },
         defaultMethodType: {
-          default: "Purchase to Order",
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          default: "Pull from Inventory",
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -97052,11 +97008,7 @@ export default {
           type: "string",
         },
         methodType: {
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -98995,11 +98947,7 @@ export default {
         },
         methodType: {
           default: "Pull from Inventory",
-          enum: [
-            "Purchase to Order",
-            "Pull from Inventory",
-            "Make to Order",
-          ],
+          enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
           type: "string",
         },
@@ -118069,6 +118017,18 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.salesInvoiceLines.nonTaxableAddOnCost": {
+      name: "nonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesInvoiceLines.convertedNonTaxableAddOnCost": {
+      name: "convertedNonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.salesInvoiceLines.itemReadableId": {
       name: "itemReadableId",
       required: false,
@@ -121282,6 +121242,18 @@ export default {
     },
     "rowFilter.salesOrderLines.sentDate": {
       name: "sentDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesOrderLines.nonTaxableAddOnCost": {
+      name: "nonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesOrderLines.convertedNonTaxableAddOnCost": {
+      name: "convertedNonTaxableAddOnCost",
       required: false,
       in: "query",
       type: "string",

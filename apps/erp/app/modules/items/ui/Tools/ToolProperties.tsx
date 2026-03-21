@@ -17,7 +17,6 @@ import { Await, useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
-import { Enumerable } from "~/components/Enumerable";
 import { Boolean, ItemPostingGroup, Tags } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
@@ -403,7 +402,11 @@ const ToolProperties = () => {
 
       <VStack spacing={2}>
         <h3 className="text-xs text-muted-foreground">Unit of Measure</h3>
-        <Enumerable value={routeData?.toolSummary?.unitOfMeasure ?? null} />
+        {routeData?.toolSummary?.unitOfMeasure && (
+          <Badge variant="secondary">
+            {routeData.toolSummary.unitOfMeasure}
+          </Badge>
+        )}
       </VStack>
 
       <VStack spacing={2}>
