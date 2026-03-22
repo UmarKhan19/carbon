@@ -18,7 +18,6 @@ import {
   getPickMethod,
   upsertPickMethod
 } from "~/modules/items";
-import { BillOfMaterial, BillOfProcess } from "~/modules/items/ui/Item";
 import { getLocationsList } from "~/modules/resources";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import { getTagsList } from "~/modules/shared";
@@ -197,14 +196,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function ItemInventoryRoute() {
-  const {
-    pickMethod,
-    quantities,
-    itemShelfQuantities,
-    item,
-    methodData,
-    tags
-  } = useLoaderData<typeof loader>();
+  const { pickMethod, quantities, itemShelfQuantities, item } =
+    useLoaderData<typeof loader>();
 
   const [items] = useItems();
   const itemTrackingType = items.find(
@@ -226,25 +219,6 @@ export default function ItemInventoryRoute() {
         quantities={quantities}
         shelves={shelves.options}
       />
-      {methodData && (
-        <>
-          <BillOfMaterial
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            materials={methodData.methodMaterials}
-            // @ts-ignore
-            operations={methodData.methodOperations}
-          />
-          <BillOfProcess
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            operations={methodData.methodOperations}
-            // @ts-ignore
-            materials={methodData.methodMaterials}
-            tags={tags}
-          />
-        </>
-      )}
     </VStack>
   );
 }

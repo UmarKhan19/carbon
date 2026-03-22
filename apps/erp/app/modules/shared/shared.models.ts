@@ -137,6 +137,12 @@ export const methodType = [
   "Make to Order"
 ] as const;
 
+export const sourcingType = [
+  "Specified",
+  "Drop Ship",
+  "Ship from Inventory"
+] as const;
+
 export const validMethodTypesByReplenishment: Record<
   string,
   readonly (typeof methodType)[number][]

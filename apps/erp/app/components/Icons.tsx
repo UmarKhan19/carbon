@@ -38,9 +38,10 @@ import {
   LuQrCode,
   LuShoppingCart,
   LuSquare,
-  LuSwords,
+  LuTarget,
   LuTimer,
   LuToggleLeft,
+  LuTruck,
   LuUser
 } from "react-icons/lu";
 import { RxCodesandboxLogo } from "react-icons/rx";
@@ -79,6 +80,25 @@ export const MethodItemTypeIcon = ({
       return <LuPizza className={className} />;
     case "Service":
       return <LuHeadphones className={className} />;
+  }
+
+  return <LuSquare className={cn("text-muted-foreground", className)} />;
+};
+
+export const SourcingTypeIcon = ({
+  type,
+  className
+}: {
+  type: string;
+  className?: string;
+}) => {
+  switch (type) {
+    case "Specified":
+      return <LuTarget className={cn("text-red-500", className)} />;
+    case "Drop Ship":
+      return <LuShoppingCart className={cn("text-blue-500", className)} />;
+    case "Ship from Inventory":
+      return <LuTruck className={cn("text-cyan-500", className)} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
@@ -348,7 +368,7 @@ export const ReplenishmentSystemIcon = ({
         <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
       );
     case "Buy and Make":
-      return <LuSwords className={cn("text-yellow-500", className)} />;
+      return <LuFlaskConical className={cn("text-teal-500", className)} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
