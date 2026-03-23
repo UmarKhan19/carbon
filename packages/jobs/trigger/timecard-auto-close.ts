@@ -3,13 +3,13 @@ import { schedules } from "@trigger.dev/sdk";
 
 const serviceRole = getCarbonServiceRole();
 
-export const timeClockAutoClose = schedules.task({
-  id: "timeclock-auto-close",
+export const timeCardAutoClose = schedules.task({
+  id: "timecard-auto-close",
   // Run every Sunday at 11pm UTC (after weekly task at 9pm)
   cron: "0 23 * * 0",
   run: async () => {
     console.log(
-      `🕐 Starting time clock auto-close: ${new Date().toISOString()}`
+      `🕐 Starting timecard auto-close: ${new Date().toISOString()}`
     );
 
     try {
@@ -17,7 +17,7 @@ export const timeClockAutoClose = schedules.task({
       const { data: companies, error: companiesError } = await serviceRole
         .from("companySettings")
         .select("id")
-        .eq("timeClockEnabled", true);
+        .eq("timeCardEnabled", true);
 
       if (companiesError) {
         console.error(
@@ -35,7 +35,7 @@ export const timeClockAutoClose = schedules.task({
       for (const company of companies ?? []) {
         // 2. Get all open time clock entries for this company
         const { data: openEntries, error: entriesError } = await serviceRole
-          .from("timeClockEntry")
+          .from("timeCardEntry")
           .select("id, employeeId, clockIn")
           .eq("companyId", company.id)
           .is("clockOut", null);
@@ -102,7 +102,7 @@ export const timeClockAutoClose = schedules.task({
 
           // 4. Update the entry
           const { error: updateError } = await serviceRole
-            .from("timeClockEntry")
+            .from("timeCardEntry")
             .update({
               clockOut: clockOut.toISOString(),
               autoCloseShiftId: shiftId,
@@ -125,11 +125,11 @@ export const timeClockAutoClose = schedules.task({
       }
 
       console.log(
-        `🕐 Time clock auto-close completed: ${totalClosed} entries closed`
+        `🕐 Timecard auto-close completed: ${totalClosed} entries closed`
       );
     } catch (err) {
       console.error(
-        `Unexpected error in time clock auto-close: ${
+        `Unexpected error in timecard auto-close: ${
           err instanceof Error ? err.message : String(err)
         }`
       );

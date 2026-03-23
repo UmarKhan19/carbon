@@ -9,7 +9,7 @@ import type { PublicAttributes } from "~/modules/account";
 
 export function usePersonSidebar(
   attributeCategories: PublicAttributes[],
-  timeClockEnabled?: boolean
+  timeCardEnabled?: boolean
 ) {
   const baseLinks = [
     {
@@ -22,20 +22,20 @@ export function usePersonSidebar(
       to: "job",
       icon: <LuHardHat />
     },
-    ...(timeClockEnabled
-      ? [
-          {
-            name: "Time Clock",
-            to: "timeclock",
-            icon: <LuClock />
-          }
-        ]
-      : []),
     {
       name: "Notes",
       to: "notes",
       icon: <LuStickyNote />
-    }
+    },
+    ...(timeCardEnabled
+      ? [
+          {
+            name: "Timecards",
+            to: "timecard",
+            icon: <LuClock />
+          }
+        ]
+      : [])
   ];
 
   const categoryLinks = attributeCategories.map((category) => ({

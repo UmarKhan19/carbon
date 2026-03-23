@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { Boolean, Submit, ValidatedForm, validator } from "@carbon/form";
 import {
+  Badge,
   Card,
   CardContent,
   CardDescription,
@@ -19,8 +20,8 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import {
   getCompanySettings,
-  timeClockSettingsValidator,
-  updateTimeClockSetting
+  timeCardSettingsValidator,
+  updateTimeCardSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -56,8 +57,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-  if (intent === "timeClock") {
-    const validation = await validator(timeClockSettingsValidator).validate(
+  if (intent === "timeCard") {
+    const validation = await validator(timeCardSettingsValidator).validate(
       formData
     );
 
@@ -65,15 +66,15 @@ export async function action({ request }: ActionFunctionArgs) {
       return { success: false, message: "Invalid form data" };
     }
 
-    const update = await updateTimeClockSetting(
+    const update = await updateTimeCardSetting(
       client,
       companyId,
-      validation.data.timeClockEnabled
+      validation.data.timeCardEnabled
     );
 
     if (update.error) return { success: false, message: update.error.message };
 
-    return { success: true, message: "Time clock settings updated" };
+    return { success: true, message: "Timecard settings updated" };
   }
 
   return { success: false, message: "Unknown intent" };
@@ -104,27 +105,30 @@ export default function PeopleSettingsRoute() {
         <Card>
           <ValidatedForm
             method="post"
-            validator={timeClockSettingsValidator}
+            validator={timeCardSettingsValidator}
             defaultValues={{
-              timeClockEnabled: companySettings.timeClockEnabled ?? false
+              timeCardEnabled: companySettings.timeCardEnabled ?? false
             }}
             fetcher={fetcher}
           >
-            <input type="hidden" name="intent" value="timeClock" />
+            <input type="hidden" name="intent" value="timeCard" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Time Clock
+                Timecards
               </CardTitle>
               <CardDescription>
-                Enable employee clock-in and clock-out tracking for work shifts.
+                Enable timecard tracking for work shifts.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-2 max-w-[400px]">
+              <div className="flex items-center justify-start gap-2">
                 <Boolean
-                  name="timeClockEnabled"
-                  description="Enable Time Clock"
+                  name="timeCardEnabled"
+                  description="Enable Timecards"
                 />
+                <div>
+                  <Badge variant="yellow">Beta</Badge>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
@@ -132,7 +136,7 @@ export default function PeopleSettingsRoute() {
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={
                   fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") === "timeClock"
+                  fetcher.formData?.get("intent") === "timeCard"
                 }
               >
                 Save

@@ -2,6 +2,7 @@ import type { ValidationErrorResponseData } from "@carbon/form";
 import type { FileObject } from "@supabase/storage-js";
 import type { ReactElement } from "react";
 import type { IconType } from "react-icons";
+import type { useSettings } from "~/hooks";
 
 export type Action = {
   label: string;
@@ -54,10 +55,11 @@ export type Result = {
 
 export type Role = "employee" | "customer" | "supplier";
 
-export type Route = {
+export type Route<T = {}> = T & {
   name: string;
   to: string;
   icon?: any;
+  setting?: keyof ReturnType<typeof useSettings>;
   views?: {
     id: string;
     name: string;
@@ -68,10 +70,10 @@ export type Route = {
   table?: string;
 };
 
-export type RouteGroup = {
+export type RouteGroup<T = {}> = {
   name: string;
   icon?: any;
-  routes: Route[];
+  routes: (Route & T)[];
 };
 
 export interface SelectOption {

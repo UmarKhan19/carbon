@@ -283,6 +283,6 @@ export const accountsPayableBillingAddressValidator = z.object(billingAddress);
 export const accountsReceivableBillingAddressValidator =
   z.object(billingAddress);
 
-export const timeClockSettingsValidator = z.object({
-  timeClockEnabled: zfd.checkbox()
+export const timeCardSettingsValidator = z.object({
+  timeCardEnabled: zfd.checkbox()
 });

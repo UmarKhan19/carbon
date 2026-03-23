@@ -28,9 +28,8 @@ import {
   clockIn,
   clockOut,
   getOpenClockEntry,
-  isOnBreak,
-  updateTimeClockEntry
-} from "~/services/timeclock.service";
+  updateTimeCardEntry
+} from "~/services/people.service";
 import { path } from "~/utils/path";
 
 function getWeekBounds(offset: number = 0) {
@@ -116,26 +115,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const weekOffset = parseInt(url.searchParams.get("week") ?? "0", 10);
   const { from, to } = getWeekBounds(weekOffset);
 
-  const [entries, openEntry, breakStatus] = await Promise.all([
+  const [entries, openEntry] = await Promise.all([
     client
-      .from("timeClockEntry")
+      .from("timeCardEntry")
       .select("*")
       .eq("employeeId", userId)
       .eq("companyId", companyId)
       .gte("clockIn", from)
       .lte("clockIn", to)
       .order("clockIn", { ascending: false }),
-    getOpenClockEntry(client, userId, companyId),
-    isOnBreak(client, userId, companyId)
+    getOpenClockEntry(client, userId, companyId)
   ]);
 
   return {
     entries: entries.data ?? [],
     openEntry: openEntry.data,
-    breakEntry:
-      breakStatus.onBreak && breakStatus.breakClockOut
-        ? { clockOut: breakStatus.breakClockOut }
-        : null,
     weekOffset,
     from,
     to
@@ -158,12 +152,10 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "clockOut") {
-    const type = (formData.get("type") as string) || "shift_end";
     const result = await clockOut(client, {
       employeeId: userId,
       companyId,
-      updatedBy: userId,
-      type: type as "shift_end" | "break"
+      updatedBy: userId
     });
     return { success: !result.error, error: result.error?.message };
   }
@@ -172,7 +164,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const entryId = formData.get("entryId") as string;
     const clockInVal = formData.get("clockIn") as string;
     const clockOutVal = formData.get("clockOut") as string | null;
-    const result = await updateTimeClockEntry(client, {
+    const result = await updateTimeCardEntry(client, {
       entryId,
       clockIn: clockInVal,
       clockOut: clockOutVal || null,
@@ -184,7 +176,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === "deleteEntry") {
     const entryId = formData.get("entryId") as string;
     const result = await client
-      .from("timeClockEntry")
+      .from("timeCardEntry")
       .delete()
       .eq("id", entryId);
     return { success: !result.error, error: result.error?.message };
@@ -193,8 +185,8 @@ export async function action({ request }: ActionFunctionArgs) {
   return { success: false, error: "Unknown intent" };
 }
 
-export default function MESTimeClockPage() {
-  const { entries, openEntry, breakEntry, weekOffset, from, to } =
+export default function MESTimecardPage() {
+  const { entries, openEntry, weekOffset, from, to } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -235,63 +227,20 @@ export default function MESTimeClockPage() {
           <h2 className="text-xl font-semibold">My Hours</h2>
           <div>
             {openEntry ? (
-              <HStack className="gap-1">
-                <fetcher.Form method="post">
-                  <input type="hidden" name="intent" value="clockOut" />
-                  <input type="hidden" name="type" value="shift_end" />
-                  <Button
-                    className="bg-red-500 hover:bg-red-600 text-white"
-                    size="sm"
-                    type="submit"
-                    disabled={fetcher.state !== "idle"}
-                  >
-                    Clock Out
-                  </Button>
-                </fetcher.Form>
-                <fetcher.Form method="post">
-                  <input type="hidden" name="intent" value="clockOut" />
-                  <input type="hidden" name="type" value="break" />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="submit"
-                    disabled={fetcher.state !== "idle"}
-                    className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
-                  >
-                    Break
-                  </Button>
-                </fetcher.Form>
-              </HStack>
-            ) : breakEntry ? (
-              <HStack className="gap-2 items-center">
-                <Badge
-                  variant="outline"
-                  className="text-yellow-600 border-yellow-600 text-xs"
-                >
-                  On Break · {formatDuration(breakEntry.clockOut, null)}
-                </Badge>
-                <fetcher.Form method="post">
-                  <input type="hidden" name="intent" value="clockIn" />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="submit"
-                    disabled={fetcher.state !== "idle"}
-                    className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
-                  >
-                    Clock Back In
-                  </Button>
-                </fetcher.Form>
-              </HStack>
-            ) : (
               <fetcher.Form method="post">
-                <input type="hidden" name="intent" value="clockIn" />
+                <input type="hidden" name="intent" value="clockOut" />
                 <Button
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                  size="sm"
+                  variant="destructive"
                   type="submit"
                   disabled={fetcher.state !== "idle"}
                 >
+                  Clock Out
+                </Button>
+              </fetcher.Form>
+            ) : (
+              <fetcher.Form method="post">
+                <input type="hidden" name="intent" value="clockIn" />
+                <Button type="submit" disabled={fetcher.state !== "idle"}>
                   Clock In
                 </Button>
               </fetcher.Form>
@@ -300,10 +249,7 @@ export default function MESTimeClockPage() {
         </HStack>
 
         {openEntry && (
-          <Badge
-            variant="outline"
-            className="w-fit text-emerald-600 border-emerald-600"
-          >
+          <Badge variant="green" className="w-fit">
             Clocked in since {formatTime(openEntry.clockIn)}
           </Badge>
         )}
@@ -312,8 +258,8 @@ export default function MESTimeClockPage() {
         <Card>
           <CardHeader>
             <HStack className="justify-between items-center">
-              <Button variant="ghost" size="sm" asChild>
-                <a href={`${path.to.timeClockPage}?week=${weekOffset - 1}`}>
+              <Button variant="ghost" asChild>
+                <a href={`${path.to.timeCardPage}?week=${weekOffset - 1}`}>
                   <LuChevronLeft className="size-4" />
                   Prev
                 </a>
@@ -323,7 +269,6 @@ export default function MESTimeClockPage() {
               </span>
               <Button
                 variant="ghost"
-                size="sm"
                 disabled={isCurrentWeek}
                 asChild={!isCurrentWeek}
               >
@@ -333,7 +278,7 @@ export default function MESTimeClockPage() {
                     <LuChevronRight className="size-4" />
                   </span>
                 ) : (
-                  <a href={`${path.to.timeClockPage}?week=${weekOffset + 1}`}>
+                  <a href={`${path.to.timeCardPage}?week=${weekOffset + 1}`}>
                     Next
                     <LuChevronRight className="size-4" />
                   </a>
@@ -425,21 +370,17 @@ export default function MESTimeClockPage() {
                                 )}
                               <Button
                                 variant="ghost"
-                                size="sm"
                                 type="submit"
                                 disabled={isNaN(
                                   new Date(editClockIn).getTime()
                                 )}
-                                className="w-full hover:bg-emerald-100 hover:text-emerald-700"
                               >
                                 Save
                               </Button>
                             </fetcher.Form>
                             <Button
                               variant="ghost"
-                              size="sm"
                               onClick={() => setEditingId(null)}
-                              className="w-full hover:bg-red-100 hover:text-red-700"
                             >
                               Cancel
                             </Button>
@@ -456,12 +397,7 @@ export default function MESTimeClockPage() {
                           {entry.clockOut ? (
                             formatTime(entry.clockOut)
                           ) : (
-                            <Badge
-                              variant="outline"
-                              className="text-emerald-600 border-emerald-600"
-                            >
-                              Active
-                            </Badge>
+                            <Badge variant="green">Active</Badge>
                           )}
                         </Td>
                         <Td className="text-center">
@@ -471,7 +407,6 @@ export default function MESTimeClockPage() {
                           <HStack className="justify-center">
                             <Button
                               variant="ghost"
-                              size="sm"
                               onClick={() => startEdit(entry)}
                             >
                               <LuPencil className="size-3.5" />
@@ -487,7 +422,7 @@ export default function MESTimeClockPage() {
                                 name="entryId"
                                 value={entry.id}
                               />
-                              <Button variant="ghost" size="sm" type="submit">
+                              <Button variant="ghost" type="submit">
                                 <LuTrash className="size-3.5" />
                               </Button>
                             </fetcher.Form>

@@ -695,14 +695,14 @@ export async function updateJobTravelerWorkInstructions(
     .eq("id", companyId);
 }
 
-export async function updateTimeClockSetting(
+export async function updateTimeCardSetting(
   client: SupabaseClient<Database>,
   companyId: string,
-  timeClockEnabled: boolean
+  timeCardEnabled: boolean
 ) {
   return client
     .from("companySettings")
-    .update(sanitize({ timeClockEnabled }))
+    .update(sanitize({ timeCardEnabled }))
     .eq("id", companyId);
 }
 

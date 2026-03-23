@@ -9,8 +9,19 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   HStack,
+  IconButton,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table as TableBase,
   Tbody,
   Td,
@@ -23,7 +34,9 @@ import { useEffect, useState } from "react";
 import {
   LuChevronLeft,
   LuChevronRight,
+  LuEllipsisVertical,
   LuPencil,
+  LuPlay,
   LuPlus,
   LuTrash
 } from "react-icons/lu";
@@ -35,20 +48,21 @@ import {
   useLoaderData,
   useParams
 } from "react-router";
-import { getCompanySettings } from "~/modules/settings";
+import { Link } from "react-router-dom";
+import { ConfirmDelete } from "~/components/Modals";
 import {
   clockIn,
   clockInValidator,
   clockOut,
   clockOutValidator,
-  deleteTimeClockEntry,
-  deleteTimeClockEntryValidator,
+  deleteTimeCardEntry,
+  deleteTimeCardEntryValidator,
   getOpenClockEntry,
-  getTimeClockEntries,
-  isOnBreak,
-  updateTimeClockEntry,
-  updateTimeClockEntryValidator
-} from "~/modules/timeclock";
+  getTimeCardEntries,
+  updateTimeCardEntry,
+  updateTimeCardEntryValidator
+} from "~/modules/people";
+import { getCompanySettings } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 function getWeekBounds(offset: number = 0) {
@@ -133,7 +147,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const [entries, openEntry, companySettings, employeeShift] =
     await Promise.all([
-      getTimeClockEntries(client, {
+      getTimeCardEntries(client, {
         employeeId: personId,
         companyId,
         from,
@@ -151,7 +165,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         .maybeSingle()
     ]);
 
-  if (!companySettings.data?.timeClockEnabled) {
+  if (!companySettings.data?.timeCardEnabled) {
     throw redirect(path.to.personDetails(personId));
   }
 
@@ -167,19 +181,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     saturday: boolean;
   } | null;
 
-  const personBreakStatus = await isOnBreak(client, personId, companyId);
-
   return {
     entries: entries.data ?? [],
     openEntry: openEntry.data,
     weekOffset,
     from,
     to,
-    shift,
-    breakEntry:
-      personBreakStatus.onBreak && personBreakStatus.breakClockOut
-        ? { clockOut: personBreakStatus.breakClockOut }
-        : null
+    shift
   };
 }
 
@@ -224,8 +232,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       employeeId,
       companyId,
       updatedBy: userId,
-      note: validation.data.note,
-      type: validation.data.type
+      note: validation.data.note
     });
 
     if (result.error) {
@@ -238,12 +245,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (intent === "updateEntry") {
-    const validation = await validator(updateTimeClockEntryValidator).validate(
+    const validation = await validator(updateTimeCardEntryValidator).validate(
       formData
     );
     if (validation.error) return data({}, { status: 400 });
 
-    const result = await updateTimeClockEntry(client, {
+    const result = await updateTimeCardEntry(client, {
       entryId: validation.data.entryId,
       clockIn: validation.data.clockIn,
       clockOut: validation.data.clockOut || null,
@@ -261,12 +268,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (intent === "deleteEntry") {
-    const validation = await validator(deleteTimeClockEntryValidator).validate(
+    const validation = await validator(deleteTimeCardEntryValidator).validate(
       formData
     );
     if (validation.error) return data({}, { status: 400 });
 
-    const result = await deleteTimeClockEntry(client, validation.data.entryId);
+    const result = await deleteTimeCardEntry(client, validation.data.entryId);
     if (result.error) {
       return data(
         {},
@@ -281,7 +288,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const clockOutVal = formData.get("clockOut") as string | null;
     if (!clockInVal) return data({}, { status: 400 });
 
-    const result = await client.from("timeClockEntry").insert({
+    const result = await client.from("timeCardEntry").insert({
       employeeId: personId,
       companyId,
       clockIn: clockInVal,
@@ -347,8 +354,8 @@ function getShiftTimesForDate(
   };
 }
 
-export default function PersonTimeClockRoute() {
-  const { entries, openEntry, weekOffset, from, to, shift, breakEntry } =
+export default function PersonTimecardRoute() {
+  const { entries, openEntry, weekOffset, from, to, shift } =
     useLoaderData<typeof loader>();
   const { personId } = useParams();
   const fetcher = useFetcher<typeof action>();
@@ -361,6 +368,10 @@ export default function PersonTimeClockRoute() {
   const [addDate, setAddDate] = useState("");
   const [addClockIn, setAddClockIn] = useState("");
   const [addClockOut, setAddClockOut] = useState("");
+  const [deletingEntry, setDeletingEntry] = useState<{
+    id: string;
+    clockIn: string;
+  } | null>(null);
 
   // Update live durations every minute
   useEffect(() => {
@@ -413,11 +424,11 @@ export default function PersonTimeClockRoute() {
     <Card className="overflow-hidden">
       <CardHeader>
         <HStack className="justify-between items-center">
-          <CardTitle>Time Clock</CardTitle>
+          <CardTitle>Timecards</CardTitle>
           <HStack className="gap-1">
             <Button
-              variant="outline"
-              size="sm"
+              variant="secondary"
+              leftIcon={<LuPlus />}
               onClick={() => {
                 setShowAddForm(!showAddForm);
                 setAddDate("");
@@ -425,63 +436,24 @@ export default function PersonTimeClockRoute() {
                 setAddClockOut("");
               }}
             >
-              <LuPlus className="size-3.5" />
               Add Entry
             </Button>
             {openEntry ? (
-              <>
-                <fetcher.Form method="post">
-                  <input type="hidden" name="intent" value="clockOut" />
-                  <input type="hidden" name="type" value="shift_end" />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    type="submit"
-                    disabled={fetcher.state !== "idle"}
-                  >
-                    Clock Out
-                  </Button>
-                </fetcher.Form>
-                <fetcher.Form method="post">
-                  <input type="hidden" name="intent" value="clockOut" />
-                  <input type="hidden" name="type" value="break" />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="submit"
-                    disabled={fetcher.state !== "idle"}
-                    className="border-yellow-500 text-yellow-600 hover:bg-yellow-50"
-                  >
-                    Break
-                  </Button>
-                </fetcher.Form>
-              </>
-            ) : breakEntry ? (
-              <HStack className="gap-2 items-center">
-                <Badge
-                  variant="outline"
-                  className="text-yellow-600 border-yellow-600 text-xs"
+              <fetcher.Form method="post">
+                <input type="hidden" name="intent" value="clockOut" />
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  disabled={fetcher.state !== "idle"}
                 >
-                  On Break · {formatDuration(breakEntry.clockOut, null)}
-                </Badge>
-                <fetcher.Form method="post">
-                  <input type="hidden" name="intent" value="clockIn" />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="submit"
-                    disabled={fetcher.state !== "idle"}
-                    className="border-emerald-500 text-emerald-600 hover:bg-emerald-50"
-                  >
-                    Clock Back In
-                  </Button>
-                </fetcher.Form>
-              </HStack>
+                  Clock Out
+                </Button>
+              </fetcher.Form>
             ) : (
               <fetcher.Form method="post">
                 <input type="hidden" name="intent" value="clockIn" />
                 <Button
-                  size="sm"
+                  leftIcon={<LuPlay />}
                   type="submit"
                   disabled={fetcher.state !== "idle"}
                 >
@@ -492,43 +464,38 @@ export default function PersonTimeClockRoute() {
           </HStack>
         </HStack>
         {openEntry && (
-          <Badge variant="outline" className="w-fit">
+          <Badge variant="green" className="w-fit">
             Clocked in since {formatTime(openEntry.clockIn)}
           </Badge>
         )}
       </CardHeader>
       <CardContent>
         <HStack className="justify-between items-center mb-4">
-          <Button variant="ghost" size="sm" asChild>
-            <a
-              href={`${path.to.personTimeClock(personId!)}?week=${weekOffset - 1}`}
+          <Button variant="outline" asChild leftIcon={<LuChevronLeft />}>
+            <Link
+              to={`${path.to.personTimecard(personId!)}?week=${weekOffset - 1}`}
             >
-              <LuChevronLeft className="size-4" />
-              Prev Week
-            </a>
+              Prev
+            </Link>
           </Button>
           <span className="text-sm text-muted-foreground">
             {formatDate(monday.toISOString(), { dateStyle: "medium" })} —{" "}
             {formatDate(sunday.toISOString(), { dateStyle: "medium" })}
           </span>
           <Button
-            variant="ghost"
-            size="sm"
+            variant="outline"
             disabled={isCurrentWeek}
             asChild={!isCurrentWeek}
+            rightIcon={<LuChevronRight />}
           >
             {isCurrentWeek ? (
-              <span>
-                Next Week
-                <LuChevronRight className="size-4" />
-              </span>
+              <span>Next</span>
             ) : (
-              <a
-                href={`${path.to.personTimeClock(personId!)}?week=${weekOffset + 1}`}
+              <Link
+                to={`${path.to.personTimecard(personId!)}?week=${weekOffset + 1}`}
               >
-                Next Week
-                <LuChevronRight className="size-4" />
-              </a>
+                Next
+              </Link>
             )}
           </Button>
         </HStack>
@@ -547,34 +514,37 @@ export default function PersonTimeClockRoute() {
               <Th>Clock In</Th>
               <Th>Clock Out</Th>
               <Th className="text-center">Duration</Th>
-              <Th className="text-center">Actions</Th>
+              <Th />
             </Tr>
           </Thead>
           <Tbody>
             {showAddForm && (
               <Tr>
                 <Td>
-                  <select
+                  <Select
                     value={addDate}
-                    onChange={(e) => setAddDate(e.target.value)}
-                    className="h-8 text-xs w-full rounded-md border bg-background px-2 text-muted-foreground"
+                    onValueChange={(value) => setAddDate(value)}
                   >
-                    <option value="">Date</option>
-                    {Array.from({ length: 7 }, (_, i) => {
-                      const d = new Date(monday);
-                      d.setDate(monday.getDate() + i);
-                      const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                      return (
-                        <option key={val} value={val}>
-                          {d.toLocaleDateString([], {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric"
-                          })}
-                        </option>
-                      );
-                    })}
-                  </select>
+                    <SelectTrigger size="sm">
+                      <SelectValue placeholder="Date" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 7 }, (_, i) => {
+                        const d = new Date(monday);
+                        d.setDate(monday.getDate() + i);
+                        const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                        return (
+                          <SelectItem key={val} value={val}>
+                            {d.toLocaleDateString([], {
+                              weekday: "short",
+                              month: "short",
+                              day: "numeric"
+                            })}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                 </Td>
                 <Td>
                   <Input
@@ -594,7 +564,7 @@ export default function PersonTimeClockRoute() {
                 </Td>
                 <Td className="text-muted-foreground text-center">—</Td>
                 <Td className="text-center">
-                  <div className="flex flex-col gap-1 items-center">
+                  <HStack className="justify-center">
                     <fetcher.Form method="post">
                       <input type="hidden" name="intent" value="addEntry" />
                       <input
@@ -615,24 +585,20 @@ export default function PersonTimeClockRoute() {
                           />
                         )}
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="secondary"
                         type="submit"
                         disabled={isNaN(new Date(addClockIn).getTime())}
-                        className="w-full hover:bg-emerald-100 hover:text-emerald-700"
                       >
                         Save
                       </Button>
                     </fetcher.Form>
                     <Button
                       variant="ghost"
-                      size="sm"
                       onClick={() => setShowAddForm(false)}
-                      className="w-full hover:bg-red-100 hover:text-red-700"
                     >
                       Cancel
                     </Button>
-                  </div>
+                  </HStack>
                 </Td>
               </Tr>
             )}
@@ -670,7 +636,7 @@ export default function PersonTimeClockRoute() {
                     </Td>
                     <Td className="text-muted-foreground text-center">—</Td>
                     <Td className="text-center">
-                      <div className="flex flex-col gap-1 items-center">
+                      <HStack className="justify-center">
                         <fetcher.Form method="post">
                           <input
                             type="hidden"
@@ -701,24 +667,20 @@ export default function PersonTimeClockRoute() {
                             )}
                           <input type="hidden" name="note" value={editNote} />
                           <Button
-                            variant="ghost"
-                            size="sm"
+                            variant="secondary"
                             type="submit"
                             disabled={isNaN(new Date(editClockIn).getTime())}
-                            className="w-full hover:bg-emerald-100 hover:text-emerald-700"
                           >
                             Save
                           </Button>
                         </fetcher.Form>
                         <Button
                           variant="ghost"
-                          size="sm"
                           onClick={() => setEditingId(null)}
-                          className="w-full hover:bg-red-100 hover:text-red-700"
                         >
                           Cancel
                         </Button>
-                      </div>
+                      </HStack>
                     </Td>
                   </Tr>
                 ) : (
@@ -731,42 +693,40 @@ export default function PersonTimeClockRoute() {
                       {entry.clockOut ? (
                         formatTime(entry.clockOut)
                       ) : (
-                        <Badge
-                          variant="outline"
-                          className="text-emerald-600 border-emerald-600"
-                        >
-                          Active
-                        </Badge>
+                        <Badge variant="green">Active</Badge>
                       )}
                     </Td>
                     <Td className="text-center">
                       {formatDuration(entry.clockIn, entry.clockOut)}
                     </Td>
-                    <Td>
-                      <HStack className="justify-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => startEdit(entry)}
-                        >
-                          <LuPencil className="size-3.5" />
-                        </Button>
-                        <fetcher.Form method="post">
-                          <input
-                            type="hidden"
-                            name="intent"
-                            value="deleteEntry"
+                    <Td className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <IconButton
+                            aria-label="More options"
+                            variant="ghost"
+                            icon={<LuEllipsisVertical />}
                           />
-                          <input
-                            type="hidden"
-                            name="entryId"
-                            value={entry.id}
-                          />
-                          <Button variant="ghost" size="sm" type="submit">
-                            <LuTrash className="size-3.5" />
-                          </Button>
-                        </fetcher.Form>
-                      </HStack>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => startEdit(entry)}>
+                            <DropdownMenuIcon icon={<LuPencil />} />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              setDeletingEntry({
+                                id: entry.id,
+                                clockIn: entry.clockIn
+                              })
+                            }
+                            className="text-destructive"
+                          >
+                            <DropdownMenuIcon icon={<LuTrash />} />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </Td>
                   </Tr>
                 )
@@ -781,6 +741,20 @@ export default function PersonTimeClockRoute() {
           </div>
         )}
       </CardContent>
+      {deletingEntry && (
+        <ConfirmDelete
+          name={`Timecard (${new Date(deletingEntry.clockIn).toLocaleString()})`}
+          text="Are you sure you want to delete this timecard? This cannot be undone."
+          onCancel={() => setDeletingEntry(null)}
+          onSubmit={() => {
+            const formData = new FormData();
+            formData.append("intent", "deleteEntry");
+            formData.append("entryId", deletingEntry.id);
+            fetcher.submit(formData, { method: "post" });
+            setDeletingEntry(null);
+          }}
+        />
+      )}
     </Card>
   );
 }

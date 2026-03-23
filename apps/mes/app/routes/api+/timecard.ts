@@ -1,6 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
-import { clockIn, clockOut } from "~/services/timeclock.service";
+import { clockIn, clockOut } from "~/services/people.service";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {});
@@ -19,13 +19,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === "clockOut") {
     const note = formData.get("note") as string | null;
-    const type = (formData.get("type") as string | null) ?? "shift_end";
     const result = await clockOut(client, {
       employeeId: userId,
       companyId,
       updatedBy: userId,
-      note: note ?? undefined,
-      type: type as "shift_end" | "break"
+      note: note ?? undefined
     });
     return { success: !result.error, error: result.error?.message };
   }

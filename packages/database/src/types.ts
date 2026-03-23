@@ -2951,7 +2951,7 @@ export type Database = {
           shelfLabelSize: string | null
           supplierApproval: boolean
           supplierQuoteNotificationGroup: string[]
-          timeClockEnabled: boolean
+          timeCardEnabled: boolean
           useMetric: boolean
         }
         Insert: {
@@ -2987,7 +2987,7 @@ export type Database = {
           shelfLabelSize?: string | null
           supplierApproval?: boolean
           supplierQuoteNotificationGroup?: string[]
-          timeClockEnabled?: boolean
+          timeCardEnabled?: boolean
           useMetric?: boolean
         }
         Update: {
@@ -3023,7 +3023,7 @@ export type Database = {
           shelfLabelSize?: string | null
           supplierApproval?: boolean
           supplierQuoteNotificationGroup?: string[]
-          timeClockEnabled?: boolean
+          timeCardEnabled?: boolean
           useMetric?: boolean
         }
         Relationships: [
@@ -38963,7 +38963,7 @@ export type Database = {
           },
         ]
       }
-      timeClockEntry: {
+      timeCardEntry: {
         Row: {
           autoCloseShiftId: string | null
           clockIn: string
@@ -38974,7 +38974,6 @@ export type Database = {
           employeeId: string
           id: string
           note: string | null
-          type: string
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -38988,7 +38987,6 @@ export type Database = {
           employeeId: string
           id?: string
           note?: string | null
-          type?: string
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -39002,153 +39000,152 @@ export type Database = {
           employeeId?: string
           id?: string
           note?: string | null
-          type?: string
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "timeClockEntry_autoCloseShiftId_fkey"
+            foreignKeyName: "timeCardEntry_autoCloseShiftId_fkey"
             columns: ["autoCloseShiftId"]
             isOneToOne: false
             referencedRelation: "shift"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_autoCloseShiftId_fkey"
+            foreignKeyName: "timeCardEntry_autoCloseShiftId_fkey"
             columns: ["autoCloseShiftId"]
             isOneToOne: false
             referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "company"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "customFieldTables"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -49314,14 +49311,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55427,7 +55424,7 @@ export type Database = {
           },
         ]
       }
-      timeClockDashboard: {
+      timeCardEntries: {
         Row: {
           autoCloseShiftId: string | null
           avatarUrl: string | null
@@ -55441,24 +55438,23 @@ export type Database = {
           id: string | null
           jobTitle: string | null
           lastName: string | null
+          locationId: string | null
+          locationName: string | null
           note: string | null
-          shiftEndTime: string | null
-          shiftFriday: boolean | null
           shiftId: string | null
-          shiftMonday: boolean | null
           shiftName: string | null
-          shiftSaturday: boolean | null
-          shiftStartTime: string | null
-          shiftSunday: boolean | null
-          shiftThursday: boolean | null
-          shiftTuesday: boolean | null
-          shiftWednesday: boolean | null
-          type: string | null
           updatedAt: string | null
           updatedBy: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "employeeJob_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "employeeJob_shiftId_fkey"
             columns: ["shiftId"]
             isOneToOne: false
@@ -55473,147 +55469,147 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_autoCloseShiftId_fkey"
+            foreignKeyName: "timeCardEntry_autoCloseShiftId_fkey"
             columns: ["autoCloseShiftId"]
             isOneToOne: false
             referencedRelation: "shift"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_autoCloseShiftId_fkey"
+            foreignKeyName: "timeCardEntry_autoCloseShiftId_fkey"
             columns: ["autoCloseShiftId"]
             isOneToOne: false
             referencedRelation: "shifts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "company"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "customFieldTables"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "timeClockEntry_companyId_fkey"
+            foreignKeyName: "timeCardEntry_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_createdBy_fkey"
+            foreignKeyName: "timeCardEntry_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_employeeId_fkey"
+            foreignKeyName: "timeCardEntry_employeeId_fkey"
             columns: ["employeeId"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "timeClockEntry_updatedBy_fkey"
+            foreignKeyName: "timeCardEntry_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"

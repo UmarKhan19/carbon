@@ -140,8 +140,8 @@ export const path = {
     switchCompany: (companyId: string) =>
       generatePath(`${x}/company/switch/${companyId}`),
     suggestion: `${x}/suggestion`,
-    timeclock: `${api}/timeclock`,
-    timeClockPage: `${x}/timeclock`,
+    timecard: `${api}/timecard`,
+    timeCardPage: `${x}/timecard`,
     unconsume: `${x}/unconsume`,
     workCenter: (workCenter: string) =>
       generatePath(`${x}/operations/${workCenter}`),

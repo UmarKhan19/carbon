@@ -59,7 +59,7 @@ import { ERP_URL, path } from "~/utils/path";
 import { AdjustInventory } from "./AdjustInventory";
 import { EndShift } from "./EndShift";
 import Suggestion from "./Suggestion";
-import { TimeClockButton } from "./TimeClockButton";
+import { TimeCardButton } from "./TimeCardButton";
 
 export function AppSidebar({
   activeEvents,
@@ -68,9 +68,8 @@ export function AppSidebar({
   companies,
   location,
   locations,
-  timeClockEnabled,
+  timeCardEnabled,
   openClockEntry,
-  breakEntry,
   ...props
 }: ComponentProps<typeof Sidebar> & {
   activeEvents: number;
@@ -79,9 +78,8 @@ export function AppSidebar({
   companies: Company[];
   location: string;
   locations: Location[];
-  timeClockEnabled?: boolean;
+  timeCardEnabled?: boolean;
   openClockEntry?: { id: string; clockIn: string } | null;
-  breakEntry?: { clockOut: string } | null;
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -96,12 +94,9 @@ export function AppSidebar({
         <ToolsNav />
       </SidebarContent>
       <SidebarFooter>
-        {timeClockEnabled && (
+        {timeCardEnabled && (
           <SidebarMenu>
-            <TimeClockButton
-              openClockEntry={openClockEntry ?? null}
-              breakEntry={breakEntry}
-            />
+            <TimeCardButton openClockEntry={openClockEntry ?? null} />
           </SidebarMenu>
         )}
         <UserNav

@@ -48,7 +48,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     employeeSummary: employeeSummary.data,
     attributeCategories: attributeCategories.data ?? [],
-    timeClockEnabled: companySettings.data?.timeClockEnabled ?? false
+    timeCardEnabled: companySettings.data?.timeCardEnabled ?? false
   };
 }
 
@@ -89,7 +89,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function PersonRoute() {
-  const { attributeCategories, timeClockEnabled } =
+  const { attributeCategories, timeCardEnabled } =
     useLoaderData<typeof loader>();
 
   return (
@@ -98,7 +98,7 @@ export default function PersonRoute() {
       <div className="grid grid-cols-1 md:grid-cols-[1fr_4fr] h-full w-full gap-4">
         <PersonSidebar
           attributeCategories={attributeCategories}
-          timeClockEnabled={timeClockEnabled}
+          timeCardEnabled={timeCardEnabled}
         />
         <Outlet />
       </div>

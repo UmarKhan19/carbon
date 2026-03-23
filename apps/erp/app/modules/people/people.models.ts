@@ -65,3 +65,35 @@ export const shiftValidator = z.object({
   saturday: zfd.checkbox(),
   sunday: zfd.checkbox()
 });
+
+export const clockInValidator = z.object({
+  intent: z.literal("clockIn"),
+  employeeId: zfd.text(z.string().optional())
+});
+
+export const clockOutValidator = z.object({
+  intent: z.literal("clockOut"),
+  employeeId: zfd.text(z.string().optional()),
+  note: zfd.text(z.string().optional())
+});
+
+export const timecardValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  employeeId: z.string().min(1, { message: "Employee is required" }),
+  clockIn: z.string().min(1, { message: "Clock in is required" }),
+  clockOut: zfd.text(z.string().optional()),
+  note: zfd.text(z.string().optional())
+});
+
+export const updateTimeCardEntryValidator = z.object({
+  intent: z.literal("updateEntry"),
+  entryId: z.string().min(1),
+  clockIn: z.string().min(1),
+  clockOut: zfd.text(z.string().optional()),
+  note: zfd.text(z.string().optional())
+});
+
+export const deleteTimeCardEntryValidator = z.object({
+  intent: z.literal("deleteEntry"),
+  entryId: z.string().min(1)
+});

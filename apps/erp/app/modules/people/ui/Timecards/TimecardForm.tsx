@@ -1,0 +1,117 @@
+import { TextArea, ValidatedForm } from "@carbon/form";
+import {
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  HStack,
+  VStack
+} from "@carbon/react";
+import type { CalendarDateTime } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  now,
+  parseAbsolute,
+  toCalendarDateTime
+} from "@internationalized/date";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import type { z } from "zod";
+import { DateTimePicker, Employee, Hidden, Submit } from "~/components/Form";
+import { usePermissions } from "~/hooks";
+import { path } from "~/utils/path";
+import { timecardValidator } from "../../people.models";
+
+type TimecardFormProps = {
+  initialValues: z.infer<typeof timecardValidator>;
+};
+
+const TimecardForm = ({ initialValues }: TimecardFormProps) => {
+  const permissions = usePermissions();
+  const navigate = useNavigate();
+  const onClose = () => navigate(-1);
+
+  const isEditing = initialValues.id !== undefined;
+  const isDisabled = isEditing
+    ? !permissions.can("update", "people")
+    : !permissions.can("create", "people");
+
+  const [clockIn, setClockIn] = useState<CalendarDateTime>(
+    initialValues.clockIn
+      ? toCalendarDateTime(
+          parseAbsolute(initialValues.clockIn, getLocalTimeZone())
+        )
+      : toCalendarDateTime(now(getLocalTimeZone()))
+  );
+
+  const [clockOut, setClockOut] = useState<CalendarDateTime | undefined>(
+    initialValues.clockOut
+      ? toCalendarDateTime(
+          parseAbsolute(initialValues.clockOut, getLocalTimeZone())
+        )
+      : undefined
+  );
+
+  return (
+    <Drawer
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DrawerContent>
+        <ValidatedForm
+          validator={timecardValidator}
+          method="post"
+          action={
+            isEditing
+              ? path.to.timecard(initialValues.id!)
+              : path.to.newTimecard
+          }
+          defaultValues={initialValues}
+          className="flex flex-col h-full"
+        >
+          <DrawerHeader>
+            <DrawerTitle>{isEditing ? "Edit" : "New"} Timecard</DrawerTitle>
+          </DrawerHeader>
+          <DrawerBody>
+            <Hidden name="id" />
+            <VStack spacing={4}>
+              {!isEditing ? (
+                <Employee name="employeeId" label="Employee" />
+              ) : (
+                <Hidden name="employeeId" />
+              )}
+              <DateTimePicker
+                name="clockIn"
+                label="Clock In"
+                maxValue={clockOut}
+                onChange={setClockIn}
+              />
+              <DateTimePicker
+                name="clockOut"
+                label="Clock Out"
+                minValue={clockIn}
+                onChange={setClockOut}
+              />
+              <TextArea name="note" label="Note" />
+            </VStack>
+          </DrawerBody>
+          <DrawerFooter>
+            <HStack>
+              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Button variant="solid" onClick={onClose}>
+                Cancel
+              </Button>
+            </HStack>
+          </DrawerFooter>
+        </ValidatedForm>
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+export default TimecardForm;
