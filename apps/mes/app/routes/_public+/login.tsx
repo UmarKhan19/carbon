@@ -12,7 +12,7 @@ import { sendMagicLink, verifyAuthSession } from "@carbon/auth/auth.server";
 import { flash, getAuthSession } from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
 import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
-import { redis } from "@carbon/kv";
+import { Ratelimit, redis } from "@carbon/kv";
 import {
   Alert,
   AlertDescription,
@@ -25,7 +25,6 @@ import {
 } from "@carbon/react";
 import { ItarLoginDisclaimer } from "@carbon/remix";
 import { Edition } from "@carbon/utils";
-import { Ratelimit } from "@upstash/ratelimit";
 import { LuCircleAlert } from "react-icons/lu";
 import type {
   ActionFunctionArgs,

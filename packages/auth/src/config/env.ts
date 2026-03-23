@@ -72,6 +72,7 @@ declare global {
       SUPABASE_SERVICE_ROLE_KEY: string;
       UPSTASH_REDIS_REST_URL: string;
       UPSTASH_REDIS_REST_TOKEN: string;
+      REDIS_URL: string;
       VERCEL_URL: string;
       VERCEL_ENV: string;
       XERO_CLIENT_SECRET: string;
@@ -277,6 +278,9 @@ export const UPSTASH_REDIS_REST_URL = getEnv("UPSTASH_REDIS_REST_URL", {
   isRequired: false
 });
 export const UPSTASH_REDIS_REST_TOKEN = getEnv("UPSTASH_REDIS_REST_TOKEN", {
+  isRequired: false
+});
+export const REDIS_URL = getEnv("REDIS_URL", {
   isRequired: false
 });
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days;
