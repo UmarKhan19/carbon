@@ -100,6 +100,38 @@ export async function getEmployees(
   return query;
 }
 
+/**
+ * Gets console operators — users with @console.internal emails.
+ * Uses the employees view (which joins user + employee) and filters
+ * by the synthetic email pattern since there's no FK from employee to user
+ * for PostgREST to use directly.
+ *
+ * TODO: After running db:generate, replace email pattern filter with
+ * .eq("isConsoleOperator", true) once the column is in the employees view.
+ */
+export async function getConsoleOperators(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: GenericQueryFilters & {
+    search: string | null;
+  }
+) {
+  let query = client
+    .from("employees")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId)
+    .like("email", "%@console.internal");
+
+  if (args.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  query = setGenericQueryFilters(query, args, [
+    { column: "lastName", ascending: true }
+  ]);
+  return query;
+}
+
 export async function getEmployeeType(
   client: SupabaseClient<Database>,
   employeeTypeId: string

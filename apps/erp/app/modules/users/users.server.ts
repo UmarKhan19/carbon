@@ -703,6 +703,214 @@ async function insertUser(
   return client.from("user").upsert([user]).select("*");
 }
 
+/**
+ * Creates a console-only operator: a lightweight user record that can pin in
+ * at MES terminals without needing email, password, or Supabase Auth.
+ *
+ * Uses a synthetic email ({uuid}@console.internal) to satisfy the NOT NULL
+ * constraint. No auth.users entry is created — operators cannot log in.
+ */
+export async function createConsoleOperator(
+  client: SupabaseClient<Database>,
+  {
+    firstName,
+    lastName,
+    employeeType,
+    locationId,
+    companyId,
+    createdBy
+  }: {
+    firstName: string;
+    lastName: string;
+    employeeType: string;
+    locationId: string;
+    companyId: string;
+    createdBy: string;
+  }
+): Promise<
+  | { success: false; message: string }
+  | { success: true; userId: string; name: string }
+> {
+  const serviceRole = getCarbonServiceRole();
+  const userId = crypto.randomUUID();
+  const syntheticEmail = `${userId}@console.internal`;
+
+  // 1. Insert user record (no Supabase Auth)
+  // Note: isConsoleOperator field added by migration 20260319000000_console-mode.sql
+  // Type will be available after db:generate runs
+  const userInsert = await serviceRole
+    .from("user")
+    .insert({
+      id: userId,
+      email: syntheticEmail,
+      firstName,
+      lastName,
+      avatarUrl: null,
+      active: true,
+      isConsoleOperator: true
+    } as any)
+    .select("*")
+    .single();
+
+  if (userInsert.error) {
+    return { success: false, message: userInsert.error.message };
+  }
+
+  // 2. Insert employee (auto-active, no invite needed)
+  const employeeInsert = await insertEmployee(client, {
+    id: userId,
+    employeeTypeId: employeeType,
+    active: true,
+    companyId
+  });
+
+  if (employeeInsert.error) {
+    // Cleanup: remove user
+    await serviceRole.from("user").delete().eq("id", userId);
+    return { success: false, message: employeeInsert.error.message };
+  }
+
+  // 3. Insert employeeJob
+  const jobInsert = await insertEmployeeJob(client, {
+    id: userId,
+    companyId,
+    locationId
+  });
+
+  if (jobInsert.error) {
+    // Cleanup
+    await serviceRole.from("employee").delete().eq("id", userId);
+    await serviceRole.from("user").delete().eq("id", userId);
+    return { success: false, message: jobInsert.error.message };
+  }
+
+  // 4. Add to userToCompany (for billing/plan counting)
+  const companyLink = await serviceRole
+    .from("userToCompany")
+    .insert({ userId, companyId, role: "employee" as const })
+    .select("*")
+    .single();
+
+  if (companyLink.error) {
+    // Non-critical — operator still works without this
+    console.error("Failed to link console operator to company:", companyLink.error);
+  }
+
+  return {
+    success: true,
+    userId,
+    name: `${firstName} ${lastName}`
+  };
+}
+
+/**
+ * Converts a console-only operator to a full user by adding a Supabase Auth
+ * account and updating their email to a real one.
+ */
+export async function convertConsoleOperatorToUser(
+  client: SupabaseClient<Database>,
+  {
+    userId,
+    email,
+    companyId,
+    createdBy
+  }: {
+    userId: string;
+    email: string;
+    companyId: string;
+    createdBy: string;
+  }
+): Promise<{ success: false; message: string } | { success: true }> {
+  const serviceRole = getCarbonServiceRole();
+
+  // Verify the user is a console operator
+  // Note: isConsoleOperator field added by migration 20260319000000_console-mode.sql
+  const existingUser = await serviceRole
+    .from("user")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (existingUser.error || !(existingUser.data as any)?.isConsoleOperator) {
+    return { success: false, message: "User is not a console operator" };
+  }
+
+  // Check email isn't already taken
+  const emailCheck = await serviceRole
+    .from("user")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
+
+  if (emailCheck.data) {
+    return { success: false, message: "Email is already in use" };
+  }
+
+  // Create Supabase Auth account with the same user ID
+  const createAuth = await serviceRole.auth.admin.createUser({
+    id: userId,
+    email: email.toLowerCase(),
+    password: crypto.randomUUID(),
+    email_confirm: true
+  });
+
+  if (createAuth.error) {
+    return { success: false, message: createAuth.error.message };
+  }
+
+  // Update user record: real email + no longer console operator
+  const updateUser = await serviceRole
+    .from("user")
+    .update({
+      email: email.toLowerCase(),
+      isConsoleOperator: false
+    } as any)
+    .eq("id", userId);
+
+  if (updateUser.error) {
+    // Cleanup auth
+    await deleteAuthAccount(serviceRole, userId);
+    return { success: false, message: updateUser.error.message };
+  }
+
+  // Create invite so user gets the magic link email
+  const code = crypto.randomUUID();
+  const employee = await client
+    .from("employee")
+    .select("employeeTypeId")
+    .eq("id", userId)
+    .eq("companyId", companyId)
+    .single();
+
+  if (employee.data?.employeeTypeId) {
+    const employeeTypePermissions = await getPermissionsByEmployeeType(
+      client,
+      employee.data.employeeTypeId
+    );
+
+    if (!employeeTypePermissions.error) {
+      const permissions = makePermissionsFromEmployeeType(
+        employeeTypePermissions
+      );
+
+      const inviteResult = await insertInvite(serviceRole, {
+        role: "employee",
+        permissions,
+        email: email.toLowerCase(),
+        companyId,
+        createdBy,
+        code
+      });
+
+      if (inviteResult.error) {
+        console.error("Failed to create invite for converted operator:", inviteResult.error);
+      }
+    }
+  }
+
+  return { success: true };
+}
+
 function makePermissionsFromEmployeeType({
   data
 }: {

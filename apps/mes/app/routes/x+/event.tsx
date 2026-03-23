@@ -5,6 +5,7 @@ import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { productionEventValidator } from "~/services/models";
 import {
   endProductionEvent,
@@ -13,7 +14,8 @@ import {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {});
+  const { client, companyId, userId: sessionUserId } = await requirePermissions(request, {});
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const validation = await validator(productionEventValidator).validate(

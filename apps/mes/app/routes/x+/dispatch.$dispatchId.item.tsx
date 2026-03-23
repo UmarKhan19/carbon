@@ -9,11 +9,13 @@ import { flash } from "@carbon/auth/session.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { addMaintenanceDispatchItem } from "~/services/maintenance.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, userId } = await requirePermissions(request, {});
+  const { companyId, userId: sessionUserId } = await requirePermissions(request, {});
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
   const { dispatchId } = params;
 
   if (!dispatchId) {

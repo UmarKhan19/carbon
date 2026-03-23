@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useParams } from "react-router";
 import { JobOperation } from "~/components/JobOperation";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import {
   getJobByOperationId,
   getJobFiles,
@@ -25,7 +26,8 @@ import { makeDurations } from "~/utils/durations";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { userId, companyId } = await requirePermissions(request, {});
+  const { userId: sessionUserId, companyId } = await requirePermissions(request, {});
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");

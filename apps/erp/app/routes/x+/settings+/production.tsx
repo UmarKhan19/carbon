@@ -20,6 +20,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { Users } from "~/components/Form";
 import {
+  consoleSettingsValidator,
   getCompanySettings,
   jobCompletedValidator,
   jobTravelerSettingsValidator,

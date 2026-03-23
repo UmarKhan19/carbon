@@ -251,6 +251,10 @@ export const jobTravelerSettingsValidator = z.object({
   jobTravelerIncludeWorkInstructions: zfd.checkbox()
 });
 
+export const consoleSettingsValidator = z.object({
+  consolePinRequired: zfd.checkbox()
+});
+
 export const quoteLineCategoryMarkupsSettingsValidator = z.object({
   materialCost: zfd.numeric(z.number().min(0).default(0)),
   partCost: zfd.numeric(z.number().min(0).default(0)),

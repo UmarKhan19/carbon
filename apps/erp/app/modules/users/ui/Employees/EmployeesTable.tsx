@@ -1,4 +1,5 @@
 import {
+  Badge,
   Checkbox,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -108,7 +109,15 @@ const EmployeesTable = memo(
         {
           accessorKey: "email",
           header: "Email",
-          cell: (item) => item.getValue(),
+          cell: (item) => {
+            const email = item.getValue<string>();
+            if (email?.endsWith("@console.internal")) {
+              return (
+                <Badge variant="secondary">Console Operator</Badge>
+              );
+            }
+            return email;
+          },
           meta: {
             icon: <LuMail />
           }

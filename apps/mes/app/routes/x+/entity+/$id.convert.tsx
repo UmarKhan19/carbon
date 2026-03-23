@@ -3,11 +3,13 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { convertEntityValidator } from "~/services/models";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { userId, companyId } = await requirePermissions(request, {});
+  const { userId: sessionUserId, companyId } = await requirePermissions(request, {});
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const { id } = params;
   if (!id) throw new Error("Could not find id");
