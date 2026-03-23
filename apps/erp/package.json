@@ -49,7 +49,6 @@
     "@tanstack/react-virtual": "^3.5.0",
     "@trigger.dev/react-hooks": "4.0.6",
     "@trigger.dev/sdk": "4.0.6",
-    "@upstash/ratelimit": "^2.0.5",
     "@vercel/analytics": "^1.2.2",
     "@vercel/react-router": "^1.2.4",
     "@visx/responsive": "^2.1.0",
