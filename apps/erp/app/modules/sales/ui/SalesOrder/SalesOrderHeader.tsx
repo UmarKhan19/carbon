@@ -198,6 +198,10 @@ const SalesOrderHeader = () => {
   const confirmFetcher = useFetcher<typeof confirmAction>();
   const { ship, invoice } = useSalesOrder();
 
+  // Check if there are any lines with "Make" method type that would require jobs
+  const hasMakeItems =
+    routeData?.lines?.some((line) => line.methodType === "Make") ?? false;
+
   const salesOrderToJobsModal = useDisclosure();
   const confirmDisclosure = useDisclosure();
   const deleteSalesOrderModal = useDisclosure();
@@ -278,7 +282,8 @@ const SalesOrderHeader = () => {
                     ) ||
                     !permissions.can("create", "production") ||
                     !permissions.is("employee") ||
-                    !!routeData?.salesOrder?.jobs
+                    !!routeData?.salesOrder?.jobs ||
+                    !hasMakeItems
                   }
                   onClick={salesOrderToJobsModal.onOpen}
                 >
