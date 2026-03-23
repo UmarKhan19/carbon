@@ -1,7 +1,7 @@
 import { Avatar, Badge, HStack, MenuIcon, MenuItem } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useMemo } from "react";
 import {
   LuCalendar,
   LuClock,
@@ -49,21 +49,6 @@ function formatDuration(clockInStr: string, clockOutStr: string) {
   const hours = Math.floor(ms / 3600000);
   const minutes = Math.floor((ms % 3600000) / 60000);
   return `${hours}h ${minutes}m`;
-}
-
-function LiveDuration({ clockIn }: { clockIn: string }) {
-  console.log("LiveDuration", clockIn);
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const ms = Math.max(0, Date.now() - new Date(clockIn).getTime());
-  const hours = Math.floor(ms / 3600000);
-  const minutes = Math.floor((ms % 3600000) / 60000);
-  return <>{`${hours}h ${minutes}m`}</>;
 }
 
 const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
@@ -127,11 +112,8 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
         id: "duration",
         header: "Duration",
         cell: ({ row }) => {
-          if (!row.original.clockIn) return "—";
-          if (row.original.clockOut) {
-            return formatDuration(row.original.clockIn, row.original.clockOut);
-          }
-          return <LiveDuration clockIn={row.original.clockIn} />;
+          if (!row.original.clockIn || !row.original.clockOut) return "—";
+          return formatDuration(row.original.clockIn, row.original.clockOut);
         },
         meta: {
           icon: <LuClock />
