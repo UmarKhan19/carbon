@@ -170,10 +170,9 @@ $ cp ./.env.example ./.env
 - `SUPABASE_SERVICE_ROLE_KEY=[service_role key]`
 - `SUPABASE_ANON_KEY=[anon key]`
 
-2. [Create a Redis database in upstash](https://console.upstash.com/redis) and copy the following from the `REST API` section:
+2. Set up a Redis instance (local or cloud) and add the connection URL:
 
-- `UPSTASH_REDIS_REST_URL=[UPSTASH_REDIS_REST_URL]`
-- `UPSTASH_REDIS_REST_TOKEN=[UPSTASH_REDIS_REST_TOKEN]`
+- `REDIS_URL=[redis://user:password@host:port]`
 
 3. Navigate to the project you created in [https://cloud.trigger.dev](https://cloud.trigger.dev) and copy the following from the `Environments & API Keys` section:
 

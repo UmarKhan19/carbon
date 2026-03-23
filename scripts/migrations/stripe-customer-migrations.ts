@@ -1,8 +1,8 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-import { Redis } from "@upstash/redis";
 import { config } from "dotenv";
+import Redis from "ioredis";
 import { Stripe } from "stripe";
 import { z } from 'zod/v3';
 import { localCompanies, productionCompanies } from "./data/stripe-customers";
@@ -12,33 +12,19 @@ const PROD = true;
 
 const companies = PROD ? productionCompanies : localCompanies;
 
-const upstashRedisRestUrl = PROD
-  ? process.env.PROD_UPSTASH_REDIS_REST_URL
-  : process.env.UPSTASH_REDIS_REST_URL;
-const upstashRedisRestToken = PROD
-  ? process.env.PROD_UPSTASH_REDIS_REST_TOKEN
-  : process.env.UPSTASH_REDIS_REST_TOKEN;
+const redisUrl = PROD
+  ? process.env.PROD_REDIS_URL
+  : process.env.REDIS_URL;
 
-if (!upstashRedisRestUrl) {
+if (!redisUrl) {
   throw new Error(
     PROD
-      ? "PROD_UPSTASH_REDIS_REST_URL is not defined"
-      : "UPSTASH_REDIS_REST_URL is not defined"
+      ? "PROD_REDIS_URL is not defined"
+      : "REDIS_URL is not defined"
   );
 }
 
-if (!upstashRedisRestToken) {
-  throw new Error(
-    PROD
-      ? "PROD_UPSTASH_REDIS_REST_TOKEN is not defined"
-      : "UPSTASH_REDIS_REST_TOKEN is not defined"
-  );
-}
-
-const redis = new Redis({
-  url: upstashRedisRestUrl,
-  token: upstashRedisRestToken,
-});
+const redis = new Redis(redisUrl);
 
 const supabaseUrl = PROD
   ? process.env.PROD_SUPABASE_URL
