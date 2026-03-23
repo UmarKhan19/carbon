@@ -5,25 +5,41 @@ import {
   Card,
   CardContent,
   CardHeader,
+  CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   HStack,
+  IconButton,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   Table as TableBase,
   Tbody,
   Td,
   Th,
   Thead,
-  Tr,
-  VStack
+  Tr
 } from "@carbon/react";
+import { formatDate } from "@carbon/utils";
 import { useEffect, useState } from "react";
 import {
   LuChevronLeft,
   LuChevronRight,
+  LuEllipsisVertical,
   LuPencil,
+  LuPlay,
   LuTrash
 } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { useFetcher, useLoaderData } from "react-router";
+import { Link, useFetcher, useLoaderData } from "react-router";
 import {
   clockIn,
   clockOut,
@@ -87,15 +103,6 @@ function formatDay(dateStr: string) {
     month: "short",
     day: "numeric"
   });
-}
-
-function formatDateRange(from: Date, to: Date) {
-  const opts: Intl.DateTimeFormatOptions = {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  };
-  return `${from.toLocaleDateString([], opts)} — ${to.toLocaleDateString([], opts)}`;
 }
 
 function toLocalDatetimeInput(dateStr: string) {
@@ -193,6 +200,10 @@ export default function MESTimecardPage() {
   const [editClockIn, setEditClockIn] = useState("");
   const [editClockOut, setEditClockOut] = useState("");
   const [, setTick] = useState(0);
+  const [deletingEntry, setDeletingEntry] = useState<{
+    id: string;
+    clockIn: string;
+  } | null>(null);
 
   const monday = new Date(from);
   const sunday = new Date(to);
@@ -221,77 +232,75 @@ export default function MESTimecardPage() {
 
   return (
     <div className="flex flex-col h-full w-full overflow-y-auto p-4 md:p-6">
-      <VStack spacing={4} className="max-w-[60rem] mx-auto w-full gap-4">
-        {/* Header with clock in/out */}
-        <HStack className="justify-between items-center w-full">
-          <h2 className="text-xl font-semibold">My Hours</h2>
-          <div>
-            {openEntry ? (
-              <fetcher.Form method="post">
-                <input type="hidden" name="intent" value="clockOut" />
-                <Button
-                  variant="destructive"
-                  type="submit"
-                  disabled={fetcher.state !== "idle"}
-                >
-                  Clock Out
-                </Button>
-              </fetcher.Form>
-            ) : (
-              <fetcher.Form method="post">
-                <input type="hidden" name="intent" value="clockIn" />
-                <Button type="submit" disabled={fetcher.state !== "idle"}>
-                  Clock In
-                </Button>
-              </fetcher.Form>
-            )}
-          </div>
-        </HStack>
-
-        {openEntry && (
-          <Badge variant="green" className="w-fit">
-            Clocked in since {formatTime(openEntry.clockIn)}
-          </Badge>
-        )}
-
-        {/* Week navigation */}
-        <Card>
+      <div className="max-w-[60rem] mx-auto w-full">
+        <Card className="overflow-hidden">
           <CardHeader>
             <HStack className="justify-between items-center">
-              <Button variant="ghost" asChild>
-                <a href={`${path.to.timeCardPage}?week=${weekOffset - 1}`}>
-                  <LuChevronLeft className="size-4" />
+              <CardTitle>My Hours</CardTitle>
+              <HStack className="gap-1">
+                {openEntry ? (
+                  <fetcher.Form method="post">
+                    <input type="hidden" name="intent" value="clockOut" />
+                    <Button
+                      variant="destructive"
+                      type="submit"
+                      disabled={fetcher.state !== "idle"}
+                    >
+                      Clock Out
+                    </Button>
+                  </fetcher.Form>
+                ) : (
+                  <fetcher.Form method="post">
+                    <input type="hidden" name="intent" value="clockIn" />
+                    <Button
+                      leftIcon={<LuPlay />}
+                      type="submit"
+                      disabled={fetcher.state !== "idle"}
+                    >
+                      Clock In
+                    </Button>
+                  </fetcher.Form>
+                )}
+              </HStack>
+            </HStack>
+            {openEntry && (
+              <Badge variant="green" className="w-fit">
+                Clocked in since {formatTime(openEntry.clockIn)}
+              </Badge>
+            )}
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between items-center mb-4">
+              <Button variant="outline" asChild leftIcon={<LuChevronLeft />}>
+                <Link to={`${path.to.timeCardPage}?week=${weekOffset - 1}`}>
                   Prev
-                </a>
+                </Link>
               </Button>
               <span className="text-sm text-muted-foreground">
-                {formatDateRange(monday, sunday)}
+                {formatDate(monday.toISOString(), { dateStyle: "medium" })} —{" "}
+                {formatDate(sunday.toISOString(), { dateStyle: "medium" })}
               </span>
               <Button
-                variant="ghost"
+                variant="outline"
                 disabled={isCurrentWeek}
                 asChild={!isCurrentWeek}
+                rightIcon={<LuChevronRight />}
               >
                 {isCurrentWeek ? (
-                  <span>
-                    Next
-                    <LuChevronRight className="size-4" />
-                  </span>
+                  <span>Next</span>
                 ) : (
-                  <a href={`${path.to.timeCardPage}?week=${weekOffset + 1}`}>
+                  <Link to={`${path.to.timeCardPage}?week=${weekOffset + 1}`}>
                     Next
-                    <LuChevronRight className="size-4" />
-                  </a>
+                  </Link>
                 )}
               </Button>
             </HStack>
-          </CardHeader>
-          <CardContent>
+
             <TableBase className="table-fixed w-full">
               <colgroup>
-                <col className="w-[12%]" />
-                <col className="w-[30%]" />
-                <col className="w-[30%]" />
+                <col className="w-[16%]" />
+                <col className="w-[28%]" />
+                <col className="w-[28%]" />
                 <col className="w-[12%]" />
                 <col className="w-[16%]" />
               </colgroup>
@@ -301,7 +310,7 @@ export default function MESTimecardPage() {
                   <Th>Clock In</Th>
                   <Th>Clock Out</Th>
                   <Th className="text-center">Duration</Th>
-                  <Th className="text-center">Actions</Th>
+                  <Th />
                 </Tr>
               </Thead>
               <Tbody>
@@ -339,7 +348,7 @@ export default function MESTimecardPage() {
                         </Td>
                         <Td className="text-muted-foreground text-center">—</Td>
                         <Td className="text-center">
-                          <div className="flex flex-col gap-1 items-center">
+                          <HStack className="justify-center">
                             <fetcher.Form method="post">
                               <input
                                 type="hidden"
@@ -369,7 +378,7 @@ export default function MESTimecardPage() {
                                   />
                                 )}
                               <Button
-                                variant="ghost"
+                                variant="secondary"
                                 type="submit"
                                 disabled={isNaN(
                                   new Date(editClockIn).getTime()
@@ -384,7 +393,7 @@ export default function MESTimecardPage() {
                             >
                               Cancel
                             </Button>
-                          </div>
+                          </HStack>
                         </Td>
                       </Tr>
                     ) : (
@@ -403,30 +412,36 @@ export default function MESTimecardPage() {
                         <Td className="text-center">
                           {formatDuration(entry.clockIn, entry.clockOut)}
                         </Td>
-                        <Td>
-                          <HStack className="justify-center">
-                            <Button
-                              variant="ghost"
-                              onClick={() => startEdit(entry)}
-                            >
-                              <LuPencil className="size-3.5" />
-                            </Button>
-                            <fetcher.Form method="post">
-                              <input
-                                type="hidden"
-                                name="intent"
-                                value="deleteEntry"
+                        <Td className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <IconButton
+                                aria-label="More options"
+                                variant="ghost"
+                                icon={<LuEllipsisVertical />}
                               />
-                              <input
-                                type="hidden"
-                                name="entryId"
-                                value={entry.id}
-                              />
-                              <Button variant="ghost" type="submit">
-                                <LuTrash className="size-3.5" />
-                              </Button>
-                            </fetcher.Form>
-                          </HStack>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => startEdit(entry)}
+                              >
+                                <DropdownMenuIcon icon={<LuPencil />} />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  setDeletingEntry({
+                                    id: entry.id,
+                                    clockIn: entry.clockIn
+                                  })
+                                }
+                                className="text-destructive"
+                              >
+                                <DropdownMenuIcon icon={<LuTrash />} />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </Td>
                       </Tr>
                     )
@@ -442,7 +457,49 @@ export default function MESTimecardPage() {
             )}
           </CardContent>
         </Card>
-      </VStack>
+      </div>
+      {deletingEntry && (
+        <Modal
+          open
+          onOpenChange={(open) => {
+            if (!open) setDeletingEntry(null);
+          }}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>
+                Delete Timecard (
+                {new Date(deletingEntry.clockIn).toLocaleString()})
+              </ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              Are you sure you want to delete this timecard? This cannot be
+              undone.
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant="secondary"
+                onClick={() => setDeletingEntry(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  const formData = new FormData();
+                  formData.append("intent", "deleteEntry");
+                  formData.append("entryId", deletingEntry.id);
+                  fetcher.submit(formData, { method: "post" });
+                  setDeletingEntry(null);
+                }}
+              >
+                Delete
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
     </div>
   );
 }
