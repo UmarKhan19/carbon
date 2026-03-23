@@ -33,6 +33,7 @@ import {
   ScrollRestoration,
   useLoaderData
 } from "react-router";
+import SonnerStyle from "sonner/dist/styles.css?url";
 import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
@@ -45,7 +46,8 @@ export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: Tailwind },
     { rel: "stylesheet", href: Background },
-    { rel: "stylesheet", href: NProgress }
+    { rel: "stylesheet", href: NProgress },
+    { rel: "stylesheet", href: SonnerStyle }
   ];
 };
 
@@ -68,6 +70,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     JIRA_CLIENT_ID,
     MES_URL,
     NOVU_APPLICATION_ID,
+    NOVU_API_URL,
     ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
@@ -93,6 +96,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         JIRA_CLIENT_ID,
         MES_URL,
         NOVU_APPLICATION_ID,
+        NOVU_API_URL,
         ONSHAPE_CLIENT_ID,
         POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY,

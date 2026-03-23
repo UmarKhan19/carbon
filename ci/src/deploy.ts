@@ -37,7 +37,9 @@ export type Workspace = {
   cloudflare_turnstile_site_key: string | null;
   controlled_environment: string | null;
   exchange_rates_api_key: string | null;
+  google_places_api_key: string | null;
   novu_application_id: string | null;
+  novu_api_url: string | null;
   novu_secret_key: string | null;
   openai_api_key: string | null;
   posthog_api_host: string | null;
@@ -115,7 +117,9 @@ async function deploy(): Promise<void> {
         cloudflare_turnstile_site_key,
         controlled_environment,
         exchange_rates_api_key,
+        google_places_api_key,
         novu_application_id,
+        novu_api_url,
         novu_secret_key,
         openai_api_key,
         posthog_api_host,
@@ -271,7 +275,9 @@ async function deploy(): Promise<void> {
           CONTROLLED_ENVIRONMENT: controlled_environment ?? undefined,
           DOMAIN: domain_name,
           EXCHANGE_RATES_API_KEY: exchange_rates_api_key ?? undefined,
+          GOOGLE_PLACES_API_KEY: google_places_api_key ?? undefined,
           NOVU_APPLICATION_ID: novu_application_id ?? undefined,
+          NOVU_API_URL: novu_api_url ?? undefined,
           NOVU_SECRET_KEY: novu_secret_key ?? undefined,
           OPENAI_API_KEY: openai_api_key,
           POSTHOG_API_HOST: posthog_api_host ?? undefined,

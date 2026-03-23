@@ -3,6 +3,7 @@ import {
   ERP_URL,
   NOVU_SECRET_KEY,
   VERCEL_URL,
+NOVU_API_URL,
 } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import { notifyTaskAssigned } from "@carbon/ee/notifications";
@@ -20,7 +21,9 @@ import { task } from "@trigger.dev/sdk";
 type ApprovalDocumentType =
   Database["public"]["Enums"]["approvalDocumentType"];
 
-const novu = new Novu(NOVU_SECRET_KEY!);
+const novu = new Novu(NOVU_SECRET_KEY!, {
+  backendUrl: NOVU_API_URL,
+});
 const isLocal = VERCEL_URL === undefined || VERCEL_URL.includes("localhost");
 
 // Helper function to get company integrations

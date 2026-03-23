@@ -110,6 +110,10 @@ const SalesOrderSummary = ({
   const total = subtotal + tax + convertedShippingCost;
   const permissions = usePermissions();
 
+  // Check if there are any lines with "Make" method type that would require jobs
+  const hasMakeItems =
+    routeData?.lines?.some((line) => line.methodType === "Make") ?? false;
+
   return (
     <>
       {["To Ship and Invoice", "To Ship"].includes(
@@ -117,7 +121,8 @@ const SalesOrderSummary = ({
       ) &&
         permissions.can("create", "production") &&
         permissions.is("employee") &&
-        !routeData?.salesOrder?.jobs && (
+        !routeData?.salesOrder?.jobs &&
+        hasMakeItems && (
           <Card>
             <CardHeader>
               <CardTitle className="flex flex-row gap-2">

@@ -147,10 +147,11 @@ export async function convertSalesOrderLinesToJobs(
             .eq("companyId", companyId)
             .limit(1);
 
-          if (defaultLocation.data) {
+          if (defaultLocation.data && defaultLocation.data.length > 0) {
             locationId = defaultLocation.data?.[0]?.id;
           } else {
-            throw new Error("No location found");
+            errors.push(`No location found for line ${line.itemReadableId}`);
+            continue;
           }
         }
 
@@ -232,7 +233,7 @@ export async function convertSalesOrderLinesToJobs(
 
           if (upsertMethod.error) {
             errors.push(
-              `Failed to create method for job ${nextSequence.data}: ${upsertMethod.error.message}`
+              `Failed to create method for job ${nextSequence.data} (Line item ${line.itemReadableId}): ${upsertMethod.error.message}`
             );
             continue;
           }
@@ -252,7 +253,7 @@ export async function convertSalesOrderLinesToJobs(
 
           if (upsertMethod.error) {
             errors.push(
-              `Failed to create method for job ${nextSequence.data}: ${upsertMethod.error.message}`
+              `Failed to create method for job ${nextSequence.data} (Line item ${line.itemReadableId}): ${upsertMethod.error.message}`
             );
             continue;
           }
@@ -287,11 +288,16 @@ export async function convertSalesOrderLinesToJobs(
   }
 
   if (jobsCreated === 0) {
+    const skippedLines = lines.map((l) => l.itemReadableId).filter(Boolean);
+    const skippedLinesStr =
+      skippedLines.length > 0
+        ? ` (Lines checked: ${skippedLines.join(", ")})`
+        : "";
     return {
       data: null,
       error: {
         message: "No jobs were created",
-        details: "No Make items found on sales order lines",
+        details: `No Make items found on sales order lines${skippedLinesStr}`,
         code: "NO_JOBS_CREATED"
       } as PostgrestError
     };

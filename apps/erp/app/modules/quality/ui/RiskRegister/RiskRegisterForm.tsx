@@ -17,7 +17,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { nanoid } from "nanoid";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
@@ -98,16 +98,6 @@ const RiskRegisterForm = ({
 
     return getPrivateUrl(result.data.path);
   };
-
-  useEffect(() => {
-    // Only process the response when fetcher is idle (request complete)
-    if (fetcher.data?.success === true) {
-      toast.success(`Saved risk`);
-      onClose();
-    } else if (fetcher.state === "idle" && fetcher.data?.success === false) {
-      toast.error(`Failed to save risk: ${fetcher.data?.error?.message}`);
-    }
-  }, [fetcher.data?.success, fetcher.data?.error, fetcher.state, onClose]);
 
   const isEditing = !!initialValues.id;
   const isDisabled = isEditing

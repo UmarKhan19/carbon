@@ -1,4 +1,4 @@
-import { getCarbonServiceRole, NOVU_SECRET_KEY } from "@carbon/auth";
+import { getCarbonServiceRole, NOVU_API_URL, NOVU_SECRET_KEY } from "@carbon/auth";
 import type { TriggerPayload } from "@carbon/notifications";
 import {
   getSubscriberId,
@@ -10,7 +10,9 @@ import { Novu } from "@novu/node";
 import { schedules } from "@trigger.dev/sdk";
 
 const serviceRole = getCarbonServiceRole();
-const novu = new Novu(NOVU_SECRET_KEY!);
+const novu = new Novu(NOVU_SECRET_KEY!, {
+  backendUrl: NOVU_API_URL,
+});
 
 export const cleanup = schedules.task({
   id: "cleanup",

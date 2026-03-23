@@ -1,4 +1,4 @@
-import { NOVU_APPLICATION_ID } from "@carbon/auth";
+import { NOVU_API_URL, NOVU_APPLICATION_ID } from "@carbon/auth";
 import { useMount } from "@carbon/react";
 import type { IMessage } from "@novu/headless";
 import { HeadlessService } from "@novu/headless";
@@ -130,7 +130,11 @@ export function useNotifications({
   useEffect(() => {
     if (subscriberId && !headlessServiceRef.current) {
       const headlessService = new HeadlessService({
-        applicationIdentifier: NOVU_APPLICATION_ID,
+        applicationIdentifier: NOVU_APPLICATION_ID!,
+        backendUrl: NOVU_API_URL,
+        socketUrl: NOVU_API_URL.includes("eu.")
+          ? "wss://eu.socket.novu.co"
+          : undefined,
         subscriberId
       });
 

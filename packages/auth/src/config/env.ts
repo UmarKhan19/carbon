@@ -11,6 +11,8 @@ declare global {
       ERP_URL: string;
       JIRA_CLIENT_ID: string;
       MES_URL: string;
+      NOVU_APPLICATION_ID: string;
+      NOVU_API_URL: string;
       ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;
@@ -38,6 +40,8 @@ declare global {
       JIRA_OAUTH_REDIRECT_URL: string;
       JIRA_STATE_SECRET: string;
       MES_URL: string;
+      NOVU_APPLICATION_ID: string;
+      NOVU_API_URL: string;
       NOVU_SECRET_KEY: string;
       ONSHAPE_CLIENT_ID: string;
       ONSHAPE_CLIENT_SECRET: string;
@@ -171,6 +175,12 @@ export const NOVU_APPLICATION_ID = getEnv("NOVU_APPLICATION_ID", {
   isRequired: false,
   isSecret: false
 });
+export const NOVU_API_URL =
+  getEnv("NOVU_API_URL", {
+    isRequired: false,
+    isSecret: false
+  }) ?? "https://api.novu.co";
+
 export const NOVU_SECRET_KEY = getEnv("NOVU_SECRET_KEY", {
   isRequired: false,
   isSecret: true
@@ -371,6 +381,7 @@ export function getBrowserEnv() {
     MES_URL,
     NODE_ENV,
     NOVU_APPLICATION_ID,
+    NOVU_API_URL,
     ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
@@ -384,5 +395,5 @@ export function getBrowserEnv() {
 }
 
 export function isVercel() {
-  return VERCEL_URL.includes("vercel.app");
+  return VERCEL_URL?.includes("vercel.app") ?? false;
 }
