@@ -19,7 +19,7 @@ import type {
   RatelimitResponse
 } from "./types";
 
-const DEFAULT_PREFIX = "@upstash/ratelimit";
+const DEFAULT_PREFIX = "@carbon/ratelimit";
 
 /**
  * Rate limiter implementation compatible with @upstash/ratelimit API
