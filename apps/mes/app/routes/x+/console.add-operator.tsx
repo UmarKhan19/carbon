@@ -6,7 +6,9 @@ import { userContext } from "~/context";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId } = await requirePermissions(request, {});
+  const { companyId } = await requirePermissions(request, {
+    create: "users"
+  });
 
   const formData = await request.formData();
   const firstName = (formData.get("firstName") as string)?.trim();
@@ -22,7 +24,10 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
   if (!pin || !/^\d{4}$/.test(pin)) {
     return data(
-      { success: false, message: "PIN is required and must be exactly 4 digits" },
+      {
+        success: false,
+        message: "PIN is required and must be exactly 4 digits"
+      },
       { status: 400 }
     );
   }
@@ -51,8 +56,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return data(
       {
         success: false,
-        message:
-          "Console Operator employee type not found. Contact an admin."
+        message: "Console Operator employee type not found. Contact an admin."
       },
       { status: 500 }
     );
@@ -143,7 +147,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
     operator: {
       id: operatorId,
       name,
-      avatarUrl: null
+      avatarUrl: null,
+      pin
     }
   });
 }

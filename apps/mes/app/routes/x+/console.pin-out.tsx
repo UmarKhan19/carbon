@@ -9,7 +9,7 @@ export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { companyId } = await requirePermissions(request, {});
 
-  return redirect(path.to.authenticatedRoot, {
+  throw redirect(path.to.authenticatedRoot, {
     headers: {
       "Set-Cookie": clearConsolePinIn(companyId)
     }

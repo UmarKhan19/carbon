@@ -7,7 +7,10 @@ import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId } = await requirePermissions(request, {});
+  const { companyId, userId: sessionUserId } = await requirePermissions(
+    request,
+    {}
+  );
 
   const formData = await request.formData();
   const userId = formData.get("userId") as string;
@@ -16,10 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const pin = (formData.get("pin") as string) || null;
 
   if (!userId || !name) {
-    return data(
-      { error: "userId and name are required" },
-      { status: 400 }
-    );
+    return data({ error: "userId and name are required" }, { status: 400 });
   }
 
   const serviceRole = await getCarbonServiceRole();
@@ -32,46 +32,48 @@ export async function action({ request }: ActionFunctionArgs) {
     .single();
 
   if (userCheck.error || !userCheck.data?.active) {
-    return data(
-      { error: "User not found or inactive" },
-      { status: 400 }
-    );
+    return data({ error: "User not found or inactive" }, { status: 400 });
   }
 
-  // Get employee record with PIN
-  const employeeCheck = await serviceRole
-    .from("employee")
-    .select("*")
-    .eq("id", userId)
-    .eq("companyId", companyId)
-    .single();
+  // If the person pinning in IS the station user (the one who logged in),
+  // they already authenticated with their credentials — no PIN needed.
+  const isStationUser = userId === sessionUserId;
 
-  if (employeeCheck.error || !employeeCheck.data) {
-    return data(
-      { error: "Employee not found in this company" },
-      { status: 400 }
-    );
+  if (!isStationUser) {
+    // Get employee record with PIN
+    const employeeCheck = await serviceRole
+      .from("employee")
+      .select("*")
+      .eq("id", userId)
+      .eq("companyId", companyId)
+      .single();
+
+    if (employeeCheck.error || !employeeCheck.data) {
+      return data(
+        { error: "Employee not found in this company" },
+        { status: 400 }
+      );
+    }
+
+    const storedPin: string | null = (employeeCheck.data as any)?.pin ?? null;
+
+    // PIN is required for non-station users
+    if (!storedPin) {
+      return data(
+        {
+          error:
+            "No PIN set. Please ask an admin to set a PIN for this operator."
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!pin || pin !== storedPin) {
+      return data({ error: "Incorrect PIN" }, { status: 400 });
+    }
   }
 
-  const storedPin = (employeeCheck.data as any)?.pin as string | null;
-
-  // PIN is required — operator must have one set
-  if (!storedPin) {
-    return data(
-      { error: "No PIN set. Please ask an admin to set a PIN for this operator." },
-      { status: 400 }
-    );
-  }
-
-  // Validate the entered PIN
-  if (!pin || pin !== storedPin) {
-    return data(
-      { error: "Incorrect PIN" },
-      { status: 400 }
-    );
-  }
-
-  return redirect(path.to.authenticatedRoot, {
+  throw redirect(path.to.authenticatedRoot, {
     headers: {
       "Set-Cookie": setConsolePinIn(companyId, {
         userId,

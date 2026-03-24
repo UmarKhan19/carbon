@@ -31,7 +31,6 @@ import {
 } from "react-router";
 import { AppSidebar } from "~/components";
 import { ConsolePill } from "~/components/ConsolePill";
-import { PinInOverlay } from "~/components/PinInOverlay";
 import RealtimeDataProvider from "~/components/RealtimeDataProvider";
 import { TimeCardWarning } from "~/components/TimeCardWarning";
 import { userContext } from "~/context";
@@ -100,31 +99,32 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     openClockEntry,
     locationEmployees
   ] = await Promise.all([
-      getStripeCustomerByCompanyId(companyId, userId),
-      getLocationsByCompany(client, companyId),
-      getActiveJobCount(client, {
-        employeeId: effectiveUserId,
-        companyId
-      }),
-      client
-        .from("companySettings")
-        .select("timeCardEnabled")
-        .eq("id", companyId)
-        .single(),
-      getOpenClockEntry(client, effectiveUserId, companyId),
-      // Get employees at current location for console mode pin-in filtering
-      consoleMode && locationId
-        ? serviceRole
-            .from("employeeJob")
-            .select("id")
-            .eq("locationId", locationId)
-            .eq("companyId", companyId)
-        : Promise.resolve({ data: [] as { id: string }[] })
-    ]);
+    getStripeCustomerByCompanyId(companyId, userId),
+    getLocationsByCompany(client, companyId),
+    getActiveJobCount(client, {
+      employeeId: effectiveUserId,
+      companyId
+    }),
+    client
+      .from("companySettings")
+      .select("timeCardEnabled")
+      .eq("id", companyId)
+      .single(),
+    getOpenClockEntry(client, effectiveUserId, companyId),
+    // Get employees at current location for console mode pin-in filtering
+    consoleMode && locationId
+      ? serviceRole
+          .from("employeeJob")
+          .select("id")
+          .eq("locationId", locationId)
+          .eq("companyId", companyId)
+      : Promise.resolve({ data: [] as { id: string }[] })
+  ]);
 
   const locationEmployeeIds =
     locationEmployees.data?.map((e: { id: string }) => e.id) ?? [];
-  const timeCardEnabled = (companySettings.data as any)?.timeCardEnabled ?? false;
+  const timeCardEnabled =
+    (companySettings.data as any)?.timeCardEnabled ?? false;
 
   // Get active maintenance count after we have the location
   const activeMaintenanceCount = await getActiveMaintenanceEventsCount(
@@ -169,8 +169,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       location: locationId,
       locationEmployeeIds,
       locations: locations.data ?? [],
-      openClockEntry: openClockEntry.data
-        ? { id: openClockEntry.data.id, clockIn: openClockEntry.data.clockIn }
+      openClockEntry: openClockEntry?.data
+        ? {
+            id: (openClockEntry.data as any).id,
+            clockIn: (openClockEntry.data as any).clockIn
+          }
         : null,
       pinnedInUser,
       plan: companyPlan?.planId,
@@ -250,17 +253,12 @@ export default function AuthenticatedRoute() {
                 {timeCardEnabled && (
                   <TimeCardWarning openClockEntry={openClockEntry} />
                 )}
-                {consoleMode && pinnedInUser && (
+                {consoleMode && (
                   <ConsolePill
                     user={pinnedInUser}
                     companyId={company.companyId!}
                     locationEmployeeIds={locationEmployeeIds}
-                  />
-                )}
-                {consoleMode && !pinnedInUser && (
-                  <PinInOverlay
-                    companyId={company.companyId!}
-                    locationEmployeeIds={locationEmployeeIds}
+                    sessionUserId={user?.id ?? ""}
                   />
                 )}
               </TooltipProvider>

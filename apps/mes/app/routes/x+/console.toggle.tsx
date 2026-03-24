@@ -20,5 +20,5 @@ export async function action({ request }: ActionFunctionArgs) {
     headers.append("Set-Cookie", clearConsolePinIn(companyId));
   }
 
-  return redirect(path.to.authenticatedRoot, { headers });
+  throw redirect(path.to.authenticatedRoot, { headers });
 }

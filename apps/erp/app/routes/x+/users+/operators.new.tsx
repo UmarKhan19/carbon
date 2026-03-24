@@ -1,9 +1,16 @@
-import { assertIsPost, error, success } from "@carbon/auth";
+import {
+  assertIsPost,
+  error,
+  getCarbonServiceRole,
+  success
+} from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { ValidatedForm, validationError, validator } from "@carbon/form";
 import {
+  Button,
   HStack,
+  Label,
   Modal,
   ModalBody,
   ModalContent,
@@ -11,16 +18,21 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalTitle,
-  useMount,
   VStack
 } from "@carbon/react";
+import { useState } from "react";
+import { LuCheck, LuCopy, LuRefreshCw } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
-import { Input, Location, Select, Submit } from "~/components/Form";
+import { redirect, useFetcher, useNavigate } from "react-router";
+import { Input, Location, Submit } from "~/components/Form";
 import { useUser } from "~/hooks";
 import { createOperatorValidator } from "~/modules/users/users.models";
-import type { getEmployeeTypes } from "~/modules/users/users.service";
 import { createConsoleOperator } from "~/modules/users/users.server";
+
+function generatePin(): string {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
 import type { Result } from "~/types";
 import { path } from "~/utils/path";
 
@@ -43,13 +55,34 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { firstName, lastName, employeeType, locationId, pin } =
-    validation.data;
+  const { firstName, lastName, locationId, pin } = validation.data;
+
+  // Auto-assign "Console Operator" employee type
+  const serviceRole = getCarbonServiceRole();
+  const operatorType = await serviceRole
+    .from("employeeType")
+    .select("id")
+    .eq("companyId", companyId)
+    .eq("name", "Console Operator")
+    .single();
+
+  if (operatorType.error || !operatorType.data) {
+    throw redirect(
+      path.to.operators,
+      await flash(
+        request,
+        error(
+          null,
+          "Console Operator employee type not found. Run the migration."
+        )
+      )
+    );
+  }
 
   const result = await createConsoleOperator(client, {
     firstName,
     lastName,
-    employeeType,
+    employeeType: operatorType.data.id,
     locationId,
     companyId,
     createdBy: userId
@@ -67,8 +100,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Set PIN if provided (employee record is already created by createConsoleOperator)
   if (pin) {
-    const { getCarbonServiceRole } = await import("@carbon/auth");
-    const serviceRole = getCarbonServiceRole();
     const pinUpdate = await serviceRole
       .from("employee")
       .update({ pin } as any)
@@ -90,18 +121,8 @@ export default function NewOperatorRoute() {
   const { defaults } = useUser();
   const navigate = useNavigate();
   const formFetcher = useFetcher<Result>();
-  const employeeTypeFetcher =
-    useFetcher<Awaited<ReturnType<typeof getEmployeeTypes>>>();
-
-  useMount(() => {
-    employeeTypeFetcher.load(path.to.api.employeeTypes);
-  });
-
-  const employeeTypeOptions =
-    employeeTypeFetcher.data?.data?.map((et) => ({
-      value: et.id,
-      label: et.name
-    })) ?? [];
+  const [pinValue, setPinValue] = useState(generatePin);
+  const [copied, setCopied] = useState(false);
 
   return (
     <Modal
@@ -117,7 +138,8 @@ export default function NewOperatorRoute() {
           action={path.to.newOperator}
           validator={createOperatorValidator}
           defaultValues={{
-            locationId: defaults?.locationId ?? undefined
+            locationId: defaults?.locationId ?? undefined,
+            pin: pinValue
           }}
           fetcher={formFetcher}
           className="flex flex-col h-full"
@@ -132,25 +154,57 @@ export default function NewOperatorRoute() {
                 <Input name="firstName" label="First Name" />
                 <Input name="lastName" label="Last Name" />
               </div>
-              <Select
-                name="employeeType"
-                label="Employee Type"
-                options={employeeTypeOptions}
-                placeholder="Select Employee Type"
-              />
               <Location name="locationId" label="Location" />
-              <Input
-                name="pin"
-                label="PIN"
-                placeholder="4-digit PIN"
-                maxLength={4}
-                inputMode="numeric"
-              />
-              <p className="text-xs text-muted-foreground">
-                Console operators can pin in at shared MES terminals without
-                needing an email or password. They can be converted to full
-                users later.
-              </p>
+              <div className="space-y-2 w-full">
+                <Label htmlFor="pin">PIN</Label>
+                <HStack>
+                  <Input
+                    name="pin"
+                    value={pinValue}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      setPinValue(val);
+                    }}
+                    maxLength={4}
+                    inputMode="numeric"
+                    className="font-mono text-lg tracking-[0.3em] text-center"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(pinValue);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    title="Copy PIN"
+                  >
+                    {copied ? (
+                      <LuCheck className="h-4 w-4 text-emerald-500" />
+                    ) : (
+                      <LuCopy className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newPin = generatePin();
+                      setPinValue(newPin);
+                      setCopied(false);
+                    }}
+                    title="Generate new PIN"
+                  >
+                    <LuRefreshCw className="h-4 w-4" />
+                  </Button>
+                </HStack>
+                <p className="text-xs text-muted-foreground">
+                  Share this PIN with the operator so they can pin in at MES
+                  terminals.
+                </p>
+              </div>
             </VStack>
           </ModalBody>
           <ModalFooter>

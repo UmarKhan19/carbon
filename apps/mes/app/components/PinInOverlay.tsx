@@ -27,7 +27,7 @@ import {
   LuPlus,
   LuRefreshCw,
   LuSearch,
-  LuUser
+  LuX
 } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { usePeople } from "~/stores";
@@ -67,18 +67,21 @@ type Person = { id: string; name: string; avatarUrl: string | null };
 export function PinInOverlay({
   companyId,
   locationEmployeeIds,
+  sessionUserId,
+  hasPinnedUser = false,
   dismissable = false,
   onDismiss
 }: {
   companyId: string;
   locationEmployeeIds: string[];
+  sessionUserId?: string;
+  hasPinnedUser?: boolean;
   dismissable?: boolean;
   onDismiss?: () => void;
 }) {
   const [people] = usePeople();
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showAll, setShowAll] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState<string | null>(null);
@@ -90,12 +93,22 @@ export function PinInOverlay({
   const addOperatorFetcher = useFetcher<{
     success: boolean;
     message?: string;
-    operator?: Person;
+    operator?: Person & { pin: string };
   }>();
 
   const recentIds = useMemo(() => getRecentOperators(companyId), [companyId]);
   const isAdding = addOperatorFetcher.state !== "idle";
   const isPinning = pinInFetcher.state !== "idle";
+
+  // Escape key to close when dismissable (but not when add modal is open)
+  useEffect(() => {
+    if (!dismissable) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !showAddModal) onDismiss?.();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [dismissable, onDismiss, showAddModal]);
 
   useEffect(() => {
     if (pinInFetcher.state === "idle" && pinInFetcher.data?.error) {
@@ -112,9 +125,16 @@ export function PinInOverlay({
     ) {
       const op = addOperatorFetcher.data.operator;
       setShowAddModal(false);
-      submitPinIn(op, generatedPin);
+      submitPinIn(op, op.pin);
+      // Dismiss overlay since pin-in will redirect
+      onDismiss?.();
     }
-  }, [addOperatorFetcher.state, addOperatorFetcher.data]);
+  }, [
+    addOperatorFetcher.state,
+    addOperatorFetcher.data,
+    submitPinIn,
+    onDismiss
+  ]);
 
   // Focus search on mount
   useEffect(() => {
@@ -123,9 +143,13 @@ export function PinInOverlay({
 
   const filteredPeople = useMemo(() => {
     const query = search.toLowerCase().trim();
-    let list = people;
-    if (!showAll && locationEmployeeIds.length > 0) {
-      list = people.filter((p) => locationEmployeeIds.includes(p.id));
+    // Exclude the station user (they logged in directly, not an operator)
+    let list = sessionUserId
+      ? people.filter((p) => p.id !== sessionUserId)
+      : people;
+    // Filter by location if available
+    if (locationEmployeeIds.length > 0) {
+      list = list.filter((p) => locationEmployeeIds.includes(p.id));
     }
     const filtered = query
       ? list.filter((p) => p.name.toLowerCase().includes(query))
@@ -139,7 +163,7 @@ export function PinInOverlay({
       if (bRecent !== -1) return 1;
       return a.name.localeCompare(b.name);
     });
-  }, [people, search, recentIds, showAll, locationEmployeeIds]);
+  }, [people, search, recentIds, locationEmployeeIds, sessionUserId]);
 
   const submitPinIn = useCallback(
     (person: Person, pinValue: string) => {
@@ -161,16 +185,18 @@ export function PinInOverlay({
     (value: string) => {
       if (selectedPerson && value.length === 4) {
         submitPinIn(selectedPerson, value);
+        onDismiss?.();
       }
     },
-    [selectedPerson, submitPinIn]
+    [selectedPerson, submitPinIn, onDismiss]
   );
 
   const handlePinSubmit = useCallback(() => {
     if (selectedPerson) {
       submitPinIn(selectedPerson, pin);
+      onDismiss?.();
     }
-  }, [selectedPerson, pin, submitPinIn]);
+  }, [selectedPerson, pin, submitPinIn, onDismiss]);
 
   const handleAddOperator = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
@@ -184,17 +210,32 @@ export function PinInOverlay({
     [addOperatorFetcher]
   );
 
-  const hasLocationFilter = locationEmployeeIds.length > 0;
+  const handleBackdropClick = useCallback(() => {
+    // Don't dismiss if add modal is open
+    if (showAddModal) return;
+    if (dismissable) onDismiss?.();
+  }, [dismissable, onDismiss, showAddModal]);
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
-      onClick={dismissable ? onDismiss : undefined}
+      onClick={handleBackdropClick}
     >
       <div
-        className="w-full max-w-sm mx-4 rounded-2xl border bg-card shadow-2xl overflow-hidden"
+        className="w-full max-w-sm mx-4 rounded-2xl border bg-card shadow-2xl overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close button — top right, outside the search bar */}
+        {dismissable && (
+          <button
+            type="button"
+            onClick={onDismiss}
+            className="absolute top-2.5 right-2.5 z-10 rounded-md p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <LuX className="h-4 w-4" />
+          </button>
+        )}
+
         {/* Search */}
         <div className="flex items-center gap-3 border-b px-4 py-3">
           <LuSearch className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -209,17 +250,8 @@ export function PinInOverlay({
               setPin("");
               setPinError(null);
             }}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground pr-8"
           />
-          {hasLocationFilter && (
-            <button
-              type="button"
-              onClick={() => setShowAll((prev) => !prev)}
-              className="text-[10px] text-muted-foreground hover:text-foreground whitespace-nowrap"
-            >
-              {showAll ? "Location" : "All"}
-            </button>
-          )}
         </div>
 
         {/* Operator list */}
@@ -230,46 +262,66 @@ export function PinInOverlay({
             </div>
           ) : (
             <div className="py-1">
-              {filteredPeople.map((person) => {
-                const isSelected = selectedPerson?.id === person.id;
-                const isRecent = recentIds.includes(person.id);
+              {(() => {
+                const recentPeople = filteredPeople.filter((p) =>
+                  recentIds.includes(p.id)
+                );
+                const otherPeople = filteredPeople.filter(
+                  (p) => !recentIds.includes(p.id)
+                );
+
+                const renderPerson = (person: Person) => {
+                  const isSelected = selectedPerson?.id === person.id;
+                  return (
+                    <button
+                      key={person.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPerson(isSelected ? null : person);
+                        setPin("");
+                        setPinError(null);
+                      }}
+                      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                        isSelected ? "bg-primary/5" : "hover:bg-muted/50"
+                      }`}
+                    >
+                      <Avatar
+                        size="xs"
+                        name={person.name}
+                        src={person.avatarUrl ?? undefined}
+                      />
+                      <span className="text-sm flex-1 truncate">
+                        {person.name}
+                      </span>
+                      {isSelected && (
+                        <LuCheck className="h-3.5 w-3.5 text-primary shrink-0" />
+                      )}
+                    </button>
+                  );
+                };
+
+                // When searching, show flat list. When browsing, group recent at top.
+                if (search) {
+                  return <>{filteredPeople.map(renderPerson)}</>;
+                }
 
                 return (
-                  <button
-                    key={person.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedPerson(
-                        isSelected ? null : person
-                      );
-                      setPin("");
-                      setPinError(null);
-                    }}
-                    className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                      isSelected
-                        ? "bg-primary/5"
-                        : "hover:bg-muted/50"
-                    }`}
-                  >
-                    <Avatar
-                      size="xs"
-                      name={person.name}
-                      src={person.avatarUrl ?? undefined}
-                    />
-                    <span className="text-sm flex-1 truncate">
-                      {person.name}
-                    </span>
-                    {isRecent && !isSelected && (
-                      <span className="text-[10px] text-muted-foreground/60">
-                        recent
-                      </span>
+                  <>
+                    {recentPeople.length > 0 && (
+                      <>
+                        <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                          Recent
+                        </p>
+                        {recentPeople.map(renderPerson)}
+                        {otherPeople.length > 0 && (
+                          <div className="mx-4 my-1 border-t" />
+                        )}
+                      </>
                     )}
-                    {isSelected && (
-                      <LuCheck className="h-3.5 w-3.5 text-primary shrink-0" />
-                    )}
-                  </button>
+                    {otherPeople.map(renderPerson)}
+                  </>
                 );
-              })}
+              })()}
             </div>
           )}
         </div>
@@ -318,36 +370,35 @@ export function PinInOverlay({
         )}
 
         {/* Footer actions */}
-        {!selectedPerson && (
-          <div className="border-t px-4 py-2">
+        <div className="border-t px-4 py-2">
+          <button
+            type="button"
+            onClick={() => {
+              setGeneratedPin(generatePin());
+              setShowAddModal(true);
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <LuPlus className="h-4 w-4" />
+            Add new operator
+          </button>
+          {hasPinnedUser && (
             <button
               type="button"
               onClick={() => {
-                setGeneratedPin(generatePin());
-                setShowAddModal(true);
+                pinOutFetcher.submit(null, {
+                  method: "POST",
+                  action: path.to.consolePinOut
+                });
+                onDismiss?.();
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
             >
-              <LuPlus className="h-4 w-4" />
-              Add new operator
+              <LuLogOut className="h-4 w-4" />
+              Pin Out
             </button>
-            {dismissable && (
-              <button
-                type="button"
-                onClick={() => {
-                  pinOutFetcher.submit(null, {
-                    method: "POST",
-                    action: path.to.consolePinOut
-                  });
-                }}
-                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <LuLogOut className="h-4 w-4" />
-                Pin Out
-              </button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {showAddModal && (
@@ -431,9 +482,7 @@ function AddOperatorModal({
                     name="pin"
                     value={editablePin}
                     onChange={(e) => {
-                      const val = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 4);
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 4);
                       setEditablePin(val);
                     }}
                     maxLength={4}
