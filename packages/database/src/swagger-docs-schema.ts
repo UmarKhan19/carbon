@@ -17469,6 +17469,105 @@ export default {
         tags: ["nonConformanceCustomer"],
       },
     },
+    "/timeCardEntries": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.employeeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.clockIn",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.clockOut",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.note",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.autoCloseShiftId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.firstName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.lastName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.avatarUrl",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.jobTitle",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.shiftId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.locationId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.shiftName",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntries.locationName",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/timeCardEntries",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["timeCardEntries"],
+      },
+    },
     "/materialDimensions": {
       get: {
         parameters: [
@@ -56340,6 +56439,195 @@ export default {
         tags: ["supplier"],
       },
     },
+    "/timeCardEntry": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.employeeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.clockIn",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.clockOut",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.note",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.autoCloseShiftId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/timeCardEntry",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["timeCardEntry"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.timeCardEntry",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["timeCardEntry"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.employeeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.clockIn",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.clockOut",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.note",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.autoCloseShiftId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["timeCardEntry"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.employeeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.clockIn",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.clockOut",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.note",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.autoCloseShiftId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.timeCardEntry.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.timeCardEntry",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["timeCardEntry"],
+      },
+    },
     "/stockTransfer": {
       get: {
         parameters: [
@@ -62716,6 +63004,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -62874,6 +63165,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -62984,6 +63278,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -77707,6 +78004,102 @@ export default {
         updatedBy: {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    timeCardEntries: {
+      properties: {
+        id: {
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        employeeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        clockIn: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        clockOut: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        note: {
+          format: "text",
+          type: "string",
+        },
+        autoCloseShiftId: {
+          description:
+            "Note:\nThis is a Foreign Key to `shift.id`.<fk table='shift' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        firstName: {
+          format: "text",
+          type: "string",
+        },
+        lastName: {
+          format: "text",
+          type: "string",
+        },
+        avatarUrl: {
+          format: "text",
+          type: "string",
+        },
+        jobTitle: {
+          format: "text",
+          type: "string",
+        },
+        shiftId: {
+          description:
+            "Note:\nThis is a Foreign Key to `shift.id`.<fk table='shift' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        locationId: {
+          description:
+            "Note:\nThis is a Foreign Key to `location.id`.<fk table='location' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        shiftName: {
+          format: "text",
+          type: "string",
+        },
+        locationName: {
           format: "text",
           type: "string",
         },
@@ -96020,6 +96413,77 @@ export default {
       },
       type: "object",
     },
+    timeCardEntry: {
+      required: [
+        "id",
+        "employeeId",
+        "companyId",
+        "clockIn",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.xid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        employeeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        clockIn: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        clockOut: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        note: {
+          format: "text",
+          type: "string",
+        },
+        autoCloseShiftId: {
+          description:
+            "Note:\nThis is a Foreign Key to `shift.id`.<fk table='shift' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     stockTransfer: {
       required: [
         "id",
@@ -99184,6 +99648,7 @@ export default {
         "jobTravelerIncludeWorkInstructions",
         "supplierApproval",
         "qualityIssueTarget",
+        "timeCardEnabled",
       ],
       properties: {
         id: {
@@ -99373,6 +99838,11 @@ export default {
           default: 20,
           format: "integer",
           type: "integer",
+        },
+        timeCardEnabled: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
         },
       },
       type: "object",
@@ -109310,6 +109780,129 @@ export default {
     },
     "rowFilter.nonConformanceCustomer.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.timeCardEntries": {
+      name: "timeCardEntries",
+      description: "timeCardEntries",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/timeCardEntries",
+      },
+    },
+    "rowFilter.timeCardEntries.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.employeeId": {
+      name: "employeeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.clockIn": {
+      name: "clockIn",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.clockOut": {
+      name: "clockOut",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.note": {
+      name: "note",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.autoCloseShiftId": {
+      name: "autoCloseShiftId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.firstName": {
+      name: "firstName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.lastName": {
+      name: "lastName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.avatarUrl": {
+      name: "avatarUrl",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.jobTitle": {
+      name: "jobTitle",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.shiftId": {
+      name: "shiftId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.locationId": {
+      name: "locationId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.shiftName": {
+      name: "shiftName",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntries.locationName": {
+      name: "locationName",
       required: false,
       in: "query",
       type: "string",
@@ -130034,6 +130627,81 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.timeCardEntry": {
+      name: "timeCardEntry",
+      description: "timeCardEntry",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/timeCardEntry",
+      },
+    },
+    "rowFilter.timeCardEntry.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.employeeId": {
+      name: "employeeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.clockIn": {
+      name: "clockIn",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.clockOut": {
+      name: "clockOut",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.note": {
+      name: "note",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.autoCloseShiftId": {
+      name: "autoCloseShiftId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.timeCardEntry.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.stockTransfer": {
       name: "stockTransfer",
       description: "stockTransfer",
@@ -133711,6 +134379,12 @@ export default {
     },
     "rowFilter.companySettings.qualityIssueTarget": {
       name: "qualityIssueTarget",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.timeCardEnabled": {
+      name: "timeCardEnabled",
       required: false,
       in: "query",
       type: "string",

@@ -28,11 +28,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (salesOrder.error) {
+    const errorObj = salesOrder.error as any;
+    const errorMessage =
+      typeof errorObj === "string"
+        ? errorObj
+        : errorObj?.details || errorObj?.message || "Unknown error";
+
     throw redirect(
       path.to.salesOrder(orderId),
       await flash(
         request,
-        error(salesOrder.error, "Failed to convert sales order lines to jobs")
+        error(
+          salesOrder.error,
+          `Failed to convert sales order lines to jobs: ${errorMessage}`
+        )
       )
     );
   }

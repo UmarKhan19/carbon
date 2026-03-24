@@ -108,7 +108,10 @@ export function AdjustInventory({ add }: { add: boolean }) {
 
   return (
     <>
-      <SidebarMenuButton onClick={modal.onOpen}>
+      <SidebarMenuButton
+        tooltip={add ? "Add Inventory" : "Remove Inventory"}
+        onClick={modal.onOpen}
+      >
         {add ? <LuGitPullRequestCreateArrow /> : <LuGitBranchPlus />}
         <span>{add ? "Add" : "Remove"} Inventory</span>
       </SidebarMenuButton>

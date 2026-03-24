@@ -695,6 +695,17 @@ export async function updateJobTravelerWorkInstructions(
     .eq("id", companyId);
 }
 
+export async function updateTimeCardSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  timeCardEnabled: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ timeCardEnabled }))
+    .eq("id", companyId);
+}
+
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,
