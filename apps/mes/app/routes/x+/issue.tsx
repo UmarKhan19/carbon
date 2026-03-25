@@ -5,14 +5,17 @@ import { validator } from "@carbon/form";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
+import { requirePinnedIn } from "~/services/effective-user.server";
 import { issueValidator } from "~/services/models";
 import { path, requestReferrer } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { userId: sessionUserId, companyId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { userId: sessionUserId, companyId } = await requirePermissions(
+    request,
+    {}
+  );
+  const userId = requirePinnedIn(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const validation = await validator(issueValidator).validate(formData);

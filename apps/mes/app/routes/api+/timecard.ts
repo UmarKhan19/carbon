@@ -1,6 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
+import { requirePinnedIn } from "~/services/effective-user.server";
 import { clockIn, clockOut } from "~/services/people.service";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -9,7 +9,7 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     userId: sessionUserId
   } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const userId = requirePinnedIn(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const intent = formData.get("intent");

@@ -2,7 +2,7 @@ import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
+import { requirePinnedIn } from "~/services/effective-user.server";
 import {
   insertManualInventoryAdjustment,
   inventoryAdjustmentValidator
@@ -10,8 +10,11 @@ import {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, userId: sessionUserId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { companyId, userId: sessionUserId } = await requirePermissions(
+    request,
+    {}
+  );
+  const userId = requirePinnedIn(request, { companyId, sessionUserId });
   const serviceRole = await getCarbonServiceRole();
 
   const formData = await request.formData();

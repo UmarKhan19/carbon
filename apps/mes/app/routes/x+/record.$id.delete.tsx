@@ -9,13 +9,16 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
+import { requirePinnedIn } from "~/services/effective-user.server";
 import { deleteAttributeRecord } from "~/services/operations.service";
 
 export async function action({ params, request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, userId: sessionUserId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { companyId, userId: sessionUserId } = await requirePermissions(
+    request,
+    {}
+  );
+  const userId = requirePinnedIn(request, { companyId, sessionUserId });
   const { id } = params;
 
   if (!id) {

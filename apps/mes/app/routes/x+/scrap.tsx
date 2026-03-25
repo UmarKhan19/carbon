@@ -10,14 +10,18 @@ import { validationError, validator } from "@carbon/form";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
+import { requirePinnedIn } from "~/services/effective-user.server";
 import { scrapQuantityValidator } from "~/services/models";
 import { insertScrapQuantity } from "~/services/operations.service";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId: sessionUserId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const {
+    client,
+    companyId,
+    userId: sessionUserId
+  } = await requirePermissions(request, {});
+  const userId = requirePinnedIn(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const validation = await validator(scrapQuantityValidator).validate(formData);

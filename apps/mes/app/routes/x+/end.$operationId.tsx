@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
+import { requirePinnedIn } from "~/services/effective-user.server";
 import {
   finishJobOperation,
   getTrackedEntitiesByMakeMethodId,
@@ -13,8 +13,11 @@ import {
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { userId: sessionUserId, companyId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { userId: sessionUserId, companyId } = await requirePermissions(
+    request,
+    {}
+  );
+  const userId = requirePinnedIn(request, { companyId, sessionUserId });
 
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");

@@ -110,6 +110,23 @@ export function PinInOverlay({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [dismissable, onDismiss, showAddModal]);
 
+  const submitPinIn = useCallback(
+    (person: Person, pinValue: string) => {
+      addRecentOperator(companyId, person.id);
+      const formData = new FormData();
+      formData.append("userId", person.id);
+      formData.append("name", person.name);
+      formData.append("avatarUrl", person.avatarUrl ?? "");
+      if (pinValue) formData.append("pin", pinValue);
+      pinInFetcher.submit(formData, {
+        method: "POST",
+        action: path.to.consolePinIn
+      });
+    },
+    [companyId, pinInFetcher]
+  );
+
+  // Handle pin-in errors
   useEffect(() => {
     if (pinInFetcher.state === "idle" && pinInFetcher.data?.error) {
       setPinError(pinInFetcher.data.error);
@@ -117,6 +134,7 @@ export function PinInOverlay({
     }
   }, [pinInFetcher.state, pinInFetcher.data]);
 
+  // Auto-pin after successful quick-add
   useEffect(() => {
     if (
       addOperatorFetcher.state === "idle" &&
@@ -126,7 +144,6 @@ export function PinInOverlay({
       const op = addOperatorFetcher.data.operator;
       setShowAddModal(false);
       submitPinIn(op, op.pin);
-      // Dismiss overlay since pin-in will redirect
       onDismiss?.();
     }
   }, [
@@ -164,22 +181,6 @@ export function PinInOverlay({
       return a.name.localeCompare(b.name);
     });
   }, [people, search, recentIds, locationEmployeeIds, sessionUserId]);
-
-  const submitPinIn = useCallback(
-    (person: Person, pinValue: string) => {
-      addRecentOperator(companyId, person.id);
-      const formData = new FormData();
-      formData.append("userId", person.id);
-      formData.append("name", person.name);
-      formData.append("avatarUrl", person.avatarUrl ?? "");
-      if (pinValue) formData.append("pin", pinValue);
-      pinInFetcher.submit(formData, {
-        method: "POST",
-        action: path.to.consolePinIn
-      });
-    },
-    [companyId, pinInFetcher]
-  );
 
   const handlePinComplete = useCallback(
     (value: string) => {
