@@ -63025,7 +63025,7 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.consolePinRequired",
+            $ref: "#/parameters/rowFilter.companySettings.consoleEnabled",
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
@@ -63189,7 +63189,7 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.consolePinRequired",
+            $ref: "#/parameters/rowFilter.companySettings.consoleEnabled",
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
@@ -63307,7 +63307,7 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.qualityIssueTarget",
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.consolePinRequired",
+            $ref: "#/parameters/rowFilter.companySettings.consoleEnabled",
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
@@ -99692,7 +99692,7 @@ export default {
         "jobTravelerIncludeWorkInstructions",
         "supplierApproval",
         "qualityIssueTarget",
-        "consolePinRequired",
+        "consoleEnabled",
         "timeCardEnabled",
       ],
       properties: {
@@ -99884,8 +99884,8 @@ export default {
           format: "integer",
           type: "integer",
         },
-        consolePinRequired: {
-          default: true,
+        consoleEnabled: {
+          default: false,
           format: "boolean",
           type: "boolean",
         },
@@ -134451,8 +134451,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.companySettings.consolePinRequired": {
-      name: "consolePinRequired",
+    "rowFilter.companySettings.consoleEnabled": {
+      name: "consoleEnabled",
       required: false,
       in: "query",
       type: "string",
