@@ -4,7 +4,6 @@ import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 
 const addAndIssueValidator = z.object({
   itemId: z.string().min(1),
@@ -24,11 +23,7 @@ const addAndIssueValidator = z.object({
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { userId: sessionUserId, companyId } = await requirePermissions(
-    request,
-    {}
-  );
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { userId, companyId } = await requirePermissions(request, {});
   const { dispatchId } = params;
 
   if (!dispatchId) {

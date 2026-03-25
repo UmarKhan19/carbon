@@ -160,13 +160,11 @@ export function PinInOverlay({
     searchRef.current?.focus();
   }, []);
 
-  const filteredPeople = useMemo(() => {
+  const operatorList = useMemo(() => {
     const query = search.toLowerCase().trim();
-    // Exclude the station user (they logged in directly, not an operator)
     let list = sessionUserId
       ? people.filter((p) => p.id !== sessionUserId)
       : people;
-    // Filter by location if available
     if (locationEmployeeIds.length > 0) {
       list = list.filter((p) => locationEmployeeIds.includes(p.id));
     }
@@ -174,7 +172,7 @@ export function PinInOverlay({
       ? list.filter((p) => p.name.toLowerCase().includes(query))
       : list;
 
-    return [...filtered].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       const aRecent = recentIds.indexOf(a.id);
       const bRecent = recentIds.indexOf(b.id);
       if (aRecent !== -1 && bRecent !== -1) return aRecent - bRecent;
@@ -182,6 +180,14 @@ export function PinInOverlay({
       if (bRecent !== -1) return 1;
       return a.name.localeCompare(b.name);
     });
+
+    // When searching, return flat list. When browsing, split into groups.
+    if (query) {
+      return { recent: [] as Person[], others: sorted, all: sorted };
+    }
+    const recent = sorted.filter((p) => recentIds.includes(p.id));
+    const others = sorted.filter((p) => !recentIds.includes(p.id));
+    return { recent, others, all: sorted };
   }, [people, search, recentIds, locationEmployeeIds, sessionUserId]);
 
   const handlePinComplete = useCallback(
@@ -252,143 +258,124 @@ export function PinInOverlay({
 
         {/* Operator list */}
         <div className="max-h-[240px] overflow-y-auto">
-          {filteredPeople.length === 0 ? (
+          {operatorList.all.length === 0 ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
               {search ? "No results" : "No operators"}
             </div>
           ) : (
             <div className="py-1">
-              {(() => {
-                const recentPeople = filteredPeople.filter((p) =>
-                  recentIds.includes(p.id)
-                );
-                const otherPeople = filteredPeople.filter(
-                  (p) => !recentIds.includes(p.id)
-                );
-
-                const renderPerson = (person: Person) => {
-                  const isSelected = selectedPerson?.id === person.id;
-                  return (
-                    <button
+              {operatorList.recent.length > 0 && (
+                <>
+                  <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Recent
+                  </p>
+                  {operatorList.recent.map((person) => (
+                    <OperatorRow
                       key={person.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedPerson(isSelected ? null : person);
+                      person={person}
+                      isSelected={selectedPerson?.id === person.id}
+                      onSelect={(p) => {
+                        setSelectedPerson(
+                          selectedPerson?.id === p.id ? null : p
+                        );
                         setPin("");
                         setPinError(null);
                       }}
-                      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                        isSelected ? "bg-primary/5" : "hover:bg-muted/50"
-                      }`}
-                    >
-                      <Avatar
-                        size="xs"
-                        name={person.name}
-                        src={person.avatarUrl ?? undefined}
-                      />
-                      <span className="text-sm flex-1 truncate">
-                        {person.name}
-                      </span>
-                      {isSelected && (
-                        <LuCheck className="h-3.5 w-3.5 text-primary shrink-0" />
-                      )}
-                    </button>
-                  );
-                };
-
-                // When searching, show flat list. When browsing, group recent at top.
-                if (search) {
-                  return <>{filteredPeople.map(renderPerson)}</>;
-                }
-
-                return (
-                  <>
-                    {recentPeople.length > 0 && (
-                      <>
-                        <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                          Recent
-                        </p>
-                        {recentPeople.map(renderPerson)}
-                        {otherPeople.length > 0 && (
-                          <div className="mx-4 my-1 border-t" />
-                        )}
-                      </>
-                    )}
-                    {otherPeople.map(renderPerson)}
-                  </>
-                );
-              })()}
+                    />
+                  ))}
+                  {operatorList.others.length > 0 && (
+                    <div className="mx-4 my-1 border-t" />
+                  )}
+                </>
+              )}
+              {operatorList.others.map((person) => (
+                <OperatorRow
+                  key={person.id}
+                  person={person}
+                  isSelected={selectedPerson?.id === person.id}
+                  onSelect={(p) => {
+                    setSelectedPerson(selectedPerson?.id === p.id ? null : p);
+                    setPin("");
+                    setPinError(null);
+                  }}
+                />
+              ))}
             </div>
           )}
         </div>
 
         {/* PIN input — only visible when someone is selected */}
         {selectedPerson && (
-          <div className="border-t px-4 py-4">
-            <div className="flex flex-col items-center gap-3">
+          <div className="border-t px-4 py-3">
+            <div className="flex flex-col items-center gap-2">
               <p className="text-xs text-muted-foreground">
                 Enter PIN for {selectedPerson.name}
               </p>
-              <InputOTP
-                maxLength={4}
-                value={pin}
-                onChange={(value) => {
-                  setPin(value);
-                  setPinError(null);
-                }}
-                onComplete={handlePinComplete}
-                disabled={isPinning}
-                autoFocus
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot index={0} />
-                  <InputOTPSlot index={1} />
-                  <InputOTPSlot index={2} />
-                  <InputOTPSlot index={3} />
-                </InputOTPGroup>
-              </InputOTP>
+              <div className="flex items-center gap-3">
+                <InputOTP
+                  maxLength={4}
+                  value={pin}
+                  onChange={(value) => {
+                    setPin(value);
+                    setPinError(null);
+                  }}
+                  onComplete={handlePinComplete}
+                  disabled={isPinning}
+                  autoFocus
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                  </InputOTPGroup>
+                </InputOTP>
+                {isPinning && (
+                  <LuLoader className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+              </div>
               {pinError && (
                 <p className="text-xs text-destructive">{pinError}</p>
-              )}
-              {isPinning && (
-                <LuLoader className="h-4 w-4 animate-spin text-muted-foreground" />
               )}
             </div>
           </div>
         )}
 
-        {/* Footer actions */}
-        <div className="border-t px-4 py-2">
-          <button
-            type="button"
+        {/* Footer */}
+        <div className="border-t px-3 py-2.5 flex gap-2">
+          <Button
+            variant="ghost"
+            size="md"
+            className="flex-1"
             onClick={() => {
               setGeneratedPin(generatePin());
               setShowAddModal(true);
             }}
-            className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
-            <LuPlus className="h-4 w-4" />
-            Add new operator
-          </button>
+            <LuPlus className="mr-2 h-4 w-4" />
+            Add Operator
+          </Button>
           {hasPinnedUser && (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="md"
+              className="flex-1 text-destructive hover:text-destructive"
               onClick={() => {
                 pinOutFetcher.submit(null, {
                   method: "POST",
                   action: path.to.consolePinOut
                 });
-                // Don't call onDismiss — let the redirect handle the state update
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
             >
-              <LuLogOut className="h-4 w-4" />
+              <LuLogOut className="mr-2 h-4 w-4" />
               Pin Out
-            </button>
+            </Button>
           )}
           {!dismissable && (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="md"
+              className="flex-1"
               onClick={() => {
                 const formData = new FormData();
                 formData.append("consoleMode", "false");
@@ -397,11 +384,10 @@ export function PinInOverlay({
                   action: path.to.consoleToggle
                 });
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             >
-              <LuMonitor className="h-4 w-4" />
-              Turn off Console Mode
-            </button>
+              <LuMonitor className="mr-2 h-4 w-4" />
+              Exit Console
+            </Button>
           )}
         </div>
       </div>
@@ -421,6 +407,34 @@ export function PinInOverlay({
         />
       )}
     </div>
+  );
+}
+
+function OperatorRow({
+  person,
+  isSelected,
+  onSelect
+}: {
+  person: Person;
+  isSelected: boolean;
+  onSelect: (person: Person) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(person)}
+      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+        isSelected ? "bg-primary/5" : "hover:bg-muted/50"
+      }`}
+    >
+      <Avatar
+        size="xs"
+        name={person.name}
+        src={person.avatarUrl ?? undefined}
+      />
+      <span className="text-sm flex-1 truncate">{person.name}</span>
+      {isSelected && <LuCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
+    </button>
   );
 }
 

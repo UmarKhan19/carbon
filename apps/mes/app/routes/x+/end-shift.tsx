@@ -4,16 +4,10 @@ import { getLocalTimeZone, now } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { clearConsolePinIn, getConsoleMode } from "~/services/console.server";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import { endProductionEvents } from "~/services/operations.service";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const {
-    client,
-    companyId,
-    userId: sessionUserId
-  } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { client, companyId, userId } = await requirePermissions(request, {});
   const formData = await request.formData();
   const timezone = formData.get("timezone") as string | null;
 

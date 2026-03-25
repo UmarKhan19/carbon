@@ -40,7 +40,6 @@ import {
 } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Link, useFetcher, useLoaderData } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import {
   clockIn,
   clockOut,
@@ -117,12 +116,7 @@ function toLocalDatetimeInput(dateStr: string) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const {
-    client,
-    companyId,
-    userId: sessionUserId
-  } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
   const url = new URL(request.url);
   const weekOffset = parseInt(url.searchParams.get("week") ?? "0", 10);
@@ -150,12 +144,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const {
-    client,
-    companyId,
-    userId: sessionUserId
-  } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
   const formData = await request.formData();
   const intent = formData.get("intent");

@@ -10,7 +10,6 @@ import { validationError, validator } from "@carbon/form";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import { nonScrapQuantityValidator } from "~/services/models";
 import {
   finishJobOperation,
@@ -20,12 +19,7 @@ import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const {
-    client,
-    companyId,
-    userId: sessionUserId
-  } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
   const formData = await request.formData();
   const validation = await validator(nonScrapQuantityValidator).validate(

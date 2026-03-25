@@ -3,16 +3,10 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import { getTrackedEntity } from "~/services/operations.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const {
-    client,
-    companyId,
-    userId: sessionUserId
-  } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
   const { trackedEntityId, materialId } = params;
   if (!materialId) throw new Error("Could not find materialId");

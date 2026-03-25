@@ -12,13 +12,11 @@ import type { ImperativePanelHandle } from "react-resizable-panels";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useParams } from "react-router";
 import { OperationsList } from "~/components";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import { getRecentJobOperationsByEmployee } from "~/services/operations.service";
 import { makeDurations } from "~/utils/durations";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId, userId: sessionUserId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
   const [operations] = await Promise.all([
     getRecentJobOperationsByEmployee(client, {

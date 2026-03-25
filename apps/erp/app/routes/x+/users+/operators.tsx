@@ -4,7 +4,13 @@ import { flash } from "@carbon/auth/session.server";
 import { Checkbox, MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
-import { LuMail, LuToggleRight, LuUser, LuUserCheck } from "react-icons/lu";
+import {
+  LuBriefcase,
+  LuHash,
+  LuToggleRight,
+  LuUser,
+  LuUserCheck
+} from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useNavigate } from "react-router";
 import { EmployeeAvatar, New, Table } from "~/components";
@@ -156,7 +162,7 @@ const OperatorsTable = memo(
             />
           ),
           meta: {
-            icon: <LuMail />
+            icon: <LuBriefcase />
           }
         },
         {
@@ -171,7 +177,7 @@ const OperatorsTable = memo(
             );
           },
           meta: {
-            icon: <LuUserCheck />
+            icon: <LuHash />
           }
         },
         {

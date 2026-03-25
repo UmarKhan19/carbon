@@ -309,7 +309,6 @@ export function UserNav({
 
   const itarDisclosure = useDisclosure();
 
-  // In console mode with a pinned-in operator, show the operator's identity
   const showingOperator = consoleMode && pinnedInUser;
   const displayName = showingOperator ? pinnedInUser.name : stationName;
   const displayAvatar = showingOperator

@@ -7,10 +7,7 @@ import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, userId: sessionUserId } = await requirePermissions(
-    request,
-    {}
-  );
+  const { companyId, sessionUserId } = await requirePermissions(request, {});
 
   const formData = await request.formData();
   const userId = formData.get("userId") as string;

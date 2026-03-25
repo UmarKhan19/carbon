@@ -14,7 +14,6 @@ import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useParams } from "react-router";
 import { OperationsList } from "~/components";
 import { userContext } from "~/context";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import {
   getJobOperationsAssignedToEmployee,
   getWorkCentersByLocation
@@ -23,8 +22,7 @@ import type { Operation } from "~/services/types";
 import { makeDurations } from "~/utils/durations";
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  const { companyId, userId: sessionUserId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { companyId, userId } = await requirePermissions(request, {});
 
   const serviceRole = getCarbonServiceRole();
   const locationId = context.get(userContext)?.locationId;

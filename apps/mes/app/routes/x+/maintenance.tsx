@@ -34,14 +34,12 @@ import {
   getActiveMaintenanceDispatchesByLocation,
   getMaintenanceDispatchesAssignedTo
 } from "~/services/maintenance.service";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import { maintenanceDispatchPriority } from "~/services/models";
 import { getWorkCentersByLocation } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  const { client, userId: sessionUserId, companyId } = await requirePermissions(request, {});
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { client, userId } = await requirePermissions(request, {});
   const locationId = context.get(userContext)?.locationId;
 
   const url = new URL(request.url);

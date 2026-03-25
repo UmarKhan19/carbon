@@ -13,18 +13,13 @@ import { getLocalTimeZone, now } from "@internationalized/date";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
-import { getEffectiveUserId } from "~/services/effective-user.server";
 import { maintenanceDispatchValidator } from "~/services/models";
 import { endProductionEventsByWorkCenter } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, userId: sessionUserId } = await requirePermissions(
-    request,
-    {}
-  );
-  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
+  const { companyId, userId } = await requirePermissions(request, {});
 
   const formData = await request.formData();
   const validation = await validator(maintenanceDispatchValidator).validate(

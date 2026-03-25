@@ -113,6 +113,45 @@ function makeAuthSession(
   };
 }
 
+/**
+ * Reads console mode cookies to determine the effective user.
+ * If console mode is on and an operator is pinned in, returns
+ * the operator's ID. Otherwise returns the session user's ID.
+ *
+ * Safe to call in any app — if console cookies don't exist
+ * (e.g. in ERP), it returns the session user unchanged.
+ */
+function getEffectiveUserFromCookies(
+  request: Request,
+  companyId: string,
+  sessionUserId: string
+): string {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) return sessionUserId;
+
+  // Parse only the two cookies we need (avoid full cookie library dependency)
+  const cookies = Object.fromEntries(
+    cookieHeader.split(";").map((c) => {
+      const [key, ...rest] = c.trim().split("=");
+      return [key, decodeURIComponent(rest.join("="))];
+    })
+  );
+
+  if (cookies[`console-mode-${companyId}`] !== "true") return sessionUserId;
+
+  const pinRaw = cookies[`console-pin-${companyId}`];
+  if (!pinRaw) return sessionUserId;
+
+  try {
+    const pinIn = JSON.parse(pinRaw);
+    const elapsed = Date.now() - pinIn.pinnedAt;
+    if (elapsed > 3600000) return sessionUserId;
+    return pinIn.userId ?? sessionUserId;
+  } catch {
+    return sessionUserId;
+  }
+}
+
 export async function requirePermissions(
   request: Request,
   requiredPermissions: {
@@ -128,6 +167,7 @@ export async function requirePermissions(
   companyId: string;
   email: string;
   userId: string;
+  sessionUserId: string;
 }> {
   const apiKey = request.headers.get("carbon-key");
   if (apiKey) {
@@ -203,6 +243,7 @@ export async function requirePermissions(
         client,
         companyId,
         userId,
+        sessionUserId: userId,
         email: ""
       };
     }
@@ -222,7 +263,8 @@ export async function requirePermissions(
           : getCarbon(accessToken),
       companyId,
       email,
-      userId
+      userId: getEffectiveUserFromCookies(request, companyId, userId),
+      sessionUserId: userId
     };
   }
 
@@ -276,7 +318,8 @@ export async function requirePermissions(
         : getCarbon(accessToken),
     companyId,
     email,
-    userId
+    userId: getEffectiveUserFromCookies(request, companyId, userId),
+    sessionUserId: userId
   };
 }
 
