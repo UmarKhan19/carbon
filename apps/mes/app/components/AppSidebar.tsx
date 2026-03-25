@@ -2,7 +2,6 @@
 
 import type { Company } from "@carbon/auth";
 import { CONTROLLED_ENVIRONMENT } from "@carbon/auth";
-import type { PinnedInUser } from "~/types";
 import {
   Avatar,
   cn,
@@ -58,6 +57,7 @@ import { Form, Link, useFetcher, useLocation } from "react-router";
 import { useUser } from "~/hooks";
 import type { action } from "~/root";
 import type { Location } from "~/services/types";
+import type { PinnedInUser } from "~/types";
 import { ERP_URL, path } from "~/utils/path";
 import { AdjustInventory } from "./AdjustInventory";
 import { EndShift } from "./EndShift";
@@ -69,6 +69,7 @@ export function AppSidebar({
   activeMaintenanceCount,
   company,
   companies,
+  consoleEnabled,
   consoleMode,
   location,
   locations,
@@ -81,6 +82,7 @@ export function AppSidebar({
   activeMaintenanceCount: number;
   company: Company;
   companies: Company[];
+  consoleEnabled?: boolean;
   consoleMode: boolean;
   location: string;
   locations: Location[];
@@ -109,6 +111,7 @@ export function AppSidebar({
         <UserNav
           company={company}
           companies={companies}
+          consoleEnabled={consoleEnabled}
           consoleMode={consoleMode}
           location={location}
           locations={locations}
@@ -270,6 +273,7 @@ export function ToolsNav() {
 export function UserNav({
   company,
   companies,
+  consoleEnabled,
   consoleMode,
   location,
   locations,
@@ -277,6 +281,7 @@ export function UserNav({
 }: {
   company: Company;
   companies: Company[];
+  consoleEnabled?: boolean;
   consoleMode: boolean;
   location: string;
   locations: Location[];
@@ -342,9 +347,7 @@ export function UserNav({
             {/* Console mode with pinned-in operator: simplified menu */}
             {showingOperator ? (
               <>
-                <DropdownMenuLabel>
-                  {pinnedInUser.name}
-                </DropdownMenuLabel>
+                <DropdownMenuLabel>{pinnedInUser.name}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onSelect={() => {
@@ -364,7 +367,9 @@ export function UserNav({
               </>
             ) : (
               <>
-                <DropdownMenuLabel>Signed in as {stationName}</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  Signed in as {stationName}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to={path.to.accountSettings}>
@@ -475,38 +480,38 @@ export function UserNav({
                 </div>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center justify-start">
-                  <DropdownMenuIcon icon={<LuMonitor />} />
-                  Console Mode
-                </div>
-                <div>
-                  <Switch
-                    checked={consoleMode}
-                    onCheckedChange={() =>
-                      consoleSubmitRef.current?.click()
-                    }
-                  />
-                  <fetcher.Form
-                    action={path.to.consoleToggle}
-                    method="post"
-                    className="sr-only"
-                  >
-                    <input
-                      type="hidden"
-                      name="consoleMode"
-                      value={consoleMode ? "false" : "true"}
+            {consoleEnabled && (
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-start">
+                    <DropdownMenuIcon icon={<LuMonitor />} />
+                    Console Mode
+                  </div>
+                  <div>
+                    <Switch
+                      checked={consoleMode}
+                      onCheckedChange={() => consoleSubmitRef.current?.click()}
                     />
-                    <button
-                      ref={consoleSubmitRef}
+                    <fetcher.Form
+                      action={path.to.consoleToggle}
+                      method="post"
                       className="sr-only"
-                      type="submit"
-                    />
-                  </fetcher.Form>
+                    >
+                      <input
+                        type="hidden"
+                        name="consoleMode"
+                        value={consoleMode ? "false" : "true"}
+                      />
+                      <button
+                        ref={consoleSubmitRef}
+                        className="sr-only"
+                        type="submit"
+                      />
+                    </fetcher.Form>
+                  </div>
                 </div>
-              </div>
-            </DropdownMenuItem>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             {CONTROLLED_ENVIRONMENT && (
               <DropdownMenuItem onClick={itarDisclosure.onOpen}>

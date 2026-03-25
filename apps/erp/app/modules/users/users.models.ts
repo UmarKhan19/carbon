@@ -39,7 +39,8 @@ export const convertOperatorValidator = z.object({
   email: z
     .string()
     .min(1, { message: "Email is required" })
-    .email("Must be a valid email")
+    .email("Must be a valid email"),
+  employeeType: z.string().min(1, { message: "Employee type is required" })
 });
 
 export const createSupplierAccountValidator = z.object({

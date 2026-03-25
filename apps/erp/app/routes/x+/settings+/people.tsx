@@ -19,8 +19,10 @@ import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import {
+  consoleSettingsValidator,
   getCompanySettings,
   timeCardSettingsValidator,
+  updateConsoleSetting,
   updateTimeCardSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -75,6 +77,26 @@ export async function action({ request }: ActionFunctionArgs) {
     if (update.error) return { success: false, message: update.error.message };
 
     return { success: true, message: "Timecard settings updated" };
+  }
+
+  if (intent === "console") {
+    const validation = await validator(consoleSettingsValidator).validate(
+      formData
+    );
+
+    if (validation.error) {
+      return { success: false, message: "Invalid form data" };
+    }
+
+    const update = await updateConsoleSetting(
+      client,
+      companyId,
+      validation.data.consoleEnabled
+    );
+
+    if (update.error) return { success: false, message: update.error.message };
+
+    return { success: true, message: "Console mode settings updated" };
   }
 
   return { success: false, message: "Unknown intent" };
@@ -137,6 +159,50 @@ export default function PeopleSettingsRoute() {
                 isLoading={
                   fetcher.state !== "idle" &&
                   fetcher.formData?.get("intent") === "timeCard"
+                }
+              >
+                Save
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={consoleSettingsValidator}
+            defaultValues={{
+              consoleEnabled: (companySettings as any).consoleEnabled ?? false
+            }}
+            fetcher={fetcher}
+          >
+            <input type="hidden" name="intent" value="console" />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Console Mode
+              </CardTitle>
+              <CardDescription>
+                Enable shared workstation mode for MES terminals. Operators
+                identify themselves via PIN before performing work.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-start gap-2">
+                <Boolean
+                  name="consoleEnabled"
+                  description="Enable Console Mode"
+                />
+                <div>
+                  <Badge variant="yellow">Beta</Badge>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={
+                  fetcher.state !== "idle" &&
+                  fetcher.formData?.get("intent") === "console"
                 }
               >
                 Save

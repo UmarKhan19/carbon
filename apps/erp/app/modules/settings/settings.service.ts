@@ -706,6 +706,103 @@ export async function updateTimeCardSetting(
     .eq("id", companyId);
 }
 
+export async function updateConsoleSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  consoleEnabled: boolean
+) {
+  const update = await client
+    .from("companySettings")
+    .update(sanitize({ consoleEnabled }) as any)
+    .eq("id", companyId);
+
+  // When enabling, create "Console Operator" employee type if it doesn't exist
+  if (consoleEnabled) {
+    const existing = await client
+      .from("employeeType")
+      .select("id")
+      .eq("companyId", companyId)
+      .eq("name", "Console Operator")
+      .maybeSingle();
+
+    if (!existing.data) {
+      const newType = await client
+        .from("employeeType")
+        .insert({ name: "Console Operator", companyId, protected: false })
+        .select("id")
+        .single();
+
+      // Create default permissions for the Console Operator type.
+      // Only grant what's needed for MES operations — not ERP modules.
+      if (newType.data) {
+        const mesModules = [
+          // Production: start/end operations, complete, scrap, rework
+          {
+            module: "Production",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // Inventory: issue materials, adjustments
+          {
+            module: "Inventory",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // Resources: view work centers, locations
+          {
+            module: "Resources",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          },
+          // Items/Parts: view items for operations
+          {
+            module: "Items",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          },
+          // Quality: record defects, non-conformances
+          {
+            module: "Quality",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // People: view employees (for console operator list)
+          {
+            module: "People",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          }
+        ];
+
+        const permissions = mesModules.map((m) => ({
+          employeeTypeId: newType.data.id,
+          module: m.module,
+          create: m.create ? [companyId] : [],
+          update: m.update ? [companyId] : [],
+          delete: m.delete ? [companyId] : [],
+          view: m.view ? [companyId] : []
+        }));
+
+        await client.from("employeeTypePermission").insert(permissions);
+      }
+    }
+  }
+
+  return update;
+}
+
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,

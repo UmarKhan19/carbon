@@ -5,7 +5,7 @@ import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { requirePinnedIn } from "~/services/effective-user.server";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { productionEventValidator } from "~/services/models";
 import {
   endProductionEvent,
@@ -19,7 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     userId: sessionUserId
   } = await requirePermissions(request, {});
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const validation = await validator(productionEventValidator).validate(

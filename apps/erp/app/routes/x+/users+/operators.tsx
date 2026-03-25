@@ -1,13 +1,13 @@
-import { error } from "@carbon/auth";
+import { error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Checkbox, MenuItem, MenuIcon } from "@carbon/react";
+import { Checkbox, MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuMail, LuToggleRight, LuUser, LuUserCheck } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useNavigate } from "react-router";
-import { EmployeeAvatar, Hyperlink, New, Table } from "~/components";
+import { EmployeeAvatar, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { usePermissions, useUrlParams } from "~/hooks";
 import {
@@ -59,8 +59,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
+  // Get PINs from employee table (not in the employees view)
+  const operatorIds = (operators.data ?? [])
+    .map((op: any) => op.id)
+    .filter(Boolean);
+  const serviceRole = getCarbonServiceRole();
+  const pins =
+    operatorIds.length > 0
+      ? await serviceRole
+          .from("employee")
+          .select("id, pin" as any)
+          .eq("companyId", companyId)
+          .in("id", operatorIds)
+      : { data: [] };
+
+  const pinMap = (pins.data ?? []).reduce<Record<string, string | null>>(
+    (acc, row: any) => {
+      acc[row.id] = row.pin ?? null;
+      return acc;
+    },
+    {}
+  );
+
   return {
     count: operators.count ?? 0,
+    pinMap,
     operators: operators.data ?? [],
     employeeTypes: employeeTypes.data ?? []
   };
@@ -74,11 +97,13 @@ const OperatorsTable = memo(
   ({
     data,
     count,
-    employeeTypes
+    employeeTypes,
+    pinMap
   }: {
     data: Operator[];
     count: number;
     employeeTypes: ListItem[];
+    pinMap: Record<string, string | null>;
   }) => {
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -135,6 +160,21 @@ const OperatorsTable = memo(
           }
         },
         {
+          id: "pin",
+          header: "PIN",
+          cell: ({ row }) => {
+            const pin = pinMap[row.original.id!];
+            return pin ? (
+              <span className="font-mono tracking-widest">{pin}</span>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            );
+          },
+          meta: {
+            icon: <LuUserCheck />
+          }
+        },
+        {
           accessorKey: "active",
           header: "Active",
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
@@ -150,16 +190,14 @@ const OperatorsTable = memo(
           }
         }
       ],
-      [employeeTypesById]
+      [employeeTypesById, pinMap]
     );
 
     const renderContextMenu = useCallback(
       (row: Operator) => (
         <MenuItem
           onClick={() =>
-            navigate(
-              `${path.to.operator(row.id!)}?${params.toString()}`
-            )
+            navigate(`${path.to.operator(row.id!)}?${params.toString()}`)
           }
           disabled={!permissions.can("update", "users")}
         >
@@ -190,7 +228,8 @@ const OperatorsTable = memo(
 OperatorsTable.displayName = "OperatorsTable";
 
 export default function ConsoleOperatorsRoute() {
-  const { count, operators, employeeTypes } = useLoaderData<typeof loader>();
+  const { count, operators, employeeTypes, pinMap } =
+    useLoaderData<typeof loader>();
 
   return (
     <>
@@ -198,6 +237,7 @@ export default function ConsoleOperatorsRoute() {
         data={operators}
         count={count}
         employeeTypes={employeeTypes}
+        pinMap={pinMap}
       />
       <Outlet />
     </>

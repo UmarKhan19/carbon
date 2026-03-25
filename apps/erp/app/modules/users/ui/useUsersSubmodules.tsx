@@ -1,4 +1,5 @@
 import { LuFileBadge2, LuGroup, LuMonitor, LuUsers } from "react-icons/lu";
+import { useSettings } from "~/hooks/useSettings";
 import type { RouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
@@ -14,7 +15,8 @@ const usersRoutes: RouteGroup[] = [
       {
         name: "Console Operators",
         to: path.to.operators,
-        icon: <LuMonitor />
+        icon: <LuMonitor />,
+        setting: "consoleEnabled" as any
       },
       // {
       //   name: "Customers",
@@ -46,5 +48,16 @@ const usersRoutes: RouteGroup[] = [
 ];
 
 export default function useUsersSubmodules() {
-  return { groups: usersRoutes };
+  const settings = useSettings();
+
+  return {
+    groups: usersRoutes.map((group) => ({
+      ...group,
+      routes: group.routes.filter(
+        (route) =>
+          !route.setting ||
+          settings[route.setting as keyof typeof settings] === true
+      )
+    }))
+  };
 }

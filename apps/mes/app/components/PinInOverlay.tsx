@@ -24,6 +24,7 @@ import {
   LuCopy,
   LuLoader,
   LuLogOut,
+  LuMonitor,
   LuPlus,
   LuRefreshCw,
   LuSearch,
@@ -90,6 +91,7 @@ export function PinInOverlay({
 
   const pinInFetcher = useFetcher<{ error?: string }>();
   const pinOutFetcher = useFetcher();
+  const consoleToggleFetcher = useFetcher();
   const addOperatorFetcher = useFetcher<{
     success: boolean;
     message?: string;
@@ -191,13 +193,6 @@ export function PinInOverlay({
     },
     [selectedPerson, submitPinIn, onDismiss]
   );
-
-  const handlePinSubmit = useCallback(() => {
-    if (selectedPerson) {
-      submitPinIn(selectedPerson, pin);
-      onDismiss?.();
-    }
-  }, [selectedPerson, pin, submitPinIn, onDismiss]);
 
   const handleAddOperator = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
@@ -355,17 +350,9 @@ export function PinInOverlay({
               {pinError && (
                 <p className="text-xs text-destructive">{pinError}</p>
               )}
-              <Button
-                size="sm"
-                className="w-full"
-                onClick={handlePinSubmit}
-                disabled={isPinning || pin.length < 4}
-              >
-                {isPinning && (
-                  <LuLoader className="mr-2 h-3.5 w-3.5 animate-spin" />
-                )}
-                Pin In
-              </Button>
+              {isPinning && (
+                <LuLoader className="h-4 w-4 animate-spin text-muted-foreground" />
+              )}
             </div>
           </div>
         )}
@@ -391,12 +378,29 @@ export function PinInOverlay({
                   method: "POST",
                   action: path.to.consolePinOut
                 });
-                onDismiss?.();
+                // Don't call onDismiss — let the redirect handle the state update
               }}
               className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
             >
               <LuLogOut className="h-4 w-4" />
               Pin Out
+            </button>
+          )}
+          {!dismissable && (
+            <button
+              type="button"
+              onClick={() => {
+                const formData = new FormData();
+                formData.append("consoleMode", "false");
+                consoleToggleFetcher.submit(formData, {
+                  method: "POST",
+                  action: path.to.consoleToggle
+                });
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              <LuMonitor className="h-4 w-4" />
+              Turn off Console Mode
             </button>
           )}
         </div>

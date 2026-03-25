@@ -40,7 +40,7 @@ import {
 } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Link, useFetcher, useLoaderData } from "react-router";
-import { requirePinnedIn } from "~/services/effective-user.server";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import {
   clockIn,
   clockOut,
@@ -122,7 +122,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     companyId,
     userId: sessionUserId
   } = await requirePermissions(request, {});
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const url = new URL(request.url);
   const weekOffset = parseInt(url.searchParams.get("week") ?? "0", 10);
@@ -155,7 +155,7 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     userId: sessionUserId
   } = await requirePermissions(request, {});
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const intent = formData.get("intent");

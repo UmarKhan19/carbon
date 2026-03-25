@@ -228,12 +228,6 @@ async function seedDev() {
       );
       const employeeTypeId = employeeTypeResult.rows[0].id;
 
-      // Create Console Operator employee type (for MES console mode)
-      await client.query(
-        `INSERT INTO "employeeType" (name, "companyId", protected) VALUES ('Console Operator', $1, true)`,
-        [companyId]
-      );
-
       // Get available modules
       const modulesResult = await client.query(`SELECT name FROM modules`);
       const modules = modulesResult.rows as { name: string }[];

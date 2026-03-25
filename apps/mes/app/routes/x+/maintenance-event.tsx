@@ -9,7 +9,7 @@ import { flash } from "@carbon/auth/session.server";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
-import { requirePinnedIn } from "~/services/effective-user.server";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import {
   endMaintenanceEvent,
   startMaintenanceEvent,
@@ -23,7 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
     request,
     {}
   );
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const action = formData.get("action") as "Start" | "End" | "Complete";

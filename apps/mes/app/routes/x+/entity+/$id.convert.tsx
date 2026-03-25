@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { requirePinnedIn } from "~/services/effective-user.server";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { convertEntityValidator } from "~/services/models";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -12,7 +12,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     request,
     {}
   );
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const { id } = params;
   if (!id) throw new Error("Could not find id");

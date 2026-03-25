@@ -252,7 +252,7 @@ export const jobTravelerSettingsValidator = z.object({
 });
 
 export const consoleSettingsValidator = z.object({
-  consolePinRequired: zfd.checkbox()
+  consoleEnabled: zfd.checkbox()
 });
 
 export const quoteLineCategoryMarkupsSettingsValidator = z.object({

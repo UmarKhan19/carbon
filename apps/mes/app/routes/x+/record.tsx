@@ -9,7 +9,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { requirePinnedIn } from "~/services/effective-user.server";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { stepRecordValidator } from "~/services/models";
 import { insertAttributeRecord } from "~/services/operations.service";
 
@@ -19,7 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
     request,
     {}
   );
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const validation = await validator(stepRecordValidator).validate(formData);

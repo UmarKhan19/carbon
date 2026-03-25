@@ -102,11 +102,6 @@ serve(async (req: Request) => {
             companyId,
             protected: true,
           },
-          {
-            name: "Console Operator",
-            companyId,
-            protected: true,
-          },
         ])
         .returning(["id"])
         .execute();

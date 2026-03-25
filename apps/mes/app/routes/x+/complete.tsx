@@ -10,7 +10,7 @@ import { validationError, validator } from "@carbon/form";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
-import { requirePinnedIn } from "~/services/effective-user.server";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { nonScrapQuantityValidator } from "~/services/models";
 import {
   finishJobOperation,
@@ -25,7 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     userId: sessionUserId
   } = await requirePermissions(request, {});
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
 
   const formData = await request.formData();
   const validation = await validator(nonScrapQuantityValidator).validate(

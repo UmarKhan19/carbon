@@ -31,6 +31,7 @@ import {
 } from "react-router";
 import { AppSidebar } from "~/components";
 import { ConsolePill } from "~/components/ConsolePill";
+import { PinInOverlay } from "~/components/PinInOverlay";
 import RealtimeDataProvider from "~/components/RealtimeDataProvider";
 import { TimeCardWarning } from "~/components/TimeCardWarning";
 import { userContext } from "~/context";
@@ -107,7 +108,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     }),
     client
       .from("companySettings")
-      .select("timeCardEnabled")
+      .select("timeCardEnabled, consoleEnabled")
       .eq("id", companyId)
       .single(),
     getOpenClockEntry(client, effectiveUserId, companyId),
@@ -125,6 +126,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     locationEmployees.data?.map((e: { id: string }) => e.id) ?? [];
   const timeCardEnabled =
     (companySettings.data as any)?.timeCardEnabled ?? false;
+  const consoleEnabled = (companySettings.data as any)?.consoleEnabled ?? false;
 
   // Get active maintenance count after we have the location
   const activeMaintenanceCount = await getActiveMaintenanceEventsCount(
@@ -165,7 +167,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       activeMaintenanceCount: activeMaintenanceCount.count ?? 0,
       company,
       companies: companies.data ?? [],
-      consoleMode,
+      consoleEnabled,
+      consoleMode: consoleEnabled && consoleMode,
       location: locationId,
       locationEmployeeIds,
       locations: locations.data ?? [],
@@ -191,6 +194,7 @@ export default function AuthenticatedRoute() {
     activeMaintenanceCount,
     company,
     companies,
+    consoleEnabled,
     consoleMode,
     location,
     locationEmployeeIds,
@@ -242,6 +246,7 @@ export default function AuthenticatedRoute() {
                   activeMaintenanceCount={activeMaintenanceCount}
                   company={company}
                   companies={companies}
+                  consoleEnabled={consoleEnabled}
                   consoleMode={consoleMode}
                   location={location}
                   locations={locations}
@@ -253,7 +258,15 @@ export default function AuthenticatedRoute() {
                 {timeCardEnabled && (
                   <TimeCardWarning openClockEntry={openClockEntry} />
                 )}
-                {consoleMode && (
+                {consoleMode && !pinnedInUser && (
+                  <PinInOverlay
+                    companyId={company.companyId!}
+                    locationEmployeeIds={locationEmployeeIds}
+                    sessionUserId={user?.id ?? ""}
+                    hasPinnedUser={false}
+                  />
+                )}
+                {consoleMode && pinnedInUser && (
                   <ConsolePill
                     user={pinnedInUser}
                     companyId={company.companyId!}

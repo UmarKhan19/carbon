@@ -793,7 +793,10 @@ export async function createConsoleOperator(
 
   if (companyLink.error) {
     // Non-critical — operator still works without this
-    console.error("Failed to link console operator to company:", companyLink.error);
+    console.error(
+      "Failed to link console operator to company:",
+      companyLink.error
+    );
   }
 
   return {
@@ -812,11 +815,13 @@ export async function convertConsoleOperatorToUser(
   {
     userId,
     email,
+    employeeType,
     companyId,
     createdBy
   }: {
     userId: string;
     email: string;
+    employeeType: string;
     companyId: string;
     createdBy: string;
   }
@@ -873,6 +878,13 @@ export async function convertConsoleOperatorToUser(
     return { success: false, message: updateUser.error.message };
   }
 
+  // Change employee type to the selected type
+  await serviceRole
+    .from("employee")
+    .update({ employeeTypeId: employeeType })
+    .eq("id", userId)
+    .eq("companyId", companyId);
+
   // Create invite so user gets the magic link email
   const code = crypto.randomUUID();
   const employee = await client
@@ -903,7 +915,10 @@ export async function convertConsoleOperatorToUser(
       });
 
       if (inviteResult.error) {
-        console.error("Failed to create invite for converted operator:", inviteResult.error);
+        console.error(
+          "Failed to create invite for converted operator:",
+          inviteResult.error
+        );
       }
     }
   }

@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { requirePinnedIn } from "~/services/effective-user.server";
+import { getEffectiveUserId } from "~/services/effective-user.server";
 import { getWorkCenterWithBlockingStatus } from "~/services/maintenance.service";
 import {
   getTrackedEntitiesByMakeMethodId,
@@ -17,7 +17,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     request,
     {}
   );
-  const userId = requirePinnedIn(request, { companyId, sessionUserId });
+  const userId = getEffectiveUserId(request, { companyId, sessionUserId });
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");
 
