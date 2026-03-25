@@ -7,23 +7,18 @@ const CONSOLE_PIN_MAX_AGE_MS = CONSOLE_PIN_MAX_AGE * 1000;
 
 // --- Console Mode (per-terminal toggle) ---
 
-export function getConsoleMode(
-  request: Request,
-  companyId: string
-): boolean {
+export function getConsoleMode(request: Request, companyId: string): boolean {
   const cookieHeader = request.headers.get("cookie");
   if (!cookieHeader) return false;
-  return cookie.parse(cookieHeader)[`${CONSOLE_MODE_PREFIX}${companyId}`] === "true";
+  return (
+    cookie.parse(cookieHeader)[`${CONSOLE_MODE_PREFIX}${companyId}`] === "true"
+  );
 }
 
-export function setConsoleMode(
-  companyId: string,
-  enabled: boolean
-): string {
+export function setConsoleMode(companyId: string, enabled: boolean): string {
   if (enabled) {
     return cookie.serialize(`${CONSOLE_MODE_PREFIX}${companyId}`, "true", {
-      path: "/",
-      maxAge: 31536000 // 1 year
+      path: "/"
     });
   }
   return cookie.serialize(`${CONSOLE_MODE_PREFIX}${companyId}`, "", {
@@ -62,10 +57,7 @@ export function getConsolePinIn(
   }
 }
 
-export function setConsolePinIn(
-  companyId: string,
-  data: ConsolePinIn
-): string {
+export function setConsolePinIn(companyId: string, data: ConsolePinIn): string {
   return cookie.serialize(
     `${CONSOLE_PIN_PREFIX}${companyId}`,
     JSON.stringify(data),
