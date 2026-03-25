@@ -47928,14 +47928,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -52475,13 +52475,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -52490,6 +52483,13 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["shipmentCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56237,6 +56237,22 @@ export type Database = {
         Args: { sync_functions?: string[]; table_name_text: string }
         Returns: undefined
       }
+      calculate_quantity_to_order: {
+        Args: {
+          p_demand_accumulation_period: number
+          p_demand_accumulation_safety_stock: number
+          p_lot_size: number
+          p_maximum_inventory_quantity: number
+          p_maximum_order_quantity: number
+          p_minimum_order_quantity: number
+          p_order_multiple: number
+          p_projections: number[]
+          p_reorder_point: number
+          p_reorder_quantity: number
+          p_reordering_policy: Database["public"]["Enums"]["itemReorderingPolicy"]
+        }
+        Returns: number
+      }
       check_api_key_rate_limit: {
         Args: { p_api_key_id: string; p_limit: number; p_window: string }
         Returns: Json
@@ -56720,6 +56736,19 @@ export type Database = {
           unitOfMeasureCode: string
           usageLast30Days: number
           usageLast90Days: number
+        }[]
+      }
+      get_inventory_value_by_location: {
+        Args: { company_id: string }
+        Returns: {
+          itemName: string
+          itemReadableId: string
+          locationName: string
+          quantityOnHand: number
+          replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
+          totalValue: number
+          unitCost: number
+          unitOfMeasureCode: string
         }[]
       }
       get_item_quantities_by_tracking_id: {
@@ -57212,6 +57241,7 @@ export type Database = {
           name: string
           orderMultiple: number
           quantityOnHand: number
+          quantityToOrder: number
           readableIdWithRevision: string
           reorderingPolicy: Database["public"]["Enums"]["itemReorderingPolicy"]
           reorderPoint: number
@@ -57373,6 +57403,7 @@ export type Database = {
           purchasingBlocked: boolean
           purchasingUnitOfMeasureCode: string
           quantityOnHand: number
+          quantityToOrder: number
           readableIdWithRevision: string
           reorderingPolicy: Database["public"]["Enums"]["itemReorderingPolicy"]
           reorderPoint: number
