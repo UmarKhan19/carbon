@@ -1,9 +1,9 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   getCompanyEmployees,
   getLinearClient,
   linkActionToLinearIssue
-} from "@carbon/ee/linear";
+} from "@carbon/ee/linear.server";
 import { task } from "@trigger.dev/sdk";
 import { z } from "zod";
 

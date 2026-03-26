@@ -1,10 +1,6 @@
-import {
-  CarbonEdition,
-  error,
-  getCarbonServiceRole,
-  success
-} from "@carbon/auth";
+import { CarbonEdition, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import {
   disableAuditLog,

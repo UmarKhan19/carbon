@@ -1,4 +1,5 @@
-import { getCarbonServiceRole, NOVU_API_URL, NOVU_SECRET_KEY } from "@carbon/auth";
+import { NOVU_API_URL, NOVU_SECRET_KEY } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { TriggerPayload } from "@carbon/notifications";
 import {
   getSubscriberId,

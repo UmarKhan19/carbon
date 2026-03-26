@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { createPurchaseOrderTool } from "../tools/create-purchase-order";
+import { createPurchaseOrderTool } from "../tools/create-purchase-order.server";
 import { getPartTool } from "../tools/get-part";
 import { getSupplierTool } from "../tools/get-supplier";
 import { getSupplierForPartsTool } from "../tools/get-supplier-for-parts";

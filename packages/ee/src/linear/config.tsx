@@ -3,8 +3,6 @@ import { isBrowser } from "@carbon/utils";
 import type { SVGProps } from "react";
 import { z } from "zod";
 import { defineIntegration } from "../fns";
-import { getLinearClient } from "./lib";
-
 export const Linear = defineIntegration({
   name: "Linear",
   id: "linear",
@@ -25,7 +23,6 @@ export const Linear = defineIntegration({
       value: ""
     }
   ],
-  onHealthcheck: healthcheck,
   schema: z.object({
     apiKey: z
       .string()
@@ -86,10 +83,4 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
       />
     </svg>
   );
-}
-
-async function healthcheck(companyId: string, _: Record<string, unknown>) {
-  const linear = getLinearClient();
-
-  return await linear.healthcheck(companyId);
 }

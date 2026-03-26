@@ -1,13 +1,13 @@
 import { getUser } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { TiptapDocument } from "../../linear/lib";
+import type { TiptapDocument } from "../../linear/lib/index.server";
 import {
   getLinearClient,
   getLinearIssueFromExternalId,
   mapCarbonStatusToLinearStatus,
   tiptapToMarkdown
-} from "../../linear/lib";
+} from "../../linear/lib/index.server";
 import type { NotificationEvent, NotificationService } from "../types";
 
 const linear = getLinearClient();

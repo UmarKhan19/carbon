@@ -1,11 +1,11 @@
 import {
   CarbonEdition,
   getAppUrl,
-  getCarbonServiceRole,
   STRIPE_BYPASS_COMPANY_IDS,
   STRIPE_BYPASS_USER_IDS,
   STRIPE_SECRET_KEY
 } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { redis } from "@carbon/kv";
 import { Edition, Plan } from "@carbon/utils";

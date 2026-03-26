@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { FunctionsResponse } from "@supabase/functions-js";
 import { FunctionRegion } from "@supabase/supabase-js";
 import { task } from "@trigger.dev/sdk";

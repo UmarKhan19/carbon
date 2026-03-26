@@ -1,11 +1,11 @@
 import {
-  getCarbonServiceRole,
   ONSHAPE_CLIENT_ID,
   ONSHAPE_CLIENT_SECRET,
   ONSHAPE_OAUTH_REDIRECT_URL,
   VERCEL_URL
 } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Onshape } from "@carbon/ee";
 import type { LoaderFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";

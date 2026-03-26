@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { NotificationEvent } from "@carbon/notifications";
 import { schedules } from "@trigger.dev/sdk";
 import { Edition } from "../../utils/src/types.ts";
