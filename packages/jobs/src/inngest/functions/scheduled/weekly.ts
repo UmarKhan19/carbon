@@ -1,14 +1,13 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { NotificationEvent } from "@carbon/notifications";
 import { Edition } from "@carbon/utils";
 import { inngest } from "../../client";
-
-const serviceRole = getCarbonServiceRole();
 
 export const weeklyFunction = inngest.createFunction(
   { id: "weekly", retries: 2 },
   { cron: "0 21 * * 0" },
   async ({ step }) => {
+    const serviceRole = getCarbonServiceRole();
     await step.run("cloud-cleanup", async () => {
       console.log(`Starting weekly tasks: ${new Date().toISOString()}`);
 

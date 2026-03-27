@@ -1,8 +1,5 @@
-import {
-  getCarbonServiceRole,
-  NOVU_API_URL,
-  NOVU_SECRET_KEY
-} from "@carbon/auth";
+import { NOVU_API_URL, NOVU_SECRET_KEY } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { TriggerPayload } from "@carbon/notifications";
 import {
   getSubscriberId,
@@ -13,15 +10,15 @@ import {
 import { Novu } from "@novu/node";
 import { inngest } from "../../client";
 
-const serviceRole = getCarbonServiceRole();
-const novu = new Novu(NOVU_SECRET_KEY!, {
-  backendUrl: NOVU_API_URL
-});
-
 export const cleanupFunction = inngest.createFunction(
   { id: "cleanup", retries: 2 },
   { cron: "0 7,12,17 * * *" },
   async ({ step }) => {
+    const serviceRole = getCarbonServiceRole();
+    const novu = new Novu(NOVU_SECRET_KEY!, {
+      backendUrl: NOVU_API_URL
+    });
+
     await step.run("expire-quotes-and-rfqs", async () => {
       console.log(`Starting cleanup tasks: ${new Date().toISOString()}`);
 

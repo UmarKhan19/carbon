@@ -1,10 +1,6 @@
 import type { Result } from "@carbon/auth";
-import {
-  CarbonEdition,
-  getAppUrl,
-  getCarbonServiceRole,
-  RESEND_DOMAIN
-} from "@carbon/auth";
+import { CarbonEdition, getAppUrl, RESEND_DOMAIN } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { deactivateUser } from "@carbon/auth/users.server";
 import { InviteEmail } from "@carbon/documents/email";
 import { sendEmail } from "@carbon/lib/resend.server";
@@ -14,12 +10,11 @@ import { render } from "@react-email/components";
 import { nanoid } from "nanoid";
 import { inngest } from "../../client";
 
-const serviceRole = getCarbonServiceRole();
-
 export const userAdminFunction = inngest.createFunction(
   { id: "user-admin", retries: 3 },
   { event: "carbon/user-admin" },
   async ({ event, step }) => {
+    const serviceRole = getCarbonServiceRole();
     const payload = event.data;
 
     const result = await step.run("user-admin-action", async () => {

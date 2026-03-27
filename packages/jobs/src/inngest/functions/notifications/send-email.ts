@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Resend as ResendConfig } from "@carbon/ee";
 import { Resend } from "resend";
 import { inngest } from "../../client";

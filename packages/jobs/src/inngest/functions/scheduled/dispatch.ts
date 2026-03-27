@@ -1,9 +1,7 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { NotificationEvent } from "@carbon/notifications";
-import { now, getLocalTimeZone } from "@internationalized/date";
+import { getLocalTimeZone, now } from "@internationalized/date";
 import { inngest } from "../../client";
-
-const serviceRole = getCarbonServiceRole();
 
 // Day of week mapping (0 = Sunday, 1 = Monday, etc.)
 const dayOfWeekFields = [
@@ -53,6 +51,7 @@ function isDayEnabledForSchedule(
 async function isHoliday(companyId: string, date: Date): Promise<boolean> {
   const dateString = date.toISOString().split("T")[0]; // YYYY-MM-DD format
 
+  const serviceRole = getCarbonServiceRole();
   const { data: holiday, error } = await serviceRole
     .from("holiday")
     .select("id")
@@ -72,6 +71,8 @@ export const dispatchFunction = inngest.createFunction(
   { id: "dispatch", retries: 2 },
   { cron: "0 6 * * *" },
   async ({ step }) => {
+    const serviceRole = getCarbonServiceRole();
+
     return await step.run("generate-maintenance-dispatches", async () => {
       const currentDateTime = now(getLocalTimeZone());
       console.log(

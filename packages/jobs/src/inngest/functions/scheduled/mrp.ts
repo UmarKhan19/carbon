@@ -1,12 +1,11 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { inngest } from "../../client";
-
-const serviceRole = getCarbonServiceRole();
 
 export const mrpFunction = inngest.createFunction(
   { id: "mrp", retries: 2 },
   { cron: "0 */3 * * *" },
   async ({ step }) => {
+    const serviceRole = getCarbonServiceRole();
     await step.run("run-mrp-for-all-companies", async () => {
       console.log(
         `Scheduled MRP Calculation Started: ${new Date().toISOString()}`

@@ -1,7 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { inngest } from "../../client";
-
-const serviceRole = getCarbonServiceRole();
 
 /**
  * Unified scheduling function that handles both initial scheduling and rescheduling.
@@ -18,6 +16,7 @@ export const rescheduleJobFunction = inngest.createFunction(
   },
   { event: "carbon/reschedule-job" },
   async ({ event, step }) => {
+    const serviceRole = getCarbonServiceRole();
     const {
       jobId,
       companyId,

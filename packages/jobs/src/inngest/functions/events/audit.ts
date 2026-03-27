@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   auditConfig,
   getEntityConfigsForTable,
@@ -8,7 +8,6 @@ import {
   isIndirectTable,
   isRootTable
 } from "@carbon/database/audit.config";
-import type { AuditEntityType } from "@carbon/database/audit.config";
 import type {
   AuditDiff,
   CreateAuditLogEntry

@@ -1,10 +1,9 @@
 // Re-export the inngest client and helpers
-export { inngest, sendEvent, sendEvents } from "./client";
+export { inngest, sendEvent, sendEvents } from "./client.ts";
 
-// Import all functions
-import { notifyFunction, sendEmailFunction } from "./functions/notifications";
 import {
   auditFunction,
+  embeddingFunction,
   eventQueueFunction,
   searchFunction,
   syncFunction,
@@ -12,33 +11,36 @@ import {
   workflowFunction
 } from "./functions/events";
 import {
-  modelThumbnailFunction,
-  updatePermissionsFunction,
-  recalculateFunction,
-  userAdminFunction,
-  postTransactionFunction,
-  rescheduleJobFunction,
-  onboardFunction
-} from "./functions/tasks";
-import {
-  cleanupFunction,
-  dispatchFunction,
-  auditArchiveFunction,
-  mrpFunction,
-  weeklyFunction,
-  updateExchangeRatesFunction
-} from "./functions/scheduled";
-import {
+  accountingBackfillFunction,
   jiraSyncFunction,
   linearSyncFunction,
   paperlessPartsFunction,
-  accountingBackfillFunction,
-  syncExternalAccountingFunction,
+  slackDocumentAssignmentUpdateFunction,
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,
   slackDocumentTaskUpdateFunction,
-  slackDocumentAssignmentUpdateFunction
+  syncExternalAccountingFunction,
+  timeCardAutoCloseFunction
 } from "./functions/integrations";
+// Import all functions
+import { notifyFunction, sendEmailFunction } from "./functions/notifications";
+import {
+  auditArchiveFunction,
+  cleanupFunction,
+  dispatchFunction,
+  mrpFunction,
+  updateExchangeRatesFunction,
+  weeklyFunction
+} from "./functions/scheduled";
+import {
+  modelThumbnailFunction,
+  onboardFunction,
+  postTransactionFunction,
+  recalculateFunction,
+  rescheduleJobFunction,
+  updatePermissionsFunction,
+  userAdminFunction
+} from "./functions/tasks";
 
 // Export all functions for serving via serve() or connect()
 export const functions = [
@@ -52,6 +54,7 @@ export const functions = [
   syncFunction,
   webhookFunction,
   workflowFunction,
+  embeddingFunction,
   // Tasks
   modelThumbnailFunction,
   updatePermissionsFunction,
@@ -76,47 +79,6 @@ export const functions = [
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,
   slackDocumentTaskUpdateFunction,
-  slackDocumentAssignmentUpdateFunction
+  slackDocumentAssignmentUpdateFunction,
+  timeCardAutoCloseFunction
 ];
-
-// Worker utilities
-export { connect } from "inngest/connect";
-export { detectMode, startWorker, type InngestMode } from "./worker";
-
-/**
- * Create a connect worker with the Carbon inngest client and functions.
- *
- * @example
- * ```ts
- * import { createWorker } from "@carbon/jobs/inngest";
- *
- * // Start worker with default options
- * await createWorker();
- *
- * // Or with custom options
- * await createWorker({
- *   maxWorkerConcurrency: 20,
- *   instanceId: "my-worker-1",
- * });
- * ```
- */
-export async function createWorker(options?: {
-  maxWorkerConcurrency?: number;
-  instanceId?: string;
-  appVersion?: string;
-  handleShutdownSignals?: NodeJS.Signals[];
-}) {
-  const { connect } = await import("inngest/connect");
-  const { inngest } = await import("./client");
-
-  return connect({
-    apps: [{ client: inngest, functions }],
-    appVersion: options?.appVersion || process.env.APP_VERSION,
-    instanceId: options?.instanceId || `worker-${process.pid}`,
-    maxWorkerConcurrency: options?.maxWorkerConcurrency || 10,
-    handleShutdownSignals: options?.handleShutdownSignals || [
-      "SIGTERM",
-      "SIGINT"
-    ]
-  });
-}

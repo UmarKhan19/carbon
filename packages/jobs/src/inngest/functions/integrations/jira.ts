@@ -7,8 +7,6 @@ import {
 import { z } from "zod";
 import { inngest } from "../../client";
 
-const jira = getJiraClient();
-
 // Schema for Jira webhook payload
 export const syncIssueFromJiraSchema = z.object({
   companyId: z.string(),
@@ -65,6 +63,7 @@ export const jiraSyncFunction = inngest.createFunction(
   { id: "sync-issue-from-jira", retries: 1 },
   { event: "carbon/jira-sync" },
   async ({ event, step }) => {
+    const jira = getJiraClient();
     const payload = syncIssueFromJiraSchema.parse(event.data);
 
     console.info(`Jira webhook received`);

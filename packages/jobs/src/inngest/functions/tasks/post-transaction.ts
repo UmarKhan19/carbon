@@ -1,12 +1,11 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { inngest } from "../../client";
-
-const serviceRole = getCarbonServiceRole();
 
 export const postTransactionFunction = inngest.createFunction(
   { id: "post-transactions", retries: 3 },
   { event: "carbon/post-transaction" },
   async ({ event, step }) => {
+    const serviceRole = getCarbonServiceRole();
     const payload = event.data;
 
     const result = await step.run("post-transaction", async () => {

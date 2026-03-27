@@ -1,4 +1,5 @@
-import { EXCHANGE_RATES_API_KEY, getCarbonServiceRole } from "@carbon/auth";
+import { EXCHANGE_RATES_API_KEY } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Rates } from "@carbon/ee/exchange-rates.server";
 import { getExchangeRatesClient } from "@carbon/ee/exchange-rates.server";
 import { inngest } from "../../client";
@@ -67,12 +68,11 @@ type CurrencyCode =
   | "UYU"
   | "BYN";
 
-const serviceRole = getCarbonServiceRole();
-
 export const updateExchangeRatesFunction = inngest.createFunction(
   { id: "update-exchange-rates", retries: 2 },
   { cron: "0 0 * * *" },
   async ({ step }) => {
+    const serviceRole = getCarbonServiceRole();
     await step.run("fetch-and-update-exchange-rates", async () => {
       console.log(`Exchange Rates Task Started: ${new Date().toISOString()}`);
       const integrations = await serviceRole

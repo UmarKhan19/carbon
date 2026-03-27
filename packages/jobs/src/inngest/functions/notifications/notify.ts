@@ -1,9 +1,9 @@
 import {
-  getCarbonServiceRole,
   ERP_URL,
+  getCarbonServiceRole,
+  NOVU_API_URL,
   NOVU_SECRET_KEY,
-  VERCEL_URL,
-  NOVU_API_URL
+  VERCEL_URL
 } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import { notifyTaskAssigned } from "@carbon/ee/notifications";
@@ -11,19 +11,14 @@ import {
   getSubscriberId,
   NotificationEvent,
   NotificationWorkflow,
+  type TriggerPayload,
   trigger,
-  triggerBulk,
-  type TriggerPayload
+  triggerBulk
 } from "@carbon/notifications";
 import { Novu } from "@novu/node";
 import { inngest } from "../../client";
 
 type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
-
-const novu = new Novu(NOVU_SECRET_KEY!, {
-  backendUrl: NOVU_API_URL
-});
-const isLocal = VERCEL_URL === undefined || VERCEL_URL.includes("localhost");
 
 // Helper function to get company integrations
 async function getCompanyIntegrations(
@@ -481,6 +476,12 @@ export const notifyFunction = inngest.createFunction(
   { event: "carbon/notify" },
   async ({ event, step }) => {
     const payload = event.data;
+
+    const novu = new Novu(NOVU_SECRET_KEY!, {
+      backendUrl: NOVU_API_URL
+    });
+    const isLocal =
+      VERCEL_URL === undefined || VERCEL_URL.includes("localhost");
 
     if (isLocal) {
       console.log("Skipping notify function on local", { payload });

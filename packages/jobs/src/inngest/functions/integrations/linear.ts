@@ -7,8 +7,6 @@ import {
 import { z } from "zod";
 import { inngest } from "../../client";
 
-const linear = getLinearClient();
-
 // Schema for webhook payload - we only need the issue ID since we fetch full details from Linear
 export const syncIssueFromLinearSchema = z.object({
   companyId: z.string(),
@@ -28,6 +26,7 @@ export const linearSyncFunction = inngest.createFunction(
   { id: "sync-issue-from-linear", retries: 1 },
   { event: "carbon/linear-sync" },
   async ({ event, step }) => {
+    const linear = getLinearClient();
     const payload = syncIssueFromLinearSchema.parse(event.data);
 
     console.info(`Linear webhook received: ${payload}`);

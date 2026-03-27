@@ -6,12 +6,11 @@ import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { inngest } from "../../client";
 
-const serviceRole = getCarbonServiceRole();
-
 export const updatePermissionsFunction = inngest.createFunction(
   { id: "update-permissions", retries: 3 },
   { event: "carbon/update-permissions" },
   async ({ event, step }) => {
+    const serviceRole = getCarbonServiceRole();
     const payload = event.data;
 
     const result = await step.run("update-permissions", async () => {

@@ -1,12 +1,12 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   getPostgresClient,
   getPostgresConnectionPool
 } from "@carbon/database/client";
 import { EventSchema } from "@carbon/database/event";
 import {
-  AccountingEntityType,
-  BatchSyncResult,
+  type AccountingEntityType,
+  type BatchSyncResult,
   getAccountingIntegration,
   getProviderIntegration,
   ProviderID,
