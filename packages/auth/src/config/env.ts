@@ -74,6 +74,8 @@ declare global {
       UPSTASH_REDIS_REST_TOKEN: string;
       VERCEL_URL: string;
       VERCEL_ENV: string;
+      INNGEST_SIGNING_KEY: string;
+      INNGEST_EVENT_KEY: string;
       XERO_CLIENT_SECRET: string;
       XERO_WEBHOOK_SECRET: string;
     }
@@ -149,6 +151,15 @@ export const CLOUDFLARE_TURNSTILE_SECRET_KEY = getEnv(
 
 export const DOMAIN = getEnv("DOMAIN", { isRequired: false }); // preview environments need no domain
 export const EXCHANGE_RATES_API_KEY = getEnv("EXCHANGE_RATES_API_KEY", {
+  isRequired: false,
+  isSecret: true
+});
+
+export const INNGEST_SIGNING_KEY = getEnv("INNGEST_SIGNING_KEY", {
+  isRequired: false,
+  isSecret: true
+});
+export const INNGEST_EVENT_KEY = getEnv("INNGEST_EVENT_KEY", {
   isRequired: false,
   isSecret: true
 });
