@@ -17,21 +17,16 @@ export const recalculateFunction = inngest.createFunction(
 
       switch (payload.type) {
         case "jobRequirements":
-          console.info(
-            `Recalculating job requirements for ${payload.id}`
-          );
-          calculateQuantities = await recalculateJobRequirements(
-            serviceRole,
-            {
-              id: payload.id,
-              companyId: payload.companyId,
-              userId: payload.userId,
-            }
-          );
+          console.info(`Recalculating job requirements for ${payload.id}`);
+          calculateQuantities = await recalculateJobRequirements(serviceRole, {
+            id: payload.id,
+            companyId: payload.companyId,
+            userId: payload.userId
+          });
 
           return {
             success: !calculateQuantities.error,
-            message: calculateQuantities.error?.message,
+            message: calculateQuantities.error?.message
           };
 
         case "jobMakeMethodRequirements":
@@ -43,19 +38,19 @@ export const recalculateFunction = inngest.createFunction(
             {
               id: payload.id,
               companyId: payload.companyId,
-              userId: payload.userId,
+              userId: payload.userId
             }
           );
 
           return {
             success: !calculateQuantities.error,
-            message: calculateQuantities.error?.message,
+            message: calculateQuantities.error?.message
           };
 
         default:
           return {
             success: false,
-            message: `Unknown recalculation type: ${payload.type}`,
+            message: `Unknown recalculation type: ${payload.type}`
           };
       }
     });
@@ -83,8 +78,8 @@ async function recalculateJobRequirements(
   return client.functions.invoke("recalculate", {
     body: {
       type: "jobRequirements",
-      ...params,
-    },
+      ...params
+    }
   });
 }
 
@@ -102,8 +97,8 @@ async function recalculateJobMakeMethodRequirements(
       direction: "backward",
       jobId: params.id,
       companyId: params.companyId,
-      userId: params.userId,
+      userId: params.userId
     },
-    region: FunctionRegion.UsEast1,
+    region: FunctionRegion.UsEast1
   });
 }

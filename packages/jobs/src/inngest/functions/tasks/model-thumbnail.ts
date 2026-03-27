@@ -2,7 +2,7 @@ import {
   getCarbonServiceRole,
   SUPABASE_ANON_KEY,
   SUPABASE_URL,
-  VERCEL_URL,
+  VERCEL_URL
 } from "@carbon/auth";
 import { inngest } from "../../client";
 
@@ -21,7 +21,7 @@ export const modelThumbnailFunction = inngest.createFunction(
 
     if (isLocal) {
       console.log("Skipping model-thumbnail task on local", {
-        payload: event.data,
+        payload: event.data
       });
       return;
     }
@@ -37,9 +37,9 @@ export const modelThumbnailFunction = inngest.createFunction(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url })
       });
 
       if (response.status !== 200) {
@@ -48,12 +48,12 @@ export const modelThumbnailFunction = inngest.createFunction(
       }
 
       const blob = new Blob([await response.arrayBuffer()], {
-        type: "image/png",
+        type: "image/png"
       });
 
       const fileName = `${modelId}.png`;
       const thumbnailFile = new File([blob], fileName, {
-        type: "image/png",
+        type: "image/png"
       });
 
       console.log("Uploading thumbnail", { fileName });
@@ -64,7 +64,7 @@ export const modelThumbnailFunction = inngest.createFunction(
           `${companyId}/thumbnails/${modelId}/${fileName}`,
           thumbnailFile,
           {
-            upsert: true,
+            upsert: true
           }
         );
 
@@ -75,13 +75,13 @@ export const modelThumbnailFunction = inngest.createFunction(
       const result = await client
         .from("modelUpload")
         .update({
-          thumbnailPath: data?.path,
+          thumbnailPath: data?.path
         })
         .eq("id", modelId);
 
       if (result.error) {
         console.error("Failed to update thumbnail path", {
-          error: result.error,
+          error: result.error
         });
       }
     });

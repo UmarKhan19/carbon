@@ -9,7 +9,7 @@ import {
   formatAssignmentUpdate,
   formatDocumentCreated,
   formatStatusUpdate,
-  formatTaskUpdate,
+  formatTaskUpdate
 } from "@carbon/ee/slack/messages";
 import { WebClient } from "@slack/web-api";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -53,15 +53,14 @@ export const slackDocumentCreatedFunction = inngest.createFunction(
         throw new Error("Slack integration not found");
       }
 
-      const slackToken = (integration.metadata as any)
-        ?.access_token as string;
+      const slackToken = (integration.metadata as any)?.access_token as string;
       const baseUrl = VERCEL_URL || "http://localhost:3000";
 
       await postToSlackThread({
         token: slackToken,
         channelId,
         threadTs,
-        blocks: formatDocumentCreated(documentData, baseUrl),
+        blocks: formatDocumentCreated(documentData, baseUrl)
       });
 
       return { success: true };
@@ -83,7 +82,7 @@ export const slackDocumentStatusUpdateFunction = inngest.createFunction(
       previousStatus,
       newStatus,
       updatedBy,
-      reason,
+      reason
     } = event.data as {
       documentType: DocumentType;
       documentId: string;
@@ -120,8 +119,7 @@ export const slackDocumentStatusUpdateFunction = inngest.createFunction(
         throw new Error("Slack integration not found");
       }
 
-      const slackToken = (integration.metadata as any)
-        .access_token as string;
+      const slackToken = (integration.metadata as any).access_token as string;
 
       const documentData = await getDocumentData(
         serviceRole,
@@ -138,7 +136,7 @@ export const slackDocumentStatusUpdateFunction = inngest.createFunction(
         previousStatus,
         newStatus,
         updatedBy,
-        reason,
+        reason
       };
 
       await postToSlackThread({
@@ -149,7 +147,7 @@ export const slackDocumentStatusUpdateFunction = inngest.createFunction(
           documentType,
           documentData.readableId,
           statusUpdate
-        ),
+        )
       });
 
       return { success: true };
@@ -175,7 +173,7 @@ export const slackDocumentTaskUpdateFunction = inngest.createFunction(
       taskName,
       status,
       assignee,
-      completedAt,
+      completedAt
     } = event.data as {
       documentType: DocumentType;
       documentId: string;
@@ -213,8 +211,7 @@ export const slackDocumentTaskUpdateFunction = inngest.createFunction(
         throw new Error("Slack integration not found");
       }
 
-      const slackToken = (integration.metadata as any)
-        .access_token as string;
+      const slackToken = (integration.metadata as any).access_token as string;
 
       const documentData = await getDocumentData(
         serviceRole,
@@ -232,7 +229,7 @@ export const slackDocumentTaskUpdateFunction = inngest.createFunction(
         taskName,
         status,
         assignee,
-        completedAt,
+        completedAt
       };
 
       await postToSlackThread({
@@ -243,7 +240,7 @@ export const slackDocumentTaskUpdateFunction = inngest.createFunction(
           documentType,
           documentData.readableId,
           taskUpdate
-        ),
+        )
       });
 
       return { success: true };
@@ -267,7 +264,7 @@ export const slackDocumentAssignmentUpdateFunction = inngest.createFunction(
       companyId,
       previousAssignee,
       newAssignee,
-      updatedBy,
+      updatedBy
     } = event.data as {
       documentType: DocumentType;
       documentId: string;
@@ -303,8 +300,7 @@ export const slackDocumentAssignmentUpdateFunction = inngest.createFunction(
         throw new Error("Slack integration not found");
       }
 
-      const slackToken = (integration.metadata as any)
-        .access_token as string;
+      const slackToken = (integration.metadata as any).access_token as string;
 
       const documentData = await getDocumentData(
         serviceRole,
@@ -320,7 +316,7 @@ export const slackDocumentAssignmentUpdateFunction = inngest.createFunction(
       const assignmentUpdate: IssueAssignmentUpdate = {
         previousAssignee,
         newAssignee,
-        updatedBy,
+        updatedBy
       };
 
       await postToSlackThread({
@@ -331,7 +327,7 @@ export const slackDocumentAssignmentUpdateFunction = inngest.createFunction(
           documentType,
           documentData.readableId,
           assignmentUpdate
-        ),
+        )
       });
 
       return { success: true };
@@ -371,16 +367,14 @@ async function getDocumentData(
         description: data.description,
         status: data.status,
         createdBy: data.createdBy,
-        createdAt: data.createdAt,
+        createdAt: data.createdAt
       } as NonConformanceData;
     }
 
     case "quote": {
       const { data } = await serviceRole
         .from("quote")
-        .select(
-          "id, quoteId, customerReference, status, createdBy, createdAt"
-        )
+        .select("id, quoteId, customerReference, status, createdBy, createdAt")
         .eq("id", documentId)
         .eq("companyId", companyId)
         .single();
@@ -395,7 +389,7 @@ async function getDocumentData(
         description: data.customerReference,
         status: data.status,
         createdBy: data.createdBy,
-        createdAt: data.createdAt,
+        createdAt: data.createdAt
       };
     }
 
@@ -419,7 +413,7 @@ async function getDocumentData(
         description: data.customerReference,
         status: data.status,
         createdBy: data.createdBy,
-        createdAt: data.createdAt,
+        createdAt: data.createdAt
       };
     }
 
@@ -441,7 +435,7 @@ async function getDocumentData(
         description: data.jobId,
         status: data.status,
         createdBy: data.createdBy,
-        createdAt: data.createdAt,
+        createdAt: data.createdAt
       };
     }
 
@@ -450,9 +444,7 @@ async function getDocumentData(
     case "receipt":
     case "shipment":
     default:
-      console.warn(
-        `Document type ${documentType} not yet implemented`
-      );
+      console.warn(`Document type ${documentType} not yet implemented`);
       return null;
   }
 }
@@ -472,6 +464,6 @@ async function postToSlackThread(params: {
     channel: channelId,
     thread_ts: threadTs,
     blocks,
-    text: text || "Update from Carbon",
+    text: text || "Update from Carbon"
   });
 }

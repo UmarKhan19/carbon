@@ -30,10 +30,9 @@ export const weeklyFunction = inngest.createFunction(
           console.log(`Bypass list: ${bypassList}`);
 
           // Get all companies
-          const { data: companies, error: companiesError } =
-            await serviceRole
-              .from("company")
-              .select("id, name, createdAt");
+          const { data: companies, error: companiesError } = await serviceRole
+            .from("company")
+            .select("id, name, createdAt");
 
           if (companiesError) {
             console.error(
@@ -45,10 +44,9 @@ export const weeklyFunction = inngest.createFunction(
           console.log(`Found ${companies?.length || 0} companies`);
 
           // Get all company plans
-          const { data: companyPlans, error: plansError } =
-            await serviceRole
-              .from("companyPlan")
-              .select("id, stripeSubscriptionStatus");
+          const { data: companyPlans, error: plansError } = await serviceRole
+            .from("companyPlan")
+            .select("id, stripeSubscriptionStatus");
 
           if (plansError) {
             console.error(
@@ -61,7 +59,7 @@ export const weeklyFunction = inngest.createFunction(
           const planMap = new Map(
             companyPlans?.map((plan) => [
               plan.id,
-              plan.stripeSubscriptionStatus,
+              plan.stripeSubscriptionStatus
             ]) || []
           );
 
@@ -109,9 +107,7 @@ export const weeklyFunction = inngest.createFunction(
             );
             return;
           } else {
-            console.log(
-              `Deleted ${companiesToDelete.length} companies`
-            );
+            console.log(`Deleted ${companiesToDelete.length} companies`);
             for (const company of companiesToDelete) {
               console.log(`Deleted company ${company.name}`);
             }
@@ -128,9 +124,7 @@ export const weeklyFunction = inngest.createFunction(
                 `Failed to drop search index for company ${company.name}: ${dropSearchError.message}`
               );
             } else {
-              console.log(
-                `Dropped search index for company ${company.name}`
-              );
+              console.log(`Dropped search index for company ${company.name}`);
             }
           }
         }
@@ -163,9 +157,7 @@ export const weeklyFunction = inngest.createFunction(
         }
 
         const uniqueCompanyIds = [
-          ...new Set(
-            companiesWithTrainings?.map((c) => c.companyId) ?? []
-          ),
+          ...new Set(companiesWithTrainings?.map((c) => c.companyId) ?? [])
         ];
 
         console.log(
@@ -177,7 +169,7 @@ export const weeklyFunction = inngest.createFunction(
         for (const companyId of uniqueCompanyIds) {
           const { data: trainingStatus, error: trainingsError } =
             await serviceRole.rpc("get_training_assignment_status", {
-              p_company_id: companyId,
+              p_company_id: companyId
             });
 
           if (trainingsError) {
@@ -222,9 +214,9 @@ export const weeklyFunction = inngest.createFunction(
                   event: NotificationEvent.TrainingAssignment,
                   recipient: {
                     type: "user" as const,
-                    userId: assignment.employeeId,
-                  },
-                },
+                    userId: assignment.employeeId
+                  }
+                }
               });
               console.log(
                 `Sent reminder for training "${assignment.trainingName}" to employee ${assignment.employeeId}`
@@ -251,9 +243,7 @@ export const weeklyFunction = inngest.createFunction(
         );
       }
 
-      console.log(
-        `Weekly tasks completed: ${new Date().toISOString()}`
-      );
+      console.log(`Weekly tasks completed: ${new Date().toISOString()}`);
     });
   }
 );

@@ -6,30 +6,33 @@ import { inngest } from "../../client";
 export const sendEmailFunction = inngest.createFunction(
   {
     id: "send-email-resend",
-    retries: 3,
+    retries: 3
   },
   { event: "carbon/send-email" },
   async ({ event, step }) => {
     const payload = event.data;
     const serviceRole = getCarbonServiceRole();
 
-    const { company, integration } = await step.run("fetch-company-integration", async () => {
-      const [companyResult, integrationResult] = await Promise.all([
-        serviceRole
-          .from("company")
-          .select("name")
-          .eq("id", payload.companyId)
-          .single(),
-        serviceRole
-          .from("companyIntegration")
-          .select("active, metadata")
-          .eq("companyId", payload.companyId)
-          .eq("id", "resend")
-          .maybeSingle(),
-      ]);
+    const { company, integration } = await step.run(
+      "fetch-company-integration",
+      async () => {
+        const [companyResult, integrationResult] = await Promise.all([
+          serviceRole
+            .from("company")
+            .select("name")
+            .eq("id", payload.companyId)
+            .single(),
+          serviceRole
+            .from("companyIntegration")
+            .select("active, metadata")
+            .eq("companyId", payload.companyId)
+            .eq("id", "resend")
+            .maybeSingle()
+        ]);
 
-      return { company: companyResult, integration: integrationResult };
-    });
+        return { company: companyResult, integration: integrationResult };
+      }
+    );
 
     const integrationMetadata = ResendConfig.schema.safeParse(
       integration?.data?.metadata
@@ -54,7 +57,7 @@ export const sendEmailFunction = inngest.createFunction(
         subject: payload.subject,
         html: payload.html,
         text: payload.text,
-        attachments: payload.attachments,
+        attachments: payload.attachments
       };
 
       console.info(`Resend Email Job`);

@@ -3,7 +3,7 @@ import { inngest } from "../../client";
 
 const workflowPayloadSchema = z.object({
   workflowId: z.string(),
-  data: z.any(),
+  data: z.any()
 });
 
 export type WorkflowPayload = z.infer<typeof workflowPayloadSchema>;
@@ -12,9 +12,11 @@ export const workflowFunction = inngest.createFunction(
   {
     id: "event-handler-workflow",
     retries: 3,
+    idempotency: "event.data.msgId",
     concurrency: {
       limit: 10,
-    },
+      key: "event.data.data.table + '-' + event.data.data.recordId"
+    }
   },
   { event: "carbon/event-workflow" },
   async ({ event, step }) => {

@@ -1,5 +1,5 @@
-import { Inngest } from "inngest";
-import type { Events } from "../events";
+import { EventSchemas, Inngest } from "inngest";
+import type { Events } from "../events.ts";
 
 /**
  * The Inngest client for Carbon jobs.
@@ -7,10 +7,11 @@ import type { Events } from "../events";
  */
 export const inngest = new Inngest({
   id: "carbon",
+  schemas: new EventSchemas().fromRecord<Events>(),
   // Enable event validation in development
   ...(process.env.NODE_ENV === "development" && {
-    isDev: true,
-  }),
+    isDev: true
+  })
 });
 
 // Re-export the typed client for use in functions

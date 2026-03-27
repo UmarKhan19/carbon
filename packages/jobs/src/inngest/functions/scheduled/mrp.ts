@@ -34,8 +34,8 @@ export const mrpFunction = inngest.createFunction(
               type: "company",
               id: company.id,
               companyId: company.id,
-              userId: "system",
-            },
+              userId: "system"
+            }
           });
 
           if (result.error) {
@@ -47,9 +47,7 @@ export const mrpFunction = inngest.createFunction(
               }`
             );
           } else {
-            console.log(
-              `Successfully ran MRP for company ${company.name}`
-            );
+            console.log(`Successfully ran MRP for company ${company.name}`);
           }
         } catch (error) {
           console.error(

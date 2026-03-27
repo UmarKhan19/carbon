@@ -2,7 +2,7 @@ import { getCarbonServiceRole } from "@carbon/auth";
 import {
   getCompanyEmployees,
   getJiraClient,
-  linkActionToJiraIssue,
+  linkActionToJiraIssue
 } from "@carbon/ee/jira";
 import { z } from "zod";
 import { inngest } from "../../client";
@@ -27,21 +27,21 @@ export const syncIssueFromJiraSchema = z.object({
               name: z.string().optional(),
               statusCategory: z
                 .object({
-                  key: z.string(),
+                  key: z.string()
                 })
-                .optional(),
+                .optional()
             })
             .optional(),
           assignee: z
             .object({
               accountId: z.string().optional(),
               emailAddress: z.string().optional(),
-              displayName: z.string().optional(),
+              displayName: z.string().optional()
             })
             .nullable()
             .optional(),
-          duedate: z.string().nullable().optional(),
-        }),
+          duedate: z.string().nullable().optional()
+        })
       })
       .optional(),
     changelog: z
@@ -53,12 +53,12 @@ export const syncIssueFromJiraSchema = z.object({
             from: z.string().nullable().optional(),
             fromString: z.string().nullable().optional(),
             to: z.string().nullable().optional(),
-            toString: z.string().nullable().optional(),
+            toString: z.string().nullable().optional()
           })
-        ),
+        )
       })
-      .optional(),
-  }),
+      .optional()
+  })
 });
 
 export const jiraSyncFunction = inngest.createFunction(
@@ -77,14 +77,14 @@ export const jiraSyncFunction = inngest.createFunction(
     ) {
       return {
         success: true,
-        message: `Ignoring event type: ${payload.event.webhookEvent}`,
+        message: `Ignoring event type: ${payload.event.webhookEvent}`
       };
     }
 
     if (!payload.event.issue) {
       return {
         success: false,
-        message: "No issue data in webhook payload",
+        message: "No issue data in webhook payload"
       };
     }
 
@@ -97,7 +97,7 @@ export const jiraSyncFunction = inngest.createFunction(
         .select("*")
         .eq("companyId", payload.companyId)
         .eq("id", "jira")
-        .single(),
+        .single()
     ]);
 
     if (company.error || !company.data) {
@@ -123,7 +123,7 @@ export const jiraSyncFunction = inngest.createFunction(
     if (!mapping.data) {
       return {
         success: false,
-        message: `No linked action found for Jira issue ID ${issueId}`,
+        message: `No linked action found for Jira issue ID ${issueId}`
       };
     }
 
@@ -135,7 +135,7 @@ export const jiraSyncFunction = inngest.createFunction(
     if (!fullIssue) {
       return {
         success: false,
-        message: `Failed to fetch issue ${issueId} from Jira`,
+        message: `Failed to fetch issue ${issueId} from Jira`
       };
     }
 
@@ -146,11 +146,9 @@ export const jiraSyncFunction = inngest.createFunction(
     let assignee: string | null = null;
 
     if (fullIssue.fields.assignee?.emailAddress) {
-      const employees = await getCompanyEmployees(
-        carbon,
-        payload.companyId,
-        [fullIssue.fields.assignee.emailAddress]
-      );
+      const employees = await getCompanyEmployees(carbon, payload.companyId, [
+        fullIssue.fields.assignee.emailAddress
+      ]);
       assignee = employees.length > 0 ? employees[0].userId : null;
     }
 
@@ -160,19 +158,19 @@ export const jiraSyncFunction = inngest.createFunction(
       issue: fullIssue,
       siteUrl,
       assignee,
-      syncNotes: true,
+      syncNotes: true
     });
 
     if (!updated || updated.error) {
       return {
         success: false,
-        message: `Failed to update action for Jira issue ID ${issueId}`,
+        message: `Failed to update action for Jira issue ID ${issueId}`
       };
     }
 
     return {
       success: true,
-      message: `Synced Jira issue ${fullIssue.key}`,
+      message: `Synced Jira issue ${fullIssue.key}`
     };
   }
 );

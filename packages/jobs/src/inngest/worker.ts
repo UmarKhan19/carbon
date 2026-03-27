@@ -39,7 +39,11 @@ export function detectMode(): InngestMode {
   }
 
   // Auto-detect based on environment
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY) {
+  if (
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.NETLIFY
+  ) {
     return "serve";
   }
 
@@ -47,10 +51,7 @@ export function detectMode(): InngestMode {
   return "connect";
 }
 
-const WORKER_CONCURRENCY = parseInt(
-  process.env.WORKER_CONCURRENCY || "10",
-  10
-);
+const WORKER_CONCURRENCY = parseInt(process.env.WORKER_CONCURRENCY || "10", 10);
 
 async function startWorker() {
   const mode = detectMode();
@@ -70,8 +71,8 @@ async function startWorker() {
       apps: [
         {
           client: inngest,
-          functions,
-        },
+          functions
+        }
       ],
       // Track deployment version for rolling updates
       appVersion: process.env.APP_VERSION || process.env.VERCEL_GIT_COMMIT_SHA,
@@ -80,20 +81,24 @@ async function startWorker() {
       // Max concurrent function executions per worker
       maxWorkerConcurrency: WORKER_CONCURRENCY,
       // Graceful shutdown on container signals
-      handleShutdownSignals: ["SIGTERM", "SIGINT"],
+      handleShutdownSignals: ["SIGTERM", "SIGINT"]
     });
 
     console.log("[inngest-worker] Connected to Inngest", {
-      connectionId: connection,
+      connectionId: connection
     });
 
     // Keep the process running
     process.on("SIGTERM", () => {
-      console.log("[inngest-worker] Received SIGTERM, shutting down gracefully...");
+      console.log(
+        "[inngest-worker] Received SIGTERM, shutting down gracefully..."
+      );
     });
 
     process.on("SIGINT", () => {
-      console.log("[inngest-worker] Received SIGINT, shutting down gracefully...");
+      console.log(
+        "[inngest-worker] Received SIGINT, shutting down gracefully..."
+      );
     });
   } catch (error) {
     console.error("[inngest-worker] Failed to connect:", error);

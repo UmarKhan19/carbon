@@ -3,7 +3,7 @@ import {
   CarbonEdition,
   getAppUrl,
   getCarbonServiceRole,
-  RESEND_DOMAIN,
+  RESEND_DOMAIN
 } from "@carbon/auth";
 import { deactivateUser } from "@carbon/auth/users.server";
 import { InviteEmail } from "@carbon/documents/email";
@@ -52,7 +52,7 @@ export const userAdminFunction = inngest.createFunction(
               .from("user")
               .select("email, fullName")
               .eq("id", userId)
-              .single(),
+              .single()
           ]);
 
           if (!company.data || !user.data) {
@@ -70,7 +70,7 @@ export const userAdminFunction = inngest.createFunction(
           if (invite.error || !invite.data) {
             return {
               success: false,
-              message: "Failed to load existing invite",
+              message: "Failed to load existing invite"
             };
           }
 
@@ -85,7 +85,7 @@ export const userAdminFunction = inngest.createFunction(
             to: user.data.email,
             subject: `You have been invited to join ${company.data?.name} on Carbon`,
             headers: {
-              "X-Entity-Ref-ID": nanoid(),
+              "X-Entity-Ref-ID": nanoid()
             },
             html: await render(
               InviteEmail({
@@ -96,14 +96,14 @@ export const userAdminFunction = inngest.createFunction(
                 companyName: company.data.name,
                 inviteLink: `${getAppUrl()}/invite/${invite.data.code}`,
                 ip,
-                location,
+                location
               })
-            ),
+            )
           });
 
           result = {
             success: true,
-            message: `Successfully resent invite for ${payload.id}`,
+            message: `Successfully resent invite for ${payload.id}`
           };
           break;
       }

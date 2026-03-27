@@ -4,7 +4,7 @@ import {
   getCarbonServiceRole,
   getClaims,
   getPermissionCacheKey,
-  success,
+  success
 } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import { redis } from "@carbon/kv";
@@ -28,9 +28,7 @@ export const updatePermissionsFunction = inngest.createFunction(
       if (success) {
         console.info(`Permission Update for ${payload.id} succeeded`);
       } else {
-        console.error(
-          `Permission Update for ${payload.id} failed: ${message}`
-        );
+        console.error(`Permission Update for ${payload.id} failed: ${message}`);
       }
       return { success, message };
     });
@@ -45,7 +43,7 @@ export async function updatePermissions(
     id,
     permissions,
     companyId,
-    addOnly = false,
+    addOnly = false
   }: {
     id: string;
     addOnly: boolean;
@@ -122,7 +120,7 @@ export async function updatePermissions(
           if (!updatedPermissions[`${module}_view`]?.includes(companyId)) {
             updatedPermissions[`${module}_view`] = [
               ...updatedPermissions[`${module}_view`],
-              companyId,
+              companyId
             ];
           }
         } else {
@@ -135,7 +133,7 @@ export async function updatePermissions(
           if (!updatedPermissions[`${module}_create`]?.includes(companyId)) {
             updatedPermissions[`${module}_create`] = [
               ...updatedPermissions[`${module}_create`],
-              companyId,
+              companyId
             ];
           }
         } else {
@@ -148,7 +146,7 @@ export async function updatePermissions(
           if (!updatedPermissions[`${module}_update`]?.includes(companyId)) {
             updatedPermissions[`${module}_update`] = [
               ...updatedPermissions[`${module}_update`],
-              companyId,
+              companyId
             ];
           }
         } else {
@@ -161,7 +159,7 @@ export async function updatePermissions(
           if (!updatedPermissions[`${module}_delete`]?.includes(companyId)) {
             updatedPermissions[`${module}_delete`] = [
               ...updatedPermissions[`${module}_delete`],
-              companyId,
+              companyId
             ];
           }
         } else {

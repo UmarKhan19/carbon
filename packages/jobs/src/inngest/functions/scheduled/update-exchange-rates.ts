@@ -1,7 +1,4 @@
-import {
-  EXCHANGE_RATES_API_KEY,
-  getCarbonServiceRole,
-} from "@carbon/auth";
+import { EXCHANGE_RATES_API_KEY, getCarbonServiceRole } from "@carbon/auth";
 import type { Rates } from "@carbon/ee/exchange-rates.server";
 import { getExchangeRatesClient } from "@carbon/ee/exchange-rates.server";
 import { inngest } from "../../client";
@@ -77,9 +74,7 @@ export const updateExchangeRatesFunction = inngest.createFunction(
   { cron: "0 0 * * *" },
   async ({ step }) => {
     await step.run("fetch-and-update-exchange-rates", async () => {
-      console.log(
-        `Exchange Rates Task Started: ${new Date().toISOString()}`
-      );
+      console.log(`Exchange Rates Task Started: ${new Date().toISOString()}`);
       const integrations = await serviceRole
         .from("companyIntegration")
         .select("active, companyId")
@@ -88,9 +83,7 @@ export const updateExchangeRatesFunction = inngest.createFunction(
 
       if (integrations.error) {
         console.error(
-          `Error fetching integrations: ${JSON.stringify(
-            integrations.error
-          )}`
+          `Error fetching integrations: ${JSON.stringify(integrations.error)}`
         );
         return;
       }
@@ -102,9 +95,7 @@ export const updateExchangeRatesFunction = inngest.createFunction(
         return;
       }
 
-      console.log(
-        `Found ${integrations.data.length} active integrations`
-      );
+      console.log(`Found ${integrations.data.length} active integrations`);
 
       // Fetch the exchange rates for the base currency of EUR
       const exchangeRatesClient = getExchangeRatesClient(
@@ -122,9 +113,7 @@ export const updateExchangeRatesFunction = inngest.createFunction(
       try {
         ratesEUR = await exchangeRatesClient.getExchangeRates();
         if (!ratesEUR)
-          throw new Error(
-            "No rates returned from exchange rates API"
-          );
+          throw new Error("No rates returned from exchange rates API");
         console.log(
           `Successfully fetched exchange rates with base currency of EUR for ${
             Object.keys(ratesEUR).length
@@ -141,7 +130,7 @@ export const updateExchangeRatesFunction = inngest.createFunction(
 
       // Cache the rates for each currency to avoid unnecessary computations
       let cachedRates: { [key in CurrencyCode]?: Rates } = {
-        EUR: ratesEUR,
+        EUR: ratesEUR
       };
 
       for (const integration of integrations.data) {
@@ -164,8 +153,7 @@ export const updateExchangeRatesFunction = inngest.createFunction(
           continue;
         }
 
-        const baseCurrencyCode = company.data
-          .baseCurrencyCode as CurrencyCode;
+        const baseCurrencyCode = company.data.baseCurrencyCode as CurrencyCode;
         let rates: Rates | undefined;
         rates = cachedRates[baseCurrencyCode];
         // Check if the rates for this base currency are cached, and if not compute them
@@ -173,11 +161,10 @@ export const updateExchangeRatesFunction = inngest.createFunction(
           console.log(`Using cached rates for ${baseCurrencyCode}`);
         } else {
           console.log(`Computing rates for ${baseCurrencyCode}`);
-          rates =
-            await exchangeRatesClient.convertExchangeRates(
-              baseCurrencyCode,
-              ratesEUR
-            );
+          rates = await exchangeRatesClient.convertExchangeRates(
+            baseCurrencyCode,
+            ratesEUR
+          );
           cachedRates[baseCurrencyCode] = rates;
         }
 
@@ -209,11 +196,11 @@ export const updateExchangeRatesFunction = inngest.createFunction(
             .map((currency) => ({
               ...currency,
               exchangeRate: Number(
-                rates[
-                  currency.code as CurrencyCode
-                ]?.toFixed(currency.decimalPlaces)
+                rates[currency.code as CurrencyCode]?.toFixed(
+                  currency.decimalPlaces
+                )
               ),
-              updatedAt,
+              updatedAt
             }))
             .filter((currency) => currency.exchangeRate);
 
@@ -243,18 +230,14 @@ export const updateExchangeRatesFunction = inngest.createFunction(
           }
         } catch (err) {
           console.error(
-            `Unexpected error processing company ${
-              integration.companyId
-            }: ${
+            `Unexpected error processing company ${integration.companyId}: ${
               err instanceof Error ? err.message : String(err)
             }`
           );
         }
       }
 
-      console.log(
-        `Exchange Rates Task Completed: ${new Date().toISOString()}`
-      );
+      console.log(`Exchange Rates Task Completed: ${new Date().toISOString()}`);
     });
   }
 );

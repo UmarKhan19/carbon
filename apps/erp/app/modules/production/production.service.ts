@@ -3088,7 +3088,7 @@ export async function upsertDemandProjections(
 }
 
 /**
- * Trigger a job scheduling task via Trigger.dev.
+ * Trigger a job scheduling task via Inngest.
  * Supports both initial scheduling and rescheduling.
  */
 export async function triggerJobSchedule(
@@ -3098,9 +3098,9 @@ export async function triggerJobSchedule(
   mode: "initial" | "reschedule" = "reschedule",
   direction: "backward" | "forward" = "backward"
 ) {
-  const { scheduleJob } = await import("@carbon/jobs/trigger/reschedule-job");
+  const { trigger } = await import("@carbon/jobs");
 
-  const handle = await scheduleJob.trigger({
+  await trigger("schedule-job", {
     jobId,
     companyId,
     userId,
@@ -3108,16 +3108,5 @@ export async function triggerJobSchedule(
     direction
   });
 
-  return { success: true, runId: handle.id };
-}
-
-/**
- * @deprecated Use triggerJobSchedule with mode="reschedule" instead.
- */
-export async function triggerJobReschedule(
-  jobId: string,
-  companyId: string,
-  userId: string
-) {
-  return triggerJobSchedule(jobId, companyId, userId, "reschedule", "backward");
+  return { success: true };
 }

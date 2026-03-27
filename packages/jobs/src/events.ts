@@ -1,8 +1,7 @@
 import type { Database } from "@carbon/database";
 import type { NotificationEvent } from "@carbon/notifications";
 
-type ApprovalDocumentType =
-  Database["public"]["Enums"]["approvalDocumentType"];
+type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
 
 /**
  * Event definitions for the Carbon inngest functions.
@@ -172,6 +171,7 @@ export type Events = {
   // Event handlers
   "carbon/event-webhook": {
     data: {
+      msgId: number;
       url: string;
       config: {
         headers?: Record<string, string>;
@@ -188,6 +188,7 @@ export type Events = {
 
   "carbon/event-workflow": {
     data: {
+      msgId: number;
       workflowId: string;
       data: {
         table: string;

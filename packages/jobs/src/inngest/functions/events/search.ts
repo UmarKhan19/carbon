@@ -60,9 +60,9 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
       return {
         ...record,
         fullName: user?.fullName,
-        employeeTypeName: empType?.name,
+        employeeTypeName: empType?.name
       };
-    },
+    }
   },
   customer: {
     entityType: "customer",
@@ -84,9 +84,9 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
       return {
         ...record,
         customerTypeName: custType?.name,
-        customerStatusName: custStatus?.name,
+        customerStatusName: custStatus?.name
       };
-    },
+    }
   },
   supplier: {
     entityType: "supplier",
@@ -102,9 +102,9 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .single();
       return {
         ...record,
-        supplierTypeName: suppType?.name,
+        supplierTypeName: suppType?.name
       };
-    },
+    }
   },
   item: {
     entityType: "item",
@@ -117,12 +117,12 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         Tool: "/x/tool/",
         Consumable: "/x/consumable/",
         Material: "/x/material/",
-        Fixture: "/x/fixture/",
+        Fixture: "/x/fixture/"
       };
       return (typeLinks[r.type] || "/x/part/") + r.id;
     },
     getTags: (r) => [r.type, r.replenishmentSystem].filter(Boolean),
-    getMetadata: (r) => ({ active: r.active }),
+    getMetadata: (r) => ({ active: r.active })
   },
   job: {
     entityType: "job",
@@ -145,9 +145,9 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
       return {
         ...record,
         itemName: item?.name,
-        customerName: customer?.name,
+        customerName: customer?.name
       };
-    },
+    }
   },
   purchaseOrder: {
     entityType: "purchaseOrder",
@@ -157,7 +157,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     getTags: (r) => [r.status].filter(Boolean),
     getMetadata: (r) => ({
       orderDate: r.orderDate,
-      supplierReference: r.supplierReference,
+      supplierReference: r.supplierReference
     }),
     enrichRecord: async (record, client) => {
       const { data: supplier } = await client
@@ -166,7 +166,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.supplierId)
         .single();
       return { ...record, supplierName: supplier?.name };
-    },
+    }
   },
   salesInvoice: {
     entityType: "salesInvoice",
@@ -182,7 +182,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.customerId)
         .single();
       return { ...record, customerName: customer?.name };
-    },
+    }
   },
   purchaseInvoice: {
     entityType: "purchaseInvoice",
@@ -198,7 +198,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.supplierId)
         .single();
       return { ...record, supplierName: supplier?.name };
-    },
+    }
   },
   nonConformance: {
     entityType: "issue",
@@ -214,7 +214,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.nonConformanceTypeId)
         .single();
       return { ...record, ncTypeName: ncType?.name };
-    },
+    }
   },
   gauge: {
     entityType: "gauge",
@@ -222,10 +222,12 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     getDescription: (r) => `${r.description || ""} ${r.serialNumber || ""}`,
     getLink: (r) => `/x/quality/gauges/${r.id}`,
     getTags: (r) =>
-      [r.gaugeStatus, r.gaugeCalibrationStatus, r.gaugeTypeName].filter(Boolean),
+      [r.gaugeStatus, r.gaugeCalibrationStatus, r.gaugeTypeName].filter(
+        Boolean
+      ),
     getMetadata: (r) => ({
       nextCalibrationDate: r.nextCalibrationDate,
-      serialNumber: r.serialNumber,
+      serialNumber: r.serialNumber
     }),
     enrichRecord: async (record, client) => {
       const { data: gaugeType } = await client
@@ -234,7 +236,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.gaugeTypeId)
         .single();
       return { ...record, gaugeTypeName: gaugeType?.name };
-    },
+    }
   },
   quote: {
     entityType: "quote",
@@ -246,7 +248,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     getMetadata: (r) => ({
       customerId: r.customerId,
       expirationDate: r.expirationDate,
-      customerReference: r.customerReference,
+      customerReference: r.customerReference
     }),
     enrichRecord: async (record, client) => {
       const { data: customer } = await client
@@ -255,7 +257,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.customerId)
         .single();
       return { ...record, customerName: customer?.name };
-    },
+    }
   },
   salesRfq: {
     entityType: "salesRfq",
@@ -265,7 +267,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     getTags: (r) => [r.status].filter(Boolean),
     getMetadata: (r) => ({
       customerId: r.customerId,
-      expirationDate: r.expirationDate,
+      expirationDate: r.expirationDate
     }),
     enrichRecord: async (record, client) => {
       const { data: customer } = await client
@@ -274,7 +276,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.customerId)
         .single();
       return { ...record, customerName: customer?.name };
-    },
+    }
   },
   salesOrder: {
     entityType: "salesOrder",
@@ -286,7 +288,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     getMetadata: (r) => ({
       customerId: r.customerId,
       orderDate: r.orderDate,
-      customerReference: r.customerReference,
+      customerReference: r.customerReference
     }),
     enrichRecord: async (record, client) => {
       const { data: customer } = await client
@@ -295,7 +297,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.customerId)
         .single();
       return { ...record, customerName: customer?.name };
-    },
+    }
   },
   supplierQuote: {
     entityType: "supplierQuote",
@@ -305,7 +307,7 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
     getTags: (r) => [r.status].filter(Boolean),
     getMetadata: (r) => ({
       supplierId: r.supplierId,
-      expirationDate: r.expirationDate,
+      expirationDate: r.expirationDate
     }),
     enrichRecord: async (record, client) => {
       const { data: supplier } = await client
@@ -314,8 +316,8 @@ const SEARCH_ENTITY_CONFIGS: Record<string, SearchEntityConfig> = {
         .eq("id", record.supplierId)
         .single();
       return { ...record, supplierName: supplier?.name };
-    },
-  },
+    }
+  }
 };
 
 const SearchRecordSchema = z.object({
@@ -325,13 +327,13 @@ const SearchRecordSchema = z.object({
     recordId: z.string(),
     new: z.record(z.any()).nullable(),
     old: z.record(z.any()).nullable(),
-    timestamp: z.string(),
+    timestamp: z.string()
   }),
-  companyId: z.string(),
+  companyId: z.string()
 });
 
 const SearchPayloadSchema = z.object({
-  records: z.array(SearchRecordSchema),
+  records: z.array(SearchRecordSchema)
 });
 
 export type SearchPayload = z.infer<typeof SearchPayloadSchema>;
@@ -339,7 +341,7 @@ export type SearchPayload = z.infer<typeof SearchPayloadSchema>;
 export const searchFunction = inngest.createFunction(
   {
     id: "event-handler-search",
-    retries: 3,
+    retries: 3
   },
   { event: "carbon/event-search" },
   async ({ event, step }) => {
@@ -351,7 +353,7 @@ export const searchFunction = inngest.createFunction(
       updated: 0,
       deleted: 0,
       skipped: 0,
-      failed: 0,
+      failed: 0
     };
 
     const client = getCarbonServiceRole() as unknown as SearchRpcClient;
@@ -391,13 +393,13 @@ export const searchFunction = inngest.createFunction(
               await client.rpc("delete_from_search_index", {
                 p_company_id: companyId,
                 p_entity_type: config.entityType,
-                p_entity_id: del.event.recordId,
+                p_entity_id: del.event.recordId
               });
               stepResults.deleted++;
             } catch (error) {
               console.error(`Failed to delete from search index:`, {
                 error,
-                record: del,
+                record: del
               });
               stepResults.failed++;
             }
@@ -420,11 +422,14 @@ export const searchFunction = inngest.createFunction(
               let record = upsert.event.new as Record<string, any>;
 
               // Special handling for employee - skip inactive employees
-              if (upsert.event.table === "employee" && record.active === false) {
+              if (
+                upsert.event.table === "employee" &&
+                record.active === false
+              ) {
                 await client.rpc("delete_from_search_index", {
                   p_company_id: companyId,
                   p_entity_type: config.entityType,
-                  p_entity_id: upsert.event.recordId,
+                  p_entity_id: upsert.event.recordId
                 });
                 stepResults.deleted++;
                 continue;
@@ -449,14 +454,14 @@ export const searchFunction = inngest.createFunction(
                 p_description: description,
                 p_link: link,
                 p_tags: tags,
-                p_metadata: metadata,
+                p_metadata: metadata
               });
 
               stepResults.updated++;
             } catch (error) {
               console.error(`Failed to update search index:`, {
                 error,
-                record: upsert,
+                record: upsert
               });
               stepResults.failed++;
             }

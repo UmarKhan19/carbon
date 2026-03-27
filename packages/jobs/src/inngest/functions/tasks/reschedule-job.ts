@@ -13,8 +13,8 @@ export const rescheduleJobFunction = inngest.createFunction(
     retries: 3,
     concurrency: {
       limit: 5,
-      key: "event.data.companyId",
-    },
+      key: "event.data.companyId"
+    }
   },
   { event: "carbon/reschedule-job" },
   async ({ event, step }) => {
@@ -23,7 +23,7 @@ export const rescheduleJobFunction = inngest.createFunction(
       companyId,
       userId,
       mode = "reschedule",
-      direction = "backward",
+      direction = "backward"
     } = event.data;
 
     const result = await step.run("schedule-job", async () => {
@@ -32,23 +32,18 @@ export const rescheduleJobFunction = inngest.createFunction(
       );
 
       try {
-        const { data, error } = await serviceRole.functions.invoke(
-          "schedule",
-          {
-            body: {
-              jobId,
-              companyId,
-              userId,
-              mode,
-              direction,
-            },
+        const { data, error } = await serviceRole.functions.invoke("schedule", {
+          body: {
+            jobId,
+            companyId,
+            userId,
+            mode,
+            direction
           }
-        );
+        });
 
         if (error) {
-          throw new Error(
-            error.message || `Failed to ${mode} schedule job`
-          );
+          throw new Error(error.message || `Failed to ${mode} schedule job`);
         }
 
         console.info(
@@ -63,7 +58,7 @@ export const rescheduleJobFunction = inngest.createFunction(
           operationsScheduled: data.operationsScheduled,
           conflictsDetected: data.conflictsDetected,
           workCentersAffected: data.workCentersAffected,
-          assemblyDepth: data.assemblyDepth,
+          assemblyDepth: data.assemblyDepth
         };
       } catch (error) {
         console.error(

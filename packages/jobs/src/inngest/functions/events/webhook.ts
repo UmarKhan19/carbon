@@ -1,15 +1,15 @@
 import axios from "axios";
 import { z } from "zod";
-import { inngest } from "../../client";
+import { inngest } from "../../client.ts";
 
 const webhookPayloadSchema = z.object({
   url: z.string().url(),
   data: z.any(),
   config: z
     .object({
-      headers: z.record(z.string()).optional(),
+      headers: z.record(z.string()).optional()
     })
-    .passthrough(),
+    .passthrough()
 });
 
 export type WebhookPayload = z.infer<typeof webhookPayloadSchema>;
@@ -18,9 +18,11 @@ export const webhookFunction = inngest.createFunction(
   {
     id: "event-handler-webhook",
     retries: 3,
+    idempotency: "event.data.msgId",
     concurrency: {
       limit: 10,
-    },
+      key: "event.data.data.table + '-' + event.data.data.recordId"
+    }
   },
   { event: "carbon/event-webhook" },
   async ({ event, step }) => {
@@ -29,7 +31,7 @@ export const webhookFunction = inngest.createFunction(
     await step.run("send-webhook", async () => {
       console.log(`Firing webhook to ${payload.url}`);
       await axios.post(payload.url, payload.data, {
-        headers: payload.config.headers,
+        headers: payload.config.headers
       });
     });
   }

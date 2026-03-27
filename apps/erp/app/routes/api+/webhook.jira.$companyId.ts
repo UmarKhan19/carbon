@@ -1,6 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth";
-import { syncIssueFromJiraSchema } from "@carbon/jobs/trigger/jira";
-import { trigger } from "@carbon/jobs";
+import { syncIssueFromJiraSchema, trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { getIntegration } from "../../modules/settings";

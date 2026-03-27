@@ -1,4 +1,4 @@
 // Main package exports
-export * from "./inngest";
-export { trigger, batchTrigger } from "./trigger";
-export type { Events } from "./events";
+export * from "./inngest/index.js";
+export { trigger, batchTrigger } from "./trigger.js";
+export type { Events } from "./events.js";

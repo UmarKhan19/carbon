@@ -9,7 +9,7 @@ import {
   searchFunction,
   syncFunction,
   webhookFunction,
-  workflowFunction,
+  workflowFunction
 } from "./functions/events";
 import {
   modelThumbnailFunction,
@@ -18,7 +18,7 @@ import {
   userAdminFunction,
   postTransactionFunction,
   rescheduleJobFunction,
-  onboardFunction,
+  onboardFunction
 } from "./functions/tasks";
 import {
   cleanupFunction,
@@ -26,7 +26,7 @@ import {
   auditArchiveFunction,
   mrpFunction,
   weeklyFunction,
-  updateExchangeRatesFunction,
+  updateExchangeRatesFunction
 } from "./functions/scheduled";
 import {
   jiraSyncFunction,
@@ -37,7 +37,7 @@ import {
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,
   slackDocumentTaskUpdateFunction,
-  slackDocumentAssignmentUpdateFunction,
+  slackDocumentAssignmentUpdateFunction
 } from "./functions/integrations";
 
 // Export all functions for serving via serve() or connect()
@@ -76,7 +76,7 @@ export const functions = [
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,
   slackDocumentTaskUpdateFunction,
-  slackDocumentAssignmentUpdateFunction,
+  slackDocumentAssignmentUpdateFunction
 ];
 
 // Worker utilities
@@ -114,6 +114,9 @@ export async function createWorker(options?: {
     appVersion: options?.appVersion || process.env.APP_VERSION,
     instanceId: options?.instanceId || `worker-${process.pid}`,
     maxWorkerConcurrency: options?.maxWorkerConcurrency || 10,
-    handleShutdownSignals: options?.handleShutdownSignals || ["SIGTERM", "SIGINT"],
+    handleShutdownSignals: options?.handleShutdownSignals || [
+      "SIGTERM",
+      "SIGINT"
+    ]
   });
 }

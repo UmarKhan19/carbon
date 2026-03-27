@@ -1,7 +1,5 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
-import { tasks } from "npm:@trigger.dev/sdk@3.0.0/v3";
 import { z } from "npm:zod@^3.24.1";
-import type { notifyTask } from "../../../../jobs/trigger/notify.ts";
 
 import { corsHeaders } from "../lib/headers.ts";
 
@@ -36,6 +34,22 @@ const payloadValidator = z.discriminatedUnion("type", [
   }),
 ]);
 
+const INNGEST_EVENT_KEY = Deno.env.get("INNGEST_EVENT_KEY") ?? "";
+const INNGEST_BASE_URL =
+  Deno.env.get("INNGEST_BASE_URL") ?? "https://inn.gs";
+
+async function sendInngestEvent(name: string, data: Record<string, unknown>) {
+  const res = await fetch(`${INNGEST_BASE_URL}/e/${INNGEST_EVENT_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, data }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Inngest event send failed: ${res.status} ${await res.text()}`);
+  }
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -54,7 +68,7 @@ serve(async (req: Request) => {
 
     switch (type) {
       case "notify": {
-        await tasks.trigger<typeof notifyTask>("notify", {
+        await sendInngestEvent("carbon/notify", {
           companyId: data.companyId,
           documentId: data.documentId,
           event: data.event,

@@ -3,7 +3,7 @@ import {
   ERP_URL,
   NOVU_SECRET_KEY,
   VERCEL_URL,
-  NOVU_API_URL,
+  NOVU_API_URL
 } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import { notifyTaskAssigned } from "@carbon/ee/notifications";
@@ -13,21 +13,23 @@ import {
   NotificationWorkflow,
   trigger,
   triggerBulk,
-  type TriggerPayload,
+  type TriggerPayload
 } from "@carbon/notifications";
 import { Novu } from "@novu/node";
 import { inngest } from "../../client";
 
-type ApprovalDocumentType =
-  Database["public"]["Enums"]["approvalDocumentType"];
+type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
 
 const novu = new Novu(NOVU_SECRET_KEY!, {
-  backendUrl: NOVU_API_URL,
+  backendUrl: NOVU_API_URL
 });
 const isLocal = VERCEL_URL === undefined || VERCEL_URL.includes("localhost");
 
 // Helper function to get company integrations
-async function getCompanyIntegrations(client: ReturnType<typeof getCarbonServiceRole>, companyId: string) {
+async function getCompanyIntegrations(
+  client: ReturnType<typeof getCarbonServiceRole>,
+  companyId: string
+) {
   return client
     .from("companyIntegration")
     .select("*")
@@ -136,7 +138,10 @@ async function getDescription(
         .single();
 
       if (maintenanceDispatchCreated.error) {
-        console.error("Failed to get maintenanceDispatchCreated", maintenanceDispatchCreated.error);
+        console.error(
+          "Failed to get maintenanceDispatchCreated",
+          maintenanceDispatchCreated.error
+        );
         throw maintenanceDispatchCreated.error;
       }
 
@@ -151,12 +156,17 @@ async function getDescription(
         .single();
 
       if (maintenanceDispatch.error) {
-        console.error("Failed to get maintenanceDispatch", maintenanceDispatch.error);
+        console.error(
+          "Failed to get maintenanceDispatch",
+          maintenanceDispatch.error
+        );
         throw maintenanceDispatch.error;
       }
 
-      const workCenterName = maintenanceDispatch.data?.workCenter?.name ?? "Unknown";
-      const dispatchId = maintenanceDispatch.data?.maintenanceDispatchId ?? documentId;
+      const workCenterName =
+        maintenanceDispatch.data?.workCenter?.name ?? "Unknown";
+      const dispatchId =
+        maintenanceDispatch.data?.maintenanceDispatchId ?? documentId;
       return `Maintenance dispatch ${dispatchId} for ${workCenterName} assigned to you`;
     }
 
@@ -303,7 +313,10 @@ async function getDescription(
         .single();
 
       if (trainingAssignment.error) {
-        console.error("Failed to get trainingAssignment", trainingAssignment.error);
+        console.error(
+          "Failed to get trainingAssignment",
+          trainingAssignment.error
+        );
         throw trainingAssignment.error;
       }
 
@@ -353,8 +366,12 @@ async function getDescription(
         throw supplierQuote.error;
       }
 
-      const externalNotes = supplierQuote.data.externalNotes as Record<string, unknown> | null;
-      const respondedBy = externalNotes?.lastSubmittedBy as string | undefined || "Supplier";
+      const externalNotes = supplierQuote.data.externalNotes as Record<
+        string,
+        unknown
+      > | null;
+      const respondedBy =
+        (externalNotes?.lastSubmittedBy as string | undefined) || "Supplier";
       return `Supplier Quote ${supplierQuote?.data?.supplierQuoteId} was submitted by ${respondedBy}`;
     }
 
@@ -392,7 +409,8 @@ async function getDescription(
           return "Quality document requires your approval";
         }
 
-        const qualityDocumentName = qualityDocumentResult.data.name ?? "Untitled";
+        const qualityDocumentName =
+          qualityDocumentResult.data.name ?? "Untitled";
         return `Quality document "${qualityDocumentName}" requires your approval`;
       }
       return `Approval requested`;
@@ -458,7 +476,7 @@ async function getDescription(
 export const notifyFunction = inngest.createFunction(
   {
     id: "notify",
-    retries: 3,
+    retries: 3
   },
   { event: "carbon/notify" },
   async ({ event, step }) => {
@@ -475,11 +493,18 @@ export const notifyFunction = inngest.createFunction(
 
     if (!workflow) {
       console.error(`No workflow found for notification type ${payload.event}`);
-      throw new Error(`No workflow found for notification type ${payload.event}`);
+      throw new Error(
+        `No workflow found for notification type ${payload.event}`
+      );
     }
 
     const description = await step.run("get-description", async () => {
-      return getDescription(client, payload.event, payload.documentId, payload.documentType);
+      return getDescription(
+        client,
+        payload.event,
+        payload.documentId,
+        payload.documentType
+      );
     });
 
     if (!description) {
@@ -503,13 +528,19 @@ export const notifyFunction = inngest.createFunction(
             event: payload.event,
             companyId: payload.companyId,
             documentId: payload.documentId,
-            recipientUserId: payload.recipient.type === "user" ? payload.recipient.userId : undefined,
-            from: payload.from,
+            recipientUserId:
+              payload.recipient.type === "user"
+                ? payload.recipient.userId
+                : undefined,
+            from: payload.from
           }
         );
 
         try {
-          const integrationsResult = await getCompanyIntegrations(client, payload.companyId);
+          const integrationsResult = await getCompanyIntegrations(
+            client,
+            payload.companyId
+          );
 
           if (integrationsResult.data && integrationsResult.data.length > 0) {
             await notifyTaskAssigned({ client }, integrationsResult.data, {
@@ -519,13 +550,19 @@ export const notifyFunction = inngest.createFunction(
               task: {
                 id: payload.documentId,
                 table: "nonConformance",
-                assignee: payload.recipient.type === "user" ? payload.recipient.userId : "",
-                title: description,
-              },
+                assignee:
+                  payload.recipient.type === "user"
+                    ? payload.recipient.userId
+                    : "",
+                title: description
+              }
             });
           }
         } catch (error) {
-          console.error("Failed to send integration assignment notification:", error);
+          console.error(
+            "Failed to send integration assignment notification:",
+            error
+          );
           // Continue without blocking the main operation
         }
       });
@@ -536,7 +573,7 @@ export const notifyFunction = inngest.createFunction(
       description,
       event: payload.event,
       from: payload.from,
-      ...(payload.documentType && { documentType: payload.documentType }),
+      ...(payload.documentType && { documentType: payload.documentType })
     };
 
     if (payload.recipient.type === "user") {
@@ -547,9 +584,12 @@ export const notifyFunction = inngest.createFunction(
           user: {
             subscriberId: getSubscriberId({
               companyId: payload.companyId,
-              userId: payload.recipient.type === "user" ? payload.recipient.userId : "",
-            }),
-          },
+              userId:
+                payload.recipient.type === "user"
+                  ? payload.recipient.userId
+                  : ""
+            })
+          }
         };
 
         console.log("Sending single user notification to Novu", {
@@ -558,7 +598,7 @@ export const notifyFunction = inngest.createFunction(
           subscriberId: novuPayload.user.subscriberId,
           description,
           documentId: payload.documentId,
-          from: payload.from,
+          from: payload.from
         });
 
         try {
@@ -567,21 +607,25 @@ export const notifyFunction = inngest.createFunction(
         } catch (error) {
           console.error("Error triggering single user notification");
           console.error(error);
-          throw error;
         }
       });
     } else if (["group", "users"].includes(payload.recipient.type)) {
       await step.run("send-bulk-notification", async () => {
-        console.log(`triggering notification for group ${payload.recipient.type}`);
+        console.log(
+          `triggering notification for group ${payload.recipient.type}`
+        );
 
         const userIds =
           payload.recipient.type === "group"
             ? await client.rpc("users_for_groups", {
-                groups: payload.recipient.groupIds,
+                groups: payload.recipient.groupIds
               })
             : {
-                data: payload.recipient.type === "users" ? payload.recipient.userIds : [],
-                error: null,
+                data:
+                  payload.recipient.type === "users"
+                    ? payload.recipient.userIds
+                    : [],
+                error: null
               };
 
         if (userIds.error) {
@@ -600,7 +644,7 @@ export const notifyFunction = inngest.createFunction(
               event: payload.event,
               recipientType: payload.recipient.type,
               recipient: payload.recipient,
-              reason: "No users found in group/users list",
+              reason: "No users found in group/users list"
             }
           );
           return;
@@ -618,7 +662,7 @@ export const notifyFunction = inngest.createFunction(
               event: payload.event,
               originalUserCount: userIds.data.length,
               from: payload.from,
-              reason: "All users filtered out (sender was only recipient)",
+              reason: "All users filtered out (sender was only recipient)"
             }
           );
           return;
@@ -631,9 +675,9 @@ export const notifyFunction = inngest.createFunction(
             user: {
               subscriberId: getSubscriberId({
                 companyId: payload.companyId,
-                userId: userId,
-              }),
-            },
+                userId: userId
+              })
+            }
           })) ?? [];
 
         if (notificationPayloads.length > 0) {
@@ -644,7 +688,7 @@ export const notifyFunction = inngest.createFunction(
             description,
             documentId: payload.documentId,
             from: payload.from,
-            subscriberIds: notificationPayloads.map((p) => p.user.subscriberId),
+            subscriberIds: notificationPayloads.map((p) => p.user.subscriberId)
           });
 
           try {
@@ -655,14 +699,13 @@ export const notifyFunction = inngest.createFunction(
           } catch (error) {
             console.error("Error triggering bulk notifications");
             console.error(error);
-            throw error;
           }
         } else {
           console.log(
             `No notification payloads generated - skipping Novu notification`,
             {
               event: payload.event,
-              reason: "Empty notification payloads array",
+              reason: "Empty notification payloads array"
             }
           );
         }

@@ -1,7 +1,7 @@
 import {
   getPostgresClient,
   getPostgresConnectionPool,
-  KyselyDatabase,
+  KyselyDatabase
 } from "@carbon/database/client";
 import { HandlerType, QueueMessage } from "@carbon/database/event";
 import { Kysely, PostgresDriver, sql } from "kysely";
@@ -31,7 +31,7 @@ type QueueJob = {
 export const eventQueueFunction = inngest.createFunction(
   {
     id: "event-queue",
-    retries: 2,
+    retries: 2
   },
   { cron: "* * * * *" }, // Every minute
   async ({ step }) => {
@@ -56,7 +56,7 @@ export const eventQueueFunction = inngest.createFunction(
       WORKFLOW: [],
       SYNC: [],
       SEARCH: [],
-      AUDIT: [],
+      AUDIT: []
     };
 
     // 2. Sort into buckets
@@ -79,10 +79,11 @@ export const eventQueueFunction = inngest.createFunction(
           return {
             name: "carbon/event-webhook" as const,
             data: {
+              msgId: job.msg_id,
               url: job.message.handlerConfig.url,
               config: job.message.handlerConfig,
-              data: event,
-            },
+              data: event
+            }
           };
         });
 
@@ -104,9 +105,10 @@ export const eventQueueFunction = inngest.createFunction(
           return {
             name: "carbon/event-workflow" as const,
             data: {
+              msgId: job.msg_id,
               workflowId: job.message.handlerConfig.workflowId,
-              data: event,
-            },
+              data: event
+            }
           };
         });
 
@@ -127,13 +129,13 @@ export const eventQueueFunction = inngest.createFunction(
           return {
             event: job.message.event,
             companyId: job.message.companyId,
-            handlerConfig: job.message.handlerConfig,
+            handlerConfig: job.message.handlerConfig
           };
         });
 
         await inngest.send({
           name: "carbon/event-sync",
-          data: { records },
+          data: { records }
         });
 
         return queue;
@@ -151,13 +153,13 @@ export const eventQueueFunction = inngest.createFunction(
 
           return {
             event: job.message.event,
-            companyId: job.message.companyId,
+            companyId: job.message.companyId
           };
         });
 
         await inngest.send({
           name: "carbon/event-search",
-          data: { records },
+          data: { records }
         });
 
         return queue;
@@ -177,13 +179,13 @@ export const eventQueueFunction = inngest.createFunction(
             event: job.message.event,
             companyId: job.message.companyId,
             actorId: job.message.actorId,
-            handlerConfig: job.message.handlerConfig,
+            handlerConfig: job.message.handlerConfig
           };
         });
 
         await inngest.send({
           name: "carbon/event-audit",
-          data: { records },
+          data: { records }
         });
 
         return queue;

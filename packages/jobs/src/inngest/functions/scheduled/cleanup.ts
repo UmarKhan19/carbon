@@ -1,21 +1,21 @@
 import {
   getCarbonServiceRole,
   NOVU_API_URL,
-  NOVU_SECRET_KEY,
+  NOVU_SECRET_KEY
 } from "@carbon/auth";
 import type { TriggerPayload } from "@carbon/notifications";
 import {
   getSubscriberId,
   NotificationEvent,
   NotificationWorkflow,
-  triggerBulk,
+  triggerBulk
 } from "@carbon/notifications";
 import { Novu } from "@novu/node";
 import { inngest } from "../../client";
 
 const serviceRole = getCarbonServiceRole();
 const novu = new Novu(NOVU_SECRET_KEY!, {
-  backendUrl: NOVU_API_URL,
+  backendUrl: NOVU_API_URL
 });
 
 export const cleanupFunction = inngest.createFunction(
@@ -39,7 +39,7 @@ export const cleanupFunction = inngest.createFunction(
           .select("*")
           .eq("status", "Active")
           .not("expirationDate", "is", null)
-          .lt("expirationDate", new Date().toISOString()),
+          .lt("expirationDate", new Date().toISOString())
       ]);
 
       if (expiredQuotes.error) {
@@ -144,14 +144,14 @@ export const cleanupFunction = inngest.createFunction(
                 documentId: quote.id,
                 event: NotificationEvent.QuoteExpired,
                 recordId: quote.id,
-                description: `Quote ${quote.quoteId} has expired`,
+                description: `Quote ${quote.quoteId} has expired`
               },
               user: {
                 subscriberId: getSubscriberId({
                   companyId: quote.companyId,
-                  userId: quote.salesPersonId!,
-                }),
-              },
+                  userId: quote.salesPersonId!
+                })
+              }
             };
           });
 
@@ -193,7 +193,7 @@ export const cleanupFunction = inngest.createFunction(
 
         // Get unique company IDs
         const companyIds = [
-          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId)),
+          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId))
         ];
 
         // Fetch all company settings at once
@@ -213,7 +213,7 @@ export const cleanupFunction = inngest.createFunction(
           const notificationGroupsByCompany = new Map(
             companySettingsResult.data.map((settings) => [
               settings.id,
-              settings.gaugeCalibrationExpiredNotificationGroup ?? [],
+              settings.gaugeCalibrationExpiredNotificationGroup ?? []
             ])
           );
 
@@ -238,14 +238,14 @@ export const cleanupFunction = inngest.createFunction(
                 payload: {
                   event: NotificationEvent.GaugeCalibrationExpired,
                   recordId: gauge.id,
-                  description: `Gauge ${gauge.gaugeId} is out of calibration`,
+                  description: `Gauge ${gauge.gaugeId} is out of calibration`
                 },
                 user: {
                   subscriberId: getSubscriberId({
                     companyId: gauge.companyId,
-                    userId,
-                  }),
-                },
+                    userId
+                  })
+                }
               });
             }
           }
@@ -264,7 +264,7 @@ export const cleanupFunction = inngest.createFunction(
                   gaugeNotificationPayloads.map(
                     (payload) => payload.payload.recordId
                   )
-                ),
+                )
               ];
 
               const updateGauges = await serviceRole
@@ -284,9 +284,7 @@ export const cleanupFunction = inngest.createFunction(
                 );
               }
             } catch (error) {
-              console.error(
-                "Error triggering gauge calibration notifications"
-              );
+              console.error("Error triggering gauge calibration notifications");
               console.error(error);
             }
           } else {

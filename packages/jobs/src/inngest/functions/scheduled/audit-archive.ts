@@ -26,7 +26,7 @@ async function archiveCompanyLogs(
     "get_audit_logs_for_archive",
     {
       p_company_id: companyId,
-      p_before_date: cutoffDate.toISOString(),
+      p_before_date: cutoffDate.toISOString()
     }
   );
 
@@ -57,7 +57,7 @@ async function archiveCompanyLogs(
     .from(auditConfig.archiveBucket)
     .upload(archivePath, gzipped, {
       contentType: "application/gzip",
-      upsert: true,
+      upsert: true
     });
 
   if (uploadError) {
@@ -69,16 +69,14 @@ async function archiveCompanyLogs(
   const endDate = records[records.length - 1].createdAt;
 
   // Record archive metadata
-  const { error: archiveError } = await client
-    .from("auditLogArchive")
-    .insert({
-      companyId,
-      archivePath,
-      startDate: startDate.split("T")[0], // Extract date part
-      endDate: endDate.split("T")[0],
-      rowCount: records.length,
-      sizeBytes: gzipped.length,
-    });
+  const { error: archiveError } = await client.from("auditLogArchive").insert({
+    companyId,
+    archivePath,
+    startDate: startDate.split("T")[0], // Extract date part
+    endDate: endDate.split("T")[0],
+    rowCount: records.length,
+    sizeBytes: gzipped.length
+  });
 
   if (archiveError) {
     // Try to clean up uploaded file
@@ -91,7 +89,7 @@ async function archiveCompanyLogs(
     "delete_old_audit_logs",
     {
       p_company_id: companyId,
-      p_cutoff_date: cutoffDate.toISOString(),
+      p_cutoff_date: cutoffDate.toISOString()
     }
   );
 
@@ -106,7 +104,7 @@ async function archiveCompanyLogs(
 
   return {
     recordsArchived: records.length,
-    recordsDeleted: deletedCount ?? records.length,
+    recordsDeleted: deletedCount ?? records.length
   };
 }
 
@@ -133,16 +131,14 @@ export const auditArchiveFunction = inngest.createFunction(
 
       if (companiesError) {
         console.error("Failed to fetch companies", companiesError);
-        throw new Error(
-          `Failed to fetch companies: ${companiesError.message}`
-        );
+        throw new Error(`Failed to fetch companies: ${companiesError.message}`);
       }
 
       const results = {
         companiesProcessed: 0,
         recordsArchived: 0,
         recordsDeleted: 0,
-        errors: 0,
+        errors: 0
       };
 
       for (const company of (companies as { id: string }[]) ?? []) {

@@ -1,7 +1,7 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import {
   getPostgresClient,
-  getPostgresConnectionPool,
+  getPostgresConnectionPool
 } from "@carbon/database/client";
 import { EventSchema } from "@carbon/database/event";
 import {
@@ -11,7 +11,7 @@ import {
   getProviderIntegration,
   ProviderID,
   RatelimitError,
-  SyncFactory,
+  SyncFactory
 } from "@carbon/ee/accounting";
 import { groupBy } from "@carbon/utils";
 import { PostgresDriver } from "kysely";
@@ -22,12 +22,12 @@ const SyncRecordSchema = z.object({
   event: EventSchema,
   companyId: z.string(),
   handlerConfig: z.object({
-    provider: z.nativeEnum(ProviderID),
-  }),
+    provider: z.nativeEnum(ProviderID)
+  })
 });
 
 const SyncPayloadSchema = z.object({
-  records: z.array(SyncRecordSchema),
+  records: z.array(SyncRecordSchema)
 });
 
 export type SyncPayload = z.infer<typeof SyncPayloadSchema>;
@@ -39,7 +39,7 @@ const TABLE_TO_ENTITY_MAP: Partial<Record<string, AccountingEntityType>> = {
   item: "item",
   purchaseOrder: "purchaseOrder",
   purchaseInvoice: "bill",
-  salesInvoice: "invoice",
+  salesInvoice: "invoice"
 };
 
 function getEntityTypeFromTable(table: string): AccountingEntityType | null {
@@ -56,7 +56,7 @@ function getDeduplicatedIds<T>(
 export const syncFunction = inngest.createFunction(
   {
     id: "event-handler-sync",
-    retries: 3,
+    retries: 3
   },
   { event: "carbon/event-sync" },
   async ({ event, step }) => {
@@ -67,7 +67,7 @@ export const syncFunction = inngest.createFunction(
     const results = {
       success: [] as BatchSyncResult[],
       failed: [] as { recordId: string; error: string }[],
-      skipped: [] as { recordId: string; reason: string }[],
+      skipped: [] as { recordId: string; reason: string }[]
     };
 
     // Group records by (companyId, provider) for efficient batch processing
@@ -89,7 +89,7 @@ export const syncFunction = inngest.createFunction(
           for (const r of records) {
             results.skipped.push({
               recordId: r.event.recordId,
-              reason: "Missing companyId or provider",
+              reason: "Missing companyId or provider"
             });
           }
           continue;
@@ -102,7 +102,7 @@ export const syncFunction = inngest.createFunction(
             const groupResults = {
               success: [] as BatchSyncResult[],
               failed: [] as { recordId: string; error: string }[],
-              skipped: [] as { recordId: string; reason: string }[],
+              skipped: [] as { recordId: string; reason: string }[]
             };
 
             try {
@@ -133,7 +133,7 @@ export const syncFunction = inngest.createFunction(
                   for (const r of entityRecords) {
                     groupResults.skipped.push({
                       recordId: r.event.recordId,
-                      reason: `Table '${r.event.table}' has no entity mapping`,
+                      reason: `Table '${r.event.table}' has no entity mapping`
                     });
                   }
                   continue;
@@ -157,7 +157,7 @@ export const syncFunction = inngest.createFunction(
                   config: providerInstance.getSyncConfig(
                     entityType as AccountingEntityType
                   ),
-                  entityType: entityType as AccountingEntityType,
+                  entityType: entityType as AccountingEntityType
                 });
 
                 // Process INSERTs and UPDATEs (push to accounting)
@@ -196,7 +196,7 @@ export const syncFunction = inngest.createFunction(
                 for (const del of deletes) {
                   groupResults.skipped.push({
                     recordId: del.event.recordId,
-                    reason: "DELETE operations not yet implemented",
+                    reason: "DELETE operations not yet implemented"
                   });
                 }
               }
@@ -205,7 +205,8 @@ export const syncFunction = inngest.createFunction(
               for (const r of records) {
                 groupResults.failed.push({
                   recordId: r.event.recordId,
-                  error: error instanceof Error ? error.message : "Unknown error",
+                  error:
+                    error instanceof Error ? error.message : "Unknown error"
                 });
               }
             }
@@ -225,7 +226,7 @@ export const syncFunction = inngest.createFunction(
     console.log("Sync function completed", {
       successCount: results.success.reduce((acc, r) => acc + r.successCount, 0),
       failedCount: results.failed.length,
-      skippedCount: results.skipped.length,
+      skippedCount: results.skipped.length
     });
 
     return results;

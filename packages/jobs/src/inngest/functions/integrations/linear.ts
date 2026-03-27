@@ -2,7 +2,7 @@ import { getCarbonServiceRole } from "@carbon/auth";
 import {
   getCompanyEmployees,
   getLinearClient,
-  linkActionToLinearIssue,
+  linkActionToLinearIssue
 } from "@carbon/ee/linear";
 import { z } from "zod";
 import { inngest } from "../../client";
@@ -18,10 +18,10 @@ export const syncIssueFromLinearSchema = z.object({
       action: z.literal("update"),
       data: z.object({
         id: z.string(),
-        assigneeId: z.string().optional(),
-      }),
-    }),
-  ]),
+        assigneeId: z.string().optional()
+      })
+    })
+  ])
 });
 
 export const linearSyncFunction = inngest.createFunction(
@@ -42,7 +42,7 @@ export const linearSyncFunction = inngest.createFunction(
         .select("*")
         .eq("companyId", payload.companyId)
         .eq("id", "linear")
-        .single(),
+        .single()
     ]);
 
     if (company.error || !company.data) {
@@ -70,7 +70,7 @@ export const linearSyncFunction = inngest.createFunction(
     if (!action.data) {
       return {
         success: false,
-        message: `No linked action found for Linear issue ID ${payload.event.data.id}`,
+        message: `No linked action found for Linear issue ID ${payload.event.data.id}`
       };
     }
 
@@ -82,7 +82,7 @@ export const linearSyncFunction = inngest.createFunction(
     if (!fullIssue) {
       return {
         success: false,
-        message: `Failed to fetch issue ${payload.event.data.id} from Linear`,
+        message: `Failed to fetch issue ${payload.event.data.id} from Linear`
       };
     }
 
@@ -90,11 +90,11 @@ export const linearSyncFunction = inngest.createFunction(
 
     if (payload.event.data.assigneeId) {
       const [linearUser] = await linear.getUsers(payload.companyId, {
-        id: payload.event.data.assigneeId,
+        id: payload.event.data.assigneeId
       });
 
       const employees = await getCompanyEmployees(carbon, payload.companyId, [
-        linearUser?.email,
+        linearUser?.email
       ]);
       assignee = employees.length > 0 ? employees[0].userId : null;
     }
@@ -103,19 +103,19 @@ export const linearSyncFunction = inngest.createFunction(
       actionId: action.data.id,
       issue: fullIssue,
       assignee,
-      syncNotes: true,
+      syncNotes: true
     });
 
     if (!updated || updated.error) {
       return {
         success: false,
-        message: `Failed to update action for Linear issue ID ${payload.event.data.id}`,
+        message: `Failed to update action for Linear issue ID ${payload.event.data.id}`
       };
     }
 
     return {
       success: true,
-      message: `Synced Linear issue ${payload.event.data.id}`,
+      message: `Synced Linear issue ${payload.event.data.id}`
     };
   }
 );

@@ -8,5 +8,5 @@
   },
   "exclude": ["node_modules"],
   "extends": "@carbon/tsconfig/base.json",
-  "include": ["src", "trigger"]
+  "include": ["src"]
 }

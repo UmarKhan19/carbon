@@ -9,7 +9,7 @@ import {
   getPaperlessParts,
   insertOrderLines,
   insertQuoteLines,
-  OrderSchema,
+  OrderSchema
 } from "@carbon/ee/paperless-parts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -20,13 +20,13 @@ const payloadSchema = z.discriminatedUnion("type", [
     type: z.literal("quote.created"),
     created: z.string(),
     object: z.string(),
-    data: z.any(),
+    data: z.any()
   }),
   z.object({
     type: z.literal("quote.status_changed"),
     created: z.string(),
     object: z.string(),
-    data: z.any(),
+    data: z.any()
   }),
   z.object({
     type: z.literal("quote.sent"),
@@ -59,8 +59,8 @@ const payloadSchema = z.discriminatedUnion("type", [
       request_for_quote_id: z.string().nullable(),
       digital_last_viewed_on: z.string().nullable(),
       manual_rfq_received_date: z.string().nullable(),
-      authenticated_pdf_quote_url: z.string().nullable(),
-    }),
+      authenticated_pdf_quote_url: z.string().nullable()
+    })
   }),
   z.object({
     type: z.literal("order.created"),
@@ -69,46 +69,46 @@ const payloadSchema = z.discriminatedUnion("type", [
     data: z.object({
       uuid: z.string(),
       status: z.string(),
-      number: z.number().optional(),
-    }),
+      number: z.number().optional()
+    })
   }),
   z.object({
     type: z.literal("order.status_changed"),
     created: z.string(),
     object: z.string(),
-    data: z.any(),
+    data: z.any()
   }),
   z.object({
     type: z.literal("integration_action.requested"),
     created: z.string(),
     object: z.string(),
-    data: z.any(),
+    data: z.any()
   }),
   z.object({
     type: z.literal("integration.turned_on"),
     created: z.string(),
     object: z.string(),
-    data: z.any(),
+    data: z.any()
   }),
   z.object({
     type: z.literal("integration.turned_off"),
     created: z.string(),
     object: z.string(),
-    data: z.any(),
-  }),
+    data: z.any()
+  })
 ]);
 
 const paperlessPartsSchema = z.object({
   apiKey: z.string(),
   companyId: z.string(),
-  payload: payloadSchema,
+  payload: payloadSchema
 });
 
 const integrationSchema = z.object({
   methodType: z.enum(["Buy", "Pick"]).optional(),
   trackingType: z.enum(["Inventory", "Non-Inventory", "Batch"]).optional(),
   usePaperlessOrderNumber: z.boolean().optional(),
-  billOfProcessBlackList: z.array(z.string()).optional(),
+  billOfProcessBlackList: z.array(z.string()).optional()
 });
 
 export const paperlessPartsFunction = inngest.createFunction(
@@ -118,9 +118,7 @@ export const paperlessPartsFunction = inngest.createFunction(
     const payload = paperlessPartsSchema.parse(event.data);
     let result: { success: boolean; message: string };
 
-    console.info(
-      `Paperless Parts webhook received: ${payload.payload.type}`
-    );
+    console.info(`Paperless Parts webhook received: ${payload.payload.type}`);
     console.info(`Payload:`, payload);
 
     const carbon = getCarbonServiceRole();
@@ -133,7 +131,7 @@ export const paperlessPartsFunction = inngest.createFunction(
         .select("*")
         .eq("companyId", payload.companyId)
         .eq("id", "paperless-parts")
-        .single(),
+        .single()
     ]);
 
     if (company.error || !company.data) {
@@ -167,14 +165,14 @@ export const paperlessPartsFunction = inngest.createFunction(
         console.info(`Processing quote created event`);
         result = {
           success: true,
-          message: "Quote created event processed successfully",
+          message: "Quote created event processed successfully"
         };
         break;
       case "quote.status_changed":
         console.info(`Processing quote status changed event`);
         result = {
           success: true,
-          message: "Quote status changed event processed successfully",
+          message: "Quote status changed event processed successfully"
         };
         break;
       case "quote.sent":
@@ -192,9 +190,7 @@ export const paperlessPartsFunction = inngest.createFunction(
         );
 
         if (ppQuote.error || !ppQuote.data) {
-          throw new Error(
-            "Failed to fetch quote details from Paperless Parts"
-          );
+          throw new Error("Failed to fetch quote details from Paperless Parts");
         }
 
         if (!ppQuote.data.contact) {
@@ -221,7 +217,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           );
           result = {
             success: true,
-            message: "Quote already exists",
+            message: "Quote already exists"
           };
           break;
         }
@@ -229,24 +225,24 @@ export const paperlessPartsFunction = inngest.createFunction(
         const [
           {
             customerId: quoteCustomerId,
-            customerContactId: quoteCustomerContactId,
+            customerContactId: quoteCustomerContactId
           },
           { createdBy: quoteCreatedBy },
-          quoteLocationId,
+          quoteLocationId
         ] = await Promise.all([
           getCustomerIdAndContactId(carbon, paperless, {
             company: company.data,
-            contact: ppQuote.data.contact,
+            contact: ppQuote.data.contact
           }),
           getEmployeeAndSalesPersonId(carbon, {
             company: company.data,
             estimator: ppQuote.data.estimator,
-            salesPerson: ppQuote.data.salesperson,
+            salesPerson: ppQuote.data.salesperson
           }),
           getOrderLocationId(carbon, {
             company: company.data,
-            sendFrom: ppQuote.data.send_from_facility,
-          }),
+            sendFrom: ppQuote.data.send_from_facility
+          })
         ]);
 
         if (!quoteCustomerId) {
@@ -285,7 +281,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           exchangeRate: 1 as number | undefined,
           exchangeRateUpdatedAt: undefined as string | undefined,
           expirationDate: undefined as string | undefined,
-          revisionId: ppQuoteRevisionNumber ?? 0,
+          revisionId: ppQuoteRevisionNumber ?? 0
         };
 
         const [quoteCustomerPayment, quoteCustomerShipping, quoteOpportunity] =
@@ -297,11 +293,11 @@ export const paperlessPartsFunction = inngest.createFunction(
               .insert([
                 {
                   companyId: quote.companyId,
-                  customerId: quote.customerId,
-                },
+                  customerId: quote.customerId
+                }
               ])
               .select("id")
-              .single(),
+              .single()
           ]);
 
         if (quoteCustomerPayment.error) return quoteCustomerPayment;
@@ -311,12 +307,12 @@ export const paperlessPartsFunction = inngest.createFunction(
           paymentTermId: quotePaymentTermId,
           invoiceCustomerId: quoteInvoiceCustomerId,
           invoiceCustomerContactId: quoteInvoiceCustomerContactId,
-          invoiceCustomerLocationId: quoteInvoiceCustomerLocationId,
+          invoiceCustomerLocationId: quoteInvoiceCustomerLocationId
         } = quoteCustomerPayment.data;
 
         const {
           shippingMethodId: quoteShippingMethodId,
-          shippingTermId: quoteShippingTermId,
+          shippingTermId: quoteShippingTermId
         } = quoteCustomerShipping.data;
 
         if (quote.currencyCode) {
@@ -339,8 +335,8 @@ export const paperlessPartsFunction = inngest.createFunction(
           .insert([
             {
               ...quote,
-              opportunityId: quoteOpportunity.data?.id,
-            },
+              opportunityId: quoteOpportunity.data?.id
+            }
           ])
           .select("id, quoteId");
         if (insert.error) {
@@ -357,7 +353,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           integration: "paperlessId",
           externalId: quotePayload.uuid,
           companyId: payload.companyId,
-          allowDuplicateExternalId: false,
+          allowDuplicateExternalId: false
         });
 
         const [quoteShipment, quotePayment, quoteExternalLink] =
@@ -368,8 +364,8 @@ export const paperlessPartsFunction = inngest.createFunction(
                 locationId: quoteLocationId,
                 shippingMethodId: quoteShippingMethodId,
                 shippingTermId: quoteShippingTermId,
-                companyId: quote.companyId,
-              },
+                companyId: quote.companyId
+              }
             ]),
             carbon.from("quotePayment").insert([
               {
@@ -378,16 +374,16 @@ export const paperlessPartsFunction = inngest.createFunction(
                 invoiceCustomerContactId: quoteInvoiceCustomerContactId,
                 invoiceCustomerLocationId: quoteInvoiceCustomerLocationId,
                 paymentTermId: quotePaymentTermId,
-                companyId: quote.companyId,
-              },
+                companyId: quote.companyId
+              }
             ]),
             upsertExternalLink(carbon, {
               documentType: "Quote" as const,
               documentId: quoteId,
               customerId: quote.customerId,
               expiresAt: quote.expirationDate,
-              companyId: quote.companyId,
-            }),
+              companyId: quote.companyId
+            })
           ]);
 
         if (quoteShipment.error) {
@@ -420,7 +416,7 @@ export const paperlessPartsFunction = inngest.createFunction(
             quoteItems: ppQuote.data.quote_items ?? [],
             defaultMethodType: methodType,
             defaultTrackingType: trackingType,
-            billOfProcessBlackList,
+            billOfProcessBlackList
           });
           console.log("Quote lines successfully created");
         } catch (error) {
@@ -428,7 +424,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           await deleteQuote(carbon, quoteId);
           result = {
             success: false,
-            message: "Failed to insert quote lines",
+            message: "Failed to insert quote lines"
           };
           break;
         }
@@ -437,7 +433,7 @@ export const paperlessPartsFunction = inngest.createFunction(
 
         result = {
           success: true,
-          message: "Quote sent event processed successfully",
+          message: "Quote sent event processed successfully"
         };
         break;
       case "order.status_changed":
@@ -454,9 +450,7 @@ export const paperlessPartsFunction = inngest.createFunction(
         const order = await paperless.orders.orderDetails(orderNumber);
 
         if (order.error || !order.data) {
-          throw new Error(
-            "Failed to fetch order details from Paperless Parts"
-          );
+          throw new Error("Failed to fetch order details from Paperless Parts");
         }
 
         const orderData = OrderSchema.parse(order.data);
@@ -488,14 +482,14 @@ export const paperlessPartsFunction = inngest.createFunction(
             console.log("Failed to update sales order", update.error);
             result = {
               success: false,
-              message: "Failed to update sales order",
+              message: "Failed to update sales order"
             };
             break;
           }
 
           result = {
             success: true,
-            message: "Order already exists",
+            message: "Order already exists"
           };
           break;
         }
@@ -503,24 +497,24 @@ export const paperlessPartsFunction = inngest.createFunction(
         const [
           {
             customerId: orderCustomerId,
-            customerContactId: orderCustomerContactId,
+            customerContactId: orderCustomerContactId
           },
           { createdBy: orderCreatedBy, salesPersonId: orderSalesPersonId },
-          orderLocationId,
+          orderLocationId
         ] = await Promise.all([
           getCustomerIdAndContactId(carbon, paperless, {
             company: company.data,
-            contact: orderData.contact!,
+            contact: orderData.contact!
           }),
           getEmployeeAndSalesPersonId(carbon, {
             company: company.data,
             estimator: orderData.estimator!,
-            salesPerson: orderData.sales_person!,
+            salesPerson: orderData.sales_person!
           }),
           getOrderLocationId(carbon, {
             company: company.data,
-            sendFrom: orderData.send_from_facility,
-          }),
+            sendFrom: orderData.send_from_facility
+          })
         ]);
 
         if (!orderCustomerId) {
@@ -532,32 +526,29 @@ export const paperlessPartsFunction = inngest.createFunction(
 
         const {
           shipmentLocationId: orderShipmentLocationId,
-          invoiceLocationId: orderInvoiceLocationId,
+          invoiceLocationId: orderInvoiceLocationId
         } = await getCustomerLocationIds(carbon, {
           company: company.data,
           customerId: orderCustomerId,
           billingInfo: orderData.billing_info,
-          shippingInfo: orderData.shipping_info,
+          shippingInfo: orderData.shipping_info
         });
 
-        const [
-          orderCustomerPayment,
-          orderCustomerShipping,
-          orderOpportunity,
-        ] = await Promise.all([
-          getCustomerPayment(carbon, orderCustomerId),
-          getCustomerShipping(carbon, orderCustomerId),
-          carbon
-            .from("opportunity")
-            .insert([
-              {
-                customerId: orderCustomerId,
-                companyId: payload.companyId,
-              },
-            ])
-            .select("id")
-            .single(),
-        ]);
+        const [orderCustomerPayment, orderCustomerShipping, orderOpportunity] =
+          await Promise.all([
+            getCustomerPayment(carbon, orderCustomerId),
+            getCustomerShipping(carbon, orderCustomerId),
+            carbon
+              .from("opportunity")
+              .insert([
+                {
+                  customerId: orderCustomerId,
+                  companyId: payload.companyId
+                }
+              ])
+              .select("id")
+              .single()
+          ]);
 
         let salesOrderReadableId: string;
         if (usePaperlessOrderNumber) {
@@ -584,12 +575,12 @@ export const paperlessPartsFunction = inngest.createFunction(
           paymentTermId: orderPaymentTermId,
           invoiceCustomerId: orderInvoiceCustomerId,
           invoiceCustomerContactId: orderInvoiceCustomerContactId,
-          invoiceCustomerLocationId: orderInvoiceCustomerLocationId,
+          invoiceCustomerLocationId: orderInvoiceCustomerLocationId
         } = orderCustomerPayment.data;
 
         const {
           shippingMethodId: orderShippingMethodId,
-          shippingTermId: orderShippingTermId,
+          shippingTermId: orderShippingTermId
         } = orderCustomerShipping.data;
         if (orderOpportunity.error) {
           throw new Error("Failed to create opportunity");
@@ -620,24 +611,21 @@ export const paperlessPartsFunction = inngest.createFunction(
                       {
                         type: "paragraph",
                         content: [
-                          { type: "text", text: orderData.private_notes },
-                        ],
-                      },
-                    ],
+                          { type: "text", text: orderData.private_notes }
+                        ]
+                      }
+                    ]
                   }
-                : null,
-            },
+                : null
+            }
           ])
           .select("id, salesOrderId");
 
         if (salesOrderInsert.error) {
-          console.log(
-            "Failed to create sales order",
-            salesOrderInsert.error
-          );
+          console.log("Failed to create sales order", salesOrderInsert.error);
           result = {
             success: false,
-            message: "Failed to create sales order",
+            message: "Failed to create sales order"
           };
           break;
         }
@@ -646,7 +634,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           console.log("Failed to get sales order ID");
           result = {
             success: false,
-            message: "Failed to get sales order ID",
+            message: "Failed to get sales order ID"
           };
           break;
         }
@@ -658,7 +646,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           integration: "paperlessId",
           externalId: orderData.uuid,
           companyId: payload.companyId,
-          allowDuplicateExternalId: false,
+          allowDuplicateExternalId: false
         });
 
         const [orderShipment, orderPayment] = await Promise.all([
@@ -673,8 +661,8 @@ export const paperlessPartsFunction = inngest.createFunction(
               customerLocationId: orderShipmentLocationId,
               shippingMethodId: orderShippingMethodId,
               shippingTermId: orderShippingTermId,
-              companyId: payload.companyId,
-            },
+              companyId: payload.companyId
+            }
           ]),
           carbon.from("salesOrderPayment").insert([
             {
@@ -683,12 +671,12 @@ export const paperlessPartsFunction = inngest.createFunction(
               invoiceCustomerContactId: orderInvoiceCustomerContactId,
               invoiceCustomerLocationId:
                 orderInvoiceCustomerId === orderCustomerId
-                  ? orderInvoiceLocationId ?? orderInvoiceCustomerLocationId
+                  ? (orderInvoiceLocationId ?? orderInvoiceCustomerLocationId)
                   : orderInvoiceCustomerLocationId,
               paymentTermId: orderPaymentTermId,
-              companyId: payload.companyId,
-            },
-          ]),
+              companyId: payload.companyId
+            }
+          ])
         ]);
 
         if (orderShipment.error) {
@@ -696,7 +684,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           await deleteSalesOrder(carbon, salesOrderId);
           result = {
             success: false,
-            message: "Failed to create shipment",
+            message: "Failed to create shipment"
           };
           break;
         }
@@ -705,7 +693,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           await deleteSalesOrder(carbon, salesOrderId);
           result = {
             success: false,
-            message: "Failed to create payment",
+            message: "Failed to create payment"
           };
           break;
         }
@@ -721,7 +709,7 @@ export const paperlessPartsFunction = inngest.createFunction(
             orderItems: orderData.order_items || [],
             defaultMethodType: methodType,
             defaultTrackingType: trackingType,
-            billOfProcessBlackList,
+            billOfProcessBlackList
           });
           console.log("Order lines successfully created");
         } catch (error) {
@@ -729,7 +717,7 @@ export const paperlessPartsFunction = inngest.createFunction(
           await deleteSalesOrder(carbon, salesOrderId);
           result = {
             success: false,
-            message: "Failed to insert order lines",
+            message: "Failed to insert order lines"
           };
           break;
         }
@@ -738,44 +726,41 @@ export const paperlessPartsFunction = inngest.createFunction(
 
         result = {
           success: true,
-          message: "Order created event processed successfully",
+          message: "Order created event processed successfully"
         };
         break;
       case "integration_action.requested":
         console.info(`Processing integration action requested event`);
         result = {
           success: true,
-          message:
-            "Integration action requested event processed successfully",
+          message: "Integration action requested event processed successfully"
         };
         break;
       case "integration.turned_on":
         console.info(`Processing integration turned on event`);
         result = {
           success: true,
-          message: "Integration turned on event processed successfully",
+          message: "Integration turned on event processed successfully"
         };
         break;
       case "integration.turned_off":
         console.info(`Processing integration turned off event`);
         result = {
           success: true,
-          message: "Integration turned off event processed successfully",
+          message: "Integration turned off event processed successfully"
         };
         break;
       default:
         console.error(`Unsupported event type: ${payload.payload}`);
         result = {
           success: false,
-          message: `Unsupported event type`,
+          message: `Unsupported event type`
         };
         break;
     }
 
     if (result.success) {
-      console.info(
-        `Successfully processed ${payload.payload.type} event`
-      );
+      console.info(`Successfully processed ${payload.payload.type} event`);
     } else {
       console.error(
         `Failed to process ${payload.payload.type} event: ${result.message}`
@@ -793,7 +778,7 @@ async function getNextSequence(
 ) {
   return client.rpc("get_next_sequence", {
     sequence_name: table,
-    company_id: companyId,
+    company_id: companyId
   });
 }
 
@@ -832,10 +817,7 @@ async function getCurrencyByCode(
     .single();
 }
 
-async function deleteQuote(
-  client: SupabaseClient<Database>,
-  quoteId: string
-) {
+async function deleteQuote(client: SupabaseClient<Database>, quoteId: string) {
   return client.from("quote").delete().eq("id", quoteId);
 }
 
@@ -863,7 +845,7 @@ async function upsertExternalLink(
       documentId: externalLink.documentId,
       customerId: externalLink.customerId,
       expiresAt: externalLink.expiresAt,
-      companyId: externalLink.companyId,
+      companyId: externalLink.companyId
     })
     .select("id")
     .single();

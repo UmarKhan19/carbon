@@ -16,7 +16,7 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import {
   getPostgresClient,
-  getPostgresConnectionPool,
+  getPostgresConnectionPool
 } from "@carbon/database/client";
 import {
   AccountingEntity,
@@ -26,7 +26,7 @@ import {
   getAccountingIntegration,
   getProviderIntegration,
   SyncFactory,
-  type AccountingEntityType,
+  type AccountingEntityType
 } from "@carbon/ee/accounting";
 
 import { groupBy } from "@carbon/utils";
@@ -39,7 +39,7 @@ import { inngest } from "../../client";
 const SYNC_COOLDOWN_MS = 60000; // 1 minute
 
 const PayloadSchema = AccountingSyncSchema.extend({
-  syncDirection: AccountingSyncSchema.shape.syncDirection,
+  syncDirection: AccountingSyncSchema.shape.syncDirection
 });
 
 type Payload = z.infer<typeof PayloadSchema>;
@@ -71,7 +71,7 @@ export const syncExternalAccountingFunction = inngest.createFunction(
 
     const results = {
       success: [] as BatchSyncResult[],
-      failed: [] as { entities: AccountingEntity[]; error: string }[],
+      failed: [] as { entities: AccountingEntity[]; error: string }[]
     };
 
     try {
@@ -91,7 +91,7 @@ export const syncExternalAccountingFunction = inngest.createFunction(
             `Starting sync for ${entities.length} ${entityType} entities`,
             {
               direction: payload.syncDirection,
-              configDirection: entityConfig.direction,
+              configDirection: entityConfig.direction
             }
           );
 
@@ -100,7 +100,7 @@ export const syncExternalAccountingFunction = inngest.createFunction(
             companyId: payload.companyId,
             provider,
             config: entityConfig,
-            entityType: type,
+            entityType: type
           });
 
           if (entities.length === 0) {
@@ -172,21 +172,17 @@ export const syncExternalAccountingFunction = inngest.createFunction(
 
             console.info("Two-way sync result:", {
               entityType,
-              ...twoWayResult,
+              ...twoWayResult
             });
             results.success.push(twoWayResult.pushed);
             results.success.push(twoWayResult.pulled);
           }
         } catch (error) {
-          console.error(
-            `Failed to process ${entityType} entities:`,
-            error
-          );
+          console.error(`Failed to process ${entityType} entities:`, error);
 
           results.failed.push({
             entities: entities,
-            error:
-              error instanceof Error ? error.message : "Unknown error",
+            error: error instanceof Error ? error.message : "Unknown error"
           });
         }
       }
@@ -303,7 +299,7 @@ async function handleTwoWaySync(
           results: [],
           successCount: 0,
           errorCount: 0,
-          skippedCount: 0,
+          skippedCount: 0
         };
 
   const pullResult =
@@ -313,7 +309,7 @@ async function handleTwoWaySync(
           results: [],
           successCount: 0,
           errorCount: 0,
-          skippedCount: 0,
+          skippedCount: 0
         };
 
   return { pushed: pushResult, pulled: pullResult };

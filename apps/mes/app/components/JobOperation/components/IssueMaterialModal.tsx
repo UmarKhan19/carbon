@@ -11,8 +11,8 @@ import {
   AlertTitle,
   Button,
   Checkbox,
-  Combobox as ComboboxBase,
   cn,
+  Combobox as ComboboxBase,
   IconButton,
   Input,
   InputGroup,
@@ -1688,7 +1688,7 @@ function useSerialNumbers(itemId?: string) {
   const serialNumbersFetcher =
     useFetcher<Awaited<ReturnType<typeof getSerialNumbersForItem>>>();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ignore
   useEffect(() => {
     if (itemId) {
       serialNumbersFetcher.load(path.to.api.serialNumbers(itemId));

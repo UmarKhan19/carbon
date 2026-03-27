@@ -13,7 +13,7 @@ const dayOfWeekFields = [
   "wednesday",
   "thursday",
   "friday",
-  "saturday",
+  "saturday"
 ] as const;
 
 interface MaintenanceSchedule {
@@ -61,9 +61,7 @@ async function isHoliday(companyId: string, date: Date): Promise<boolean> {
     .maybeSingle();
 
   if (error) {
-    console.error(
-      `Error checking holiday for ${dateString}: ${error.message}`
-    );
+    console.error(`Error checking holiday for ${dateString}: ${error.message}`);
     return false;
   }
 
@@ -74,7 +72,7 @@ export const dispatchFunction = inngest.createFunction(
   { id: "dispatch", retries: 2 },
   { cron: "0 6 * * *" },
   async ({ step }) => {
-    await step.run("generate-maintenance-dispatches", async () => {
+    return await step.run("generate-maintenance-dispatches", async () => {
       const currentDateTime = now(getLocalTimeZone());
       console.log(
         `Starting maintenance dispatch generation: ${currentDateTime.toString()}`
@@ -85,9 +83,7 @@ export const dispatchFunction = inngest.createFunction(
         const { data: companiesWithSettings, error: settingsError } =
           await serviceRole
             .from("companySettings")
-            .select(
-              "id, maintenanceGenerateInAdvance, maintenanceAdvanceDays"
-            )
+            .select("id, maintenanceGenerateInAdvance, maintenanceAdvanceDays")
             .eq("maintenanceGenerateInAdvance", true);
 
         if (settingsError) {
@@ -140,8 +136,7 @@ export const dispatchFunction = inngest.createFunction(
 
               // Loop to create dispatches for all dates within the advance window
               while (
-                currentNextDueAt <=
-                new Date(futureDate.toAbsoluteString())
+                currentNextDueAt <= new Date(futureDate.toAbsoluteString())
               ) {
                 const targetDate = currentNextDueAt;
 
@@ -153,9 +148,7 @@ export const dispatchFunction = inngest.createFunction(
                   // Advance to next day for daily schedules
                   if (typedSchedule.frequency === "Daily") {
                     currentNextDueAt = new Date(currentNextDueAt);
-                    currentNextDueAt.setDate(
-                      currentNextDueAt.getDate() + 1
-                    );
+                    currentNextDueAt.setDate(currentNextDueAt.getDate() + 1);
                     continue;
                   }
                   break;
@@ -208,7 +201,7 @@ export const dispatchFunction = inngest.createFunction(
                 const { data: sequenceData, error: sequenceError } =
                   await serviceRole.rpc("get_next_sequence", {
                     sequence_name: "maintenanceDispatch",
-                    company_id: settings.id,
+                    company_id: settings.id
                   });
 
                 if (sequenceError) {
@@ -234,7 +227,7 @@ export const dispatchFunction = inngest.createFunction(
                       procedureId: schedule.procedureId,
                       plannedStartTime: targetDate.toISOString(),
                       companyId: settings.id,
-                      createdBy: "system",
+                      createdBy: "system"
                     })
                     .select("id")
                     .single();
@@ -253,29 +246,25 @@ export const dispatchFunction = inngest.createFunction(
                   .eq("maintenanceScheduleId", schedule.id);
 
                 if (scheduleItems && scheduleItems.length > 0) {
-                  await serviceRole
-                    .from("maintenanceDispatchItem")
-                    .insert(
-                      scheduleItems.map((item) => ({
-                        maintenanceDispatchId: newDispatch.id,
-                        itemId: item.itemId,
-                        quantity: item.quantity,
-                        unitOfMeasureCode: item.unitOfMeasureCode,
-                        companyId: settings.id,
-                        createdBy: "system",
-                      }))
-                    );
+                  await serviceRole.from("maintenanceDispatchItem").insert(
+                    scheduleItems.map((item) => ({
+                      maintenanceDispatchId: newDispatch.id,
+                      itemId: item.itemId,
+                      quantity: item.quantity,
+                      unitOfMeasureCode: item.unitOfMeasureCode,
+                      companyId: settings.id,
+                      createdBy: "system"
+                    }))
+                  );
                 }
 
                 // Link work center
-                await serviceRole
-                  .from("maintenanceDispatchWorkCenter")
-                  .insert({
-                    maintenanceDispatchId: newDispatch.id,
-                    workCenterId: schedule.workCenterId,
-                    companyId: settings.id,
-                    createdBy: "system",
-                  });
+                await serviceRole.from("maintenanceDispatchWorkCenter").insert({
+                  maintenanceDispatchId: newDispatch.id,
+                  workCenterId: schedule.workCenterId,
+                  companyId: settings.id,
+                  createdBy: "system"
+                });
 
                 totalDispatchesCreated++;
                 console.log(
@@ -288,25 +277,19 @@ export const dispatchFunction = inngest.createFunction(
                   .select("userId")
                   .eq("workCenterId", schedule.workCenterId);
 
-                if (
-                  workCenterEmployees &&
-                  workCenterEmployees.length > 0
-                ) {
-                  const userIds = workCenterEmployees.map(
-                    (e) => e.userId
-                  );
+                if (workCenterEmployees && workCenterEmployees.length > 0) {
+                  const userIds = workCenterEmployees.map((e) => e.userId);
                   await inngest.send({
                     name: "carbon/notify",
                     data: {
-                      event:
-                        NotificationEvent.MaintenanceDispatchCreated,
+                      event: NotificationEvent.MaintenanceDispatchCreated,
                       companyId: settings.id,
                       documentId: newDispatch.id,
                       recipient: {
                         type: "users" as const,
-                        userIds,
-                      },
-                    },
+                        userIds
+                      }
+                    }
                   });
                   console.log(
                     `Notified ${userIds.length} work center employees about dispatch ${sequenceData}`
@@ -317,24 +300,16 @@ export const dispatchFunction = inngest.createFunction(
                 currentNextDueAt = new Date(currentNextDueAt);
                 switch (schedule.frequency) {
                   case "Daily":
-                    currentNextDueAt.setDate(
-                      currentNextDueAt.getDate() + 1
-                    );
+                    currentNextDueAt.setDate(currentNextDueAt.getDate() + 1);
                     break;
                   case "Weekly":
-                    currentNextDueAt.setDate(
-                      currentNextDueAt.getDate() + 7
-                    );
+                    currentNextDueAt.setDate(currentNextDueAt.getDate() + 7);
                     break;
                   case "Monthly":
-                    currentNextDueAt.setMonth(
-                      currentNextDueAt.getMonth() + 1
-                    );
+                    currentNextDueAt.setMonth(currentNextDueAt.getMonth() + 1);
                     break;
                   case "Quarterly":
-                    currentNextDueAt.setMonth(
-                      currentNextDueAt.getMonth() + 3
-                    );
+                    currentNextDueAt.setMonth(currentNextDueAt.getMonth() + 3);
                     break;
                   case "Annual":
                     currentNextDueAt.setFullYear(
@@ -349,7 +324,7 @@ export const dispatchFunction = inngest.createFunction(
                 .from("maintenanceSchedule")
                 .update({
                   lastGeneratedAt: currentDateTime.toAbsoluteString(),
-                  nextDueAt: currentNextDueAt.toISOString(),
+                  nextDueAt: currentNextDueAt.toISOString()
                 })
                 .eq("id", schedule.id);
             } catch (err) {

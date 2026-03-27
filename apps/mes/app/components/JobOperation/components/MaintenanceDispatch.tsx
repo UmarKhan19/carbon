@@ -18,10 +18,10 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  toast,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  toast,
   useDisclosure,
   VStack
 } from "@carbon/react";
@@ -123,6 +123,7 @@ export function MaintenanceDispatch({
       toast.success("Maintenance dispatch created");
       onClose();
     }
+    // biome-ignore lint/correctness/useExhaustiveDependencies: ignore
   }, [fetcher.state, fetcher.data, onClose]);
 
   const onUploadImage = async (file: File) => {

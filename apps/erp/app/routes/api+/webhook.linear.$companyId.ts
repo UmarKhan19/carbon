@@ -1,6 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth";
-import { syncIssueFromLinearSchema } from "@carbon/jobs/trigger/linear";
-import { trigger } from "@carbon/jobs";
+import { syncIssueFromLinearSchema, trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { getIntegration } from "../../modules/settings";

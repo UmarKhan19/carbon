@@ -26,14 +26,14 @@ export const postTransactionFunction = inngest.createFunction(
               body: {
                 receiptId: payload.documentId,
                 userId: payload.userId,
-                companyId: payload.companyId,
-              },
+                companyId: payload.companyId
+              }
             }
           );
 
           result = {
             success: postReceipt.error === null,
-            message: postReceipt.error?.message,
+            message: postReceipt.error?.message
           };
 
           break;
@@ -46,14 +46,14 @@ export const postTransactionFunction = inngest.createFunction(
               body: {
                 invoiceId: payload.documentId,
                 userId: payload.userId,
-                companyId: payload.companyId,
-              },
+                companyId: payload.companyId
+              }
             }
           );
 
           result = {
             success: postPurchaseInvoice.error === null,
-            message: postPurchaseInvoice.error?.message,
+            message: postPurchaseInvoice.error?.message
           };
 
           if (result.success) {
@@ -79,14 +79,14 @@ export const postTransactionFunction = inngest.createFunction(
                   body: {
                     invoiceId: payload.documentId,
                     companyId: payload.companyId,
-                    source: "purchaseInvoice",
-                  },
+                    source: "purchaseInvoice"
+                  }
                 }
               );
 
               result = {
                 success: priceUpdate.error === null,
-                message: priceUpdate.error?.message,
+                message: priceUpdate.error?.message
               };
             }
           }
@@ -102,21 +102,21 @@ export const postTransactionFunction = inngest.createFunction(
               body: {
                 shipmentId: payload.documentId,
                 userId: payload.userId,
-                companyId: payload.companyId,
-              },
+                companyId: payload.companyId
+              }
             }
           );
 
           result = {
             success: postShipment.error === null,
-            message: postShipment.error?.message,
+            message: postShipment.error?.message
           };
 
           break;
         default:
           result = {
             success: false,
-            message: `Invalid posting type: ${payload.type}`,
+            message: `Invalid posting type: ${payload.type}`
           };
           break;
       }

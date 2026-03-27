@@ -26,7 +26,7 @@ export const onboardFunction = inngest.createFunction(
       async () => {
         const [company, user] = await Promise.all([
           carbon.from("company").select("*").eq("id", companyId).single(),
-          carbon.from("user").select("*").eq("id", userId).single(),
+          carbon.from("user").select("*").eq("id", userId).single()
         ]);
 
         if (company.error) {
@@ -59,12 +59,9 @@ export const onboardFunction = inngest.createFunction(
               firstName: user.firstName,
               lastName: user.lastName,
               unsubscribed: false,
-              audienceId: process.env.RESEND_AUDIENCE_ID!,
+              audienceId: process.env.RESEND_AUDIENCE_ID!
             });
-            console.log(
-              "Successfully created resend contact for:",
-              user.email
-            );
+            console.log("Successfully created resend contact for:", user.email);
           } catch (error) {
             console.error("Error creating resend contact", error);
           }
@@ -77,7 +74,7 @@ export const onboardFunction = inngest.createFunction(
               // @ts-ignore
               model: openai("gpt-4o"),
               schema: z.object({
-                type: z.enum(["Warm", "Cold"]).describe("The type of lead"),
+                type: z.enum(["Warm", "Cold"]).describe("The type of lead")
               }),
               prompt: `
                 The following is a description of a lead for an ERP system.
@@ -94,7 +91,7 @@ export const onboardFunction = inngest.createFunction(
                 Website: ${company.website}
                 Phone: ${company.phone}
               `,
-              temperature: 0.2,
+              temperature: 0.2
             });
             type = object.type as "Warm" | "Cold";
             console.log("Generated type:", type);
@@ -109,23 +106,23 @@ export const onboardFunction = inngest.createFunction(
           try {
             const slackResult = await slack.sendMessage({
               channel: "#leads",
-              text: "New lead",
+              text: "New lead 🎉",
               blocks: [
                 {
                   type: "section",
                   text: {
                     type: "mrkdwn",
                     text:
-                      `*New Signup* ${leadType === "Warm" ? "" : ""}\n\n` +
+                      `*New Signup* ${leadType === "Warm" ? "🥁" : "❄️"}\n\n` +
                       `*Contact Information*\n` +
                       `• Name: ${user?.firstName} ${user?.lastName}\n` +
                       `• Email: ${user?.email}\n` +
                       `• Location: ${company.city}, ${company.stateProvince}\n\n` +
                       `• Company: ${company.name}\n\n` +
-                      `• Type: ${leadType}\n\n`,
-                  },
-                },
-              ],
+                      `• Type: ${leadType}\n\n`
+                  }
+                }
+              ]
             });
             console.log("Successfully sent Slack message:", slackResult);
           } catch (error) {
@@ -139,21 +136,21 @@ export const onboardFunction = inngest.createFunction(
               const twentyPersonId = await twenty.createPerson({
                 name: {
                   firstName: user.firstName,
-                  lastName: user.lastName,
+                  lastName: user.lastName
                 },
                 emails: {
-                  primaryEmail: user.email,
+                  primaryEmail: user.email
                 },
                 customerStatus: ["PROSPECTIVE_CUSTOMER"],
-                location: `${company.city}, ${company.stateProvince}`,
+                location: `${company.city}, ${company.stateProvince}`
               });
 
               const updateResult = await carbon
                 .from("user")
                 .update({
                   externalId: {
-                    twenty: twentyPersonId,
-                  },
+                    twenty: twentyPersonId
+                  }
                 })
                 .eq("id", userId);
 
@@ -174,26 +171,24 @@ export const onboardFunction = inngest.createFunction(
                     primaryLinkLabel: removeProtocolFromWebsite(
                       company.website
                     ),
-                    primaryLinkUrl: ensureProtocolFromWebsite(
-                      company.website
-                    ),
-                    additionalLinks: [],
-                  },
+                    primaryLinkUrl: ensureProtocolFromWebsite(company.website),
+                    additionalLinks: []
+                  }
                 });
 
                 const twentyOpportunityId = await twenty.createOpportunity({
                   name: `${company.name} Opportunity`,
                   stage: ["NEW"],
                   companyId: twentyCompanyId,
-                  pointOfContactId: twentyPersonId,
+                  pointOfContactId: twentyPersonId
                 });
 
                 const updateResult = await carbon
                   .from("company")
                   .update({
                     externalId: {
-                      twenty: twentyOpportunityId,
-                    },
+                      twenty: twentyOpportunityId
+                    }
                   })
                   .eq("id", companyId);
 
@@ -211,9 +206,7 @@ export const onboardFunction = inngest.createFunction(
               console.error("Error adding lead to CRM:", error);
             }
           } else {
-            console.log(
-              "TWENTY_API_KEY not found, skipping CRM integration"
-            );
+            console.log("TWENTY_API_KEY not found, skipping CRM integration");
           }
         });
 
@@ -239,10 +232,10 @@ export const onboardFunction = inngest.createFunction(
                       `• Name: ${user?.firstName} ${user?.lastName}\n` +
                       `• Email: ${user.email}\n` +
                       `• Company: ${company?.name}\n\n` +
-                      `• Plan: $${plan}\n\n`,
-                  },
-                },
-              ],
+                      `• Plan: $${plan}\n\n`
+                  }
+                }
+              ]
             });
           } catch (error) {
             console.error("Error sending Slack message:", error);
@@ -253,13 +246,10 @@ export const onboardFunction = inngest.createFunction(
           if (twentyId) {
             try {
               await twenty.updatePerson(twentyId, {
-                customerStatus: ["PILOT_FREE_TRIAL"],
+                customerStatus: ["PILOT_FREE_TRIAL"]
               });
             } catch (error) {
-              console.error(
-                "Error updating twenty customer status:",
-                error
-              );
+              console.error("Error updating twenty customer status:", error);
             }
           }
         });
@@ -285,7 +275,7 @@ export const onboardFunction = inngest.createFunction(
               from,
               to: user.email,
               subject: `carbon`,
-              html: await render(WelcomeEmail()),
+              html: await render(WelcomeEmail())
             });
           });
         }
@@ -301,9 +291,9 @@ export const onboardFunction = inngest.createFunction(
               html: await render(
                 GetStartedEmail({
                   firstName: user.firstName,
-                  academyUrl: "https://learn.carbon.ms",
+                  academyUrl: "https://learn.carbon.ms"
                 })
-              ),
+              )
             });
           });
         }
@@ -325,8 +315,8 @@ export const onboardFunction = inngest.createFunction(
               customerStatus: [
                 isPlanActiveAfter30Days
                   ? "CHURNED_CANCELED"
-                  : "EXISTING_CUSTOMER",
-              ],
+                  : "EXISTING_CUSTOMER"
+              ]
             });
           }
         });

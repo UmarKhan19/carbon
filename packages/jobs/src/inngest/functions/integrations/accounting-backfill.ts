@@ -12,7 +12,7 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import {
   getPostgresClient,
-  getPostgresConnectionPool,
+  getPostgresConnectionPool
 } from "@carbon/database/client";
 import {
   createMappingService,
@@ -23,7 +23,7 @@ import {
   SyncFactory,
   type AccountingEntityType,
   type SyncDirection,
-  type XeroProvider,
+  type XeroProvider
 } from "@carbon/ee/accounting";
 import { PostgresDriver } from "kysely";
 import z from "zod";
@@ -52,7 +52,7 @@ async function withRateLimitRetry<T>(
       console.warn(`[RATE LIMIT] ${operationName} hit rate limit`, {
         limitType,
         retryAfterSeconds,
-        ...details,
+        ...details
       });
       await step.sleep(
         `rate-limit-wait-${operationName}`,
@@ -79,9 +79,9 @@ const BackfillPayloadSchema = z.object({
     .object({
       customers: z.boolean().default(true),
       vendors: z.boolean().default(true),
-      items: z.boolean().default(true),
+      items: z.boolean().default(true)
     })
-    .default({}),
+    .default({})
 });
 
 /**
@@ -133,7 +133,7 @@ export const accountingBackfillFunction = inngest.createFunction(
       vendors: { pulled: 0, pushed: 0 },
       items: { pulled: 0, pushed: 0 },
       totalPulled: 0,
-      totalPushed: 0,
+      totalPushed: 0
     };
 
     // Log the sync directions for visibility
@@ -144,22 +144,20 @@ export const accountingBackfillFunction = inngest.createFunction(
         shouldPull:
           customerConfig?.enabled && shouldPull(customerConfig.direction),
         shouldPush:
-          customerConfig?.enabled && shouldPush(customerConfig.direction),
+          customerConfig?.enabled && shouldPush(customerConfig.direction)
       },
       vendor: {
         enabled: vendorConfig?.enabled,
         direction: vendorConfig?.direction,
-        shouldPull:
-          vendorConfig?.enabled && shouldPull(vendorConfig.direction),
-        shouldPush:
-          vendorConfig?.enabled && shouldPush(vendorConfig.direction),
+        shouldPull: vendorConfig?.enabled && shouldPull(vendorConfig.direction),
+        shouldPush: vendorConfig?.enabled && shouldPush(vendorConfig.direction)
       },
       item: {
         enabled: itemConfig?.enabled,
         direction: itemConfig?.direction,
         shouldPull: itemConfig?.enabled && shouldPull(itemConfig.direction),
-        shouldPush: itemConfig?.enabled && shouldPush(itemConfig.direction),
-      },
+        shouldPush: itemConfig?.enabled && shouldPush(itemConfig.direction)
+      }
     });
 
     // ============================================================
@@ -182,7 +180,7 @@ export const accountingBackfillFunction = inngest.createFunction(
 
       console.info("[PULL] Starting contact pull phase", {
         pullCustomers,
-        pullVendors,
+        pullVendors
       });
 
       while (hasMore) {
@@ -207,37 +205,32 @@ export const accountingBackfillFunction = inngest.createFunction(
             const kysely = getPostgresClient(pool, PostgresDriver);
 
             try {
-              console.info(
-                `[PULL] Fetching contacts page ${currentPage}`
-              );
+              console.info(`[PULL] Fetching contacts page ${currentPage}`);
               const response = await withRateLimitRetry(
                 () =>
                   pullProvider.listContacts({
                     page: currentPage,
-                    summaryOnly: true,
+                    summaryOnly: true
                   }),
                 `listContacts page ${currentPage}`,
                 step
               );
 
-              console.info(
-                `[PULL] Contacts page ${currentPage} response`,
-                {
-                  count: response.contacts.length,
-                  hasMore: response.hasMore,
-                  contacts: response.contacts.map((c) => ({
-                    id: c.ContactID,
-                    name: c.Name,
-                    isCustomer: c.IsCustomer,
-                    isSupplier: c.IsSupplier,
-                  })),
-                }
-              );
+              console.info(`[PULL] Contacts page ${currentPage} response`, {
+                count: response.contacts.length,
+                hasMore: response.hasMore,
+                contacts: response.contacts.map((c) => ({
+                  id: c.ContactID,
+                  name: c.Name,
+                  isCustomer: c.IsCustomer,
+                  isSupplier: c.IsSupplier
+                }))
+              });
 
               if (response.contacts.length === 0) {
                 return {
                   hasMore: false,
-                  pulled: { customers: 0, vendors: 0 },
+                  pulled: { customers: 0, vendors: 0 }
                 };
               }
 
@@ -246,16 +239,14 @@ export const accountingBackfillFunction = inngest.createFunction(
 
               // Pull customers
               if (pullCustomers) {
-                const customers = response.contacts.filter(
-                  (c) => c.IsCustomer
-                );
+                const customers = response.contacts.filter((c) => c.IsCustomer);
                 if (customers.length > 0) {
                   const syncer = SyncFactory.getSyncer({
                     database: kysely,
                     companyId: payload.companyId,
                     provider: pullProvider,
                     config: pullProvider.getSyncConfig("customer"),
-                    entityType: "customer",
+                    entityType: "customer"
                   });
                   const ids = customers.map((c) => c.ContactID);
                   const syncResult = await withRateLimitRetry(
@@ -272,8 +263,8 @@ export const accountingBackfillFunction = inngest.createFunction(
                         action: r.action,
                         localId: r.localId,
                         remoteId: r.remoteId,
-                        error: r.error,
-                      })),
+                        error: r.error
+                      }))
                     }
                   );
                 }
@@ -281,16 +272,14 @@ export const accountingBackfillFunction = inngest.createFunction(
 
               // Pull vendors
               if (pullVendors) {
-                const vendors = response.contacts.filter(
-                  (c) => c.IsSupplier
-                );
+                const vendors = response.contacts.filter((c) => c.IsSupplier);
                 if (vendors.length > 0) {
                   const syncer = SyncFactory.getSyncer({
                     database: kysely,
                     companyId: payload.companyId,
                     provider: pullProvider,
                     config: pullProvider.getSyncConfig("vendor"),
-                    entityType: "vendor",
+                    entityType: "vendor"
                   });
                   const ids = vendors.map((c) => c.ContactID);
                   const syncResult = await withRateLimitRetry(
@@ -307,8 +296,8 @@ export const accountingBackfillFunction = inngest.createFunction(
                         action: r.action,
                         localId: r.localId,
                         remoteId: r.remoteId,
-                        error: r.error,
-                      })),
+                        error: r.error
+                      }))
                     }
                   );
                 }
@@ -318,8 +307,8 @@ export const accountingBackfillFunction = inngest.createFunction(
                 hasMore: response.hasMore,
                 pulled: {
                   customers: customersPulled,
-                  vendors: vendorsPulled,
-                },
+                  vendors: vendorsPulled
+                }
               };
             } finally {
               await pool.end();
@@ -381,28 +370,22 @@ export const accountingBackfillFunction = inngest.createFunction(
             const kysely = getPostgresClient(pool, PostgresDriver);
 
             try {
-              console.info(
-                `[PULL] Fetching items page ${currentPage}`
-              );
+              console.info(`[PULL] Fetching items page ${currentPage}`);
               const response = await withRateLimitRetry(
-                () =>
-                  pullProvider.listItems({ page: currentPage }),
+                () => pullProvider.listItems({ page: currentPage }),
                 `listItems page ${currentPage}`,
                 step
               );
 
-              console.info(
-                `[PULL] Items page ${currentPage} response`,
-                {
-                  count: response.items.length,
-                  hasMore: response.hasMore,
-                  items: response.items.map((i) => ({
-                    id: i.ItemID,
-                    code: i.Code,
-                    name: i.Name,
-                  })),
-                }
-              );
+              console.info(`[PULL] Items page ${currentPage} response`, {
+                count: response.items.length,
+                hasMore: response.hasMore,
+                items: response.items.map((i) => ({
+                  id: i.ItemID,
+                  code: i.Code,
+                  name: i.Name
+                }))
+              });
 
               if (response.items.length === 0) {
                 return { hasMore: false, pulled: { items: 0 } };
@@ -413,7 +396,7 @@ export const accountingBackfillFunction = inngest.createFunction(
                 companyId: payload.companyId,
                 provider: pullProvider,
                 config: pullProvider.getSyncConfig("item"),
-                entityType: "item",
+                entityType: "item"
               });
               const ids = response.items.map((item) => item.ItemID);
               const syncResult = await withRateLimitRetry(
@@ -430,14 +413,14 @@ export const accountingBackfillFunction = inngest.createFunction(
                     action: r.action,
                     localId: r.localId,
                     remoteId: r.remoteId,
-                    error: r.error,
-                  })),
+                    error: r.error
+                  }))
                 }
               );
 
               return {
                 hasMore: response.hasMore,
-                pulled: { items: syncResult.successCount },
+                pulled: { items: syncResult.successCount }
               };
             } finally {
               await pool.end();
@@ -503,18 +486,17 @@ export const accountingBackfillFunction = inngest.createFunction(
                 payload.companyId
               );
 
-              const unsyncedIds =
-                await mappingService.getUnsyncedEntityIds(
-                  "customer",
-                  "customer",
-                  pushProvider.id,
-                  payload.batchSize
-                );
+              const unsyncedIds = await mappingService.getUnsyncedEntityIds(
+                "customer",
+                "customer",
+                pushProvider.id,
+                payload.batchSize
+              );
 
               if (unsyncedIds.length === 0) {
                 return {
                   successCount: 0,
-                  hasMore: false,
+                  hasMore: false
                 };
               }
 
@@ -523,7 +505,7 @@ export const accountingBackfillFunction = inngest.createFunction(
                 companyId: payload.companyId,
                 provider: pushProvider,
                 config: pushProvider.getSyncConfig("customer"),
-                entityType: "customer",
+                entityType: "customer"
               });
 
               const syncResult = await withRateLimitRetry(
@@ -541,14 +523,14 @@ export const accountingBackfillFunction = inngest.createFunction(
                     action: r.action,
                     localId: r.localId,
                     remoteId: r.remoteId,
-                    error: r.error,
-                  })),
+                    error: r.error
+                  }))
                 }
               );
 
               return {
                 successCount: syncResult.successCount,
-                hasMore: unsyncedIds.length >= payload.batchSize,
+                hasMore: unsyncedIds.length >= payload.batchSize
               };
             } finally {
               await pool.end();
@@ -562,10 +544,7 @@ export const accountingBackfillFunction = inngest.createFunction(
 
         // Delay between batches
         if (hasMore) {
-          await step.sleep(
-            `customers-push-delay-${currentBatchIndex}`,
-            "2s"
-          );
+          await step.sleep(`customers-push-delay-${currentBatchIndex}`, "2s");
         }
       }
     } else {
@@ -613,18 +592,17 @@ export const accountingBackfillFunction = inngest.createFunction(
                 payload.companyId
               );
 
-              const unsyncedIds =
-                await mappingService.getUnsyncedEntityIds(
-                  "vendor",
-                  "supplier",
-                  pushProvider.id,
-                  payload.batchSize
-                );
+              const unsyncedIds = await mappingService.getUnsyncedEntityIds(
+                "vendor",
+                "supplier",
+                pushProvider.id,
+                payload.batchSize
+              );
 
               if (unsyncedIds.length === 0) {
                 return {
                   successCount: 0,
-                  hasMore: false,
+                  hasMore: false
                 };
               }
 
@@ -633,7 +611,7 @@ export const accountingBackfillFunction = inngest.createFunction(
                 companyId: payload.companyId,
                 provider: pushProvider,
                 config: pushProvider.getSyncConfig("vendor"),
-                entityType: "vendor",
+                entityType: "vendor"
               });
 
               const syncResult = await withRateLimitRetry(
@@ -651,14 +629,14 @@ export const accountingBackfillFunction = inngest.createFunction(
                     action: r.action,
                     localId: r.localId,
                     remoteId: r.remoteId,
-                    error: r.error,
-                  })),
+                    error: r.error
+                  }))
                 }
               );
 
               return {
                 successCount: syncResult.successCount,
-                hasMore: unsyncedIds.length >= payload.batchSize,
+                hasMore: unsyncedIds.length >= payload.batchSize
               };
             } finally {
               await pool.end();
@@ -671,10 +649,7 @@ export const accountingBackfillFunction = inngest.createFunction(
         batchIndex++;
 
         if (hasMore) {
-          await step.sleep(
-            `vendors-push-delay-${currentBatchIndex}`,
-            "2s"
-          );
+          await step.sleep(`vendors-push-delay-${currentBatchIndex}`, "2s");
         }
       }
     } else {
@@ -722,18 +697,17 @@ export const accountingBackfillFunction = inngest.createFunction(
                 payload.companyId
               );
 
-              const unsyncedIds =
-                await mappingService.getUnsyncedEntityIds(
-                  "item",
-                  "item",
-                  pushProvider.id,
-                  payload.batchSize
-                );
+              const unsyncedIds = await mappingService.getUnsyncedEntityIds(
+                "item",
+                "item",
+                pushProvider.id,
+                payload.batchSize
+              );
 
               if (unsyncedIds.length === 0) {
                 return {
                   successCount: 0,
-                  hasMore: false,
+                  hasMore: false
                 };
               }
 
@@ -742,7 +716,7 @@ export const accountingBackfillFunction = inngest.createFunction(
                 companyId: payload.companyId,
                 provider: pushProvider,
                 config: pushProvider.getSyncConfig("item"),
-                entityType: "item",
+                entityType: "item"
               });
 
               const syncResult = await withRateLimitRetry(
@@ -760,14 +734,14 @@ export const accountingBackfillFunction = inngest.createFunction(
                     action: r.action,
                     localId: r.localId,
                     remoteId: r.remoteId,
-                    error: r.error,
-                  })),
+                    error: r.error
+                  }))
                 }
               );
 
               return {
                 successCount: syncResult.successCount,
-                hasMore: unsyncedIds.length >= payload.batchSize,
+                hasMore: unsyncedIds.length >= payload.batchSize
               };
             } finally {
               await pool.end();
@@ -780,10 +754,7 @@ export const accountingBackfillFunction = inngest.createFunction(
         batchIndex++;
 
         if (hasMore) {
-          await step.sleep(
-            `items-push-delay-${currentBatchIndex}`,
-            "2s"
-          );
+          await step.sleep(`items-push-delay-${currentBatchIndex}`, "2s");
         }
       }
     } else {
@@ -794,13 +765,9 @@ export const accountingBackfillFunction = inngest.createFunction(
 
     // Calculate totals
     result.totalPulled =
-      result.customers.pulled +
-      result.vendors.pulled +
-      result.items.pulled;
+      result.customers.pulled + result.vendors.pulled + result.items.pulled;
     result.totalPushed =
-      result.customers.pushed +
-      result.vendors.pushed +
-      result.items.pushed;
+      result.customers.pushed + result.vendors.pushed + result.items.pushed;
 
     console.info(
       `[COMPLETE] Backfill finished. Pulled: ${result.totalPulled}, Pushed: ${result.totalPushed}`

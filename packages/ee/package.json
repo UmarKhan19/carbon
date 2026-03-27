@@ -33,7 +33,6 @@
     "@slack/bolt": "~4.4.0",
     "@slack/oauth": "~3.0.3",
     "@slack/web-api": "~7.10.0",
-    "@trigger.dev/sdk": "4.0.6",
     "@supabase/supabase-js": "2.80.0",
     "ai": "^5.0.88",
     "zod": "^3.25.76"

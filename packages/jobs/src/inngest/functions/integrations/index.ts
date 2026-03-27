@@ -7,5 +7,5 @@ export {
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,
   slackDocumentTaskUpdateFunction,
-  slackDocumentAssignmentUpdateFunction,
+  slackDocumentAssignmentUpdateFunction
 } from "./slack-document-sync";
