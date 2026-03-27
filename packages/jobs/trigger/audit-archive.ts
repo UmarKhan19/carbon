@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { auditConfig } from "@carbon/database/audit.config";
 import type { AuditLogEntry } from "@carbon/database/audit.types";
 import { logger, schedules } from "@trigger.dev/sdk/v3";
@@ -44,6 +44,7 @@ export const auditLogArchiveTask = schedules.task({
       .from("company")
       .select("id")
       .eq("auditLogEnabled", true);
+
 
     if (companiesError) {
       logger.error("Failed to fetch companies", { error: companiesError });

@@ -1,4 +1,5 @@
-import { getCarbonServiceRole, NOVU_API_URL, NOVU_SECRET_KEY } from "@carbon/auth";
+import { NOVU_API_URL, NOVU_SECRET_KEY } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { TriggerPayload } from "@carbon/notifications";
 import {
   getSubscriberId,
@@ -87,8 +88,8 @@ export const cleanup = schedules.task({
         .from("purchasingRfq")
         .select("*")
         .in("status", ["Draft", "Requested"])
-        .not("dueDate", "is", null)
-        .lt("dueDate", new Date().toISOString());
+        .not("expirationDate", "is", null)
+        .lt("expirationDate", new Date().toISOString());
 
       if (expiredRfqs.error) {
         console.error(

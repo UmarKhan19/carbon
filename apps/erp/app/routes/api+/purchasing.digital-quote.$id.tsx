@@ -1,4 +1,5 @@
-import { assertIsPost, getCarbonServiceRole, notFound } from "@carbon/auth";
+import { assertIsPost, notFound } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validationError, validator } from "@carbon/form";
 import type { notifyTask } from "@carbon/jobs/trigger/notify";
 import { NotificationEvent } from "@carbon/notifications";

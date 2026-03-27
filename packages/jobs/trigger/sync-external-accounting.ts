@@ -13,7 +13,7 @@
  *
  * Includes cooldown protection to prevent redundant syncs of the same entity.
  */
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   getPostgresClient,
   getPostgresConnectionPool,

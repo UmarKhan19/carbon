@@ -2,7 +2,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { scheduleJobUpdateValidator } from "~/modules/production/production.models";
-import { triggerJobReschedule } from "~/modules/production/production.service";
+import { triggerJobReschedule } from "~/modules/production/production.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {

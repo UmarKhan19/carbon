@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Resend as ResendConfig } from "@carbon/ee";
 import { task } from "@trigger.dev/sdk";
 import { Resend } from "resend";

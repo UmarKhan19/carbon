@@ -1,5 +1,6 @@
-import { getCarbonServiceRole, useCarbon } from "@carbon/auth";
+import { useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   Button,
   ClientOnly,

@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { redis } from "@carbon/kv";
 import { supportedModelTypes } from "@carbon/utils";
 import { Ratelimit } from "@upstash/ratelimit";

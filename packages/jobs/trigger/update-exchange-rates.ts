@@ -1,4 +1,5 @@
-import { EXCHANGE_RATES_API_KEY, getCarbonServiceRole } from "@carbon/auth";
+import { EXCHANGE_RATES_API_KEY } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Rates } from "@carbon/ee/exchange-rates.server";
 import { getExchangeRatesClient } from "@carbon/ee/exchange-rates.server";
 import { schedules } from "@trigger.dev/sdk";

@@ -1,4 +1,5 @@
-import { getCarbonServiceRole, notFound } from "@carbon/auth";
+import { notFound } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { ModelViewer } from "@carbon/react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";

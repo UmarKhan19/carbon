@@ -4,11 +4,11 @@ import { z } from "zod";
 import type { Result } from "@carbon/auth";
 import {
   error,
-  getCarbonServiceRole,
   getClaims,
   getPermissionCacheKey,
-  success,
+  success
 } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";

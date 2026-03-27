@@ -1,8 +1,5 @@
-import {
-  getCarbonServiceRole,
-  JIRA_CLIENT_ID,
-  JIRA_CLIENT_SECRET
-} from "@carbon/auth";
+import { JIRA_CLIENT_ID, JIRA_CLIENT_SECRET } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { getJiraIntegration, updateJiraCredentials } from "./service";
 import type {
   CreateJiraIssueInput,

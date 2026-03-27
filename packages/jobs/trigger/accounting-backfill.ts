@@ -9,7 +9,7 @@
  * This prevents unnecessary syncing (e.g., items configured as push-only
  * won't be pulled from Xero, and POs configured as push-only won't try to pull).
  */
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   getPostgresClient,
   getPostgresConnectionPool,
