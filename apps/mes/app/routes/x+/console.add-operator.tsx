@@ -1,5 +1,6 @@
 import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { updateSubscriptionQuantityForCompany } from "@carbon/stripe/stripe.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { userContext } from "~/context";
@@ -141,6 +142,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
   }
 
   const name = `${firstName} ${lastName}`;
+
+  await updateSubscriptionQuantityForCompany(companyId);
 
   return data({
     success: true,

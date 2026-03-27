@@ -20,6 +20,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { updateSubscriptionQuantityForCompany } from "@carbon/stripe/stripe.server";
 import { useState } from "react";
 import { LuCheck, LuCopy, LuRefreshCw } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -110,6 +111,8 @@ export async function action({ request }: ActionFunctionArgs) {
       console.error("Failed to set PIN for operator:", pinUpdate.error);
     }
   }
+
+  await updateSubscriptionQuantityForCompany(companyId);
 
   throw redirect(
     path.to.operators,
