@@ -1,0 +1,42 @@
+name: Sync Inngest Functions
+
+on:
+  # Run after the Deploy Apps workflow completes
+  workflow_run:
+    workflows: ["Deploy Apps"]
+    types:
+      - completed
+    branches:
+      - main
+  # Also trigger on jobs package changes pushed to main
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/jobs/**"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync Inngest (${{ matrix.environment.name }})
+    runs-on: ubuntu-latest
+    # Only run if the triggering workflow succeeded (or if manually/push triggered)
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      matrix:
+        environment:
+          - name: "production"
+            app_url: APP_URL
+          - name: "govcloud"
+            app_url: GOVCLOUD_APP_URL
+
+    steps:
+      - name: Sync Inngest functions
+        run: |
+          echo "Syncing Inngest functions for ${{ matrix.environment.name }}..."
+          curl -X PUT "${{ secrets[matrix.environment.app_url] }}/api/inngest" \
+            --fail-with-body \
+            --retry 3 \
+            --retry-delay 10 \
+            --max-time 30
+          echo "Inngest sync complete for ${{ matrix.environment.name }}"
