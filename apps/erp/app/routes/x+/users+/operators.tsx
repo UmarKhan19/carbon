@@ -1,5 +1,6 @@
-import { error, getCarbonServiceRole } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { Checkbox, MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -26,7 +27,7 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Console Operators",
+  breadcrumb: "Operators",
   to: path.to.operators
 };
 
@@ -225,7 +226,7 @@ const OperatorsTable = memo(
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Console Operators"
+        title="Operators"
       />
     );
   }

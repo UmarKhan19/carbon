@@ -1,27 +1,24 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
-import { Boolean, Submit, ValidatedForm, validator } from "@carbon/form";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   Heading,
+  HStack,
   ScrollArea,
+  Switch,
   toast,
   VStack
 } from "@carbon/react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import {
   getCompanySettings,
-  materialIdsValidator,
-  materialUnitsValidator,
   updateMaterialGeneratedIdsSetting,
   updateMetricSettings
 } from "~/modules/settings";
@@ -61,49 +58,26 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
+  const enabled = formData.get("enabled") === "true";
+
   switch (intent) {
-    case "materialIds":
-      const idsValidation =
-        await validator(materialIdsValidator).validate(formData);
-
-      if (idsValidation.error) {
-        return { success: false, message: "Invalid form data" };
-      }
-
-      const materialIdsResult = await updateMaterialGeneratedIdsSetting(
+    case "materialIds": {
+      const result = await updateMaterialGeneratedIdsSetting(
         client,
         companyId,
-        idsValidation.data.materialGeneratedIds
+        enabled
       );
-      if (materialIdsResult.error)
-        return {
-          success: false,
-          message: materialIdsResult.error.message
-        };
-
+      if (result.error)
+        return { success: false, message: result.error.message };
       return { success: true, message: "Material IDs setting updated" };
+    }
 
-    case "materialUnits":
-      const unitsValidation = await validator(materialUnitsValidator).validate(
-        formData
-      );
-
-      if (unitsValidation.error) {
-        return { success: false, message: "Invalid form data" };
-      }
-
-      const materialUnitsResult = await updateMetricSettings(
-        client,
-        companyId,
-        unitsValidation.data.useMetric
-      );
-      if (materialUnitsResult.error)
-        return {
-          success: false,
-          message: materialUnitsResult.error.message
-        };
-
+    case "materialUnits": {
+      const result = await updateMetricSettings(client, companyId, enabled);
+      if (result.error)
+        return { success: false, message: result.error.message };
       return { success: true, message: "Material units setting updated" };
+    }
   }
 
   return { success: false, message: "Invalid form data" };
@@ -112,6 +86,8 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function ItemsSettingsRoute() {
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+
+  const isToggling = fetcher.state !== "idle";
 
   useEffect(() => {
     if (fetcher.data?.success === true && fetcher?.data?.message) {
@@ -123,6 +99,26 @@ export default function ItemsSettingsRoute() {
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
 
+  const handleMaterialIdsToggle = useCallback(
+    (checked: boolean) => {
+      fetcher.submit(
+        { intent: "materialIds", enabled: String(checked) },
+        { method: "POST" }
+      );
+    },
+    [fetcher]
+  );
+
+  const handleMetricToggle = useCallback(
+    (checked: boolean) => {
+      fetcher.submit(
+        { intent: "materialUnits", enabled: String(checked) },
+        { method: "POST" }
+      );
+    },
+    [fetcher]
+  );
+
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
       <VStack
@@ -131,86 +127,63 @@ export default function ItemsSettingsRoute() {
       >
         <Heading size="h3">Items</Heading>
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={materialIdsValidator}
-            defaultValues={{
-              materialGeneratedIds:
-                companySettings.materialGeneratedIds ?? false
-            }}
-            fetcher={fetcher}
-          >
-            <input type="hidden" name="intent" value="materialIds" />
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Material IDs
-              </CardTitle>
-              <CardDescription>
-                Generate material IDs and descriptions based on the properties
-                of the material.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-8 max-w-[400px]">
-                <div className="flex flex-col gap-2">
-                  <Boolean
-                    name="materialGeneratedIds"
-                    description="Generate IDs and descriptions for raw materials"
-                  />
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") === "materialIds"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
+          <CardHeader>
+            <CardTitle>Material IDs</CardTitle>
+            <CardDescription>
+              Generate material IDs and descriptions based on the properties of
+              the material.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between items-center">
+              <VStack className="items-start gap-1">
+                <span className="font-medium">
+                  {companySettings.materialGeneratedIds
+                    ? "Generated IDs are enabled"
+                    : "Generated IDs are disabled"}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {companySettings.materialGeneratedIds
+                    ? "IDs and descriptions are generated for raw materials."
+                    : "Enable to generate IDs and descriptions for raw materials."}
+                </span>
+              </VStack>
+              <Switch
+                checked={companySettings.materialGeneratedIds ?? false}
+                onCheckedChange={handleMaterialIdsToggle}
+                disabled={isToggling}
+              />
+            </HStack>
+          </CardContent>
         </Card>
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={materialUnitsValidator}
-            defaultValues={{
-              useMetric: (companySettings as any).useMetric ?? false
-            }}
-            fetcher={fetcher}
-          >
-            <input type="hidden" name="intent" value="materialUnits" />
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">Metric</CardTitle>
-              <CardDescription>
-                Use metric system for default material dimensions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-8 max-w-[400px]">
-                <div className="flex flex-col gap-2">
-                  <Boolean
-                    name="useMetric"
-                    description="Use metric units for material dimensions"
-                  />
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") === "materialUnits"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
+          <CardHeader>
+            <CardTitle>Metric</CardTitle>
+            <CardDescription>
+              Use metric system for default material dimensions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between items-center">
+              <VStack className="items-start gap-1">
+                <span className="font-medium">
+                  {(companySettings as any).useMetric
+                    ? "Metric units are enabled"
+                    : "Metric units are disabled"}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {(companySettings as any).useMetric
+                    ? "Material dimensions use metric units."
+                    : "Enable to use metric units for material dimensions."}
+                </span>
+              </VStack>
+              <Switch
+                checked={(companySettings as any).useMetric ?? false}
+                onCheckedChange={handleMetricToggle}
+                disabled={isToggling}
+              />
+            </HStack>
+          </CardContent>
         </Card>
       </VStack>
     </ScrollArea>

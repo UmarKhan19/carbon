@@ -9,7 +9,7 @@ ALTER TABLE "employee" ADD COLUMN "pin" TEXT;
 
 -- Feature toggle: enable console mode for this company.
 -- When enabled, the "Console Operator" employee type is created,
--- the Console Operators submodule appears in ERP, and the
+-- the Operators submodule appears in ERP, and the
 -- Console Mode toggle appears in MES.
 ALTER TABLE "companySettings" ADD COLUMN "consoleEnabled" BOOLEAN NOT NULL DEFAULT false;
 

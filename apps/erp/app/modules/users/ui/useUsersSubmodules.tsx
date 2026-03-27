@@ -13,7 +13,7 @@ const usersRoutes: RouteGroup[] = [
         icon: <LuUsers />
       },
       {
-        name: "Console Operators",
+        name: "Operators",
         to: path.to.operators,
         icon: <LuMonitor />,
         setting: "consoleEnabled" as any

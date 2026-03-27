@@ -3,11 +3,10 @@ import {
   CarbonProvider,
   CONTROLLED_ENVIRONMENT,
   getCarbon,
-  getCarbonServiceRole,
   getCompanies,
   getUser
 } from "@carbon/auth";
-
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   destroyAuthSession,
   requireAuthSession
