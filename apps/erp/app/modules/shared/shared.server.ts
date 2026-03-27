@@ -1,10 +1,9 @@
 import type { Database } from "@carbon/database";
 import { SalesOrderEmail } from "@carbon/documents/email";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { trigger } from "@carbon/jobs";
 import { redis } from "@carbon/kv";
 import { renderAsync } from "@react-email/components";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import type { LoaderFunctionArgs } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
 import {
@@ -265,7 +264,7 @@ export async function sendSalesOrderEmail(args: {
   const html = await renderAsync(emailTemplate);
   const text = await renderAsync(emailTemplate, { plainText: true });
 
-  await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
+  await trigger("send-email-resend", {
     to: [seller.data.email, customer.data.contact.email!],
     cc: ccSelections?.length ? ccSelections : undefined,
     from: seller.data.email,

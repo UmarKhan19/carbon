@@ -5,7 +5,7 @@ import { Loading } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, useLoaderData } from "react-router";
@@ -159,7 +159,7 @@ async function handleKanban({
 
     if (!upsertMethod.error && kanban.data.autoRelease) {
       await Promise.all([
-        tasks.trigger("recalculate", {
+        trigger("recalculate", {
           type: "jobRequirements",
           id,
           companyId,

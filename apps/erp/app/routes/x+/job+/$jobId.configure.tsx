@@ -1,8 +1,7 @@
 import { error, getCarbonServiceRole, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { recalculateTask } from "@carbon/jobs/trigger/recalculate";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { upsertJobMethod } from "~/modules/production";
@@ -61,7 +60,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
     }
 
-    await tasks.trigger<typeof recalculateTask>("recalculate", {
+    await trigger("recalculate", {
       type: "jobRequirements",
       id: jobId,
       companyId,

@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
 import { NotificationEvent } from "@carbon/notifications";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { qualityDocumentStatus } from "~/modules/quality/quality.models";
 import {
@@ -76,7 +76,7 @@ async function processToActive(
 
     if (approverIds.length > 0) {
       try {
-        await tasks.trigger("notify", {
+        await trigger("notify", {
           event: NotificationEvent.ApprovalRequested,
           companyId,
           documentId: doc.id,

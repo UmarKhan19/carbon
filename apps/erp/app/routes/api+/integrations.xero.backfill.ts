@@ -1,6 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { ProviderID } from "@carbon/ee/accounting";
-import { runs, tasks } from "@trigger.dev/sdk/v3";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
@@ -24,22 +24,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     update: "settings"
   });
 
-  const url = new URL(request.url);
-  const runId = url.searchParams.get("runId");
-
-  if (runId) {
-    try {
-      const run = await runs.retrieve(runId);
-      return data({
-        status: run.status,
-        metadata: run.metadata,
-        output: run.output
-      });
-    } catch {
-      return data({ error: "Failed to retrieve run status" }, { status: 500 });
-    }
-  }
-
+  // TODO: run status polling was trigger.dev specific (runs.retrieve) and has been removed.
+  // Reimplement with inngest if needed.
   return data({ status: "idle" });
 }
 
@@ -73,27 +59,19 @@ export async function action({ request }: ActionFunctionArgs) {
     // Trigger the backfill task with settings
     // The backfill task respects each entity's sync direction config from
     // the integration metadata (pull-from-accounting, push-to-accounting, two-way)
-    const handle = await tasks.trigger(
-      "accounting-backfill",
-      {
-        companyId,
-        provider: ProviderID.XERO,
-        batchSize: 50,
-        entityTypes: {
-          customers: settings.backfillCustomers,
-          vendors: settings.backfillVendors,
-          items: settings.backfillItems
-        }
-      },
-      {
-        idempotencyKey: `backfill_${companyId}_${Date.now()}`,
-        tags: [`company_${companyId}`, "backfill", "xero"]
+    await trigger("accounting-backfill", {
+      companyId,
+      provider: ProviderID.XERO,
+      batchSize: 50,
+      entityTypes: {
+        customers: settings.backfillCustomers,
+        vendors: settings.backfillVendors,
+        items: settings.backfillItems
       }
-    );
+    });
 
     return data({
       success: true,
-      runId: handle.id,
       message: "Contact import started"
     });
   } catch (error) {

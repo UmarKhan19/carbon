@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   data,
@@ -129,7 +129,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   // Send notifications to all users in the assigned groups
   try {
-    await tasks.trigger("notify", {
+    await trigger("notify", {
       companyId,
       documentId: assignmentId,
       event: NotificationEvent.TrainingAssignment,

@@ -9,7 +9,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { NotificationEvent } from "@carbon/notifications";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { supplierApprovalDecisionValidator } from "~/modules/purchasing";
@@ -88,7 +88,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     if (approverIds.length > 0) {
       try {
-        await tasks.trigger("notify", {
+        await trigger("notify", {
           event: NotificationEvent.ApprovalRequested,
           companyId,
           documentId: supplierId,
@@ -214,7 +214,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const requestCompanyId = approvalRequest.data?.companyId;
   if (requestedBy && requestCompanyId && requestedBy !== userId) {
     try {
-      await tasks.trigger("notify", {
+      await trigger("notify", {
         event:
           decision === "Approved"
             ? NotificationEvent.ApprovalApproved

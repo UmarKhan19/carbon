@@ -19,7 +19,7 @@ import {
 } from "@carbon/react";
 import { Edition } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { Link, redirect, useLoaderData } from "react-router";
 import {
@@ -127,7 +127,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (CarbonEdition === Edition.Cloud) {
-      tasks.trigger("onboard", {
+      trigger("onboard", {
         type: "lead",
         companyId,
         userId

@@ -11,7 +11,7 @@ import { InviteEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
 import { sendEmail } from "@carbon/lib/resend.server";
 import { render } from "@react-email/components";
-import { tasks } from "@trigger.dev/sdk";
+import { batchTrigger } from "@carbon/jobs";
 import { nanoid } from "nanoid";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -101,7 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   } else {
     try {
-      await tasks.batchTrigger(
+      await batchTrigger(
         "user-admin",
         users.map((id) => ({
           payload: {

@@ -12,7 +12,7 @@ import {
   parseDateTime,
   toCalendarDateTime
 } from "@internationalized/date";
-import { tasks } from "@trigger.dev/sdk";
+import { batchTrigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getDefaultShelfForJob } from "~/modules/inventory";
@@ -181,7 +181,7 @@ export async function action({ request }: ActionFunctionArgs) {
     jobIds.push(id);
   }
 
-  await tasks.batchTrigger(
+  await batchTrigger(
     "recalculate",
     jobIds.map((id) => ({
       payload: {

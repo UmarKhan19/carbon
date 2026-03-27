@@ -8,10 +8,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { deactivateUser } from "@carbon/auth/users.server";
 import { validationError, validator } from "@carbon/form";
-import type { userAdminTask } from "@carbon/jobs/trigger/user-admin";
+import { batchTrigger } from "@carbon/jobs";
 import { updateSubscriptionQuantityForCompany } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { revokeInviteValidator } from "~/modules/users";
@@ -70,7 +69,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }
     }));
 
-    await tasks.batchTrigger<typeof userAdminTask>("user-admin", batchPayload);
+    await batchTrigger("user-admin", batchPayload);
   }
 
   const deleteInvites = await serviceRole
