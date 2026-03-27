@@ -4,23 +4,10 @@ import {
   getLinearClient,
   linkActionToLinearIssue
 } from "@carbon/ee/linear.server";
-import { z } from "zod";
+import { syncIssueFromLinearSchema } from "../../../schemas.js";
 import { inngest } from "../../client";
 
-// Schema for webhook payload - we only need the issue ID since we fetch full details from Linear
-export const syncIssueFromLinearSchema = z.object({
-  companyId: z.string(),
-  event: z.discriminatedUnion("type", [
-    z.object({
-      type: z.literal("Issue"),
-      action: z.literal("update"),
-      data: z.object({
-        id: z.string(),
-        assigneeId: z.string().optional()
-      })
-    })
-  ])
-});
+export { syncIssueFromLinearSchema };
 
 export const linearSyncFunction = inngest.createFunction(
   { id: "sync-issue-from-linear", retries: 1 },

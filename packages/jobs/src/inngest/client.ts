@@ -7,9 +7,7 @@ import type { Events } from "../events.ts";
  */
 export const inngest = new Inngest({
   id: "carbon",
-  schemas: new EventSchemas().fromRecord<Events>(),
-
-  isDev: process.env.NODE_ENV === "development"
+  schemas: new EventSchemas().fromRecord<Events>()
 });
 
 // Re-export the typed client for use in functions

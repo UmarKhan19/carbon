@@ -4,60 +4,10 @@ import {
   getJiraClient,
   linkActionToJiraIssue
 } from "@carbon/ee/jira.server";
-import { z } from "zod";
+import { syncIssueFromJiraSchema } from "../../../schemas.js";
 import { inngest } from "../../client";
 
-// Schema for Jira webhook payload
-export const syncIssueFromJiraSchema = z.object({
-  companyId: z.string(),
-  event: z.object({
-    timestamp: z.number().optional(),
-    webhookEvent: z.string(),
-    issue: z
-      .object({
-        id: z.string(),
-        key: z.string(),
-        fields: z.object({
-          summary: z.string().optional(),
-          description: z.any().nullable().optional(),
-          status: z
-            .object({
-              name: z.string().optional(),
-              statusCategory: z
-                .object({
-                  key: z.string()
-                })
-                .optional()
-            })
-            .optional(),
-          assignee: z
-            .object({
-              accountId: z.string().optional(),
-              emailAddress: z.string().optional(),
-              displayName: z.string().optional()
-            })
-            .nullable()
-            .optional(),
-          duedate: z.string().nullable().optional()
-        })
-      })
-      .optional(),
-    changelog: z
-      .object({
-        items: z.array(
-          z.object({
-            field: z.string(),
-            fieldtype: z.string().optional(),
-            from: z.string().nullable().optional(),
-            fromString: z.string().nullable().optional(),
-            to: z.string().nullable().optional(),
-            toString: z.string().nullable().optional()
-          })
-        )
-      })
-      .optional()
-  })
-});
+export { syncIssueFromJiraSchema };
 
 export const jiraSyncFunction = inngest.createFunction(
   { id: "sync-issue-from-jira", retries: 1 },
