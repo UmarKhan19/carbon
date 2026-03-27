@@ -1,11 +1,11 @@
-export { jiraSyncFunction } from "./jira";
-export { linearSyncFunction } from "./linear";
-export { paperlessPartsFunction } from "./paperless-parts";
 export { accountingBackfillFunction } from "./accounting-backfill";
-export { syncExternalAccountingFunction } from "./sync-external-accounting";
+export { jiraSyncFunction, syncIssueFromJiraSchema } from "./jira";
+export { linearSyncFunction, syncIssueFromLinearSchema } from "./linear";
+export { paperlessPartsFunction } from "./paperless-parts";
 export {
+  slackDocumentAssignmentUpdateFunction,
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,
-  slackDocumentTaskUpdateFunction,
-  slackDocumentAssignmentUpdateFunction
+  slackDocumentTaskUpdateFunction
 } from "./slack-document-sync";
+export { syncExternalAccountingFunction } from "./sync-external-accounting";
