@@ -1,7 +1,7 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { gzipSync } from "node:zlib";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { auditConfig } from "@carbon/database/audit.config";
 import type { AuditLogEntry } from "@carbon/database/audit.types";
-import { gzipSync } from "node:zlib";
 import { inngest } from "../../client";
 
 // Type for RPC calls

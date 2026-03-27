@@ -1,15 +1,16 @@
-import { getCarbonServiceRole, VERCEL_URL } from "@carbon/auth";
+import { VERCEL_URL } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import {
   type DocumentType,
-  type IssueAssignmentUpdate,
-  type IssueStatusUpdate,
-  type IssueTaskUpdate,
-  type NonConformanceData,
   formatAssignmentUpdate,
   formatDocumentCreated,
   formatStatusUpdate,
-  formatTaskUpdate
+  formatTaskUpdate,
+  type IssueAssignmentUpdate,
+  type IssueStatusUpdate,
+  type IssueTaskUpdate,
+  type NonConformanceData
 } from "@carbon/ee/slack/messages";
 import { WebClient } from "@slack/web-api";
 import type { SupabaseClient } from "@supabase/supabase-js";

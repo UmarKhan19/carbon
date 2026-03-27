@@ -372,7 +372,7 @@ const { data, error } = await carbon.from("item").select("*");
 ### From the Monorepo
 
 ```tsx
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 const carbon = getCarbonServiceRole();
 
 // returns all items across companies

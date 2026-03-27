@@ -41,6 +41,7 @@ export const path = {
       customFieldOptions: (table: string, fieldId: string) =>
         generatePath(`${api}/settings/custom-fields/${table}/${fieldId}`),
       departments: `${api}/people/departments`,
+      timecard: `${api}/people/timecard`,
       outstandingTrainings: `${api}/resources/trainings`,
       digitalQuote: (id: string) =>
         generatePath(`${api}/sales/digital-quote/${id}`),
@@ -600,6 +601,8 @@ export const path = {
     deleteGroup: (id: string) => generatePath(`${x}/users/groups/delete/${id}`),
     deleteHoliday: (id: string) =>
       generatePath(`${x}/people/holidays/delete/${id}`),
+    deleteTimecard: (id: string) =>
+      generatePath(`${x}/people/timecard/delete/${id}`),
     deleteLocation: (id: string) =>
       generatePath(`${x}/resources/locations/delete/${id}`),
     deleteItem: (id: string) => generatePath(`${x}/items/delete/${id}`),
@@ -1040,6 +1043,7 @@ export const path = {
     newGaugeType: `${x}/quality/gauge-types/new`,
     newGroup: `${x}/users/groups/new`,
     newHoliday: `${x}/people/holidays/new`,
+    newTimecard: `${x}/people/timecard/new`,
     newInvestigationType: `${x}/quality/investigation-types/new`,
     newIssue: `${x}/issue/new`,
     newIssueAssociation: (id: string) =>
@@ -1191,10 +1195,13 @@ export const path = {
       generatePath(`${x}/accounting/payment-terms/${id}`),
     paymentTerms: `${x}/accounting/payment-terms`,
     people: `${x}/people/employee`,
+    peopleTimecard: `${x}/people/timecard`,
+    timecard: (id: string) => generatePath(`${x}/people/timecard/${id}`),
     contact: `${x}/people/contact`,
     person: (id: string) => generatePath(`${x}/person/${id}`),
     personDetails: (id: string) => generatePath(`${x}/person/${id}/details`),
     personJob: (id: string) => generatePath(`${x}/person/${id}/job`),
+    personTimecard: (id: string) => generatePath(`${x}/person/${id}/timecard`),
     personAttributeCategory: (personId: string, categoryId: string) =>
       generatePath(`${x}/person/${personId}/attributes/${categoryId}`),
     stockTransfer: (id: string) => generatePath(`${x}/stock-transfer/${id}`),
@@ -1230,6 +1237,7 @@ export const path = {
     productionPlanning: `${x}/production/planning`,
     productionPlanningItem: (itemId: string) =>
       generatePath(`${x}/production/planning/${itemId}`),
+    peopleSettings: `${x}/settings/people`,
     productionSettings: `${x}/settings/production`,
     profile: `${x}/account/profile`,
     purchaseInvoice: (id: string) =>

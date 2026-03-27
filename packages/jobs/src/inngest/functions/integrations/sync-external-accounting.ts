@@ -13,25 +13,24 @@
  *
  * Includes cooldown protection to prevent redundant syncs of the same entity.
  */
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   getPostgresClient,
   getPostgresConnectionPool
 } from "@carbon/database/client";
 import {
-  AccountingEntity,
+  type AccountingEntity,
+  type AccountingEntityType,
   AccountingSyncSchema,
-  BatchSyncResult,
+  type BatchSyncResult,
   createMappingService,
   getAccountingIntegration,
   getProviderIntegration,
-  SyncFactory,
-  type AccountingEntityType
+  SyncFactory
 } from "@carbon/ee/accounting";
 
 import { groupBy } from "@carbon/utils";
 import { PostgresDriver } from "kysely";
-import z from "zod";
 import { inngest } from "../../client";
 
 // Cooldown period in milliseconds to prevent redundant syncs
@@ -41,8 +40,6 @@ const SYNC_COOLDOWN_MS = 60000; // 1 minute
 const PayloadSchema = AccountingSyncSchema.extend({
   syncDirection: AccountingSyncSchema.shape.syncDirection
 });
-
-type Payload = z.infer<typeof PayloadSchema>;
 
 export const syncExternalAccountingFunction = inngest.createFunction(
   { id: "sync-external-accounting", retries: 1 },

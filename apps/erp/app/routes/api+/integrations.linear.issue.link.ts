@@ -4,7 +4,7 @@ import {
   getLinearClient,
   linkActionToLinearIssue,
   unlinkActionFromLinearIssue
-} from "@carbon/ee/linear";
+} from "@carbon/ee/linear.server";
 import type { ActionFunction, LoaderFunction } from "react-router";
 import { data } from "react-router";
 import { getIssueAction } from "~/modules/quality/quality.service";

@@ -1,28 +1,9 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { z } from "zod";
 import { markdownToTiptap } from "./richtext";
-import { LinearWorkStateType, mapLinearStatusToCarbonStatus } from "./utils";
-
-export const LinearIssueSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string().nullish(),
-  url: z.string(),
-  state: z.object({
-    name: z.string(),
-    color: z.string(),
-    type: z.nativeEnum(LinearWorkStateType)
-  }),
-  identifier: z.string(),
-  dueDate: z.string().nullish(),
-  assignee: z
-    .object({
-      email: z.string()
-    })
-    .nullish()
-});
+import { LinearIssueSchema } from "./types";
+import { mapLinearStatusToCarbonStatus } from "./utils";
 
 export async function getLinearIntegration(
   client: SupabaseClient<Database>,

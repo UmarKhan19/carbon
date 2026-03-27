@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { getIntegrationConfigById } from "@carbon/ee";
+import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
 import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
@@ -351,9 +352,11 @@ export async function getIntegrationHealth(
     };
   }
 
-  const check = getIntegrationConfigById(integration.id!);
+  const serverHooks = getIntegrationServerHooks(integration.id!);
+  const config = getIntegrationConfigById(integration.id!);
+  const healthcheck = serverHooks?.onHealthcheck ?? config?.onHealthcheck;
 
-  if (!check || !check.onHealthcheck) {
+  if (!healthcheck) {
     return {
       ...integration,
       health: "healthy"
@@ -372,7 +375,7 @@ export async function getIntegrationHealth(
     };
   }
 
-  const status = await check.onHealthcheck(
+  const status = await healthcheck(
     companyId,
     integration.metadata as Record<string, any>
   );

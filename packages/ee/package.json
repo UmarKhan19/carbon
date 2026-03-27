@@ -7,13 +7,17 @@
     "./accounting": "./src/accounting/index.ts",
     "./exchange-rates.server": "./src/exchange-rates/exchange-rates.server.ts",
     "./jira": "./src/jira/lib/index.ts",
+    "./jira.server": "./src/jira/lib/index.server.ts",
     "./linear": "./src/linear/lib/index.ts",
+    "./linear.server": "./src/linear/lib/index.server.ts",
     "./notifications": "./src/notifications/index.ts",
     "./onshape": "./src/onshape/lib/index.ts",
     "./paperless-parts": "./src/paperless-parts/lib/index.ts",
     "./slack.server": "./src/slack.server.ts",
     "./slack/messages": "./src/slack/lib/messages.ts",
-    "./xero": "./src/accounting/providers/xero.ts"
+    "./hooks.server": "./src/hooks.server.ts",
+    "./xero": "./src/accounting/providers/xero.ts",
+    "./xero/hooks.server": "./src/xero/hooks.server.ts"
   },
   "jest": {
     "preset": "@carbon/jest/node"

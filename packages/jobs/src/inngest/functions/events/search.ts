@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { groupBy } from "@carbon/utils";
 import { z } from "zod";
 import { inngest } from "../../client";

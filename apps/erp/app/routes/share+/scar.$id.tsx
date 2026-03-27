@@ -1,9 +1,5 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  success
-} from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";

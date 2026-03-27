@@ -1,11 +1,6 @@
 import type { Result } from "@carbon/auth";
-import {
-  error,
-  getCarbonServiceRole,
-  getClaims,
-  getPermissionCacheKey,
-  success
-} from "@carbon/auth";
+import { error, getClaims, getPermissionCacheKey, success } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -66,7 +61,7 @@ export async function updatePermissions(
         ? {}
         : claims.data
     ) as Record<string, string[]>;
-    delete updatedPermissions["role"];
+    delete updatedPermissions.role;
 
     // add any missing claims to the current claims
     Object.keys(permissions).forEach((name) => {

@@ -1,9 +1,9 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   getCompanyEmployees,
   getJiraClient,
   linkActionToJiraIssue
-} from "@carbon/ee/jira";
+} from "@carbon/ee/jira.server";
 import { z } from "zod";
 import { inngest } from "../../client";
 
