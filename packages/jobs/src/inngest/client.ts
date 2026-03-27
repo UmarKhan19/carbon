@@ -8,10 +8,8 @@ import type { Events } from "../events.ts";
 export const inngest = new Inngest({
   id: "carbon",
   schemas: new EventSchemas().fromRecord<Events>(),
-  // Enable event validation in development
-  ...(process.env.NODE_ENV === "development" && {
-    isDev: true
-  })
+
+  isDev: process.env.NODE_ENV === "development"
 });
 
 // Re-export the typed client for use in functions

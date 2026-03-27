@@ -14,7 +14,7 @@ export const workflowFunction = inngest.createFunction(
     retries: 3,
     idempotency: "event.data.msgId",
     concurrency: {
-      limit: 10,
+      limit: 0,
       key: "event.data.data.table + '-' + event.data.data.recordId"
     }
   },
