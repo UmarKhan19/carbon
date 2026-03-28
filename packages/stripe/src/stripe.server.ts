@@ -524,13 +524,6 @@ export async function syncStripeDataToKV(
     subscription.items.data[0].price.id
   );
 
-  if (!plan.data) {
-    console.error("Failed to get plan by price id:", plan.error);
-    throw new Error(
-      `Failed to get plan for price_id: ${subscription.items.data[0].price.id}`
-    );
-  }
-
   const subDataResult = KvStripeCustomerSchema.safeParse({
     subscriptionId: subscription.id,
     status: subscription.status,
