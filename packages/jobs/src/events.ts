@@ -354,3 +354,12 @@ export type Events = {
     };
   };
 };
+
+/**
+ * Discriminated union of valid event payloads.
+ * Each member pairs an event name with its typed data, ensuring only
+ * valid name/data combinations can be constructed.
+ */
+export type EventSendPayload = {
+  [K in keyof Events]: { name: K; data: Events[K]["data"] };
+}[keyof Events];
