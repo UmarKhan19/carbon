@@ -23,6 +23,7 @@ Carbon is a manufacturing system built with modern web technologies. It consists
 - **Database**: Supabase (PostgreSQL)
 - **Edge Functions**: Vercel Edge Runtime
 - **Authentication**: Supabase Auth via `/packages/auth/`
+- **Redis**: ioredis via `/packages/kv/` (rate limiting, caching)
 
 ### Build Tools
 
@@ -39,7 +40,7 @@ The monorepo uses NPM workspaces with packages located in `/packages/`:
 - `database` - Database types and migrations
 - `documents` - PDF/Email/ZPL document generation
 - `form` - Form components and validation
-- `kv` - Key-value store (Redis)
+- `kv` - Redis client (ioredis) with rate limiting (Ratelimit class)
 - `logger` - Logging utilities
 - `notifications` - Notification services
 - `react` - Shared React components

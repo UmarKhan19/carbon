@@ -12,9 +12,12 @@ export async function sendVerificationCode(email: string) {
     ).toString();
 
     // Store in Redis with 10-minute expiration
-    await redis.set(`verification:${email.toLowerCase()}`, verificationCode, {
-      ex: 600
-    });
+    await redis.set(
+      `verification:${email.toLowerCase()}`,
+      verificationCode,
+      "EX",
+      600
+    );
 
     // Send email with verification code using React template
     const html = await render(

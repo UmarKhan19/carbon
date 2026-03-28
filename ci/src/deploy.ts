@@ -63,8 +63,7 @@ export type Workspace = {
   trigger_api_url: string | null;
   trigger_project_id: string | null;
   trigger_secret_key: string | null;
-  upstash_redis_rest_token: string | null;
-  upstash_redis_rest_url: string | null;
+  redis_url: string | null;
   url_erp: string | null;
   url_mes: string | null;
   xero_client_id: string | null;
@@ -144,8 +143,6 @@ async function deploy(): Promise<void> {
         trigger_project_id,
         trigger_secret_key,
         redis_url,
-        upstash_redis_rest_token,
-        upstash_redis_rest_url,
         url_erp,
         url_mes,
         xero_client_id,
@@ -236,15 +233,8 @@ async function deploy(): Promise<void> {
         continue;
       }
 
-      if (!upstash_redis_rest_token) {
-        console.log(
-          `🔴🍳 Missing Upstash Redis REST token for ${workspace.id}`
-        );
-        continue;
-      }
-
-      if (!upstash_redis_rest_url) {
-        console.log(`🔴🍳 Missing Upstash Redis rest url for ${workspace.id}`);
+      if (!redis_url) {
+        console.log(`🔴🍳 Missing Redis URL for ${workspace.id}`);
         continue;
       }
 
@@ -307,8 +297,7 @@ async function deploy(): Promise<void> {
           TRIGGER_API_URL: trigger_api_url,
           TRIGGER_PROJECT_ID: trigger_project_id,
           TRIGGER_SECRET_KEY: trigger_secret_key,
-          UPSTASH_REDIS_REST_TOKEN: upstash_redis_rest_token,
-          UPSTASH_REDIS_REST_URL: upstash_redis_rest_url,
+          REDIS_URL: redis_url,
           URL_ERP: url_erp,
           URL_MES: url_mes,
           VERCEL_ENV: "production",

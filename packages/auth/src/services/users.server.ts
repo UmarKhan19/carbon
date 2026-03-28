@@ -28,10 +28,13 @@ export async function getUserClaims(userId: string, companyId: string) {
   } | null = null;
 
   try {
-    claims = (await redis.get(getPermissionCacheKey(userId))) as {
-      permissions: Record<string, Permission>;
-      role: string | null;
-    };
+    const cachedClaims = await redis.get(getPermissionCacheKey(userId));
+    if (cachedClaims) {
+      claims = JSON.parse(cachedClaims) as {
+        permissions: Record<string, Permission>;
+        role: string | null;
+      };
+    }
   } catch (e) {
     console.error("Failed to get claims from redis", e);
   } finally {

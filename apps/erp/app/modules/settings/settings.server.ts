@@ -365,10 +365,10 @@ export async function getIntegrationHealth(
 
   const key = `integrations:${companyId}:${integration.id}:health`;
 
-  const cached = await redis.get<number>(key);
+  const cached = await redis.get(key);
 
   // Only cache healthy status
-  if (cached && cached == 1) {
+  if (cached === "1") {
     return {
       ...integration,
       health: "healthy"
@@ -380,9 +380,7 @@ export async function getIntegrationHealth(
     integration.metadata as Record<string, any>
   );
 
-  await redis.set(key, status ? "1" : "0", {
-    ex: INTEGRATION_CACHE_TTL * 5 // Cache for 5 minutes
-  });
+  await redis.set(key, status ? "1" : "0", "EX", INTEGRATION_CACHE_TTL * 5); // Cache for 5 minutes
 
   return {
     ...integration,

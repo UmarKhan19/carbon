@@ -170,7 +170,8 @@ export async function getStripeCustomer(customerId: string) {
   }
 
   const customer = await redis.get(`stripe:customer:${customerId}`);
-  return KvStripeCustomerSchema.nullish().parse(customer);
+  if (!customer) return null;
+  return KvStripeCustomerSchema.parse(JSON.parse(customer));
 }
 
 const KvStripeUserSchema = z.string().nullish();
@@ -547,7 +548,7 @@ export async function syncStripeDataToKV(
       };
 
     const [, companyPlan] = await Promise.all([
-      redis.set(key, subData),
+      redis.set(key, JSON.stringify(subData)),
       upsertCompanyPlan(serviceRole, companyPlanData)
     ]);
 
