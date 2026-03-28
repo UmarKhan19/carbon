@@ -1,4 +1,5 @@
-import { getCarbonServiceRole, VERCEL_URL } from "@carbon/auth";
+import { VERCEL_URL } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import {
   type DocumentType,

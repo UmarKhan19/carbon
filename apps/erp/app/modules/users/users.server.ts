@@ -1,5 +1,6 @@
-import { error, getCarbonServiceRole, success } from "@carbon/auth";
+import { error, success } from "@carbon/auth";
 import { deleteAuthAccount } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash, requireAuthSession } from "@carbon/auth/session.server";
 import {
   deactivateCustomer,

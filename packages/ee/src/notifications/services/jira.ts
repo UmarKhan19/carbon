@@ -6,7 +6,7 @@ import {
   getJiraIssueFromExternalId,
   mapCarbonStatusToJiraCategory,
   tiptapToAdf
-} from "../../jira/lib";
+} from "../../jira/lib/index.server";
 import type { TiptapDocument } from "../../jira/lib/richtext";
 import type { NotificationEvent, NotificationService } from "../types";
 

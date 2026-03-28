@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { schedules } from "@trigger.dev/sdk";
 
 const serviceRole = getCarbonServiceRole();

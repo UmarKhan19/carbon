@@ -28,9 +28,11 @@ export const getPartTool = tool({
     const context = executionOptions.experimental_context as ChatContext;
     let { readableId, description } = args;
 
-    console.log("[getPartTool]", args);
+    console.log("[getPartTool] args:", JSON.stringify(args));
+    console.log("[getPartTool] companyId:", context.companyId);
 
     if (readableId) {
+      console.log("[getPartTool] searching by readableId:", readableId);
       const [part, supplierPart] = await Promise.all([
         context.client
           .from("item")
@@ -49,7 +51,17 @@ export const getPartTool = tool({
           .single()
       ]);
 
+      console.log(
+        "[getPartTool] item query result:",
+        JSON.stringify({ data: part.data, error: part.error })
+      );
+      console.log(
+        "[getPartTool] supplierPart query result:",
+        JSON.stringify({ data: supplierPart.data, error: supplierPart.error })
+      );
+
       if (supplierPart.data) {
+        console.log("[getPartTool] returning supplierPart match");
         return {
           id: supplierPart.data.itemId,
           name: supplierPart.data.item?.name,
@@ -58,6 +70,7 @@ export const getPartTool = tool({
         };
       }
       if (part.data?.[0]) {
+        console.log("[getPartTool] returning item match");
         return {
           id: part.data[0].id,
           name: part.data[0].name,
@@ -66,14 +79,28 @@ export const getPartTool = tool({
       }
 
       if (!description) {
+        console.log(
+          "[getPartTool] no direct match found, falling through to embedding search with readableId as description"
+        );
         description = readableId;
       } else {
+        console.log(
+          "[getPartTool] no direct match found for readableId, returning null"
+        );
         return null;
       }
     }
 
     if (description) {
+      console.log(
+        "[getPartTool] searching by embedding for description:",
+        description
+      );
       const embedding = await generateEmbedding(context.client, description);
+      console.log(
+        "[getPartTool] embedding generated, length:",
+        embedding?.length
+      );
 
       const search = await context.client.rpc("items_search", {
         query_embedding: JSON.stringify(embedding),
@@ -82,11 +109,22 @@ export const getPartTool = tool({
         p_company_id: context.companyId
       });
 
+      console.log(
+        "[getPartTool] embedding search result:",
+        JSON.stringify({ data: search.data, error: search.error })
+      );
+
       if (search.data && search.data.length > 0) {
+        console.log(
+          "[getPartTool] returning",
+          search.data.length,
+          "embedding matches"
+        );
         return search.data;
       }
     }
 
+    console.log("[getPartTool] no results found, returning null");
     return null;
   }
 });

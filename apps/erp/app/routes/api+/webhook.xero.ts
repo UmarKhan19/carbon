@@ -19,7 +19,8 @@
  * background job to prevent webhook timeouts and ensure reliability.
  */
 
-import { getCarbonServiceRole, XERO_WEBHOOK_SECRET } from "@carbon/auth";
+import { XERO_WEBHOOK_SECRET } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type {
   AccountingEntity,
   AccountingProvider,

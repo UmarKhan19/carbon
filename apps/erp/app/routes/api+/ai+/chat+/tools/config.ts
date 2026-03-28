@@ -2,7 +2,7 @@ import type { ToolConfig } from "../agents/shared/tools";
 
 // Dynamically import all tool configs from sibling files
 // Exclude config.ts itself to avoid circular imports
-const toolModules = import.meta.glob("./*.ts", {
+const toolModules = import.meta.glob(["./*.ts", "!./*.server.ts"], {
   eager: true
 }) as Record<string, { config: ToolConfig }>;
 

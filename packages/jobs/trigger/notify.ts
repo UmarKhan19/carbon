@@ -1,10 +1,10 @@
 import {
-  getCarbonServiceRole,
   ERP_URL,
   NOVU_SECRET_KEY,
   VERCEL_URL,
-NOVU_API_URL,
+  NOVU_API_URL
 } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { notifyTaskAssigned } from "@carbon/ee/notifications";
 import {

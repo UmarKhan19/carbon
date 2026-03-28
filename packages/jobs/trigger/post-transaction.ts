@@ -1,7 +1,7 @@
 import { task } from "@trigger.dev/sdk";
 import { z } from "zod";
 
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 
 const serviceRole = getCarbonServiceRole();
 

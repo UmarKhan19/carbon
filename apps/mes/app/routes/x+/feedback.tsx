@@ -1,5 +1,6 @@
-import { getCarbonServiceRole, SUPABASE_URL } from "@carbon/auth";
+import { SUPABASE_URL } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validator } from "@carbon/form";
 import { getSlackClient } from "@carbon/lib/slack.server";
 import type { ActionFunctionArgs } from "react-router";

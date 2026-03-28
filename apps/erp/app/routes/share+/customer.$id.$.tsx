@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Ratelimit, redis } from "@carbon/kv";
 import { supportedModelTypes } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";

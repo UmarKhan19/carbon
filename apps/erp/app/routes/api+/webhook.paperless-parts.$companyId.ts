@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { paperlessPartsTask } from "@carbon/jobs/trigger/paperless-parts";
 import { tasks } from "@trigger.dev/sdk";
 import crypto from "crypto";

@@ -1,5 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { isIssueLocked } from "~/modules/quality";
