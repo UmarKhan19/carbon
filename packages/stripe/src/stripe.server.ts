@@ -169,9 +169,19 @@ export async function getStripeCustomer(customerId: string) {
     return null;
   }
 
-  const customer = await redis.get(`stripe:customer:${customerId}`);
-  if (!customer) return null;
-  return KvStripeCustomerSchema.parse(JSON.parse(customer));
+  const cached = await redis.get(`stripe:customer:${customerId}`);
+  if (cached) return KvStripeCustomerSchema.parse(JSON.parse(cached));
+
+  // Fallback: fetch from Stripe API and re-populate cache (self-heals after Redis migration data loss)
+  if (!stripe) return null;
+
+  try {
+    const result = await syncStripeDataToKV(customerId);
+    return result?.data ?? null;
+  } catch (error) {
+    console.error("Failed to sync stripe data from API fallback:", error);
+    return null;
+  }
 }
 
 const KvStripeUserSchema = z.string().nullish();
@@ -181,9 +191,25 @@ export async function getStripeCustomerId(companyId: string) {
     return null;
   }
 
-  return KvStripeUserSchema.parse(
+  const cached = KvStripeUserSchema.parse(
     await redis.get(`stripe:company:${companyId}`)
   );
+  if (cached) return cached;
+
+  // Fallback: check companyPlan table
+  const serviceRole = getCarbonServiceRole();
+  const { data } = await serviceRole
+    .from("companyPlan")
+    .select("stripeCustomerId")
+    .eq("id", companyId)
+    .single();
+
+  const customerId = data?.stripeCustomerId;
+  if (customerId) {
+    await redis.set(`stripe:company:${companyId}`, customerId);
+  }
+
+  return customerId ?? null;
 }
 
 function getStripeWebhookEvent({
