@@ -171,7 +171,7 @@ const KvStripeCustomerSchema = z.object({
         };
 
       const [, companyPlan] = await Promise.all([
-        redis.set(customerKey, subData),
+        redis.set(customerKey, JSON.stringify(subData)),
         upsertCompanyPlan(client, companyPlanData),
         updateCompanyOwner(client, companyId, company.ownerId),
       ]);

@@ -273,7 +273,8 @@ export const STRIPE_BYPASS_USER_IDS = getEnv("STRIPE_BYPASS_USER_IDS", {
   isRequired: false
 });
 export const REDIS_URL = getEnv("REDIS_URL", {
-  isRequired: false
+  isRequired: true,
+  isSecret: true
 });
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days;
 export const REFRESH_ACCESS_TOKEN_THRESHOLD = 60 * 10; // 10 minutes left before token expires
