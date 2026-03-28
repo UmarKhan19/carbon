@@ -156,7 +156,7 @@ export async function getStripeCustomerByCompanyId(
   if (!customerId) {
     return null;
   }
-  const customer = await getStripeCustomer(customerId);
+  const customer = await getStripeCustomer(customerId, companyId);
   if (!customer || customer.status === "canceled") {
     return null;
   }
@@ -164,7 +164,10 @@ export async function getStripeCustomerByCompanyId(
   return customer;
 }
 
-export async function getStripeCustomer(customerId: string) {
+export async function getStripeCustomer(
+  customerId: string,
+  companyId?: string
+) {
   if (CarbonEdition !== Edition.Cloud) {
     return null;
   }
@@ -176,7 +179,7 @@ export async function getStripeCustomer(customerId: string) {
   if (!stripe) return null;
 
   try {
-    const result = await syncStripeDataToKV(customerId);
+    const result = await syncStripeDataToKV(customerId, companyId);
     return result?.data ?? null;
   } catch (error) {
     console.error("Failed to sync stripe data from API fallback:", error);
