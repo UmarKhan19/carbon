@@ -553,9 +553,9 @@ export async function syncStripeDataToKV(
     const companyPlanData: Database["public"]["Tables"]["companyPlan"]["Insert"] =
       {
         id: companyId,
-        planId: plan.data?.id ?? null,
-        tasksLimit: plan.data.tasksLimit,
-        aiTokensLimit: plan.data.aiTokensLimit,
+        planId: plan.data?.id ?? "",
+        tasksLimit: plan.data.tasksLimit ?? 0,
+        aiTokensLimit: plan.data.aiTokensLimit ?? 0,
         usersLimit: 10, // Default value as defined in the migration
         stripeSubscriptionStatus: (subData.cancelAtPeriodEnd
           ? "Canceled"
