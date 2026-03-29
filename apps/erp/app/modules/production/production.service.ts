@@ -1,4 +1,3 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
@@ -77,14 +76,12 @@ export async function convertSalesOrderLinesToJobs(
     return salesOrderLines;
   }
 
-  const serviceRole = getCarbonServiceRole();
-
   const lines = salesOrderLines.data;
   if (!lines) {
     return { data: null, error: "No lines found" };
   }
 
-  const opportunity = await serviceRole
+  const opportunity = await client
     .from("opportunity")
     .select("*, quotes(*), salesOrders(*)")
     .eq("id", salesOrder.data?.opportunityId ?? "")
@@ -98,7 +95,7 @@ export async function convertSalesOrderLinesToJobs(
 
   for await (const line of lines) {
     if (line.methodType === "Make" && line.itemId) {
-      const itemManufacturing = await serviceRole
+      const itemManufacturing = await client
         .from("itemReplenishment")
         .select("*")
         .eq("itemId", line.itemId)
@@ -111,7 +108,7 @@ export async function convertSalesOrderLinesToJobs(
 
       const jobsToCreate = Math.max(1, totalJobs);
 
-      const manufacturing = await serviceRole
+      const manufacturing = await client
         .from("itemReplenishment")
         .select("*")
         .eq("itemId", line.itemId)
@@ -119,7 +116,7 @@ export async function convertSalesOrderLinesToJobs(
         .single();
 
       for await (const index of Array.from({ length: jobsToCreate }).keys()) {
-        const nextSequence = await serviceRole.rpc("get_next_sequence", {
+        const nextSequence = await client.rpc("get_next_sequence", {
           sequence_name: "job",
           company_id: companyId
         });
@@ -141,21 +138,22 @@ export async function convertSalesOrderLinesToJobs(
 
         let locationId = line.locationId ?? salesOrder.data?.locationId;
         if (!locationId) {
-          const defaultLocation = await serviceRole
+          const defaultLocation = await client
             .from("location")
             .select("id")
             .eq("companyId", companyId)
             .limit(1);
 
-          if (defaultLocation.data) {
+          if (defaultLocation.data && defaultLocation.data.length > 0) {
             locationId = defaultLocation.data?.[0]?.id;
           } else {
-            throw new Error("No location found");
+            errors.push(`No location found for line ${line.itemReadableId}`);
+            continue;
           }
         }
 
         const shelfId = await getDefaultShelfForJob(
-          serviceRole,
+          client,
           line.itemId,
           locationId!,
           companyId
@@ -189,14 +187,14 @@ export async function convertSalesOrderLinesToJobs(
         };
 
         // Calculate priority based on due date and deadline type
-        const priority = await calculateJobPriority(serviceRole, {
+        const priority = await calculateJobPriority(client, {
           dueDate: data.dueDate ?? null,
           deadlineType: data.deadlineType,
           companyId,
           locationId: locationId!
         });
 
-        const createJob = await serviceRole
+        const createJob = await client
           .from("job")
           .insert({
             ...data,
@@ -217,48 +215,42 @@ export async function convertSalesOrderLinesToJobs(
         }
 
         if (quoteId) {
-          const upsertMethod = await serviceRole.functions.invoke(
-            "get-method",
-            {
-              body: {
-                type: "quoteLineToJob",
-                sourceId: `${quoteId}:${line.id}`,
-                targetId: createJob.data.id,
-                companyId,
-                userId
-              }
+          const upsertMethod = await client.functions.invoke("get-method", {
+            body: {
+              type: "quoteLineToJob",
+              sourceId: `${quoteId}:${line.id}`,
+              targetId: createJob.data.id,
+              companyId,
+              userId
             }
-          );
+          });
 
           if (upsertMethod.error) {
             errors.push(
-              `Failed to create method for job ${nextSequence.data}: ${upsertMethod.error.message}`
+              `Failed to create method for job ${nextSequence.data} (Line item ${line.itemReadableId}): ${upsertMethod.error.message}`
             );
             continue;
           }
         } else {
-          const upsertMethod = await serviceRole.functions.invoke(
-            "get-method",
-            {
-              body: {
-                type: "itemToJob",
-                sourceId: data.itemId,
-                targetId: createJob.data.id,
-                companyId,
-                userId
-              }
+          const upsertMethod = await client.functions.invoke("get-method", {
+            body: {
+              type: "itemToJob",
+              sourceId: data.itemId,
+              targetId: createJob.data.id,
+              companyId,
+              userId
             }
-          );
+          });
 
           if (upsertMethod.error) {
             errors.push(
-              `Failed to create method for job ${nextSequence.data}: ${upsertMethod.error.message}`
+              `Failed to create method for job ${nextSequence.data} (Line item ${line.itemReadableId}): ${upsertMethod.error.message}`
             );
             continue;
           }
         }
 
-        await serviceRole.functions.invoke("recalculate", {
+        await client.functions.invoke("recalculate", {
           body: {
             type: "jobRequirements",
             id: createJob.data.id,
@@ -287,11 +279,16 @@ export async function convertSalesOrderLinesToJobs(
   }
 
   if (jobsCreated === 0) {
+    const skippedLines = lines.map((l) => l.itemReadableId).filter(Boolean);
+    const skippedLinesStr =
+      skippedLines.length > 0
+        ? ` (Lines checked: ${skippedLines.join(", ")})`
+        : "";
     return {
       data: null,
       error: {
         message: "No jobs were created",
-        details: "No Make items found on sales order lines",
+        details: `No Make items found on sales order lines${skippedLinesStr}`,
         code: "NO_JOBS_CREATED"
       } as PostgrestError
     };
@@ -1400,7 +1397,7 @@ export async function getProductionPlanning(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "readableIdWithRevision", ascending: true }
+    { column: "quantityToOrder", ascending: false }
   ]);
 
   return query;
@@ -3079,39 +3076,4 @@ export async function upsertDemandProjections(
     data: hasError ? null : toUpsert,
     error: hasError ? results.find((r) => r.error)?.error : null
   };
-}
-
-/**
- * Trigger a job scheduling task via Trigger.dev.
- * Supports both initial scheduling and rescheduling.
- */
-export async function triggerJobSchedule(
-  jobId: string,
-  companyId: string,
-  userId: string,
-  mode: "initial" | "reschedule" = "reschedule",
-  direction: "backward" | "forward" = "backward"
-) {
-  const { scheduleJob } = await import("@carbon/jobs/trigger/reschedule-job");
-
-  const handle = await scheduleJob.trigger({
-    jobId,
-    companyId,
-    userId,
-    mode,
-    direction
-  });
-
-  return { success: true, runId: handle.id };
-}
-
-/**
- * @deprecated Use triggerJobSchedule with mode="reschedule" instead.
- */
-export async function triggerJobReschedule(
-  jobId: string,
-  companyId: string,
-  userId: string
-) {
-  return triggerJobSchedule(jobId, companyId, userId, "reschedule", "backward");
 }

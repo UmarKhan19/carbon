@@ -2,10 +2,10 @@ import {
   assertIsPost,
   callbackValidator,
   carbonClient,
-  error,
-  getCarbonServiceRole
+  error
 } from "@carbon/auth";
 import { refreshAccessToken } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { setCompanyId } from "@carbon/auth/company.server";
 import {
   destroyAuthSession,

@@ -70,8 +70,6 @@ const MaintenanceDispatchProperties = () => {
       ? optimisticAssignment
       : (routeData?.dispatch?.assignee?.id ?? null);
 
-  console.log({ optimisticAssignment, routeData: routeData?.dispatch });
-
   const fetcher = useFetcher<{ error?: { message: string } }>();
   const eventFetcher = useFetcher<{ error?: { message: string } }>();
 
@@ -205,7 +203,7 @@ const MaintenanceDispatchProperties = () => {
           table="maintenanceDispatch"
           size="sm"
           value={assignee ?? ""}
-          isReadOnly={isLocked || !permissions.can("update", "resources")}
+          isReadOnly={!permissions.can("update", "resources")}
         />
       </VStack>
 

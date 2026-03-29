@@ -288,3 +288,7 @@ export const supplierApprovalValidator = z.object({
 export const accountsPayableBillingAddressValidator = z.object(billingAddress);
 export const accountsReceivableBillingAddressValidator =
   z.object(billingAddress);
+
+export const timeCardSettingsValidator = z.object({
+  timeCardEnabled: zfd.checkbox()
+});

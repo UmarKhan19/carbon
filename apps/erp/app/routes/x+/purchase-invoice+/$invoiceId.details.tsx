@@ -185,7 +185,6 @@ export default function PurchaseInvoiceBasicRoute() {
         id={invoiceId}
         title="Notes"
         table="purchaseInvoice"
-        isReadOnly={isReadOnly}
         internalNotes={internalNotes}
       />
       <Suspense

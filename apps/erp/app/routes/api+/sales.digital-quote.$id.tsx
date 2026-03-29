@@ -1,4 +1,5 @@
-import { assertIsPost, getCarbonServiceRole, notFound } from "@carbon/auth";
+import { assertIsPost, notFound } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { notifyTask } from "@carbon/jobs/trigger/notify";
 import { NotificationEvent } from "@carbon/notifications";
 import { tasks } from "@trigger.dev/sdk";
@@ -6,11 +7,15 @@ import type { ActionFunctionArgs } from "react-router";
 import {
   convertQuoteToOrder,
   getQuoteByExternalId,
+  getSalesOrder,
   selectedLinesValidator
 } from "~/modules/sales";
 import { getCompanySettings } from "~/modules/settings";
+import { generateAndAttachSalesOrderPdf } from "~/modules/shared/shared.server";
+import { loader as pdfLoader } from "~/routes/file+/sales-order+/$id[.]pdf";
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action(args: ActionFunctionArgs) {
+  const { request, params } = args;
   assertIsPost(request);
 
   const { id } = params;
@@ -85,6 +90,31 @@ export async function action({ request, params }: ActionFunctionArgs) {
           success: false,
           message: "Failed to convert quote to order"
         };
+      }
+
+      // Generate and attach the sales order PDF — non-blocking on failure
+      const salesOrderId = convert.data?.convertedId;
+      if (salesOrderId) {
+        try {
+          const salesOrder = await getSalesOrder(serviceRole, salesOrderId);
+          if (salesOrder.data?.salesOrderId && salesOrder.data?.opportunityId) {
+            await generateAndAttachSalesOrderPdf({
+              routeArgs: args,
+              salesOrderId,
+              salesOrderIdentifier: salesOrder.data.salesOrderId,
+              opportunityId: salesOrder.data.opportunityId,
+              companyId: quote.data.companyId,
+              userId: quote.data.createdBy,
+              serviceRole,
+              pdfLoader
+            });
+          }
+        } catch (err) {
+          console.error(
+            "Failed to generate PDF after digital quote acceptance",
+            err
+          );
+        }
       }
 
       if (companySettings.error) {

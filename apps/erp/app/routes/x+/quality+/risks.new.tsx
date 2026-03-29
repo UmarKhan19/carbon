@@ -6,10 +6,11 @@ import { NotificationEvent } from "@carbon/notifications";
 import { useDisclosure } from "@carbon/react";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
+import { redirect } from "react-router";
 import { riskRegisterValidator } from "~/modules/quality/quality.models";
 import { upsertRisk } from "~/modules/quality/quality.service";
 import RiskRegisterForm from "~/modules/quality/ui/RiskRegister/RiskRegisterForm";
+import { getParams, path } from "~/utils/path";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -38,12 +39,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (result.error) {
-    return data(
-      {
-        data: null,
-        success: false,
-        error: result.error
-      },
+    throw redirect(
+      path.to.risks,
       await flash(request, error(result.error, "Failed to create risk"))
     );
   }
@@ -66,12 +63,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 
-  return data(
-    {
-      data: result.data,
-      success: true,
-      error: null
-    },
+  throw redirect(
+    `${path.to.risks}?${getParams(request)}`,
     await flash(request, success("Risk created successfully"))
   );
 };

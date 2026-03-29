@@ -110,9 +110,9 @@ const PurchaseInvoiceProperties = () => {
       ? optimisticAssignment
       : routeData?.purchaseInvoice?.assignee;
 
-  const isDisabled =
-    !permissions.can("update", "invoicing") ||
-    isPurchaseInvoiceLocked(routeData?.purchaseInvoice?.status);
+  const canUpdate = permissions.can("update", "invoicing");
+  const isLocked = isPurchaseInvoiceLocked(routeData?.purchaseInvoice?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -174,7 +174,7 @@ const PurchaseInvoiceProperties = () => {
         table="purchaseInvoice"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={isDisabled}
+        isReadOnly={!canUpdate}
       />
 
       <ValidatedForm
@@ -475,7 +475,6 @@ const PurchaseInvoiceProperties = () => {
         table="purchaseInvoice"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

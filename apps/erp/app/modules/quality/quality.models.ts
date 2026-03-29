@@ -322,6 +322,16 @@ export const qualityDocumentApprovalValidator = z.object({
   notes: zfd.text(z.string().optional())
 });
 
+export const QualityKPIs = [
+  { key: "weeklyTracking", label: "Issue Trend" },
+  { key: "statusDistribution", label: "Status Distribution" },
+  { key: "paretoByType", label: "Pareto by Type" },
+  { key: "ncrsByType", label: "NCRs by Type" },
+  { key: "sourceAnalysis", label: "Source Analysis" },
+  { key: "supplierQuality", label: "Supplier Quality" },
+  { key: "weeksOpen", label: "Weeks Open" }
+] as const;
+
 export const riskRegisterValidator = z.object({
   id: zfd.text(z.string().optional()),
   assignee: zfd.text(z.string().optional()),

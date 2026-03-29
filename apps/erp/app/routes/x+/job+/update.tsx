@@ -1,5 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { recalculateTask } from "@carbon/jobs/trigger/recalculate";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
@@ -20,8 +20,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const ids = formData.getAll("ids");
   const field = formData.get("field");
   const value = formData.get("value");
-
-  console.log({ ids, field, value });
 
   if (typeof field !== "string") {
     return { error: { message: "Invalid form data" }, data: null };

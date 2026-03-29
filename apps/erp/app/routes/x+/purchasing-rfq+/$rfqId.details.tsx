@@ -138,7 +138,6 @@ export default function PurchasingRFQDetailsRoute() {
         table="purchasingRfq"
         title="Notes"
         internalNotes={internalNotes}
-        isReadOnly={isReadOnly}
       />
       <Suspense
         key={`documents-${rfqId}`}

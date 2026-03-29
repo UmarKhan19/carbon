@@ -6,9 +6,9 @@ import { useRef } from "react";
 import { LuBan } from "react-icons/lu";
 import { HStack } from "../HStack";
 import { InputGroup } from "../Input";
+import { Popover, PopoverContent, PopoverTrigger } from "../Popover";
 import { FieldButton } from "./components/Button";
 import DateField from "./components/DateField";
-import { Popover } from "./components/Popover";
 import { RangeCalendar } from "./components/RangeCalendar";
 
 const iconVariants = cva("", {
@@ -58,42 +58,44 @@ const DateRangePicker = ({
   } = useDateRangePicker(props, state, ref);
 
   return (
-    <div className="relative inline-flex flex-col w-full">
-      <HStack className="w-full" spacing={0}>
-        <InputGroup
-          {...groupProps}
-          ref={ref}
-          size={size}
-          className="w-full inline-flex rounded-r-none"
-        >
-          <div className={fieldVariants({ size })}>
-            <DateField {...startFieldProps} size={size} />
-            <span aria-hidden="true" className="px-2">
-              –
-            </span>
-            <DateField {...endFieldProps} size={size} />
-            {state.isInvalid && (
-              <LuBan
-                className={`text-destructive-foreground absolute right-[12px] ${iconVariants(
-                  { size }
-                )}`}
-              />
-            )}
-          </div>
-        </InputGroup>
+    <Popover open={state.isOpen} onOpenChange={state.setOpen}>
+      <div className="relative inline-flex flex-col w-full">
+        <HStack className="w-full" spacing={0}>
+          <InputGroup
+            {...groupProps}
+            ref={ref}
+            size={size}
+            className="w-full inline-flex rounded-r-none"
+          >
+            <div className={fieldVariants({ size })}>
+              <DateField {...startFieldProps} size={size} />
+              <span aria-hidden="true" className="px-2">
+                –
+              </span>
+              <DateField {...endFieldProps} size={size} />
+              {state.isInvalid && (
+                <LuBan
+                  className={`text-destructive-foreground absolute right-[12px] ${iconVariants(
+                    { size }
+                  )}`}
+                />
+              )}
+            </div>
+          </InputGroup>
 
-        <FieldButton {...buttonProps} isPressed={state.isOpen} size={size} />
-      </HStack>
-      {state.isOpen && (
-        <Popover
-          {...dialogProps}
-          isOpen={state.isOpen}
-          onClose={() => state.setOpen(false)}
-        >
+          <PopoverTrigger tabIndex={-1}>
+            <FieldButton
+              {...buttonProps}
+              isPressed={state.isOpen}
+              size={size}
+            />
+          </PopoverTrigger>
+        </HStack>
+        <PopoverContent align="end" {...dialogProps}>
           <RangeCalendar {...calendarProps} />
-        </Popover>
-      )}
-    </div>
+        </PopoverContent>
+      </div>
+    </Popover>
   );
 };
 

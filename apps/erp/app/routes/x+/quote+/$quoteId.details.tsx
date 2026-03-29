@@ -181,7 +181,6 @@ export default function QuoteDetailsRoute() {
         table="quote"
         internalNotes={internalNotes}
         externalNotes={externalNotes}
-        isReadOnly={isReadOnly}
       />
       <Suspense
         key={`documents-${quoteId}`}

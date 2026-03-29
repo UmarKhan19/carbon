@@ -187,7 +187,6 @@ export default function EditPurchaseInvoiceLineRoute() {
         table="purchaseInvoiceLine"
         title="Notes"
         subTitle={getItemReadableId(items, purchaseInvoiceLine?.itemId) ?? ""}
-        isReadOnly={isReadOnly}
         internalNotes={purchaseInvoiceLine?.internalNotes as JSONContent}
       />
 

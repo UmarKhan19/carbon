@@ -1,11 +1,12 @@
 import { VERCEL_URL, XERO_CLIENT_ID, XERO_CLIENT_SECRET } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { getIntegrationConfigById, Xero } from "@carbon/ee";
+import { Xero } from "@carbon/ee";
 import {
   DEFAULT_SYNC_CONFIG,
   getProviderIntegration,
   ProviderID
 } from "@carbon/ee/accounting";
+import { xeroOnInstall } from "@carbon/ee/xero/hooks.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { upsertCompanyIntegration } from "~/modules/settings/settings.server";
@@ -179,10 +180,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       companyId: companyId
     });
 
-    const config = getIntegrationConfigById(Xero.id);
-
-    typeof config?.onInstall === "function" &&
-      (await config.onInstall(companyId));
+    await xeroOnInstall(companyId);
 
     if (createdXeroIntegration?.data?.metadata) {
       const requestUrl = new URL(request.url);

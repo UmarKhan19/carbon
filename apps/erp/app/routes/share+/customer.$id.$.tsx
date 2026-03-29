@@ -1,7 +1,6 @@
-import { getCarbonServiceRole } from "@carbon/auth";
-import { redis } from "@carbon/kv";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { Ratelimit, redis } from "@carbon/kv";
 import { supportedModelTypes } from "@carbon/utils";
-import { Ratelimit } from "@upstash/ratelimit";
 import type { LoaderFunctionArgs } from "react-router";
 import { getJobByOperationId } from "~/modules/production";
 import { getCustomerPortal } from "~/modules/shared/shared.service";

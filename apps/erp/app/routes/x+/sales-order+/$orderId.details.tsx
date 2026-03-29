@@ -203,7 +203,6 @@ export default function SalesOrderDetailsRoute() {
         id={orderData.salesOrder.id}
         table="salesOrder"
         title="Notes"
-        isReadOnly={isReadOnly}
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />

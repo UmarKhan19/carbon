@@ -123,9 +123,9 @@ const PurchaseOrderProperties = () => {
       ? optimisticAssignment
       : routeData?.purchaseOrder?.assignee;
 
-  const isDisabled =
-    !permissions.can("update", "purchasing") ||
-    isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
+  const canUpdate = permissions.can("update", "purchasing");
+  const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -204,7 +204,7 @@ const PurchaseOrderProperties = () => {
         table="purchaseOrder"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={isDisabled}
+        isReadOnly={!canUpdate}
       />
 
       <ValidatedForm
@@ -497,7 +497,6 @@ const PurchaseOrderProperties = () => {
         table="purchaseOrder"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

@@ -159,11 +159,11 @@ export const nonConformanceTypes = [
 ] as const;
 
 export const nonConformanceRequiredActions = [
-  { name: "Corrective Action", createdBy: "system" },
-  { name: "Preventive Action", createdBy: "system" },
-  { name: "Containment Action", createdBy: "system" },
-  { name: "Verification", createdBy: "system" },
-  { name: "Customer Communication", createdBy: "system" },
+  { name: "Corrective Action", systemType: "Corrective" as const, createdBy: "system" },
+  { name: "Preventive Action", systemType: "Preventive" as const, createdBy: "system" },
+  { name: "Containment Action", systemType: "Containment" as const, createdBy: "system" },
+  { name: "Verification", systemType: "Verification" as const, createdBy: "system" },
+  { name: "Customer Communication", systemType: "Communication" as const, createdBy: "system" },
   { name: "Root Cause Analysis", createdBy: "system" },
   { name: "Inventory", createdBy: "system" },
   { name: "WIP", createdBy: "system" },

@@ -259,6 +259,16 @@ const InventoryTable = memo(
           }
         },
         {
+          accessorKey: "demandForecast",
+          header: "Demand Forecast",
+          cell: ({ row }) =>
+            numberFormatter.format(row.original.demandForecast),
+          meta: {
+            icon: <LuMoveDown className="text-red-500" />,
+            renderTotal: true
+          }
+        },
+        {
           accessorKey: "unitOfMeasureCode",
           header: "Unit of Measure",
           cell: ({ row }) => {

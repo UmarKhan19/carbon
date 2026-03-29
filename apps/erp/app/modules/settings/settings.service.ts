@@ -582,6 +582,17 @@ export async function updateJobTravelerWorkInstructions(
     .eq("id", companyId);
 }
 
+export async function updateTimeCardSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  timeCardEnabled: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ timeCardEnabled }))
+    .eq("id", companyId);
+}
+
 export async function updateKanbanOutputSetting(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -665,16 +676,6 @@ export async function updateMaterialGeneratedIdsSetting(
   return client
     .from("companySettings")
     .update(sanitize({ materialGeneratedIds }))
-    .eq("id", companyId);
-}
-
-export async function updateMaterialUnitsSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  useMetric: boolean
-) {
-  return (client.from("companySettings") as any)
-    .update(sanitize({ useMetric }))
     .eq("id", companyId);
 }
 

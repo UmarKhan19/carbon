@@ -9,6 +9,7 @@ import type {
 } from "@supabase/supabase-js";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
+import { getSupplierPriceBreaksForItems } from "~/modules/items/items.service";
 import { getEmployeeJob } from "~/modules/people";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
@@ -19,7 +20,10 @@ import type {
   operationStepValidator,
   operationToolValidator
 } from "../shared";
-import { upsertExternalLink } from "../shared/shared.service";
+import {
+  lookupBuyPriceFromMap,
+  upsertExternalLink
+} from "../shared/shared.service";
 import type {
   customerAccountingValidator,
   customerContactValidator,
@@ -49,6 +53,7 @@ import type {
   salesRfqValidator,
   selectedLinesValidator
 } from "./sales.models";
+import { costCategoryKeys } from "./sales.models";
 import type { Quotation, SalesOrder, SalesRFQ } from "./types";
 
 export async function closeSalesOrder(
@@ -1327,6 +1332,26 @@ export async function getSalesOrderLines(
     .order("itemReadableId", { ascending: true });
 }
 
+export async function getSalesOrderInvoiceLines(
+  client: SupabaseClient<Database>,
+  salesOrderId: string
+) {
+  return client
+    .from("salesInvoiceLine")
+    .select("invoiceId")
+    .eq("salesOrderId", salesOrderId);
+}
+
+export async function getSalesOrderInvoicesByIds(
+  client: SupabaseClient<Database>,
+  invoiceIds: string[]
+) {
+  return client
+    .from("salesInvoices")
+    .select("id, invoiceTotal, status, currencyCode")
+    .in("id", invoiceIds);
+}
+
 export async function getSalesOrderLinesByItemId(
   client: SupabaseClient<Database>,
   itemId: string
@@ -2335,23 +2360,18 @@ export async function upsertQuoteLinePrices(
     };
   });
 
-  return client
-    .from("quoteLinePrice")
-    .insert(pricesWithExistingDiscountsAndLeadTimes);
+  return (
+    client
+      .from("quoteLinePrice")
+      // @ts-expect-error - categoryMarkups is a Json object
+      .insert(pricesWithExistingDiscountsAndLeadTimes)
+  );
 }
 
 async function buildCostEffects(
   client: SupabaseClient<Database>,
   quoteLineId: string
 ) {
-  const { getSupplierPriceBreaksForItems } = await import(
-    "~/modules/items/items.service"
-  );
-  const { lookupBuyPriceFromMap } = await import(
-    "~/modules/shared/shared.service"
-  );
-  const { costCategoryKeys } = await import("~/modules/sales/sales.models");
-
   const operationsResult = await client
     .from("quoteOperation")
     .select("*")
@@ -2626,8 +2646,6 @@ export async function calculatePricesForQuantities(
 ) {
   if (!quantities.length) return;
 
-  const { costCategoryKeys } = await import("~/modules/sales/sales.models");
-
   // 1. Fetch quote (with companyId) and line in parallel
   const [quoteResult, lineResult] = await Promise.all([
     client
@@ -2708,8 +2726,6 @@ export async function recalculateQuoteLinePrices(
   quoteLineId: string,
   userId: string
 ) {
-  const { costCategoryKeys } = await import("~/modules/sales/sales.models");
-
   // 1. Fetch existing price rows
   const existingPrices = await client
     .from("quoteLinePrice")

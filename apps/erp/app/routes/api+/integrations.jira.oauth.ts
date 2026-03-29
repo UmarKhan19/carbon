@@ -1,7 +1,10 @@
 import { VERCEL_URL } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getIntegrationConfigById } from "@carbon/ee";
-import { exchangeCodeForTokens, getAccessibleResources } from "@carbon/ee/jira";
+import {
+  exchangeCodeForTokens,
+  getAccessibleResources
+} from "@carbon/ee/jira.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { upsertCompanyIntegration } from "~/modules/settings/settings.server";

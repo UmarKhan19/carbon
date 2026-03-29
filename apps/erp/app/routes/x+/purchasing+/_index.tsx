@@ -1,5 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   Badge,
   Button,
@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
   Combobox,
-  DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -59,7 +58,7 @@ import {
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { Empty, Hyperlink, SupplierAvatar } from "~/components";
+import { DateSelect, Empty, Hyperlink, SupplierAvatar } from "~/components";
 import { useUser } from "~/hooks";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import type { PurchaseInvoice } from "~/modules/invoicing";
@@ -74,7 +73,7 @@ import {
   type ApprovalRequest,
   getPendingApprovalsForApprover
 } from "~/modules/shared";
-import { chartIntervals } from "~/modules/shared/shared.models";
+
 import type { loader as kpiLoader } from "~/routes/api+/purchasing.kpi.$key";
 import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
@@ -290,8 +289,6 @@ export default function PurchaseDashboard() {
     return { start, end };
   });
 
-  const selectedInterval =
-    chartIntervals.find((i) => i.key === interval) || chartIntervals[1];
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -492,40 +489,6 @@ export default function PurchaseDashboard() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    rightIcon={<LuChevronDown />}
-                    className="hover:bg-background/80"
-                  >
-                    <span>
-                      {selectedInterval.key === "custom"
-                        ? selectedInterval.label
-                        : `Last ${selectedInterval.label}`}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="bottom" align="start">
-                  <DropdownMenuRadioGroup
-                    value={interval}
-                    onValueChange={onIntervalChange}
-                  >
-                    {chartIntervals.map((i) => (
-                      <DropdownMenuRadioItem key={i.key} value={i.key}>
-                        {i.key === "custom" ? i.label : `Last ${i.label}`}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {interval === "custom" && (
-                <DateRangePicker
-                  size="sm"
-                  value={dateRange}
-                  onChange={setDateRange}
-                />
-              )}
               <Combobox
                 asButton
                 value={supplierId}
@@ -536,7 +499,13 @@ export default function PurchaseDashboard() {
               />
             </div>
           </CardHeader>
-          <CardAction>
+          <CardAction className="flex-row items-center gap-2">
+            <DateSelect
+              value={interval}
+              onValueChange={onIntervalChange}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton

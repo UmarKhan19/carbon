@@ -108,7 +108,7 @@ const Suggestion = () => {
   return (
     <Popover>
       <PopoverTrigger ref={popoverTriggerRef} asChild>
-        <SidebarMenuButton>
+        <SidebarMenuButton tooltip="Suggestion">
           <LuMailbox />
           <span>Suggestion</span>
         </SidebarMenuButton>

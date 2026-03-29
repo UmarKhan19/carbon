@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
   Combobox,
-  DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -56,7 +55,7 @@ import {
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { CustomerAvatar, Empty, Hyperlink } from "~/components";
+import { CustomerAvatar, DateSelect, Empty, Hyperlink } from "~/components";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import { KPIs } from "~/modules/sales/sales.models";
 import { getSalesDocumentsAssignedToMe } from "~/modules/sales/sales.service";
@@ -64,7 +63,7 @@ import type { Quotation, SalesOrder, SalesRFQ } from "~/modules/sales/types";
 import QuoteStatus from "~/modules/sales/ui/Quotes/QuoteStatus";
 import { SalesStatus } from "~/modules/sales/ui/SalesOrder";
 import { SalesRFQStatus } from "~/modules/sales/ui/SalesRFQ";
-import { chartIntervals } from "~/modules/shared/shared.models";
+
 import type { loader as kpiLoader } from "~/routes/api+/sales.kpi.$key";
 import { useCustomers } from "~/stores";
 import { path } from "~/utils/path";
@@ -232,8 +231,6 @@ export default function SalesDashboard() {
     return { start, end };
   });
 
-  const selectedInterval =
-    chartIntervals.find((i) => i.key === interval) || chartIntervals[1];
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -477,40 +474,6 @@ export default function SalesDashboard() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    rightIcon={<LuChevronDown />}
-                    className="hover:bg-background/80"
-                  >
-                    <span>
-                      {selectedInterval.key === "custom"
-                        ? selectedInterval.label
-                        : `Last ${selectedInterval.label}`}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="bottom" align="start">
-                  <DropdownMenuRadioGroup
-                    value={interval}
-                    onValueChange={onIntervalChange}
-                  >
-                    {chartIntervals.map((i) => (
-                      <DropdownMenuRadioItem key={i.key} value={i.key}>
-                        {i.key === "custom" ? i.label : `Last ${i.label}`}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {interval === "custom" && (
-                <DateRangePicker
-                  size="sm"
-                  value={dateRange}
-                  onChange={setDateRange}
-                />
-              )}
               <Combobox
                 asButton
                 value={customerId}
@@ -521,7 +484,13 @@ export default function SalesDashboard() {
               />
             </div>
           </CardHeader>
-          <CardAction>
+          <CardAction className="flex-row items-center gap-2">
+            <DateSelect
+              value={interval}
+              onValueChange={onIntervalChange}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton

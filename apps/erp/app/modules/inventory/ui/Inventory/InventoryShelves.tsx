@@ -46,7 +46,7 @@ import {
 import { Outlet } from "react-router";
 import type { z } from "zod";
 import { Enumerable } from "~/components/Enumerable";
-import { Input, Location, Select, Shelf } from "~/components/Form";
+import { Input, Location, Select, Shelf, TextArea } from "~/components/Form";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions } from "~/hooks";
 import type {
@@ -322,7 +322,6 @@ const InventoryShelves = ({
                       <Input
                         name="readableId"
                         label={isSerial ? "Serial Number" : "Batch Number"}
-                        helperText="A globally unique identifier is generated behind the scenes"
                       />
                     </>
                   )}
@@ -342,6 +341,7 @@ const InventoryShelves = ({
                     value={itemUnitOfMeasure?.label ?? ""}
                     isReadOnly
                   />
+                  <TextArea name="comment" label="Comment" />
                 </VStack>
               </ModalBody>
               <ModalFooter>

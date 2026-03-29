@@ -226,7 +226,6 @@ export default function PurchaseOrderBasicRoute() {
         id={orderData.purchaseOrder.id}
         title="Notes"
         table="purchaseOrder"
-        isReadOnly={isReadOnly}
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />

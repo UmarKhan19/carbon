@@ -156,6 +156,7 @@ export default function EditSalesInvoiceLineRoute() {
     itemId: salesInvoiceLine?.itemId ?? "",
     accountNumber: salesInvoiceLine?.accountNumber ?? "",
     addOnCost: salesInvoiceLine?.addOnCost ?? 0,
+    nonTaxableAddOnCost: salesInvoiceLine?.nonTaxableAddOnCost ?? 0,
     assetId: salesInvoiceLine?.assetId ?? "",
     description: salesInvoiceLine?.description ?? "",
     quantity: salesInvoiceLine?.quantity ?? 1,
@@ -183,7 +184,6 @@ export default function EditSalesInvoiceLineRoute() {
         title="Notes"
         subTitle={getItemReadableId(items, salesInvoiceLine?.itemId) ?? ""}
         internalNotes={salesInvoiceLine?.internalNotes as JSONContent}
-        isReadOnly={isReadOnly}
       />
 
       <Suspense

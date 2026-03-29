@@ -279,7 +279,7 @@ const BoMExplorer = ({
             parentClassName="h-full"
             renderNode={({ node, state }) => {
               return (
-                <HoverCard>
+                <HoverCard openDelay={500}>
                   <HoverCardTrigger asChild>
                     <div
                       key={node.id}
@@ -287,7 +287,8 @@ const BoMExplorer = ({
                         "flex h-8 cursor-pointer items-center overflow-hidden rounded-sm pr-2 gap-1 group/node",
                         state.selected
                           ? "bg-muted hover:bg-accent"
-                          : "bg-transparent hover:bg-accent"
+                          : "bg-transparent hover:bg-accent",
+                        node.data.isPickDescendant && "opacity-60"
                       )}
                       onClick={() => {
                         selectNode(node.id, false);

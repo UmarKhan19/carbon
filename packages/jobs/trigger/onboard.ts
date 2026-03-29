@@ -1,5 +1,6 @@
 import { openai } from "@ai-sdk/openai";
-import { getCarbonServiceRole, RESEND_DOMAIN } from "@carbon/auth";
+import { RESEND_DOMAIN } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { GetStartedEmail, WelcomeEmail } from "@carbon/documents/email";
 import { resend, sendEmail } from "@carbon/lib/resend.server";

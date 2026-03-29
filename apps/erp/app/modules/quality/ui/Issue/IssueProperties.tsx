@@ -260,7 +260,7 @@ const IssueProperties = () => {
           table="nonConformance"
           size="sm"
           value={assignee ?? ""}
-          isReadOnly={!permissions.can("update", "quality") || isLocked}
+          isReadOnly={!permissions.can("update", "quality")}
         />
       </VStack>
 

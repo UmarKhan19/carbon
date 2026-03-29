@@ -172,9 +172,11 @@ export function IssueMaterialModal({
   // Quantity for inventory items
   const initialQuantity = useMemo(() => {
     if (!material) return 1;
-    return parentIdIsSerialized
+    const total = parentIdIsSerialized
       ? (material.quantity ?? material.estimatedQuantity ?? 1)
       : (material.estimatedQuantity ?? material.quantity ?? 1);
+    const remaining = total - (material.quantityIssued ?? 0);
+    return Math.max(1, remaining);
   }, [material, parentIdIsSerialized]);
 
   const [quantity, setQuantity] = useState(initialQuantity);

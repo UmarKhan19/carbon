@@ -7,8 +7,9 @@ import type {
 import { createHash } from "crypto";
 import { redirect } from "react-router";
 import { REFRESH_ACCESS_TOKEN_THRESHOLD, VERCEL_URL } from "../config/env";
-import { getCarbon, getCarbonServiceRole } from "../lib/supabase";
+import { getCarbon } from "../lib/supabase";
 import { getCarbonAPIKeyClient } from "../lib/supabase/client";
+import { getCarbonServiceRole } from "../lib/supabase/client.server";
 import type { AuthSession } from "../types";
 import { path } from "../utils/path";
 import { error } from "../utils/result";

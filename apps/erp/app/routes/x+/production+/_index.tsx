@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
   cn,
-  DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -62,6 +61,7 @@ import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, LabelList, XAxis, YAxis } from "recharts";
 import {
   CustomerAvatar,
+  DateSelect,
   EmployeeAvatar,
   EmployeeAvatarGroup,
   Empty,
@@ -73,7 +73,7 @@ import { getActiveProductionEvents, KPIs } from "~/modules/production";
 import { getDeadlineIcon } from "~/modules/production/ui/Jobs";
 import type { WorkCenter } from "~/modules/resources";
 import { getWorkCentersListWithBlockingStatus } from "~/modules/resources";
-import { chartIntervals } from "~/modules/shared";
+
 import type { loader as kpiLoader } from "~/routes/api+/production.kpi.$key";
 import { path } from "~/utils/path";
 import { capitalize } from "~/utils/string";
@@ -139,8 +139,6 @@ export default function ProductionDashboard() {
     return { start, end };
   });
 
-  const selectedInterval =
-    chartIntervals.find((i) => i.key === interval) || chartIntervals[1];
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
 
   const totalTimeInInterval = useMemo(() => {
@@ -370,44 +368,15 @@ export default function ProductionDashboard() {
                     </DropdownMenuRadioGroup>
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="secondary"
-                      rightIcon={<LuChevronDown />}
-                      className="hover:bg-background/80"
-                    >
-                      <span>
-                        {selectedInterval.key === "custom"
-                          ? selectedInterval.label
-                          : `Last ${selectedInterval.label}`}
-                      </span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="bottom" align="start">
-                    <DropdownMenuRadioGroup
-                      value={interval}
-                      onValueChange={onIntervalChange}
-                    >
-                      {chartIntervals.map((i) => (
-                        <DropdownMenuRadioItem key={i.key} value={i.key}>
-                          {i.key === "custom" ? i.label : `Last ${i.label}`}
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                {interval === "custom" && (
-                  <DateRangePicker
-                    size="sm"
-                    value={dateRange}
-                    onChange={setDateRange}
-                  />
-                )}
               </div>
             </CardHeader>
-            <CardAction>
+            <CardAction className="flex-row items-center gap-2">
+              <DateSelect
+                value={interval}
+                onValueChange={onIntervalChange}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+              />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
@@ -431,7 +400,7 @@ export default function ProductionDashboard() {
               </DropdownMenu>
             </CardAction>
           </HStack>
-          <CardContent className="max-h-[600px] min-h-[320px] flex-col gap-4">
+          <CardContent className="min-h-[320px] flex-col gap-4">
             <VStack className="pl-[3px]" spacing={0}>
               {isFetching ? (
                 <div className="flex flex-col gap-0.5 w-full">

@@ -17,6 +17,7 @@ import {
   Input,
   NumberField,
   NumberInput,
+  Switch,
   Table,
   Tbody,
   Td,
@@ -195,6 +196,13 @@ const QuoteLinePricing = ({
     return charges;
   });
 
+  const taxableAdditionalChargesByQuantity = quantities.map((quantity) => {
+    return Object.values(additionalCharges).reduce((acc, charge) => {
+      if (charge.taxable === false) return acc;
+      return acc + (charge.amounts?.[quantity] ?? 0);
+    }, 0);
+  });
+
   const onUpdateChargeDescription = useCallback(
     async (chargeId: string, description: string) => {
       const updatedCharges = {
@@ -258,6 +266,34 @@ const QuoteLinePricing = ({
       }
     },
     [additionalCharges, carbon, lineId]
+  );
+
+  const onUpdateChargeTaxable = useCallback(
+    async (chargeId: string, taxable: boolean) => {
+      const updatedCharges = {
+        ...additionalCharges,
+        [chargeId]: {
+          ...additionalCharges[chargeId],
+          taxable
+        }
+      };
+
+      setEditableFields((prev) => ({
+        ...prev,
+        additionalCharges: updatedCharges
+      }));
+
+      const costUpdate = await carbon
+        ?.from("quoteLine")
+        .update({ additionalCharges: updatedCharges })
+        .eq("id", lineId);
+
+      if (costUpdate?.error) {
+        console.error(costUpdate.error);
+        toast.error("Failed to update quote line");
+      }
+    },
+    [additionalCharges, lineId, carbon]
   );
 
   const costsByQuantity = quantities.map((quantity) => {
@@ -1055,7 +1091,23 @@ const QuoteLinePricing = ({
                             }
                           }}
                         />
-                        <HStack spacing={1}>
+                        <HStack spacing={1} className="items-center pr-1">
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Switch
+                                variant="small"
+                                checked={charge.taxable !== false}
+                                disabled={!isEditable}
+                                onCheckedChange={(checked) =>
+                                  onUpdateChargeTaxable(
+                                    chargeId,
+                                    checked === true
+                                  )
+                                }
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>Taxable</TooltipContent>
+                          </Tooltip>
                           <fetcher.Form
                             method="post"
                             action={path.to.deleteQuoteLineCost(
@@ -1230,7 +1282,11 @@ const QuoteLinePricing = ({
                   (netPricesByQuantity[index] ?? 0) * quantity +
                   (editableFields.prices[quantity]?.shippingCost ?? 0) +
                   (additionalChargesByQuantity[index] ?? 0);
-                const tax = subtotal * editableFields.taxPercent;
+                const taxableSubtotal =
+                  (netPricesByQuantity[index] ?? 0) * quantity +
+                  (editableFields.prices[quantity]?.shippingCost ?? 0) +
+                  (taxableAdditionalChargesByQuantity[index] ?? 0);
+                const tax = taxableSubtotal * editableFields.taxPercent;
                 const price = subtotal + tax;
                 return (
                   <Td key={index} className="group-hover:bg-muted/50">
@@ -1272,7 +1328,11 @@ const QuoteLinePricing = ({
                       (netPricesByQuantity[index] ?? 0) * quantity +
                       (editableFields.prices[quantity]?.shippingCost ?? 0) +
                       (additionalChargesByQuantity[index] ?? 0);
-                    const tax = subtotal * editableFields.taxPercent;
+                    const taxableSubtotal =
+                      (netPricesByQuantity[index] ?? 0) * quantity +
+                      (editableFields.prices[quantity]?.shippingCost ?? 0) +
+                      (taxableAdditionalChargesByQuantity[index] ?? 0);
+                    const tax = taxableSubtotal * editableFields.taxPercent;
                     const price = subtotal + tax;
                     const exchangeRate =
                       editableFields.prices[quantity]?.exchangeRate;

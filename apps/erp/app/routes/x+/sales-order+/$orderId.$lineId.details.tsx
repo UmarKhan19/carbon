@@ -1,10 +1,6 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  notFound
-} from "@carbon/auth";
+import { assertIsPost, error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
@@ -185,6 +181,7 @@ export default function EditSalesOrderLineRoute() {
     description: line?.description ?? "",
     locationId: line?.locationId ?? "",
     methodType: line?.methodType ?? "Make",
+    nonTaxableAddOnCost: line?.nonTaxableAddOnCost ?? 0,
     promisedDate: line?.promisedDate ?? undefined,
     saleQuantity: line?.saleQuantity ?? 1,
     setupPrice: line?.setupPrice ?? 0,
@@ -209,7 +206,6 @@ export default function EditSalesOrderLineRoute() {
         table="salesOrderLine"
         title="Notes"
         subTitle={line.itemReadableId ?? ""}
-        isReadOnly={isReadOnly}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
       />

@@ -378,7 +378,7 @@ export async function getPurchasingPlanning(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "readableIdWithRevision", ascending: true }
+    { column: "quantityToOrder", ascending: false }
   ]);
 
   return query;

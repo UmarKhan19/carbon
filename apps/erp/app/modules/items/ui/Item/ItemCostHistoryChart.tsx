@@ -249,7 +249,7 @@ export function ItemCostHistoryChart({
                   }}
                   connectNulls
                 />
-                <Bar dataKey="cost" fill="var(--color-cost)" />
+                <Bar dataKey="cost" fill="var(--color-cost)" radius={2} />
               </LineChart>
             </ChartContainer>
           </TabsContent>

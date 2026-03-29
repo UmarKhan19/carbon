@@ -9,6 +9,7 @@ import {
   AlertDescription,
   AlertTitle,
   Button,
+  Checkbox,
   Modal,
   ModalBody,
   ModalContent,
@@ -62,6 +63,7 @@ export function QuantityModal({
 }) {
   const fetcher = useFetcher<ProductionQuantity>();
   const [quantity, setQuantity] = useState(parentIsSerial ? 1 : 0);
+  const [confirmedUnissued, setConfirmedUnissued] = useState(false);
 
   const titleMap = {
     scrap: `Log scrap for ${operation.itemReadableId}`,
@@ -102,16 +104,25 @@ export function QuantityModal({
     finish: finishValidator
   };
 
-  const hasUnissuedMaterials = useMemo(() => {
-    return (
-      parentIsSerial &&
-      materials.some(
-        (material) =>
-          material.jobOperationId === operation.id &&
-          (material?.quantityIssued ?? 0) < (material?.quantity ?? 0)
-      )
+  const hasUnissuedTrackedMaterials = useMemo(() => {
+    const totalPartsAfterCompletion = parentIsSerial
+      ? 1
+      : operation.quantityComplete + quantity;
+
+    return materials.some(
+      (material) =>
+        (material.requiresSerialTracking || material.requiresBatchTracking) &&
+        material.jobOperationId === operation.id &&
+        (material?.quantityIssued ?? 0) <
+          (material?.quantity ?? 0) * totalPartsAfterCompletion
     );
-  }, [materials, parentIsSerial, operation.id]);
+  }, [
+    materials,
+    operation.id,
+    operation.quantityComplete,
+    quantity,
+    parentIsSerial
+  ]);
 
   return (
     <Modal
@@ -160,14 +171,26 @@ export function QuantityModal({
             <Hidden name="laborProductionEventId" />
             <Hidden name="machineProductionEventId" />
             <VStack spacing={2}>
-              {hasUnissuedMaterials && (
+              {hasUnissuedTrackedMaterials && type === "complete" && (
                 <Alert variant="destructive">
                   <LuTriangleAlert className="h-4 w-4" />
-                  <AlertTitle>Unissued materials</AlertTitle>
+                  <AlertTitle>Unissued serial/batch materials</AlertTitle>
                   <AlertDescription>
-                    Please issue all materials for this operation before
-                    closing.
+                    There are serial or batch tracked materials on the bill of
+                    material that have not been fully issued. Completing without
+                    issuing may result in incorrect traceability records.
                   </AlertDescription>
+                  <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                    <Checkbox
+                      isChecked={confirmedUnissued}
+                      onCheckedChange={(checked) =>
+                        setConfirmedUnissued(checked === true)
+                      }
+                    />
+                    <span className="text-sm">
+                      I understand and want to complete without issuing
+                    </span>
+                  </label>
                 </Alert>
               )}
 
@@ -236,6 +259,11 @@ export function QuantityModal({
                   : "primary"
               }
               type="submit"
+              disabled={
+                type === "complete" &&
+                hasUnissuedTrackedMaterials &&
+                !confirmedUnissued
+              }
             >
               {actionButtonMap[type]}
             </Button>

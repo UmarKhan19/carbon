@@ -116,8 +116,9 @@ const SalesOrderProperties = () => {
       ? optimisticAssignment
       : routeData?.salesOrder?.assignee;
 
+  const canUpdate = permissions.can("update", "sales");
   const isLocked = isSalesOrderLocked(routeData?.salesOrder?.status);
-  const isDisabled = !permissions.can("update", "sales") || isLocked;
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -179,7 +180,7 @@ const SalesOrderProperties = () => {
         table="salesOrder"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={isDisabled}
+        isReadOnly={!canUpdate}
       />
 
       <ValidatedForm
@@ -476,7 +477,6 @@ const SalesOrderProperties = () => {
         table="salesOrder"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        // isDisabled={isDisabled}
       />
     </VStack>
   );

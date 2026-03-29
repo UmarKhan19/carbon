@@ -180,7 +180,7 @@ const QuoteBoMExplorer = ({
             getNodeProps={getNodeProps}
             getTreeProps={getTreeProps}
             renderNode={({ node, state }) => (
-              <HoverCard>
+              <HoverCard openDelay={500}>
                 <HoverCardTrigger asChild>
                   <div
                     key={node.id}

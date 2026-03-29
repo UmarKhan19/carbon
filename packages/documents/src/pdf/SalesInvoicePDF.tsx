@@ -7,7 +7,7 @@ import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import {
   getLineDescription,
   getLineDescriptionDetails,
-  getLineSubtotal,
+  getLineTaxableSubtotal,
   getLineTotal,
   getTotal
 } from "../utils/sales-invoice";
@@ -95,7 +95,7 @@ const SalesInvoicePDF = ({
   } = salesInvoiceLocations;
 
   const currencyCode = salesInvoice.currencyCode ?? company.baseCurrencyCode;
-  const formatter = getCurrencyFormatter(currencyCode, locale);
+  const formatter = getCurrencyFormatter(currencyCode ?? "USD", locale);
 
   const paymentTerm = paymentTerms?.find(
     (term) => term.id === salesInvoice?.paymentTermId
@@ -240,6 +240,18 @@ const SalesInvoicePDF = ({
           const isEven = rowIndex % 2 === 0;
           rowIndex++;
 
+          const lineAddOnCost = line.convertedAddOnCost ?? 0;
+          const lineNonTaxableAddOnCost =
+            line.convertedNonTaxableAddOnCost ?? 0;
+          const lineShippingCost = line.convertedShippingCost ?? 0;
+          const lineTaxPercent = line.taxPercent ?? 0;
+          const lineTaxAmount = getLineTaxableSubtotal(line) * lineTaxPercent;
+          const totalTaxAndFees =
+            lineAddOnCost +
+            lineNonTaxableAddOnCost +
+            lineShippingCost +
+            lineTaxAmount;
+
           return (
             <View
               key={line.id}
@@ -257,20 +269,50 @@ const SalesInvoicePDF = ({
                 <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                   {getLineDescriptionDetails(line)}
                 </Text>
-                {thumbnails && line.id in thumbnails && thumbnails[line.id] && (
-                  <View style={tw("mt-1 w-16")}>
-                    <Image
-                      src={thumbnails[line.id]!}
-                      style={tw("w-full h-auto")}
-                    />
-                  </View>
-                )}
+                {thumbnails &&
+                  line.id &&
+                  line.id in thumbnails &&
+                  thumbnails[line.id] && (
+                    <View style={tw("mt-1 w-16")}>
+                      <Image
+                        src={thumbnails[line.id]!}
+                        style={tw("w-full h-auto")}
+                      />
+                    </View>
+                  )}
                 {Object.keys(line.externalNotes ?? {}).length > 0 && (
                   <View style={tw("mt-1")}>
                     <Note
                       key={`${line.id}-notes`}
                       content={line.externalNotes as JSONContent}
                     />
+                  </View>
+                )}
+                {line.invoiceLineType !== "Comment" && totalTaxAndFees > 0 && (
+                  <View style={tw("mt-1")}>
+                    <Text style={tw("text-[8px] text-gray-400 font-bold")}>
+                      Tax & Fees
+                    </Text>
+                    {lineShippingCost > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Shipping
+                      </Text>
+                    )}
+                    {lineAddOnCost > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Add-On
+                      </Text>
+                    )}
+                    {lineNonTaxableAddOnCost > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Non-Taxable Add-On
+                      </Text>
+                    )}
+                    {lineTaxPercent > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Tax ({(lineTaxPercent * 100).toFixed(0)}%)
+                      </Text>
+                    )}
                   </View>
                 )}
               </View>
@@ -295,23 +337,57 @@ const SalesInvoicePDF = ({
 
         {/* Summary */}
         <View>
-          {/* Subtotal - before tax */}
+          {/* Subtotal - extended price only */}
           <View style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}>
             <View style={tw("w-4/6")} />
             <Text style={tw("w-1/6 text-right text-gray-600")}>Subtotal</Text>
             <Text style={tw("w-1/6 text-right text-gray-800")}>
               {formatter.format(
                 salesInvoiceLines.reduce(
-                  (sum, line) => sum + getLineSubtotal(line),
+                  (sum, line) =>
+                    sum + (line.quantity ?? 0) * (line.convertedUnitPrice ?? 0),
                   0
                 )
               )}
             </Text>
           </View>
 
+          {/* Add-Ons */}
+          {salesInvoiceLines.some(
+            (line) =>
+              (line.convertedAddOnCost ?? 0) > 0 ||
+              (line.convertedNonTaxableAddOnCost ?? 0) > 0
+          ) && (
+            <View
+              style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}
+            >
+              <View style={tw("w-4/6")} />
+              <Text style={tw("w-1/6 text-right text-gray-600")}>Add-Ons</Text>
+              <Text style={tw("w-1/6 text-right text-gray-800")}>
+                {formatter.format(
+                  salesInvoiceLines.reduce(
+                    (sum, line) =>
+                      sum +
+                      (line.convertedAddOnCost ?? 0) +
+                      (line.convertedNonTaxableAddOnCost ?? 0),
+                    0
+                  )
+                )}
+              </Text>
+            </View>
+          )}
+
           {/* Shipping */}
-          {salesInvoiceShipment?.shippingCost &&
-            salesInvoiceShipment.shippingCost > 0 && (
+          {(() => {
+            const lineShipping = salesInvoiceLines.reduce(
+              (sum, line) => sum + (line.convertedShippingCost ?? 0),
+              0
+            );
+            const invoiceShipping =
+              (salesInvoiceShipment?.shippingCost ?? 0) *
+              (salesInvoice.exchangeRate ?? 1);
+            const totalShipping = lineShipping + invoiceShipping;
+            return totalShipping > 0 ? (
               <View
                 style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}
               >
@@ -320,13 +396,11 @@ const SalesInvoicePDF = ({
                   Shipping
                 </Text>
                 <Text style={tw("w-1/6 text-right text-gray-800")}>
-                  {formatter.format(
-                    (salesInvoiceShipment.shippingCost ?? 0) *
-                      (salesInvoice.exchangeRate ?? 1)
-                  )}
+                  {formatter.format(totalShipping)}
                 </Text>
               </View>
-            )}
+            ) : null;
+          })()}
 
           {/* Taxes */}
           {salesInvoiceLines.some((line) => (line.taxPercent ?? 0) > 0) && (
@@ -339,7 +413,7 @@ const SalesInvoicePDF = ({
                 {formatter.format(
                   salesInvoiceLines.reduce((sum, line) => {
                     const taxPercent = line.taxPercent ?? 0;
-                    return sum + getLineSubtotal(line) * taxPercent;
+                    return sum + getLineTaxableSubtotal(line) * taxPercent;
                   }, 0)
                 )}
               </Text>

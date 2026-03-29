@@ -9,10 +9,6 @@ on:
       - "apps/mes/**"
       - "packages/**"
   workflow_dispatch:
-
-env:
-  AWS_REGION: us-gov-east-1
-
 jobs:
   build:
     name: Build
@@ -30,7 +26,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -41,7 +37,10 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         with:
+          build-args: NODE_OPTIONS=--max-old-space-size=4096
           context: .
           file: ./apps/${{ matrix.app }}/Dockerfile
           push: true
@@ -71,7 +70,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - uses: actions/setup-node@v3
         with:
@@ -81,6 +80,14 @@ jobs:
         run: |
           curl -fsSL https://get.pulumi.com | sh -s -- --version 3.212.0
           echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
       - name: Install dependencies
         run: |

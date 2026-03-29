@@ -11,6 +11,8 @@ declare global {
       ERP_URL: string;
       JIRA_CLIENT_ID: string;
       MES_URL: string;
+      NOVU_APPLICATION_ID: string;
+      NOVU_API_URL: string;
       ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;
@@ -38,6 +40,8 @@ declare global {
       JIRA_OAUTH_REDIRECT_URL: string;
       JIRA_STATE_SECRET: string;
       MES_URL: string;
+      NOVU_APPLICATION_ID: string;
+      NOVU_API_URL: string;
       NOVU_SECRET_KEY: string;
       ONSHAPE_CLIENT_ID: string;
       ONSHAPE_CLIENT_SECRET: string;
@@ -66,8 +70,7 @@ declare global {
       SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_ID: string;
       SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: string;
       SUPABASE_SERVICE_ROLE_KEY: string;
-      UPSTASH_REDIS_REST_URL: string;
-      UPSTASH_REDIS_REST_TOKEN: string;
+      REDIS_URL: string;
       VERCEL_URL: string;
       VERCEL_ENV: string;
       XERO_CLIENT_SECRET: string;
@@ -171,6 +174,12 @@ export const NOVU_APPLICATION_ID = getEnv("NOVU_APPLICATION_ID", {
   isRequired: false,
   isSecret: false
 });
+export const NOVU_API_URL =
+  getEnv("NOVU_API_URL", {
+    isRequired: false,
+    isSecret: false
+  }) ?? "https://api.novu.co";
+
 export const NOVU_SECRET_KEY = getEnv("NOVU_SECRET_KEY", {
   isRequired: false,
   isSecret: true
@@ -263,11 +272,9 @@ export const STRIPE_BYPASS_COMPANY_IDS = getEnv("STRIPE_BYPASS_COMPANY_IDS", {
 export const STRIPE_BYPASS_USER_IDS = getEnv("STRIPE_BYPASS_USER_IDS", {
   isRequired: false
 });
-export const UPSTASH_REDIS_REST_URL = getEnv("UPSTASH_REDIS_REST_URL", {
-  isRequired: false
-});
-export const UPSTASH_REDIS_REST_TOKEN = getEnv("UPSTASH_REDIS_REST_TOKEN", {
-  isRequired: false
+export const REDIS_URL = getEnv("REDIS_URL", {
+  isRequired: true,
+  isSecret: true
 });
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days;
 export const REFRESH_ACCESS_TOKEN_THRESHOLD = 60 * 10; // 10 minutes left before token expires
@@ -371,6 +378,7 @@ export function getBrowserEnv() {
     MES_URL,
     NODE_ENV,
     NOVU_APPLICATION_ID,
+    NOVU_API_URL,
     ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
@@ -384,5 +392,5 @@ export function getBrowserEnv() {
 }
 
 export function isVercel() {
-  return VERCEL_URL.includes("vercel.app");
+  return VERCEL_URL?.includes("vercel.app") ?? false;
 }

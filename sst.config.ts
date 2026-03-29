@@ -17,7 +17,7 @@ export default $config({
       forceUpgrade: "v2",
     });
     const erp = cluster.addService("CarbonERPService", {
-      image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.us-gov-east-1.amazonaws.com/carbon/erp:${process.env.IMAGE_TAG}`,
+      image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.${process.env.AWS_REGION}.amazonaws.com/carbon/erp:${process.env.IMAGE_TAG}`,
       loadBalancer: {
         domain: {
           name: process.env.URL_ERP ?? "itar.carbon.ms",
@@ -42,18 +42,21 @@ export default $config({
         memoryUtilization: 80,
       },
       environment: {
+        AUTH_PROVIDERS: process.env.AUTH_PROVIDERS,
         CARBON_EDITION: process.env.CARBON_EDITION,
         CLOUDFLARE_TURNSTILE_SECRET_KEY:
           process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY,
         CLOUDFLARE_TURNSTILE_SITE_KEY:
           process.env.CLOUDFLARE_TURNSTILE_SITE_KEY,
         CONTROLLED_ENVIRONMENT: process.env.CONTROLLED_ENVIRONMENT,
-        DOMAIN: "carbon.ms",
+        DOMAIN: process.env.DOMAIN ?? "carbon.ms",
         ERP_URL: process.env.URL_ERP ? `https://${process.env.URL_ERP}` : "https://itar.carbon.ms",
         EXCHANGE_RATES_API_KEY: process.env.EXCHANGE_RATES_API_KEY,
+        GOOGLE_PLACES_API_KEY: process.env.GOOGLE_PLACES_API_KEY,
         MES_URL: process.env.URL_MES ? `https://${process.env.URL_MES}` : "https://mes.itar.carbon.ms",
         NODE_ENV: "production",
         NOVU_APPLICATION_ID: process.env.NOVU_APPLICATION_ID,
+        NOVU_API_URL: process.env.NOVU_API_URL,
         NOVU_SECRET_KEY: process.env.NOVU_SECRET_KEY,
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
         ONSHAPE_CLIENT_ID: process.env.ONSHAPE_CLIENT_ID,
@@ -65,6 +68,7 @@ export default $config({
         QUICKBOOKS_CLIENT_SECRET: process.env.QUICKBOOKS_CLIENT_SECRET,
         QUICKBOOKS_WEBHOOK_SECRET: process.env.QUICKBOOKS_WEBHOOK_SECRET,
         RESEND_API_KEY: process.env.RESEND_API_KEY,
+        REDIS_URL: process.env.REDIS_URL,
         RESEND_DOMAIN: process.env.RESEND_DOMAIN ?? "carbon.ms",
         SESSION_SECRET: process.env.SESSION_SECRET,
         SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
@@ -83,8 +87,7 @@ export default $config({
         TRIGGER_API_URL: process.env.TRIGGER_API_URL,
         TRIGGER_PROJECT_ID: process.env.TRIGGER_PROJECT_ID,
         TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
-        UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
-        UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+        REDIS_URL: process.env.REDIS_URL,
         VERCEL_ENV: "production",
         VERCEL_URL: process.env.URL_ERP ?? "itar.carbon.ms",
         XERO_CLIENT_ID: process.env.XERO_CLIENT_ID,
@@ -107,7 +110,7 @@ export default $config({
     });
 
     const mes = cluster.addService("CarbonMESService", {
-      image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.us-gov-east-1.amazonaws.com/carbon/mes:${process.env.IMAGE_TAG}`,
+      image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.${process.env.AWS_REGION}.amazonaws.com/carbon/mes:${process.env.IMAGE_TAG}`,
       loadBalancer: {
         domain: {
           name: process.env.URL_MES ?? "mes.itar.carbon.ms",
@@ -133,18 +136,20 @@ export default $config({
         memoryUtilization: 80,
       },
       environment: {
+        AUTH_PROVIDERS: process.env.AUTH_PROVIDERS,
         CARBON_EDITION: process.env.CARBON_EDITION,
         CLOUDFLARE_TURNSTILE_SECRET_KEY:
           process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY,
         CLOUDFLARE_TURNSTILE_SITE_KEY:
           process.env.CLOUDFLARE_TURNSTILE_SITE_KEY,
         CONTROLLED_ENVIRONMENT: process.env.CONTROLLED_ENVIRONMENT,
-        DOMAIN: "carbon.ms",
+        DOMAIN: process.env.DOMAIN ?? "carbon.ms",
         ERP_URL: process.env.URL_ERP ? `https://${process.env.URL_ERP}` : "https://itar.carbon.ms",
         EXCHANGE_RATES_API_KEY: process.env.EXCHANGE_RATES_API_KEY,
         MES_URL: process.env.URL_MES ? `https://${process.env.URL_MES}` : "https://mes.itar.carbon.ms",
         NODE_ENV: "production",
         NOVU_APPLICATION_ID: process.env.NOVU_APPLICATION_ID,
+        NOVU_API_URL: process.env.NOVU_API_URL,
         NOVU_SECRET_KEY: process.env.NOVU_SECRET_KEY,
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
         ONSHAPE_CLIENT_ID: process.env.ONSHAPE_CLIENT_ID,
@@ -152,6 +157,7 @@ export default $config({
         ONSHAPE_OAUTH_REDIRECT_URL: process.env.ONSHAPE_OAUTH_REDIRECT_URL,
         POSTHOG_API_HOST: process.env.POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY: process.env.POSTHOG_PROJECT_PUBLIC_KEY,
+        REDIS_URL: process.env.REDIS_URL,
         RESEND_API_KEY: process.env.RESEND_API_KEY,
         RESEND_DOMAIN: process.env.RESEND_DOMAIN ?? "carbon.ms",
         SESSION_SECRET: process.env.SESSION_SECRET,
@@ -162,8 +168,7 @@ export default $config({
         TRIGGER_API_URL: process.env.TRIGGER_API_URL,
         TRIGGER_PROJECT_ID: process.env.TRIGGER_PROJECT_ID,
         TRIGGER_SECRET_KEY: process.env.TRIGGER_SECRET_KEY,
-        UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
-        UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+        REDIS_URL: process.env.REDIS_URL,
         VERCEL_ENV: "production",
         VERCEL_URL: process.env.URL_MES ?? "mes.itar.carbon.ms",
       },

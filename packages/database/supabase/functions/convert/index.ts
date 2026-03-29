@@ -44,6 +44,8 @@ const payloadValidator = z.discriminatedUnion("type", [
         convertedNetUnitPrice: z.number(),
         addOn: z.number(),
         convertedAddOn: z.number(),
+        taxableAddOn: z.number().optional(),
+        convertedTaxableAddOn: z.number().optional(),
         shippingCost: z.number(),
         convertedShippingCost: z.number(),
         leadTime: z.number(),
@@ -502,7 +504,8 @@ serve(async (req: Request) => {
                   id: line.id,
                   salesOrderId: insertedSalesOrderId,
                   salesOrderLineType: line.itemType as "Part",
-                  addOnCost: selectedLines![line.id!].addOn,
+                  addOnCost: selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn,
+                  nonTaxableAddOnCost: (selectedLines![line.id!].addOn ?? 0) - (selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn ?? 0),
                   description: line.description,
                   itemId: line.itemId,
                   locationId: line.locationId ?? quote.data.locationId,
@@ -742,6 +745,7 @@ serve(async (req: Request) => {
                 quantity: line.quantityToInvoice,
                 unitPrice: line.unitPrice ?? 0,
                 addOnCost: line.addOnCost ?? 0,
+                nonTaxableAddOnCost: line.nonTaxableAddOnCost ?? 0,
                 shippingCost: line.shippingCost ?? 0,
                 taxPercent: line.taxPercent ?? 0,
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
@@ -1199,14 +1203,17 @@ serve(async (req: Request) => {
           (typeof salesOrderLines)["data"]
         >((acc, line) => {
           if (line.id in quantitiesByLine) {
-            // Deduct any previously invoiced quantity
-            const remainingQuantity =
-              quantitiesByLine[line.id] - (line.quantityInvoiced ?? 0);
+            const shippedInThisShipment = quantitiesByLine[line.id];
+            const remainingToInvoice = line.quantityToInvoice ?? 0;
+            const quantityToInvoice = Math.min(
+              shippedInThisShipment,
+              remainingToInvoice
+            );
 
-            if (remainingQuantity > 0) {
+            if (quantityToInvoice > 0) {
               acc.push({
                 ...line,
-                quantityToInvoice: remainingQuantity,
+                quantityToInvoice,
               });
             }
           }
@@ -1304,6 +1311,7 @@ serve(async (req: Request) => {
                 quantity: line.quantityToInvoice,
                 unitPrice: line.unitPrice ?? 0,
                 addOnCost: line.addOnCost ?? 0,
+                nonTaxableAddOnCost: line.nonTaxableAddOnCost ?? 0,
                 shippingCost: line.shippingCost ?? 0,
                 taxPercent: line.taxPercent ?? 0,
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",

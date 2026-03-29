@@ -19,6 +19,7 @@ opencode.json
 
 scripts/migrations/data
 scripts/paperless-test.ts
+scripts/test-get-stripe-customer.ts
 
 # local env files
 .env
@@ -47,3 +48,4 @@ packages/database/supabase/seed.sql
 # C++ (cad-engine)
 **/build/
 !**/build/.gitkeep
+.orcka

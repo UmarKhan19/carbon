@@ -221,6 +221,7 @@ const InventoryActivity = ({ item }: InventoryActivityProps) => {
       activityMessage={getActivityText(item)}
       activityTime={item.createdAt}
       activityIcon={getActivityIcon(item)}
+      comment={item.comment}
     />
   );
 };

@@ -2,9 +2,9 @@ import {
   CarbonEdition,
   error,
   getAppUrl,
-  getCarbonServiceRole,
   getPermissionCacheKey
 } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { setCompanyId } from "@carbon/auth/company.server";
 import {
   flash,

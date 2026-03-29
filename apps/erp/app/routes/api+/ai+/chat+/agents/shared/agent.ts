@@ -1,18 +1,12 @@
 import { openai } from "@ai-sdk/openai";
 import type { AgentConfig } from "@ai-sdk-tools/agents";
 import { Agent } from "@ai-sdk-tools/agents";
-import { UpstashProvider } from "@ai-sdk-tools/memory/upstash";
-import { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } from "@carbon/auth";
-import { Redis } from "@upstash/redis";
+import { RedisProvider } from "@ai-sdk-tools/memory/redis";
+import { redis } from "@carbon/kv";
 import type { ChatContext } from "./context";
 import { PROFILE_PROMPT, SUGGESTION_PROMPT, TITLE_PROMPT } from "./prompts";
 
-export const memoryProvider = new UpstashProvider(
-  new Redis({
-    url: UPSTASH_REDIS_REST_URL,
-    token: UPSTASH_REDIS_REST_TOKEN
-  })
-);
+export const memoryProvider = new RedisProvider(redis);
 
 export const createAgent = (config: AgentConfig<ChatContext>) => {
   return new Agent({
