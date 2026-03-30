@@ -24,7 +24,6 @@ import {
   LuCopy,
   LuLoader,
   LuLogOut,
-  LuMonitor,
   LuPlus,
   LuRefreshCw,
   LuSearch,
@@ -91,7 +90,6 @@ export function PinInOverlay({
 
   const pinInFetcher = useFetcher<{ error?: string }>();
   const pinOutFetcher = useFetcher();
-  const consoleToggleFetcher = useFetcher();
   const addOperatorFetcher = useFetcher<{
     success: boolean;
     message?: string;
@@ -146,19 +144,19 @@ export function PinInOverlay({
       const op = addOperatorFetcher.data.operator;
       setShowAddModal(false);
       submitPinIn(op, op.pin);
-      onDismiss?.();
+      // Don't dismiss — the pinInFetcher completion effect handles it
     }
-  }, [
-    addOperatorFetcher.state,
-    addOperatorFetcher.data,
-    submitPinIn,
-    onDismiss
-  ]);
+  }, [addOperatorFetcher.state, addOperatorFetcher.data, submitPinIn]);
 
   // Focus search on mount
   useEffect(() => {
     searchRef.current?.focus();
   }, []);
+
+  const stationUser = useMemo(
+    () => (sessionUserId ? people.find((p) => p.id === sessionUserId) : null),
+    [people, sessionUserId]
+  );
 
   const operatorList = useMemo(() => {
     const query = search.toLowerCase().trim();
@@ -190,14 +188,36 @@ export function PinInOverlay({
     return { recent, others, all: sorted };
   }, [people, search, recentIds, locationEmployeeIds, sessionUserId]);
 
+  // Track if we've submitted a pin-in attempt
+  const hasSubmittedPinIn = useRef(false);
+
+  // Watch for successful pin-in completion
+  useEffect(() => {
+    if (
+      pinInFetcher.state === "submitting" ||
+      pinInFetcher.state === "loading"
+    ) {
+      hasSubmittedPinIn.current = true;
+    }
+    if (
+      hasSubmittedPinIn.current &&
+      pinInFetcher.state === "idle" &&
+      !pinInFetcher.data?.error
+    ) {
+      // Fetcher completed without error — cookie is set, dismiss overlay
+      hasSubmittedPinIn.current = false;
+      onDismiss?.();
+    }
+  }, [pinInFetcher.state, pinInFetcher.data, onDismiss]);
+
   const handlePinComplete = useCallback(
     (value: string) => {
       if (selectedPerson && value.length === 4) {
         submitPinIn(selectedPerson, value);
-        onDismiss?.();
+        // Don't dismiss here — wait for fetcher to complete
       }
     },
-    [selectedPerson, submitPinIn, onDismiss]
+    [selectedPerson, submitPinIn]
   );
 
   const handleAddOperator = useCallback(
@@ -304,7 +324,25 @@ export function PinInOverlay({
           )}
         </div>
 
-        {/* PIN input — only visible when someone is selected */}
+        {/* Station user option — for exiting console mode */}
+        {stationUser && !search && (
+          <div className="border-t">
+            <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              Station User
+            </p>
+            <OperatorRow
+              person={stationUser}
+              isSelected={selectedPerson?.id === stationUser.id}
+              onSelect={(p) => {
+                setSelectedPerson(selectedPerson?.id === p.id ? null : p);
+                setPin("");
+                setPinError(null);
+              }}
+            />
+          </div>
+        )}
+
+        {/* PIN input — below station user, above footer */}
         {selectedPerson && (
           <div className="border-t px-4 py-3">
             <div className="flex flex-col items-center gap-2">
@@ -322,12 +360,33 @@ export function PinInOverlay({
                   onComplete={handlePinComplete}
                   disabled={isPinning}
                   autoFocus
+                  containerClassName="[&_[data-slot=input-otp-slot]]:text-[0px]"
                 >
                   <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
+                    <InputOTPSlot
+                      index={0}
+                      className={
+                        pin[0] ? "before:content-['●'] before:text-sm" : ""
+                      }
+                    />
+                    <InputOTPSlot
+                      index={1}
+                      className={
+                        pin[1] ? "before:content-['●'] before:text-sm" : ""
+                      }
+                    />
+                    <InputOTPSlot
+                      index={2}
+                      className={
+                        pin[2] ? "before:content-['●'] before:text-sm" : ""
+                      }
+                    />
+                    <InputOTPSlot
+                      index={3}
+                      className={
+                        pin[3] ? "before:content-['●'] before:text-sm" : ""
+                      }
+                    />
                   </InputOTPGroup>
                 </InputOTP>
                 {isPinning && (
@@ -369,24 +428,6 @@ export function PinInOverlay({
             >
               <LuLogOut className="mr-2 h-4 w-4" />
               Pin Out
-            </Button>
-          )}
-          {!dismissable && (
-            <Button
-              variant="secondary"
-              size="md"
-              className="flex-1"
-              onClick={() => {
-                const formData = new FormData();
-                formData.append("consoleMode", "false");
-                consoleToggleFetcher.submit(formData, {
-                  method: "POST",
-                  action: path.to.consoleToggle
-                });
-              }}
-            >
-              <LuMonitor className="mr-2 h-4 w-4" />
-              Exit Console
             </Button>
           )}
         </div>

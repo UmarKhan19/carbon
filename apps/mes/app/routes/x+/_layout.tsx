@@ -177,6 +177,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
             clockIn: (openClockEntry.data as any).clockIn
           }
         : null,
+      effectiveUserId,
       pinnedInUser,
       plan: companyPlan?.planId,
       timeCardEnabled,

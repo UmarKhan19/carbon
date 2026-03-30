@@ -112,9 +112,7 @@ const EmployeesTable = memo(
           cell: (item) => {
             const email = item.getValue<string>();
             if (email?.endsWith("@console.internal")) {
-              return (
-                <Badge variant="secondary">Console Operator</Badge>
-              );
+              return <Badge variant="secondary">Console Operator</Badge>;
             }
             return email;
           },
@@ -243,6 +241,16 @@ const EmployeesTable = memo(
                 >
                   <MenuIcon icon={<LuPencil />} />
                   Edit Permissions
+                </MenuItem>
+                <MenuItem
+                  onClick={() =>
+                    navigate(
+                      `${path.to.operatorResetPin(row.id!)}?${params.toString()}`
+                    )
+                  }
+                >
+                  <MenuIcon icon={<LuShield />} />
+                  Set Console PIN
                 </MenuItem>
                 <MenuItem
                   onClick={(e) => {

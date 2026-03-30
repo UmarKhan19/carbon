@@ -53,6 +53,7 @@ const Suggestion = () => {
   } | null>(null);
   const { carbon } = useCarbon();
   const user = useUser();
+
   const companyId = user.company.id;
 
   useEffect(() => {

@@ -309,6 +309,8 @@ export function UserNav({
 
   const itarDisclosure = useDisclosure();
 
+  const isOperatorPinnedIn =
+    consoleMode && pinnedInUser && pinnedInUser.userId !== user.id;
   const showingOperator = consoleMode && pinnedInUser;
   const displayName = showingOperator ? pinnedInUser.name : stationName;
   const displayAvatar = showingOperator
@@ -479,53 +481,59 @@ export function UserNav({
                 </div>
               </div>
             </DropdownMenuItem>
-            {consoleEnabled && (
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center justify-start">
-                    <DropdownMenuIcon icon={<LuMonitor />} />
-                    Console Mode
-                  </div>
-                  <div>
-                    <Switch
-                      checked={consoleMode}
-                      onCheckedChange={() => consoleSubmitRef.current?.click()}
-                    />
-                    <fetcher.Form
-                      action={path.to.consoleToggle}
-                      method="post"
-                      className="sr-only"
-                    >
-                      <input
-                        type="hidden"
-                        name="consoleMode"
-                        value={consoleMode ? "false" : "true"}
-                      />
-                      <button
-                        ref={consoleSubmitRef}
-                        className="sr-only"
-                        type="submit"
-                      />
-                    </fetcher.Form>
-                  </div>
-                </div>
-              </DropdownMenuItem>
+            {!isOperatorPinnedIn && (
+              <>
+                {consoleEnabled && (
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center justify-start">
+                        <DropdownMenuIcon icon={<LuMonitor />} />
+                        Console Mode
+                      </div>
+                      <div>
+                        <Switch
+                          checked={consoleMode}
+                          onCheckedChange={() =>
+                            consoleSubmitRef.current?.click()
+                          }
+                        />
+                        <fetcher.Form
+                          action={path.to.consoleToggle}
+                          method="post"
+                          className="sr-only"
+                        >
+                          <input
+                            type="hidden"
+                            name="consoleMode"
+                            value={consoleMode ? "false" : "true"}
+                          />
+                          <button
+                            ref={consoleSubmitRef}
+                            className="sr-only"
+                            type="submit"
+                          />
+                        </fetcher.Form>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                {CONTROLLED_ENVIRONMENT && (
+                  <DropdownMenuItem onClick={itarDisclosure.onOpen}>
+                    <DropdownMenuIcon icon={<LuShieldCheck />} />
+                    About
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Form method="post" action={path.to.logout}>
+                    <button type="submit" className="w-full flex items-center">
+                      <DropdownMenuIcon icon={<LuLogOut />} />
+                      <span>Sign Out</span>
+                    </button>
+                  </Form>
+                </DropdownMenuItem>
+              </>
             )}
-            <DropdownMenuSeparator />
-            {CONTROLLED_ENVIRONMENT && (
-              <DropdownMenuItem onClick={itarDisclosure.onOpen}>
-                <DropdownMenuIcon icon={<LuShieldCheck />} />
-                About
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <Form method="post" action={path.to.logout}>
-                <button type="submit" className="w-full flex items-center">
-                  <DropdownMenuIcon icon={<LuLogOut />} />
-                  <span>Sign Out</span>
-                </button>
-              </Form>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

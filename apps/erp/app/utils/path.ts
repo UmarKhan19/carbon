@@ -789,6 +789,8 @@ export const path = {
     employeeTypes: `${x}/users/employee-types`,
     operators: `${x}/users/operators`,
     operator: (id: string) => generatePath(`${x}/users/operators/${id}`),
+    operatorResetPin: (id: string) =>
+      generatePath(`${x}/users/operators/reset-pin/${id}`),
     externalCustomer: (id: string) => generatePath(`/share/customer/${id}`),
     externalCustomerFile: (id: string, path: string) =>
       generatePath(`/share/customer/${id}/${path}`),

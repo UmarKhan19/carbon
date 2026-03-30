@@ -709,7 +709,8 @@ export async function updateTimeCardSetting(
 export async function updateConsoleSetting(
   client: SupabaseClient<Database>,
   companyId: string,
-  consoleEnabled: boolean
+  consoleEnabled: boolean,
+  userId?: string
 ) {
   const update = await client
     .from("companySettings")
@@ -796,6 +797,26 @@ export async function updateConsoleSetting(
         }));
 
         await client.from("employeeTypePermission").insert(permissions);
+      }
+    }
+
+    // Auto-generate a PIN for the enabling user if they don't have one
+    let generatedPin: string | null = null;
+    if (userId) {
+      const userEmployee = await client
+        .from("employee")
+        .select("id, pin" as any)
+        .eq("id", userId)
+        .eq("companyId", companyId)
+        .maybeSingle();
+
+      if (userEmployee.data && !(userEmployee.data as any).pin) {
+        generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
+        await client
+          .from("employee")
+          .update({ pin: generatedPin } as any)
+          .eq("id", userId)
+          .eq("companyId", companyId);
       }
     }
   }

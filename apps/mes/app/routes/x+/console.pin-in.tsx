@@ -8,7 +8,7 @@ import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, sessionUserId } = await requirePermissions(request, {});
+  const { companyId } = await requirePermissions(request, {});
 
   const formData = await request.formData();
   const userId = formData.get("userId") as string;
@@ -33,42 +33,33 @@ export async function action({ request }: ActionFunctionArgs) {
     return data({ error: "User not found or inactive" }, { status: 400 });
   }
 
-  // If the person pinning in IS the station user (the one who logged in),
-  // they already authenticated with their credentials — no PIN needed.
-  const isStationUser = userId === sessionUserId;
+  const employeeCheck = await serviceRole
+    .from("employee")
+    .select("*")
+    .eq("id", userId)
+    .eq("companyId", companyId)
+    .single();
 
-  if (!isStationUser) {
-    // Get employee record with PIN
-    const employeeCheck = await serviceRole
-      .from("employee")
-      .select("*")
-      .eq("id", userId)
-      .eq("companyId", companyId)
-      .single();
+  if (employeeCheck.error || !employeeCheck.data) {
+    return data(
+      { error: "Employee not found in this company" },
+      { status: 400 }
+    );
+  }
 
-    if (employeeCheck.error || !employeeCheck.data) {
-      return data(
-        { error: "Employee not found in this company" },
-        { status: 400 }
-      );
-    }
+  const storedPin: string | null = (employeeCheck.data as any)?.pin ?? null;
 
-    const storedPin: string | null = (employeeCheck.data as any)?.pin ?? null;
+  if (!storedPin) {
+    return data(
+      {
+        error: "No PIN set. Please set a PIN in your account settings."
+      },
+      { status: 400 }
+    );
+  }
 
-    // PIN is required for non-station users
-    if (!storedPin) {
-      return data(
-        {
-          error:
-            "No PIN set. Please ask an admin to set a PIN for this operator."
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!pin || pin !== storedPin) {
-      return data({ error: "Incorrect PIN" }, { status: 400 });
-    }
+  if (!pin || pin !== storedPin) {
+    return data({ error: "Incorrect PIN" }, { status: 400 });
   }
 
   throw redirect(path.to.authenticatedRoot, {

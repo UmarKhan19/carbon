@@ -2,7 +2,8 @@ import {
   CarbonEdition,
   CarbonProvider,
   CONTROLLED_ENVIRONMENT,
-  getCarbon
+  getCarbon,
+  getMESUrl
 } from "@carbon/auth";
 import { setCompanyId } from "@carbon/auth/company.server";
 import {
@@ -66,6 +67,24 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  // Block ERP access when console mode is active on this terminal.
+  // Console terminals should only access the MES app.
+  const cookieHeader = request.headers.get("cookie");
+  if (cookieHeader) {
+    const cookies = Object.fromEntries(
+      cookieHeader.split(";").map((c) => {
+        const [key, ...rest] = c.trim().split("=");
+        return [key, decodeURIComponent(rest.join("="))];
+      })
+    );
+    const hasConsoleMode = Object.entries(cookies).some(
+      ([key, value]) => key.startsWith("console-mode-") && value === "true"
+    );
+    if (hasConsoleMode) {
+      throw redirect(getMESUrl());
+    }
+  }
+
   const { accessToken, companyId, expiresAt, expiresIn, userId } =
     await requireAuthSession(request, { verify: true });
 

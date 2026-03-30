@@ -37,7 +37,7 @@ export async function action({ request }: ActionFunctionArgs) {
         emoji,
         path,
         attachmentPath: attachmentPath || null,
-        userId: formUserId || null,
+        userId: userId || formUserId || null,
         companyId
       }
     ])
@@ -67,7 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
           type: "group",
           groupIds: company.data.suggestionNotificationGroup
         },
-        from: formUserId || userId
+        from: userId || formUserId
       });
     } catch (err) {
       console.error("Failed to trigger suggestion notification", err);
