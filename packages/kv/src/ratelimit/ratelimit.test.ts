@@ -507,7 +507,7 @@ describe("Ratelimit", () => {
       expect(mockRedis.eval).toHaveBeenCalledWith(
         expect.any(String),
         1,
-        "@upstash/ratelimit:user:123", // Default prefix
+        "@carbon/ratelimit:user:123", // Default prefix
         expect.anything(),
         expect.anything(),
         expect.anything()
