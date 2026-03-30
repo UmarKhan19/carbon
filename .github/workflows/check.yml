@@ -21,10 +21,12 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npx biome check .
+      - run: npm install
+      - run: npx biome check
 
   typecheck:
     name: Typecheck
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,4 +36,5 @@ jobs:
           cache: npm
 
       - run: npm install
+      - run: npm run typegen
       - run: npm run typecheck
