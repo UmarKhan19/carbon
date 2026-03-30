@@ -20,7 +20,7 @@ export default function NewAttributeRoute() {
     <AttributeForm
       initialValues={{
         name: "",
-        // @ts-ignore
+        // @ts-expect-error
         attributeDataTypeId: DataType.Text.toString(),
         userAttributeCategoryId: categoryId,
         canSelfManage: false

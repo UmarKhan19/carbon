@@ -175,7 +175,7 @@ export default function PartMakeMethodPage() {
         key={`bop:${makeMethodId}`}
         makeMethod={makeMethod}
         materials={methodMaterials}
-        // @ts-ignore
+        // @ts-expect-error
         operations={methodOperations}
         configurable={partManufacturing?.requiresConfiguration}
         configurationRules={configurationRules}

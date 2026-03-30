@@ -97,7 +97,6 @@ export async function trigger(novu: any, data: TriggerPayload) {
       overrides: {
         email: {
           replyTo: data.replyTo,
-          // @ts-ignore
           headers: {
             "X-Entity-Ref-ID": nanoid()
           }

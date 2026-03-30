@@ -990,7 +990,7 @@ function getJobMethodTreeArrayToTree(items: JobMethod[]): JobMethodTreeItem[] {
     const parentId = item.parentMaterialId;
 
     if (!Object.prototype.hasOwnProperty.call(lookup, itemId)) {
-      // @ts-ignore
+      // @ts-expect-error
       lookup[itemId] = { id: itemId, children: [] };
     }
 
@@ -1003,7 +1003,7 @@ function getJobMethodTreeArrayToTree(items: JobMethod[]): JobMethodTreeItem[] {
       rootItems.push(treeItem);
     } else {
       if (!Object.prototype.hasOwnProperty.call(lookup, parentId)) {
-        // @ts-ignore
+        // @ts-expect-error
         lookup[parentId] = { id: parentId, children: [] };
       }
 

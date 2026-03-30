@@ -550,7 +550,6 @@ export default function ExternalQuote() {
   switch (state) {
     case IssueState.Valid:
       if (data) {
-        // @ts-ignore
         return <Issue data={data as IssueData} strings={strings} />;
       }
       return (

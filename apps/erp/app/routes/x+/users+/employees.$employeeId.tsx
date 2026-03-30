@@ -124,7 +124,7 @@ export default function UsersEmployeeRoute() {
       key={initialValues.id}
       name={employee?.name || ""}
       employeeTypes={employeeTypes}
-      // @ts-ignore
+      // @ts-expect-error
       initialValues={initialValues}
     />
   );

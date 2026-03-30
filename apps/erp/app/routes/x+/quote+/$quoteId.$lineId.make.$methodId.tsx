@@ -118,7 +118,7 @@ export default function QuoteMakeMethodRoute() {
         key={`bop:${methodId}`}
         quoteMakeMethodId={methodId}
         materials={materials}
-        // @ts-ignore
+        // @ts-expect-error
         operations={operations}
         tags={tags}
       />

@@ -134,7 +134,6 @@ const InputControlled = forwardRef<HTMLInputElement, FormInputControlledProps>(
               {...getInputProps({
                 id: name,
                 ...rest,
-                // @ts-ignore
                 value: controlValue
               })}
               onChange={handleChange}
@@ -166,7 +165,6 @@ const InputControlled = forwardRef<HTMLInputElement, FormInputControlledProps>(
             {...getInputProps({
               id: name,
               ...rest,
-              // @ts-ignore
               value: controlValue
             })}
             onChange={handleChange}

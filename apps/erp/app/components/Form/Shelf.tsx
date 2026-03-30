@@ -132,7 +132,7 @@ export function useShelves(locationId?: string, itemId?: string) {
         value: c.id,
         label: c.name,
         // Add quantity as helper text if available
-        // @ts-ignore
+        // @ts-expect-error
         ...(c.quantity !== undefined && { helper: `Qty: ${c.quantity}` })
       })) ?? []
     );

@@ -50,7 +50,7 @@ export default function EditAttributeRoute() {
       initialValues={{
         id: attribute?.id,
         name: attribute?.name,
-        // @ts-ignore
+        // @ts-expect-error
         attributeDataTypeId: attribute?.attributeDataTypeId.toString(),
         userAttributeCategoryId: attribute?.userAttributeCategoryId,
         canSelfManage: attribute.canSelfManage ?? true,

@@ -175,7 +175,7 @@ export async function action(args: ActionFunctionArgs) {
           // @ts-expect-error TS2739 - TODO: fix type
           company: company.data,
           companySettings: companySettings.data,
-          // @ts-ignore
+          // @ts-expect-error
           quote: quote.data,
           recipient: {
             email: customerContact.data?.contact!.email!,

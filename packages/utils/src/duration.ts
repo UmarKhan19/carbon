@@ -1,6 +1,6 @@
-// @ts-ignore -- no type declarations for humanize-duration
+// @ts-ignore -- type declarations only visible within this package, not cross-package consumers
 import type { Unit } from "humanize-duration";
-// @ts-ignore -- no type declarations for humanize-duration
+// @ts-ignore -- type declarations only visible within this package, not cross-package consumers
 import humanizeDuration from "humanize-duration";
 
 function dateDifference(date1: Date, date2: Date) {

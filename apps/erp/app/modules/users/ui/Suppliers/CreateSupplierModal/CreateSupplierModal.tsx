@@ -58,7 +58,6 @@ const CreateSupplierModal = () => {
             id: params.get("id") ?? "",
             supplier: params.get("supplier") ?? ""
           }}
-          // @ts-ignore
           fetcher={formFetcher}
           className="flex flex-col h-full"
         >

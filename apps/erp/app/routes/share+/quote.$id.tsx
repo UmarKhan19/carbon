@@ -1690,7 +1690,6 @@ export default function ExternalQuote() {
   switch (state) {
     case QuoteState.Valid:
       if (data) {
-        // @ts-ignore
         return <Quote data={data as QuoteData} strings={strings} />;
       }
       return (

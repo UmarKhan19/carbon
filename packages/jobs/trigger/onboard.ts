@@ -69,7 +69,6 @@ export const onboardTask = task({
         let type: "Warm" | "Cold" = "Warm";
         try {
           const { object } = await generateObject({
-            // @ts-ignore
             model: openai("gpt-4o"),
             schema: z.object({
               type: z.enum(["Warm", "Cold"]).describe("The type of lead"),
@@ -206,7 +205,7 @@ export const onboardTask = task({
 
         break;
       case "customer":
-        // @ts-ignore
+        // @ts-expect-error
         const twentyId = user.data?.externalId?.twenty as string | undefined;
 
         try {

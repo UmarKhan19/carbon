@@ -9,7 +9,7 @@ import {
 } from "kysely";
 import type { KyselifyDatabase } from "kysely-supabase";
 // Aliased it as pg so can be imported as-is in Node environment
-// @ts-ignore -- pg types may not be available in Deno environment
+// @ts-expect-error -- pg types may not be available in Deno environment
 import { Pool } from "pg";
 import type { Database as SupabaseDatabase } from "../../../../src/types.ts";
 
@@ -36,7 +36,7 @@ export function getPostgresConnectionPool(connections: number): Pool {
 
   switch (runtime) {
     case "deno": {
-      // @ts-ignore -- Deno global is only available in Deno runtime
+      // @ts-expect-error -- Deno global is only available in Deno runtime
       const url = Deno.env.get("SUPABASE_DB_URL")!;
       const connectionPoolerUrl = url.includes("supabase.co")
         ? url.replace("5432", "6543")
@@ -48,7 +48,6 @@ export function getPostgresConnectionPool(connections: number): Pool {
       const connectionPoolerUrl = url.includes("supabase.co")
         ? url.replace("5432", "6543")
         : url;
-      // @ts-ignore -- Kysely uses a subset of the pg Pool type
       return new Pool({
         connectionString: connectionPoolerUrl,
         max: connections,
@@ -81,7 +80,6 @@ export function getPostgresClient<D = KyselyDatabase>(
             return new PostgresAdapter();
           },
           createDriver() {
-            // @ts-ignore -- Kysely uses a subset of the pg Pool type
             return new driver({ pool });
           },
           createIntrospector(db: Kysely<unknown>) {

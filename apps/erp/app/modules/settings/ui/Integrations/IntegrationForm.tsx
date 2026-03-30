@@ -181,10 +181,8 @@ function SettingField({ setting }: { setting: IntegrationSetting }) {
 
           // Legacy icon support for specific field names
           if (setting.name === "methodType") {
-            // @ts-ignore
             icon = <MethodIcon type={normalized.value} />;
           } else if (setting.name === "trackingType") {
-            // @ts-ignore
             icon = <TrackingTypeIcon type={normalized.value} />;
           }
 

@@ -163,7 +163,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           sourceDocumentId={salesOrder.data?.salesOrderId ?? undefined}
           shipment={shipment.data}
           shipmentLines={shipmentLines.data ?? []}
-          // @ts-ignore
+          // @ts-expect-error
           shippingAddress={customerLocation.data?.address ?? null}
           terms={(terms?.data?.salesTerms ?? {}) as JSONContent}
           paymentTerm={paymentTerm.data ?? { id: "", name: "" }}
@@ -282,7 +282,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           sourceDocumentId={salesInvoice.data?.invoiceId ?? undefined}
           shipment={shipment.data}
           shipmentLines={shipmentLines.data ?? []}
-          // @ts-ignore
+          // @ts-expect-error
           shippingAddress={customerLocation.data?.address ?? null}
           terms={(terms?.data?.salesTerms ?? {}) as JSONContent}
           paymentTerm={paymentTerm.data ?? { id: "", name: "" }}
@@ -396,7 +396,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           sourceDocumentId={purchaseOrder.data?.purchaseOrderId ?? undefined}
           shipment={shipment.data}
           shipmentLines={shipmentLines.data ?? []}
-          // @ts-ignore
+          // @ts-expect-error
           shippingAddress={supplierLocation.data?.address ?? null}
           terms={(terms?.data?.salesTerms ?? {}) as JSONContent}
           paymentTerm={poPaymentTerm.data ?? { id: "", name: "" }}

@@ -326,7 +326,7 @@ function MaintenanceFilesContent({
                         <DocumentPreview
                           bucket="private"
                           pathToFile={getFilePath(file.name)}
-                          // @ts-ignore
+                          // @ts-expect-error
                           type={type}
                         >
                           {file.name}

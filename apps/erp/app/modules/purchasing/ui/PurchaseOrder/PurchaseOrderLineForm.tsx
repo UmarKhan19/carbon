@@ -403,7 +403,6 @@ const PurchaseOrderLineForm = ({
                     <Item
                       name="itemId"
                       label={itemType}
-                      // @ts-ignore
                       type={itemType}
                       replenishmentSystem={
                         isOutsideProcessing ? undefined : "Buy"

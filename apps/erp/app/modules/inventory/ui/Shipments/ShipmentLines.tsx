@@ -88,7 +88,7 @@ const ShipmentLines = () => {
   }>(path.to.shipment(shipmentId));
 
   const shipmentsById = new Map<string, ShipmentLine>(
-    // @ts-ignore
+    // @ts-expect-error
     (routeData?.shipmentLines ?? []).map((line) => [line.id, line])
   );
   const pendingShipmentLines = usePendingShipmentLines();

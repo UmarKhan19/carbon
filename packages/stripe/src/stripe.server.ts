@@ -16,7 +16,7 @@ import { z } from "zod";
 
 export const stripe = STRIPE_SECRET_KEY
   ? new Stripe(STRIPE_SECRET_KEY, {
-      // @ts-ignore
+      // @ts-expect-error
       apiVersion: "2025-06-30.basil",
       typescript: true
     })

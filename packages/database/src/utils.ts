@@ -84,7 +84,7 @@ export async function fetchAllFromTable<T extends object>(
   filterFn?: (query: any) => any
 ): Promise<PaginatedResult<T>> {
   let baseQuery = client
-    // @ts-ignore
+    // @ts-expect-error
     .from(tableName)
     .select(selectColumns, { count: "exact" });
 
@@ -92,7 +92,7 @@ export async function fetchAllFromTable<T extends object>(
     baseQuery = filterFn(baseQuery);
   }
 
-  // @ts-ignore
+  // @ts-expect-error
   return fetchAllRecords(baseQuery);
 }
 
