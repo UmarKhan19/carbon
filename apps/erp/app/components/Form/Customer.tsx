@@ -16,7 +16,7 @@ type CustomerSelectProps = Omit<
 
 const CustomerPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   return <CustomerAvatar customerId={value} />;
 };

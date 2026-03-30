@@ -20,6 +20,10 @@
       "cache": false,
       "dependsOn": []
     },
+    "typecheck": {
+      "cache": false,
+      "dependsOn": []
+    },
     "lint": {
       "dependsOn": ["^build"],
       "outputs": []

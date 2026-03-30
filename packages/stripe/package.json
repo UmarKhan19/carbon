@@ -31,7 +31,8 @@
     "dev": "tsup --watch",
     "lint": "biome lint --write ",
     "dev:stripe": "tsx ./stripe.dev.ts",
-    "register:stripe": "tsx ./stripe.register.ts"
+    "register:stripe": "tsx ./stripe.register.ts",
+    "typecheck": "tsgo --noEmit"
   },
   "sideEffects": false,
   "version": "*"

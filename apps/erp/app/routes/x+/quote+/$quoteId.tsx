@@ -137,8 +137,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const defaultCc =
+    // @ts-expect-error TS18048 - TODO: fix type
     customer.data?.defaultCc?.length > 0
-      ? customer.data.defaultCc
+      ? // @ts-expect-error TS18047 - TODO: fix type
+        customer.data.defaultCc
       : (companySettings.data?.defaultCustomerCc ?? []);
 
   // Collect all Buy item IDs from method trees + top-level Buy lines

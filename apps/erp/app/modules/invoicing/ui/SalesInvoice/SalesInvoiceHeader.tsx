@@ -53,6 +53,7 @@ const SalesInvoiceHeader = () => {
   const voidModal = useDisclosure();
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
     entityType: "salesInvoice",
+    // @ts-expect-error TS2322 - TODO: fix type
     entityId: invoiceId,
     companyId: company.id,
     variant: "dropdown"

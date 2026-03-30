@@ -190,7 +190,7 @@ const focusFirstInvalidInput = (
 
     if (elem instanceof HTMLElement) {
       if (elem instanceof HTMLInputElement && elem.type === "hidden") {
-        scrollIntoView(elem.parentElement);
+        scrollIntoView(elem.parentElement ?? undefined);
         continue;
       }
 

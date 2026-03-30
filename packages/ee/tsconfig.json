@@ -1,9 +1,8 @@
 {
   "extends": "@carbon/config/tsconfig/react-library.json",
   "compilerOptions": {
-    "lib": ["dom", "ES2015"],
     "strict": true
   },
-  "include": ["src", "../../apps/erp/app/components/OnshapeSync.tsx"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

@@ -73,7 +73,7 @@ export const recalculateTask = task({
 });
 
 async function recalculateJobRequirements(
-  client,
+  client: ReturnType<typeof getCarbonServiceRole>,
   params: {
     id: string;
     companyId: string;
@@ -89,7 +89,7 @@ async function recalculateJobRequirements(
 }
 
 async function recalculateJobMakeMethodRequirements(
-  client,
+  client: ReturnType<typeof getCarbonServiceRole>,
   params: {
     id: string;
     companyId: string;

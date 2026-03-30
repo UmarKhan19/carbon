@@ -84,7 +84,7 @@ const DateTimePicker = ({
       <input type="hidden" name={name} value={utcValue} />
       <DateTimePickerBase
         value={date}
-        onChange={handleChange}
+        onChange={handleChange as any}
         isDisabled={isDisabled}
         minValue={minValue}
         maxValue={maxValue}

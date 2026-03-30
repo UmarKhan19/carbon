@@ -101,10 +101,7 @@ export async function createStripeCustomer({
     );
 
     // Store the relation between companyId and stripeCustomerId in KV
-    await redis.set(
-      `stripe:company:${companyId}`,
-      KvStripeUserSchema.parse(customer.id)
-    );
+    await redis.set(`stripe:company:${companyId}`, customer.id);
 
     return customer;
   } catch (error) {

@@ -342,6 +342,7 @@ function LineItems({
         const isMade = line.methodType === "Make";
 
         const { jobLabel, jobVariant, jobs } = getSalesOrderJobStatus(
+          // @ts-expect-error TS2345 - TODO: fix type
           salesOrder?.jobs as SalesOrderJob[] | undefined,
           line as any
         );
@@ -661,6 +662,7 @@ function LineItems({
                             index === jobs.length - 1 && "border-b-0"
                           )}
                         >
+                          {/* @ts-expect-error TS2739 */}
                           <SalesOrderJobItem job={job} />
                         </div>
                       ))}

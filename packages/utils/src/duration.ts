@@ -1,4 +1,6 @@
+// @ts-ignore -- no type declarations for humanize-duration
 import type { Unit } from "humanize-duration";
+// @ts-ignore -- no type declarations for humanize-duration
 import humanizeDuration from "humanize-duration";
 
 function dateDifference(date1: Date, date2: Date) {

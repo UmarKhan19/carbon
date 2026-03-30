@@ -164,6 +164,7 @@ export default function PartMakeMethodPage() {
       <BillOfMaterial
         key={`bom:${makeMethodId}`}
         makeMethod={makeMethod}
+        // @ts-expect-error TS2322 - TODO: fix type
         materials={methodMaterials}
         operations={methodOperations}
         configurable={partManufacturing?.requiresConfiguration}

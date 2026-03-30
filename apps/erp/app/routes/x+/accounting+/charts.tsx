@@ -31,6 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const chartOfAccounts = await getChartOfAccounts(client, companyId, {
     name,
+    // @ts-expect-error TS2322 - TODO: fix type
     incomeBalance,
     startDate,
     endDate

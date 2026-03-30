@@ -375,10 +375,12 @@ export async function getIntegrationHealth(
     };
   }
 
-  const status = await healthcheck(
-    companyId,
-    integration.metadata as Record<string, any>
-  );
+  const status = await (
+    healthcheck as (
+      companyId: string,
+      metadata: Record<string, any>
+    ) => Promise<boolean>
+  )(companyId, integration.metadata as Record<string, any>);
 
   await redis.set(key, status ? "1" : "0", "EX", INTEGRATION_CACHE_TTL * 5); // Cache for 5 minutes
 

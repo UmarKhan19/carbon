@@ -28,7 +28,8 @@
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
     "dev": "tsup --watch",
-    "lint": "biome lint --write "
+    "lint": "biome lint --write ",
+    "typecheck": "tsgo --noEmit"
   },
   "sideEffects": false,
   "version": "*"

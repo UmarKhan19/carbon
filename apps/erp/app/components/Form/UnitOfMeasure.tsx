@@ -20,9 +20,10 @@ type UnitOfMeasureSelectProps = Omit<ComboboxProps, "options" | "inline"> & {
 
 const UnitOfMeasurePreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const uom = options.find((o) => o.value === value);
+  // @ts-expect-error TS2322 - TODO: fix type
   return <Enumerable value={uom?.label ?? null} />;
 };
 

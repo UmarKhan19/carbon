@@ -64,7 +64,7 @@ const InputControlled = forwardRef<HTMLInputElement, FormInputControlledProps>(
     const { getInputProps, error } = useField(name);
     const [controlValue, setControlValue] = useControlField<string>(name);
     const [inlineMode, setInlineMode] = useState(inline);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
       setControlValue(isUppercase ? uppercase(value) : value);

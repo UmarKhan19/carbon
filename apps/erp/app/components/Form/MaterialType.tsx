@@ -25,7 +25,7 @@ type MaterialTypeSelectProps = Omit<
 
 const MaterialTypePreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const materialType = options.find((o) => o.value === value);
   if (!materialType) return null;
@@ -39,7 +39,9 @@ const MaterialType = (props: MaterialTypeSelectProps) => {
 
   const options = useMaterialTypes(props.substanceId!, props.formId!);
 
-  const onChange = (newValue: { label: string; value: string } | null) => {
+  const onChange = (
+    newValue: { label: string | JSX.Element; value: string } | null
+  ) => {
     const materialType =
       options.find((materialType) => materialType.value === newValue?.value) ??
       null;

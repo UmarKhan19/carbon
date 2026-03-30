@@ -55,7 +55,7 @@ type ItemSelectProps = Omit<ComboboxProps, "options" | "type" | "inline"> & {
 
 const ItemPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const item = options.find((o) => o.value === value);
   if (!item) return null;

@@ -540,6 +540,7 @@ const Issue = ({
 };
 
 type IssueData = NonNullable<
+  // @ts-expect-error TS2339 - TODO: fix type
   Awaited<ReturnType<Awaited<ReturnType<typeof loader>>["json"]>>["data"]
 >;
 

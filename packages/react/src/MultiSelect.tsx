@@ -281,7 +281,7 @@ function VirtualizedCommand({
           }}
         >
           {items.map((virtualRow) => {
-            const option = filteredOptions[virtualRow.index];
+            const option = filteredOptions[virtualRow.index]!;
             const isSelected = value.includes(option.value);
 
             return (

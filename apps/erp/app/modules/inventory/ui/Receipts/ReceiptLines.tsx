@@ -1039,7 +1039,7 @@ function Shelf({
 
   const ShelfPreview = (
     value: string,
-    options: { value: string; label: string }[]
+    options: { value: string; label: string | JSX.Element }[]
   ) => {
     const shelf = options.find((o) => o.value === value);
     if (!shelf) return null;

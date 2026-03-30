@@ -56,8 +56,7 @@ const Part = ({ itemReplenishmentSystem, ...props }: PartSelectProps) => {
             defaultMethodType: "Buy",
             unitOfMeasureCode: "EA",
             unitCost: 0,
-            lotSize: 0,
-            active: true
+            lotSize: 0
           }}
         />
       )}

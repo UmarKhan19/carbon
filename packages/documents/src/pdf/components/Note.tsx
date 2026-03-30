@@ -25,7 +25,7 @@ const convertTiptapJSON = (
     case "heading":
       return (
         <Text
-          key={`heading-${node.attrs.level}`}
+          key={`heading-${node.attrs?.level}`}
           style={{
             fontSize: 13,
             fontWeight: "bold",
@@ -69,10 +69,12 @@ const convertTiptapJSON = (
 
     case "listItem":
       const indicator =
-        args.parentNodeType == "orderedList" ? `${args.index + 1}.` : "•";
+        args?.parentNodeType == "orderedList"
+          ? `${(args?.index ?? 0) + 1}.`
+          : "•";
       return (
         <View
-          key={`listItem-${args.index}`}
+          key={`listItem-${args?.index}`}
           style={{ flexDirection: "row", marginBottom: 5 }}
         >
           <Text style={{ marginRight: 5, fontSize: 9 }}> {indicator} </Text>
@@ -94,7 +96,7 @@ const convertTiptapJSON = (
     case "taskItem":
       return (
         <View
-          key={`taskItem-${args.index}`}
+          key={`taskItem-${args?.index}`}
           style={{ flexDirection: "row", marginBottom: 5 }}
         >
           <Text style={{ marginRight: 5, fontSize: 9 }}>•</Text>

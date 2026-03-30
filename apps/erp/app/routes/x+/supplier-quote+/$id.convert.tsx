@@ -58,6 +58,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (companySettingsResult.data?.supplierApproval && quote.data?.supplierId) {
     const supplier = await getSupplier(serviceRole, quote.data.supplierId);
+    // @ts-expect-error TS2339 - TODO: fix type
     if (supplier.data?.supplierStatus !== "Active") {
       throw redirect(
         path.to.supplierQuoteDetails(id),

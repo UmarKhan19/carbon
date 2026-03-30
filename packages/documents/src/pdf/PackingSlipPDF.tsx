@@ -203,7 +203,7 @@ const PackingSlipPDF = ({
 
         {/* Rows */}
         {shipmentLines
-          .filter((line) => line?.shippedQuantity ?? 0 > 0)
+          .filter((line) => (line?.shippedQuantity ?? 0) > 0)
           .map((line) => {
             const barcodeDataUrl = generateBarcode(line?.itemReadableId || "");
             const trackedEntitiesForLine = trackedEntities.filter(
@@ -236,6 +236,7 @@ const PackingSlipPDF = ({
                   </Text>
 
                   {thumbnails &&
+                    line.id != null &&
                     line.id in thumbnails &&
                     thumbnails[line.id] && (
                       <View style={tw("mt-1 w-16")}>

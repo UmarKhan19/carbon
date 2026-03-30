@@ -167,7 +167,6 @@ export async function requirePermissions(
       }
 
       // Update lastUsedAt (fire-and-forget)
-      // @ts-expect-error -- Supabase deep type instantiation on chained calls
       void serviceRole
         .from("apiKey")
         .update({ lastUsedAt: new Date().toISOString() } as any)
@@ -236,20 +235,21 @@ export async function requirePermissions(
         }
         if (!(permission in myClaims.permissions)) return false;
         const permissionForCompany =
-          myClaims.permissions[permission][
+          myClaims.permissions[permission]?.[
             action as "view" | "create" | "update" | "delete"
           ];
         return (
-          permissionForCompany.includes("0") || // 0 is the wildcard for all companies
-          permissionForCompany.includes(companyId)
+          permissionForCompany?.includes("0") || // 0 is the wildcard for all companies
+          permissionForCompany?.includes(companyId) ||
+          false
         );
       } else if (Array.isArray(permission)) {
         return permission.every((p) => {
           const permissionForCompany =
-            myClaims.permissions[p][
+            myClaims.permissions[p]?.[
               action as "view" | "create" | "update" | "delete"
             ];
-          return permissionForCompany.includes(companyId);
+          return permissionForCompany?.includes(companyId) ?? false;
         });
       } else {
         return false;
@@ -320,7 +320,7 @@ export async function signInWithEmail(email: string, password: string) {
   if (!data.session || error) return null;
   const companies = await getCompaniesForUser(client, data.user.id);
 
-  return makeAuthSession(data.session, companies?.[0]);
+  return makeAuthSession(data.session, companies[0] ?? "");
 }
 
 export async function refreshAccessToken(

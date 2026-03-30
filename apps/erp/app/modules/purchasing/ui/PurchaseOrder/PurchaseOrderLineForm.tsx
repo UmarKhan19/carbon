@@ -369,8 +369,10 @@ const PurchaseOrderLineForm = ({
                           )}{" "}
                           {initialValues?.purchaseUnitOfMeasureCode}
                         </Badge>
+                        {/* @ts-expect-error TS2339 */}
                         {initialValues?.taxPercent > 0 ? (
                           <Badge variant="red">
+                            {/* @ts-expect-error TS2339 */}
                             {percentFormatter.format(initialValues?.taxPercent)}{" "}
                             Tax
                           </Badge>

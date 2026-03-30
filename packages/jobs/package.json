@@ -6,7 +6,7 @@
   "scripts": {
     "dev:jobs": "npx --yes trigger.dev@4.0.6 dev",
     "deploy": "trigger deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.60",

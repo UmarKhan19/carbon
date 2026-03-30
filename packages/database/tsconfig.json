@@ -1,9 +1,4 @@
 {
-  "compilerOptions": {
-    "lib": ["ES2015"],
-    "outDir": "./dist",
-    "rootDir": "./src"
-  },
   "exclude": ["node_modules"],
   "extends": "@carbon/config/tsconfig/base.json",
   "include": ["src", "supabase/functions/lib/postgres/**/*.ts"]

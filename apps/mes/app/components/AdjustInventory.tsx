@@ -20,7 +20,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useRouteData } from "@carbon/remix";
-import { useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { LuGitBranchPlus, LuGitPullRequestCreateArrow } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import type { action as endShiftAction } from "~/routes/x+/end-shift";
@@ -44,18 +44,17 @@ export function AdjustInventory({ add }: { add: boolean }) {
     location: string;
   }>(path.to.authenticatedRoot);
 
-  const onItemChange = async (
-    value: { value: string; label: string | JSX.Element } | null
-  ) => {
+  const onItemChange = (value: { value: string; label: ReactNode } | null) => {
     if (!value || !carbon) return;
-    const pickMethod = await carbon
+    carbon
       .from("pickMethod")
       .select("defaultShelfId")
       .eq("itemId", value.value)
       .eq("locationId", routeData?.location ?? "")
-      .maybeSingle();
-
-    setSelectedShelf(pickMethod?.data?.defaultShelfId ?? null);
+      .maybeSingle()
+      .then((pickMethod) => {
+        setSelectedShelf(pickMethod?.data?.defaultShelfId ?? null);
+      });
   };
 
   async function fetchShelvesByLocationId() {

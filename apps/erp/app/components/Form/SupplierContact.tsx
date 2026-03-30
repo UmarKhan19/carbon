@@ -23,12 +23,13 @@ type SupplierContactSelectProps = Omit<
 
 const SupplierContactPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const contact = options.find((o) => o.value === value);
   if (!contact) return null;
   return (
     <HStack>
+      {/* @ts-expect-error TS2322 */}
       <Avatar size="xs" name={contact.label} />
       <span>{contact.label}</span>
     </HStack>
@@ -64,7 +65,9 @@ const SupplierContact = (props: SupplierContactSelectProps) => {
     [supplierContactsFetcher.data]
   );
 
-  const onChange = (newValue: { label: string; value: string } | null) => {
+  const onChange = (
+    newValue: { label: string | JSX.Element; value: string } | null
+  ) => {
     const contact =
       supplierContactsFetcher.data?.data?.find(
         (contact) => contact.id === newValue?.value

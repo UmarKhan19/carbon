@@ -242,7 +242,7 @@ export const paperlessPartsTask = task({
           }),
           getOrderLocationId(carbon, {
             company: company.data,
-            sendFrom: ppQuote.data.send_from_facility,
+            sendFrom: (ppQuote.data as any).send_from_facility,
           }),
         ]);
 
@@ -255,7 +255,7 @@ export const paperlessPartsTask = task({
 
         let quoteReadableId: string;
         if (usePaperlessOrderNumber) {
-          quoteReadableId = ppQuote.data.number.toString();
+          quoteReadableId = ppQuote.data.number!.toString();
         } else {
           const nextSequence = await getNextSequence(
             carbon,
@@ -379,7 +379,7 @@ export const paperlessPartsTask = task({
               documentType: "Quote" as const,
               documentId: quoteId,
               customerId: quote.customerId,
-              expiresAt: quote.expirationDate,
+              expiresAt: quote.expirationDate ?? undefined,
               companyId: quote.companyId,
             }),
           ]);
@@ -508,7 +508,7 @@ export const paperlessPartsTask = task({
           }),
           getOrderLocationId(carbon, {
             company: company.data,
-            sendFrom: orderData.send_from_facility,
+            sendFrom: orderData.send_from_facility as any,
           }),
         ]);
 
@@ -525,8 +525,8 @@ export const paperlessPartsTask = task({
         } = await getCustomerLocationIds(carbon, {
           company: company.data,
           customerId: orderCustomerId,
-          billingInfo: orderData.billing_info,
-          shippingInfo: orderData.shipping_info,
+          billingInfo: orderData.billing_info ?? undefined,
+          shippingInfo: orderData.shipping_info ?? undefined,
         });
 
         const [orderCustomerPayment, orderCustomerShipping, orderOpportunity] =

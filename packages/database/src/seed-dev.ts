@@ -48,9 +48,9 @@ const DEV_COMPANY_NAME = "Carbon Development";
  * takes the first segment, and capitalizes it.
  */
 function inferFirstNameFromEmail(email: string): string {
-  const localPart = email.split("@")[0];
+  const localPart = email.split("@")[0]!;
   // Split on common delimiters and take the first part
-  const firstName = localPart.split(/[.+_-]/)[0];
+  const firstName = localPart.split(/[.+_-]/)[0]!;
   // Capitalize first letter, lowercase the rest
   return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 }
@@ -374,7 +374,7 @@ async function seedDev() {
             acc.number,
             acc.name,
             acc.type,
-            categoryIdMap[acc.accountCategory],
+            acc.accountCategory ? categoryIdMap[acc.accountCategory] : null,
             acc.incomeBalance,
             acc.class,
             acc.directPosting,
@@ -586,8 +586,8 @@ async function seedDev() {
         finalPermissions = { ...currentPerms };
         for (const [key, value] of Object.entries(newPermissions)) {
           if (key in finalPermissions) {
-            if (!finalPermissions[key].includes(companyId)) {
-              finalPermissions[key].push(companyId);
+            if (!finalPermissions[key]!.includes(companyId)) {
+              finalPermissions[key]!.push(companyId);
             }
           } else {
             finalPermissions[key] = value;

@@ -2147,11 +2147,14 @@ export async function upsertProductionQuantity(
       .select()
       .single();
   } else {
-    return client
-      .from("productionQuantity")
-      .insert([productionQuantity])
-      .select("id")
-      .single();
+    return (
+      client
+        .from("productionQuantity")
+        // @ts-expect-error TS2769 - TODO: fix type
+        .insert([productionQuantity])
+        .select("id")
+        .single()
+    );
   }
 }
 

@@ -240,7 +240,14 @@ export async function getSuppliers(
 }
 
 export async function getUsers(client: SupabaseClient<Database>) {
-  return fetchAllFromTable(
+  return fetchAllFromTable<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    email: string;
+    avatarUrl: string | null;
+  }>(
     client,
     "user",
     "id, firstName, lastName, fullName, email, avatarUrl",

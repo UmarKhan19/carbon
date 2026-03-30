@@ -60,7 +60,8 @@
   "scripts": {
     "clean": "rimraf .turbo node_modules",
     "lint": "biome lint --write ",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit"
   },
   "sideEffects": false,
   "version": "*"

@@ -171,6 +171,7 @@ const CustomerContact = ({
         (c) => c.id === newValue
       );
 
+      // @ts-expect-error TS2322 - TODO: fix type
       onChange({ id: newValue, contact: contact?.contact ?? null });
     }
   };

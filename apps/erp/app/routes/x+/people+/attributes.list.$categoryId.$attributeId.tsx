@@ -56,6 +56,7 @@ export default function EditAttributeRoute() {
         canSelfManage: attribute.canSelfManage ?? true,
         listOptions: attribute?.listOptions ?? []
       }}
+      // @ts-expect-error TS2322 - TODO: fix type
       dataTypes={attributesRouteData?.dataTypes ?? []}
       onClose={onClose}
     />

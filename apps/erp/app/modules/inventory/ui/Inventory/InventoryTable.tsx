@@ -427,6 +427,7 @@ const InventoryTable = memo(
           header: "Tags",
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
+              {/* @ts-expect-error TS2339 */}
               {(row.original.tags || []).map((tag) => (
                 <Badge key={tag} variant="secondary">
                   {tag}

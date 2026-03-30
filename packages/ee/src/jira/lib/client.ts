@@ -168,7 +168,9 @@ export class JiraClient {
       throw new Error("Jira integration not found for company");
     }
 
-    const metadata = integration.metadata as { credentials: JiraCredentials };
+    const metadata = integration.metadata as unknown as {
+      credentials: JiraCredentials;
+    };
     const credentials = metadata.credentials;
 
     // Check if token needs refresh (5 min buffer)
@@ -213,7 +215,9 @@ export class JiraClient {
       throw new Error("Jira integration not found for company");
     }
 
-    const metadata = integration.metadata as { credentials: JiraCredentials };
+    const metadata = integration.metadata as unknown as {
+      credentials: JiraCredentials;
+    };
     return metadata.credentials.cloudId;
   }
 
@@ -229,7 +233,9 @@ export class JiraClient {
       throw new Error("Jira integration not found for company");
     }
 
-    const metadata = integration.metadata as { credentials: JiraCredentials };
+    const metadata = integration.metadata as unknown as {
+      credentials: JiraCredentials;
+    };
     return metadata.credentials.siteUrl;
   }
 
@@ -594,7 +600,7 @@ export class JiraClient {
         companyId,
         `/user/search?query=${encodeURIComponent(email)}&maxResults=1`
       );
-      return users.length > 0 ? users[0] : null;
+      return users.length > 0 ? (users[0] ?? null) : null;
     } catch (e) {
       console.error("Error finding Jira user:", e);
       return null;

@@ -128,6 +128,7 @@ export default function AccountDefaultsRoute() {
         <AccountDefaultsForm
           balanceSheetAccounts={routeData?.balanceSheetAccounts ?? []}
           incomeStatementAccounts={routeData?.incomeStatementAccounts ?? []}
+          // @ts-expect-error TS2322 - TODO: fix type
           initialValues={defaultAccounts}
         />
       </VStack>

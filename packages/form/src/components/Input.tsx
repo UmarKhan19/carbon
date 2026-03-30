@@ -11,9 +11,9 @@ import {
 } from "@carbon/react";
 import type { ReactNode } from "react";
 import { forwardRef } from "react";
-import type { ValidationBehaviorOptions } from "src/internal/getInputProps";
 import { useField } from "../hooks";
 import { useFormStateContext } from "../internal/formStateContext";
+import type { ValidationBehaviorOptions } from "../internal/getInputProps";
 
 type FormInputProps = InputProps & {
   name: string;

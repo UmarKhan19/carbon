@@ -46,13 +46,13 @@ function isDayEnabledForSchedule(
   }
 
   const dayOfWeek = targetDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const dayField = dayOfWeekFields[dayOfWeek];
+  const dayField = dayOfWeekFields[dayOfWeek]!;
   return schedule[dayField] === true;
 }
 
 // Check if a date is a holiday for the company
 async function isHoliday(companyId: string, date: Date): Promise<boolean> {
-  const dateString = date.toISOString().split("T")[0]; // YYYY-MM-DD format
+  const dateString = date.toISOString().split("T")[0]!; // YYYY-MM-DD format
 
   const { data: holiday, error } = await serviceRole
     .from("holiday")
@@ -254,10 +254,10 @@ export const generateMaintenanceDispatches = schedules.task({
               );
 
               // Get employees assigned to this work center to notify them
-              const { data: workCenterEmployees } = await serviceRole
+              const { data: workCenterEmployees } = await (serviceRole as any)
                 .from("workCenterEmployee")
                 .select("userId")
-                .eq("workCenterId", schedule.workCenterId);
+                .eq("workCenterId", schedule.workCenterId) as { data: { userId: string }[] | null };
 
               if (workCenterEmployees && workCenterEmployees.length > 0) {
                 const userIds = workCenterEmployees.map((e) => e.userId);

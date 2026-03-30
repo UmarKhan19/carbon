@@ -1,7 +1,4 @@
 {
-  "compilerOptions": {
-    "lib": ["dom", "ES2015"]
-  },
   "extends": "@carbon/config/tsconfig/react-library.json",
   "include": ["src"],
   "exclude": ["dist", "build", "node_modules"]
