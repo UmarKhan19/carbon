@@ -318,7 +318,12 @@ describe("Ratelimit", () => {
   describe("timeout handling", () => {
     it("should return success on timeout", async () => {
       // Create a promise that never resolves
-      mockRedis.eval = vi.fn().mockImplementation(() => new Promise(() => {}));
+      mockRedis.eval = vi.fn().mockImplementation(
+        () =>
+          new Promise(() => {
+            /* intentionally never resolves */
+          })
+      );
 
       const ratelimit = new Ratelimit({
         redis: mockRedis,

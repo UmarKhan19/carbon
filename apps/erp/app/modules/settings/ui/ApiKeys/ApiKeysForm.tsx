@@ -53,6 +53,7 @@ const ApiKeyForm = ({
 
   const [key, setKey] = useState<string | null>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const initialScopeState = useMemo(
     () =>
       isEditing

@@ -1688,7 +1688,7 @@ function useSerialNumbers(itemId?: string) {
   const serialNumbersFetcher =
     useFetcher<Awaited<ReturnType<typeof getSerialNumbersForItem>>>();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   useEffect(() => {
     if (itemId) {
       serialNumbersFetcher.load(path.to.api.serialNumbers(itemId));

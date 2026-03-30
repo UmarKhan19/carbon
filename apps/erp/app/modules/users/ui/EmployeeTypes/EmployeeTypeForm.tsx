@@ -42,6 +42,7 @@ const EmployeeTypeForm = ({ initialValues }: EmployeeTypeFormProps) => {
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const { state: initialState, modules } = useMemo(
     () => fromEmployeeTypePermissions(initialValues.permissions),
     // eslint-disable-next-line react-hooks/exhaustive-deps

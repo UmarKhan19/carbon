@@ -393,6 +393,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return partUpdate;
         }
         if (itemUpdates.error) {
+          // TODO: handle error
         }
         return itemUpdates;
       }
@@ -460,6 +461,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return consumableUpdate;
         }
         if (consumableItemUpdates.error) {
+          // TODO: handle error
         }
         return consumableItemUpdates;
       }
@@ -525,6 +527,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return materialUpdate;
         }
         if (materialItemUpdates.error) {
+          // TODO: handle error
         }
         return materialItemUpdates;
       }
@@ -587,6 +590,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return toolUpdate;
         }
         if (toolItemUpdates.error) {
+          // TODO: handle error
         }
         return toolItemUpdates;
       }

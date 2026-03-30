@@ -18,7 +18,9 @@ function safeLocalGet(key: string): string | null {
 function safeLocalSet(key: string, value: string) {
   try {
     localStorage.setItem(key, value);
-  } catch {}
+  } catch {
+    /* intentionally ignore storage errors */
+  }
 }
 
 export function useTrainingPanel() {
