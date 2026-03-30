@@ -29,8 +29,10 @@ const SupplierContactPreview = (
   if (!contact) return null;
   return (
     <HStack>
-      {/* @ts-expect-error TS2322 */}
-      <Avatar size="xs" name={contact.label} />
+      <Avatar
+        size="xs"
+        name={typeof contact.label === "string" ? contact.label : undefined}
+      />
       <span>{contact.label}</span>
     </HStack>
   );
