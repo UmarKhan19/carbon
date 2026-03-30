@@ -363,14 +363,14 @@ serve(async (req: Request) => {
         if (!hasElimination) {
           const parent = await trx
             .selectFrom("company")
-            .select(["baseCurrencyCode", "countryCode"])
+            .select(["name", "baseCurrencyCode", "countryCode"])
             .where("id", "=", parentCompanyId)
             .executeTakeFirst();
 
           await trx
             .insertInto("company")
             .values({
-              name: "Elimination",
+              name: `Elimination - ${parent?.name ?? "Unknown"}`,
               addressLine1: "",
               city: "",
               stateProvince: "",

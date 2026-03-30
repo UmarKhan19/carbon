@@ -22689,6 +22689,231 @@ export default {
         tags: ["documentTransaction"],
       },
     },
+    "/intercompanyTransaction": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.sourceCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.targetCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.sourceJournalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.targetJournalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.documentType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.documentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.eliminationJournalId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/intercompanyTransaction",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["intercompanyTransaction"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.intercompanyTransaction",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["intercompanyTransaction"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.sourceCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.targetCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.sourceJournalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.targetJournalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.documentType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.documentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.eliminationJournalId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["intercompanyTransaction"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.sourceCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.targetCompanyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.sourceJournalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.targetJournalLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.documentType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.documentId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.eliminationJournalId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.intercompanyTransaction.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.intercompanyTransaction",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["intercompanyTransaction"],
+      },
+    },
     "/job": {
       get: {
         parameters: [
@@ -39466,6 +39691,9 @@ export default {
             $ref: "#/parameters/rowFilter.customer.defaultCc",
           },
           {
+            $ref: "#/parameters/rowFilter.customer.intercompanyCompanyId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -39591,6 +39819,9 @@ export default {
             $ref: "#/parameters/rowFilter.customer.defaultCc",
           },
           {
+            $ref: "#/parameters/rowFilter.customer.intercompanyCompanyId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -39668,6 +39899,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.customer.defaultCc",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customer.intercompanyCompanyId",
           },
           {
             $ref: "#/parameters/body.customer",
@@ -42748,6 +42982,9 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.journalLine.intercompanyPartnerId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -42858,6 +43095,9 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.journalLine.intercompanyPartnerId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -42920,6 +43160,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLine.intercompanyPartnerId",
           },
           {
             $ref: "#/parameters/body.journalLine",
@@ -56350,6 +56593,9 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
           },
           {
+            $ref: "#/parameters/rowFilter.supplier.intercompanyCompanyId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -56475,6 +56721,9 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
           },
           {
+            $ref: "#/parameters/rowFilter.supplier.intercompanyCompanyId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -56552,6 +56801,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplier.intercompanyCompanyId",
           },
           {
             $ref: "#/parameters/body.supplier",
@@ -66297,6 +66549,41 @@ export default {
         tags: ["(rpc) get_company_groups_for_employee"],
       },
     },
+    "/rpc/getIntercompanyBalance": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) getIntercompanyBalance"],
+      },
+    },
     "/rpc/get_production_projections": {
       post: {
         parameters: [
@@ -67889,6 +68176,41 @@ export default {
         tags: ["(rpc) trialBalance"],
       },
     },
+    "/rpc/matchIntercompanyTransactions": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) matchIntercompanyTransactions"],
+      },
+    },
     "/rpc/uuid_to_base58": {
       post: {
         parameters: [
@@ -68869,6 +69191,45 @@ export default {
         tags: ["(rpc) drop_audit_log_table"],
       },
     },
+    "/rpc/generateEliminationEntries": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_user_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id", "p_user_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) generateEliminationEntries"],
+      },
+    },
     "/rpc/get_job_method": {
       get: {
         parameters: [
@@ -69687,6 +70048,74 @@ export default {
           },
         },
         tags: ["(rpc) get_maintenance_schedules_by_location"],
+      },
+    },
+    "/rpc/findLowestCommonParent": {
+      get: {
+        parameters: [
+          {
+            format: "text",
+            in: "query",
+            name: "p_company_a",
+            required: true,
+            type: "string",
+          },
+          {
+            format: "text",
+            in: "query",
+            name: "p_company_b",
+            required: true,
+            type: "string",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) findLowestCommonParent"],
+      },
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_a: {
+                  format: "text",
+                  type: "string",
+                },
+                p_company_b: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_a", "p_company_b"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) findLowestCommonParent"],
       },
     },
     "/rpc/get_active_job_operations_by_employee": {
@@ -81237,6 +81666,105 @@ export default {
       },
       type: "object",
     },
+    intercompanyTransaction: {
+      required: [
+        "id",
+        "companyGroupId",
+        "sourceCompanyId",
+        "targetCompanyId",
+        "sourceJournalLineId",
+        "amount",
+        "currencyCode",
+        "status",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.xid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        companyGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `companyGroup.id`.<fk table='companyGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        sourceCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        targetCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        sourceJournalLineId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journalLine.id`.<fk table='journalLine' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        targetJournalLineId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journalLine.id`.<fk table='journalLine' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        amount: {
+          format: "numeric",
+          type: "number",
+        },
+        currencyCode: {
+          format: "text",
+          type: "string",
+        },
+        description: {
+          format: "text",
+          type: "string",
+        },
+        documentType: {
+          enum: [
+            "Receipt",
+            "Invoice",
+            "Credit Memo",
+            "Blanket Order",
+            "Return Order",
+          ],
+          format: 'public."journalLineDocumentType"',
+          type: "string",
+        },
+        documentId: {
+          format: "text",
+          type: "string",
+        },
+        status: {
+          default: "Unmatched",
+          format: "text",
+          type: "string",
+        },
+        eliminationJournalId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "integer",
+          type: "integer",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     job: {
       required: [
         "id",
@@ -88979,6 +89507,12 @@ export default {
           },
           type: "array",
         },
+        intercompanyCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -90753,6 +91287,12 @@ export default {
           type: "array",
         },
         companyGroupId: {
+          format: "text",
+          type: "string",
+        },
+        intercompanyPartnerId: {
+          description:
+            "The counterparty company within the same group for intercompany transactions\n\nNote:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -97352,6 +97892,12 @@ export default {
         supplierStatus: {
           enum: ["Active", "Inactive", "Pending", "Rejected"],
           format: 'public."supplierStatusType"',
+          type: "string",
+        },
+        intercompanyCompanyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
           type: "string",
         },
       },
@@ -113536,6 +114082,105 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.intercompanyTransaction": {
+      name: "intercompanyTransaction",
+      description: "intercompanyTransaction",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/intercompanyTransaction",
+      },
+    },
+    "rowFilter.intercompanyTransaction.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.companyGroupId": {
+      name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.sourceCompanyId": {
+      name: "sourceCompanyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.targetCompanyId": {
+      name: "targetCompanyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.sourceJournalLineId": {
+      name: "sourceJournalLineId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.targetJournalLineId": {
+      name: "targetJournalLineId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.amount": {
+      name: "amount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.currencyCode": {
+      name: "currencyCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.documentType": {
+      name: "documentType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.documentId": {
+      name: "documentId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.eliminationJournalId": {
+      name: "eliminationJournalId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.intercompanyTransaction.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.job": {
       name: "job",
       description: "job",
@@ -122174,6 +122819,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.customer.intercompanyCompanyId": {
+      name: "intercompanyCompanyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.purchaseOrder": {
       name: "purchaseOrder",
       description: "purchaseOrder",
@@ -124258,6 +124909,14 @@ export default {
     },
     "rowFilter.journalLine.companyGroupId": {
       name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLine.intercompanyPartnerId": {
+      name: "intercompanyPartnerId",
+      description:
+        "The counterparty company within the same group for intercompany transactions",
       required: false,
       in: "query",
       type: "string",
@@ -131700,6 +132359,12 @@ export default {
     },
     "rowFilter.supplier.supplierStatus": {
       name: "supplierStatus",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.supplier.intercompanyCompanyId": {
+      name: "intercompanyCompanyId",
       required: false,
       in: "query",
       type: "string",

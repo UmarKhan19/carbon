@@ -4373,6 +4373,7 @@ export type Database = {
           embedding: unknown
           fax: string | null
           id: string
+          intercompanyCompanyId: string | null
           logo: string | null
           name: string
           phone: string | null
@@ -4397,6 +4398,7 @@ export type Database = {
           embedding?: unknown
           fax?: string | null
           id?: string
+          intercompanyCompanyId?: string | null
           logo?: string | null
           name: string
           phone?: string | null
@@ -4421,6 +4423,7 @@ export type Database = {
           embedding?: unknown
           fax?: string | null
           id?: string
+          intercompanyCompanyId?: string | null
           logo?: string | null
           name?: string
           phone?: string | null
@@ -4585,6 +4588,34 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "customerType"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "customer_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
           },
           {
             foreignKeyName: "customer_salesContactId_fkey"
@@ -9448,6 +9479,151 @@ export type Database = {
         }
         Relationships: []
       }
+      intercompanyTransaction: {
+        Row: {
+          amount: number
+          companyGroupId: string
+          createdAt: string
+          currencyCode: string
+          description: string | null
+          documentId: string | null
+          documentType:
+            | Database["public"]["Enums"]["journalLineDocumentType"]
+            | null
+          eliminationJournalId: number | null
+          id: string
+          sourceCompanyId: string
+          sourceJournalLineId: string
+          status: string
+          targetCompanyId: string
+          targetJournalLineId: string | null
+          updatedAt: string | null
+        }
+        Insert: {
+          amount: number
+          companyGroupId: string
+          createdAt?: string
+          currencyCode: string
+          description?: string | null
+          documentId?: string | null
+          documentType?:
+            | Database["public"]["Enums"]["journalLineDocumentType"]
+            | null
+          eliminationJournalId?: number | null
+          id?: string
+          sourceCompanyId: string
+          sourceJournalLineId: string
+          status?: string
+          targetCompanyId: string
+          targetJournalLineId?: string | null
+          updatedAt?: string | null
+        }
+        Update: {
+          amount?: number
+          companyGroupId?: string
+          createdAt?: string
+          currencyCode?: string
+          description?: string | null
+          documentId?: string | null
+          documentType?:
+            | Database["public"]["Enums"]["journalLineDocumentType"]
+            | null
+          eliminationJournalId?: number | null
+          id?: string
+          sourceCompanyId?: string
+          sourceJournalLineId?: string
+          status?: string
+          targetCompanyId?: string
+          targetJournalLineId?: string | null
+          updatedAt?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intercompanyTransaction_companyGroupId_fkey"
+            columns: ["companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "companyGroup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_eliminationJournalId_fkey"
+            columns: ["eliminationJournalId"]
+            isOneToOne: false
+            referencedRelation: "journal"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_sourceCompanyId_fkey"
+            columns: ["sourceCompanyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_sourceCompanyId_fkey"
+            columns: ["sourceCompanyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_sourceCompanyId_fkey"
+            columns: ["sourceCompanyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_sourceCompanyId_fkey"
+            columns: ["sourceCompanyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_sourceJournalLineId_fkey"
+            columns: ["sourceJournalLineId"]
+            isOneToOne: false
+            referencedRelation: "journalLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_targetCompanyId_fkey"
+            columns: ["targetCompanyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_targetCompanyId_fkey"
+            columns: ["targetCompanyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_targetCompanyId_fkey"
+            columns: ["targetCompanyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_targetCompanyId_fkey"
+            columns: ["targetCompanyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_targetJournalLineId_fkey"
+            columns: ["targetJournalLineId"]
+            isOneToOne: false
+            referencedRelation: "journalLine"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invite: {
         Row: {
           acceptedAt: string | null
@@ -13426,6 +13602,7 @@ export type Database = {
             | null
           externalDocumentId: string | null
           id: string
+          intercompanyPartnerId: string | null
           journalId: number
           journalLineReference: string
           quantity: number
@@ -13447,6 +13624,7 @@ export type Database = {
             | null
           externalDocumentId?: string | null
           id?: string
+          intercompanyPartnerId?: string | null
           journalId: number
           journalLineReference: string
           quantity?: number
@@ -13468,6 +13646,7 @@ export type Database = {
             | null
           externalDocumentId?: string | null
           id?: string
+          intercompanyPartnerId?: string | null
           journalId?: number
           journalLineReference?: string
           quantity?: number
@@ -13512,6 +13691,34 @@ export type Database = {
           {
             foreignKeyName: "journalLine_companyId_fkey"
             columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
@@ -35459,6 +35666,7 @@ export type Database = {
           embedding: unknown
           fax: string | null
           id: string
+          intercompanyCompanyId: string | null
           logo: string | null
           name: string
           phone: string | null
@@ -35485,6 +35693,7 @@ export type Database = {
           embedding?: unknown
           fax?: string | null
           id?: string
+          intercompanyCompanyId?: string | null
           logo?: string | null
           name: string
           phone?: string | null
@@ -35511,6 +35720,7 @@ export type Database = {
           embedding?: unknown
           fax?: string | null
           id?: string
+          intercompanyCompanyId?: string | null
           logo?: string | null
           name?: string
           phone?: string | null
@@ -35665,6 +35875,34 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "currencyCode"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "supplier_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "supplier_intercompanyCompanyId_fkey"
+            columns: ["intercompanyCompanyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
           },
           {
             foreignKeyName: "supplier_purchasingContactId_fkey"
@@ -52283,6 +52521,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
+            columns: ["customerCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
             columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -52291,13 +52536,6 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56198,6 +56436,14 @@ export type Database = {
         Args: { employee_start_date: string; period: string }
         Returns: boolean
       }
+      findLowestCommonParent: {
+        Args: { p_company_a: string; p_company_b: string }
+        Returns: string
+      }
+      generateEliminationEntries: {
+        Args: { p_company_group_id: string; p_user_id: string }
+        Returns: number
+      }
       get_action_tasks_by_item_and_process: {
         Args: { p_company_id: string; p_item_id: string; p_process_id: string }
         Returns: {
@@ -57605,6 +57851,16 @@ export type Database = {
           thumbnailPath: string
         }[]
       }
+      getIntercompanyBalance: {
+        Args: { p_company_group_id: string }
+        Returns: {
+          balance: number
+          sourceCompanyId: string
+          sourceCompanyName: string
+          targetCompanyId: string
+          targetCompanyName: string
+        }[]
+      }
       groups_for_user: { Args: { uid: string }; Returns: string[] }
       groups_query: {
         Args: { _name?: string; _uid?: string }
@@ -57691,6 +57947,17 @@ export type Database = {
         }[]
       }
       jsonb_to_text_array: { Args: { "": Json }; Returns: string[] }
+      matchIntercompanyTransactions: {
+        Args: { p_company_group_id: string }
+        Returns: {
+          amount: number
+          id: string
+          matchedWithId: string
+          sourceCompanyId: string
+          status: string
+          targetCompanyId: string
+        }[]
+      }
       nanoid: {
         Args: {
           additionalbytesfactor?: number

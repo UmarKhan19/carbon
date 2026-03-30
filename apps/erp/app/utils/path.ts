@@ -390,6 +390,8 @@ export const path = {
     accountingGroupsPurchasing: `${x}/accounting/groups/purchasing`,
     accountingGroupsSales: `${x}/accounting/groups/sales`,
     accountingRoot: `${x}/accounting`,
+    intercompany: `${x}/accounting/intercompany`,
+    newIntercompanyTransaction: `${x}/accounting/intercompany/new`,
     activeMethodVersion: (id: string) =>
       generatePath(`${x}/items/methods/versions/activate/${id}`),
     activateGauge: (id: string) =>

@@ -141,6 +141,13 @@ serve(async (req: Request) => {
         if (itemCosts.error) throw new Error("Failed to fetch item costs");
         if (customer.error) throw new Error("Failed to fetch customer");
 
+        // Detect intercompany transaction
+        const isIntercompany =
+          customer.data.intercompanyCompanyId != null;
+        const intercompanyPartnerId = isIntercompany
+          ? customer.data.intercompanyCompanyId
+          : null;
+
         const salesOrders = await client
           .from("salesOrder")
           .select("*")
@@ -224,6 +231,11 @@ serve(async (req: Request) => {
         if (accountDefaults.error || !accountDefaults.data) {
           throw new Error("Error getting account defaults");
         }
+
+        // For IC transactions, use IC Receivables (1130) instead of regular AR
+        const receivablesAccount = isIntercompany
+          ? "1130"
+          : accountDefaults.data.receivablesAccount;
 
         for await (const invoiceLine of salesInvoiceLines.data) {
           const invoiceLineQuantityInInventoryUnit = invoiceLine.quantity;
@@ -361,8 +373,10 @@ serve(async (req: Request) => {
 
                   // debit the accounts receivable account
                   journalLineInserts.push({
-                    accountNumber: accountDefaults.data.receivablesAccount,
-                    description: "Accounts Receivable",
+                    accountNumber: receivablesAccount,
+                    description: isIntercompany
+                      ? "IC Receivables"
+                      : "Accounts Receivable",
                     amount: debit("asset", totalLineCostWithWeightedShipping),
                     quantity: invoiceLineQuantityInInventoryUnit,
                     documentType: "Invoice",
@@ -372,6 +386,7 @@ serve(async (req: Request) => {
                       invoiceLine.salesOrderLineId!
                     ),
                     journalLineReference,
+                    intercompanyPartnerId,
                     companyId,
                     companyGroupId,
                   });
@@ -404,8 +419,10 @@ serve(async (req: Request) => {
 
                   // Debit the accounts receivable account
                   journalLineInserts.push({
-                    accountNumber: accountDefaults.data.receivablesAccount,
-                    description: "Accounts Receivable",
+                    accountNumber: receivablesAccount,
+                    description: isIntercompany
+                      ? "IC Receivables"
+                      : "Accounts Receivable",
                     amount: debit("asset", totalLineCostWithWeightedShipping),
                     quantity: invoiceLineQuantityInInventoryUnit,
                     documentType: "Invoice",
@@ -417,6 +434,7 @@ serve(async (req: Request) => {
                         )
                       : null,
                     journalLineReference,
+                    intercompanyPartnerId,
                     companyId,
                     companyGroupId,
                   });
@@ -645,6 +663,31 @@ serve(async (req: Request) => {
                 invoiced: true,
               })
               .where("id", "=", salesInvoice.data.shipmentId)
+              .execute();
+          }
+
+          // Create intercompany transaction record if IC
+          if (isIntercompany && intercompanyPartnerId) {
+            // Use the first journal line's ID as the source reference
+            // (will be populated when journal inserts are re-enabled)
+            const icJournalLineId = journalLineInserts.length > 0
+              ? journalLineInserts[0].journalLineReference ?? "pending"
+              : "pending";
+
+            await trx
+              .insertInto("intercompanyTransaction")
+              .values({
+                companyGroupId: companyGroupId!,
+                sourceCompanyId: companyId,
+                targetCompanyId: intercompanyPartnerId,
+                sourceJournalLineId: icJournalLineId,
+                amount: totalLinesCost,
+                currencyCode: salesInvoice.data?.currencyCode ?? "USD",
+                description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
+                documentType: "Invoice",
+                documentId: salesInvoice.data?.id,
+                status: "Unmatched",
+              })
               .execute();
           }
 

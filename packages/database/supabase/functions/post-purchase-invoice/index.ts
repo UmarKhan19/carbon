@@ -137,6 +137,13 @@ serve(async (req: Request) => {
       throw new Error("Failed to fetch purchase order lines");
     if (supplier.error) throw new Error("Failed to fetch supplier");
 
+    // Detect intercompany transaction
+    const isIntercompany =
+      supplier.data.intercompanyCompanyId != null;
+    const intercompanyPartnerId = isIntercompany
+      ? supplier.data.intercompanyCompanyId
+      : null;
+
     const purchaseOrders = await client
       .from("purchaseOrder")
       .select("*")
@@ -266,6 +273,11 @@ serve(async (req: Request) => {
     if (accountDefaults.error || !accountDefaults.data) {
       throw new Error("Error getting account defaults");
     }
+
+    // For IC transactions, use IC Payables (2020) instead of regular AP
+    const payablesAccount = isIntercompany
+      ? "2020"
+      : accountDefaults.data.payablesAccount;
 
     for await (const invoiceLine of purchaseInvoiceLines.data) {
       const invoiceLineQuantityInInventoryUnit =
@@ -452,8 +464,10 @@ serve(async (req: Request) => {
 
               // credit the accounts payable account
               journalLineInserts.push({
-                accountNumber: accountDefaults.data.payablesAccount,
-                description: "Accounts Payable",
+                accountNumber: payablesAccount,
+                description: isIntercompany
+                  ? "IC Payables"
+                  : "Accounts Payable",
                 amount: credit("liability", totalLineCostWithWeightedShipping),
                 quantity: invoiceLineQuantityInInventoryUnit,
                 documentType: "Invoice",
@@ -463,6 +477,7 @@ serve(async (req: Request) => {
                   invoiceLine.purchaseOrderLineId!
                 ),
                 journalLineReference,
+                intercompanyPartnerId,
                 companyId,
                 companyGroupId,
               });
@@ -755,8 +770,10 @@ serve(async (req: Request) => {
 
                 // credit the accounts payable account
                 journalLineInserts.push({
-                  accountNumber: accountDefaults.data.payablesAccount,
-                  description: "Accounts Payable",
+                  accountNumber: payablesAccount,
+                  description: isIntercompany
+                    ? "IC Payables"
+                    : "Accounts Payable",
                   amount: credit(
                     "liability",
                     quantityToReverse * invoiceLineUnitCostInInventoryUnit
@@ -769,6 +786,7 @@ serve(async (req: Request) => {
                     invoiceLine.purchaseOrderLineId!
                   ),
                   journalLineReference,
+                  intercompanyPartnerId,
                   companyId,
                   companyGroupId,
                 });
@@ -920,8 +938,10 @@ serve(async (req: Request) => {
 
           // credit the accounts payable account
           journalLineInserts.push({
-            accountNumber: accountDefaults.data.payablesAccount!,
-            description: "Accounts Payable",
+            accountNumber: payablesAccount!,
+            description: isIntercompany
+              ? "IC Payables"
+              : "Accounts Payable",
             amount: credit("liability", totalLineCostWithWeightedShipping),
             quantity: invoiceLineQuantityInInventoryUnit,
             documentType: "Invoice",
@@ -931,6 +951,7 @@ serve(async (req: Request) => {
               invoiceLine.purchaseOrderLineId!
             ),
             journalLineReference,
+            intercompanyPartnerId,
             companyId,
             companyGroupId,
           });
@@ -1093,6 +1114,29 @@ serve(async (req: Request) => {
           .insertInto("costLedger")
           .values(costLedgerInserts)
           .returning(["id"])
+          .execute();
+      }
+
+      // Create intercompany transaction record if IC
+      if (isIntercompany && intercompanyPartnerId) {
+        const icJournalLineId = journalLineInserts.length > 0
+          ? journalLineInserts[0].journalLineReference ?? "pending"
+          : "pending";
+
+        await trx
+          .insertInto("intercompanyTransaction")
+          .values({
+            companyGroupId: companyGroupId!,
+            sourceCompanyId: companyId,
+            targetCompanyId: intercompanyPartnerId,
+            sourceJournalLineId: icJournalLineId,
+            amount: totalLinesCost,
+            currencyCode: purchaseInvoice.data?.currencyCode ?? "USD",
+            description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
+            documentType: "Invoice",
+            documentId: purchaseInvoice.data?.id,
+            status: "Unmatched",
+          })
           .execute();
       }
 

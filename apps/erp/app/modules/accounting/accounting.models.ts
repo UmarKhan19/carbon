@@ -343,6 +343,29 @@ export const costCenterValidator = z.object({
   parentCostCenterId: zfd.text(z.string().optional())
 });
 
+export const intercompanyTransactionStatuses = [
+  "Unmatched",
+  "Matched",
+  "Eliminated"
+] as const;
+
+export const intercompanyTransactionValidator = z.object({
+  sourceCompanyId: z.string().min(1, { message: "Source company is required" }),
+  targetCompanyId: z.string().min(1, { message: "Target company is required" }),
+  amount: zfd.numeric(
+    z.number().positive({ message: "Amount must be positive" })
+  ),
+  currencyCode: z.string().min(1, { message: "Currency is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
+  debitAccountNumber: z
+    .string()
+    .min(1, { message: "Debit account is required" }),
+  creditAccountNumber: z
+    .string()
+    .min(1, { message: "Credit account is required" }),
+  postingDate: zfd.text(z.string().optional())
+});
+
 export const dimensionEntityTypes = [
   "CostCenter",
   "Custom",

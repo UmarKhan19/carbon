@@ -13,6 +13,7 @@ import type {
   defaultIncomeAcountValidator,
   dimensionValidator,
   fiscalYearSettingsValidator,
+  intercompanyTransactionValidator,
   paymentTermValidator
 } from "./accounting.models";
 import type { Transaction, TranslatedBalance } from "./types";
@@ -793,6 +794,132 @@ export async function translateCompanyBalances(
   const cta = totalTranslatedAssets - totalTranslatedLiabilitiesAndEquity;
 
   return { data: rows, cta, error: null };
+}
+
+// -- Intercompany --
+
+export async function getIntercompanyTransactions(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  args: GenericQueryFilters & { status: string | null }
+) {
+  let query = client
+    .from("intercompanyTransaction")
+    .select(
+      "*, sourceCompany:company!intercompanyTransaction_sourceCompanyId_fkey(name), targetCompany:company!intercompanyTransaction_targetCompanyId_fkey(name)",
+      { count: "exact" }
+    )
+    .eq("companyGroupId", companyGroupId);
+
+  if (args.status) {
+    query = query.eq("status", args.status);
+  }
+
+  query = setGenericQueryFilters(query, args, [
+    { column: "createdAt", ascending: false }
+  ]);
+  return query;
+}
+
+export async function createIntercompanyTransaction(
+  client: SupabaseClient<Database>,
+  input: z.infer<typeof intercompanyTransactionValidator> & {
+    companyGroupId: string;
+    userId: string;
+  }
+) {
+  const today = new Date().toISOString().split("T")[0];
+  const postingDate = input.postingDate || today;
+
+  // Create the journal entry on the source company
+  const journal = await client
+    .from("journal")
+    .insert({
+      description: `IC: ${input.description}`,
+      companyId: input.sourceCompanyId,
+      postingDate
+    })
+    .select("id")
+    .single();
+
+  if (journal.error) return journal;
+
+  const journalId = journal.data.id;
+  const journalLineRef = crypto.randomUUID();
+
+  // Insert debit and credit journal lines
+  const journalLines = await client
+    .from("journalLine")
+    .insert([
+      {
+        journalId,
+        accountNumber: input.debitAccountNumber,
+        description: input.description,
+        amount: input.amount,
+        journalLineReference: journalLineRef,
+        intercompanyPartnerId: input.targetCompanyId,
+        companyId: input.sourceCompanyId,
+        companyGroupId: input.companyGroupId
+      },
+      {
+        journalId,
+        accountNumber: input.creditAccountNumber,
+        description: input.description,
+        amount: -input.amount,
+        journalLineReference: journalLineRef,
+        intercompanyPartnerId: input.targetCompanyId,
+        companyId: input.sourceCompanyId,
+        companyGroupId: input.companyGroupId
+      }
+    ])
+    .select("id");
+
+  if (journalLines.error) return journalLines;
+
+  // Create intercompany transaction record
+  return client
+    .from("intercompanyTransaction")
+    .insert({
+      companyGroupId: input.companyGroupId,
+      sourceCompanyId: input.sourceCompanyId,
+      targetCompanyId: input.targetCompanyId,
+      sourceJournalLineId: journalLines.data[0].id,
+      amount: input.amount,
+      currencyCode: input.currencyCode,
+      description: input.description,
+      status: "Unmatched"
+    })
+    .select("id")
+    .single();
+}
+
+export async function runIntercompanyMatching(
+  client: SupabaseClient<Database>,
+  companyGroupId: string
+) {
+  return client.rpc("matchIntercompanyTransactions", {
+    p_company_group_id: companyGroupId
+  });
+}
+
+export async function generateEliminations(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  userId: string
+) {
+  return client.rpc("generateEliminationEntries", {
+    p_company_group_id: companyGroupId,
+    p_user_id: userId
+  });
+}
+
+export async function getIntercompanyBalance(
+  client: SupabaseClient<Database>,
+  companyGroupId: string
+) {
+  return client.rpc("getIntercompanyBalance", {
+    p_company_group_id: companyGroupId
+  });
 }
 
 export async function getExchangeRateHistory(
