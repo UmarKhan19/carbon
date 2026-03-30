@@ -1,7 +1,12 @@
 export function parseBoolean<T>(
   value: string | undefined,
+  defaultValue: T
+): boolean | T;
+export function parseBoolean(value: string | undefined): boolean | undefined;
+export function parseBoolean<T>(
+  value: string | undefined,
   defaultValue?: T
-): boolean | T {
+): boolean | T | undefined {
   if (!value) return defaultValue;
 
   if (typeof value === "boolean") return value;

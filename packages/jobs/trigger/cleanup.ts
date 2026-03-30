@@ -191,7 +191,7 @@ export const cleanup = schedules.task({
 
         // Get unique company IDs
         const companyIds = [
-          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId)),
+          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId).filter((id): id is string => id !== null)),
         ];
 
         // Fetch all company settings at once
@@ -219,6 +219,8 @@ export const cleanup = schedules.task({
 
           // Create notification payloads for each gauge
           for (const gauge of outOfCalibrationGauges.data) {
+            if (!gauge.companyId || !gauge.id) continue;
+
             const notificationGroup =
               notificationGroupsByCompany.get(gauge.companyId) ?? [];
 

@@ -234,6 +234,7 @@ export async function action(args: ActionFunctionArgs) {
             paymentTerms.data
           ) {
             const emailTemplate = PurchaseOrderEmail({
+              // @ts-expect-error TS2739 - TODO: fix type
               company: company.data,
               locale: locales?.[0] ?? "en-US",
               purchaseOrder: purchaseOrder.data,

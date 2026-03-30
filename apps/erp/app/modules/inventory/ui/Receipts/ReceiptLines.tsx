@@ -96,7 +96,7 @@ const ReceiptLines = () => {
   }>(path.to.receipt(receiptId));
 
   const receiptsById = new Map<string, ReceiptLine>(
-    // @ts-ignore
+    // @ts-expect-error
     routeData?.receiptLines.map((line) => [line.id, line])
   );
   const pendingReceiptLines = usePendingReceiptLines();
@@ -501,7 +501,7 @@ function ReceiptLineItem({
                               <DocumentPreview
                                 bucket="private"
                                 pathToFile={getPath(file)}
-                                // @ts-ignore
+                                // @ts-expect-error
                                 type={getDocumentType(file.name)}
                               >
                                 {file.name}
@@ -1039,7 +1039,7 @@ function Shelf({
 
   const ShelfPreview = (
     value: string,
-    options: { value: string; label: string }[]
+    options: { value: string; label: string | JSX.Element }[]
   ) => {
     const shelf = options.find((o) => o.value === value);
     if (!shelf) return null;

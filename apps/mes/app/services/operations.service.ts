@@ -940,7 +940,7 @@ export async function getJobMethodBomIdMap(
     return new Map();
   }
 
-  const tree = arrayToTree(result.data as JobMethod[]);
+  const tree = arrayToTree(result.data as unknown as JobMethod[]);
   if (tree.length === 0) {
     return new Map();
   }

@@ -16,12 +16,14 @@ import { ItarPopup, useKeyboardWedge, useNProgress } from "@carbon/remix";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import posthog from "posthog-js";
+import { Suspense } from "react";
 import type {
   LoaderFunctionArgs,
   MiddlewareFunction,
   ShouldRevalidateFunction
 } from "react-router";
 import {
+  Await,
   data,
   Outlet,
   redirect,
@@ -172,10 +174,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       locationEmployeeIds,
       locations: locations.data ?? [],
       openClockEntry: openClockEntry?.data
-        ? {
-            id: (openClockEntry.data as any).id,
-            clockIn: (openClockEntry.data as any).clockIn
-          }
+        ? getOpenClockEntry(client, userId, companyId)
         : null,
       effectiveUserId,
       pinnedInUser,
@@ -256,7 +255,22 @@ export default function AuthenticatedRoute() {
                 />
                 <Outlet />
                 {timeCardEnabled && (
-                  <TimeCardWarning openClockEntry={openClockEntry} />
+                  <Suspense fallback={null}>
+                    <Await resolve={openClockEntry}>
+                      {(resolved) => (
+                        <TimeCardWarning
+                          openClockEntry={
+                            resolved?.data
+                              ? {
+                                  id: resolved.data.id,
+                                  clockIn: resolved.data.clockIn
+                                }
+                              : null
+                          }
+                        />
+                      )}
+                    </Await>
+                  </Suspense>
                 )}
                 {consoleMode && !pinnedInUser && (
                   <PinInOverlay

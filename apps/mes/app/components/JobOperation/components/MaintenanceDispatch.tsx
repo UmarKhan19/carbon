@@ -123,6 +123,7 @@ export function MaintenanceDispatch({
       toast.success("Maintenance dispatch created");
       onClose();
     }
+    // biome-ignore lint/correctness/useExhaustiveDependencies: onClose is stable in practice
   }, [fetcher.state, fetcher.data, onClose]);
 
   const onUploadImage = async (file: File) => {

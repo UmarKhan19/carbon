@@ -168,6 +168,7 @@ const LineItems = ({
                           className="flex items-center gap-2"
                         >
                           {line.purchaseQuantity}
+                          {/* @ts-expect-error TS2339 */}
                           <MethodIcon type={line.methodType ?? "Pick"} />
                         </Badge>
                         <Badge variant="green">

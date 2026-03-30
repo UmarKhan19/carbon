@@ -557,7 +557,9 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           <ModalContent>
             <ValidatedForm
               validator={getJobMethodValidator}
-              onSubmit={() => {}}
+              onSubmit={() => {
+                /* form handled via fetcher */
+              }}
             >
               <ModalHeader>
                 <ModalTitle>Configure Item</ModalTitle>

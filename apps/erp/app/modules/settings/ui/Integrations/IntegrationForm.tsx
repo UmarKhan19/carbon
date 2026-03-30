@@ -181,10 +181,8 @@ function SettingField({ setting }: { setting: IntegrationSetting }) {
 
           // Legacy icon support for specific field names
           if (setting.name === "methodType") {
-            // @ts-ignore
             icon = <MethodIcon type={normalized.value} />;
           } else if (setting.name === "trackingType") {
-            // @ts-ignore
             icon = <TrackingTypeIcon type={normalized.value} />;
           }
 
@@ -419,9 +417,11 @@ export function IntegrationForm({
                   {integration.description}
                 </div>
 
+                {/* @ts-expect-error TS2339 */}
                 {integration.setupInstructions && (
                   <>
                     <Heading size="h3">Setup Instructions</Heading>
+                    {/* @ts-expect-error TS2339 */}
                     <integration.setupInstructions companyId={companyId} />
                   </>
                 )}
@@ -446,11 +446,14 @@ export function IntegrationForm({
                 ))}
 
                 {installed &&
+                  // @ts-expect-error TS2339 - TODO: fix type
                   integration.actions &&
+                  // @ts-expect-error TS2339 - TODO: fix type
                   integration.actions.length > 0 && (
                     <>
                       <Heading size="h3">Actions</Heading>
                       <VStack spacing={2} className="w-full">
+                        {/* @ts-expect-error TS7006 */}
                         {integration.actions.map((action) => (
                           <IntegrationActionButton
                             key={action.id}

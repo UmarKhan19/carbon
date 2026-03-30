@@ -77,9 +77,9 @@ export const timeCardAutoClose = schedules.task({
               const startParts = shift.startTime.split(":").map(Number);
               const endParts = shift.endTime.split(":").map(Number);
               let durationMinutes =
-                endParts[0] * 60 +
-                endParts[1] -
-                (startParts[0] * 60 + startParts[1]);
+                (endParts[0] ?? 0) * 60 +
+                (endParts[1] ?? 0) -
+                ((startParts[0] ?? 0) * 60 + (startParts[1] ?? 0));
               // Handle overnight shifts
               if (durationMinutes <= 0) durationMinutes += 24 * 60;
 

@@ -156,6 +156,11 @@ export async function getAccessibleResources(
  * Jira Cloud REST API client.
  */
 export class JiraClient {
+  private getCredentials(integration: { metadata: unknown }): JiraCredentials {
+    return (integration.metadata as { credentials: JiraCredentials })
+      .credentials;
+  }
+
   /**
    * Get authentication headers, refreshing token if needed.
    */
@@ -168,8 +173,7 @@ export class JiraClient {
       throw new Error("Jira integration not found for company");
     }
 
-    const metadata = integration.metadata as { credentials: JiraCredentials };
-    const credentials = metadata.credentials;
+    const credentials = this.getCredentials(integration);
 
     // Check if token needs refresh (5 min buffer)
     const now = Date.now();
@@ -213,8 +217,7 @@ export class JiraClient {
       throw new Error("Jira integration not found for company");
     }
 
-    const metadata = integration.metadata as { credentials: JiraCredentials };
-    return metadata.credentials.cloudId;
+    return this.getCredentials(integration).cloudId;
   }
 
   /**
@@ -229,8 +232,7 @@ export class JiraClient {
       throw new Error("Jira integration not found for company");
     }
 
-    const metadata = integration.metadata as { credentials: JiraCredentials };
-    return metadata.credentials.siteUrl;
+    return this.getCredentials(integration).siteUrl;
   }
 
   /**
@@ -594,7 +596,7 @@ export class JiraClient {
         companyId,
         `/user/search?query=${encodeURIComponent(email)}&maxResults=1`
       );
-      return users.length > 0 ? users[0] : null;
+      return users.length > 0 ? (users[0] ?? null) : null;
     } catch (e) {
       console.error("Error finding Jira user:", e);
       return null;

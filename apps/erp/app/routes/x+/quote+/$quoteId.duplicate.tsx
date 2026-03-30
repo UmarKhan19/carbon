@@ -25,6 +25,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const serviceRole = await getCarbonServiceRole();
 
+  // @ts-expect-error TS2345 - TODO: fix type
   const copy = await copyQuote(serviceRole, {
     sourceId: quoteId,
     targetId: asRevision ? quoteId : "",

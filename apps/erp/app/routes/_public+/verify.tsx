@@ -11,7 +11,7 @@ import {
 } from "@carbon/auth/session.server";
 import { verifyEmailCode } from "@carbon/auth/verification.server";
 import { Hidden, InputOTP, ValidatedForm, validator } from "@carbon/form";
-import { redis } from "@carbon/kv";
+import { Ratelimit, redis } from "@carbon/kv";
 import {
   Alert,
   AlertDescription,
@@ -20,7 +20,6 @@ import {
   Heading,
   VStack
 } from "@carbon/react";
-import { Ratelimit } from "@upstash/ratelimit";
 import { LuCircleAlert } from "react-icons/lu";
 import type {
   ActionFunctionArgs,

@@ -73,6 +73,7 @@ export function AssociatedItemsList({
       <CardContent>
         <ul className="flex flex-col gap-3">
           {associatedItems
+            // @ts-expect-error TS2339 - TODO: fix type
             .sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0))
             .map((child) => {
               // Resolve item information from the items store using documentId

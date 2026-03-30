@@ -131,11 +131,23 @@ async function activateCustomer(
     companyId: string;
   }
 ) {
-  return client
+  const result = await client
     .from("customerAccount")
     .update({ active: true })
     .eq("id", userId)
-    .eq("companyId", companyId);
+    .eq("companyId", companyId)
+    .select("id");
+
+  if (!result.error && (!result.data || result.data.length === 0)) {
+    return {
+      data: null,
+      error: {
+        message: `Customer account not found for user ${userId} in company ${companyId}. The account may have been deleted during deactivation.`
+      }
+    };
+  }
+
+  return result;
 }
 
 async function activateEmployee(
@@ -148,11 +160,23 @@ async function activateEmployee(
     companyId: string;
   }
 ) {
-  return client
+  const result = await client
     .from("employee")
     .update({ active: true })
     .eq("id", userId)
-    .eq("companyId", companyId);
+    .eq("companyId", companyId)
+    .select("id");
+
+  if (!result.error && (!result.data || result.data.length === 0)) {
+    return {
+      data: null,
+      error: {
+        message: `Employee record not found for user ${userId} in company ${companyId}. The record may have been deleted during deactivation.`
+      }
+    };
+  }
+
+  return result;
 }
 
 async function activateSupplier(
@@ -165,11 +189,23 @@ async function activateSupplier(
     companyId: string;
   }
 ) {
-  return client
+  const result = await client
     .from("supplierAccount")
     .update({ active: true })
     .eq("id", userId)
-    .eq("companyId", companyId);
+    .eq("companyId", companyId)
+    .select("id");
+
+  if (!result.error && (!result.data || result.data.length === 0)) {
+    return {
+      data: null,
+      error: {
+        message: `Supplier account not found for user ${userId} in company ${companyId}. The account may have been deleted during deactivation.`
+      }
+    };
+  }
+
+  return result;
 }
 
 export async function addUserToCompany(
@@ -594,9 +630,15 @@ export async function getUserClaims(userId: string, companyId: string) {
   } | null = null;
 
   try {
-    claims = JSON.parse(
-      (await redis.get(getPermissionCacheKey(userId))) || "null"
-    );
+    const cachedClaims = await redis.get(getPermissionCacheKey(userId));
+    if (cachedClaims) {
+      claims = JSON.parse(cachedClaims) as {
+        permissions: Record<string, Permission>;
+        role: string | null;
+      };
+    }
+  } catch (e) {
+    console.error("Failed to get claims from redis", e);
   } finally {
     // if we don't have permissions from redis, get them from the database
     if (!claims) {

@@ -41,7 +41,7 @@ const sessionStorage = createCookieSessionStorage({
     httpOnly: VERCEL_ENV === "production",
     path: "/",
     sameSite: isTestEdition ? "none" : "lax",
-    secrets: [SESSION_SECRET],
+    secrets: [SESSION_SECRET!],
     secure: VERCEL_ENV === "production",
     domain: VERCEL_ENV === "production" ? DOMAIN : undefined // eg. carbon.ms
   }

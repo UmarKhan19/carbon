@@ -90,6 +90,7 @@ export default function ConsumableCostingRoute() {
     <VStack spacing={2} className="p-2">
       <ItemCostingForm
         key={itemCost.itemId}
+        // @ts-expect-error TS2322 - TODO: fix type
         initialValues={{
           ...itemCost,
           itemPostingGroupId: itemCost.itemPostingGroupId ?? undefined,

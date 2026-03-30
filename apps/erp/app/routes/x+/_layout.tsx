@@ -17,11 +17,13 @@ import { ItarPopup, useKeyboardWedge, useNProgress } from "@carbon/remix";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import posthog from "posthog-js";
+import { Suspense } from "react";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction
 } from "react-router";
 import {
+  Await,
   data,
   Outlet,
   redirect,
@@ -98,8 +100,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user,
     claims,
     groups,
-    defaults,
-    openClockEntry
+    defaults
   ] = await Promise.all([
     getCompanies(client, userId),
     getStripeCustomerByCompanyId(companyId, userId),
@@ -110,8 +111,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUser(client, userId),
     getUserClaims(userId, companyId),
     getUserGroups(client, userId),
-    getUserDefaults(client, userId, companyId),
-    getOpenClockEntry(client, userId, companyId)
+    getUserDefaults(client, userId, companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
@@ -157,8 +157,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     role: claims?.role,
     user: user.data,
     savedViews: savedViews.data ?? [],
-    openClockEntry: openClockEntry.data
-      ? { id: openClockEntry.data.id, clockIn: openClockEntry.data.clockIn }
+    openClockEntry: companySettings.data?.timeCardEnabled
+      ? getOpenClockEntry(client, userId, companyId)
       : null
   });
 }
@@ -217,7 +217,22 @@ export default function AuthenticatedRoute() {
                 onDismiss={dismiss}
               />
               {companySettings?.timeCardEnabled && (
-                <TimeCardWarning openClockEntry={openClockEntry} />
+                <Suspense fallback={null}>
+                  <Await resolve={openClockEntry}>
+                    {(resolved) => (
+                      <TimeCardWarning
+                        openClockEntry={
+                          resolved?.data
+                            ? {
+                                id: resolved.data.id,
+                                clockIn: resolved.data.clockIn
+                              }
+                            : null
+                        }
+                      />
+                    )}
+                  </Await>
+                </Suspense>
               )}
             </TooltipProvider>
           </RealtimeDataProvider>

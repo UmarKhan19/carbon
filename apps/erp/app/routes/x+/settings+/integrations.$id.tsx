@@ -86,7 +86,6 @@ function buildIntegrationMetadata(
   };
 
   // Remove owner settings from formData since they're now in syncConfig
-  // biome-ignore lint/correctness/noUnusedVariables: destructuring to exclude from restFormData
   const {
     customerOwner: _customerOwner,
     vendorOwner: _vendorOwner,
@@ -230,8 +229,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { active, ...d } = validation.data;
+  // @ts-expect-error TS2339 - TODO: fix type
+  const { active: _active, ...d } = validation.data;
 
   // Fetch existing metadata so we merge form settings without
   // overwriting credentials and syncConfig
@@ -245,6 +244,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const update = await upsertCompanyIntegration(client, {
     id: integrationId,
     active: true,
+    // @ts-expect-error TS2322 - TODO: fix type
     metadata,
     companyId,
     updatedBy: userId

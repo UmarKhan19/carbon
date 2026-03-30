@@ -141,17 +141,7 @@
         "**/__tests__/**/*.ts"
       ],
       "javascript": {
-        "globals": [
-          "afterEach",
-          "afterAll",
-          "beforeEach",
-          "beforeAll",
-          "describe",
-          "expect",
-          "it",
-          "test",
-          "jest"
-        ]
+        "globals": []
       }
     }
   ],

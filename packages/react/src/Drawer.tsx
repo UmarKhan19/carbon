@@ -20,7 +20,7 @@ const DrawerTrigger = DialogPrimitive.Trigger;
 
 const DrawerCloseButton = DialogPrimitive.Close;
 
-const portalVariants = cva("fixed inset-0 z-50 flex", {
+const portalVariants = cva("fixed inset-0 z-50 flex p-3", {
   variants: {
     position: {
       top: "items-start",
@@ -73,15 +73,14 @@ const DrawerBody = ({
 DrawerBody.displayName = "DrawerBody";
 
 const sheetVariants = cva(
-  "fixed flex flex-col z-50 scale-100 bg-accent dark:bg-card opacity-100 shadow-button-base dark:shadow-[inset_0_0.5px_0_rgb(255_255_255_/_0.08),_inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)] border border-border transition-all duration-100 focus-visible:outline-none focus-visible:ring-0",
+  "flex flex-col z-50 scale-100 bg-accent dark:bg-card opacity-100 shadow-button-base dark:shadow-[inset_0_0.5px_0_rgb(255_255_255_/_0.08),_inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)] border border-border transition-all duration-100 focus-visible:outline-none focus-visible:ring-0 rounded-2xl",
   {
     variants: {
       position: {
-        top: "animate-in slide-in-from-top w-full duration-300 rounded-b-xl",
-        bottom:
-          "animate-in slide-in-from-bottom w-full duration-300 rounded-t-xl",
-        left: "animate-in slide-in-from-left h-full duration-300 rounded-r-xl",
-        right: "animate-in slide-in-from-right h-full duration-300 rounded-l-xl"
+        top: "animate-in slide-in-from-top w-full duration-300",
+        bottom: "animate-in slide-in-from-bottom w-full duration-300",
+        left: "animate-in slide-in-from-left h-full duration-300",
+        right: "animate-in slide-in-from-right h-full duration-300"
       },
       size: {
         content: "",
@@ -96,7 +95,7 @@ const sheetVariants = cva(
       {
         position: ["top", "bottom"],
         size: "content",
-        class: "max-h-screen"
+        class: "max-h-full"
       },
       {
         position: ["top", "bottom"],
@@ -121,12 +120,12 @@ const sheetVariants = cva(
       {
         position: ["top", "bottom"],
         size: "full",
-        class: "h-screen"
+        class: "h-full"
       },
       {
         position: ["right", "left"],
         size: "content",
-        class: "max-w-screen"
+        class: "max-w-full"
       },
       {
         position: ["right", "left"],
@@ -151,7 +150,7 @@ const sheetVariants = cva(
       {
         position: ["right", "left"],
         size: "full",
-        class: "w-full lg:w-screen"
+        class: "w-full"
       }
     ],
     defaultVariants: {

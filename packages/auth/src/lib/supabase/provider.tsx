@@ -2,6 +2,7 @@ import type { Database } from "@carbon/database";
 import { useInterval } from "@carbon/react";
 import { isBrowser } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type React from "react";
 import type { PropsWithChildren } from "react";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
@@ -18,7 +19,7 @@ interface ICarbonStore {
   setAuthToken: (accessToken: string) => Promise<void>;
 }
 
-const CarbonContext = createContext<StoreApi<ICarbonStore>>(null);
+const CarbonContext = createContext<StoreApi<ICarbonStore> | null>(null);
 
 // Module-level store reference that persists across HMR
 let __hmrStore: StoreApi<ICarbonStore> | null = null;
@@ -29,13 +30,17 @@ export const CarbonProvider = ({
 }: PropsWithChildren<{
   session: Partial<AuthSession>;
 }>) => {
-  const store = useRef<StoreApi<ICarbonStore>>(null);
+  const store = useRef<StoreApi<ICarbonStore>>(
+    null
+  ) as React.MutableRefObject<StoreApi<ICarbonStore> | null>;
 
   if (!store.current) {
     store.current = createStore<ICarbonStore>((set, get) => ({
-      accessToken: session.accessToken,
+      accessToken: session.accessToken ?? "",
       isRealtimeAuthSet: false,
-      carbon: createCarbonWithAuthGetter(store),
+      carbon: createCarbonWithAuthGetter(
+        store as React.MutableRefObject<StoreApi<{ accessToken: string }>>
+      ),
       setAuthToken: async (accessToken) => {
         const { carbon } = get();
 
@@ -49,7 +54,7 @@ export const CarbonProvider = ({
   }
 
   const { carbon, setAuthToken } = useStore<StoreApi<ICarbonStore>>(
-    store.current
+    store.current!
   );
 
   const initialLoad = useRef(true);
@@ -57,7 +62,9 @@ export const CarbonProvider = ({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    setAuthToken(session.accessToken);
+    if (session.accessToken) {
+      setAuthToken(session.accessToken);
+    }
   }, [carbon, setAuthToken, session.accessToken]);
 
   useEffect(() => {
@@ -86,8 +93,9 @@ export const CarbonProvider = ({
 
   useInterval(() => {
     // refresh ten minutes before expiry
-    const shouldRefresh = session.expiresAt - 60 * 10 < Date.now() / 1000;
-    const shouldReload = session.expiresAt < Date.now() / 1000;
+    const expiresAt = session.expiresAt ?? 0;
+    const shouldRefresh = expiresAt - 60 * 10 < Date.now() / 1000;
+    const shouldReload = expiresAt < Date.now() / 1000;
 
     if (shouldReload) {
       window.location.reload();

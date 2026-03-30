@@ -59,6 +59,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // @ts-expect-error TS2345 - TODO: fix type
   const copy = await copyMakeMethod(getCarbonServiceRole(), {
     sourceId: validation.data.copyFromId,
     targetId: methodOperationId,

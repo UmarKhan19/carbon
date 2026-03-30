@@ -1110,114 +1110,120 @@ const Quote = ({
     Record<string, SelectedLine>
   >(() => {
     return (
-      quoteLines?.reduce<Record<string, SelectedLine>>((acc, line) => {
-        const salesOrderLine = salesOrderLines?.find(
-          (salesOrderLine) => salesOrderLine.id === line.id
-        );
+      quoteLines?.reduce<Record<string, SelectedLine>>(
+        (acc: Record<string, SelectedLine>, line: any) => {
+          const salesOrderLine = salesOrderLines?.find(
+            (salesOrderLine: any) => salesOrderLine.id === line.id
+          );
 
-        if (
-          Array.isArray(salesOrderLines) &&
-          salesOrderLines.length > 0 &&
-          !salesOrderLine
-        ) {
-          acc[line.id!] = deselectedLine;
+          if (
+            Array.isArray(salesOrderLines) &&
+            salesOrderLines.length > 0 &&
+            !salesOrderLine
+          ) {
+            acc[line.id!] = deselectedLine;
+            return acc;
+          }
+
+          const price = salesOrderLine
+            ? quoteLinePrices?.find(
+                (price: any) =>
+                  price.quoteLineId === salesOrderLine.id &&
+                  price.quantity === salesOrderLine.saleQuantity
+              )
+            : quoteLinePrices?.find(
+                (price: any) =>
+                  price.quoteLineId === line.id &&
+                  line.quantity?.includes(price.quantity)
+              );
+
+          if (!line.id) {
+            return acc;
+          }
+
+          if (!price) {
+            acc[line.id] = deselectedLine;
+            return acc;
+          }
+
+          const additionalChargesByQuantity =
+            line.quantity?.reduce(
+              (acc: Record<number, number>, quantity: number) => {
+                const charges = Object.values(
+                  line.additionalCharges ?? {}
+                ).reduce((chargeAcc: number, charge: any) => {
+                  const amount = charge.amounts?.[quantity] ?? 0;
+                  return chargeAcc + amount;
+                }, 0);
+                acc[quantity] = charges;
+                return acc;
+              },
+              {} as Record<number, number>
+            ) ?? {};
+
+          const convertedAdditionalChargesByQuantity =
+            Object.entries(additionalChargesByQuantity).reduce<
+              Record<number, number>
+            >(
+              (acc, [quantity, amount]) => {
+                acc[Number(quantity)] =
+                  (amount as number) * (quote.exchangeRate ?? 1);
+                return acc;
+              },
+              {} as Record<number, number>
+            ) ?? {};
+
+          const taxableAdditionalChargesByQuantity =
+            line.quantity?.reduce(
+              (acc: Record<number, number>, quantity: number) => {
+                const charges = Object.values(
+                  line.additionalCharges ?? {}
+                ).reduce((chargeAcc: number, charge: any) => {
+                  if (charge.taxable === false) return chargeAcc;
+                  const amount = charge.amounts?.[quantity] ?? 0;
+                  return chargeAcc + amount;
+                }, 0);
+                acc[quantity] = charges;
+                return acc;
+              },
+              {} as Record<number, number>
+            ) ?? {};
+
+          const convertedTaxableAdditionalChargesByQuantity =
+            Object.entries(taxableAdditionalChargesByQuantity).reduce<
+              Record<number, number>
+            >(
+              (acc, [quantity, amount]) => {
+                acc[Number(quantity)] =
+                  (amount as number) * (quote.exchangeRate ?? 1);
+                return acc;
+              },
+              {} as Record<number, number>
+            ) ?? {};
+
+          acc[line.id] = {
+            quantity: price.quantity ?? 0,
+            netUnitPrice: price.netUnitPrice ?? 0,
+            convertedNetUnitPrice: price.convertedNetUnitPrice ?? 0,
+            addOn: additionalChargesByQuantity[price.quantity] || 0,
+            convertedAddOn:
+              convertedAdditionalChargesByQuantity[price.quantity] || 0,
+            taxableAddOn:
+              taxableAdditionalChargesByQuantity[price.quantity] || 0,
+            convertedTaxableAddOn:
+              convertedTaxableAdditionalChargesByQuantity[price.quantity] || 0,
+            leadTime: price.leadTime,
+            shippingCost: price.shippingCost ?? 0,
+            convertedShippingCost: price.convertedShippingCost ?? 0,
+            taxPercent: line.taxPercent ?? 0,
+            discountPercent: price.discountPercent ?? 0,
+            unitPrice: price.unitPrice ?? 0,
+            convertedUnitPrice: price.convertedUnitPrice ?? 0
+          };
           return acc;
-        }
-
-        const price = salesOrderLine
-          ? quoteLinePrices?.find(
-              (price) =>
-                price.quoteLineId === salesOrderLine.id &&
-                price.quantity === salesOrderLine.saleQuantity
-            )
-          : quoteLinePrices?.find(
-              (price) =>
-                price.quoteLineId === line.id &&
-                line.quantity?.includes(price.quantity)
-            );
-
-        if (!line.id) {
-          return acc;
-        }
-
-        if (!price) {
-          acc[line.id] = deselectedLine;
-          return acc;
-        }
-
-        const additionalChargesByQuantity =
-          line.quantity?.reduce(
-            (acc, quantity) => {
-              const charges = Object.values(
-                line.additionalCharges ?? {}
-              ).reduce((chargeAcc, charge) => {
-                const amount = charge.amounts?.[quantity];
-                return chargeAcc + amount;
-              }, 0);
-              acc[quantity] = charges;
-              return acc;
-            },
-            {} as Record<number, number>
-          ) ?? {};
-
-        const convertedAdditionalChargesByQuantity =
-          Object.entries(additionalChargesByQuantity).reduce<
-            Record<number, number>
-          >(
-            (acc, [quantity, amount]) => {
-              acc[Number(quantity)] = amount * (quote.exchangeRate ?? 1);
-              return acc;
-            },
-            {} as Record<number, number>
-          ) ?? {};
-
-        const taxableAdditionalChargesByQuantity =
-          line.quantity?.reduce(
-            (acc, quantity) => {
-              const charges = Object.values(
-                line.additionalCharges ?? {}
-              ).reduce((chargeAcc, charge) => {
-                if (charge.taxable === false) return chargeAcc;
-                const amount = charge.amounts?.[quantity];
-                return chargeAcc + amount;
-              }, 0);
-              acc[quantity] = charges;
-              return acc;
-            },
-            {} as Record<number, number>
-          ) ?? {};
-
-        const convertedTaxableAdditionalChargesByQuantity =
-          Object.entries(taxableAdditionalChargesByQuantity).reduce<
-            Record<number, number>
-          >(
-            (acc, [quantity, amount]) => {
-              acc[Number(quantity)] = amount * (quote.exchangeRate ?? 1);
-              return acc;
-            },
-            {} as Record<number, number>
-          ) ?? {};
-
-        acc[line.id] = {
-          quantity: price.quantity ?? 0,
-          netUnitPrice: price.netUnitPrice ?? 0,
-          convertedNetUnitPrice: price.convertedNetUnitPrice ?? 0,
-          addOn: additionalChargesByQuantity[price.quantity] || 0,
-          convertedAddOn:
-            convertedAdditionalChargesByQuantity[price.quantity] || 0,
-          taxableAddOn: taxableAdditionalChargesByQuantity[price.quantity] || 0,
-          convertedTaxableAddOn:
-            convertedTaxableAdditionalChargesByQuantity[price.quantity] || 0,
-          leadTime: price.leadTime,
-          shippingCost: price.shippingCost ?? 0,
-          convertedShippingCost: price.convertedShippingCost ?? 0,
-          taxPercent: line.taxPercent ?? 0,
-          discountPercent: price.discountPercent ?? 0,
-          unitPrice: price.unitPrice ?? 0,
-          convertedUnitPrice: price.convertedUnitPrice ?? 0
-        };
-        return acc;
-      }, {}) ?? {}
+        },
+        {}
+      ) ?? {}
     );
   });
 
@@ -1676,9 +1682,7 @@ export const ErrorMessage = ({
   );
 };
 
-type QuoteData = NonNullable<
-  Awaited<ReturnType<Awaited<ReturnType<typeof loader>>["json"]>>["data"]
->;
+type QuoteData = NonNullable<Awaited<ReturnType<typeof loader>>["data"]>;
 
 export default function ExternalQuote() {
   const { state, data, strings } = useLoaderData<typeof loader>();
@@ -1686,7 +1690,6 @@ export default function ExternalQuote() {
   switch (state) {
     case QuoteState.Valid:
       if (data) {
-        // @ts-ignore
         return <Quote data={data as QuoteData} strings={strings} />;
       }
       return (

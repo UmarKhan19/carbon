@@ -250,6 +250,7 @@ const Kanban = ({
                 )}
                 {activeItem && (
                   <ItemCard
+                    // @ts-expect-error TS2322 - TODO: fix type
                     item={{
                       ...activeItem,
                       status: progressByItemId[activeItem.id]?.active

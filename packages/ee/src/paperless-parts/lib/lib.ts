@@ -1004,7 +1004,7 @@ export async function getCustomerIdAndContactId(
   }
 ) {
   let customerId: string;
-  let customerContactId: string;
+  let customerContactId: string | undefined;
 
   const { company, contact, createdBy = "system" } = args;
 

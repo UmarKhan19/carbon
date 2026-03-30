@@ -2,7 +2,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
     "@types/aws-lambda": "8.10.152",
-    "@typescript/native-preview": "^7.0.0-dev.20251215.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260330.1",
     "csv-parse": "^5.5.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
@@ -10,7 +10,6 @@
     "patch-package": "^8.0.1",
     "postcss-nesting": "12.1.5",
     "prettier": "^2.8.0",
-
     "rimraf": "^5.0.5",
     "supabase": "2.54.11",
     "ts-morph": "^22.0.0",
@@ -73,7 +72,7 @@
     "tool:new": "tsx scripts/create-tool.ts",
     "agent:new": "tsx scripts/create-agent.ts",
     "types": "turbo run types",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "turbo run typecheck --filter='*'",
     "typegen": "turbo run typegen"
   },
   "workspaces": [

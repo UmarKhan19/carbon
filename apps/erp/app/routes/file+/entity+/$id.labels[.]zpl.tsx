@@ -23,7 +23,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");
   const labelSizeId =
-    labelParam || companySettings.data?.productLabelSize || "zebra2x1";
+    labelParam || companySettings?.data?.productLabelSize || "zebra2x1";
 
   const labelSize = labelSizes.find((size) => size.id === labelSizeId);
 
@@ -37,7 +37,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const zplOutput = generateProductLabelZPL(labelItem, labelSize);
+  const zplOutput = generateProductLabelZPL(labelItem!, labelSize);
 
   const headers = new Headers({
     "Content-Type": "application/zpl",

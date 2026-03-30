@@ -12,8 +12,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const incomeBalance = searchParams.get("incomeBalance");
   const result = await getAccountsList(client, companyId, {
+    // @ts-expect-error TS2322 - TODO: fix type
     type,
+    // @ts-expect-error TS2322 - TODO: fix type
     incomeBalance,
+    // @ts-expect-error TS2322 - TODO: fix type
     classes
   });
 

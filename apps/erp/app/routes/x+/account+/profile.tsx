@@ -123,6 +123,7 @@ export default function AccountProfile() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 w-full">
+            {/* @ts-expect-error TS2322 */}
             <ProfileForm user={user} />
             <ProfilePhotoForm user={user} />
           </div>

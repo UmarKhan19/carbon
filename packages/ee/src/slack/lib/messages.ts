@@ -63,7 +63,10 @@ function getDocumentTypeInfo(documentType: DocumentType): {
   name: string;
   urlPath: string;
 } {
-  const typeMap = {
+  const typeMap: Record<
+    string,
+    { emoji: string; name: string; urlPath: string }
+  > = {
     nonConformance: {
       emoji: "⚠️",
       name: "Issue",
@@ -71,7 +74,7 @@ function getDocumentTypeInfo(documentType: DocumentType): {
     }
   };
 
-  return typeMap[documentType];
+  return typeMap[documentType]!;
 }
 
 /**

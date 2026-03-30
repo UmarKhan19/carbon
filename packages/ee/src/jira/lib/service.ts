@@ -44,7 +44,7 @@ export async function updateJiraCredentials(
       metadata: {
         ...metadata,
         credentials
-      }
+      } as any
     })
     .eq("companyId", companyId)
     .eq("id", "jira");

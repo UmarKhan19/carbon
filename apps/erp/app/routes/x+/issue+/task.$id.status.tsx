@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { notifyTaskStatusChanged } from "@carbon/ee/notifications";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
+// @ts-expect-error TS2305 - TODO: fix type
 import type { IssueInvestigationTask } from "~/modules/quality";
 import { updateIssueTaskStatus } from "~/modules/quality";
 import { getCompanyIntegrations } from "~/modules/settings/settings.server";

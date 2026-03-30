@@ -26,7 +26,6 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.10",
-    "@upstash/ratelimit": "^2.0.5",
     "@vercel/analytics": "^1.2.2",
     "@vercel/react-router": "^1.2.4",
     "cookie": "0.6.0",
@@ -46,8 +45,7 @@
     "zod-form-data": "2.0.8"
   },
   "devDependencies": {
-    "@carbon/tailwind": "*",
-    "@carbon/tsconfig": "*",
+    "@carbon/config": "*",
     "@types/react": "^18.2.74",
     "@types/react-dom": "^18.2.24",
     "autoprefixer": "10.4.14",
@@ -70,6 +68,7 @@
     "dev": "react-router dev",
     "lint": "biome lint --write ",
     "start": "NODE_ENV=production react-router-serve ./build/server/index.js",
+    "typecheck": "tsgo --noEmit",
     "types": "tsgo --noEmit",
     "typegen": "react-router typegen"
   },

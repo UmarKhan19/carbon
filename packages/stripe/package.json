@@ -13,7 +13,7 @@
   "type": "module",
   "devDependencies": {
     "@carbon/logger": "*",
-    "@carbon/tsconfig": "*",
+    "@carbon/config": "*",
     "@types/node": "^20.12.5",
     "dotenv": "16.3.1",
     "rimraf": "^5.0.5",
@@ -31,7 +31,8 @@
     "dev": "tsup --watch",
     "lint": "biome lint --write ",
     "dev:stripe": "tsx ./stripe.dev.ts",
-    "register:stripe": "tsx ./stripe.register.ts"
+    "register:stripe": "tsx ./stripe.register.ts",
+    "typecheck": "tsgo --noEmit"
   },
   "sideEffects": false,
   "version": "*"

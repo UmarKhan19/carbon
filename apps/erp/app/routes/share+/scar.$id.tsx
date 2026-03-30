@@ -540,6 +540,7 @@ const Issue = ({
 };
 
 type IssueData = NonNullable<
+  // @ts-expect-error TS2339 - TODO: fix type
   Awaited<ReturnType<Awaited<ReturnType<typeof loader>>["json"]>>["data"]
 >;
 
@@ -549,7 +550,6 @@ export default function ExternalQuote() {
   switch (state) {
     case IssueState.Valid:
       if (data) {
-        // @ts-ignore
         return <Issue data={data as IssueData} strings={strings} />;
       }
       return (

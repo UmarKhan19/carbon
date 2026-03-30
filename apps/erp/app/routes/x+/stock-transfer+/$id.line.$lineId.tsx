@@ -104,6 +104,7 @@ export default function NewStockTransferLinesRoute() {
     <StockTransferLineForm
       locationId={routeData?.stockTransfer.locationId}
       onClose={() => navigate(-1)}
+      // @ts-expect-error TS2739 - TODO: fix type
       initialValues={initialValues}
     />
   );

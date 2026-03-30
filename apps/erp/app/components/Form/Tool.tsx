@@ -24,7 +24,7 @@ type ToolSelectProps = Omit<ComboboxProps, "options" | "type" | "inline"> & {
 
 const ToolPreview = (
   value: string,
-  options: { value: string; label: string; helper?: string }[]
+  options: { value: string; label: string | JSX.Element; helper?: string }[]
 ) => {
   const item = options.find((o) => o.value === value);
   if (!item) return null;
@@ -129,7 +129,6 @@ const Tool = ({ name, label, helperText, ...props }: ToolSelectProps) => {
             unitOfMeasureCode: "EA",
             replenishmentSystem: "Buy",
             defaultMethodType: "Buy",
-            active: true,
             unitCost: 0,
             tags: []
           }}

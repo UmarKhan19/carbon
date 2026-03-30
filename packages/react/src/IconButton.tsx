@@ -55,7 +55,10 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       ? cloneElement(element as any, {
           "aria-hidden": true,
           focusable: false,
-          className: cn(iconSizes[size], (element as any).props?.className)
+          className: cn(
+            iconSizes[size ?? "md"],
+            (element as any).props?.className
+          )
         })
       : null;
 

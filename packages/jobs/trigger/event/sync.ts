@@ -206,7 +206,7 @@ export const syncTask = task({
             }
           }
         } catch (error) {
-          logger.error(`Failed to process sync for ${key}:`, error);
+          logger.error(`Failed to process sync for ${key}:`, { error });
           for (const r of records) {
             results.failed.push({
               recordId: r.event.recordId,
@@ -216,7 +216,7 @@ export const syncTask = task({
         }
       }
     } catch (error) {
-      logger.error("Sync task failed:", error);
+      logger.error("Sync task failed:", { error });
     } finally {
       await pool.end();
     }

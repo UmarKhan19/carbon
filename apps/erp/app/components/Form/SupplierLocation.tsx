@@ -22,7 +22,7 @@ type SupplierLocationSelectProps = Omit<
 
 const SupplierLocationPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const location = options.find((o) => o.value === value);
   if (!location) return null;
@@ -60,7 +60,9 @@ const SupplierLocation = (props: SupplierLocationSelectProps) => {
     [supplierLocationsFetcher.data]
   );
 
-  const onChange = (newValue: { label: string; value: string } | null) => {
+  const onChange = (
+    newValue: { label: string | JSX.Element; value: string } | null
+  ) => {
     const location =
       supplierLocationsFetcher.data?.data?.find(
         (location) => location.id === newValue?.value

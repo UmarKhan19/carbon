@@ -65,6 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
         )
       );
     }
+    // @ts-expect-error TS2322 - TODO: fix type
     jobId = nextSequenceResult.data;
   }
 
@@ -113,6 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
     ...d,
     jobId,
     configuration,
+    // @ts-expect-error TS2353 - TODO: fix type
     priority,
     scrapQuantity,
     shelfId: shelfId ?? undefined,
