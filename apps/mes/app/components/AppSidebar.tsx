@@ -32,7 +32,7 @@ import {
   useDisclosure,
   useSidebar
 } from "@carbon/react";
-import { ItarDisclosure, useMode } from "@carbon/remix";
+import { ItarDisclosure, useMode, useRouteData } from "@carbon/remix";
 import type { ComponentProps } from "react";
 import { useRef } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
@@ -309,8 +309,16 @@ export function UserNav({
 
   const itarDisclosure = useDisclosure();
 
+  // useUser().id returns the effective (operator) ID — read the original station user ID directly
+  const routeData = useRouteData<{ user: { id: string } | null }>(
+    path.to.authenticatedRoot
+  );
+  const sessionUserId = routeData?.user?.id;
   const isOperatorPinnedIn =
-    consoleMode && pinnedInUser && pinnedInUser.userId !== user.id;
+    consoleMode &&
+    pinnedInUser &&
+    sessionUserId &&
+    pinnedInUser.userId !== sessionUserId;
   const showingOperator = consoleMode && pinnedInUser;
   const displayName = showingOperator ? pinnedInUser.name : stationName;
   const displayAvatar = showingOperator
