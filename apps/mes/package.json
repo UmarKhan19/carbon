@@ -45,8 +45,7 @@
     "zod-form-data": "2.0.8"
   },
   "devDependencies": {
-    "@carbon/tailwind": "*",
-    "@carbon/tsconfig": "*",
+    "@carbon/config": "*",
     "@types/react": "^18.2.74",
     "@types/react-dom": "^18.2.24",
     "autoprefixer": "10.4.14",

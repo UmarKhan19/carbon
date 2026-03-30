@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@carbon/database": "*",
-    "@carbon/tsconfig": "*",
+    "@carbon/config": "*",
     "typescript": "^5.2.2"
   },
   "exports": {

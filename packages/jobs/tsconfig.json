@@ -12,6 +12,6 @@
     }
   ],
   "exclude": ["node_modules"],
-  "extends": "@carbon/tsconfig/base.json",
+  "extends": "@carbon/config/tsconfig/base.json",
   "include": ["trigger"]
 }

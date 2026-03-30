@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "@carbon/config": "*",
-    "@carbon/tsconfig": "*",
     "typescript": "^5.2.2",
     "vitest": "^4.1.0"
   }

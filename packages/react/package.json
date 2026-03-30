@@ -77,8 +77,6 @@
   },
   "devDependencies": {
     "@carbon/config": "*",
-    "@carbon/tailwind": "*",
-    "@carbon/tsconfig": "*",
     "@carbon/utils": "*",
     "@testing-library/dom": "^8.11.1",
     "@types/dompurify": "^2.4.0",

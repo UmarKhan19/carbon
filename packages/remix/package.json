@@ -9,7 +9,6 @@
   "devDependencies": {
     "@carbon/config": "*",
     "@carbon/react": "*",
-    "@carbon/tsconfig": "*",
     "@carbon/utils": "*",
     "@types/react": "^18.2.74",
     "tsup": "^6.5.0",

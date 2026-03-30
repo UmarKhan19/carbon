@@ -6,7 +6,6 @@
   "devDependencies": {
     "@carbon/config": "*",
     "@carbon/logger": "*",
-    "@carbon/tsconfig": "*",
     "@types/node": "^20.12.5",
     "dotenv": "16.3.1",
     "ioredis-mock": "^8.13.1",

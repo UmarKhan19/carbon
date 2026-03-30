@@ -7,7 +7,7 @@
       "~/*": ["../../packages/react/src/*"]
     }
   },
-  "extends": "@carbon/tsconfig/react-library.json",
+  "extends": "@carbon/config/tsconfig/react-library.json",
   "include": ["src"],
   "exclude": ["**/*.d.ts", "./dist", "node_modules"]
 }

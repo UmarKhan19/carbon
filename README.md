@@ -111,14 +111,13 @@ The monorepo follows the Turborepo convention of grouping packages into one of t
 | `@carbon/database`  | Database schema, migrations and types                                   |
 | `@carbon/documents` | Transactional PDFs and email templates                                  |
 | `@carbon/ee`        | Integration definitions and configurations                              |
-| `@carbon/config`    | Shared configuration (vitest) across apps and packages                  |
+| `@carbon/config`    | Shared configuration (vitest, tsconfig, tailwind) across apps and packages |
 | `@carbon/jobs`      | Background jobs and workers                                             |
 | `@carbon/logger`    | Shared logger used across apps                                          |
 | `@carbon/react`     | Shared web-based UI components                                          |
 | `@carbon/kv`        | Redis cache client                                                      |
 | `@carbon/lib`       | Third-party client libraries (slack, resend)                            |
 | `@carbon/stripe`    | Stripe integration                                                      |
-| `@carbon/tsconfig`  | Shared, extendable tsconfig configuration used across apps and packages |
 | `@carbon/utils`     | Shared utility functions used across apps and packages                  |
 
 ## Development

@@ -99,8 +99,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-    "@carbon/tailwind": "*",
-    "@carbon/tsconfig": "*",
+    "@carbon/config": "*",
     "@trigger.dev/build": "4.0.6",
     "@types/d3": "^7.4.0",
     "@types/nprogress": "^0.2.0",

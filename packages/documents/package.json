@@ -12,7 +12,6 @@
     "@carbon/auth": "*",
     "@carbon/config": "*",
     "@carbon/database": "*",
-    "@carbon/tsconfig": "*",
     "@internationalized/date": "^3.5.2",
     "@testing-library/dom": "^8.11.1",
     "@types/dompurify": "^2.4.0",
