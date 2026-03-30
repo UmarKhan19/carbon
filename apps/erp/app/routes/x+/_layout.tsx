@@ -67,26 +67,14 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const authSession = await requireAuthSession(request, { verify: true });
+  const { accessToken, companyId, expiresAt, expiresIn, userId } = authSession;
+
   // Block ERP access when console mode is active on this terminal.
   // Console terminals should only access the MES app.
-  const cookieHeader = request.headers.get("cookie");
-  if (cookieHeader) {
-    const cookies = Object.fromEntries(
-      cookieHeader.split(";").map((c) => {
-        const [key, ...rest] = c.trim().split("=");
-        return [key, decodeURIComponent(rest.join("="))];
-      })
-    );
-    const hasConsoleMode = Object.entries(cookies).some(
-      ([key, value]) => key.startsWith("console-mode-") && value === "true"
-    );
-    if (hasConsoleMode) {
-      throw redirect(getMESUrl());
-    }
+  if (authSession.console) {
+    throw redirect(getMESUrl());
   }
-
-  const { accessToken, companyId, expiresAt, expiresIn, userId } =
-    await requireAuthSession(request, { verify: true });
 
   // const { computeRegion, proxyRegion } = parseVercelId(
   //   request.headers.get("x-vercel-id")

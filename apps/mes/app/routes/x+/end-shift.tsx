@@ -3,11 +3,14 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { clearConsolePinIn, getConsoleMode } from "~/services/console.server";
+import { clearConsolePinIn } from "~/services/console.server";
 import { endProductionEvents } from "~/services/operations.service";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {});
+  const { client, companyId, userId, consoleMode } = await requirePermissions(
+    request,
+    {}
+  );
   const formData = await request.formData();
   const timezone = formData.get("timezone") as string | null;
 
@@ -50,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // In console mode, pin out the operator after ending their shift
   const headers = new Headers();
-  if (getConsoleMode(request, companyId)) {
+  if (consoleMode) {
     headers.append("Set-Cookie", clearConsolePinIn(companyId));
   }
 

@@ -1,31 +1,8 @@
 import * as cookie from "cookie";
 
-const CONSOLE_MODE_PREFIX = "console-mode-";
 const CONSOLE_PIN_PREFIX = "console-pin-";
 const CONSOLE_PIN_MAX_AGE = 60 * 60; // 1 hour in seconds
 const CONSOLE_PIN_MAX_AGE_MS = CONSOLE_PIN_MAX_AGE * 1000;
-
-// --- Console Mode (per-terminal toggle) ---
-
-export function getConsoleMode(request: Request, companyId: string): boolean {
-  const cookieHeader = request.headers.get("cookie");
-  if (!cookieHeader) return false;
-  return (
-    cookie.parse(cookieHeader)[`${CONSOLE_MODE_PREFIX}${companyId}`] === "true"
-  );
-}
-
-export function setConsoleMode(companyId: string, enabled: boolean): string {
-  if (enabled) {
-    return cookie.serialize(`${CONSOLE_MODE_PREFIX}${companyId}`, "true", {
-      path: "/"
-    });
-  }
-  return cookie.serialize(`${CONSOLE_MODE_PREFIX}${companyId}`, "", {
-    path: "/",
-    maxAge: 0
-  });
-}
 
 // --- Console Pin-In State ---
 

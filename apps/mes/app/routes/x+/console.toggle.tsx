@@ -1,19 +1,36 @@
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { updateSessionConsole } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { clearConsolePinIn, setConsoleMode } from "~/services/console.server";
+import { clearConsolePinIn } from "~/services/console.server";
 import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId } = await requirePermissions(request, {});
+  const { client, companyId } = await requirePermissions(request, {});
 
   const formData = await request.formData();
   const enabled = formData.get("consoleMode") === "true";
 
+  // Only allow enabling if company has console mode turned on
+  if (enabled) {
+    const settings = await client
+      .from("companySettings")
+      .select("consoleEnabled")
+      .eq("id", companyId)
+      .single();
+
+    if (!settings.data?.consoleEnabled) {
+      throw new Response("Console mode is not enabled", { status: 403 });
+    }
+  }
+
   const headers = new Headers();
-  headers.append("Set-Cookie", setConsoleMode(companyId, enabled));
+  headers.append(
+    "Set-Cookie",
+    await updateSessionConsole(request, enabled ? companyId : undefined)
+  );
 
   // When disabling console mode, also clear any active pin-in
   if (!enabled) {
