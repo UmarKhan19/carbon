@@ -19,15 +19,12 @@
     "./xero": "./src/accounting/providers/xero.ts",
     "./xero/hooks.server": "./src/xero/hooks.server.ts"
   },
-  "jest": {
-    "preset": "@carbon/jest/node"
-  },
   "private": true,
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
     "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
     "lint": "biome lint --write ",
-    "test": "jest"
+    "test": "vitest run"
   },
   "dependencies": {
     "@carbon/auth": "*",
@@ -43,7 +40,9 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@carbon/config": "*",
     "@carbon/tsconfig": "*",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^4.1.0"
   }
 }

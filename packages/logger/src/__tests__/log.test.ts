@@ -1,10 +1,11 @@
+import { describe, expect, it, vi } from "vitest";
 import Logger from "..";
 
-jest.spyOn(global.console, "log");
-jest.spyOn(global.console, "info");
-jest.spyOn(global.console, "trace");
-jest.spyOn(global.console, "warn");
-jest.spyOn(global.console, "error");
+vi.spyOn(global.console, "log");
+vi.spyOn(global.console, "info");
+vi.spyOn(global.console, "trace");
+vi.spyOn(global.console, "warn");
+vi.spyOn(global.console, "error");
 
 describe("logger", () => {
   const logger = Logger.create("test");

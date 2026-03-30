@@ -111,7 +111,7 @@ The monorepo follows the Turborepo convention of grouping packages into one of t
 | `@carbon/database`  | Database schema, migrations and types                                   |
 | `@carbon/documents` | Transactional PDFs and email templates                                  |
 | `@carbon/ee`        | Integration definitions and configurations                              |
-| `@carbon/jest`      | Jest preset configuration shared across apps and packages               |
+| `@carbon/config`    | Shared configuration (vitest) across apps and packages                  |
 | `@carbon/jobs`      | Background jobs and workers                                             |
 | `@carbon/logger`    | Shared logger used across apps                                          |
 | `@carbon/react`     | Shared web-based UI components                                          |

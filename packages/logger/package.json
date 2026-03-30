@@ -1,24 +1,20 @@
 {
   "name": "@carbon/logger",
   "devDependencies": {
-    "@carbon/jest": "*",
-    "@types/jest": "^26.0.22",
-    "jest": "^26.6.3",
+    "@carbon/config": "*",
     "tsup": "^6.5.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^4.1.0"
   },
   "exports": {
     ".": "./src/index.ts"
-  },
-  "jest": {
-    "preset": "@carbon/jest/node"
   },
   "private": true,
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
     "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
     "lint": "biome lint --write ",
-    "test": "jest"
+    "test": "vitest run"
   },
   "version": "*"
 }

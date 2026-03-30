@@ -4,6 +4,7 @@
     "ioredis": "^5.10.1"
   },
   "devDependencies": {
+    "@carbon/config": "*",
     "@carbon/logger": "*",
     "@carbon/tsconfig": "*",
     "@types/node": "^20.12.5",

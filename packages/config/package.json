@@ -1,0 +1,19 @@
+{
+  "name": "@carbon/config",
+  "private": true,
+  "version": "*",
+  "exports": {
+    "./vitest": "./dist/vitest.mjs"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf .turbo node_modules dist",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "vitest": "^4.1.0"
+  },
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  }
+}
