@@ -118,7 +118,6 @@ const JobHeader = ({
   customer,
   item,
   job,
-  operations,
   methodRevision,
   thumbnail,
   jobOperations
@@ -575,7 +574,7 @@ function getParallelizedOrder(
   if (item?.operationOrder !== "With Previous") return index + 1;
   // traverse backwards through the list of items to find the first item that is not "With Previous" and return its index + 1
   for (let i = index - 1; i >= 0; i--) {
-    if (items[i].operationOrder !== "With Previous") {
+    if (items[i]?.operationOrder !== "With Previous") {
       return i + 1;
     }
   }

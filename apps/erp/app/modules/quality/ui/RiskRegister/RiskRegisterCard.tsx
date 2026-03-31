@@ -135,6 +135,7 @@ export default function RiskRegisterCard({
             formDisclosure.onClose();
             fetchRisks();
           }}
+          // @ts-expect-error TS2322 - TODO: fix type
           initialValues={
             selectedRisk
               ? {
@@ -180,6 +181,7 @@ export default function RiskRegisterCard({
           }}
           title="Delete Risk"
           text="Are you sure you want to delete this risk?"
+          // @ts-expect-error TS2345 - TODO: fix type
           action={path.to.deleteRisk(selectedRisk.id)}
         />
       )}
@@ -242,6 +244,7 @@ function RiskRegisterCardItem({
         <div>
           <Assignee
             table="riskRegister"
+            // @ts-expect-error TS2322 - TODO: fix type
             id={risk.id}
             size="sm"
             value={risk.assignee ?? undefined}

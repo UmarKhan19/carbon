@@ -70,7 +70,7 @@ function FunnelChartContent({
         id,
         generateCurvePoints(
           value,
-          steps[idx + 1]?.value ?? steps[steps.length - 1].value
+          steps[idx + 1]?.value ?? steps[steps.length - 1]!.value
         )
       ])
     );
@@ -134,7 +134,7 @@ function FunnelChartContent({
                   return (
                     <motion.path
                       initial={{ d: path(emptyData) || "", opacity: 0 }}
-                      animate={{ d: path(funnelData[id]) || "", opacity: 1 }}
+                      animate={{ d: path(funnelData[id]!) || "", opacity: 1 }}
                       className={cn(colorClassName, "pointer-events-none")}
                       fill="currentColor"
                     />

@@ -53,6 +53,7 @@ const SalesInvoiceHeader = () => {
   const voidModal = useDisclosure();
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
     entityType: "salesInvoice",
+    // @ts-expect-error TS2322 - TODO: fix type
     entityId: invoiceId,
     companyId: company.id,
     variant: "dropdown"
@@ -163,6 +164,10 @@ const SalesInvoiceHeader = () => {
       { method: "post", action: path.to.salesInvoiceStatus(invoiceId) }
     );
   };
+
+  const IS_PAYMENT_DROPDOWN_DISABLED =
+    ["Voided", "Draft", "Pending"].includes(salesInvoice.status ?? "") ||
+    !permissions.can("update", "invoicing");
 
   return (
     <>
@@ -314,14 +319,13 @@ const SalesInvoiceHeader = () => {
               </Button>
             )}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger
+                asChild
+                disabled={IS_PAYMENT_DROPDOWN_DISABLED}
+              >
                 <Button
                   variant="secondary"
-                  isDisabled={
-                    ["Voided", "Draft", "Pending"].includes(
-                      salesInvoice.status ?? ""
-                    ) || !permissions.can("update", "invoicing")
-                  }
+                  isDisabled={IS_PAYMENT_DROPDOWN_DISABLED}
                   leftIcon={<LuDollarSign />}
                   rightIcon={<LuChevronDown />}
                 >

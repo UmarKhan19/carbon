@@ -27,14 +27,14 @@ describe("getInputProps", () => {
       onChange!(fakeEvent);
       expect(provided.onChange).toBeCalledTimes(1);
       expect(provided.onChange).toBeCalledWith(fakeEvent);
-      expect(options.setTouched).not.toBeCalled();
+      expect(options.setTouched).toBeCalledTimes(1);
+      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).not.toBeCalled();
 
       onBlur!(fakeEvent);
       expect(provided.onBlur).toBeCalledTimes(1);
       expect(provided.onBlur).toBeCalledWith(fakeEvent);
       expect(options.setTouched).toBeCalledTimes(1);
-      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
     });
 
@@ -62,14 +62,14 @@ describe("getInputProps", () => {
       onChange!(fakeEvent);
       expect(provided.onChange).toBeCalledTimes(1);
       expect(provided.onChange).toBeCalledWith(fakeEvent);
-      expect(options.setTouched).not.toBeCalled();
+      expect(options.setTouched).toBeCalledTimes(1);
+      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
 
       onBlur!(fakeEvent);
       expect(provided.onBlur).toBeCalledTimes(1);
       expect(provided.onBlur).toBeCalledWith(fakeEvent);
       expect(options.setTouched).toBeCalledTimes(1);
-      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
     });
 
@@ -97,14 +97,14 @@ describe("getInputProps", () => {
       onChange!(fakeEvent);
       expect(provided.onChange).toBeCalledTimes(1);
       expect(provided.onChange).toBeCalledWith(fakeEvent);
-      expect(options.setTouched).not.toBeCalled();
+      expect(options.setTouched).toBeCalledTimes(1);
+      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).not.toBeCalled();
 
       onBlur!(fakeEvent);
       expect(provided.onBlur).toBeCalledTimes(1);
       expect(provided.onBlur).toBeCalledWith(fakeEvent);
       expect(options.setTouched).toBeCalledTimes(1);
-      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).not.toBeCalled();
     });
   });
@@ -131,14 +131,14 @@ describe("getInputProps", () => {
       onChange!(fakeEvent);
       expect(provided.onChange).toBeCalledTimes(1);
       expect(provided.onChange).toBeCalledWith(fakeEvent);
-      expect(options.setTouched).not.toBeCalled();
+      expect(options.setTouched).toBeCalledTimes(1);
+      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
 
       onBlur!(fakeEvent);
       expect(provided.onBlur).toBeCalledTimes(1);
       expect(provided.onBlur).toBeCalledWith(fakeEvent);
       expect(options.setTouched).toBeCalledTimes(1);
-      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
     });
 
@@ -166,14 +166,14 @@ describe("getInputProps", () => {
       onChange!(fakeEvent);
       expect(provided.onChange).toBeCalledTimes(1);
       expect(provided.onChange).toBeCalledWith(fakeEvent);
-      expect(options.setTouched).not.toBeCalled();
+      expect(options.setTouched).toBeCalledTimes(1);
+      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).not.toBeCalled();
 
       onBlur!(fakeEvent);
       expect(provided.onBlur).toBeCalledTimes(1);
       expect(provided.onBlur).toBeCalledWith(fakeEvent);
       expect(options.setTouched).toBeCalledTimes(1);
-      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
     });
   });
@@ -200,14 +200,14 @@ describe("getInputProps", () => {
       onChange!(fakeEvent);
       expect(provided.onChange).toBeCalledTimes(1);
       expect(provided.onChange).toBeCalledWith(fakeEvent);
-      expect(options.setTouched).not.toBeCalled();
+      expect(options.setTouched).toBeCalledTimes(1);
+      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
 
       onBlur!(fakeEvent);
       expect(provided.onBlur).toBeCalledTimes(1);
       expect(provided.onBlur).toBeCalledWith(fakeEvent);
       expect(options.setTouched).toBeCalledTimes(1);
-      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
     });
 
@@ -235,14 +235,14 @@ describe("getInputProps", () => {
       onChange!(fakeEvent);
       expect(provided.onChange).toBeCalledTimes(1);
       expect(provided.onChange).toBeCalledWith(fakeEvent);
-      expect(options.setTouched).not.toBeCalled();
+      expect(options.setTouched).toBeCalledTimes(1);
+      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).not.toBeCalled();
 
       onBlur!(fakeEvent);
       expect(provided.onBlur).toBeCalledTimes(1);
       expect(provided.onBlur).toBeCalledWith(fakeEvent);
       expect(options.setTouched).toBeCalledTimes(1);
-      expect(options.setTouched).toBeCalledWith(true);
       expect(options.validate).toBeCalledTimes(1);
     });
   });

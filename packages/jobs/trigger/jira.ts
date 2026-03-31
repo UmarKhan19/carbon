@@ -1,9 +1,9 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   getCompanyEmployees,
   getJiraClient,
   linkActionToJiraIssue
-} from "@carbon/ee/jira";
+} from "@carbon/ee/jira.server";
 import { task } from "@trigger.dev/sdk";
 import { z } from "zod";
 
@@ -150,7 +150,7 @@ export const syncIssueFromJira = task({
       const employees = await getCompanyEmployees(carbon, payload.companyId, [
         fullIssue.fields.assignee.emailAddress
       ]);
-      assignee = employees.length > 0 ? employees[0].userId : null;
+      assignee = employees.length > 0 ? employees[0]!.userId : null;
     }
 
     // Update the linked action task

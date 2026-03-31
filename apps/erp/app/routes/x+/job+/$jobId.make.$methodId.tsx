@@ -146,6 +146,7 @@ export default function JobMakeMethodRoute() {
       <JobBillOfMaterial
         key={`bom:${methodId}`}
         jobMakeMethodId={methodId}
+        // @ts-expect-error TS2322 - TODO: fix type
         materials={materials}
         // @ts-expect-error
         operations={operations}

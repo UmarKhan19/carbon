@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { groupBy } from "@carbon/utils";
 import { logger, task } from "@trigger.dev/sdk/v3";
 import { z } from "zod";

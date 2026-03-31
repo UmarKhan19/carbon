@@ -1,8 +1,0 @@
-{
-  "name": "@carbon/tsconfig",
-  "private": true,
-  "publishConfig": {
-    "access": "public"
-  },
-  "version": "*"
-}

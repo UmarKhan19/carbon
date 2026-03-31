@@ -47,6 +47,7 @@ export type Workspace = {
   quickbooks_client_id: string | null;
   quickbooks_client_secret: string | null;
   quickbooks_webhook_secret: string | null;
+  redis_url: string | null;
   resend_api_key: string | null;
   resend_domain: string | null;
   session_secret: string | null;
@@ -62,8 +63,7 @@ export type Workspace = {
   trigger_api_url: string | null;
   trigger_project_id: string | null;
   trigger_secret_key: string | null;
-  upstash_redis_rest_token: string | null;
-  upstash_redis_rest_url: string | null;
+  redis_url: string | null;
   url_erp: string | null;
   url_mes: string | null;
   xero_client_id: string | null;
@@ -142,8 +142,7 @@ async function deploy(): Promise<void> {
         trigger_api_url,
         trigger_project_id,
         trigger_secret_key,
-        upstash_redis_rest_token,
-        upstash_redis_rest_url,
+        redis_url,
         url_erp,
         url_mes,
         xero_client_id,
@@ -234,15 +233,8 @@ async function deploy(): Promise<void> {
         continue;
       }
 
-      if (!upstash_redis_rest_token) {
-        console.log(
-          `🔴🍳 Missing Upstash Redis REST token for ${workspace.id}`
-        );
-        continue;
-      }
-
-      if (!upstash_redis_rest_url) {
-        console.log(`🔴🍳 Missing Upstash Redis rest url for ${workspace.id}`);
+      if (!redis_url) {
+        console.log(`🔴🍳 Missing Redis URL for ${workspace.id}`);
         continue;
       }
 
@@ -285,6 +277,7 @@ async function deploy(): Promise<void> {
           QUICKBOOKS_CLIENT_ID: quickbooks_client_id ?? undefined,
           QUICKBOOKS_CLIENT_SECRET: quickbooks_client_secret ?? undefined,
           QUICKBOOKS_WEBHOOK_SECRET: quickbooks_webhook_secret ?? undefined,
+          REDIS_URL: redis_url ?? undefined,
           RESEND_API_KEY: resend_api_key,
           RESEND_DOMAIN: resend_domain ?? "carbon.ms",
           SESSION_SECRET: session_secret,
@@ -304,8 +297,7 @@ async function deploy(): Promise<void> {
           TRIGGER_API_URL: trigger_api_url,
           TRIGGER_PROJECT_ID: trigger_project_id,
           TRIGGER_SECRET_KEY: trigger_secret_key,
-          UPSTASH_REDIS_REST_TOKEN: upstash_redis_rest_token,
-          UPSTASH_REDIS_REST_URL: upstash_redis_rest_url,
+          REDIS_URL: redis_url,
           URL_ERP: url_erp,
           URL_MES: url_mes,
           VERCEL_ENV: "production",

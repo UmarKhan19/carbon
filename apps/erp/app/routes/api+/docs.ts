@@ -1,6 +1,5 @@
 import swaggerDocsSchema from "@carbon/database/swagger-docs-schema";
-import { redis } from "@carbon/kv";
-import { Ratelimit } from "@upstash/ratelimit";
+import { Ratelimit, redis } from "@carbon/kv";
 import {
   type ClientLoaderFunctionArgs,
   data,

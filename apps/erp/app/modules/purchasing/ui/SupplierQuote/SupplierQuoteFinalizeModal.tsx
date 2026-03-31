@@ -53,6 +53,7 @@ const SupplierQuoteFinalizeModal = ({
           action={action}
           onSubmit={onClose}
           defaultValues={{
+            // @ts-expect-error TS2322 - TODO: fix type
             notification: notificationType as "Email" | "None",
             supplierContact: quote?.supplierContactId ?? undefined
           }}

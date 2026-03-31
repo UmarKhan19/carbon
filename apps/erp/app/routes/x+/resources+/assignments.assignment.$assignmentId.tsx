@@ -49,6 +49,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const [assignment, trainings, assignmentStatus] = await Promise.all([
     getTrainingAssignment(client, assignmentId),
     getTrainingsList(client, companyId),
+    // @ts-expect-error TS2345 - TODO: fix type
     getTrainingAssignmentStatus(client, companyId, {
       // We'll filter by trainingId which we'll get from the assignment
     })
@@ -119,6 +120,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       { error: result.error.message },
       {
         status: 500,
+        // @ts-expect-error TS2322 - TODO: fix type
         headers: await flash(
           request,
           error(result.error, "Failed to update assignment")

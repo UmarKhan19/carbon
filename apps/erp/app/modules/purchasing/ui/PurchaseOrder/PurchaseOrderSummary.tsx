@@ -169,6 +169,7 @@ const LineItems = ({
                         >
                           {line.purchaseQuantity}
                           <MethodIcon
+                            // @ts-ignore
                             type={line.methodType ?? "Pull from Inventory"}
                           />
                         </Badge>

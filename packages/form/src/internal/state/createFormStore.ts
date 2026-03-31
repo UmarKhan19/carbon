@@ -1,6 +1,5 @@
-import type { WritableDraft } from "immer/dist/internal";
+import type { Draft } from "immer";
 import invariant from "tiny-invariant";
-import type { GetState } from "zustand";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { getPath, setPath } from "../../utils";
@@ -154,8 +153,8 @@ const defaultFormState: FormState = {
 };
 
 const createFormState = (
-  set: (setter: (draft: WritableDraft<FormState>) => void) => void,
-  get: GetState<FormState>
+  set: (setter: (draft: Draft<FormState>) => void) => void,
+  get: () => FormState
 ): FormState => ({
   // It's not "hydrated" until the form props are synced
   isHydrated: false,
@@ -330,7 +329,7 @@ const createFormState = (
       });
 
       fieldsToUpdate.forEach((field) => {
-        state.fieldErrors[field] = fieldErrors[field];
+        state.fieldErrors[field] = fieldErrors[field]!;
       });
     });
 
@@ -585,9 +584,9 @@ export const useRootFormStore = create<FormStoreState>()(
       if (get().forms[formId]) return;
       set((state) => {
         state.forms[formId] = createFormState(
-          (setter) => set((state) => setter(state.forms[formId])),
-          () => get().forms[formId]
-        ) as WritableDraft<FormState>;
+          (setter) => set((state) => setter(state.forms[formId]!)),
+          () => get().forms[formId]!
+        ) as Draft<FormState>;
       });
     }
   }))

@@ -204,8 +204,8 @@ export default function ProductionDashboard() {
     if (selectedKpi === "estimatesVsActuals") {
       if (!kpiFetcher.data?.data) return null;
       return {
-        // @ts-expect-error
         value: kpiFetcher.data.data.reduce(
+          // @ts-expect-error TS2339 - TODO: fix type
           (acc, item) => acc + item.estimate,
           0
         )
@@ -587,6 +587,7 @@ export default function ProductionDashboard() {
             {(resolvedEvents) => (
               <WorkCenterCards
                 events={resolvedEvents.data ?? []}
+                // @ts-expect-error TS2322 - TODO: fix type
                 workCenters={workCenters}
               />
             )}

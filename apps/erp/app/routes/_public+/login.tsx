@@ -15,7 +15,7 @@ import { flash, getAuthSession } from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
 import { sendVerificationCode } from "@carbon/auth/verification.server";
 import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
-import { redis } from "@carbon/kv";
+import { Ratelimit, redis } from "@carbon/kv";
 import {
   Alert,
   AlertDescription,
@@ -29,7 +29,6 @@ import {
 import { ItarLoginDisclaimer, useMode } from "@carbon/remix";
 import { Edition } from "@carbon/utils";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { Ratelimit } from "@upstash/ratelimit";
 import { useEffect, useState } from "react";
 import { LuCircleAlert } from "react-icons/lu";
 import type {

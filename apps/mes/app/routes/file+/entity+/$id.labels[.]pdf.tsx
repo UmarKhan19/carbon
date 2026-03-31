@@ -77,5 +77,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const headers = new Headers({ "Content-Type": "application/pdf" });
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

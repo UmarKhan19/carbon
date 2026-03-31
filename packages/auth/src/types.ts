@@ -8,6 +8,7 @@ export interface AuthSession {
   email: string;
   expiresIn: number;
   expiresAt: number;
+  console?: string;
 }
 
 export type Company = NonNullable<

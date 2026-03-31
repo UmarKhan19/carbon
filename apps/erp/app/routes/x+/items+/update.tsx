@@ -400,9 +400,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (partUpdate.error) {
           return partUpdate;
         }
-        if (itemUpdates.error) {
-          return itemUpdates;
-        }
+
         return itemUpdates;
       }
     case "consumableId":
@@ -468,9 +466,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (consumableUpdate.error) {
           return consumableUpdate;
         }
-        if (consumableItemUpdates.error) {
-          return consumableItemUpdates;
-        }
+
         return consumableItemUpdates;
       }
     case "materialId":
@@ -534,9 +530,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (materialUpdate.error) {
           return materialUpdate;
         }
-        if (materialItemUpdates.error) {
-          return materialItemUpdates;
-        }
+
         return materialItemUpdates;
       }
     case "toolId":
@@ -597,9 +591,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (toolUpdate.error) {
           return toolUpdate;
         }
-        if (toolItemUpdates.error) {
-          return toolItemUpdates;
-        }
+
         return toolItemUpdates;
       }
     default:

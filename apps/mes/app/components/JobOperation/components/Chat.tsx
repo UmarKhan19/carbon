@@ -32,6 +32,7 @@ export function OperationChat({
   operation: OperationWithDetails;
 }) {
   const user = useUser();
+
   const [employees] = usePeople();
   const [messages, setMessages] = useState<Message[]>([]);
 

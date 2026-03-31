@@ -21,7 +21,7 @@ type MaterialGradeSelectProps = Omit<
 
 const MaterialGradePreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const grade = options.find((o) => o.value === value);
   if (!grade) return null;
@@ -57,7 +57,9 @@ const MaterialGrade = (props: MaterialGradeSelectProps) => {
     }));
   }, [materialGradesLoader.data?.data]);
 
-  const onChange = (newValue: { label: string; value: string } | null) => {
+  const onChange = (
+    newValue: { label: string | JSX.Element; value: string } | null
+  ) => {
     const grade =
       materialGradesLoader.data?.data?.find(
         (grade) => grade.id === newValue?.value

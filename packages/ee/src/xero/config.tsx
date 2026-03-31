@@ -1,14 +1,4 @@
-import { getCarbonServiceRole, XERO_CLIENT_ID } from "@carbon/auth";
-import type { CreateSubscriptionParams } from "@carbon/database/event";
-import {
-  createEventSystemSubscription,
-  deleteEventSystemSubscriptionsByName
-} from "@carbon/database/event";
-import {
-  getProviderIntegration,
-  ProviderID,
-  type ProviderIntegrationMetadata
-} from "@carbon/ee/accounting";
+import { XERO_CLIENT_ID } from "@carbon/auth";
 import type { ComponentProps } from "react";
 import { z } from "zod";
 import { defineIntegration } from "../fns";
@@ -226,50 +216,7 @@ export const Xero = defineIntegration({
       description: "Runs the initial backfill for the selected entities above",
       endpoint: "/api/integrations/xero/backfill"
     }
-  ],
-  async onHealthcheck(companyId, metadata) {
-    const provider = getProviderIntegration(
-      getCarbonServiceRole(),
-      companyId,
-      ProviderID.XERO,
-      metadata as ProviderIntegrationMetadata
-    );
-
-    return await provider.validate();
-  },
-  async onInstall(companyId) {
-    const client = getCarbonServiceRole();
-
-    const tables: CreateSubscriptionParams["table"][] = [
-      "address",
-      "customer",
-      "supplier",
-      "item",
-      "salesInvoice",
-      "purchaseInvoice",
-      "purchaseOrder",
-      "salesOrder"
-    ];
-
-    for (const table of tables) {
-      await createEventSystemSubscription(client, {
-        table,
-        companyId,
-        name: "xero-sync",
-        operations: ["INSERT", "UPDATE", "DELETE"],
-        type: "SYNC",
-        config: {
-          provider: ProviderID.XERO
-        }
-      });
-    }
-  },
-  async onUninstall(companyId) {
-    const client = getCarbonServiceRole();
-
-    // Delete all Xero sync subscriptions for this company
-    await deleteEventSystemSubscriptionsByName(client, companyId, "xero-sync");
-  }
+  ]
 });
 
 function Logo(props: ComponentProps<"svg">) {

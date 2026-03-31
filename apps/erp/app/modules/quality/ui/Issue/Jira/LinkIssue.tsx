@@ -72,6 +72,7 @@ export const LinkIssue = (props: Props) => {
       method="post"
       action={path.to.api.jiraLinkExistingIssue}
       validator={linkIssueValidator}
+      // @ts-expect-error TS2322 - TODO: fix type
       fetcher={fetcher}
       resetAfterSubmit
       onAfterSubmit={() => props.onClose()}

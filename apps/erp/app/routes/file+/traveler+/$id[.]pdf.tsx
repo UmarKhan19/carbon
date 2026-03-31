@@ -1,5 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { JobTravelerPDF } from "@carbon/documents/pdf";
 import type { JSONContent } from "@carbon/react";
 import { flattenTree, generateBomIds } from "@carbon/utils";
@@ -121,7 +121,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const stream = await renderToStream(
     <JobTravelerPDF
-      company={company.data}
+      company={company.data as any}
       job={job.data}
       jobMakeMethod={jobMakeMethod.data}
       jobOperations={jobOperations.data}
@@ -159,5 +159,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "Content-Type": "application/pdf",
     "Content-Disposition": `inline; filename="${company.data.name} - ${job.data.jobId}.pdf"`
   });
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

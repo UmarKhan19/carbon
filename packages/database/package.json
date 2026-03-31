@@ -1,7 +1,7 @@
 {
   "name": "@carbon/database",
   "devDependencies": {
-    "@carbon/tsconfig": "*",
+    "@carbon/config": "*",
     "@supabase/supabase-js": "2.80.0",
     "@types/node": "^20.12.5",
     "@types/uuid": "^8.3.4",
@@ -41,7 +41,8 @@
     "db:types": "supabase gen types typescript --local > src/types.ts",
     "deploy": "supabase link --project-ref $SUPABASE_PROJECT_ID && supabase db push",
     "lint": "biome lint --write ",
-    "setup": "tsx src/seed.ts"
+    "setup": "tsx src/seed.ts",
+    "typecheck": "tsgo --noEmit"
   },
   "sideEffects": false,
   "version": "*",

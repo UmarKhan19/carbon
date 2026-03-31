@@ -1,5 +1,6 @@
 import { openai } from "@ai-sdk/openai";
-import { getCarbonServiceRole, RESEND_DOMAIN } from "@carbon/auth";
+import { RESEND_DOMAIN } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { GetStartedEmail, WelcomeEmail } from "@carbon/documents/email";
 import { resend, sendEmail } from "@carbon/lib/resend.server";
@@ -67,17 +68,16 @@ export const onboardTask = task({
 
         let type: "Warm" | "Cold" = "Warm";
         try {
-          const { object } = await generateObject<Record<string, string>>({
-            // @ts-ignore
+          const { object } = await generateObject({
             model: openai("gpt-4o"),
             schema: z.object({
               type: z.enum(["Warm", "Cold"]).describe("The type of lead"),
             }),
             prompt: `
-              The following is a description of a lead for an ERP system. 
+              The following is a description of a lead for an ERP system.
               Determine the quality of the lead based on the description.
               If the company seems like a real business, return "Warm".
-              If it seems like someone is trying to keep their information private by providing a fake company name, return "Cold". 
+              If it seems like someone is trying to keep their information private by providing a fake company name, return "Cold".
 
               Description:
               Company: ${company.data.name}
@@ -90,7 +90,7 @@ export const onboardTask = task({
             `,
             temperature: 0.2,
           });
-          type = object.type as "Warm" | "Cold";
+          type = object.type;
           console.log("Generated type:", type);
         } catch (error) {
           console.error("Error generating type", error);
@@ -143,7 +143,7 @@ export const onboardTask = task({
                 externalId: {
                   twenty: twentyPersonId,
                 },
-              })
+              } as any)
               .eq("id", userId);
 
             console.log("User update result:", updateResult);
@@ -161,10 +161,10 @@ export const onboardTask = task({
                 name: company.data.name,
                 domainName: {
                   primaryLinkLabel: removeProtocolFromWebsite(
-                    company.data.website
+                    company.data.website ?? ""
                   ),
                   primaryLinkUrl: ensureProtocolFromWebsite(
-                    company.data.website
+                    company.data.website ?? ""
                   ),
                   additionalLinks: [],
                 },
@@ -183,7 +183,7 @@ export const onboardTask = task({
                   externalId: {
                     twenty: twentyOpportunityId,
                   },
-                })
+                } as any)
                 .eq("id", companyId);
 
               console.log("Company update result:", updateResult);
@@ -205,7 +205,7 @@ export const onboardTask = task({
 
         break;
       case "customer":
-        // @ts-ignore
+        // @ts-expect-error
         const twentyId = user.data?.externalId?.twenty as string | undefined;
 
         try {
@@ -291,7 +291,7 @@ export const onboardTask = task({
         let isPlanActiveAfter30Days =
           planAfter30Days?.data?.stripeSubscriptionStatus === "Active";
 
-        if (isPlanActiveAfter30Days) {
+        if (isPlanActiveAfter30Days && twentyId) {
           await twenty.updatePerson(twentyId, {
             customerStatus: [
               isPlanActiveAfter30Days

@@ -1,4 +1,5 @@
 import {
+  Badge,
   Checkbox,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -23,6 +24,7 @@ import { useNavigate } from "react-router";
 import { EmployeeAvatar, Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { usePermissions, useUrlParams } from "~/hooks";
+import { useSettings } from "~/hooks/useSettings";
 import type { Employee } from "~/modules/users";
 import {
   BulkEditPermissionsForm,
@@ -48,6 +50,7 @@ const EmployeesTable = memo(
   ({ data, count, employeeTypes }: EmployeesTableProps) => {
     const navigate = useNavigate();
     const permissions = usePermissions();
+    const settings = useSettings();
     const [params] = useUrlParams();
 
     const employeeTypesById = useMemo(
@@ -108,7 +111,13 @@ const EmployeesTable = memo(
         {
           accessorKey: "email",
           header: "Email",
-          cell: (item) => item.getValue(),
+          cell: (item) => {
+            const email = item.getValue<string>();
+            if (email?.endsWith("@console.internal")) {
+              return <Badge variant="secondary">Console Operator</Badge>;
+            }
+            return email;
+          },
           meta: {
             icon: <LuMail />
           }
@@ -235,6 +244,18 @@ const EmployeesTable = memo(
                   <MenuIcon icon={<LuPencil />} />
                   Edit Permissions
                 </MenuItem>
+                {settings.consoleEnabled && (
+                  <MenuItem
+                    onClick={() =>
+                      navigate(
+                        `${path.to.operatorResetPin(row.id!)}?${params.toString()}`
+                      )
+                    }
+                  >
+                    <MenuIcon icon={<LuShield />} />
+                    Set Console PIN
+                  </MenuItem>
+                )}
                 <MenuItem
                   onClick={(e) => {
                     setSelectedUserIds([row.id!]);
@@ -280,7 +301,8 @@ const EmployeesTable = memo(
         params,
         permissions,
         resendInviteModal,
-        revokeInviteModal
+        revokeInviteModal,
+        settings.consoleEnabled
       ]
     );
 

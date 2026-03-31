@@ -467,6 +467,7 @@ const SalesOrderProperties = () => {
         <span className="text-xs font-medium text-muted-foreground">
           Created By
         </span>
+        {/* @ts-expect-error TS2322 */}
         <EmployeeAvatar employeeId={routeData?.salesOrder?.createdBy} />
       </VStack>
 

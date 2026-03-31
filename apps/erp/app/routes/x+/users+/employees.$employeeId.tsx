@@ -1,15 +1,11 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  notFound
-} from "@carbon/auth";
+import { assertIsPost, error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { Json } from "@carbon/database";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useLoaderData } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import type { CompanyPermission } from "~/modules/users";
 import {
   EmployeePermissionsForm,
@@ -86,8 +82,11 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { id, employeeType, data } = validation.data;
-  const permissions = JSON.parse(data) as Record<string, CompanyPermission>;
+  const { id, employeeType, data: permissionData } = validation.data;
+  const permissions = JSON.parse(permissionData) as Record<
+    string,
+    CompanyPermission
+  >;
 
   if (
     !Object.values(permissions).every(
@@ -125,7 +124,7 @@ export default function UsersEmployeeRoute() {
       key={initialValues.id}
       name={employee?.name || ""}
       employeeTypes={employeeTypes}
-      // @ts-ignore
+      // @ts-expect-error
       initialValues={initialValues}
     />
   );

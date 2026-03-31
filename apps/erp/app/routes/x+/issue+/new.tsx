@@ -1,10 +1,6 @@
-import {
-  assertIsPost,
-  ERP_URL,
-  error,
-  getCarbonServiceRole
-} from "@carbon/auth";
+import { assertIsPost, ERP_URL, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { notifyIssueCreated } from "@carbon/ee/notifications";
 import { validationError, validator } from "@carbon/form";

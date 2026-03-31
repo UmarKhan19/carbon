@@ -1,5 +1,6 @@
-import { getCarbonServiceRole, notFound } from "@carbon/auth";
+import { notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { Loading } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";

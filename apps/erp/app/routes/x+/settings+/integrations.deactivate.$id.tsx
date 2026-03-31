@@ -1,10 +1,8 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import {
-  integrations as availableIntegrations,
-  getIntegrationConfigById
-} from "@carbon/ee";
+import { integrations as availableIntegrations } from "@carbon/ee";
+import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { deactivateIntegration } from "~/modules/settings/settings.server";
@@ -40,9 +38,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   // Call the onUninstall hook if defined
-  const config = getIntegrationConfigById(integrationId);
-  if (config && typeof config.onUninstall === "function") {
-    await config.onUninstall(companyId);
+  const hooks = getIntegrationServerHooks(integrationId);
+  if (hooks?.onUninstall) {
+    await hooks.onUninstall(companyId);
   }
 
   throw redirect(

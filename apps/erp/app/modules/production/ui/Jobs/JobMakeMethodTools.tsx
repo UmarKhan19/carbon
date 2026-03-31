@@ -555,11 +555,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           }}
         >
           <ModalContent>
-            <ValidatedForm
-              validator={getJobMethodValidator}
-              // biome-ignore lint/suspicious/noEmptyBlockStatements: no-op handler, form uses action
-              onSubmit={() => {}}
-            >
+            <ValidatedForm validator={getJobMethodValidator}>
               <ModalHeader>
                 <ModalTitle>Configure Item</ModalTitle>
                 <ModalDescription>Select an item to configure</ModalDescription>

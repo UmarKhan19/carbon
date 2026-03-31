@@ -2,7 +2,8 @@ import {
   CarbonEdition,
   CarbonProvider,
   CONTROLLED_ENVIRONMENT,
-  getCarbon
+  getCarbon,
+  getMESUrl
 } from "@carbon/auth";
 import { setCompanyId } from "@carbon/auth/company.server";
 import {
@@ -16,11 +17,13 @@ import { ItarPopup, useKeyboardWedge, useNProgress } from "@carbon/remix";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import posthog from "posthog-js";
+import { Suspense } from "react";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction
 } from "react-router";
 import {
+  Await,
   data,
   Outlet,
   redirect,
@@ -29,8 +32,10 @@ import {
 } from "react-router";
 import { RealtimeDataProvider } from "~/components";
 import { PrimaryNavigation, Topbar } from "~/components/Layout";
+import { TimeCardWarning } from "~/components/TimeCardWarning";
 import TrainingPanel from "~/components/TrainingPanel";
 import { useTrainingPanel } from "~/hooks/useTrainingPanel";
+import { getOpenClockEntry } from "~/modules/people";
 import {
   getCompanies,
   getCompanyIntegrations,
@@ -64,8 +69,14 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { accessToken, companyId, expiresAt, expiresIn, userId } =
-    await requireAuthSession(request, { verify: true });
+  const authSession = await requireAuthSession(request, { verify: true });
+  const { accessToken, companyId, expiresAt, expiresIn, userId } = authSession;
+
+  // Block ERP access when console mode is active on this terminal.
+  // Console terminals should only access the MES app.
+  if (authSession.console) {
+    throw redirect(getMESUrl());
+  }
 
   // const { computeRegion, proxyRegion } = parseVercelId(
   //   request.headers.get("x-vercel-id")
@@ -145,12 +156,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     plan: stripeCustomer?.planId,
     role: claims?.role,
     user: user.data,
-    savedViews: savedViews.data ?? []
+    savedViews: savedViews.data ?? [],
+    openClockEntry: companySettings.data?.timeCardEnabled
+      ? getOpenClockEntry(client, userId, companyId)
+      : null
   });
 }
 
 export default function AuthenticatedRoute() {
-  const { session, user } = useLoaderData<typeof loader>();
+  const { session, user, companySettings, openClockEntry } =
+    useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { isOpen, training, dismiss } = useTrainingPanel();
 
@@ -201,6 +216,24 @@ export default function AuthenticatedRoute() {
                 isOpen={isOpen}
                 onDismiss={dismiss}
               />
+              {companySettings?.timeCardEnabled && (
+                <Suspense fallback={null}>
+                  <Await resolve={openClockEntry}>
+                    {(resolved) => (
+                      <TimeCardWarning
+                        openClockEntry={
+                          resolved?.data
+                            ? {
+                                id: resolved.data.id,
+                                clockIn: resolved.data.clockIn
+                              }
+                            : null
+                        }
+                      />
+                    )}
+                  </Await>
+                </Suspense>
+              )}
             </TooltipProvider>
           </RealtimeDataProvider>
         </CarbonProvider>

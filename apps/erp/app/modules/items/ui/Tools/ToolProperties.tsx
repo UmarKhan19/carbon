@@ -17,6 +17,7 @@ import { Await, useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
+// biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
 import { Boolean, ItemPostingGroup, Tags } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
@@ -420,13 +421,10 @@ const ToolProperties = () => {
                 makeMethods.data
                   ?.sort((a, b) => b.version - a.version)
                   .map((method) => {
-                    const isActive =
-                      method.status === "Active" ||
-                      makeMethods.data?.length === 1;
                     return (
                       <MethodBadge
                         key={method.id}
-                        type={isActive ? "Make" : "Make Inactive"}
+                        type="Make to Order"
                         text={`Version ${method.version}`}
                         to={`${path.to.toolDetails(itemId)}?methodId=${method.id}`}
                       />

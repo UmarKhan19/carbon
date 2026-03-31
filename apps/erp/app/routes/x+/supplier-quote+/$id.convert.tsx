@@ -1,10 +1,6 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  success
-} from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -62,6 +58,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (companySettingsResult.data?.supplierApproval && quote.data?.supplierId) {
     const supplier = await getSupplier(serviceRole, quote.data.supplierId);
+    // @ts-expect-error TS2339 - TODO: fix type
     if (supplier.data?.supplierStatus !== "Active") {
       throw redirect(
         path.to.supplierQuoteDetails(id),

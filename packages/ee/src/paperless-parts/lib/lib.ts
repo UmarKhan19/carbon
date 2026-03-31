@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import {
   getMaterialDescription,
@@ -1004,7 +1004,7 @@ export async function getCustomerIdAndContactId(
   }
 ) {
   let customerId: string;
-  let customerContactId: string;
+  let customerContactId: string | undefined;
 
   const { company, contact, createdBy = "system" } = args;
 

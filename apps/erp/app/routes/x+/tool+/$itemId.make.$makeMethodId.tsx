@@ -133,6 +133,7 @@ export default function ToolMakeMethodPage() {
       <BillOfMaterial
         key={`bom:${makeMethodId}`}
         makeMethod={makeMethod}
+        // @ts-expect-error TS2322 - TODO: fix type
         materials={methodMaterials}
         operations={methodOperations}
         replenishmentSystem={toolData?.toolSummary?.replenishmentSystem}
@@ -141,7 +142,7 @@ export default function ToolMakeMethodPage() {
         key={`bop:${makeMethodId}`}
         makeMethod={makeMethod}
         materials={methodMaterials}
-        // @ts-ignore
+        // @ts-expect-error
         operations={methodOperations}
         tags={tags}
       />

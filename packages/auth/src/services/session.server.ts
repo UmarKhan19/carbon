@@ -41,7 +41,7 @@ const sessionStorage = createCookieSessionStorage({
     httpOnly: VERCEL_ENV === "production",
     path: "/",
     sameSite: isTestEdition ? "none" : "lax",
-    secrets: [SESSION_SECRET],
+    secrets: [SESSION_SECRET!],
     secure: VERCEL_ENV === "production",
     domain: VERCEL_ENV === "production" ? DOMAIN : undefined // eg. carbon.ms
   }
@@ -171,6 +171,11 @@ export async function refreshAuthSession(
     authSession?.companyId
   );
 
+  // Preserve console mode across token refresh
+  if (refreshedAuthSession && authSession?.console) {
+    refreshedAuthSession.console = authSession.console;
+  }
+
   if (!refreshedAuthSession) {
     const redirectUrl = `${path.to.login}?${makeRedirectToFromHere(request)}`;
 
@@ -202,6 +207,23 @@ export async function refreshAuthSession(
   }
 
   return refreshedAuthSession;
+}
+
+export async function updateSessionConsole(
+  request: Request,
+  consoleCompanyId: string | undefined
+) {
+  const session = await getSession(request);
+  const authSession = await getAuthSession(request);
+
+  if (authSession) {
+    session.set(SESSION_KEY, {
+      ...authSession,
+      console: consoleCompanyId
+    });
+  }
+
+  return sessionStorage.commitSession(session, { maxAge: SESSION_MAX_AGE });
 }
 
 export async function updateCompanySession(

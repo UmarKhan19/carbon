@@ -1,5 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { onShapeDataValidator } from "@carbon/ee/onshape";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
@@ -72,6 +72,7 @@ export async function action({ request }: ActionFunctionArgs) {
       .eq("integration", "onshape");
 
     await client.from("externalIntegrationMapping").insert({
+      // @ts-expect-error TS2769 - TODO: fix type
       entityType: "item",
       entityId: itemId,
       integration: "onshape",

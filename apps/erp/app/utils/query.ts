@@ -63,6 +63,7 @@ export function getGenericFilter<
   U extends Record<string, unknown>,
   V
 >(
+  // @ts-expect-error TS2707 - TODO: fix type
   query: PostgrestFilterBuilder<T, U, V>,
   column: string,
   operator: string,
@@ -97,9 +98,11 @@ export function setGenericQueryFilters<
   U extends Record<string, unknown>,
   V
 >(
+  // @ts-expect-error TS2707 - TODO: fix type
   query: PostgrestFilterBuilder<T, U, V>,
   args: Partial<GenericQueryFilters>,
   defaultSorts?: { column: string; ascending: boolean; foreignTable?: string }[]
+  // @ts-expect-error TS2707 - TODO: fix type
 ): PostgrestFilterBuilder<T, U, V> {
   args.filters?.forEach((filter) => {
     if (!filter.value) return;

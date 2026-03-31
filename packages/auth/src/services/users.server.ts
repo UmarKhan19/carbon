@@ -4,7 +4,7 @@ import { updateSubscriptionQuantityForCompany } from "@carbon/stripe/stripe.serv
 import { Edition } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { CarbonEdition } from "../config/env";
-import { getCarbonServiceRole } from "../lib/supabase";
+import { getCarbonServiceRole } from "../lib/supabase/client.server";
 import type { Permission, Result } from "../types";
 import { error, success } from "../utils/result";
 import {
@@ -28,10 +28,13 @@ export async function getUserClaims(userId: string, companyId: string) {
   } | null = null;
 
   try {
-    claims = (await redis.get(getPermissionCacheKey(userId))) as {
-      permissions: Record<string, Permission>;
-      role: string | null;
-    };
+    const cachedClaims = await redis.get(getPermissionCacheKey(userId));
+    if (cachedClaims) {
+      claims = JSON.parse(cachedClaims) as {
+        permissions: Record<string, Permission>;
+        role: string | null;
+      };
+    }
   } catch (e) {
     console.error("Failed to get claims from redis", e);
   } finally {
@@ -169,7 +172,7 @@ export async function deactivateEmployee(
 
   const groupIds = companyGroups.data?.map((g) => g.id) ?? [];
 
-  const [updatePermissions, userToCompanyDelete, employeeDelete] =
+  const [updatePermissions, userToCompanyDelete, employeeDeactivate] =
     await Promise.all([
       serviceRole
         .from("userPermission")
@@ -182,7 +185,7 @@ export async function deactivateEmployee(
         .eq("companyId", companyId),
       serviceRole
         .from("employee")
-        .delete()
+        .update({ active: false })
         .eq("id", userId)
         .eq("companyId", companyId),
       serviceRole
@@ -212,8 +215,8 @@ export async function deactivateEmployee(
     );
   }
 
-  if (employeeDelete.error) {
-    return error(employeeDelete.error, "Failed to remove employee");
+  if (employeeDeactivate.error) {
+    return error(employeeDeactivate.error, "Failed to deactivate employee");
   }
 
   return success("Sucessfully deactivated employee");
@@ -273,6 +276,11 @@ export async function deactivateUser(
     } else {
       throw new Error("Invalid user role");
     }
+  }
+
+  // Clear stale permission cache
+  if (result && result.success) {
+    await redis.del(getPermissionCacheKey(userId));
   }
 
   // Update Stripe subscription quantity after successful deactivation

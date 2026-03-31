@@ -60,7 +60,10 @@ export async function getCustomFieldsSchemas(
   let schema: CustomFieldsTableType[] | null = null;
 
   try {
-    schema = (await redis.get(key)) as CustomFieldsTableType[] | null;
+    const cachedSchema = await redis.get(key);
+    if (cachedSchema) {
+      schema = JSON.parse(cachedSchema) as CustomFieldsTableType[];
+    }
   } finally {
     if (schema) {
       return {

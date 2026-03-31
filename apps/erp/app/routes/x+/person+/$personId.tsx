@@ -11,6 +11,7 @@ import {
 } from "~/modules/account";
 import { getEmployeeSummary } from "~/modules/people";
 import { PersonPreview, PersonSidebar } from "~/modules/people/ui/Person";
+import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -27,10 +28,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { personId } = params;
   if (!personId) throw new Error("Could not find personId");
 
-  const [employeeSummary, attributeCategories] = await Promise.all([
-    getEmployeeSummary(client, personId, companyId),
-    getAllAttributeCategories(client, personId, companyId)
-  ]);
+  const [employeeSummary, attributeCategories, companySettings] =
+    await Promise.all([
+      getEmployeeSummary(client, personId, companyId),
+      getAllAttributeCategories(client, personId, companyId),
+      getCompanySettings(client, companyId)
+    ]);
 
   if (employeeSummary.error) {
     throw redirect(
@@ -44,7 +47,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     employeeSummary: employeeSummary.data,
-    attributeCategories: attributeCategories.data ?? []
+    attributeCategories: attributeCategories.data ?? [],
+    timeCardEnabled: companySettings.data?.timeCardEnabled ?? false
   };
 }
 
@@ -85,13 +89,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function PersonRoute() {
-  const { attributeCategories } = useLoaderData<typeof loader>();
+  const { attributeCategories, timeCardEnabled } =
+    useLoaderData<typeof loader>();
 
   return (
     <>
       <PersonPreview />
       <div className="grid grid-cols-1 md:grid-cols-[1fr_4fr] h-full w-full gap-4">
-        <PersonSidebar attributeCategories={attributeCategories} />
+        <PersonSidebar
+          attributeCategories={attributeCategories}
+          timeCardEnabled={timeCardEnabled}
+        />
         <Outlet />
       </div>
     </>

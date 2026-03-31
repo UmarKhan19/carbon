@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { getIntegrationConfigById } from "@carbon/ee";
+import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
 import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
@@ -351,9 +352,11 @@ export async function getIntegrationHealth(
     };
   }
 
-  const check = getIntegrationConfigById(integration.id!);
+  const serverHooks = getIntegrationServerHooks(integration.id!);
+  const config = getIntegrationConfigById(integration.id!);
+  const healthcheck = serverHooks?.onHealthcheck ?? config?.onHealthcheck;
 
-  if (!check || !check.onHealthcheck) {
+  if (!healthcheck) {
     return {
       ...integration,
       health: "healthy"
@@ -362,24 +365,24 @@ export async function getIntegrationHealth(
 
   const key = `integrations:${companyId}:${integration.id}:health`;
 
-  const cached = await redis.get<number>(key);
+  const cached = await redis.get(key);
 
   // Only cache healthy status
-  if (cached && cached == 1) {
+  if (cached === "1") {
     return {
       ...integration,
       health: "healthy"
     };
   }
 
-  const status = await check.onHealthcheck(
-    companyId,
-    integration.metadata as Record<string, any>
-  );
+  const status = await (
+    healthcheck as (
+      companyId: string,
+      metadata: Record<string, any>
+    ) => Promise<boolean>
+  )(companyId, integration.metadata as Record<string, any>);
 
-  await redis.set(key, status ? "1" : "0", {
-    ex: INTEGRATION_CACHE_TTL * 5 // Cache for 5 minutes
-  });
+  await redis.set(key, status ? "1" : "0", "EX", INTEGRATION_CACHE_TTL * 5); // Cache for 5 minutes
 
   return {
     ...integration,

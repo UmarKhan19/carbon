@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useLoaderData } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import type { CompanyPermission } from "~/modules/users";
 import {
   EmployeeTypeForm,
@@ -48,9 +48,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { name, data } = validation.data;
+  const { name, data: permissionData } = validation.data;
 
-  const permissions = JSON.parse(data) as {
+  const permissions = JSON.parse(permissionData) as {
     name: string;
     permission: CompanyPermission;
   }[];

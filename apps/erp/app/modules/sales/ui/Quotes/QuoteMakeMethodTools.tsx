@@ -529,11 +529,7 @@ const QuoteMakeMethodTools = () => {
           }}
         >
           <ModalContent>
-            <ValidatedForm
-              validator={getMethodValidator}
-              // biome-ignore lint/suspicious/noEmptyBlockStatements: no-op handler, form uses action
-              onSubmit={() => {}}
-            >
+            <ValidatedForm validator={getMethodValidator}>
               <ModalHeader>
                 <ModalTitle>Configure Item</ModalTitle>
                 <ModalDescription>Select an item to configure</ModalDescription>

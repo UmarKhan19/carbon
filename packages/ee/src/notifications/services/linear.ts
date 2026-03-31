@@ -1,13 +1,13 @@
 import { getUser } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { TiptapDocument } from "../../linear/lib";
+import type { TiptapDocument } from "../../linear/lib/index.server";
 import {
   getLinearClient,
   getLinearIssueFromExternalId,
   mapCarbonStatusToLinearStatus,
   tiptapToMarkdown
-} from "../../linear/lib";
+} from "../../linear/lib/index.server";
 import type { NotificationEvent, NotificationService } from "../types";
 
 const linear = getLinearClient();
@@ -26,7 +26,11 @@ export class LinearNotificationService implements NotificationService {
   ): Promise<void> {
     switch (event.type) {
       case "task.status.changed": {
-        if (!["action", "investigation"].includes(event.data.type)) return;
+        if (
+          !event.data.type ||
+          !["action", "investigation"].includes(event.data.type)
+        )
+          return;
 
         const issue = await getLinearIssueFromExternalId(
           context.serviceRole,
@@ -38,8 +42,10 @@ export class LinearNotificationService implements NotificationService {
 
         const state = await linear.getWorkflowState(
           event.companyId,
-          mapCarbonStatusToLinearStatus(event.data.status)
+          mapCarbonStatusToLinearStatus(event.data.status!)
         );
+
+        if (!state) return;
 
         await linear.updateIssue(event.companyId, {
           id: issue.id,

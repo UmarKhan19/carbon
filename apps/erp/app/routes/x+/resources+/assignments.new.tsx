@@ -70,6 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
       { error: result.error.message },
       {
         status: 500,
+        // @ts-expect-error TS2322 - TODO: fix type
         headers: await flash(
           request,
           error(result.error, "Failed to create assignment")

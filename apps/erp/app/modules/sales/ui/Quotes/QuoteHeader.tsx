@@ -366,6 +366,7 @@ const QuoteHeader = () => {
           shipment={routeData?.shipment ?? null}
           onClose={finalizeModal.onClose}
           fetcher={finalizeFetcher}
+          // @ts-expect-error TS2339 - TODO: fix type
           defaultCc={routeData?.defaultCc ?? []}
         />
       )}

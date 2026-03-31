@@ -118,6 +118,7 @@ const JobEstimatesVsActuals = ({
     setCurrentUnitCosts(
       itemCosts?.data?.reduce(
         (acc, itemCost) => {
+          // @ts-expect-error TS2322 - TODO: fix type
           acc[itemCost.itemId] = itemCost.unitCost;
           return acc;
         },

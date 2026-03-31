@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { adfToTiptap } from "./richtext";
@@ -44,7 +44,7 @@ export async function updateJiraCredentials(
       metadata: {
         ...metadata,
         credentials
-      }
+      } as any
     })
     .eq("companyId", companyId)
     .eq("id", "jira");

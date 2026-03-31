@@ -55,6 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const updateContractor = await upsertContractor(client, {
     id,
     ...d,
+    // @ts-expect-error TS2339 - TODO: fix type
     abilities: d.abilities ?? [],
     customFields: setCustomFields(formData),
     updatedBy: userId

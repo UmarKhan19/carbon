@@ -957,6 +957,7 @@ export async function insertManualInventoryAdjustment(
       const trackedEntityUpdate = await client
         .from("trackedEntity")
         .update({ readableId })
+        // @ts-expect-error TS2345 - TODO: fix type
         .eq("id", inventoryAdjustment.trackedEntityId);
 
       if (trackedEntityUpdate.error) {

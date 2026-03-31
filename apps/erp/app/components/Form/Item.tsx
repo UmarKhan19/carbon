@@ -55,7 +55,7 @@ type ItemSelectProps = Omit<ComboboxProps, "options" | "type" | "inline"> & {
 
 const ItemPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const item = options.find((o) => o.value === value);
   if (!item) return null;
@@ -82,7 +82,7 @@ const Item = ({
     let results = items
       .filter((item) => {
         // Filter by type
-        // @ts-ignore
+        // @ts-expect-error
         if (validItemTypes && !validItemTypes.includes(item.type)) return false;
 
         if (type !== "Item" && type !== item.type) return false;
@@ -196,7 +196,6 @@ const Item = ({
               onChange(newValue?.replace(/"/g, '\\"') ?? "");
             }}
             isClearable={isOptional && !props.isReadOnly}
-            // @ts-ignore
             label={label === "Item" ? "Item" : label}
             itemHeight={44}
             onCreateOption={(option) => {
@@ -240,7 +239,7 @@ const Item = ({
               <DropdownMenuContent>
                 <DropdownMenuRadioGroup
                   value={type}
-                  // @ts-ignore
+                  // @ts-expect-error
                   onValueChange={onTypeChange}
                 >
                   <DropdownMenuRadioItem

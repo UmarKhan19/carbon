@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { auditConfig } from "@carbon/database/audit.config";
 import type { AuditLogEntry } from "@carbon/database/audit.types";
 import { logger, schedules } from "@trigger.dev/sdk/v3";
@@ -44,6 +44,7 @@ export const auditLogArchiveTask = schedules.task({
       .from("company")
       .select("id")
       .eq("auditLogEnabled", true);
+
 
     if (companiesError) {
       logger.error("Failed to fetch companies", { error: companiesError });
@@ -130,15 +131,15 @@ async function archiveCompanyLogs(
   }
 
   // Get date range from records
-  const startDate = records[0].createdAt;
-  const endDate = records[records.length - 1].createdAt;
+  const startDate = records[0]!.createdAt;
+  const endDate = records[records.length - 1]!.createdAt;
 
   // Record archive metadata
   const { error: archiveError } = await client.from("auditLogArchive").insert({
     companyId,
     archivePath,
-    startDate: startDate.split("T")[0], // Extract date part
-    endDate: endDate.split("T")[0],
+    startDate: startDate.split("T")[0]!, // Extract date part
+    endDate: endDate.split("T")[0]!,
     rowCount: records.length,
     sizeBytes: gzipped.length,
   });

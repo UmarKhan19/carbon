@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import type { Database } from "@carbon/database";
 import { nanoid } from "nanoid";
 
@@ -87,7 +88,7 @@ export function getSubscriberId({
   return `${companyId}:${userId}`;
 }
 
-export async function trigger(novu, data: TriggerPayload) {
+export async function trigger(novu: any, data: TriggerPayload) {
   try {
     await novu.trigger(data.workflow, {
       to: data.user,
@@ -96,7 +97,6 @@ export async function trigger(novu, data: TriggerPayload) {
       overrides: {
         email: {
           replyTo: data.replyTo,
-          // @ts-ignore
           headers: {
             "X-Entity-Ref-ID": nanoid()
           }
@@ -108,7 +108,7 @@ export async function trigger(novu, data: TriggerPayload) {
   }
 }
 
-export async function triggerBulk(novu, events: TriggerPayload[]) {
+export async function triggerBulk(novu: any, events: TriggerPayload[]) {
   try {
     await novu.bulkTrigger(
       events.map((data) => ({

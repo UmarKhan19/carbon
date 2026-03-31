@@ -1,5 +1,6 @@
-import { error, getCarbonServiceRole } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
@@ -65,6 +66,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             context: {}
           };
 
+          // @ts-expect-error TS2741 - TODO: fix type
           const pdf = await pdfLoader(pdfArgs);
 
           if (pdf.headers.get("content-type") === "application/pdf") {

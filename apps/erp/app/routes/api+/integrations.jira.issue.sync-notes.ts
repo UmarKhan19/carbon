@@ -1,10 +1,10 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { TiptapDocument } from "@carbon/ee/jira";
+import type { TiptapDocument } from "@carbon/ee/jira.server";
 import {
   getJiraClient,
   getJiraIssueFromExternalId,
   tiptapToAdf
-} from "@carbon/ee/jira";
+} from "@carbon/ee/jira.server";
 import type { ActionFunction } from "react-router";
 import { data } from "react-router";
 

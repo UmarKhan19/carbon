@@ -1,12 +1,13 @@
 import {
-  LuBookUser,
   LuCalendarClock,
   LuCalendarHeart,
+  LuClock,
   LuListChecks,
   LuNetwork,
   LuUsers
 } from "react-icons/lu";
 import { useSavedViews } from "~/hooks/useSavedViews";
+import { useSettings } from "~/hooks/useSettings";
 import type { RouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
@@ -21,10 +22,11 @@ const peopleRoutes: RouteGroup[] = [
         table: "employee"
       },
       {
-        name: "Contacts",
-        to: path.to.contact,
-        icon: <LuBookUser />,
-        table: "contact"
+        name: "Timecards",
+        to: path.to.peopleTimecard,
+        icon: <LuClock />,
+        setting: "timeCardEnabled",
+        table: "timeCardEntry"
       }
     ]
   },
@@ -58,10 +60,18 @@ const peopleRoutes: RouteGroup[] = [
 export default function usePeopleSubmodules() {
   const { addSavedViewsToRoutes } = useSavedViews();
 
+  const settings = useSettings();
+
   return {
     groups: peopleRoutes.map((group) => ({
       ...group,
-      routes: group.routes.map(addSavedViewsToRoutes)
+      routes: group.routes
+        .filter(
+          (route) =>
+            !route.setting ||
+            settings[route.setting as keyof typeof settings] === true
+        )
+        .map(addSavedViewsToRoutes)
     }))
   };
 }

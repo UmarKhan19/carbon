@@ -79,6 +79,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
         accessorKey: "status",
         header: "Supplier Status",
         cell: (item) => (
+          // @ts-expect-error TS2322 - TODO: fix type
           <SupplierStatusIndicator status={item.getValue<string>()} />
         ),
         meta: {

@@ -36,7 +36,7 @@
 - `POSTHOG_API_HOST` & `POSTHOG_PROJECT_PUBLIC_KEY` - Analytics
 - `SLACK_BOT_TOKEN` - Slack integration
 - `TRIGGER_ID`, `TRIGGER_API_KEY`, `TRIGGER_API_URL`, `TRIGGER_SECRET_KEY` - Trigger.dev job queue
-- `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN` - Redis KV store
+- `REDIS_URL` - Redis connection URL (ioredis)
 - `ONSHAPE_SECRET_KEY` - CAD integration
 - `EXCHANGE_RATES_API_KEY` - Currency exchange rates
 

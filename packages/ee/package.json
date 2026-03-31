@@ -7,23 +7,25 @@
     "./accounting": "./src/accounting/index.ts",
     "./exchange-rates.server": "./src/exchange-rates/exchange-rates.server.ts",
     "./jira": "./src/jira/lib/index.ts",
+    "./jira.server": "./src/jira/lib/index.server.ts",
     "./linear": "./src/linear/lib/index.ts",
+    "./linear.server": "./src/linear/lib/index.server.ts",
     "./notifications": "./src/notifications/index.ts",
     "./onshape": "./src/onshape/lib/index.ts",
     "./paperless-parts": "./src/paperless-parts/lib/index.ts",
     "./slack.server": "./src/slack.server.ts",
     "./slack/messages": "./src/slack/lib/messages.ts",
-    "./xero": "./src/accounting/providers/xero.ts"
-  },
-  "jest": {
-    "preset": "@carbon/jest/node"
+    "./hooks.server": "./src/hooks.server.ts",
+    "./xero": "./src/accounting/providers/xero.ts",
+    "./xero/hooks.server": "./src/xero/hooks.server.ts"
   },
   "private": true,
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
     "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
     "lint": "biome lint --write ",
-    "test": "jest"
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
     "@carbon/auth": "*",
@@ -39,7 +41,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@carbon/tsconfig": "*",
-    "typescript": "^5.2.2"
+    "@carbon/config": "*",
+    "typescript": "^5.2.2",
+    "vitest": "^4.1.0"
   }
 }

@@ -172,9 +172,10 @@ export async function action(args: ActionFunctionArgs) {
         if (!user.data) throw new Error("Failed to get user");
 
         const emailTemplate = QuoteEmail({
+          // @ts-expect-error TS2739 - TODO: fix type
           company: company.data,
           companySettings: companySettings.data,
-          // @ts-ignore
+          // @ts-expect-error
           quote: quote.data,
           recipient: {
             email: customerContact.data?.contact!.email!,

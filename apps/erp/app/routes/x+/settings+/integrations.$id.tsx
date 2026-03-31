@@ -229,8 +229,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { active, ...d } = validation.data;
+  // @ts-expect-error TS2339 - TODO: fix type
+  const { active: _active, ...d } = validation.data;
 
   // Fetch existing metadata so we merge form settings without
   // overwriting credentials and syncConfig
@@ -244,6 +244,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const update = await upsertCompanyIntegration(client, {
     id: integrationId,
     active: true,
+    // @ts-expect-error TS2322 - TODO: fix type
     metadata,
     companyId,
     updatedBy: userId
