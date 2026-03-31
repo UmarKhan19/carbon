@@ -462,9 +462,10 @@ const PartProperties = () => {
                     return (
                       <MethodBadge
                         key={method.id}
-                        type={isActive ? "Make" : "Make Inactive"}
+                        type="Make to Order"
                         text={`Version ${method.version}`}
                         to={`${path.to.partDetails(itemId)}?methodId=${method.id}`}
+                        className={isActive ? undefined : "opacity-50"}
                       />
                     );
                   })

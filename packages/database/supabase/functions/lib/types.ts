@@ -56961,6 +56961,7 @@ export type Database = {
           name: string
           quantityFromProductionOrderInShelf: number
           quantityFromProductionOrderNotInShelf: number
+          quantityInTransitToShelf: number
           quantityIssued: number
           quantityOnHandInShelf: number
           quantityOnHandNotInShelf: number
@@ -56968,6 +56969,7 @@ export type Database = {
           quantityOnPurchaseOrder: number
           quantityOnSalesOrder: number
           quantityPerParent: number
+          shelfId: string
           shelfName: string
           thumbnailPath: string
           type: Database["public"]["Enums"]["itemType"]

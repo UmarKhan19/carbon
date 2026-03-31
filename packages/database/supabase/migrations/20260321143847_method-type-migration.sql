@@ -1463,6 +1463,8 @@ CREATE OR REPLACE FUNCTION get_job_quantity_on_hand(job_id TEXT, company_id TEXT
     "quantityOnProductionOrder" NUMERIC,
     "quantityFromProductionOrderInShelf" NUMERIC,
     "quantityFromProductionOrderNotInShelf" NUMERIC,
+    "quantityInTransitToShelf" NUMERIC,
+    "shelfId" TEXT,
     "shelfName" TEXT
   ) AS $$
   BEGIN
@@ -1503,6 +1505,40 @@ WITH
       AND po."companyId" = company_id
       AND pol."locationId" = location_id
     GROUP BY pol."itemId"
+  ),
+  open_stock_transfers_to AS (
+    SELECT
+      stl."itemId",
+      stl."toShelfId" AS "shelfId",
+      SUM(stl."outstandingQuantity") AS "quantityOnStockTransferTo"
+    FROM "stockTransferLine" stl
+    INNER JOIN "stockTransfer" st ON stl."stockTransferId" = st."id"
+    INNER JOIN job_materials jm ON jm."itemId" = stl."itemId"
+    WHERE st."status" IN ('Released', 'In Progress')
+    AND st."companyId" = company_id
+    AND st."locationId" = location_id
+    GROUP BY stl."itemId", stl."toShelfId"
+  ),
+  open_stock_transfers_from AS (
+    SELECT
+      stl."itemId",
+      stl."fromShelfId" AS "shelfId",
+      SUM(stl."outstandingQuantity") AS "quantityOnStockTransferFrom"
+    FROM "stockTransferLine" stl
+    INNER JOIN "stockTransfer" st ON stl."stockTransferId" = st."id"
+    INNER JOIN job_materials jm ON jm."itemId" = stl."itemId"
+    WHERE st."status" IN ('Released', 'In Progress')
+    AND st."companyId" = company_id
+    AND st."locationId" = location_id
+    GROUP BY stl."itemId", stl."fromShelfId"
+  ),
+  stock_transfers_in_transit AS (
+    SELECT
+      COALESCE(stt."itemId", stf."itemId") AS "itemId",
+      COALESCE(stt."shelfId", stf."shelfId") AS "shelfId",
+      COALESCE(stt."quantityOnStockTransferTo", 0) - COALESCE(stf."quantityOnStockTransferFrom", 0) AS "quantityInTransit"
+    FROM open_stock_transfers_to stt
+    FULL OUTER JOIN open_stock_transfers_from stf ON stt."itemId" = stf."itemId" AND stt."shelfId" = stf."shelfId"
   ),
   open_sales_orders AS (
     SELECT
@@ -1632,6 +1668,8 @@ SELECT
   COALESCE(oj."quantityOnProductionOrder", 0) AS "quantityOnProductionOrder",
   COALESCE(ojis."quantityOnProductionDemandInShelf", 0) AS "quantityFromProductionOrderInShelf",
   COALESCE(ojns."quantityOnProductionDemandNotInShelf", 0) AS "quantityFromProductionOrderNotInShelf",
+  COALESCE(stit."quantityInTransit", 0) AS "quantityInTransitToShelf",
+  jm."shelfId",
   s."name" AS "shelfName"
 FROM
   job_materials jm
@@ -1644,7 +1682,8 @@ FROM
   LEFT JOIN open_jobs oj ON i."id" = oj."jobItemId"
   LEFT JOIN open_job_requirements_in_shelf ojis ON i."id" = ojis."itemId"
   LEFT JOIN open_job_requirements_not_in_shelf ojns ON i."id" = ojns."itemId"
-  LEFT JOIN "modelUpload" mu ON mu.id = i."modelUploadId";
+  LEFT JOIN "modelUpload" mu ON mu.id = i."modelUploadId"
+  LEFT JOIN stock_transfers_in_transit stit ON jm."itemId" = stit."itemId" AND jm."shelfId" = stit."shelfId";
   END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

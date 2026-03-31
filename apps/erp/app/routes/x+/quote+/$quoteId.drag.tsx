@@ -141,7 +141,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       status: "Not Started" as const,
       estimatorId: userId,
       description: partName,
-      methodType: "Make" as const,
+      methodType: "Make to Order" as const,
       customerPartId: partName,
       customerPartRevision: "",
       unitOfMeasureCode: "EA",
