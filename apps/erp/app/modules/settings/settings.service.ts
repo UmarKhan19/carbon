@@ -789,7 +789,7 @@ export async function updateConsoleSetting(
 
         const permissions = mesModules.map((m) => ({
           employeeTypeId: newType.data.id,
-          module: m.module,
+          module: m.module as "Accounting",
           create: m.create ? [companyId] : [],
           update: m.update ? [companyId] : [],
           delete: m.delete ? [companyId] : [],
