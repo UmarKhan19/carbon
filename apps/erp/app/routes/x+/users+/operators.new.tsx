@@ -4,8 +4,8 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { ValidatedForm, validationError, validator } from "@carbon/form";
 import {
-  Button,
   HStack,
+  IconButton,
   Label,
   Modal,
   ModalBody,
@@ -168,36 +168,36 @@ export default function NewOperatorRoute() {
                     inputMode="numeric"
                     className="font-mono text-lg tracking-[0.3em] text-center"
                   />
-                  <Button
+                  <IconButton
                     type="button"
                     variant="outline"
                     size="sm"
+                    aria-label="Copy PIN"
+                    icon={
+                      copied ? (
+                        <LuCheck className="text-emerald-500" />
+                      ) : (
+                        <LuCopy />
+                      )
+                    }
                     onClick={() => {
                       navigator.clipboard.writeText(pinValue);
                       setCopied(true);
                       setTimeout(() => setCopied(false), 2000);
                     }}
-                    title="Copy PIN"
-                  >
-                    {copied ? (
-                      <LuCheck className="h-4 w-4 text-emerald-500" />
-                    ) : (
-                      <LuCopy className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
+                  />
+                  <IconButton
                     type="button"
                     variant="outline"
                     size="sm"
+                    aria-label="Generate new PIN"
+                    icon={<LuRefreshCw />}
                     onClick={() => {
                       const newPin = generatePin();
                       setPinValue(newPin);
                       setCopied(false);
                     }}
-                    title="Generate new PIN"
-                  >
-                    <LuRefreshCw className="h-4 w-4" />
-                  </Button>
+                  />
                 </HStack>
                 <p className="text-xs text-muted-foreground">
                   Share this PIN with the operator so they can pin in at MES

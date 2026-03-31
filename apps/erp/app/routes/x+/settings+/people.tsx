@@ -9,6 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Copy,
   Heading,
   HStack,
   Modal,
@@ -25,7 +26,6 @@ import {
 } from "@carbon/react";
 
 import { useCallback, useEffect, useState } from "react";
-import { LuCheck, LuCopy } from "react-icons/lu";
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -115,7 +115,6 @@ export default function PeopleSettingsRoute() {
   const fetcher = useFetcher<typeof action>();
   const [showPinModal, setShowPinModal] = useState(false);
   const [generatedPin, setGeneratedPin] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const isToggling = fetcher.state !== "idle";
 
@@ -247,21 +246,7 @@ export default function PeopleSettingsRoute() {
                   <span className="font-mono text-3xl tracking-[0.4em]">
                     {generatedPin}
                   </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedPin);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    }}
-                  >
-                    {copied ? (
-                      <LuCheck className="h-4 w-4 text-emerald-500" />
-                    ) : (
-                      <LuCopy className="h-4 w-4" />
-                    )}
-                  </Button>
+                  <Copy text={generatedPin} />
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
                   Remember this PIN. You will need it to exit console mode on

@@ -4,7 +4,9 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import {
   Button,
+  Copy,
   HStack,
+  IconButton,
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
@@ -19,7 +21,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useState } from "react";
-import { LuCheck, LuCopy, LuRefreshCw } from "react-icons/lu";
+import { LuRefreshCw } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 import type { Result } from "~/types";
@@ -89,7 +91,6 @@ export default function ResetPinRoute() {
   const navigate = useNavigate();
   const formFetcher = useFetcher<Result>();
   const [pinValue, setPinValue] = useState(generatePin);
-  const [copied, setCopied] = useState(false);
 
   return (
     <Modal
@@ -121,6 +122,7 @@ export default function ResetPinRoute() {
                     maxLength={4}
                     value={pinValue}
                     onChange={(value) => setPinValue(value)}
+                    autoFocus={false}
                   >
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
@@ -129,36 +131,18 @@ export default function ResetPinRoute() {
                       <InputOTPSlot index={3} />
                     </InputOTPGroup>
                   </InputOTP>
-                  <Button
+                  <Copy text={pinValue} size="sm" />
+                  <IconButton
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(pinValue);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    }}
-                    title="Copy PIN"
-                  >
-                    {copied ? (
-                      <LuCheck className="h-4 w-4 text-emerald-500" />
-                    ) : (
-                      <LuCopy className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
+                    aria-label="Generate new PIN"
+                    icon={<LuRefreshCw />}
                     onClick={() => {
                       const newPin = generatePin();
                       setPinValue(newPin);
-                      setCopied(false);
                     }}
-                    title="Generate new PIN"
-                  >
-                    <LuRefreshCw className="h-4 w-4" />
-                  </Button>
+                  />
                 </div>
               </div>
             </VStack>

@@ -24,6 +24,7 @@ import { useNavigate } from "react-router";
 import { EmployeeAvatar, Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { usePermissions, useUrlParams } from "~/hooks";
+import { useSettings } from "~/hooks/useSettings";
 import type { Employee } from "~/modules/users";
 import {
   BulkEditPermissionsForm,
@@ -49,6 +50,7 @@ const EmployeesTable = memo(
   ({ data, count, employeeTypes }: EmployeesTableProps) => {
     const navigate = useNavigate();
     const permissions = usePermissions();
+    const settings = useSettings();
     const [params] = useUrlParams();
 
     const employeeTypesById = useMemo(
@@ -242,16 +244,18 @@ const EmployeesTable = memo(
                   <MenuIcon icon={<LuPencil />} />
                   Edit Permissions
                 </MenuItem>
-                <MenuItem
-                  onClick={() =>
-                    navigate(
-                      `${path.to.operatorResetPin(row.id!)}?${params.toString()}`
-                    )
-                  }
-                >
-                  <MenuIcon icon={<LuShield />} />
-                  Set Console PIN
-                </MenuItem>
+                {settings.consoleEnabled && (
+                  <MenuItem
+                    onClick={() =>
+                      navigate(
+                        `${path.to.operatorResetPin(row.id!)}?${params.toString()}`
+                      )
+                    }
+                  >
+                    <MenuIcon icon={<LuShield />} />
+                    Set Console PIN
+                  </MenuItem>
+                )}
                 <MenuItem
                   onClick={(e) => {
                     setSelectedUserIds([row.id!]);
@@ -297,7 +301,8 @@ const EmployeesTable = memo(
         params,
         permissions,
         resendInviteModal,
-        revokeInviteModal
+        revokeInviteModal,
+        settings.consoleEnabled
       ]
     );
 
