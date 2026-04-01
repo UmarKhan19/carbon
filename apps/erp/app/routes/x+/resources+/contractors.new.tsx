@@ -26,6 +26,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  // @ts-expect-error TS2339 - TODO: fix type
   const { id, hoursPerWeek, abilities } = validation.data;
 
   const createContractor = await upsertContractor(client, {

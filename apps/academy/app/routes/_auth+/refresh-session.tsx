@@ -10,7 +10,7 @@ import { data, redirect, useNavigate } from "react-router";
 import { path } from "~/utils/path";
 
 export async function loader() {
-  throw redirect(path.to.authenticatedRoot);
+  throw redirect(path.to.root);
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -36,6 +36,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export function ErrorBoundary() {
   const navigate = useNavigate();
-  navigate(path.to.authenticatedRoot);
+  navigate(path.to.root);
   return null;
 }

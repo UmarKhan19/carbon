@@ -19,9 +19,10 @@ type LocationSelectProps = Omit<
 
 const LocationPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const location = options.find((o) => o.value === value);
+  // @ts-expect-error TS2322 - TODO: fix type
   return <Enumerable value={location?.label ?? null} />;
 };
 

@@ -36,16 +36,16 @@ export function markdownToTiptap(
   let i = 0;
 
   while (i < lines.length) {
-    const line = lines[i];
+    const line = lines[i]!;
 
     // Heading
     const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
     if (headingMatch) {
-      const level = headingMatch[1].length as 1 | 2 | 3 | 4 | 5 | 6;
+      const level = headingMatch[1]!.length as 1 | 2 | 3 | 4 | 5 | 6;
       content.push({
         type: "heading",
         attrs: { level },
-        content: parseInlineMarkdown(headingMatch[2])
+        content: parseInlineMarkdown(headingMatch[2]!)
       });
       i++;
       continue;
@@ -63,8 +63,8 @@ export function markdownToTiptap(
       const language = line.slice(3).trim() || undefined;
       const codeLines: string[] = [];
       i++;
-      while (i < lines.length && !lines[i].startsWith("```")) {
-        codeLines.push(lines[i]);
+      while (i < lines.length && !lines[i]!.startsWith("```")) {
+        codeLines.push(lines[i]!);
         i++;
       }
       content.push({
@@ -82,8 +82,8 @@ export function markdownToTiptap(
     // Blockquote
     if (line.startsWith("> ")) {
       const quoteLines: string[] = [];
-      while (i < lines.length && lines[i].startsWith("> ")) {
-        quoteLines.push(lines[i].slice(2));
+      while (i < lines.length && lines[i]!.startsWith("> ")) {
+        quoteLines.push(lines[i]!.slice(2));
         i++;
       }
       content.push({
@@ -101,8 +101,8 @@ export function markdownToTiptap(
     // Unordered list
     if (/^[-*+]\s+/.test(line)) {
       const listItems: TiptapNode[] = [];
-      while (i < lines.length && /^[-*+]\s+/.test(lines[i])) {
-        const itemText = lines[i].replace(/^[-*+]\s+/, "");
+      while (i < lines.length && /^[-*+]\s+/.test(lines[i]!)) {
+        const itemText = lines[i]!.replace(/^[-*+]\s+/, "");
         listItems.push({
           type: "listItem",
           content: [
@@ -124,8 +124,8 @@ export function markdownToTiptap(
     // Ordered list
     if (/^\d+\.\s+/.test(line)) {
       const listItems: TiptapNode[] = [];
-      while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
-        const itemText = lines[i].replace(/^\d+\.\s+/, "");
+      while (i < lines.length && /^\d+\.\s+/.test(lines[i]!)) {
+        const itemText = lines[i]!.replace(/^\d+\.\s+/, "");
         listItems.push({
           type: "listItem",
           content: [

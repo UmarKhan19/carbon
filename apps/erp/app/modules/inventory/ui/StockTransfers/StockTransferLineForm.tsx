@@ -15,7 +15,6 @@ import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Hidden, Item, Number, Shelf, Submit } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import {

@@ -30,6 +30,7 @@ export function EndShift() {
   const confirmModal = useDisclosure();
   const fetcher = useFetcher<typeof endShiftAction>();
   const user = useUser();
+
   const { carbon } = useCarbon();
   const [operations, setOperations] = useState<Operation[]>([]);
   const [loading, setLoading] = useState(false);

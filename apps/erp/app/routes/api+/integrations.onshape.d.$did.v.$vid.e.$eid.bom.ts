@@ -142,7 +142,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
         if (!defaultMethodType) {
           defaultMethodType =
-            row["Purchasing Level"] === "Purchased" ? "Pick" : "Make";
+            row["Purchasing Level"] === "Purchased"
+              ? "Pull from Inventory"
+              : "Make to Order";
         }
 
         return {

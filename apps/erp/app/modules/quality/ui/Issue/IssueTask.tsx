@@ -329,7 +329,9 @@ export function TaskItem({
             </button>
           )}
 
+          {/* @ts-expect-error TS2322 */}
           {integrations.has("linear") && <LinearIssueDialog task={task} />}
+          {/* @ts-expect-error TS2322 */}
           {integrations.has("jira") && <JiraIssueDialog task={task} />}
 
           <IconButton

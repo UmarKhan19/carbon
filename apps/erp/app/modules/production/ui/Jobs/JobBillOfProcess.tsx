@@ -100,7 +100,6 @@ import Activity from "~/components/Activity";
 import {
   Hidden,
   InputControlled,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Process,

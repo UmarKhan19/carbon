@@ -117,7 +117,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const stream = await renderToStream(
     <PurchaseOrderPDF
-      company={company.data}
+      company={company.data as any}
       companySettings={companySettings.data}
       accountsPayableBillingAddress={
         companySettings.data?.accountsPayableAddress
@@ -149,5 +149,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "Content-Type": "application/pdf",
     "Content-Disposition": `inline; filename="${company.data.name} - ${purchaseOrder.data.purchaseOrderId}.pdf"`
   });
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

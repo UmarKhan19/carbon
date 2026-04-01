@@ -23,7 +23,7 @@ async function seed() {
       id: true,
       apiUrl: process.env.SUPABASE_URL!.includes("localhost")
         ? "http://host.docker.internal:54321"
-        : process.env.SUPABASE_URL,
+        : process.env.SUPABASE_URL!,
       anonKey: process.env.SUPABASE_ANON_KEY!
     }
   ]);

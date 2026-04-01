@@ -2492,7 +2492,7 @@ export async function upsertMethodMaterial(
       })
 ) {
   let materialMakeMethodId: string | null = null;
-  if (methodMaterial.methodType === "Make") {
+  if (methodMaterial.methodType === "Make to Order") {
     const makeMethod = await client
       .from("activeMakeMethods")
       .select("id, version")
@@ -3059,7 +3059,10 @@ export async function upsertService(
         type: "Service",
         replenishmentSystem:
           service.serviceType === "External" ? "Buy" : "Make",
-        defaultMethodType: service.serviceType === "External" ? "Buy" : "Make",
+        defaultMethodType:
+          service.serviceType === "External"
+            ? "Purchase to Order"
+            : "Make to Order",
         itemTrackingType: service.itemTrackingType,
         unitOfMeasureCode: "EA",
         active: true,
@@ -3109,7 +3112,9 @@ export async function upsertService(
     replenishmentSystem:
       service.serviceType === "External" ? "Buy" : ("Make" as "Buy"),
     defaultMethodType:
-      service.serviceType === "External" ? "Buy" : ("Make" as "Buy"),
+      service.serviceType === "External"
+        ? "Purchase to Order"
+        : ("Make to Order" as "Purchase to Order"),
     itemTrackingType: service.itemTrackingType,
     unitOfMeasureCode: null,
     active: true

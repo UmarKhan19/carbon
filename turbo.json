@@ -17,7 +17,11 @@
       "outputs": ["api/index.js", "api/build/**", "public/build/**"]
     },
     "test": {
-      "outputs": ["coverage/**"],
+      "cache": false,
+      "dependsOn": []
+    },
+    "typecheck": {
+      "cache": false,
       "dependsOn": []
     },
     "lint": {

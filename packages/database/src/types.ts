@@ -2834,6 +2834,7 @@ export type Database = {
           accountsPayableEmail: string | null
           accountsReceivableAddress: boolean | null
           accountsReceivableEmail: string | null
+          consoleEnabled: boolean
           defaultCustomerCc: string[] | null
           defaultSupplierCc: string[] | null
           digitalQuoteEnabled: boolean
@@ -2870,6 +2871,7 @@ export type Database = {
           accountsPayableEmail?: string | null
           accountsReceivableAddress?: boolean | null
           accountsReceivableEmail?: string | null
+          consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
           defaultSupplierCc?: string[] | null
           digitalQuoteEnabled?: boolean
@@ -2906,6 +2908,7 @@ export type Database = {
           accountsPayableEmail?: string | null
           accountsReceivableAddress?: boolean | null
           accountsReceivableEmail?: string | null
+          consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
           defaultSupplierCc?: string[] | null
           digitalQuoteEnabled?: boolean
@@ -7226,18 +7229,21 @@ export type Database = {
           companyId: string
           employeeTypeId: string
           id: string
+          pin: string | null
         }
         Insert: {
           active?: boolean
           companyId: string
           employeeTypeId: string
           id?: string
+          pin?: string | null
         }
         Update: {
           active?: boolean
           companyId?: string
           employeeTypeId?: string
           id?: string
+          pin?: string | null
         }
         Relationships: [
           {
@@ -17017,6 +17023,7 @@ export type Database = {
           quantity: number
           scrapQuantity: number
           shelfIds: Json
+          sourcingType: Database["public"]["Enums"]["sourcingType"]
           tags: string[] | null
           unitOfMeasureCode: string
           updatedAt: string | null
@@ -17040,6 +17047,7 @@ export type Database = {
           quantity: number
           scrapQuantity?: number
           shelfIds?: Json
+          sourcingType?: Database["public"]["Enums"]["sourcingType"]
           tags?: string[] | null
           unitOfMeasureCode: string
           updatedAt?: string | null
@@ -17063,6 +17071,7 @@ export type Database = {
           quantity?: number
           scrapQuantity?: number
           shelfIds?: Json
+          sourcingType?: Database["public"]["Enums"]["sourcingType"]
           tags?: string[] | null
           unitOfMeasureCode?: string
           updatedAt?: string | null
@@ -40831,6 +40840,7 @@ export type Database = {
           flags: Json
           fullName: string | null
           id: string
+          isConsoleOperator: boolean
           lastName: string
           updatedAt: string | null
         }
@@ -40847,6 +40857,7 @@ export type Database = {
           flags?: Json
           fullName?: string | null
           id: string
+          isConsoleOperator?: boolean
           lastName?: string
           updatedAt?: string | null
         }
@@ -40863,6 +40874,7 @@ export type Database = {
           flags?: Json
           fullName?: string | null
           id?: string
+          isConsoleOperator?: boolean
           lastName?: string
           updatedAt?: string | null
         }
@@ -45329,6 +45341,7 @@ export type Database = {
           itemId: string | null
           itemReadableId: string | null
           itemReadableIdWithoutRevision: string | null
+          itemScrapPercentage: number | null
           itemType: string | null
           jobId: string | null
           jobMakeMethodId: string | null
@@ -49377,14 +49390,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52521,7 +52534,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52535,7 +52548,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56888,7 +56901,6 @@ export type Database = {
         Args: { jid: string }
         Returns: {
           description: string
-          externalId: Json
           isRoot: boolean
           itemId: string
           itemReadableId: string
@@ -58359,7 +58371,7 @@ export type Database = {
       maintenanceSource: "Scheduled" | "Reactive" | "Non-Conformance"
       makeMethodStatus: "Draft" | "Active" | "Archived"
       methodOperationOrder: "After Previous" | "With Previous"
-      methodType: "Buy" | "Make" | "Pick"
+      methodType: "Purchase to Order" | "Pull from Inventory" | "Make to Order"
       module:
         | "Accounting"
         | "Documents"
@@ -58569,6 +58581,7 @@ export type Database = {
         | "Outbound Transfer"
       shipmentStatus: "Draft" | "Pending" | "Posted" | "Voided"
       shippingCarrier: "UPS" | "FedEx" | "USPS" | "DHL" | "Other"
+      sourcingType: "Specified" | "Drop Ship" | "Ship from Inventory"
       stockTransferStatus: "Draft" | "Released" | "In Progress" | "Completed"
       supplierLedgerDocumentType:
         | "Payment"
@@ -59525,7 +59538,7 @@ export const Constants = {
       maintenanceSource: ["Scheduled", "Reactive", "Non-Conformance"],
       makeMethodStatus: ["Draft", "Active", "Archived"],
       methodOperationOrder: ["After Previous", "With Previous"],
-      methodType: ["Buy", "Make", "Pick"],
+      methodType: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
       module: [
         "Accounting",
         "Documents",
@@ -59755,6 +59768,7 @@ export const Constants = {
       ],
       shipmentStatus: ["Draft", "Pending", "Posted", "Voided"],
       shippingCarrier: ["UPS", "FedEx", "USPS", "DHL", "Other"],
+      sourcingType: ["Specified", "Drop Ship", "Ship from Inventory"],
       stockTransferStatus: ["Draft", "Released", "In Progress", "Completed"],
       supplierLedgerDocumentType: [
         "Payment",

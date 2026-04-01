@@ -53,13 +53,14 @@ const ApiKeyForm = ({
 
   const [key, setKey] = useState<string | null>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const initialScopeState = useMemo(
     () =>
       isEditing
         ? fromApiKeyScopes(existingScopes, apiKeyPermissionModules)
         : fromApiKeyScopes(null, apiKeyPermissionModules),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [existingScopes, isEditing]
   );
 
   const matrix = usePermissionMatrix({

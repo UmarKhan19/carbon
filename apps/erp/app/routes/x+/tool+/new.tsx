@@ -64,7 +64,7 @@ export default function ToolsNewRoute() {
     name: "",
     description: "",
     replenishmentSystem: "Buy" as const,
-    defaultMethodType: "Buy" as const,
+    defaultMethodType: "Purchase to Order" as const,
     itemTrackingType: "Inventory" as "Inventory",
     unitOfMeasureCode: "EA",
     unitCost: 0,

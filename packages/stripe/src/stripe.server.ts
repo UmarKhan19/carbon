@@ -16,7 +16,7 @@ import { z } from "zod";
 
 export const stripe = STRIPE_SECRET_KEY
   ? new Stripe(STRIPE_SECRET_KEY, {
-      // @ts-ignore
+      // @ts-expect-error
       apiVersion: "2025-06-30.basil",
       typescript: true
     })
@@ -101,10 +101,7 @@ export async function createStripeCustomer({
     );
 
     // Store the relation between companyId and stripeCustomerId in KV
-    await redis.set(
-      `stripe:company:${companyId}`,
-      KvStripeUserSchema.parse(customer.id)
-    );
+    await redis.set(`stripe:company:${companyId}`, customer.id);
 
     return customer;
   } catch (error) {

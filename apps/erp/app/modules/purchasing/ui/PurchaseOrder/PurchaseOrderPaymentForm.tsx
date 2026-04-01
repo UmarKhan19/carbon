@@ -10,7 +10,6 @@ import { useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   CustomFormFields,
   Hidden,

@@ -79,7 +79,7 @@ const QuotePDF = ({
   const currencyCode = quote.currencyCode ?? company.baseCurrencyCode;
   const shouldConvertCurrency =
     !!currencyCode && currencyCode !== company.baseCurrencyCode;
-  const formatter = getCurrencyFormatter(currencyCode, locale);
+  const formatter = getCurrencyFormatter(currencyCode ?? "USD", locale);
 
   const pricesByLine = quoteLinePrices.reduce<
     Record<string, Database["public"]["Tables"]["quoteLinePrice"]["Row"][]>
@@ -87,7 +87,7 @@ const QuotePDF = ({
     if (!acc[price.quoteLineId]) {
       acc[price.quoteLineId] = [];
     }
-    acc[price.quoteLineId].push(price);
+    acc[price.quoteLineId]!.push(price);
     return acc;
   }, {});
 
@@ -96,14 +96,18 @@ const QuotePDF = ({
   );
 
   const hasSinglePricePerLine = quoteLines.every(
-    (line) => line.quantity.length === 1
+    (line) => (line.quantity ?? []).length === 1
   );
 
   // Check if any line has a lead time > 0
   const hasAnyLeadTime = quoteLines.some((line) => {
     if (line.status === "No Quote") return false;
-    const prices = pricesByLine[line.id] ?? [];
-    const price = prices.find((p) => p.quantity === line.quantity[0]);
+    const lineQuantity = line.quantity ?? [];
+    const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+    const price = prices.find(
+      (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+        p.quantity === lineQuantity[0]
+    );
     return price && price.leadTime > 0;
   });
 
@@ -130,8 +134,12 @@ const QuotePDF = ({
   const getTotalSubtotal = () => {
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const lineQuantity = line.quantity ?? [];
+      const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+      const price = prices.find(
+        (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+          p.quantity === lineQuantity[0]
+      );
       return total + (price?.convertedNetExtendedPrice ?? 0);
     }, 0);
   };
@@ -139,8 +147,12 @@ const QuotePDF = ({
   const getTotalShipping = () => {
     const lineShipping = quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const lineQuantity = line.quantity ?? [];
+      const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+      const price = prices.find(
+        (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+          p.quantity === lineQuantity[0]
+      );
       return total + (price?.convertedShippingCost ?? 0);
     }, 0);
     const quoteShipping = (shipment?.shippingCost ?? 0) * (exchangeRate ?? 1);
@@ -151,9 +163,9 @@ const QuotePDF = ({
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
       const additionalCharges = line.additionalCharges ?? {};
-      const quantity = line.quantity[0];
+      const quantity = (line.quantity ?? [])[0];
       const charges = Object.values(additionalCharges).reduce((acc, charge) => {
-        let amount = charge.amounts?.[quantity] ?? 0;
+        let amount = quantity != null ? (charge.amounts?.[quantity] ?? 0) : 0;
         if (shouldConvertCurrency) {
           amount *= exchangeRate;
         }
@@ -166,15 +178,19 @@ const QuotePDF = ({
   const getTotalTaxes = () => {
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const lineQuantity = line.quantity ?? [];
+      const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+      const price = prices.find(
+        (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+          p.quantity === lineQuantity[0]
+      );
       const netExtendedPrice = price?.convertedNetExtendedPrice ?? 0;
       const additionalCharges = line.additionalCharges ?? {};
-      const quantity = line.quantity[0];
+      const quantity = lineQuantity[0];
       const taxableFees = Object.values(additionalCharges).reduce(
         (acc, charge) => {
           if (charge.taxable === false) return acc;
-          let amount = charge.amounts?.[quantity] ?? 0;
+          let amount = quantity != null ? (charge.amounts?.[quantity] ?? 0) : 0;
           if (shouldConvertCurrency) {
             amount *= exchangeRate;
           }
@@ -326,7 +342,7 @@ const QuotePDF = ({
         {/* Rows */}
         {quoteLines.map((line) => {
           const unitPriceFormatter = getCurrencyFormatter(
-            currencyCode,
+            currencyCode ?? "USD",
             locale,
             line.unitPricePrecision ?? 2
           );
@@ -336,9 +352,14 @@ const QuotePDF = ({
           return (
             <View key={line.id} wrap={false}>
               {line.status !== "No Quote" ? (
-                line.quantity?.map((quantity, index) => {
-                  const prices = pricesByLine[line.id] ?? [];
-                  const price = prices.find((p) => p.quantity === quantity);
+                (line.quantity ?? []).map((quantity, index) => {
+                  const prices =
+                    line.id != null ? (pricesByLine[line.id] ?? []) : [];
+                  const price = prices.find(
+                    (
+                      p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]
+                    ) => p.quantity === quantity
+                  );
                   const unitPrice = price?.convertedUnitPrice ?? 0;
                   const netExtendedPrice =
                     price?.convertedNetExtendedPrice ?? 0;
@@ -394,14 +415,16 @@ const QuotePDF = ({
                             <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                               {getLineDescriptionDetails(line)}
                             </Text>
-                            {thumbnails && line.id in thumbnails && (
-                              <View style={tw("mt-2")}>
-                                <Image
-                                  src={thumbnails[line.id]!}
-                                  style={{ width: 60, height: 60 }}
-                                />
-                              </View>
-                            )}
+                            {thumbnails &&
+                              line.id != null &&
+                              line.id in thumbnails && (
+                                <View style={tw("mt-2")}>
+                                  <Image
+                                    src={thumbnails[line.id]!}
+                                    style={{ width: 60, height: 60 }}
+                                  />
+                                </View>
+                              )}
                             {Object.keys(line.externalNotes ?? {}).length >
                               0 && (
                               <View style={tw("mt-1")}>

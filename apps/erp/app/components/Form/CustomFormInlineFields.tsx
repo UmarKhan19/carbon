@@ -1,6 +1,5 @@
 import type { Json } from "@carbon/database";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   DatePicker,
   InputControlled,

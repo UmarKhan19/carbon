@@ -188,7 +188,7 @@ export const syncExternalAccountingTask = task({
         }
       }
     } catch (error) {
-      logger.error("Sync task failed:", error);
+      logger.error("Sync task failed:", { error });
     } finally {
       await pool.end();
     }

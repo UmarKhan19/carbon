@@ -20,7 +20,6 @@ import {
   Hidden,
   InputControlled,
   Item,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Select,
@@ -70,7 +69,7 @@ const JobMaterialForm = ({
     quantity: number;
   }>({
     itemId: initialValues.itemId ?? "",
-    methodType: initialValues.methodType ?? "Buy",
+    methodType: initialValues.methodType ?? "Pull from Inventory",
     description: initialValues.description ?? "",
     unitCost: initialValues.unitCost ?? 0,
     unitOfMeasureCode: initialValues.unitOfMeasureCode ?? "EA",
@@ -82,7 +81,7 @@ const JobMaterialForm = ({
     setItemType(value as MethodItemType);
     setItemData({
       itemId: "",
-      methodType: "" as "Buy",
+      methodType: "" as "Pull from Inventory",
       quantity: 1,
       description: "",
       unitCost: 0,
@@ -115,7 +114,7 @@ const JobMaterialForm = ({
       description: item.data?.name ?? "",
       unitCost: itemCost.data?.unitCost ?? 0,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Buy"
+      methodType: item.data?.defaultMethodType ?? "Purchase to Order"
     }));
 
     if (item.data?.type) {
@@ -167,7 +166,7 @@ const JobMaterialForm = ({
         </CardHeader>
         <CardContent>
           <Hidden name="jobMakeMethodId" />
-          {itemData.methodType === "Make" && (
+          {itemData.methodType === "Make to Order" && (
             <Hidden name="unitCost" value={itemData.unitCost} />
           )}
           <Hidden name="order" />
@@ -219,7 +218,7 @@ const JobMaterialForm = ({
                   }))
                 }
               />
-              {itemData.methodType !== "Make" && (
+              {itemData.methodType !== "Make to Order" && (
                 <NumberControlled
                   name="unitCost"
                   label="Unit Cost"

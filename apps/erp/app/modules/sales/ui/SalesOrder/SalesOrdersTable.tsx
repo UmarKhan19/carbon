@@ -158,7 +158,10 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
             (row.original.lines as {
               id: string;
               saleQuantity: number;
-              methodType: "Buy" | "Make" | "Pick";
+              methodType:
+                | "Purchase to Order"
+                | "Make to Order"
+                | "Pull from Inventory";
             }[]) ?? [];
           return (
             <SalesStatus
@@ -198,18 +201,21 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
             (row.original.lines as {
               id: string;
               saleQuantity: number;
-              methodType: "Buy" | "Make" | "Pick";
+              methodType:
+                | "Purchase to Order"
+                | "Make to Order"
+                | "Pull from Inventory";
             }[]) ?? [];
 
           if (
             lines.length === 0 ||
-            lines.every((line) => line.methodType !== "Make")
+            lines.every((line) => line.methodType !== "Make to Order")
           ) {
             return null;
           }
 
           const everyMadeLineHasSufficientJobs = lines.every((line) => {
-            if (line.methodType !== "Make") return true;
+            if (line.methodType !== "Make to Order") return true;
             const relevantJobs =
               jobs.filter?.((job) => job.salesOrderLineId === line.id) ?? [];
             const totalJobQuantity = relevantJobs.reduce(
@@ -221,7 +227,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
           });
 
           const everyMadeLineIsCompleted = lines.every((line) => {
-            if (line.methodType !== "Make") return true;
+            if (line.methodType !== "Make to Order") return true;
             const relevantJobs =
               jobs.filter?.((job) => job.salesOrderLineId === line.id) ?? [];
             const totalJobQuantity = relevantJobs.reduce(

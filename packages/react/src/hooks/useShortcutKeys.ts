@@ -31,12 +31,14 @@ export function useShortcutKeys({
 }: useShortcutKeysProps) {
   const { platform } = useOperatingSystem();
   const isMac = platform === "mac";
-  const relevantShortcut =
+  const relevantShortcut: Shortcut | undefined =
     shortcut && "mac" in shortcut
       ? isMac
         ? shortcut.mac
         : shortcut.windows
-      : shortcut;
+      : shortcut && "key" in shortcut
+        ? shortcut
+        : undefined;
 
   const keys = createKeysFromShortcut(relevantShortcut);
   useHotkeys(

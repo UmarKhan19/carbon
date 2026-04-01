@@ -74,7 +74,7 @@ export default function PartsNewRoute() {
     description: "",
     itemTrackingType: "Inventory" as "Inventory",
     replenishmentSystem: "Buy" as "Buy",
-    defaultMethodType: "Buy" as "Buy",
+    defaultMethodType: "Pull from Inventory" as "Pull from Inventory",
     unitOfMeasureCode: "EA",
     unitCost: 0,
     lotSize: 0,

@@ -362,23 +362,17 @@ const ConsumablesTable = memo(
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
-                    {methodType
-                      .filter((type) => type !== "Make")
-                      .map((type) => (
-                        <DropdownMenuItem
-                          key={type}
-                          onClick={() =>
-                            onBulkUpdate(
-                              selectedRows,
-                              "defaultMethodType",
-                              type
-                            )
-                          }
-                        >
-                          <DropdownMenuIcon icon={<MethodIcon type={type} />} />
-                          <span>{type}</span>
-                        </DropdownMenuItem>
-                      ))}
+                    {methodType.map((type) => (
+                      <DropdownMenuItem
+                        key={type}
+                        onClick={() =>
+                          onBulkUpdate(selectedRows, "defaultMethodType", type)
+                        }
+                      >
+                        <DropdownMenuIcon icon={<MethodIcon type={type} />} />
+                        <span>{type}</span>
+                      </DropdownMenuItem>
+                    ))}
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>

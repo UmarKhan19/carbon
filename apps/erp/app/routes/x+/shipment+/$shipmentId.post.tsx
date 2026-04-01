@@ -66,6 +66,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             context: {}
           };
 
+          // @ts-expect-error TS2741 - TODO: fix type
           const pdf = await pdfLoader(pdfArgs);
 
           if (pdf.headers.get("content-type") === "application/pdf") {

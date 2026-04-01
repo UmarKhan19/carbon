@@ -32,16 +32,16 @@ import {
   LuHammer,
   LuHardHat,
   LuHeadphones,
-  LuHexagon,
   LuImage,
   LuList,
   LuPizza,
   LuQrCode,
   LuShoppingCart,
   LuSquare,
-  LuSwords,
+  LuTarget,
   LuTimer,
   LuToggleLeft,
+  LuTruck,
   LuUser
 } from "react-icons/lu";
 import { RxCodesandboxLogo } from "react-icons/rx";
@@ -85,6 +85,25 @@ export const MethodItemTypeIcon = ({
   return <LuSquare className={cn("text-muted-foreground", className)} />;
 };
 
+export const SourcingTypeIcon = ({
+  type,
+  className
+}: {
+  type: string;
+  className?: string;
+}) => {
+  switch (type) {
+    case "Specified":
+      return <LuTarget className={cn("text-red-500", className)} />;
+    case "Drop Ship":
+      return <LuShoppingCart className={cn("text-blue-500", className)} />;
+    case "Ship from Inventory":
+      return <LuTruck className={cn("text-cyan-500", className)} />;
+  }
+
+  return <LuSquare className={cn("text-muted-foreground", className)} />;
+};
+
 export const MethodIcon = ({
   type,
   className,
@@ -99,15 +118,13 @@ export const MethodIcon = ({
       return (
         <AiOutlinePartition className={cn(className, "text-foreground")} />
       );
-    case "Buy":
+    case "Purchase to Order":
       return <LuShoppingCart className={cn("text-blue-500", className)} />;
-    case "Make":
-      return isKit ? (
-        <LuHexagon className={cn("text-emerald-500", className)} />
-      ) : (
+    case "Make to Order":
+      return (
         <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
       );
-    case "Pick":
+    case "Pull from Inventory":
       return <FaCodePullRequest className={cn("text-yellow-500", className)} />;
   }
 
@@ -115,7 +132,7 @@ export const MethodIcon = ({
 };
 
 type MethodBadgeProps = {
-  type: "Buy" | "Make" | "Pick" | "Make Inactive";
+  type: MethodType;
   text: string;
   to: string;
   className?: string;
@@ -127,10 +144,7 @@ export function MethodBadge({ type, text, to, className }: MethodBadgeProps) {
   return (
     <Link to={to} prefetch="intent" className="group flex items-center gap-1">
       <Badge style={style} className={className}>
-        <MethodIcon
-          type={type === "Make Inactive" ? "Make" : type}
-          className="w-3 h-3 mr-1 "
-        />
+        <MethodIcon type={type} className="w-3 h-3 mr-1 " />
         {text}
       </Badge>
       <span className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 w-4 h-4 text-foreground">
@@ -140,17 +154,12 @@ export function MethodBadge({ type, text, to, className }: MethodBadgeProps) {
   );
 }
 
-function getReplenishmentBadgeColor(
-  type: MethodType | "Make Inactive",
-  mode: "light" | "dark"
-) {
-  return type === "Buy"
+function getReplenishmentBadgeColor(type: MethodType, mode: "light" | "dark") {
+  return type === "Purchase to Order"
     ? getColor("blue", mode)
-    : type === "Make"
+    : type === "Make to Order"
       ? getColor("green", mode)
-      : type === "Make Inactive"
-        ? getColor("gray", mode)
-        : getColor("orange", mode);
+      : getColor("orange", mode);
 }
 
 export const OnshapeStatus = ({
@@ -359,7 +368,7 @@ export const ReplenishmentSystemIcon = ({
         <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
       );
     case "Buy and Make":
-      return <LuSwords className={cn("text-yellow-500", className)} />;
+      return <LuFlaskConical className={cn("text-teal-500", className)} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;

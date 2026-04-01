@@ -181,7 +181,9 @@ const LineItems = ({
                           className="flex items-center gap-2"
                         >
                           {line.quantity}
-                          <MethodIcon type={line.methodType ?? "Pick"} />
+                          <MethodIcon
+                            type={line.methodType ?? "Pull from Inventory"}
+                          />
                         </Badge>
                         <Badge variant="green">
                           {formatter.format(line.unitPrice ?? 0)}{" "}

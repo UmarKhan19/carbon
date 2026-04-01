@@ -144,7 +144,7 @@ export default function MaterialRoute() {
                         module: "purchasing",
                         children: purchaseOrderLines.map((po) => ({
                           ...po,
-                          methodType: "Buy"
+                          methodType: "Purchase to Order"
                         }))
                       },
                       {
@@ -153,7 +153,7 @@ export default function MaterialRoute() {
                         module: "inventory",
                         children: receiptLines.map((receipt) => ({
                           ...receipt,
-                          methodType: "Pick"
+                          methodType: "Pull from Inventory"
                         }))
                       },
 

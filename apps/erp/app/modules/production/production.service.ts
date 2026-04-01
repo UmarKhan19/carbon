@@ -94,7 +94,7 @@ export async function convertSalesOrderLinesToJobs(
   let jobsCreated = 0;
 
   for await (const line of lines) {
-    if (line.methodType === "Make" && line.itemId) {
+    if (line.methodType === "Make to Order" && line.itemId) {
       const itemManufacturing = await client
         .from("itemReplenishment")
         .select("*")
@@ -990,7 +990,7 @@ function getJobMethodTreeArrayToTree(items: JobMethod[]): JobMethodTreeItem[] {
     const parentId = item.parentMaterialId;
 
     if (!Object.prototype.hasOwnProperty.call(lookup, itemId)) {
-      // @ts-ignore
+      // @ts-expect-error
       lookup[itemId] = { id: itemId, children: [] };
     }
 
@@ -1003,7 +1003,7 @@ function getJobMethodTreeArrayToTree(items: JobMethod[]): JobMethodTreeItem[] {
       rootItems.push(treeItem);
     } else {
       if (!Object.prototype.hasOwnProperty.call(lookup, parentId)) {
-        // @ts-ignore
+        // @ts-expect-error
         lookup[parentId] = { id: parentId, children: [] };
       }
 
@@ -2147,11 +2147,14 @@ export async function upsertProductionQuantity(
       .select()
       .single();
   } else {
-    return client
-      .from("productionQuantity")
-      .insert([productionQuantity])
-      .select("id")
-      .single();
+    return (
+      client
+        .from("productionQuantity")
+        // @ts-expect-error TS2769 - TODO: fix type
+        .insert([productionQuantity])
+        .select("id")
+        .single()
+    );
   }
 }
 

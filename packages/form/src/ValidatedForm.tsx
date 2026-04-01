@@ -150,7 +150,6 @@ const focusFirstInvalidInput = (
   customFocusHandlers: MultiValueMap<string, () => void>,
   formElement: HTMLFormElement
 ) => {
-  // @ts-ignore
   const namesInOrder = [...formElement.elements]
     .map((el) => {
       const input = el instanceof RadioNodeList ? el[0] : el;
@@ -175,7 +174,6 @@ const focusFirstInvalidInput = (
 
     if (elem instanceof RadioNodeList) {
       const selectedRadio =
-        // @ts-ignore
         [...elem]
           .filter(
             (item): item is HTMLInputElement => item instanceof HTMLInputElement
@@ -190,7 +188,7 @@ const focusFirstInvalidInput = (
 
     if (elem instanceof HTMLElement) {
       if (elem instanceof HTMLInputElement && elem.type === "hidden") {
-        scrollIntoView(elem.parentElement);
+        scrollIntoView(elem.parentElement ?? undefined);
         continue;
       }
 

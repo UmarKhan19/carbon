@@ -22,7 +22,6 @@ import { Link, useFetcher } from "react-router";
 import type { z } from "zod";
 import { TrackingTypeIcon } from "~/components";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   DefaultMethodType,
   Hidden,
@@ -70,7 +69,7 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
     initialValues.replenishmentSystem ?? "Buy"
   );
   const [defaultMethodType, setDefaultMethodType] = useState<string>(
-    initialValues.defaultMethodType ?? "Buy"
+    initialValues.defaultMethodType ?? "Purchase to Order"
   );
   const itemReplenishmentSystemOptions =
     itemReplenishmentSystems.map((itemReplenishmentSystem) => ({

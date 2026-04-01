@@ -18,7 +18,7 @@ type SupplierSelectProps = Omit<
 
 const SupplierPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   return <SupplierAvatar supplierId={value} />;
 };

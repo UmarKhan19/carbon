@@ -64,6 +64,7 @@ const BulkEditPermissions = ({
   });
 
   // When new empty permissions arrive, reset the matrix state
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   useEffect(() => {
     if (emptyPermissionsFetcher.data) {
       const { state } = fromEmployeeTypePermissions(
@@ -72,7 +73,7 @@ const BulkEditPermissions = ({
       matrix.setPermissions(state);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emptyPermissionsFetcher.data]);
+  }, [emptyPermissionsFetcher.data, matrix.setPermissions]);
 
   // Serialize permissions to the format expected by the action
   const permissionsData = JSON.stringify(

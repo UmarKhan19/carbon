@@ -10,12 +10,20 @@ export async function action({ request }: ActionFunctionArgs) {
   const redirectTo = formData.get("redirectTo") as string | null;
 
   if (intent === "academy") {
-    await client
+    const { data: user, error: readError } = await client
       .from("user")
-      .update({
-        acknowledgedUniversity: true
-      })
-      .eq("id", userId);
+      .select("flags")
+      .eq("id", userId)
+      .single();
+
+    if (readError) {
+      return { success: false, message: "Failed to read user flags" };
+    }
+
+    const currentFlags = (user?.flags as Record<string, boolean> | null) ?? {};
+    const updatedFlags = { ...currentFlags, academy: true };
+
+    await client.from("user").update({ flags: updatedFlags }).eq("id", userId);
 
     if (redirectTo) {
       throw redirect(redirectTo);

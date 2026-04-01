@@ -106,6 +106,7 @@ export default function EditRiskRoute() {
   return (
     <RiskRegisterForm
       open
+      // @ts-expect-error TS2322 - TODO: fix type
       initialValues={{
         ...risk,
         id: risk.id,

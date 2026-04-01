@@ -18,7 +18,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   HStack,
-  ScrollArea,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -33,9 +32,9 @@ import {
   useDisclosure,
   useSidebar
 } from "@carbon/react";
-import { ItarDisclosure, useMode } from "@carbon/remix";
+import { ItarDisclosure, useMode, useRouteData } from "@carbon/remix";
 import type { ComponentProps } from "react";
-import { useMemo, useRef } from "react";
+import { Suspense, useRef } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
 import {
   LuActivity,
@@ -46,16 +45,19 @@ import {
   LuHistory,
   LuLogOut,
   LuMapPin,
+  LuMonitor,
   LuMoon,
   LuShieldCheck,
   LuSun,
   LuUser,
+  LuUsers,
   LuWrench
 } from "react-icons/lu";
-import { Form, Link, useFetcher, useLocation } from "react-router";
+import { Await, Form, Link, useFetcher, useLocation } from "react-router";
 import { useUser } from "~/hooks";
 import type { action } from "~/root";
 import type { Location } from "~/services/types";
+import type { PinnedInUser } from "~/types";
 import { ERP_URL, path } from "~/utils/path";
 import { AdjustInventory } from "./AdjustInventory";
 import { EndShift } from "./EndShift";
@@ -67,20 +69,28 @@ export function AppSidebar({
   activeMaintenanceCount,
   company,
   companies,
+  consoleEnabled,
+  consoleMode,
   location,
   locations,
-  timeCardEnabled,
   openClockEntry,
+  pinnedInUser,
+  timeCardEnabled,
   ...props
 }: ComponentProps<typeof Sidebar> & {
   activeEvents: number;
   activeMaintenanceCount: number;
   company: Company;
   companies: Company[];
+  consoleEnabled?: boolean;
+  consoleMode: boolean;
   location: string;
   locations: Location[];
+  pinnedInUser: PinnedInUser | null;
   timeCardEnabled?: boolean;
-  openClockEntry?: { id: string; clockIn: string } | null;
+  openClockEntry?: Promise<{
+    data: { id: string; clockIn: string; [key: string]: unknown } | null;
+  }> | null;
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -97,14 +107,32 @@ export function AppSidebar({
       <SidebarFooter>
         {timeCardEnabled && (
           <SidebarMenu>
-            <TimeCardButton openClockEntry={openClockEntry ?? null} />
+            <Suspense fallback={<TimeCardButton openClockEntry={null} />}>
+              <Await resolve={openClockEntry}>
+                {(resolved) => (
+                  <TimeCardButton
+                    openClockEntry={
+                      resolved?.data
+                        ? {
+                            id: resolved.data.id,
+                            clockIn: resolved.data.clockIn
+                          }
+                        : null
+                    }
+                  />
+                )}
+              </Await>
+            </Suspense>
           </SidebarMenu>
         )}
         <UserNav
           company={company}
           companies={companies}
+          consoleEnabled={consoleEnabled}
+          consoleMode={consoleMode}
           location={location}
           locations={locations}
+          pinnedInUser={pinnedInUser}
         />
       </SidebarFooter>
       <SidebarRail />
@@ -262,62 +290,30 @@ export function ToolsNav() {
 export function UserNav({
   company,
   companies,
+  consoleEnabled,
+  consoleMode,
   location,
-  locations
+  locations,
+  pinnedInUser
 }: {
   company: Company;
   companies: Company[];
+  consoleEnabled?: boolean;
+  consoleMode: boolean;
   location: string;
   locations: Location[];
+  pinnedInUser: PinnedInUser | null;
 }) {
   const user = useUser();
-  const name = `${user.firstName} ${user.lastName}`;
+  const stationName = `${user.firstName} ${user.lastName}`;
   const { isMobile } = useSidebar();
 
   const mode = useMode();
 
   const modeSubmitRef = useRef<HTMLButtonElement>(null);
+  const consoleSubmitRef = useRef<HTMLButtonElement>(null);
 
   const fetcher = useFetcher<typeof action>();
-
-  const companyGroups = useMemo(() => {
-    const groups = new Map<string, { name: string; companies: Company[] }>();
-
-    for (const c of companies) {
-      const groupName = c.companyGroupName ?? "Companies";
-      const existing = groups.get(groupName);
-      if (existing) {
-        existing.companies.push(c);
-      } else {
-        groups.set(groupName, { name: groupName, companies: [c] });
-      }
-    }
-
-    // If a group has only one company, move it to "Companies"
-    const result = new Map<string, { name: string; companies: Company[] }>();
-    for (const [key, group] of groups) {
-      if (group.companies.length === 1 && key !== "Companies") {
-        const existing = result.get("Companies");
-        if (existing) {
-          existing.companies.push(...group.companies);
-        } else {
-          result.set("Companies", {
-            name: "Companies",
-            companies: [...group.companies]
-          });
-        }
-      } else {
-        const existing = result.get(key);
-        if (existing) {
-          existing.companies.push(...group.companies);
-        } else {
-          result.set(key, group);
-        }
-      }
-    }
-
-    return Array.from(result.values());
-  }, [companies]);
 
   const updateLocation = (value: string) => {
     const formData = new FormData();
@@ -330,6 +326,23 @@ export function UserNav({
 
   const itarDisclosure = useDisclosure();
 
+  // useUser().id returns the effective (operator) ID — read the original station user ID directly
+  const routeData = useRouteData<{ user: { id: string } | null }>(
+    path.to.authenticatedRoot
+  );
+  const sessionUserId = routeData?.user?.id;
+  const isOperatorPinnedIn =
+    consoleMode &&
+    pinnedInUser &&
+    sessionUserId &&
+    pinnedInUser.userId !== sessionUserId;
+  const showingOperator = consoleMode && pinnedInUser;
+  const displayName = showingOperator ? pinnedInUser.name : stationName;
+  const displayAvatar = showingOperator
+    ? pinnedInUser.avatarUrl
+    : user.avatarUrl;
+  const displaySubtext = showingOperator ? "Console" : user.email;
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -341,12 +354,12 @@ export function UserNav({
             >
               <Avatar
                 className="h-8 w-8 rounded-lg"
-                src={user.avatarUrl ?? undefined}
-                name={name}
+                src={displayAvatar ?? undefined}
+                name={displayName}
               />
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-semibold">{displayName}</span>
+                <span className="truncate text-xs">{displaySubtext}</span>
               </div>
               <LuChevronDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -357,88 +370,107 @@ export function UserNav({
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel>Signed in as {name}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to={path.to.accountSettings}>
-                <DropdownMenuIcon icon={<LuUser />} />
-                Account Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <DropdownMenuIcon icon={<LuBuilding />} />
-                Company
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <ScrollArea className="max-h-[300px]">
-                  {companyGroups.map((group, index) => (
-                    <div key={group.name}>
-                      {index > 0 && <DropdownMenuSeparator />}
-                      <DropdownMenuLabel>{group.name}</DropdownMenuLabel>
-                      <DropdownMenuRadioGroup value={company.companyId!}>
-                        {group.companies.map((c) => {
-                          const logo =
-                            mode === "dark" ? c.logoDarkIcon : c.logoLightIcon;
-                          return (
-                            <DropdownMenuRadioItem
-                              key={c.companyId}
-                              value={c.companyId!}
-                              onSelect={() => {
-                                const form = new FormData();
-                                form.append("companyId", c.companyId!);
-                                fetcher.submit(form, {
-                                  method: "post",
-                                  action: path.to.switchCompany(c.companyId!)
-                                });
-                              }}
-                            >
-                              <HStack>
-                                <Avatar
-                                  size="xs"
-                                  name={c.name ?? undefined}
-                                  src={logo ?? undefined}
-                                />
-                                <span>{c.name}</span>
-                              </HStack>
-                            </DropdownMenuRadioItem>
-                          );
-                        })}
-                      </DropdownMenuRadioGroup>
-                    </div>
-                  ))}
-                </ScrollArea>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            {locations.length > 1 ? (
+            {/* Console mode with pinned-in operator: simplified menu */}
+            {showingOperator ? (
               <>
+                <DropdownMenuLabel>{pinnedInUser.name}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => {
+                    fetcher.submit(null, {
+                      method: "POST",
+                      action: path.to.consolePinOut
+                    });
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuUsers />} />
+                  Switch Operator
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                  Station: {stationName}
+                </DropdownMenuLabel>
+              </>
+            ) : (
+              <>
+                <DropdownMenuLabel>
+                  Signed in as {stationName}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to={path.to.accountSettings}>
+                    <DropdownMenuIcon icon={<LuUser />} />
+                    Account Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
-                    <DropdownMenuIcon icon={<LuMapPin />} />
-                    Location
+                    <DropdownMenuIcon icon={<LuBuilding />} />
+                    Company
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <DropdownMenuRadioGroup value={optimisticLocation}>
-                      {locations.map((loc) => (
-                        <DropdownMenuRadioItem
-                          key={loc.id}
-                          value={loc.id}
-                          onSelect={() => {
-                            updateLocation(loc.id);
-                          }}
-                        >
-                          {loc.name}
-                        </DropdownMenuRadioItem>
-                      ))}
+                    <DropdownMenuRadioGroup value={company.companyId!}>
+                      {companies.map((c) => {
+                        const logo =
+                          mode === "dark" ? c.logoDarkIcon : c.logoLightIcon;
+                        return (
+                          <DropdownMenuRadioItem
+                            key={c.companyId}
+                            value={c.companyId!}
+                            onSelect={() => {
+                              const form = new FormData();
+                              form.append("companyId", c.companyId!);
+                              fetcher.submit(form, {
+                                method: "post",
+                                action: path.to.switchCompany(c.companyId!)
+                              });
+                            }}
+                          >
+                            <HStack>
+                              <Avatar
+                                size="xs"
+                                name={c.name ?? undefined}
+                                src={logo ?? undefined}
+                              />
+                              <span>{c.name}</span>
+                            </HStack>
+                          </DropdownMenuRadioItem>
+                        );
+                      })}
                     </DropdownMenuRadioGroup>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuSeparator />
+                {locations.length > 1 ? (
+                  <>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <DropdownMenuIcon icon={<LuMapPin />} />
+                        Location
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuRadioGroup value={optimisticLocation}>
+                          {locations.map((loc) => (
+                            <DropdownMenuRadioItem
+                              key={loc.id}
+                              value={loc.id}
+                              onSelect={() => {
+                                updateLocation(loc.id);
+                              }}
+                            >
+                              {loc.name}
+                            </DropdownMenuRadioItem>
+                          ))}
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
               </>
-            ) : null}
+            )}
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center justify-start">
@@ -474,21 +506,59 @@ export function UserNav({
                 </div>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {CONTROLLED_ENVIRONMENT && (
-              <DropdownMenuItem onClick={itarDisclosure.onOpen}>
-                <DropdownMenuIcon icon={<LuShieldCheck />} />
-                About
-              </DropdownMenuItem>
+            {!isOperatorPinnedIn && (
+              <>
+                {consoleEnabled && (
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center justify-start">
+                        <DropdownMenuIcon icon={<LuMonitor />} />
+                        Console Mode
+                      </div>
+                      <div>
+                        <Switch
+                          checked={consoleMode}
+                          onCheckedChange={() =>
+                            consoleSubmitRef.current?.click()
+                          }
+                        />
+                        <fetcher.Form
+                          action={path.to.consoleToggle}
+                          method="post"
+                          className="sr-only"
+                        >
+                          <input
+                            type="hidden"
+                            name="consoleMode"
+                            value={consoleMode ? "false" : "true"}
+                          />
+                          <button
+                            ref={consoleSubmitRef}
+                            className="sr-only"
+                            type="submit"
+                          />
+                        </fetcher.Form>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                {CONTROLLED_ENVIRONMENT && (
+                  <DropdownMenuItem onClick={itarDisclosure.onOpen}>
+                    <DropdownMenuIcon icon={<LuShieldCheck />} />
+                    About
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Form method="post" action={path.to.logout}>
+                    <button type="submit" className="w-full flex items-center">
+                      <DropdownMenuIcon icon={<LuLogOut />} />
+                      <span>Sign Out</span>
+                    </button>
+                  </Form>
+                </DropdownMenuItem>
+              </>
             )}
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <Form method="post" action={path.to.logout}>
-                <button type="submit" className="w-full flex items-center">
-                  <DropdownMenuIcon icon={<LuLogOut />} />
-                  <span>Sign Out</span>
-                </button>
-              </Form>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

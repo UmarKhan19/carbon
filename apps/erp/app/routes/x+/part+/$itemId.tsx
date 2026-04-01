@@ -273,7 +273,7 @@ export default function PartRoute() {
                                   module: "purchasing",
                                   children: purchaseOrderLines.map((po) => ({
                                     ...po,
-                                    methodType: "Buy"
+                                    methodType: "Purchase to Order"
                                   }))
                                 },
                                 {
@@ -282,7 +282,7 @@ export default function PartRoute() {
                                   module: "inventory",
                                   children: receiptLines.map((receipt) => ({
                                     ...receipt,
-                                    methodType: "Pick"
+                                    methodType: "Pull from Inventory"
                                   }))
                                 },
                                 {
@@ -419,7 +419,7 @@ export default function PartRoute() {
                                 module: "purchasing",
                                 children: purchaseOrderLines.map((po) => ({
                                   ...po,
-                                  methodType: "Buy"
+                                  methodType: "Purchase to Order"
                                 }))
                               },
                               {
@@ -428,7 +428,7 @@ export default function PartRoute() {
                                 module: "inventory",
                                 children: receiptLines.map((receipt) => ({
                                   ...receipt,
-                                  methodType: "Pick"
+                                  methodType: "Pull from Inventory"
                                 }))
                               },
                               {

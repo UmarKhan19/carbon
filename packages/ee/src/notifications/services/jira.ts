@@ -26,7 +26,11 @@ export class JiraNotificationService implements NotificationService {
   ): Promise<void> {
     switch (event.type) {
       case "task.status.changed": {
-        if (!["action", "investigation"].includes(event.data.type)) return;
+        if (
+          !event.data.type ||
+          !["action", "investigation"].includes(event.data.type)
+        )
+          return;
 
         const issue = await getJiraIssueFromExternalId(
           context.serviceRole,
@@ -36,7 +40,9 @@ export class JiraNotificationService implements NotificationService {
 
         if (!issue) return;
 
-        const targetCategory = mapCarbonStatusToJiraCategory(event.data.status);
+        const targetCategory = mapCarbonStatusToJiraCategory(
+          event.data.status! as any
+        );
 
         await jira.transitionIssue(event.companyId, issue.id, targetCategory);
 

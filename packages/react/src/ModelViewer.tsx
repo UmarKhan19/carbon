@@ -1,6 +1,7 @@
 import * as OV from "online-3d-viewer";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "react-aria-components";
+// @ts-expect-error -- three has no declaration file in this context
 import * as THREE from "three";
 import { useMount } from "./hooks";
 import { IconButton } from "./IconButton";
@@ -47,7 +48,7 @@ export function ModelViewer({
       setIsLoading(true);
 
       if (viewerRef.current === null) {
-        let viewer = new OV.EmbeddedViewer(parentDiv.current, {
+        let viewer = new OV.EmbeddedViewer(parentDiv.current!, {
           camera: new OV.Camera(
             new OV.Coord3D(100, 100, 100),
             new OV.Coord3D(0, 0, 0),
@@ -147,18 +148,18 @@ export function ModelViewer({
 
     return () => {
       if (viewerRef.current !== null && parentDiv.current !== null) {
-        delete viewerRef.current.model;
+        (viewerRef.current as any).model = undefined;
         viewerRef.current.viewer.renderer.resetState();
         viewerRef.current.viewer.Clear();
-        delete viewerRef.current.viewer;
+        (viewerRef.current as any).viewer = undefined;
         const gl = viewerRef.current.canvas.getContext("webgl2");
-        gl.getExtension("WEBGL_lose_context").loseContext();
+        gl?.getExtension("WEBGL_lose_context")?.loseContext();
         const tempClone = viewerRef.current.canvas.cloneNode(true);
-        viewerRef.current.canvas.parentNode.replaceChild(
+        viewerRef.current.canvas.parentNode?.replaceChild(
           tempClone,
           viewerRef.current.canvas
         );
-        parentDiv.current.removeChild(parentDiv.current?.children[0]!);
+        parentDiv.current.removeChild(parentDiv.current.children[0]!);
         viewerRef.current = null;
       }
     };
@@ -173,7 +174,9 @@ export function ModelViewer({
       parentDiv.current?.clientHeight
     );
 
-    const boundingSphere = viewer3D.GetBoundingSphere((meshUserData) => true);
+    const boundingSphere = viewer3D.GetBoundingSphere(
+      (_meshUserData: any) => true
+    );
     if (boundingSphere) {
       const center = boundingSphere.center;
       const radius = boundingSphere.radius;
@@ -212,9 +215,9 @@ export function ModelViewer({
     if (!viewerRef.current) return;
 
     const viewer3D = viewerRef.current.GetViewer();
-    viewer3D.mainModel.EnumerateMeshes((mesh) => {
+    viewer3D.mainModel.EnumerateMeshes((mesh: any) => {
       if (Array.isArray(mesh.material)) {
-        mesh.material.forEach((material) => {
+        mesh.material.forEach((material: any) => {
           if (material) {
             (material as THREE.MeshStandardMaterial).color.set(color);
           }

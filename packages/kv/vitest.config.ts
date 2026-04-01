@@ -1,15 +1,13 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
+import baseConfig from "@carbon/config/vitest";
 
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: "node",
-    include: ["src/**/*.test.ts"],
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
-      include: ["src/ratelimit/**/*.ts"],
-      exclude: ["src/**/*.test.ts", "src/**/index.ts"],
+export default mergeConfig(
+  baseConfig,
+  defineConfig({
+    test: {
+      coverage: {
+        include: ["src/ratelimit/**/*.ts"],
+      },
     },
-  },
-});
+  })
+);

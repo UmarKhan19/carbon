@@ -18,7 +18,7 @@ const onShapeDataValidator = z.object({
   name: z.string(),
   quantity: z.number(),
   replenishmentSystem: z.enum(["Make", "Buy", "Buy and Make"]),
-  defaultMethodType: z.enum(["Make", "Buy", "Pick"]),
+  defaultMethodType: z.enum(["Make to Order", "Purchase to Order", "Pull from Inventory"]),
   data: z.record(z.string(), z.any()),
 });
 
@@ -560,7 +560,7 @@ serve(async (req: Request) => {
               existingMakeMethod: existingMakeMethod ?? null,
             });
 
-            if (defaultMethodType === "Make" || isMade) {
+            if (defaultMethodType === "Make to Order" || isMade) {
               if (existingMakeMethod) {
                 if (existingMakeMethod.status === "Draft") {
                   // Draft - use existing make method directly

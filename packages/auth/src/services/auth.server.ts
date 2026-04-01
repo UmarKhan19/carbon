@@ -117,6 +117,46 @@ function makeAuthSession(
   };
 }
 
+/**
+ * Determines the effective user based on console mode and pin-in state.
+ * If console mode is on and an operator is pinned in, returns
+ * the operator's ID. Otherwise returns the session user's ID.
+ *
+ * Console mode is read from the auth session; pin-in state is
+ * still read from the `console-pin-{companyId}` cookie.
+ */
+function getEffectiveUser(
+  request: Request,
+  companyId: string,
+  sessionUserId: string,
+  consoleMode: boolean
+): string {
+  if (!consoleMode) return sessionUserId;
+
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) return sessionUserId;
+
+  // Parse only the pin-in cookie we need
+  const cookies = Object.fromEntries(
+    cookieHeader.split(";").map((c) => {
+      const [key, ...rest] = c.trim().split("=");
+      return [key, decodeURIComponent(rest.join("="))];
+    })
+  );
+
+  const pinRaw = cookies[`console-pin-${companyId}`];
+  if (!pinRaw) return sessionUserId;
+
+  try {
+    const pinIn = JSON.parse(pinRaw);
+    const elapsed = Date.now() - pinIn.pinnedAt;
+    if (elapsed > 3600000) return sessionUserId;
+    return pinIn.userId ?? sessionUserId;
+  } catch {
+    return sessionUserId;
+  }
+}
+
 export async function requirePermissions(
   request: Request,
   requiredPermissions: {
@@ -133,6 +173,8 @@ export async function requirePermissions(
   companyGroupId: string;
   email: string;
   userId: string;
+  sessionUserId: string;
+  consoleMode: boolean;
 }> {
   const apiKey = request.headers.get("carbon-key");
 
@@ -173,7 +215,6 @@ export async function requirePermissions(
       }
 
       // Update lastUsedAt (fire-and-forget)
-      // @ts-expect-error -- Supabase deep type instantiation on chained calls
       void serviceRole
         .from("apiKey")
         .update({ lastUsedAt: new Date().toISOString() } as any)
@@ -212,13 +253,17 @@ export async function requirePermissions(
         companyId,
         companyGroupId,
         userId,
-        email: ""
+        sessionUserId: userId,
+        email: "",
+        consoleMode: false
       };
     }
   }
 
   const { accessToken, companyId, companyGroupId, email, userId } =
     await requireAuthSession(request);
+  const authSession = await requireAuthSession(request);
+  const consoleMode = authSession.console === companyId;
 
   const myClaims = await getUserClaims(userId, companyId);
 
@@ -232,7 +277,9 @@ export async function requirePermissions(
       companyId,
       companyGroupId,
       email,
-      userId
+      userId: getEffectiveUser(request, companyId, userId, consoleMode),
+      sessionUserId: userId,
+      consoleMode
     };
   }
 
@@ -245,20 +292,21 @@ export async function requirePermissions(
         }
         if (!(permission in myClaims.permissions)) return false;
         const permissionForCompany =
-          myClaims.permissions[permission][
+          myClaims.permissions[permission]?.[
             action as "view" | "create" | "update" | "delete"
           ];
         return (
-          permissionForCompany.includes("0") || // 0 is the wildcard for all companies
-          permissionForCompany.includes(companyId)
+          permissionForCompany?.includes("0") || // 0 is the wildcard for all companies
+          permissionForCompany?.includes(companyId) ||
+          false
         );
       } else if (Array.isArray(permission)) {
         return permission.every((p) => {
           const permissionForCompany =
-            myClaims.permissions[p][
+            myClaims.permissions[p]?.[
               action as "view" | "create" | "update" | "delete"
             ];
-          return permissionForCompany.includes(companyId);
+          return permissionForCompany?.includes(companyId) ?? false;
         });
       } else {
         return false;
@@ -287,7 +335,9 @@ export async function requirePermissions(
     companyId,
     companyGroupId,
     email,
-    userId
+    userId: getEffectiveUser(request, companyId, userId, consoleMode),
+    sessionUserId: userId,
+    consoleMode
   };
 }
 
@@ -333,12 +383,12 @@ export async function signInWithEmail(email: string, password: string) {
   const { data: companyRecord } = await client
     .from("company")
     .select("companyGroupId")
-    .eq("id", companies?.[0])
+    .eq("id", companies?.[0] ?? "")
     .single();
 
   return makeAuthSession(
     data.session,
-    companies?.[0],
+    companies?.[0] ?? "",
     companyRecord?.companyGroupId ?? ""
   );
 }

@@ -81,7 +81,7 @@ const Editor = ({
   // the latest items without needing to be recreated
   const mentionItemsRef = useRef<MentionSuggestion[]>([]);
   if (mentions && mentions.length > 0) {
-    mentionItemsRef.current = mentions[0].items;
+    mentionItemsRef.current = mentions[0]!.items;
   }
 
   const uploadFn = useMemo(() => {
@@ -115,7 +115,7 @@ const Editor = ({
     if (!mentions || mentions.length === 0) return null;
     // Use the first mention config - if multiple are needed with different
     // trigger characters, this would need to be extended
-    const config = mentions[0];
+    const config = mentions[0]!;
     return createMentionExtension({
       name: "mention",
       char: config.char,
@@ -133,7 +133,7 @@ const Editor = ({
         suggestion: {
           items: () => suggestionItems,
           render: renderItems
-        }
+        } as any
       }),
       ...(mentionExtension ? [mentionExtension] : [])
     ],

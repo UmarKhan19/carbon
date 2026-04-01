@@ -468,6 +468,7 @@ export const PurchaseOrderSchema = z.object({
   supplierExternalId: withNullable(z.string()), // Xero ContactID for the supplier
   status: z.enum([
     "Draft",
+    "Needs Approval",
     "To Review",
     "Rejected",
     "To Receive",
@@ -489,6 +490,27 @@ export const PurchaseOrderSchema = z.object({
   supplierReference: withNullable(z.string()),
   lines: z.array(PurchaseOrderLineSchema),
   updatedAt: z.string().datetime(),
+  raw: z.record(z.any()).optional()
+});
+
+// ============================================================================
+// ITEM (Carbon item synced to accounting system)
+// ============================================================================
+
+export const ItemSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+  name: z.string(),
+  description: withNullable(z.string()),
+  companyId: z.string(),
+  type: z.enum(["Part", "Material", "Tool", "Consumable", "Fixture"]),
+  unitOfMeasureCode: withNullable(z.string()),
+  unitCost: z.number(),
+  unitSalePrice: z.number(),
+  isPurchased: z.boolean(),
+  isSold: z.boolean(),
+  isTrackedAsInventory: z.boolean(),
+  updatedAt: z.string(),
   raw: z.record(z.any()).optional()
 });
 

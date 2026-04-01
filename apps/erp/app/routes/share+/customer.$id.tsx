@@ -282,7 +282,7 @@ export default function CustomerPortal() {
         cell: ({ row }) =>
           row.original?.jobProductionQuantity ? (
             <div className="flex items-center gap-1.5">
-              <MethodIcon type="Make" />
+              <MethodIcon type="Make to Order" />
               <span>
                 {`${formatter.format(
                   row.original.jobQuantityComplete
@@ -291,7 +291,7 @@ export default function CustomerPortal() {
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
-              <MethodIcon type="Pick" />
+              <MethodIcon type="Pull from Inventory" />
               <span>{formatter.format(row.original.saleQuantity ?? 0)}</span>
             </div>
           )

@@ -8,6 +8,7 @@
  *   npm run db:seed:dev -- --email your@email.com
  */
 
+import process from "node:process";
 import { parseArgs } from "node:util";
 import { createClient } from "@supabase/supabase-js";
 import * as dotenv from "dotenv";
@@ -44,9 +45,9 @@ const DEV_COMPANY_NAME = "Carbon Development";
  * takes the first segment, and capitalizes it.
  */
 function inferFirstNameFromEmail(email: string): string {
-  const localPart = email.split("@")[0];
+  const localPart = email.split("@")[0]!;
   // Split on common delimiters and take the first part
-  const firstName = localPart.split(/[.+_-]/)[0];
+  const firstName = localPart.split(/[.+_-]/)[0]!;
   // Capitalize first letter, lowercase the rest
   return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 }
@@ -112,7 +113,9 @@ async function seedDev() {
     // Step 1: Check if user already exists (via Supabase Auth API - cannot be in transaction)
     console.log("1. Checking for existing user...");
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find((u) => u.email === email);
+    const existingUser = existingUsers?.users?.find(
+      (u: any) => u.email === (email ?? "")
+    );
 
     let userId: string;
 
@@ -160,7 +163,7 @@ async function seedDev() {
     }
 
     // Step 2: Update user's first name (inferred from email)
-    const firstName = inferFirstNameFromEmail(email);
+    const firstName = inferFirstNameFromEmail(email ?? "");
     console.log(`2. Updating user first name to "${firstName}"...`);
     await client.query(`UPDATE "user" SET "firstName" = $1 WHERE id = $2`, [
       firstName,
@@ -516,8 +519,8 @@ async function seedDev() {
         finalPermissions = { ...currentPerms };
         for (const [key, value] of Object.entries(newPermissions)) {
           if (key in finalPermissions) {
-            if (!finalPermissions[key].includes(companyId)) {
-              finalPermissions[key].push(companyId);
+            if (!finalPermissions[key]!.includes(companyId)) {
+              finalPermissions[key]!.push(companyId);
             }
           } else {
             finalPermissions[key] = value;

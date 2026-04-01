@@ -25,7 +25,6 @@ import {
   Employee,
   Hidden,
   Input,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Submit
 } from "~/components/Form";

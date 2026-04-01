@@ -90,25 +90,25 @@ export async function updatePermissions(
           permission.view &&
           !updatedPermissions[`${module}_view`]?.includes(companyId)
         ) {
-          updatedPermissions[`${module}_view`].push(companyId);
+          updatedPermissions[`${module}_view`]!.push(companyId);
         }
         if (
           permission.create &&
           !updatedPermissions[`${module}_create`]?.includes(companyId)
         ) {
-          updatedPermissions[`${module}_create`].push(companyId);
+          updatedPermissions[`${module}_create`]!.push(companyId);
         }
         if (
           permission.update &&
           !updatedPermissions[`${module}_update`]?.includes(companyId)
         ) {
-          updatedPermissions[`${module}_update`].push(companyId);
+          updatedPermissions[`${module}_update`]!.push(companyId);
         }
         if (
           permission.delete &&
           !updatedPermissions[`${module}_delete`]?.includes(companyId)
         ) {
-          updatedPermissions[`${module}_delete`].push(companyId);
+          updatedPermissions[`${module}_delete`]!.push(companyId);
         }
       });
     } else {
@@ -117,7 +117,7 @@ export async function updatePermissions(
         if (permission.view) {
           if (!updatedPermissions[`${module}_view`]?.includes(companyId)) {
             updatedPermissions[`${module}_view`] = [
-              ...updatedPermissions[`${module}_view`],
+              ...(updatedPermissions[`${module}_view`] ?? []),
               companyId,
             ];
           }
@@ -130,7 +130,7 @@ export async function updatePermissions(
         if (permission.create) {
           if (!updatedPermissions[`${module}_create`]?.includes(companyId)) {
             updatedPermissions[`${module}_create`] = [
-              ...updatedPermissions[`${module}_create`],
+              ...(updatedPermissions[`${module}_create`] ?? []),
               companyId,
             ];
           }
@@ -143,7 +143,7 @@ export async function updatePermissions(
         if (permission.update) {
           if (!updatedPermissions[`${module}_update`]?.includes(companyId)) {
             updatedPermissions[`${module}_update`] = [
-              ...updatedPermissions[`${module}_update`],
+              ...(updatedPermissions[`${module}_update`] ?? []),
               companyId,
             ];
           }
@@ -156,7 +156,7 @@ export async function updatePermissions(
         if (permission.delete) {
           if (!updatedPermissions[`${module}_delete`]?.includes(companyId)) {
             updatedPermissions[`${module}_delete`] = [
-              ...updatedPermissions[`${module}_delete`],
+              ...(updatedPermissions[`${module}_delete`] ?? []),
               companyId,
             ];
           }

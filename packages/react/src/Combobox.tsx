@@ -205,7 +205,7 @@ function VirtualizedCommand({
           }}
         >
           {items.map((virtualRow) => {
-            const item = filteredOptions[virtualRow.index];
+            const item = filteredOptions[virtualRow.index]!;
             const itemValue =
               typeof item.label === "string"
                 ? CSS.escape(item.label) + CSS.escape(item.helper ?? "")

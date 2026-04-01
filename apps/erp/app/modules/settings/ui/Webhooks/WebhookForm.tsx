@@ -1,4 +1,3 @@
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Boolean, Input, Select, ValidatedForm } from "@carbon/form";
 import {
   Badge,

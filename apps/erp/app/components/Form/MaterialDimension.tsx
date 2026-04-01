@@ -21,7 +21,7 @@ type MaterialDimensionSelectProps = Omit<
 
 const MaterialDimensionPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const dimension = options.find((o) => o.value === value);
   if (!dimension) return null;
@@ -61,7 +61,9 @@ const MaterialDimension = (props: MaterialDimensionSelectProps) => {
     }));
   }, [materialDimensionsLoader.data?.data]);
 
-  const onChange = (newValue: { label: string; value: string } | null) => {
+  const onChange = (
+    newValue: { label: string | JSX.Element; value: string } | null
+  ) => {
     const dimension =
       materialDimensionsLoader.data?.data?.find(
         (dimension) => dimension.id === newValue?.value

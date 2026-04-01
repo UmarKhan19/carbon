@@ -542,7 +542,7 @@ function RelatedItemLink({
   const getIcon = () => {
     switch (nodeType) {
       case "jobs":
-        return <MethodIcon type="Make" />;
+        return <MethodIcon type="Make to Order" />;
       case "shipments":
         return <LuTruck className="text-indigo-600" />;
       default:

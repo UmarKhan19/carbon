@@ -45,6 +45,7 @@ import {
   LuLock,
   LuSettings2,
   LuSquareFunction,
+  LuTruck,
   LuX
 } from "react-icons/lu";
 import {
@@ -55,7 +56,12 @@ import {
   useSearchParams
 } from "react-router";
 import type { z } from "zod";
-import { MethodIcon, MethodItemTypeIcon, TrackingTypeIcon } from "~/components";
+import {
+  MethodIcon,
+  MethodItemTypeIcon,
+  SourcingTypeIcon,
+  TrackingTypeIcon
+} from "~/components";
 import { ConfigurationEditor } from "~/components/Configurator/ConfigurationEditor";
 import type { Configuration } from "~/components/Configurator/types";
 import {
@@ -63,7 +69,6 @@ import {
   Hidden,
   Item,
   Location,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select,
   Shelf,
@@ -78,8 +83,12 @@ import type {
 } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import { usePermissions, useUrlParams, useUser } from "~/hooks";
-import type { MethodItemType, MethodType } from "~/modules/shared";
-import { methodType } from "~/modules/shared";
+import type {
+  MethodItemType,
+  MethodType,
+  SourcingType
+} from "~/modules/shared";
+import { methodType, sourcingType } from "~/modules/shared";
 
 import type { Item as ItemType } from "~/stores";
 import { useItems } from "~/stores";
@@ -115,6 +124,7 @@ type BillOfMaterialProps = {
   operations: Operation[];
   parameters?: ConfigurationParameter[];
   configurationRules?: ConfigurationRule[];
+  replenishmentSystem?: string;
 };
 
 type OrderState = {
@@ -135,7 +145,8 @@ const initialMethodMaterial: Omit<Material, "makeMethodId" | "order"> & {
   itemId: "",
   // @ts-expect-error
   itemType: "Item" as const,
-  methodType: "Buy" as const,
+  methodType: "Purchase to Order" as const,
+  sourcingType: "Specified" as const,
   description: "",
   quantity: 1,
   unitOfMeasureCode: "EA",
@@ -148,7 +159,8 @@ const BillOfMaterial = ({
   makeMethod,
   materials: initialMaterials,
   operations,
-  parameters
+  parameters,
+  replenishmentSystem
 }: BillOfMaterialProps) => {
   const permissions = usePermissions();
   const isReadOnly =
@@ -217,7 +229,8 @@ const BillOfMaterial = ({
     Array.from(materialsById.values()),
     orderState,
     checkedState,
-    rulesByField
+    rulesByField,
+    replenishmentSystem
   ).sort((a, b) => a.data.order - b.data.order);
 
   const onToggleItem = (id: string) => {
@@ -446,6 +459,7 @@ const BillOfMaterial = ({
                             temporaryItems={temporaryItems}
                             rulesByField={rulesByField}
                             onConfigure={onConfigure}
+                            replenishmentSystem={replenishmentSystem}
                             setOrderState={setOrderState}
                             setSelectedItemId={setSelectedItemId}
                             setTemporaryItems={setTemporaryItems}
@@ -566,6 +580,7 @@ function MaterialForm({
   temporaryItems,
   rulesByField,
   onConfigure,
+  replenishmentSystem,
   setOrderState,
   setSelectedItemId,
   setTemporaryItems,
@@ -578,6 +593,7 @@ function MaterialForm({
   orderState: OrderState;
   temporaryItems: TemporaryItems;
   rulesByField: Map<string, ConfigurationRule>;
+  replenishmentSystem?: string;
   setSelectedItemId: Dispatch<SetStateAction<string | null>>;
   setTemporaryItems: Dispatch<SetStateAction<TemporaryItems>>;
   setOrderState: Dispatch<SetStateAction<OrderState>>;
@@ -609,6 +625,7 @@ function MaterialForm({
   const sourceDisclosure = useDisclosure({
     defaultIsOpen: true
   });
+  const sourcingDisclosure = useDisclosure();
   const backflushDisclosure = useDisclosure();
 
   useEffect(() => {
@@ -631,6 +648,7 @@ function MaterialForm({
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: MethodType;
+    sourcingType: SourcingType;
     description: string;
     unitOfMeasureCode: string;
     methodOperationId: string | undefined;
@@ -639,7 +657,8 @@ function MaterialForm({
     shelfIds: Record<string, string>;
   }>({
     itemId: item.data.itemId ?? "",
-    methodType: item.data.methodType ?? "Buy",
+    methodType: item.data.methodType ?? "Pull from Inventory",
+    sourcingType: item.data.sourcingType ?? "Specified",
     description: item.data.description ?? "",
     unitOfMeasureCode: item.data.unitOfMeasureCode ?? "EA",
     methodOperationId: item.data.methodOperationId ?? undefined,
@@ -654,7 +673,8 @@ function MaterialForm({
 
     setItemData({
       itemId: "",
-      methodType: "" as "Buy",
+      methodType: "" as "Pull from Inventory",
+      sourcingType: "Specified",
       quantity: 1,
       description: "",
       unitOfMeasureCode: "EA",
@@ -690,7 +710,7 @@ function MaterialForm({
       itemId,
       description: item.data?.name ?? "",
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Buy",
+      methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
       kit: false
     }));
     if (item.data?.type) {
@@ -721,6 +741,9 @@ function MaterialForm({
         <Hidden name="order" />
         <Hidden name="kit" value={itemData.kit.toString()} />
         <Hidden name="shelfIds" value={JSON.stringify(itemData.shelfIds)} />
+        {replenishmentSystem !== "Buy and Make" && (
+          <Hidden name="sourcingType" value={itemData.sourcingType} />
+        )}
       </div>
 
       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
@@ -798,13 +821,87 @@ function MaterialForm({
           }
         />
       </div>
+      {replenishmentSystem === "Buy and Make" && (
+        <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
+          <HStack
+            className="w-full justify-between cursor-pointer"
+            onClick={sourcingDisclosure.onToggle}
+          >
+            <HStack>
+              <LuTruck className="text-foreground" />
+              <Label>Sourcing</Label>
+            </HStack>
+            <HStack>
+              <Badge variant="secondary">
+                <SourcingTypeIcon
+                  type={itemData.sourcingType}
+                  className="size-3 mr-1"
+                />
+                {itemData.sourcingType}
+              </Badge>
+              <IconButton
+                icon={<LuChevronRight />}
+                aria-label={
+                  sourcingDisclosure.isOpen
+                    ? "Collapse Sourcing"
+                    : "Expand Sourcing"
+                }
+                variant="ghost"
+                size="md"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  sourcingDisclosure.onToggle();
+                }}
+                className={`transition-transform ${
+                  sourcingDisclosure.isOpen ? "rotate-90" : ""
+                }`}
+              />
+            </HStack>
+          </HStack>
+          <div
+            className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
+              sourcingDisclosure.isOpen ? "" : "hidden"
+            }`}
+          >
+            <Select
+              name="sourcingType"
+              label="Sourcing Type"
+              value={itemData.sourcingType}
+              options={sourcingType.map((s) => ({
+                value: s,
+                label: (
+                  <span className="flex items-center gap-2">
+                    <SourcingTypeIcon type={s} />
+                    {s}
+                  </span>
+                )
+              }))}
+              onChange={(value) => {
+                const newSourcingType = value?.value as SourcingType;
+                setItemData((d) => {
+                  const updates: Partial<typeof d> = {
+                    sourcingType: newSourcingType
+                  };
+                  if (newSourcingType === "Drop Ship") {
+                    updates.methodType = "Purchase to Order";
+                  } else if (newSourcingType === "Ship from Inventory") {
+                    updates.methodType = "Pull from Inventory";
+                  }
+                  return { ...d, ...updates };
+                });
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
         <HStack
           className="w-full justify-between cursor-pointer"
           onClick={sourceDisclosure.onToggle}
         >
           <HStack>
-            {itemData.methodType === "Make" ? (
+            {itemData.methodType === "Make to Order" ? (
               <>
                 <LuGitPullRequestCreate />
                 <Label>Finish To</Label>
@@ -822,14 +919,20 @@ function MaterialForm({
               {itemData.methodType}
             </Badge>
             <LuArrowLeft
-              className={cn(itemData.methodType !== "Pick" ? "rotate-180" : "")}
+              className={cn(
+                itemData.methodType !== "Pull from Inventory"
+                  ? "rotate-180"
+                  : ""
+              )}
             />
             <Badge variant="secondary">
               <LuGitPullRequest className="size-3 mr-1" />
               {shelves.options?.find(
                 (s) => s.value === itemData.shelfIds[locationId ?? ""]
               )?.label ??
-                (itemData.methodType === "Make" ? "WIP" : "Default Shelf")}
+                (itemData.methodType === "Make to Order"
+                  ? "WIP"
+                  : "Default Shelf")}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -985,11 +1088,13 @@ function MaterialForm({
           layout
           className="flex items-center justify-between gap-2 w-full"
         >
-          {itemData.methodType === "Make" ? (
+          {itemData.methodType === "Make to Order" ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  leftIcon={<MethodIcon type={"Make"} isKit={itemData.kit} />}
+                  leftIcon={
+                    <MethodIcon type={"Make to Order"} isKit={itemData.kit} />
+                  }
                   variant="secondary"
                   size="sm"
                   rightIcon={<LuChevronDown />}
@@ -1037,14 +1142,22 @@ function makeItems(
   materials: Material[],
   orderState: OrderState,
   checkedState: CheckedState,
-  rulesByField?: Map<string, ConfigurationRule>
+  rulesByField?: Map<string, ConfigurationRule>,
+  replenishmentSystem?: string
 ): ItemWithData[] {
   return materials.map((material) => {
     const order = material.id
       ? (orderState[material.id] ?? material.order)
       : material.order;
     const checked = material.id ? (checkedState[material.id] ?? false) : false;
-    return makeItem(items, material, order, checked, rulesByField);
+    return makeItem(
+      items,
+      material,
+      order,
+      checked,
+      rulesByField,
+      replenishmentSystem
+    );
   });
 }
 
@@ -1064,7 +1177,8 @@ function makeItem(
   material: Material,
   order: number,
   checked: boolean,
-  rulesByField?: Map<string, ConfigurationRule>
+  rulesByField?: Map<string, ConfigurationRule>,
+  replenishmentSystem?: string
 ): ItemWithData {
   const hasRules = material.id
     ? materialHasRules(material.id, rulesByField)
@@ -1125,6 +1239,17 @@ function makeItem(
           </TooltipTrigger>
           <TooltipContent>{material.methodType}</TooltipContent>
         </Tooltip>
+
+        {replenishmentSystem === "Buy and Make" && (
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant="secondary">
+                <SourcingTypeIcon type={material.sourcingType} />
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>{material.sourcingType}</TooltipContent>
+          </Tooltip>
+        )}
 
         <Badge variant="secondary">{material.quantity}</Badge>
 

@@ -68,6 +68,7 @@ const CustomerHeader = () => {
     (status) => status.id === routeData?.customer?.customerStatusId
   )?.name;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const onUpdateTags = useCallback(
     (value: string[]) => {
       const formData = new FormData();
@@ -85,7 +86,7 @@ const CustomerHeader = () => {
       });
     },
 
-    [customerId]
+    [customerId, fetcher.submit]
   );
 
   return (

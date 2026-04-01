@@ -69,7 +69,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .from("quoteMaterial")
       .select("id, itemId, unitCost")
       .eq("quoteLineId", lineId)
-      .eq("methodType", "Buy");
+      .eq("methodType", "Purchase to Order");
 
     const buyItemIds = [
       ...new Set((buyMaterials.data ?? []).map((m) => m.itemId))

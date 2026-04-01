@@ -36,7 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const endDate = searchParams.get("endDate") || null;
 
   const chartOfAccounts = await getChartOfAccounts(client, companyGroupId, {
-    incomeBalance,
+    incomeBalance: incomeBalance as "Income Statement" | "Balance Sheet" | null,
     startDate,
     endDate
   });

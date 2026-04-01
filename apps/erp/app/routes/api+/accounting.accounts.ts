@@ -16,8 +16,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const result = await getAccountsList(client, companyGroupId, {
     isGroup,
-    incomeBalance,
-    classes
+    incomeBalance: incomeBalance as "Balance Sheet" | "Income Statement" | null,
+    classes: classes as (
+      | "Asset"
+      | "Equity"
+      | "Expense"
+      | "Liability"
+      | "Revenue"
+    )[]
   });
 
   return result;
