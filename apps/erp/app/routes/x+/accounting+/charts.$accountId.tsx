@@ -3,14 +3,18 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, redirect, useLoaderData } from "react-router";
+import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
   accountValidator,
   getAccount,
   getGroupAccounts,
+  groupAccountValidator,
   upsertAccount
 } from "~/modules/accounting";
-import { ChartOfAccountForm } from "~/modules/accounting/ui/ChartOfAccounts";
+import {
+  ChartOfAccountForm,
+  GroupAccountForm
+} from "~/modules/accounting/ui/ChartOfAccounts";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 
@@ -41,6 +45,46 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "group") {
+    const validation = await validator(groupAccountValidator).validate(
+      formData
+    );
+
+    if (validation.error) {
+      return validationError(validation.error);
+    }
+
+    const { id, ...d } = validation.data;
+    if (!id) throw new Error("id not found");
+
+    const updateAccount = await upsertAccount(client, {
+      id,
+      ...d,
+      number: null,
+      isGroup: true,
+      consolidatedRate: "Average",
+      parentId: d.parentId || null,
+      updatedBy: userId
+    });
+
+    if (updateAccount.error) {
+      return data(
+        {},
+        await flash(
+          request,
+          error(updateAccount.error, "Failed to update group")
+        )
+      );
+    }
+
+    throw redirect(
+      path.to.chartOfAccounts,
+      await flash(request, success("Updated group"))
+    );
+  }
+
   const validation = await validator(accountValidator).validate(formData);
 
   if (validation.error) {
@@ -76,6 +120,28 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function EditChartOfAccountsRoute() {
   const { account, groupAccounts } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const onClose = () => navigate(path.to.chartOfAccounts);
+
+  if (account?.isGroup) {
+    const groupInitialValues = {
+      id: account.id,
+      name: account.name ?? "",
+      parentId: account.parentId ?? undefined,
+      accountType: account.accountType ?? undefined,
+      class: account.class ?? "Asset",
+      incomeBalance: account.incomeBalance ?? "Balance Sheet"
+    };
+
+    return (
+      <GroupAccountForm
+        key={account.id}
+        initialValues={groupInitialValues}
+        groupAccounts={groupAccounts}
+        onClose={onClose}
+      />
+    );
+  }
 
   const initialValues = {
     id: account?.id ?? undefined,
@@ -95,6 +161,7 @@ export default function EditChartOfAccountsRoute() {
       key={initialValues.id}
       initialValues={initialValues}
       groupAccounts={groupAccounts}
+      onClose={onClose}
     />
   );
 }

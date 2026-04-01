@@ -65,6 +65,59 @@ export const accountClassTypes = [
   "Expense"
 ] as const;
 
+export const groupAccountValidator = z
+  .object({
+    id: zfd.text(z.string().optional()),
+    name: z.string().min(1, { message: "Name is required" }),
+    parentId: zfd.text(z.string().optional()),
+    accountType: z
+      .enum(accountTypes, {
+        errorMap: () => ({
+          message: "Account type is required"
+        })
+      })
+      .optional(),
+    incomeBalance: z.enum(incomeBalanceTypes, {
+      errorMap: () => ({
+        message: "Income balance is required"
+      })
+    }),
+    class: z.enum(accountClassTypes, {
+      errorMap: () => ({
+        message: "Class is required"
+      })
+    })
+  })
+  .refine(
+    (data) => {
+      if (["Asset", "Liability", "Equity"].includes(data.class)) {
+        return data.incomeBalance === "Balance Sheet";
+      }
+      return true;
+    },
+    {
+      message: "Asset, Liability and Equity are Balance Sheet accounts",
+      path: ["class"]
+    }
+  )
+  .refine(
+    (data) => {
+      if (["Revenue", "Expense"].includes(data.class)) {
+        return data.incomeBalance === "Income Statement";
+      }
+      return true;
+    },
+    {
+      message: "Revenue and Expense are Income Statement accounts",
+      path: ["class"]
+    }
+  );
+
+export const moveAccountValidator = z.object({
+  id: z.string().min(1),
+  parentId: zfd.text(z.string().optional())
+});
+
 export const accountValidator = z
   .object({
     id: zfd.text(z.string().optional()),

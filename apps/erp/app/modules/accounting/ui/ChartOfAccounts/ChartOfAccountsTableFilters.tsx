@@ -88,7 +88,10 @@ const ChartOfAccountsTableFilters = () => {
       </HStack>
       <HStack>
         {permissions.can("create", "accounting") && (
-          <New label="Account" to={`new?${params.toString()}`} />
+          <>
+            <New label="Group" to={`new-group?${params.toString()}`} />
+            <New label="Account" to={`new?${params.toString()}`} />
+          </>
         )}
       </HStack>
     </div>

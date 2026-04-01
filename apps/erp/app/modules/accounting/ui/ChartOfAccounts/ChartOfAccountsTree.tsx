@@ -1,13 +1,24 @@
-import { Button, cn, ScrollArea } from "@carbon/react";
+import {
+  cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  ScrollArea
+} from "@carbon/react";
 import { memo, useMemo, useRef } from "react";
 import {
   LuChevronDown,
   LuChevronRight,
+  LuEllipsisVertical,
   LuFilePlus,
   LuFolder,
-  LuFolderOpen
+  LuFolderOpen,
+  LuFolderPlus,
+  LuPencil,
+  LuTrash2
 } from "react-icons/lu";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import type { FlatTree, FlatTreeItem } from "~/components/TreeView";
 import { LevelLine, TreeView, useTree } from "~/components/TreeView";
 import { useRealtime } from "~/hooks";
@@ -28,8 +39,13 @@ function accountsToFlatTree(accounts: Chart[]): FlatTree<Chart> {
   const result: FlatTreeItem<Chart>[] = [];
 
   function walk(parentId: string | null, level: number) {
-    const children = (byParent.get(parentId ?? "__root__") ?? []).sort((a, b) =>
-      (a.name ?? "").localeCompare(b.name ?? "")
+    const children = (byParent.get(parentId ?? "__root__") ?? []).sort(
+      (a, b) => {
+        const aIsGroup = a.isGroup ? 1 : 0;
+        const bIsGroup = b.isGroup ? 1 : 0;
+        if (aIsGroup !== bIsGroup) return aIsGroup - bIsGroup;
+        return (a.name ?? "").localeCompare(b.name ?? "");
+      }
     );
     for (const account of children) {
       const childAccounts = byParent.get(account.id) ?? [];
@@ -169,22 +185,66 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
                 {formatCurrency(account.balance ?? 0)}
               </span>
 
-              {/* Add child (groups only) */}
-              {isGroup && (
-                <Button
-                  asChild
-                  isIcon
-                  variant="ghost"
-                  size="sm"
-                  className="ml-1 shrink-0 opacity-0 group-hover/row:opacity-100"
-                  aria-label="Add child account"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Link to={`new?parentId=${account.id}`}>
-                    <LuFilePlus className="h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-              )}
+              {/* Actions menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="ml-1 shrink-0 rounded-md p-1 opacity-0 transition-opacity hover:bg-accent group-hover/row:opacity-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <LuEllipsisVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {isGroup ? (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => navigate(account.id as string)}
+                      >
+                        <LuPencil className="mr-2 h-4 w-4" />
+                        Edit Group
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          navigate(`new-group?parentId=${account.id}`)
+                        }
+                      >
+                        <LuFolderPlus className="mr-2 h-4 w-4" />
+                        Add Group
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => navigate(`new?parentId=${account.id}`)}
+                      >
+                        <LuFilePlus className="mr-2 h-4 w-4" />
+                        Add Account
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => navigate(`delete/${account.id}`)}
+                      >
+                        <LuTrash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => navigate(account.id as string)}
+                      >
+                        <LuPencil className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => navigate(`delete/${account.id}`)}
+                      >
+                        <LuTrash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           );
         }}

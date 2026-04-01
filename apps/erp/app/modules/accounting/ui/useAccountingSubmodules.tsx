@@ -20,12 +20,6 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
     name: "Reports",
     routes: [
       {
-        name: "Trial Balance",
-        to: path.to.trialBalance,
-        role: "employee",
-        icon: <LuFileSpreadsheet />
-      },
-      {
         name: "Balance Sheet",
         to: path.to.balanceSheet,
         role: "employee",
@@ -36,6 +30,12 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
         to: path.to.incomeStatement,
         role: "employee",
         icon: <LuTrendingUp />
+      },
+      {
+        name: "Trial Balance",
+        to: path.to.trialBalance,
+        role: "employee",
+        icon: <LuFileSpreadsheet />
       }
     ]
   },

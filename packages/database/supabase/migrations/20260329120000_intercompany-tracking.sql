@@ -125,7 +125,7 @@ BEGIN
 
   -- For each sibling (non-elimination) company in the group
   FOR v_sibling IN
-    SELECT c."id", c."name", c."taxId"
+    SELECT c."id", c."name"
     FROM "company" c
     WHERE c."companyGroupId" = v_group_id
       AND c."id" != NEW."id"
@@ -133,23 +133,23 @@ BEGIN
       AND c."active" = true
   LOOP
     -- Create customer in sibling for this company
-    INSERT INTO "customer" ("name", "companyId", "taxId", "intercompanyCompanyId")
-    VALUES (NEW."name", v_sibling."id", NEW."taxId", NEW."id")
+    INSERT INTO "customer" ("name", "companyId", "intercompanyCompanyId")
+    VALUES (NEW."name", v_sibling."id", NEW."id")
     ON CONFLICT DO NOTHING;
 
     -- Create supplier in sibling for this company
-    INSERT INTO "supplier" ("name", "companyId", "taxId", "intercompanyCompanyId")
-    VALUES (NEW."name", v_sibling."id", NEW."taxId", NEW."id")
+    INSERT INTO "supplier" ("name", "companyId", "intercompanyCompanyId")
+    VALUES (NEW."name", v_sibling."id", NEW."id")
     ON CONFLICT DO NOTHING;
 
     -- Create customer in this company for the sibling
-    INSERT INTO "customer" ("name", "companyId", "taxId", "intercompanyCompanyId")
-    VALUES (v_sibling."name", NEW."id", v_sibling."taxId", v_sibling."id")
+    INSERT INTO "customer" ("name", "companyId", "intercompanyCompanyId")
+    VALUES (v_sibling."name", NEW."id", v_sibling."id")
     ON CONFLICT DO NOTHING;
 
     -- Create supplier in this company for the sibling
-    INSERT INTO "supplier" ("name", "companyId", "taxId", "intercompanyCompanyId")
-    VALUES (v_sibling."name", NEW."id", v_sibling."taxId", v_sibling."id")
+    INSERT INTO "supplier" ("name", "companyId", "intercompanyCompanyId")
+    VALUES (v_sibling."name", NEW."id", v_sibling."id")
     ON CONFLICT DO NOTHING;
   END LOOP;
 
@@ -170,13 +170,13 @@ SECURITY INVOKER
 SET search_path = public
 AS $$
 BEGIN
-  IF NEW."name" IS DISTINCT FROM OLD."name" OR NEW."taxId" IS DISTINCT FROM OLD."taxId" THEN
+  IF NEW."name" IS DISTINCT FROM OLD."name" THEN
     UPDATE "customer"
-    SET "name" = NEW."name", "taxId" = NEW."taxId"
+    SET "name" = NEW."name"
     WHERE "intercompanyCompanyId" = NEW."id";
 
     UPDATE "supplier"
-    SET "name" = NEW."name", "taxId" = NEW."taxId"
+    SET "name" = NEW."name"
     WHERE "intercompanyCompanyId" = NEW."id";
   END IF;
 
@@ -185,7 +185,7 @@ END;
 $$;
 
 CREATE TRIGGER "company_sync_ic_partner_details"
-  AFTER UPDATE OF "name", "taxId" ON "company"
+  AFTER UPDATE OF "name" ON "company"
   FOR EACH ROW
   EXECUTE FUNCTION "sync_intercompany_partner_details"();
 

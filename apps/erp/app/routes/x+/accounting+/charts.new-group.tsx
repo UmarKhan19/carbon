@@ -10,15 +10,13 @@ import {
   useNavigate,
   useSearchParams
 } from "react-router";
-
 import type { AccountClass, AccountIncomeBalance } from "~/modules/accounting";
 import {
-  accountValidator,
   getGroupAccounts,
+  groupAccountValidator,
   upsertAccount
 } from "~/modules/accounting";
-import { ChartOfAccountForm } from "~/modules/accounting/ui/ChartOfAccounts";
-import { setCustomFields } from "~/utils/form";
+import { GroupAccountForm } from "~/modules/accounting/ui/ChartOfAccounts";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -40,47 +38,38 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
-  const validation = await validator(accountValidator).validate(formData);
+  const validation = await validator(groupAccountValidator).validate(formData);
 
   if (validation.error) {
     return validationError(validation.error);
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { id, ...d } = validation.data;
+  const { id: _, ...d } = validation.data;
 
   const insertAccount = await upsertAccount(client, {
     ...d,
+    number: null,
+    isGroup: true,
+    consolidatedRate: "Average",
     parentId: d.parentId || null,
     companyGroupId,
-    customFields: setCustomFields(formData),
     createdBy: userId
   });
+
   if (insertAccount.error) {
     return data(
       {},
-      await flash(
-        request,
-        error(insertAccount.error, "Failed to insert account")
-      )
-    );
-  }
-
-  const accountId = insertAccount.data?.id;
-  if (!accountId) {
-    return data(
-      {},
-      await flash(request, error(insertAccount, "Failed to insert account"))
+      await flash(request, error(insertAccount.error, "Failed to create group"))
     );
   }
 
   throw redirect(
     path.to.chartOfAccounts,
-    await flash(request, success("Account created"))
+    await flash(request, success("Group created"))
   );
 }
 
-export default function NewAccountRoute() {
+export default function NewGroupAccountRoute() {
   const { groupAccounts } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -88,17 +77,13 @@ export default function NewAccountRoute() {
 
   const initialValues = {
     name: "",
-    number: "",
     parentId,
-    isGroup: false,
-    accountType: undefined,
     class: "Asset" as AccountClass,
-    incomeBalance: "Balance Sheet" as AccountIncomeBalance,
-    consolidatedRate: "Average" as const
+    incomeBalance: "Balance Sheet" as AccountIncomeBalance
   };
 
   return (
-    <ChartOfAccountForm
+    <GroupAccountForm
       initialValues={initialValues}
       groupAccounts={groupAccounts}
       onClose={() => navigate(path.to.chartOfAccounts)}

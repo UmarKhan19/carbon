@@ -35,8 +35,13 @@ function accountsToFlatTree(
   const result: FlatTreeItem<TranslatedChart>[] = [];
 
   function walk(parentId: string | null, level: number) {
-    const children = (byParent.get(parentId ?? "__root__") ?? []).sort((a, b) =>
-      (a.name ?? "").localeCompare(b.name ?? "")
+    const children = (byParent.get(parentId ?? "__root__") ?? []).sort(
+      (a, b) => {
+        const aIsGroup = a.isGroup ? 1 : 0;
+        const bIsGroup = b.isGroup ? 1 : 0;
+        if (aIsGroup !== bIsGroup) return aIsGroup - bIsGroup;
+        return (a.name ?? "").localeCompare(b.name ?? "");
+      }
     );
     for (const account of children) {
       const childAccounts = byParent.get(account.id) ?? [];

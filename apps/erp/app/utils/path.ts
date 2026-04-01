@@ -441,6 +441,8 @@ export const path = {
     chartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/${id}`),
     chartOfAccounts: `${x}/accounting/charts`,
+    moveChartOfAccount: (id: string) =>
+      generatePath(`${x}/accounting/charts/move/${id}`),
     costCenter: (id: string) =>
       generatePath(`${x}/accounting/cost-centers/${id}`),
     costCenters: `${x}/accounting/cost-centers`,
@@ -1016,6 +1018,7 @@ export const path = {
     newBatch: `${x}/inventory/batches/new`,
     newBulkJob: `${x}/job/bulk/new`,
     newChartOfAccount: `${x}/accounting/charts/new`,
+    newChartOfAccountGroup: `${x}/accounting/charts/new-group`,
     newCostCenter: `${x}/accounting/cost-centers/new`,
     newCompany: `${x}/settings/company/new`,
     newCompanyInGroup: `${x}/settings/companies/new`,

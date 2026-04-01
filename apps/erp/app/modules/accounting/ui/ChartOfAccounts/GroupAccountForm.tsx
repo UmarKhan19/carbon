@@ -18,55 +18,66 @@ import type { z } from "zod";
 import { Combobox, Hidden, Input, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import { accountValidator } from "../../accounting.models";
+import {
+  accountClassTypes,
+  accountTypes,
+  groupAccountValidator
+} from "../../accounting.models";
 import type { AccountClass, AccountIncomeBalance } from "../../types";
+
+const classToIncomeBalance: Record<AccountClass, AccountIncomeBalance> = {
+  Asset: "Balance Sheet",
+  Liability: "Balance Sheet",
+  Equity: "Balance Sheet",
+  Revenue: "Income Statement",
+  Expense: "Income Statement"
+};
 
 type GroupAccount = {
   id: string;
-  number: string | null;
   name: string;
   incomeBalance: string;
   class: string | null;
   accountType: string | null;
 };
 
-type ChartOfAccountFormProps = {
-  initialValues: z.infer<typeof accountValidator>;
+type GroupAccountFormProps = {
+  initialValues: z.infer<typeof groupAccountValidator>;
   groupAccounts?: GroupAccount[];
   open?: boolean;
   onClose: () => void;
 };
 
-const ChartOfAccountForm = ({
+const GroupAccountForm = ({
   initialValues,
   groupAccounts = [],
   open = true,
   onClose
-}: ChartOfAccountFormProps) => {
+}: GroupAccountFormProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher();
 
-  const initialParent = groupAccounts.find(
+  const parentGroup = groupAccounts.find(
     (a) => a.id === initialValues.parentId
   );
 
-  const [selectedGroup, setSelectedGroup] = useState<GroupAccount | undefined>(
-    initialParent
+  const [incomeBalance, setIncomeBalance] = useState<AccountIncomeBalance>(
+    (parentGroup?.incomeBalance as AccountIncomeBalance) ??
+      initialValues.incomeBalance
+  );
+  const [accountClass, setAccountClass] = useState<AccountClass>(
+    (parentGroup?.class as AccountClass) ?? initialValues.class
   );
 
-  const incomeBalance =
-    (selectedGroup?.incomeBalance as AccountIncomeBalance) ??
-    initialValues.incomeBalance;
-  const accountClass =
-    (selectedGroup?.class as AccountClass) ?? initialValues.class;
-  const accountType = selectedGroup?.accountType ?? initialValues.accountType;
+  const hasParent = !!initialValues.parentId || !!parentGroup;
+  const isRootGroup = !hasParent;
 
   useEffect(() => {
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(initialValues.id ? "Updated account" : "Created account");
+      toast.success(initialValues.id ? "Updated group" : "Created group");
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(`Failed to save account: ${fetcher.data.error.message}`);
+      toast.error(`Failed to save group: ${fetcher.data.error.message}`);
     }
   }, [fetcher.data, fetcher.state, onClose, initialValues.id]);
 
@@ -78,9 +89,10 @@ const ChartOfAccountForm = ({
   const onParentChange = (newValue: { value: string } | null) => {
     if (newValue) {
       const group = groupAccounts.find((a) => a.id === newValue.value);
-      setSelectedGroup(group);
-    } else {
-      setSelectedGroup(undefined);
+      if (group) {
+        setIncomeBalance(group.incomeBalance as AccountIncomeBalance);
+        setAccountClass(group.class as AccountClass);
+      }
     }
   };
 
@@ -94,12 +106,12 @@ const ChartOfAccountForm = ({
       >
         <ModalDrawerContent>
           <ValidatedForm
-            validator={accountValidator}
+            validator={groupAccountValidator}
             method="post"
             action={
               isEditing
                 ? path.to.chartOfAccount(initialValues.id!)
-                : path.to.newChartOfAccount
+                : path.to.newChartOfAccountGroup
             }
             defaultValues={initialValues}
             fetcher={fetcher}
@@ -107,38 +119,59 @@ const ChartOfAccountForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Account
+                {isEditing ? "Edit" : "New"} Group
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
+              <Hidden name="intent" value="group" />
               <Hidden name="incomeBalance" value={incomeBalance} />
               <Hidden name="class" value={accountClass} />
-              <Hidden name="accountType" value={accountType} />
-              <Hidden name="consolidatedRate" value="Average" />
-
               <VStack spacing={4}>
+                <Input name="name" label="Name" />
                 <Combobox
                   name="parentId"
-                  label="Group"
-                  options={groupAccounts.map((a) => ({
-                    label: a.name,
-                    value: a.id
-                  }))}
+                  label="Parent Group"
+                  options={groupAccounts
+                    .filter((a) => a.id !== initialValues.id)
+                    .filter((a) =>
+                      isEditing && accountClass
+                        ? a.class === accountClass
+                        : true
+                    )
+                    .map((a) => ({
+                      label: a.name,
+                      value: a.id
+                    }))}
                   onChange={onParentChange}
                 />
-                <Input name="number" label="Account Number" />
-                <Input name="name" label="Name" />
-                {selectedGroup && (
+                <Combobox
+                  name="accountType"
+                  label="Account Type"
+                  options={accountTypes.map((t) => ({
+                    label: t,
+                    value: t
+                  }))}
+                />
+                {isRootGroup ? (
+                  <Combobox
+                    name="_class"
+                    label="Class"
+                    options={accountClassTypes.map((c) => ({
+                      label: c,
+                      value: c
+                    }))}
+                    value={accountClass}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const cls = newValue.value as AccountClass;
+                        setAccountClass(cls);
+                        setIncomeBalance(classToIncomeBalance[cls]);
+                      }
+                    }}
+                  />
+                ) : (
                   <>
-                    {accountType && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-muted-foreground">
-                          Account Type
-                        </label>
-                        <p className="text-sm">{accountType}</p>
-                      </div>
-                    )}
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-muted-foreground">
                         Income/Balance
@@ -170,4 +203,4 @@ const ChartOfAccountForm = ({
   );
 };
 
-export default ChartOfAccountForm;
+export default GroupAccountForm;

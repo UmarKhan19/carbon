@@ -190,11 +190,11 @@ export async function getGroupAccounts(
 ) {
   return client
     .from("account")
-    .select("id, number, name")
+    .select("id, number, name, incomeBalance, class, accountType")
     .eq("companyGroupId", companyGroupId)
     .eq("isGroup", true)
     .eq("active", true)
-    .order("number", { ascending: true });
+    .order("name", { ascending: true });
 }
 
 export async function getBaseCurrency(
