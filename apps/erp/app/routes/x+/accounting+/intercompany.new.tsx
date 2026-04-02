@@ -7,7 +7,6 @@ import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
   createIntercompanyTransaction,
   getCompaniesInGroup,
-  getCurrenciesList,
   intercompanyTransactionValidator
 } from "~/modules/accounting";
 import { IntercompanyTransactionForm } from "~/modules/accounting/ui/Intercompany";
@@ -18,14 +17,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     create: "accounting"
   });
 
-  const [companies, currencies] = await Promise.all([
-    getCompaniesInGroup(client, companyGroupId),
-    getCurrenciesList(client)
-  ]);
+  const companies = await getCompaniesInGroup(client, companyGroupId);
 
   return {
-    companies: companies.data ?? [],
-    currencies: currencies.data ?? []
+    companies: companies.data ?? []
   };
 }
 
@@ -67,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewIntercompanyTransactionRoute() {
-  const { companies, currencies } = useLoaderData<typeof loader>();
+  const { companies } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const initialValues = {
@@ -85,7 +80,6 @@ export default function NewIntercompanyTransactionRoute() {
     <IntercompanyTransactionForm
       initialValues={initialValues}
       companies={companies}
-      currencies={currencies}
       onClose={() => navigate(-1)}
     />
   );

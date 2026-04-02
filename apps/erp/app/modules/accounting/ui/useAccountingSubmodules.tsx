@@ -3,7 +3,7 @@ import {
   LuAxis3D,
   LuBetweenHorizontalStart,
   LuCalendar1,
-  LuCircleDollarSign,
+  LuCoins,
   LuEuro,
   LuFileSpreadsheet,
   LuHandCoins,
@@ -11,7 +11,7 @@ import {
   LuSheet,
   LuTrendingUp
 } from "react-icons/lu";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
@@ -69,7 +69,7 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
         name: "Cost Centers",
         to: path.to.costCenters,
         role: "employee",
-        icon: <LuCircleDollarSign />
+        icon: <LuCoins />
       },
       {
         name: "Default Accounts",
@@ -105,17 +105,22 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
   }
 ];
 
+const multiCompanyRoutes = new Set([path.to.intercompany]);
+
 export default function useAccountingSubmodules() {
   const permissions = usePermissions();
+  const routeData = useRouteData<{ hasMultipleCompanies: boolean }>(
+    path.to.accounting
+  );
+  const hasMultipleCompanies = routeData?.hasMultipleCompanies ?? false;
   return {
     groups: accountingRoutes
       .filter((group) => {
         const filteredRoutes = group.routes.filter((route) => {
-          if (route.role) {
-            return permissions.is(route.role);
-          } else {
-            return true;
-          }
+          if (route.role && !permissions.is(route.role)) return false;
+          if (!hasMultipleCompanies && multiCompanyRoutes.has(route.to))
+            return false;
+          return true;
         });
 
         return filteredRoutes.length > 0;
@@ -123,11 +128,10 @@ export default function useAccountingSubmodules() {
       .map((group) => ({
         ...group,
         routes: group.routes.filter((route) => {
-          if (route.role) {
-            return permissions.is(route.role);
-          } else {
-            return true;
-          }
+          if (route.role && !permissions.is(route.role)) return false;
+          if (!hasMultipleCompanies && multiCompanyRoutes.has(route.to))
+            return false;
+          return true;
         })
       }))
   };

@@ -2,10 +2,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { memo, useMemo } from "react";
 import {
-  LuArrowLeftRight,
   LuBuilding2,
   LuCircleDollarSign,
-  LuFileText
+  LuFileText,
+  LuStar
 } from "react-icons/lu";
 import { Table } from "~/components";
 import { intercompanyTransactionStatuses } from "../../accounting.models";
@@ -91,7 +91,7 @@ const IntercompanyTransactionTable = memo(
                 value: v
               }))
             },
-            icon: <LuArrowLeftRight />
+            icon: <LuStar />
           }
         },
         {

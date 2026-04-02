@@ -19,14 +19,16 @@ type Company = {
 
 type ReportFiltersProps = {
   companies: Company[];
-  selectedCompanyId: string | null;
+  selectedCompanyIds: string[];
+  isMultiCompany: boolean;
   isForeignCurrency?: boolean;
   parentCurrency?: string | null;
 };
 
 const ReportFilters = ({
   companies,
-  selectedCompanyId,
+  selectedCompanyIds,
+  isMultiCompany,
   isForeignCurrency = false,
   parentCurrency
 }: ReportFiltersProps) => {
@@ -41,7 +43,7 @@ const ReportFilters = ({
       <HStack>
         <CompanySelector
           companies={companies}
-          selectedCompanyId={selectedCompanyId}
+          selectedCompanyIds={selectedCompanyIds}
         />
         <Popover>
           <PopoverTrigger asChild>
@@ -73,7 +75,7 @@ const ReportFilters = ({
             </div>
           </PopoverContent>
         </Popover>
-        {isForeignCurrency && parentCurrency && (
+        {!isMultiCompany && isForeignCurrency && parentCurrency && (
           <Button
             variant={showTranslated ? "primary" : "secondary"}
             leftIcon={<LuLanguages />}
@@ -86,13 +88,18 @@ const ReportFilters = ({
             Show in {parentCurrency}
           </Button>
         )}
+        {isMultiCompany && parentCurrency && (
+          <span className="text-sm text-muted-foreground">
+            Showing in {parentCurrency}
+          </span>
+        )}
         {[...params.entries()].length > 0 && (
           <Button
             variant="secondary"
             rightIcon={<LuX />}
             onClick={() =>
               setParams({
-                companyId: undefined,
+                companies: undefined,
                 startDate: undefined,
                 endDate: undefined,
                 showTranslated: undefined

@@ -7,6 +7,7 @@ import { redirect, useLoaderData } from "react-router";
 import type { Chart } from "~/modules/accounting";
 import {
   getCompaniesInGroup,
+  getConsolidatedBalances,
   getFinancialStatementBalances,
   translateCompanyBalances
 } from "~/modules/accounting";
@@ -33,17 +34,66 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
-  const selectedCompanyId = searchParams.get("companyId") || companyId;
+  const companiesParam = searchParams.get("companies");
   const endDate = searchParams.get("endDate") || null;
   const showTranslated = searchParams.get("showTranslated") === "true";
 
-  const [balances, companies] = await Promise.all([
-    getFinancialStatementBalances(client, companyGroupId, selectedCompanyId, {
-      startDate: null,
-      endDate
-    }),
-    getCompaniesInGroup(client, companyGroupId)
-  ]);
+  const companies = await getCompaniesInGroup(client, companyGroupId);
+  const companiesList = companies.data ?? [];
+  const parentCompany = companiesList.find((c) => !c.parentCompanyId);
+  const parentCurrency = parentCompany?.baseCurrencyCode ?? null;
+
+  const selectedCompanyIds =
+    companiesParam === "all"
+      ? companiesList.map((c) => c.id)
+      : companiesParam
+        ? [companiesParam]
+        : [companyId];
+  const isMultiCompany = selectedCompanyIds.length > 1;
+
+  if (isMultiCompany && parentCurrency) {
+    const periodEnd = endDate ?? new Date().toISOString().split("T")[0];
+    const consolidated = await getConsolidatedBalances(
+      client,
+      companyGroupId,
+      selectedCompanyIds,
+      parentCurrency,
+      periodEnd
+    );
+
+    let balanceSheetAccounts = consolidated.data.filter(
+      (a) => a.incomeBalance === "Balance Sheet"
+    );
+
+    // Apply CTA to reserves account
+    const ctaAccount = balanceSheetAccounts.find((a) => a.number === "3200");
+    if (ctaAccount) {
+      ctaAccount.translatedBalance =
+        (ctaAccount.translatedBalance ?? 0) + consolidated.cta;
+    }
+
+    return {
+      balanceSheet: balanceSheetAccounts as (Chart & {
+        translatedBalance?: number;
+        exchangeRate?: number;
+      })[],
+      companies: companiesList,
+      selectedCompanyIds,
+      showTranslated: true,
+      isMultiCompany: true,
+      isForeignCurrency: false,
+      parentCurrency
+    };
+  }
+
+  // Single company
+  const selectedCompanyId = selectedCompanyIds[0];
+  const balances = await getFinancialStatementBalances(
+    client,
+    companyGroupId,
+    selectedCompanyId,
+    { startDate: null, endDate }
+  );
 
   if (balances.error) {
     throw redirect(
@@ -55,10 +105,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  const companiesList = companies.data ?? [];
-  const parentCompany = companiesList.find((c) => !c.parentCompanyId);
   const selectedCompany = companiesList.find((c) => c.id === selectedCompanyId);
-  const parentCurrency = parentCompany?.baseCurrencyCode ?? null;
   const isForeignCurrency =
     !!parentCurrency &&
     !!selectedCompany?.baseCurrencyCode &&
@@ -98,7 +145,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return account;
       });
 
-      // Add CTA to account 3200 (Reserves - Currency Translation)
       const ctaAccount = balanceSheetAccounts.find((a) => a.number === "3200");
       if (ctaAccount) {
         ctaAccount.translatedBalance =
@@ -110,8 +156,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return {
     balanceSheet: balanceSheetAccounts,
     companies: companiesList,
-    selectedCompanyId,
+    selectedCompanyIds,
     showTranslated: showTranslated && isForeignCurrency,
+    isMultiCompany: false,
     isForeignCurrency,
     parentCurrency
   };
@@ -121,8 +168,9 @@ export default function BalanceSheetRoute() {
   const {
     balanceSheet,
     companies,
-    selectedCompanyId,
+    selectedCompanyIds,
     showTranslated,
+    isMultiCompany,
     isForeignCurrency,
     parentCurrency
   } = useLoaderData<typeof loader>();
@@ -131,7 +179,8 @@ export default function BalanceSheetRoute() {
     <VStack spacing={0} className="h-full">
       <ReportFilters
         companies={companies}
-        selectedCompanyId={selectedCompanyId}
+        selectedCompanyIds={selectedCompanyIds}
+        isMultiCompany={isMultiCompany}
         isForeignCurrency={isForeignCurrency}
         parentCurrency={parentCurrency}
       />

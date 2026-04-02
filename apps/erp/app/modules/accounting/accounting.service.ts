@@ -796,6 +796,159 @@ export async function translateCompanyBalances(
   return { data: rows, cta, error: null };
 }
 
+export async function getConsolidatedBalances(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  companyIds: string[],
+  targetCurrency: string,
+  periodEnd: string,
+  periodStart?: string
+) {
+  // Find elimination entities that should be included automatically.
+  // An elimination entity is included when its parentCompanyId is an ancestor
+  // of any selected company (i.e. it sits at or above the selected companies
+  // in the hierarchy and captures their intercompany eliminations).
+  const { data: allGroupCompanies } = await client
+    .from("company")
+    .select("id, parentCompanyId, isEliminationEntity")
+    .eq("companyGroupId", companyGroupId)
+    .eq("active", true);
+
+  const groupCompanies = allGroupCompanies ?? [];
+  const selectedSet = new Set(companyIds);
+
+  // Collect all ancestors of selected companies
+  const ancestors = new Set<string>();
+  const companyById = new Map(groupCompanies.map((c) => [c.id, c]));
+  for (const id of companyIds) {
+    let current = companyById.get(id);
+    while (current?.parentCompanyId) {
+      ancestors.add(current.parentCompanyId);
+      current = companyById.get(current.parentCompanyId);
+    }
+  }
+
+  // Include elimination entities whose parent is an ancestor of (or is) a
+  // selected company — these hold the reversing entries for IC transactions
+  const eliminationIds = groupCompanies
+    .filter(
+      (c) =>
+        c.isEliminationEntity &&
+        c.parentCompanyId &&
+        (ancestors.has(c.parentCompanyId) || selectedSet.has(c.parentCompanyId))
+    )
+    .map((c) => c.id);
+
+  // All companies whose balances we need (operating + elimination entities)
+  const allIds = [...companyIds, ...eliminationIds];
+
+  // Get balances for all companies and translate to target currency
+  const [allBalances, translations] = await Promise.all([
+    Promise.all(
+      allIds.map((id) =>
+        getFinancialStatementBalances(client, companyGroupId, id, {
+          startDate: periodStart ?? null,
+          endDate: periodEnd
+        })
+      )
+    ),
+    Promise.all(
+      allIds.map((id) =>
+        translateCompanyBalances(
+          client,
+          companyGroupId,
+          id,
+          targetCurrency,
+          periodEnd,
+          periodStart
+        )
+      )
+    )
+  ]);
+
+  // Build a map of translated balances per account, summed across companies
+  const translationByAccount = new Map<
+    string,
+    { translatedBalance: number; exchangeRate: number }
+  >();
+
+  for (const translation of translations) {
+    if (!translation.data) continue;
+    for (const row of translation.data) {
+      const existing = translationByAccount.get(row.accountId);
+      if (existing) {
+        existing.translatedBalance += Number(row.translatedBalance);
+      } else {
+        translationByAccount.set(row.accountId, {
+          translatedBalance: Number(row.translatedBalance),
+          exchangeRate: Number(row.exchangeRate)
+        });
+      }
+    }
+  }
+
+  // Sum CTA across all companies
+  const totalCta = translations.reduce((sum, t) => sum + t.cta, 0);
+
+  // Merge all company balances into one set of accounts, summing balances
+  const accountMap = new Map<
+    string,
+    {
+      balance: number;
+      balanceAtDate: number;
+      netChange: number;
+      translatedBalance: number;
+      exchangeRate: number;
+    }
+  >();
+
+  for (const result of allBalances) {
+    if (result.error || !result.data) continue;
+    for (const account of result.data) {
+      const existing = accountMap.get(account.id);
+      if (existing) {
+        existing.balance += account.balance ?? 0;
+        existing.balanceAtDate += account.balanceAtDate ?? 0;
+        existing.netChange += account.netChange ?? 0;
+      } else {
+        accountMap.set(account.id, {
+          balance: account.balance ?? 0,
+          balanceAtDate: account.balanceAtDate ?? 0,
+          netChange: account.netChange ?? 0,
+          translatedBalance: 0,
+          exchangeRate: 0
+        });
+      }
+    }
+  }
+
+  // Overlay translated values
+  for (const [accountId, translation] of translationByAccount) {
+    const account = accountMap.get(accountId);
+    if (account) {
+      account.translatedBalance = translation.translatedBalance;
+      account.exchangeRate = translation.exchangeRate;
+    }
+  }
+
+  // Use the first company's account structure as the base (shared chart of accounts)
+  const baseAccounts = allBalances.find((r) => r.data)?.data ?? [];
+
+  const consolidated = baseAccounts.map((account) => {
+    const summed = accountMap.get(account.id);
+    return {
+      ...account,
+      balance: summed?.balance ?? 0,
+      balanceAtDate: summed?.balanceAtDate ?? 0,
+      netChange: summed?.netChange ?? 0,
+      translatedBalance: summed?.translatedBalance ?? 0,
+      exchangeRate: summed?.exchangeRate ?? 0
+    };
+  });
+
+  return { data: consolidated, cta: totalCta };
+}
+
 // -- Intercompany --
 
 export async function getIntercompanyTransactions(

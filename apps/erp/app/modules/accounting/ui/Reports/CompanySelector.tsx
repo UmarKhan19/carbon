@@ -1,10 +1,12 @@
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger
 } from "@carbon/react";
+import { LuBuilding2 } from "react-icons/lu";
 import { useUrlParams } from "~/hooks";
 
 type Company = {
@@ -14,36 +16,50 @@ type Company = {
 
 type CompanySelectorProps = {
   companies: Company[];
-  selectedCompanyId: string | null;
+  selectedCompanyIds: string[];
 };
+
+const ALL = "__all__";
 
 const CompanySelector = ({
   companies,
-  selectedCompanyId
+  selectedCompanyIds
 }: CompanySelectorProps) => {
   const [, setParams] = useUrlParams();
 
   if (companies.length <= 1) return null;
 
+  const allSelected = selectedCompanyIds.length === companies.length;
+  const value = allSelected ? ALL : selectedCompanyIds[0];
+
+  const label = allSelected
+    ? "All Companies"
+    : (companies.find((c) => c.id === value)?.name ?? "All Companies");
+
+  const onChange = (next: string) => {
+    setParams({ companies: next === ALL ? "all" : next });
+  };
+
   return (
-    <Select
-      value={selectedCompanyId ?? "all"}
-      onValueChange={(value) =>
-        setParams({ companyId: value === "all" ? undefined : value })
-      }
-    >
-      <SelectTrigger className="w-[200px]" size="sm">
-        <SelectValue placeholder="All Companies" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All Companies</SelectItem>
-        {companies.map((company) => (
-          <SelectItem key={company.id} value={company.id}>
-            {company.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="secondary" leftIcon={<LuBuilding2 />}>
+          {label}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuRadioGroup value={value} onValueChange={onChange}>
+          <DropdownMenuRadioItem value={ALL}>
+            All Companies
+          </DropdownMenuRadioItem>
+          {companies.map((company) => (
+            <DropdownMenuRadioItem key={company.id} value={company.id}>
+              {company.name}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

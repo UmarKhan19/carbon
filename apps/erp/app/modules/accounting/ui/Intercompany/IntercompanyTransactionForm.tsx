@@ -1,4 +1,4 @@
-import { ValidatedForm } from "@carbon/form";
+import { useControlField, ValidatedForm } from "@carbon/form";
 import {
   HStack,
   ModalDrawer,
@@ -10,6 +10,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
+import { useEffect } from "react";
 import type { z } from "zod";
 import {
   Account,
@@ -24,8 +25,7 @@ import { intercompanyTransactionValidator } from "../../accounting.models";
 
 type IntercompanyTransactionFormProps = {
   initialValues: z.infer<typeof intercompanyTransactionValidator>;
-  companies: { id: string; name: string }[];
-  currencies: { code: string; name: string }[];
+  companies: { id: string; name: string; baseCurrencyCode: string | null }[];
   open?: boolean;
   onClose: () => void;
 };
@@ -33,7 +33,6 @@ type IntercompanyTransactionFormProps = {
 const IntercompanyTransactionForm = ({
   initialValues,
   companies,
-  currencies,
   open = true,
   onClose
 }: IntercompanyTransactionFormProps) => {
@@ -43,11 +42,6 @@ const IntercompanyTransactionForm = ({
   const companyOptions = companies.map((c) => ({
     label: c.name,
     value: c.id
-  }));
-
-  const currencyOptions = currencies.map((c) => ({
-    label: `${c.code} — ${c.name}`,
-    value: c.code
   }));
 
   return (
@@ -82,11 +76,7 @@ const IntercompanyTransactionForm = ({
                   options={companyOptions}
                 />
                 <Number name="amount" label="Amount" minValue={0} />
-                <Select
-                  name="currencyCode"
-                  label="Currency"
-                  options={currencyOptions}
-                />
+                <SourceCurrencySync companies={companies} />
                 <Input name="description" label="Description" />
                 <Account name="debitAccountNumber" label="Debit Account" />
                 <Account name="creditAccountNumber" label="Credit Account" />
@@ -104,5 +94,23 @@ const IntercompanyTransactionForm = ({
     </ModalDrawerProvider>
   );
 };
+
+function SourceCurrencySync({
+  companies
+}: {
+  companies: { id: string; baseCurrencyCode: string | null }[];
+}) {
+  const [sourceCompanyId] = useControlField<string>("sourceCompanyId");
+  const [, setCurrencyCode] = useControlField<string>("currencyCode");
+
+  const currencyCode =
+    companies.find((c) => c.id === sourceCompanyId)?.baseCurrencyCode ?? "";
+
+  useEffect(() => {
+    setCurrencyCode(currencyCode);
+  }, [currencyCode, setCurrencyCode]);
+
+  return <Hidden name="currencyCode" value={currencyCode} />;
+}
 
 export default IntercompanyTransactionForm;
