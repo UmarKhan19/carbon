@@ -14,6 +14,8 @@ import type {
   dimensionValidator,
   fiscalYearSettingsValidator,
   intercompanyTransactionValidator,
+  journalEntryLineValidator,
+  journalEntryValidator,
   paymentTermValidator
 } from "./accounting.models";
 import type { Transaction, TranslatedBalance } from "./types";
@@ -1090,4 +1092,245 @@ export async function getExchangeRateHistory(
     .eq("currencyCode", currencyCode)
     .gte("effectiveDate", sixMonthsAgo.toISOString().split("T")[0])
     .order("effectiveDate", { ascending: true });
+}
+
+// -- Journal Entries --
+// Uses existing journal/journalLine tables with added status/entryType columns.
+// Manual JEs start as Draft and are posted by flipping status to Posted.
+// amount > 0 = debit, amount < 0 = credit.
+
+export async function getJournalEntries(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: GenericQueryFilters & { search: string | null; status: string | null }
+) {
+  let query = client
+    .from("journalEntries")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId);
+
+  if (args.search) {
+    query = query.or(
+      `journalEntryId.ilike.%${args.search}%,description.ilike.%${args.search}%`
+    );
+  }
+
+  if (args.status) {
+    query = query.eq("status", args.status);
+  }
+
+  query = setGenericQueryFilters(query, args, [
+    { column: "createdAt", ascending: false }
+  ]);
+
+  return query;
+}
+
+export async function getJournalEntry(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client
+    .from("journal")
+    .select("*, journalLine(*)")
+    .eq("id", Number(id))
+    .single();
+}
+
+export async function createJournalEntry(
+  client: SupabaseClient<Database>,
+  data: z.infer<typeof journalEntryValidator> & {
+    journalEntryId: string;
+    companyId: string;
+    createdBy: string;
+  }
+) {
+  const { id: _id, ...rest } = data;
+  return client
+    .from("journal")
+    .insert({
+      ...rest,
+      status: "Draft" as const
+    })
+    .select("id")
+    .single();
+}
+
+export async function updateJournalEntry(
+  client: SupabaseClient<Database>,
+  id: string,
+  data: z.infer<typeof journalEntryValidator> & {
+    updatedBy: string;
+  }
+) {
+  const { id: _id, ...rest } = data;
+  return client
+    .from("journal")
+    .update(sanitize(rest))
+    .eq("id", Number(id))
+    .eq("status", "Draft");
+}
+
+export async function deleteJournalEntry(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client
+    .from("journal")
+    .delete()
+    .eq("id", Number(id))
+    .eq("status", "Draft");
+}
+
+export async function upsertJournalEntryLine(
+  client: SupabaseClient<Database>,
+  data:
+    | (z.infer<typeof journalEntryLineValidator> & {
+        journalId: number;
+        companyId: string;
+        companyGroupId: string;
+      })
+    | (z.infer<typeof journalEntryLineValidator> & {
+        id: string;
+        updatedBy: string;
+      })
+) {
+  const amount = (data.debit ?? 0) > 0 ? data.debit : -(data.credit ?? 0);
+
+  if ("companyId" in data) {
+    return client
+      .from("journalLine")
+      .insert({
+        journalId: data.journalId,
+        accountNumber: data.accountNumber,
+        description: data.description,
+        amount,
+        journalLineReference: crypto.randomUUID(),
+        companyId: data.companyId,
+        companyGroupId: data.companyGroupId
+      })
+      .select("id")
+      .single();
+  } else {
+    return client
+      .from("journalLine")
+      .update(
+        sanitize({
+          accountNumber: data.accountNumber,
+          description: data.description,
+          amount,
+          updatedBy: data.updatedBy
+        })
+      )
+      .eq("id", data.id)
+      .select("id")
+      .single();
+  }
+}
+
+export async function deleteJournalEntryLine(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("journalLine").delete().eq("id", id);
+}
+
+export async function postJournalEntry(
+  client: SupabaseClient<Database>,
+  id: string,
+  userId: string
+) {
+  // 1. Fetch entry + lines
+  const entry = await getJournalEntry(client, id);
+  if (entry.error) return entry;
+  if (entry.data.status !== "Draft") {
+    return {
+      data: null,
+      error: { message: "Journal entry is not in Draft status" }
+    };
+  }
+
+  const lines = entry.data.journalLine ?? [];
+  if (lines.length === 0) {
+    return { data: null, error: { message: "Journal entry has no lines" } };
+  }
+
+  // 2. Validate balance (sum of amounts should be 0)
+  const total = lines.reduce((sum, l) => sum + Number(l.amount), 0);
+
+  if (Math.abs(total) > 0.001) {
+    return {
+      data: null,
+      error: { message: "Total debits must equal total credits" }
+    };
+  }
+
+  // 3. Flip status — lines are already in journalLine, no copying needed
+  return client
+    .from("journal")
+    .update({
+      status: "Posted" as const,
+      postedAt: new Date().toISOString(),
+      postedBy: userId,
+      updatedBy: userId
+    })
+    .eq("id", Number(id))
+    .select("id")
+    .single();
+}
+
+export async function reverseJournalEntry(
+  client: SupabaseClient<Database>,
+  id: string,
+  data: {
+    journalEntryId: string;
+    companyId: string;
+    userId: string;
+  }
+) {
+  // 1. Fetch original
+  const original = await getJournalEntry(client, id);
+  if (original.error) return original;
+  if (original.data.status !== "Posted") {
+    return {
+      data: null,
+      error: { message: "Can only reverse posted journal entries" }
+    };
+  }
+
+  // 2. Create reversed header as Draft
+  const reversed = await client
+    .from("journal")
+    .insert({
+      journalEntryId: data.journalEntryId,
+      companyId: data.companyId,
+      description: `Reversal of ${original.data.journalEntryId}`,
+      postingDate: new Date().toISOString().split("T")[0],
+      entryType: original.data.entryType,
+      reversalOfId: Number(id),
+      status: "Draft" as const,
+      createdBy: data.userId
+    })
+    .select("id")
+    .single();
+
+  if (reversed.error) return reversed;
+
+  // 3. Copy lines with negated amounts
+  const lines = (original.data.journalLine ?? []).map((line) => ({
+    journalId: reversed.data.id,
+    accountNumber: line.accountNumber,
+    companyId: line.companyId,
+    companyGroupId: line.companyGroupId,
+    description: line.description,
+    amount: -Number(line.amount),
+    journalLineReference: crypto.randomUUID()
+  }));
+
+  if (lines.length > 0) {
+    const linesResult = await client.from("journalLine").insert(lines);
+    if (linesResult.error) return linesResult;
+  }
+
+  return reversed;
 }

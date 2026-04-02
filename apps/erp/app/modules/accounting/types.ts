@@ -7,6 +7,8 @@ import type {
   getCurrencies,
   getDimension,
   getDimensions,
+  getJournalEntries,
+  getJournalEntry,
   getPaymentTerms
 } from "./accounting.service";
 
@@ -386,3 +388,13 @@ export type TranslatedTransaction = Transaction & {
   translatedBalance?: number;
   exchangeRate?: number;
 };
+
+export type JournalEntry = NonNullable<
+  Awaited<ReturnType<typeof getJournalEntry>>["data"]
+>;
+
+export type JournalEntryListItem = NonNullable<
+  NonNullable<Awaited<ReturnType<typeof getJournalEntries>>>["data"]
+>[number];
+
+export type JournalEntryLine = JournalEntry["journalLine"][number];

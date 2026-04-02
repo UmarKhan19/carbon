@@ -1,77 +1,47 @@
 # Journal Entries — Implementation Plan (V1)
 
-## Overview
+## Context
 
-Add a Manual Journal Entries submodule under Accounting > Manage. Users create journal entries with debit/credit lines that must balance to zero. On posting, lines are written to the existing immutable `journal`/`journalLine` tables. Entries support dimension tagging and reversals.
+Adding a Manual Journal Entries submodule under Accounting > Manage. Accountants need a way to create manual GL adjustments (accruals, corrections, reclassifications, etc.) with debit/credit lines that must balance to zero. On posting, lines write to the existing immutable `journal`/`journalLine` GL tables.
 
-## Design Decisions
+The route structure follows the **shipment/receipt pattern**: a list route under `accounting+/journals.tsx` and a dedicated detail route group at `journal-entry+/` with its own layout, header, and detail views.
 
-- **Separate tables**: `journalEntry` (header) + `journalEntryLine` (lines) are draft-editable. Posting writes to the existing `journal`/`journalLine` GL tables and locks the entry.
-- **Company from session**: The logged-in company is used automatically — no subsidiary picker in the UI.
-- **Document type**: Optional Postgres enum on the header for categorization/filtering. Not required.
-- **Posting = immutable**: Once posted, the journal entry cannot be edited. Changes require a reversing entry + new JE.
-- **Dimensions**: Lines can be tagged with accounting dimensions via the existing `journalLineDimension` pattern (applied when posting to GL).
+## Key Design Decisions
 
-## Scope
-
-### V1 (this plan)
-- Journal entry CRUD (header + lines)
-- Debit/credit balance enforcement (UI + DB check constraint on post)
-- Optional document type enum
-- Dimension tagging per line
-- Status workflow: Draft -> Posted
-- Posting action (writes to `journal`/`journalLine`)
-- One-click reversal (creates new JE with flipped amounts in next open period)
-- List view with filtering/sorting
-- Sidebar navigation entry
-
-### V2 (future)
-- Recurring journal entries / templates
-- Approval workflows
-- Allocation support (split lines across dimensions)
-- Excel copy/paste import
-- Auto-balance button
+- **Separate tables**: `journalEntry` (header) + `journalEntryLine` (lines) are draft-editable. Posting writes to `journal`/`journalLine` and locks the entry.
+- **Company from session**: Logged-in company used automatically — no subsidiary picker.
+- **Document type**: Optional Postgres enum for categorization.
+- **Route split**: List at `accounting+/journals.tsx`, detail at `journal-entry+/$journalEntryId.tsx` (like shipment pattern).
+- **New JE via drawer**: The "new" route is a child of the journals list, rendered as a Drawer overlay (per feedback convention).
 
 ---
 
-## Implementation Steps
+## Step 1: Database Migration
 
-### Step 1: Database Migration
+**File**: `packages/database/supabase/migrations/YYYYMMDDHHMMSS_journal-entries.sql`
 
-Create migration file in `packages/database/supabase/migrations/`.
-
-#### Enum
+### Enums
 
 ```sql
-CREATE TYPE "journalEntryType" AS ENUM (
-  'Accrual',
-  'Correction',
-  'Reclassification',
-  'Depreciation',
-  'Other'
-);
-
-CREATE TYPE "journalEntryStatus" AS ENUM (
-  'Draft',
-  'Posted'
-);
+CREATE TYPE "journalEntryType" AS ENUM ('Accrual', 'Correction', 'Reclassification', 'Depreciation', 'Other');
+CREATE TYPE "journalEntryStatus" AS ENUM ('Draft', 'Posted');
 ```
 
-#### Tables
+### Tables
 
 ```sql
 CREATE TABLE "journalEntry" (
   "id" TEXT NOT NULL DEFAULT id('je'),
-  "journalEntryId" TEXT NOT NULL,          -- human-readable sequence number (JE-0001)
+  "journalEntryId" TEXT NOT NULL,          -- human-readable (JE-0001)
   "companyId" TEXT NOT NULL REFERENCES "company"("id"),
   "companyGroupId" TEXT NOT NULL,
   "description" TEXT,
   "postingDate" DATE NOT NULL DEFAULT CURRENT_DATE,
   "accountingPeriodId" TEXT REFERENCES "accountingPeriod"("id"),
-  "entryType" "journalEntryType",          -- optional categorization
+  "entryType" "journalEntryType",
   "status" "journalEntryStatus" NOT NULL DEFAULT 'Draft',
-  "journalId" INTEGER REFERENCES "journal"("id"),  -- set on post, links to GL
-  "reversalOfId" TEXT REFERENCES "journalEntry"("id"),  -- if this is a reversal
+  "journalId" INTEGER REFERENCES "journal"("id"),
+  "reversalOfId" TEXT REFERENCES "journalEntry"("id"),
   "postedAt" TIMESTAMP WITH TIME ZONE,
   "postedBy" TEXT,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -79,7 +49,6 @@ CREATE TABLE "journalEntry" (
   "updatedAt" TIMESTAMP WITH TIME ZONE,
   "updatedBy" TEXT,
   "customFields" JSONB,
-
   CONSTRAINT "journalEntry_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "journalEntry_journalEntryId_companyId_key" UNIQUE ("journalEntryId", "companyId")
 );
@@ -92,25 +61,21 @@ CREATE TABLE "journalEntryLine" (
   "description" TEXT,
   "debit" NUMERIC(19,4) NOT NULL DEFAULT 0,
   "credit" NUMERIC(19,4) NOT NULL DEFAULT 0,
-  "dimensionValues" JSONB,                 -- {dimensionId: valueId} for draft storage
+  "dimensionValues" JSONB,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   "createdBy" TEXT NOT NULL,
   "updatedAt" TIMESTAMP WITH TIME ZONE,
   "updatedBy" TEXT,
   "customFields" JSONB,
-
   CONSTRAINT "journalEntryLine_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "journalEntryLine_accountNumber_fkey"
-    FOREIGN KEY ("accountNumber", "companyGroupId")
-    REFERENCES "account"("number", "companyGroupId"),
-  CONSTRAINT "journalEntryLine_debit_credit_check"
-    CHECK ("debit" >= 0 AND "credit" >= 0),
-  CONSTRAINT "journalEntryLine_debit_or_credit_check"
-    CHECK (NOT ("debit" > 0 AND "credit" > 0))  -- cannot have both on one line
+    FOREIGN KEY ("accountNumber", "companyGroupId") REFERENCES "account"("number", "companyGroupId"),
+  CONSTRAINT "journalEntryLine_debit_credit_check" CHECK ("debit" >= 0 AND "credit" >= 0),
+  CONSTRAINT "journalEntryLine_debit_or_credit_check" CHECK (NOT ("debit" > 0 AND "credit" > 0))
 );
 ```
 
-#### Indexes
+### Indexes
 
 ```sql
 CREATE INDEX "journalEntry_companyId_idx" ON "journalEntry" ("companyId");
@@ -119,19 +84,22 @@ CREATE INDEX "journalEntry_postingDate_idx" ON "journalEntry" ("postingDate", "c
 CREATE INDEX "journalEntryLine_journalEntryId_idx" ON "journalEntryLine" ("journalEntryId");
 ```
 
-#### RLS Policies
+### RLS Policies
 
-Follow existing pattern — SELECT/INSERT/UPDATE/DELETE gated on `accounting_view`, `accounting_create`, `accounting_update`, `accounting_delete` permissions. `journalEntryLine` inherits access through its parent.
+Follow conventions from `feedback_rls_pattern.md`:
+- Policy names: `"SELECT"`, `"INSERT"`, `"UPDATE"`, `"DELETE"`
+- `journalEntry`: company-scoped using `get_companies_with_employee_role()` for SELECT, `get_companies_with_employee_permission('accounting_create')` etc. for mutations
+- `journalEntryLine`: same pattern scoped via `companyGroupId` using `get_company_groups_for_employee()` / `get_company_groups_for_root_permission('accounting_*')`
+- Reference: `20260228024512_dimensions.sql` for group-scoped RLS pattern
 
-#### View
+### View
 
 ```sql
 CREATE OR REPLACE VIEW "journalEntries" AS
-  SELECT
-    je.*,
+  SELECT je.*,
     COALESCE(SUM(jel."debit"), 0) AS "totalDebits",
     COALESCE(SUM(jel."credit"), 0) AS "totalCredits",
-    COUNT(jel."id") AS "lineCount"
+    COUNT(jel."id")::integer AS "lineCount"
   FROM "journalEntry" je
   LEFT JOIN "journalEntryLine" jel ON jel."journalEntryId" = je."id"
   GROUP BY je."id";
@@ -139,158 +107,150 @@ CREATE OR REPLACE VIEW "journalEntries" AS
 
 ---
 
-### Step 2: Models & Validators
+## Step 2: Models & Validators
 
-Add to `apps/erp/app/modules/accounting/accounting.models.ts`:
+**File**: `apps/erp/app/modules/accounting/accounting.models.ts`
 
-```typescript
-export const journalEntryTypes = [
-  "Accrual",
-  "Correction",
-  "Reclassification",
-  "Depreciation",
-  "Other"
-] as const;
-
-export const journalEntryStatuses = [
-  "Draft",
-  "Posted"
-] as const;
-
-export const journalEntryValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  description: z.string().optional(),
-  postingDate: z.string().min(1, { message: "Posting date is required" }),
-  entryType: z.enum(journalEntryTypes).optional(),
-});
-
-export const journalEntryLineValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  journalEntryId: zfd.text(z.string().optional()),
-  accountNumber: z.string().min(1, { message: "Account is required" }),
-  description: z.string().optional(),
-  debit: zfd.numeric(z.number().min(0)),
-  credit: zfd.numeric(z.number().min(0)),
-}).refine(
-  (data) => !(data.debit > 0 && data.credit > 0),
-  { message: "A line cannot have both debit and credit", path: ["credit"] }
-).refine(
-  (data) => data.debit > 0 || data.credit > 0,
-  { message: "Either debit or credit is required", path: ["debit"] }
-);
-```
+Add:
+- `journalEntryTypes` const array
+- `journalEntryStatuses` const array
+- `journalEntryValidator` — postingDate (required), description, entryType (optional enum)
+- `journalEntryLineValidator` — accountNumber (required), debit (>=0), credit (>=0), description; refine: not both >0, at least one >0
 
 ---
 
-### Step 3: Service Functions
+## Step 3: Service Functions
 
-Add to `apps/erp/app/modules/accounting/accounting.service.ts`:
+**File**: `apps/erp/app/modules/accounting/accounting.service.ts`
 
-```
-getJournalEntries(client, companyId, filters)     -- list from "journalEntries" view
-getJournalEntry(client, journalEntryId)            -- single with lines
-upsertJournalEntry(client, data)                   -- create or update header (Draft only)
-deleteJournalEntry(client, journalEntryId)         -- delete Draft only
-upsertJournalEntryLine(client, data)               -- create or update line
-deleteJournalEntryLine(client, lineId)             -- delete line
-postJournalEntry(client, journalEntryId, userId)   -- validate balance, write to journal/journalLine, set status=Posted
-reverseJournalEntry(client, journalEntryId, userId) -- create new JE with flipped amounts
-```
-
-#### Post Logic (pseudocode)
-
-```
-1. Fetch journalEntry + lines
-2. Assert status === 'Draft'
-3. Assert SUM(debit) === SUM(credit) and > 0
-4. Assert posting period is open
-5. Insert into "journal" (header) -> get journalId
-6. For each line:
-   a. Insert into "journalLine" with amount = debit - credit
-   b. Insert into "journalLineDimension" for each dimension value
-7. Update journalEntry: status='Posted', journalId, postedAt, postedBy
-```
-
-#### Reverse Logic (pseudocode)
-
-```
-1. Fetch original posted journalEntry + lines
-2. Create new journalEntry with reversalOfId = original.id, next open period
-3. Copy lines with debit/credit swapped
-4. Return new Draft JE (user can review and post)
-```
+Add functions:
+- `getJournalEntries(client, companyId, filters)` — query `journalEntries` view with GenericQueryFilters
+- `getJournalEntry(client, id)` — single entry with lines joined
+- `createJournalEntry(client, data)` — insert header, return id
+- `updateJournalEntry(client, data)` — update Draft only
+- `deleteJournalEntry(client, id)` — delete Draft only
+- `upsertJournalEntryLine(client, data)` — create or update line
+- `deleteJournalEntryLine(client, id)` — delete line
+- `postJournalEntry(client, id, userId)`:
+  1. Fetch entry + lines
+  2. Assert status=Draft, SUM(debit)=SUM(credit), lines exist
+  3. Insert `journal` header → get journalId
+  4. Insert `journalLine` rows (amount = debit - credit per line)
+  5. Insert `journalLineDimension` rows from dimensionValues JSONB
+  6. Update journalEntry: status=Posted, journalId, postedAt, postedBy
+- `reverseJournalEntry(client, id, userId)`:
+  1. Fetch posted entry + lines
+  2. Create new Draft journalEntry with reversalOfId, swapped debit/credit on lines
 
 ---
 
-### Step 4: Types
+## Step 4: Types
 
-Add to `apps/erp/app/modules/accounting/types.ts`:
+**File**: `apps/erp/app/modules/accounting/types.ts`
 
-```typescript
-export type JournalEntry = ...;       // from getJournalEntry return
-export type JournalEntryListItem = ...; // from getJournalEntries return  
-export type JournalEntryLine = ...;   // line type
-```
+Add types derived from service return types:
+- `JournalEntry`, `JournalEntryListItem`, `JournalEntryLine`
 
 ---
 
-### Step 5: Path Definitions
+## Step 5: Path Definitions
 
-In `apps/erp/app/utils/path.ts`, the path `accountingJournals` already exists. Add:
+**File**: `apps/erp/app/utils/path.ts`
 
+Existing: `accountingJournals: \`${x}/accounting/journals\``
+
+Add:
 ```typescript
-journalEntry: (id: string) => `${x}/accounting/journals/${id}`,
+journalEntry: (id: string) => generatePath(`${x}/journal-entry/${id}`),
+journalEntryDetails: (id: string) => generatePath(`${x}/journal-entry/${id}/details`),
 newJournalEntry: `${x}/accounting/journals/new`,
-deleteJournalEntry: (id: string) => `${x}/accounting/journals/delete/${id}`,
+deleteJournalEntry: (id: string) => generatePath(`${x}/journal-entry/${id}/delete`),
+postJournalEntry: (id: string) => generatePath(`${x}/journal-entry/${id}/post`),
+reverseJournalEntry: (id: string) => generatePath(`${x}/journal-entry/${id}/reverse`),
+newJournalEntryLine: (id: string) => generatePath(`${x}/journal-entry/${id}/lines/new`),
+deleteJournalEntryLine: (lineId: string) => generatePath(`${x}/journal-entry/lines/${lineId}/delete`),
 ```
 
 ---
 
-### Step 6: Routes
+## Step 6: Routes
 
-Create routes in `apps/erp/app/routes/x+/accounting+/`:
+### List route (under accounting layout)
 
 | File | Purpose |
 |------|---------|
-| `journals.tsx` | List view — loads journalEntries with filters, renders table + `<Outlet />` |
-| `journals.new.tsx` | Create form — drawer/modal with header fields, redirects to detail on save |
-| `journals.$journalEntryId.tsx` | Detail view — header + line list + summary (debit/credit totals) |
-| `journals.$journalEntryId.new.tsx` | Add line — action route for creating a line |
-| `journals.$journalEntryId.$lineId.tsx` | Edit line — form for updating a line |
-| `journals.$journalEntryId.$lineId.delete.tsx` | Delete line — action route |
-| `journals.$journalEntryId.post.tsx` | Post action — validates balance, writes to GL |
-| `journals.$journalEntryId.reverse.tsx` | Reverse action — creates reversed copy |
-| `journals.$journalEntryId.delete.tsx` | Delete draft — only for Draft status |
+| `routes/x+/accounting+/journals.tsx` | List view — table + `<Outlet />` for new drawer |
+| `routes/x+/accounting+/journals.new.tsx` | New JE — **Drawer overlay** with header fields, creates entry, redirects to detail |
+
+### Detail route group (dedicated layout, like shipment)
+
+| File | Purpose |
+|------|---------|
+| `routes/x+/journal-entry+/_layout.tsx` | Simple `<Outlet />` wrapper with breadcrumb + meta |
+| `routes/x+/journal-entry+/$journalEntryId.tsx` | Container: PanelProvider + Header + scrollable VStack + `<Outlet />` |
+| `routes/x+/journal-entry+/$journalEntryId._index.tsx` | Redirect to details |
+| `routes/x+/journal-entry+/$journalEntryId.details.tsx` | Form + Lines component + Summary bar |
+| `routes/x+/journal-entry+/$journalEntryId.post.tsx` | Post action route |
+| `routes/x+/journal-entry+/$journalEntryId.reverse.tsx` | Reverse action route |
+| `routes/x+/journal-entry+/$journalEntryId.delete.tsx` | Delete action route (Draft only) |
+| `routes/x+/journal-entry+/lines.new.tsx` | Add line action route |
+| `routes/x+/journal-entry+/lines.$lineId.tsx` | Edit line — Drawer overlay |
+| `routes/x+/journal-entry+/lines.$lineId.delete.tsx` | Delete line action route |
+
+### Key layout pattern (from shipment)
+
+```
+_layout.tsx → simple Outlet wrapper
+$journalEntryId.tsx →
+  <PanelProvider>
+    <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
+      <JournalEntryHeader />  {/* ID, status badge, Post/Reverse/Delete buttons */}
+      <div className="flex h-[calc(100dvh-99px)] overflow-y-auto scrollbar-hide w-full">
+        <VStack spacing={4} className="h-full p-2 w-full max-w-5xl mx-auto">
+          <Outlet />
+        </VStack>
+      </div>
+    </div>
+  </PanelProvider>
+
+$journalEntryId.details.tsx →
+  <div className="flex flex-col gap-2 pb-16 w-full">
+    <JournalEntryForm />     {/* Card: postingDate, description, entryType */}
+    <JournalEntryLines />    {/* Card: line items table with add/edit/delete */}
+    <JournalEntrySummary />  {/* Debit/credit totals, balance indicator */}
+  </div>
+```
 
 ---
 
-### Step 7: UI Components
+## Step 7: UI Components
 
-Create in `apps/erp/app/modules/accounting/ui/JournalEntries/`:
+**Directory**: `apps/erp/app/modules/accounting/ui/JournalEntries/`
 
 | Component | Description |
 |-----------|-------------|
-| `JournalEntryTable.tsx` | List table with columns: ID, date, description, type, status, total, line count. Filter by status. |
-| `JournalEntryForm.tsx` | Header form (drawer): posting date, description, entry type. Used for new + edit. |
-| `JournalEntryDetail.tsx` | Detail view: header info + line items list + debit/credit summary bar |
-| `JournalEntryLineForm.tsx` | Line form (drawer/modal): account picker, debit or credit amount, description, dimension selectors |
-| `JournalEntrySummary.tsx` | Footer bar showing total debits, total credits, difference. Visual warning when unbalanced. |
-| `index.ts` | Barrel export |
+| `JournalEntriesTable.tsx` | List table: ID (linked), date, description, type, status badge, totalDebits, totalCredits, lineCount |
+| `JournalEntryHeader.tsx` | Header bar: ID with copy, status badge, Post/Reverse/Delete action buttons. Follow `ShipmentHeader` pattern. |
+| `JournalEntryForm.tsx` | Card form: postingDate (DatePicker), description (Input), entryType (Select, optional). Disabled when Posted. |
+| `JournalEntryLines.tsx` | Card with line items table. Columns: account (Combobox), description, debit, credit, dimensions, actions. Add line button. Disabled when Posted. |
+| `JournalEntryLineForm.tsx` | Drawer for add/edit line: account picker (filtered non-group accounts), debit/credit (mutually exclusive input), description, dimension selectors per active dimension. |
+| `JournalEntrySummary.tsx` | Footer card: Total Debits / Total Credits / Difference. Red when unbalanced, green when balanced. |
+| `index.ts` | Barrel exports |
 
-**Key UX details:**
-- Summary bar always visible showing `Total Debits | Total Credits | Difference`
-- Difference highlighted red when non-zero, green when balanced
-- Post button disabled when unbalanced or no lines
-- Account picker filtered to non-group accounts in the company group
-- Debit/credit fields: when user enters debit, credit clears (and vice versa)
-- Posted entries show read-only view with "Reverse" action button
-- Line form includes dimension selectors for each active dimension
+### UX details
+- Debit/credit inputs: entering debit clears credit and vice versa
+- Post button disabled when: no lines, unbalanced, or already Posted
+- Posted entries: all fields read-only, only Reverse action available
+- Account picker: filtered to non-group accounts in the company group
+- Each active dimension gets a selector in the line form (Combobox of dimension values)
 
 ---
 
-### Step 8: Sidebar Navigation
+## Step 8: Sidebar Navigation
 
-In `useAccountingSubmodules.tsx`, uncomment/add the Journals entry in the Manage group:
+**File**: `apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx`
+
+Uncomment/replace the commented "Journals" entry in the Manage group:
 
 ```typescript
 {
@@ -303,32 +263,43 @@ In `useAccountingSubmodules.tsx`, uncomment/add the Journals entry in the Manage
 
 ---
 
-### Step 9: Update Exports
+## Step 9: Exports
 
-In `apps/erp/app/modules/accounting/index.ts`, export new validators, service functions, and types.
+**File**: `apps/erp/app/modules/accounting/index.ts`
+
+Export new validators, service functions, types, and constants.
 
 ---
 
 ## File Change Summary
 
-| Area | Files |
-|------|-------|
-| **Migration** | `packages/database/supabase/migrations/YYYYMMDD_journal-entries.sql` (1 new) |
-| **Models** | `accounting.models.ts` (modify) |
-| **Service** | `accounting.service.ts` (modify) |
-| **Types** | `types.ts` (modify) |
-| **Paths** | `path.ts` (modify) |
-| **Routes** | `routes/x+/accounting+/journals*.tsx` (9 new) |
-| **UI** | `modules/accounting/ui/JournalEntries/` (6 new) |
-| **Nav** | `useAccountingSubmodules.tsx` (modify) |
-| **Exports** | `index.ts` (modify) |
-| **DB Types** | `packages/database/src/types.ts` (regenerated after migration) |
+| Area | Files | Action |
+|------|-------|--------|
+| Migration | `packages/database/supabase/migrations/YYYYMMDD_journal-entries.sql` | New |
+| Models | `accounting.models.ts` | Modify |
+| Service | `accounting.service.ts` | Modify |
+| Types | `types.ts` | Modify |
+| Paths | `path.ts` | Modify |
+| List routes | `accounting+/journals.tsx`, `journals.new.tsx` | New (2) |
+| Detail routes | `journal-entry+/_layout.tsx`, `$journalEntryId.tsx`, `$journalEntryId._index.tsx`, `$journalEntryId.details.tsx`, `$journalEntryId.post.tsx`, `$journalEntryId.reverse.tsx`, `$journalEntryId.delete.tsx`, `lines.new.tsx`, `lines.$lineId.tsx`, `lines.$lineId.delete.tsx` | New (10) |
+| UI components | `JournalEntries/` directory (7 files) | New |
+| Nav | `useAccountingSubmodules.tsx` | Modify |
+| Exports | `index.ts` | Modify |
+| DB Types | `packages/database/src/types.ts` | Regenerated |
 
-## Open Questions for V2
+**Total: ~19 new files, ~6 modified files**
 
-- Recurring JE templates and scheduling
-- Approval workflow integration (extend existing `approvalRequest` system)
-- Allocation rules (split one line across dimensions/subsidiaries)
-- Excel paste import for bulk line entry
-- Auto-balance button (add clearing line automatically)
-- Period-close checklist integration
+---
+
+## Verification
+
+1. **Migration**: Run migration, verify tables/enums/view/RLS exist in Supabase
+2. **Navigation**: Confirm "Journal Entries" appears under Accounting > Manage
+3. **List view**: Navigate to journals, verify empty table renders with "New" button
+4. **Create**: Click New, fill header fields in drawer, save → redirects to detail view
+5. **Add lines**: Add 2+ lines with debit/credit, verify summary totals update
+6. **Balance check**: Try to post when unbalanced → button disabled / error shown
+7. **Post**: Balance entry, click Post → verify status changes to Posted, journal/journalLine records created in GL
+8. **Immutability**: Verify all fields are read-only after posting, edit/delete actions hidden
+9. **Reverse**: Click Reverse on posted entry → new Draft JE created with flipped amounts
+10. **Dimensions**: Add dimension values to lines, post, verify `journalLineDimension` records created

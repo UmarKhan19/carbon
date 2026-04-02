@@ -1092,14 +1092,29 @@ serve(async (req: Request) => {
           .execute();
       }
 
-      // TODO: re-enable journal inserts once accounting dimensions are finalized
-      console.log("journal", {
-        accountingPeriodId,
-        description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
-        postingDate: today,
-        companyId,
-      });
-      console.log("journalLines", JSON.stringify(journalLineInserts, null, 2));
+      const journalResult = await trx
+        .insertInto("journal")
+        .values({
+          accountingPeriodId,
+          description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
+          postingDate: today,
+          companyId,
+        })
+        .returning(["id"])
+        .executeTakeFirstOrThrow();
+
+      if (journalLineInserts.length > 0) {
+        await trx
+          .insertInto("journalLine")
+          .values(
+            journalLineInserts.map((line) => ({
+              ...line,
+              journalId: journalResult.id,
+            }))
+          )
+          .returning(["id"])
+          .execute();
+      }
 
       if (itemLedgerInserts.length > 0) {
         await trx

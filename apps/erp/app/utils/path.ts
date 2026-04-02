@@ -384,6 +384,16 @@ export const path = {
     accounting: `${x}/accounting`,
     accountingDefaults: `${x}/accounting/defaults`,
     accountingJournals: `${x}/accounting/journals`,
+    journalEntry: (id: string) => generatePath(`${x}/journal-entry/${id}`),
+    journalEntryDetails: (id: string) =>
+      generatePath(`${x}/journal-entry/${id}/details`),
+    newJournalEntry: `${x}/accounting/journals/new`,
+    newJournalEntryLine: (id: string) =>
+      generatePath(`${x}/journal-entry/${id}/lines/new`),
+    postJournalEntry: (id: string) =>
+      generatePath(`${x}/journal-entry/${id}/post`),
+    reverseJournalEntry: (id: string) =>
+      generatePath(`${x}/journal-entry/${id}/reverse`),
     accountingGroupsBankAccounts: `${x}/accounting/groups/bank-accounts`,
     accountingGroupsFixedAssets: `${x}/accounting/groups/fixed-assets`,
     accountingGroupsInventory: `${x}/accounting/groups/inventory`,
@@ -616,6 +626,10 @@ export const path = {
     deleteItem: (id: string) => generatePath(`${x}/items/delete/${id}`),
     deleteItemPostingGroup: (id: string) =>
       generatePath(`${x}/items/groups/delete/${id}`),
+    deleteJournalEntry: (id: string) =>
+      generatePath(`${x}/journal-entry/${id}/delete`),
+    deleteJournalEntryLine: (lineId: string) =>
+      generatePath(`${x}/journal-entry/lines/${lineId}/delete`),
     deleteJob: (id: string) => generatePath(`${x}/job/${id}/delete`),
     deleteJobMaterial: (jobId: string, id: string) =>
       generatePath(`${x}/job/methods/${jobId}/material/delete/${id}`),

@@ -10,9 +10,12 @@ import {
   ModalHeader,
   ModalTitle
 } from "@carbon/react";
+import { getLocalTimeZone } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect, useNavigate } from "react-router";
 import { useUser } from "~/hooks";
+import { insertEmployeeJob } from "~/modules/people";
+import { upsertLocation } from "~/modules/resources";
 import {
   insertCompany,
   SubsidiaryCompanyForm,
@@ -34,11 +37,19 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { id: _, parentCompanyId, ...companyData } = validation.data;
+  const {
+    id: _,
+    parentCompanyId,
+    baseCurrencyCode,
+    ...locationData
+  } = validation.data;
 
   const client = getCarbonServiceRole();
 
-  const companyInsert = await insertCompany(client, companyData);
+  const companyInsert = await insertCompany(client, {
+    ...locationData,
+    baseCurrencyCode
+  });
   if (companyInsert.error) {
     throw redirect(
       path.to.companies,
@@ -62,6 +73,48 @@ export async function action({ request }: ActionFunctionArgs) {
     throw redirect(
       path.to.companies,
       await flash(request, error(seed.error, "Failed to seed company"))
+    );
+  }
+
+  const locationInsert = await upsertLocation(client, {
+    ...locationData,
+    name: "Headquarters",
+    companyId,
+    timezone: getLocalTimeZone(),
+    createdBy: userId
+  });
+
+  if (locationInsert.error) {
+    throw redirect(
+      path.to.companies,
+      await flash(
+        request,
+        error(locationInsert.error, "Failed to create headquarters location")
+      )
+    );
+  }
+
+  const locationId = locationInsert.data?.id;
+  if (!locationId) {
+    throw redirect(
+      path.to.companies,
+      await flash(request, error(null, "Failed to get location ID"))
+    );
+  }
+
+  const job = await insertEmployeeJob(client, {
+    id: userId,
+    companyId,
+    locationId
+  });
+
+  if (job.error) {
+    throw redirect(
+      path.to.companies,
+      await flash(
+        request,
+        error(job.error, "Failed to create employee job record")
+      )
     );
   }
 

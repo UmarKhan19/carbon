@@ -878,14 +878,29 @@ serve(async (req: Request) => {
             .where("id", "=", receipt.data.sourceDocumentId)
             .execute();
 
-          // TODO: re-enable journal inserts once accounting dimensions are finalized
-          console.log("journal", {
-            accountingPeriodId,
-            description: `Purchase Receipt ${receipt.data.receiptId}`,
-            postingDate: today,
-            companyId,
-          });
-          console.log("journalLines", JSON.stringify(journalLineInserts, null, 2));
+          const journalResult = await trx
+            .insertInto("journal")
+            .values({
+              accountingPeriodId,
+              description: `Purchase Receipt ${receipt.data.receiptId}`,
+              postingDate: today,
+              companyId,
+            })
+            .returning(["id"])
+            .executeTakeFirstOrThrow();
+
+          if (journalLineInserts.length > 0) {
+            await trx
+              .insertInto("journalLine")
+              .values(
+                journalLineInserts.map((line) => ({
+                  ...line,
+                  journalId: journalResult.id,
+                }))
+              )
+              .returning(["id"])
+              .execute();
+          }
 
           if (itemLedgerInserts.length > 0) {
             await trx
@@ -1146,14 +1161,27 @@ serve(async (req: Request) => {
 
           // Create journal entries if there are any
           if (journalLineInserts.length > 0) {
-            // TODO: re-enable journal inserts once accounting dimensions are finalized
-            console.log("journal", {
-              accountingPeriodId,
-              description: `Transfer Receipt ${receipt.data.receiptId}`,
-              postingDate: today,
-              companyId,
-            });
-            console.log("journalLines", JSON.stringify(journalLineInserts, null, 2));
+            const transferJournalResult = await trx
+              .insertInto("journal")
+              .values({
+                accountingPeriodId,
+                description: `Transfer Receipt ${receipt.data.receiptId}`,
+                postingDate: today,
+                companyId,
+              })
+              .returning(["id"])
+              .executeTakeFirstOrThrow();
+
+            await trx
+              .insertInto("journalLine")
+              .values(
+                journalLineInserts.map((line) => ({
+                  ...line,
+                  journalId: transferJournalResult.id,
+                }))
+              )
+              .returning(["id"])
+              .execute();
           }
 
           // Create item ledger entries

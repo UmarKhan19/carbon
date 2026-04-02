@@ -440,6 +440,45 @@ export const intercompanyTransactionValidator = z
     }
   );
 
+export const journalEntryTypes = [
+  "Accrual",
+  "Correction",
+  "Reclassification",
+  "Depreciation",
+  "Other"
+] as const;
+
+export const journalEntryStatuses = ["Draft", "Posted"] as const;
+
+export const journalEntryValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  description: z.string().optional(),
+  postingDate: z.string().min(1, { message: "Posting date is required" }),
+  entryType: z
+    .enum(journalEntryTypes, {
+      errorMap: () => ({ message: "Entry type is required" })
+    })
+    .optional()
+});
+
+export const journalEntryLineValidator = z
+  .object({
+    id: zfd.text(z.string().optional()),
+    journalEntryId: zfd.text(z.string().optional()),
+    accountNumber: z.string().min(1, { message: "Account is required" }),
+    description: z.string().optional(),
+    debit: zfd.numeric(z.number().min(0)),
+    credit: zfd.numeric(z.number().min(0))
+  })
+  .refine((data) => !(data.debit > 0 && data.credit > 0), {
+    message: "A line cannot have both debit and credit",
+    path: ["credit"]
+  })
+  .refine((data) => data.debit > 0 || data.credit > 0, {
+    message: "Either debit or credit is required",
+    path: ["debit"]
+  });
+
 export const dimensionEntityTypes = [
   "CostCenter",
   "Custom",

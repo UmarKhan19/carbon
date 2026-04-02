@@ -2,6 +2,7 @@ import {
   LuArrowLeftRight,
   LuAxis3D,
   LuBetweenHorizontalStart,
+  LuBookOpen,
   LuCalendar1,
   LuCoins,
   LuEuro,
@@ -53,12 +54,13 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
         to: path.to.intercompany,
         role: "employee",
         icon: <LuArrowLeftRight />
+      },
+      {
+        name: "Journal Entries",
+        to: path.to.accountingJournals,
+        role: "employee",
+        icon: <LuBookOpen />
       }
-      // {
-      //   name: "Journals",
-      //   to: path.to.accountingJournals,
-      //   role: "employee",
-      // },
     ]
   },
 
