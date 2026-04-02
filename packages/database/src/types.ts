@@ -7669,6 +7669,9 @@ export type Database = {
           id: string
           name: string
           protected: boolean
+          systemType:
+            | Database["public"]["Enums"]["employeeTypeSystemType"]
+            | null
           updatedAt: string | null
         }
         Insert: {
@@ -7677,6 +7680,9 @@ export type Database = {
           id?: string
           name: string
           protected?: boolean
+          systemType?:
+            | Database["public"]["Enums"]["employeeTypeSystemType"]
+            | null
           updatedAt?: string | null
         }
         Update: {
@@ -7685,6 +7691,9 @@ export type Database = {
           id?: string
           name?: string
           protected?: boolean
+          systemType?:
+            | Database["public"]["Enums"]["employeeTypeSystemType"]
+            | null
           updatedAt?: string | null
         }
         Relationships: [
@@ -58239,6 +58248,7 @@ export type Database = {
         | "Audio"
         | "Other"
         | "Model"
+      employeeTypeSystemType: "Admin" | "Console Operator"
       externalLinkDocumentType:
         | "Quote"
         | "SupplierQuote"
@@ -59391,6 +59401,7 @@ export const Constants = {
         "Other",
         "Model",
       ],
+      employeeTypeSystemType: ["Admin", "Console Operator"],
       externalLinkDocumentType: [
         "Quote",
         "SupplierQuote",

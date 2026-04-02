@@ -48358,6 +48358,9 @@ export default {
             $ref: "#/parameters/rowFilter.employeeType.updatedAt",
           },
           {
+            $ref: "#/parameters/rowFilter.employeeType.systemType",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -48435,6 +48438,9 @@ export default {
             $ref: "#/parameters/rowFilter.employeeType.updatedAt",
           },
           {
+            $ref: "#/parameters/rowFilter.employeeType.systemType",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -48464,6 +48470,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.employeeType.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.employeeType.systemType",
           },
           {
             $ref: "#/parameters/body.employeeType",
@@ -93923,6 +93932,11 @@ export default {
           format: "timestamp with time zone",
           type: "string",
         },
+        systemType: {
+          enum: ["Admin", "Console Operator"],
+          format: 'public."employeeTypeSystemType"',
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -127877,6 +127891,12 @@ export default {
     },
     "rowFilter.employeeType.updatedAt": {
       name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.employeeType.systemType": {
+      name: "systemType",
       required: false,
       in: "query",
       type: "string",
