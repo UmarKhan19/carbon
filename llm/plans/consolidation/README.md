@@ -43,16 +43,31 @@ This PRD defines a 4-phase plan to activate all of that infrastructure into a wo
 Each phase delivers standalone value and builds on the previous.
 
 ```
-Phase 1: Per-Company Financial Visibility
+Phase 1: Per-Company Financial Visibility          ✅ Done
     |
     v
-Phase 2: Currency Translation
+Phase 2: Currency Translation                      ✅ Done
     |
     v
-Phase 3: Intercompany Elimination
+Phase 3: Intercompany Elimination                  ✅ Done
     |
     v
-Phase 4: Consolidated Financial Statements
+Phase 4: Consolidated Financial Statements         ⬜ Planned
+    |
+    v
+Phase 5: Period-Close Enforcement                  ⬜ Planned
+    |
+    v
+Phase 6: IC SO/PO Auto-Pairing                    ⬜ Planned
+    |
+    v
+Phase 7: CTA-E (Elimination CTA)                  ⬜ Planned
+    |
+    v
+Phase 8: IC Inventory Transfers                    ⬜ Planned
+    |
+    v
+Phase 9: Period-Close Workflow UI                  ⬜ Planned
 ```
 
 | Phase | Delivers | Key Additions |
@@ -61,6 +76,11 @@ Phase 4: Consolidated Financial Statements
 | [Phase 2](./phase-2-currency-translation.md) | Foreign subsidiary currency translation | `exchangeRateHistory` table, translation RPC, exchange rate UI |
 | [Phase 3](./phase-3-intercompany-elimination.md) | IC transaction matching and elimination | `intercompanyTransaction` table, modified posting functions, IC UI |
 | [Phase 4](./phase-4-consolidated-statements.md) | Full group consolidation with workflow | `consolidationRun` tables, consolidation engine, multi-column reports |
+| [Phase 5](./phase-5-period-close-enforcement.md) | Strict period-close enforcement | `Closed` status, trigger on `journal` INSERT, close/reopen service |
+| [Phase 6](./phase-6-ic-so-po-auto-pairing.md) | Auto-generate SO from IC PO | `intercompanyPurchaseOrderId` on SO, status sync, pairing UI |
+| [Phase 7](./phase-7-cta-elimination.md) | FX differences during elimination | CTA-E account, enhanced `generateEliminationEntries()` |
+| [Phase 8](./phase-8-ic-inventory-transfers.md) | Cross-company inventory transfers | At-cost GL posting, at-markup via PO/SO workflow |
+| [Phase 9](./phase-9-period-close-workflow.md) | Guided period-close checklist | Step-by-step close workflow, group-level status overview |
 
 ## Architecture Principles
 

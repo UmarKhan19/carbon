@@ -468,6 +468,17 @@ export async function insertSubsidiary(
   return client.from("company").insert(data).select("id").single();
 }
 
+export async function updateSubsidiary(
+  client: SupabaseClient<Database>,
+  id: string,
+  subsidiary: Partial<z.infer<typeof subsidiaryValidator>> & {
+    updatedBy: string;
+  }
+) {
+  const { id: _, ...data } = subsidiary;
+  return client.from("company").update(data).eq("id", id);
+}
+
 export async function seedCompany(
   client: SupabaseClient<Database>,
   companyId: string,

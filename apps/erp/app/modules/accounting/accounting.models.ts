@@ -402,22 +402,43 @@ export const intercompanyTransactionStatuses = [
   "Eliminated"
 ] as const;
 
-export const intercompanyTransactionValidator = z.object({
-  sourceCompanyId: z.string().min(1, { message: "Source company is required" }),
-  targetCompanyId: z.string().min(1, { message: "Target company is required" }),
-  amount: zfd.numeric(
-    z.number().positive({ message: "Amount must be positive" })
-  ),
-  currencyCode: z.string().min(1, { message: "Currency is required" }),
-  description: z.string().min(1, { message: "Description is required" }),
-  debitAccountNumber: z
-    .string()
-    .min(1, { message: "Debit account is required" }),
-  creditAccountNumber: z
-    .string()
-    .min(1, { message: "Credit account is required" }),
-  postingDate: zfd.text(z.string().optional())
-});
+export const intercompanyTransactionValidator = z
+  .object({
+    sourceCompanyId: z
+      .string()
+      .min(1, { message: "Source company is required" }),
+    targetCompanyId: z
+      .string()
+      .min(1, { message: "Target company is required" }),
+    amount: zfd.numeric(
+      z.number().positive({ message: "Amount must be positive" })
+    ),
+    currencyCode: z.string().min(1, { message: "Currency is required" }),
+    description: z.string().min(1, { message: "Description is required" }),
+    debitAccountNumber: z
+      .string()
+      .min(1, { message: "Debit account is required" }),
+    creditAccountNumber: z
+      .string()
+      .min(1, { message: "Credit account is required" }),
+    postingDate: zfd.text(z.string().optional())
+  })
+  .refine(
+    (data) => {
+      return data.debitAccountNumber !== data.creditAccountNumber;
+    },
+    {
+      message: "Debit and credit account must be different"
+    }
+  )
+  .refine(
+    (data) => {
+      return data.sourceCompanyId !== data.targetCompanyId;
+    },
+    {
+      message: "Source and target company must be different"
+    }
+  );
 
 export const dimensionEntityTypes = [
   "CostCenter",
