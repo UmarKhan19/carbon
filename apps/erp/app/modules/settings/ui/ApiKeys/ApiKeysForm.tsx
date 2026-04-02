@@ -16,7 +16,11 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
-import { getLocalTimeZone, now } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  toCalendarDateTime,
+  today
+} from "@internationalized/date";
 import { useEffect, useMemo, useState } from "react";
 import { LuCheck, LuClipboard, LuLock } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -112,7 +116,7 @@ const ApiKeyForm = ({
                 <DateTimePicker
                   name="expiresAt"
                   label="Expires At (optional)"
-                  minValue={now(getLocalTimeZone())}
+                  minValue={toCalendarDateTime(today(getLocalTimeZone()))}
                 />
 
                 <PermissionMatrix matrix={matrix} />
