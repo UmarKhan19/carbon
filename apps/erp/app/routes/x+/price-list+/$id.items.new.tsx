@@ -8,25 +8,37 @@ import { useRouteData } from "~/hooks";
 import type { PriceListDetail } from "~/modules/pricing";
 import {
   createPriceListItem,
+  getPriceListType,
   priceListItemValidator,
   upsertPriceListItemBreaks
 } from "~/modules/pricing";
 import { PriceListItemForm } from "~/modules/pricing/ui/PriceListItems";
 import { path } from "~/utils/path";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermissions(request, { create: "sales" });
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { client } = await requirePermissions(request, { role: "employee" });
+  const { id } = params;
+  if (!id) throw new Error("Price list ID not found");
+  const plType = await getPriceListType(client, id);
+  await requirePermissions(request, {
+    create: plType === "Purchase" ? "purchasing" : "sales"
+  });
   return null;
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
-    create: "sales"
+    role: "employee"
   });
 
   const { id } = params;
   if (!id) throw new Error("Price list ID not found");
+
+  const plType = await getPriceListType(client, id);
+  await requirePermissions(request, {
+    create: plType === "Purchase" ? "purchasing" : "sales"
+  });
 
   const formData = await request.formData();
   const validation = await validator(priceListItemValidator).validate(formData);

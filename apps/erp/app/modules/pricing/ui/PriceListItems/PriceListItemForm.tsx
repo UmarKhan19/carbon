@@ -2,7 +2,6 @@ import { useCarbon } from "@carbon/auth";
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
-  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -44,22 +43,12 @@ import {
   priceListItemValidator,
   pricingMethods
 } from "../../pricing.models";
+import { toggleGroupClass, toggleItemClass } from "../shared";
 
 type PriceBreakRow = {
   quantity: number;
   unitPrice: number;
 };
-
-const toggleGroupClass =
-  "inline-flex w-full gap-0 rounded-lg border border-border bg-muted p-0.5";
-
-const toggleItemClass = cn(
-  "h-8 flex-1 basis-0 rounded-md px-3 text-sm font-medium",
-  "bg-transparent text-muted-foreground",
-  "hover:bg-active hover:text-active-foreground",
-  "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
-  "transition-all duration-150"
-);
 
 type PriceListItemFormProps = {
   initialValues: z.infer<typeof priceListItemValidator>;
@@ -86,13 +75,33 @@ const PriceListItemForm = ({
   const [formulaBase, setFormulaBase] = useState(
     initialValues.formulaBase ?? ""
   );
+  const [markupPercent, setMarkupPercent] = useState(
+    initialValues.markupPercent ?? 0
+  );
   const [replenishmentSystem, setReplenishmentSystem] = useState<string>("");
+  const [itemCostValue, setItemCostValue] = useState<number | null>(null);
+  const [itemSalePriceValue, setItemSalePriceValue] = useState<number | null>(
+    null
+  );
   const [priceBreaks, setPriceBreaks] = useState<PriceBreakRow[]>(
     initialBreaks ?? []
   );
   const [itemScope, setItemScope] = useState<"item" | "category">(
     initialValues.itemPostingGroupId ? "category" : "item"
   );
+
+  const formulaPreview = useMemo(() => {
+    if (pricingMethod !== "Formula" || !formulaBase) return null;
+    const base = formulaBase === "cost" ? itemCostValue : itemSalePriceValue;
+    if (base === null || base === undefined) return null;
+    return base * (1 + markupPercent);
+  }, [
+    pricingMethod,
+    formulaBase,
+    itemCostValue,
+    itemSalePriceValue,
+    markupPercent
+  ]);
 
   const isEditing = initialValues.id !== undefined;
   const permissionModule =
@@ -108,7 +117,7 @@ const PriceListItemForm = ({
       return;
     }
 
-    const [itemResult, priceResult] = await Promise.all([
+    const [itemResult, priceResult, costResult] = await Promise.all([
       carbon
         .from("item")
         .select("unitOfMeasureCode, replenishmentSystem")
@@ -120,6 +129,11 @@ const PriceListItemForm = ({
         .select("unitSalePrice")
         .eq("itemId", itemId)
         .eq("companyId", company.id)
+        .maybeSingle(),
+      carbon
+        .from("itemCost")
+        .select("unitCost")
+        .eq("itemId", itemId)
         .maybeSingle()
     ]);
 
@@ -133,7 +147,9 @@ const PriceListItemForm = ({
     }
     if (priceResult.data?.unitSalePrice) {
       setUnitPrice(priceResult.data.unitSalePrice);
+      setItemSalePriceValue(priceResult.data.unitSalePrice);
     }
+    setItemCostValue(costResult.data?.unitCost ?? null);
   };
 
   return (
@@ -182,7 +198,7 @@ const PriceListItemForm = ({
                       value="category"
                       className={toggleItemClass}
                     >
-                      Item Category
+                      Item Group
                     </ToggleGroupItem>
                   </ToggleGroup>
                 </div>
@@ -228,28 +244,6 @@ const PriceListItemForm = ({
                       label="Unit Price"
                       value={unitPrice}
                       onChange={setUnitPrice}
-                      formatOptions={{
-                        style: "currency",
-                        currency: company?.baseCurrencyCode ?? "USD"
-                      }}
-                    />
-                    <Number
-                      name="discountPercent"
-                      label="Discount %"
-                      minValue={0}
-                      maxValue={1}
-                      step={0.01}
-                      formatOptions={{
-                        style: "percent",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
-                      }}
-                    />
-                    <Number
-                      name="surchargeAmount"
-                      label="Surcharge"
-                      helperText="Added on top of unit price"
-                      minValue={0}
                       formatOptions={{
                         style: "currency",
                         currency: company?.baseCurrencyCode ?? "USD"
@@ -303,21 +297,11 @@ const PriceListItemForm = ({
                         { label: "90%", value: "0.9" },
                         { label: "100%", value: "1" }
                       ]}
-                    />
-                    <Select
-                      name="roundingPrecision"
-                      label="Round To Nearest"
-                      options={[
-                        { label: "No rounding", value: "0" },
-                        { label: "$0.01 (cent)", value: "0.01" },
-                        { label: "$0.05", value: "0.05" },
-                        { label: "$0.10", value: "0.1" },
-                        { label: "$0.25", value: "0.25" },
-                        { label: "$0.50", value: "0.5" },
-                        { label: "$1.00 (dollar)", value: "1" },
-                        { label: "$5.00", value: "5" },
-                        { label: "$10.00", value: "10" }
-                      ]}
+                      onChange={(v) =>
+                        setMarkupPercent(
+                          v?.value ? Number.parseFloat(v.value as string) : 0
+                        )
+                      }
                     />
                     <Number
                       name="minMarginPercent"
@@ -332,6 +316,19 @@ const PriceListItemForm = ({
                         maximumFractionDigits: 2
                       }}
                     />
+                    {formulaPreview !== null && (
+                      <div className="rounded-md bg-muted px-3 py-2 text-sm">
+                        <span className="text-muted-foreground">
+                          Estimated price:{" "}
+                        </span>
+                        <span className="font-medium">
+                          {new Intl.NumberFormat("en-US", {
+                            style: "currency",
+                            currency: company?.baseCurrencyCode ?? "USD"
+                          }).format(formulaPreview)}
+                        </span>
+                      </div>
+                    )}
                   </>
                 )}
 

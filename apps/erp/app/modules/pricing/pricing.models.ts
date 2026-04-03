@@ -94,14 +94,23 @@ export const priceListRuleValidator = z
     path: ["amount"]
   });
 
-export const priceListAssignmentValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  priceListId: z.string().min(1),
-  customerId: zfd.text(z.string().optional()),
-  customerTypeId: zfd.text(z.string().optional()),
-  supplierId: zfd.text(z.string().optional()),
-  supplierTypeId: zfd.text(z.string().optional())
-});
+export const priceListAssignmentValidator = z
+  .object({
+    id: zfd.text(z.string().optional()),
+    priceListId: z.string().min(1),
+    customerId: zfd.text(z.string().optional()),
+    customerTypeId: zfd.text(z.string().optional()),
+    supplierId: zfd.text(z.string().optional()),
+    supplierTypeId: zfd.text(z.string().optional())
+  })
+  .refine(
+    (d) =>
+      !!(d.customerId || d.customerTypeId || d.supplierId || d.supplierTypeId),
+    {
+      message: "Select a customer, customer type, supplier, or supplier type",
+      path: ["customerId"]
+    }
+  );
 
 export const priceResolutionInputValidator = z.object({
   customerId: zfd.text(z.string().optional()),

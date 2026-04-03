@@ -1,7 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
-  cn,
   HStack,
   ModalDrawer,
   ModalDrawerBody,
@@ -26,6 +25,7 @@ import {
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { priceListAssignmentValidator } from "../../pricing.models";
+import { toggleGroupClass, toggleItemClass } from "../shared";
 
 type AssigneeMode = "entity" | "type";
 
@@ -34,14 +34,6 @@ type PriceListAssignmentFormProps = {
   priceListType: string;
   onClose: () => void;
 };
-
-const toggleItemClass = cn(
-  "h-8 flex-1 basis-0 rounded-md px-3 text-sm font-medium",
-  "bg-transparent text-muted-foreground",
-  "hover:bg-active hover:text-active-foreground",
-  "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
-  "transition-all duration-150"
-);
 
 const PriceListAssignmentForm = ({
   initialValues,
@@ -90,7 +82,7 @@ const PriceListAssignmentForm = ({
                     onValueChange={(v) => {
                       if (v) setAssigneeMode(v as AssigneeMode);
                     }}
-                    className="inline-flex w-full gap-0 rounded-lg border border-border bg-muted p-0.5"
+                    className={toggleGroupClass}
                   >
                     <ToggleGroupItem value="entity" className={toggleItemClass}>
                       {isSales ? "Customer" : "Supplier"}

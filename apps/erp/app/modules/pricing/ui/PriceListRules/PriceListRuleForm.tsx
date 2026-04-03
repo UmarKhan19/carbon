@@ -1,7 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
-  cn,
   HStack,
   ModalDrawer,
   ModalDrawerBody,
@@ -35,14 +34,7 @@ import {
   priceListRuleTypes,
   priceListRuleValidator
 } from "../../pricing.models";
-
-const toggleItemClass = cn(
-  "h-8 flex-1 basis-0 rounded-md px-3 text-sm font-medium",
-  "bg-transparent text-muted-foreground",
-  "hover:bg-active hover:text-active-foreground",
-  "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
-  "transition-all duration-150"
-);
+import { toggleGroupClass, toggleItemClass } from "../shared";
 
 type PriceListRuleFormProps = {
   initialValues: z.infer<typeof priceListRuleValidator>;
@@ -175,7 +167,7 @@ const PriceListRuleForm = ({
                     onValueChange={(v) => {
                       if (v) setItemScope(v as "item" | "category");
                     }}
-                    className="inline-flex w-full gap-0 rounded-lg border border-border bg-muted p-0.5"
+                    className={toggleGroupClass}
                   >
                     <ToggleGroupItem value="item" className={toggleItemClass}>
                       Specific Item
@@ -184,7 +176,7 @@ const PriceListRuleForm = ({
                       value="category"
                       className={toggleItemClass}
                     >
-                      Item Category
+                      Item Group
                     </ToggleGroupItem>
                   </ToggleGroup>
                 </div>

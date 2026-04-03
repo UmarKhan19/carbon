@@ -122,6 +122,18 @@ export async function getPriceList(
   return client.from("priceList").select("*").eq("id", id).single();
 }
 
+export async function getPriceListType(
+  client: SupabaseClient<Database>,
+  priceListId: string
+): Promise<"Sales" | "Purchase"> {
+  const { data } = await client
+    .from("priceList")
+    .select("type")
+    .eq("id", priceListId)
+    .single();
+  return (data?.type as "Sales" | "Purchase") ?? "Sales";
+}
+
 export async function createPriceList(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -497,6 +509,13 @@ export async function createPriceListVersion(
             itemPostingGroupId: item.itemPostingGroupId,
             unitPrice: item.unitPrice,
             unitOfMeasureCode: item.unitOfMeasureCode,
+            pricingMethod: item.pricingMethod,
+            formulaBase: item.formulaBase,
+            markupPercent: item.markupPercent,
+            roundingPrecision: item.roundingPrecision,
+            minMarginPercent: item.minMarginPercent,
+            discountPercent: item.discountPercent,
+            surchargeAmount: item.surchargeAmount,
             companyId,
             createdBy: userId
           }

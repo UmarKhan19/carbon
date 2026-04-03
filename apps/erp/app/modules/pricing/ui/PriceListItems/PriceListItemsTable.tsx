@@ -62,7 +62,7 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
             label = item ? `${item.readableId} — ${item.name}` : r.itemId;
           } else {
             const group = r.itemPostingGroup;
-            label = group ? `Category: ${group.name}` : "—";
+            label = group ? `Group: ${group.name}` : "—";
           }
 
           return (
@@ -124,27 +124,18 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
             const markup = r.markupPercent
               ? `+${(r.markupPercent * 100).toFixed(0)}%`
               : "";
-            const rounding = r.roundingPrecision
-              ? `, round ${formatter.format(r.roundingPrecision)}`
-              : "";
 
             const item = r.item;
             const baseCost = item?.itemCost?.[0]?.unitCost;
             let preview = "";
             if (baseCost != null && r.markupPercent != null) {
-              let computed = baseCost * (1 + r.markupPercent);
-              if (r.roundingPrecision && r.roundingPrecision > 0) {
-                computed =
-                  Math.round(computed / r.roundingPrecision) *
-                  r.roundingPrecision;
-              }
+              const computed = baseCost * (1 + r.markupPercent);
               preview = ` → ${formatter.format(computed)}`;
             }
 
             return (
               <span className="text-muted-foreground">
                 {base} {markup}
-                {rounding}
                 {preview && (
                   <span className="text-foreground font-medium">{preview}</span>
                 )}

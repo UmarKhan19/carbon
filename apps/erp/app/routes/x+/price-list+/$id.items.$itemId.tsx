@@ -9,6 +9,7 @@ import type { PriceListDetail } from "~/modules/pricing";
 import {
   getPriceListItem,
   getPriceListItemBreaks,
+  getPriceListType,
   priceListItemValidator,
   updatePriceListItem,
   upsertPriceListItemBreaks
@@ -17,9 +18,16 @@ import { PriceListItemForm } from "~/modules/pricing/ui/PriceListItems";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, { update: "sales" });
+  const { client } = await requirePermissions(request, { role: "employee" });
 
-  const { itemId } = params;
+  const { id, itemId } = params;
+  if (!id) throw new Error("Price list ID not found");
+
+  const plType = await getPriceListType(client, id);
+  await requirePermissions(request, {
+    update: plType === "Purchase" ? "purchasing" : "sales"
+  });
+
   if (!itemId) throw notFound("Item ID not found");
 
   const [{ data: item, error: itemError }, { data: breaks }] =
@@ -36,11 +44,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
-    update: "sales"
+    role: "employee"
   });
 
   const { id, itemId } = params;
   if (!id || !itemId) throw new Error("IDs not found");
+
+  const plType = await getPriceListType(client, id);
+  await requirePermissions(request, {
+    update: plType === "Purchase" ? "purchasing" : "sales"
+  });
 
   const formData = await request.formData();
   const validation = await validator(priceListItemValidator).validate(formData);

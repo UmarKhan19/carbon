@@ -156,8 +156,7 @@ export async function resolvePrice(
   companyId: string,
   input: PriceResolutionInput
 ): Promise<PriceResolutionResult> {
-  const date =
-    input.date ?? new Date().toISOString().split("T")[0] ?? "2026-01-01";
+  const date = input.date ?? new Date().toISOString().split("T")[0]!;
   const trace: PriceTraceStep[] = [];
 
   // ---------------------------------------------------------

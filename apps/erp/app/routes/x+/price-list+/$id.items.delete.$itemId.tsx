@@ -4,20 +4,25 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
-import { deletePriceListItem } from "~/modules/pricing";
+import { deletePriceListItem, getPriceListType } from "~/modules/pricing";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  await requirePermissions(request, { view: "sales", role: "employee" });
+  await requirePermissions(request, { role: "employee" });
   if (!params.itemId) throw notFound("Item ID not found");
   return null;
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client } = await requirePermissions(request, { delete: "sales" });
+  const { client } = await requirePermissions(request, { role: "employee" });
 
   const { id, itemId } = params;
   if (!id || !itemId) throw new Error("IDs not found");
+
+  const plType = await getPriceListType(client, id);
+  await requirePermissions(request, {
+    delete: plType === "Purchase" ? "purchasing" : "sales"
+  });
 
   const { error: deleteError } = await deletePriceListItem(client, itemId);
   if (deleteError) {
