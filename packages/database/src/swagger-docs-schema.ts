@@ -35131,9 +35131,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListItemBreak.unitPrice",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListItemBreak.discountPercent",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListItemBreak.companyId",
           },
           {
@@ -35217,9 +35214,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListItemBreak.unitPrice",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListItemBreak.discountPercent",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListItemBreak.companyId",
           },
           {
@@ -35255,9 +35249,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.priceListItemBreak.unitPrice",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListItemBreak.discountPercent",
           },
           {
             $ref: "#/parameters/rowFilter.priceListItemBreak.companyId",
@@ -51409,12 +51400,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListItem.discountPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListItem.surchargeAmount",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListItem.companyId",
           },
           {
@@ -51522,12 +51507,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListItem.discountPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListItem.surchargeAmount",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListItem.companyId",
           },
           {
@@ -51587,12 +51566,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListItem.discountPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListItem.surchargeAmount",
           },
           {
             $ref: "#/parameters/rowFilter.priceListItem.companyId",
@@ -87609,11 +87582,6 @@ export default {
           format: "numeric",
           type: "number",
         },
-        discountPercent: {
-          default: 0,
-          format: "numeric",
-          type: "number",
-        },
         companyId: {
           description:
             "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
@@ -95356,16 +95324,6 @@ export default {
           type: "number",
         },
         minMarginPercent: {
-          format: "numeric",
-          type: "number",
-        },
-        discountPercent: {
-          default: 0,
-          format: "numeric",
-          type: "number",
-        },
-        surchargeAmount: {
-          default: 0,
           format: "numeric",
           type: "number",
         },
@@ -120978,12 +120936,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.priceListItemBreak.discountPercent": {
-      name: "discountPercent",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.priceListItemBreak.companyId": {
       name: "companyId",
       required: false,
@@ -129773,18 +129725,6 @@ export default {
     },
     "rowFilter.priceListItem.minMarginPercent": {
       name: "minMarginPercent",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.priceListItem.discountPercent": {
-      name: "discountPercent",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.priceListItem.surchargeAmount": {
-      name: "surchargeAmount",
       required: false,
       in: "query",
       type: "string",

@@ -251,14 +251,6 @@ export async function resolvePrice(
           basePrice = item.unitPrice;
         }
 
-        // Apply item-level discount/surcharge if present
-        if (item.discountPercent && item.discountPercent > 0) {
-          basePrice = basePrice * (1 - item.discountPercent);
-        }
-        if (item.surchargeAmount && item.surchargeAmount > 0) {
-          basePrice = basePrice + item.surchargeAmount;
-        }
-
         winningListId = list.id;
         winningListName = list.name;
         winningPriceType = list.priceType ?? "Net";

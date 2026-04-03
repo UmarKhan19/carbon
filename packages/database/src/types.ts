@@ -22950,7 +22950,6 @@ export type Database = {
           companyId: string
           createdAt: string
           createdBy: string
-          discountPercent: number | null
           formulaBase: string | null
           id: string
           itemId: string | null
@@ -22960,7 +22959,6 @@ export type Database = {
           priceListId: string
           pricingMethod: string
           roundingPrecision: number | null
-          surchargeAmount: number | null
           unitOfMeasureCode: string | null
           unitPrice: number
           updatedAt: string | null
@@ -22970,7 +22968,6 @@ export type Database = {
           companyId: string
           createdAt?: string
           createdBy: string
-          discountPercent?: number | null
           formulaBase?: string | null
           id?: string
           itemId?: string | null
@@ -22980,7 +22977,6 @@ export type Database = {
           priceListId: string
           pricingMethod?: string
           roundingPrecision?: number | null
-          surchargeAmount?: number | null
           unitOfMeasureCode?: string | null
           unitPrice: number
           updatedAt?: string | null
@@ -22990,7 +22986,6 @@ export type Database = {
           companyId?: string
           createdAt?: string
           createdBy?: string
-          discountPercent?: number | null
           formulaBase?: string | null
           id?: string
           itemId?: string | null
@@ -23000,7 +22995,6 @@ export type Database = {
           priceListId?: string
           pricingMethod?: string
           roundingPrecision?: number | null
-          surchargeAmount?: number | null
           unitOfMeasureCode?: string | null
           unitPrice?: number
           updatedAt?: string | null
@@ -23168,7 +23162,6 @@ export type Database = {
           companyId: string
           createdAt: string
           createdBy: string
-          discountPercent: number | null
           minQuantity: number
           priceListItemId: string
           unitPrice: number
@@ -23179,7 +23172,6 @@ export type Database = {
           companyId: string
           createdAt?: string
           createdBy: string
-          discountPercent?: number | null
           minQuantity?: number
           priceListItemId: string
           unitPrice: number
@@ -23190,7 +23182,6 @@ export type Database = {
           companyId?: string
           createdAt?: string
           createdBy?: string
-          discountPercent?: number | null
           minQuantity?: number
           priceListItemId?: string
           unitPrice?: number

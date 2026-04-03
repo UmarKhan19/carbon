@@ -236,8 +236,6 @@ export async function createPriceListItem(
         markupPercent: data.markupPercent ?? null,
         roundingPrecision: data.roundingPrecision ?? null,
         minMarginPercent: data.minMarginPercent ?? null,
-        discountPercent: data.discountPercent ?? 0,
-        surchargeAmount: data.surchargeAmount ?? 0,
         companyId,
         createdBy: userId
       }
@@ -514,8 +512,6 @@ export async function createPriceListVersion(
             markupPercent: item.markupPercent,
             roundingPrecision: item.roundingPrecision,
             minMarginPercent: item.minMarginPercent,
-            discountPercent: item.discountPercent,
-            surchargeAmount: item.surchargeAmount,
             companyId,
             createdBy: userId
           }

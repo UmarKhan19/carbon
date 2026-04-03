@@ -55,10 +55,7 @@ export const priceListItemValidator = z
     formulaBase: z.enum(formulaBases).optional(),
     markupPercent: zfd.numeric(z.number().min(0).optional()),
     roundingPrecision: zfd.numeric(z.number().min(0).optional()),
-    minMarginPercent: zfd.numeric(z.number().min(0).max(1).optional()),
-    // Discount/surcharge on the item
-    discountPercent: zfd.numeric(z.number().min(0).max(1).optional()),
-    surchargeAmount: zfd.numeric(z.number().min(0).optional())
+    minMarginPercent: zfd.numeric(z.number().min(0).max(1).optional())
   })
   .refine((d) => d.pricingMethod !== "Formula" || d.formulaBase, {
     message: "Base price source is required for formula pricing",
