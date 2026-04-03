@@ -1,5 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
@@ -35,7 +35,15 @@ export async function action({ request }: ActionFunctionArgs) {
     const jobMethodPayload: any = {
       ...validation.data,
       companyId,
-      userId
+      userId,
+      parts: {
+        billOfMaterial: validation.data.billOfMaterial,
+        billOfProcess: validation.data.billOfProcess,
+        parameters: validation.data.parameters,
+        tools: validation.data.tools,
+        steps: validation.data.steps,
+        workInstructions: validation.data.workInstructions
+      }
     };
 
     // Only add configuration if it exists
@@ -83,7 +91,15 @@ export async function action({ request }: ActionFunctionArgs) {
     const makeMethodPayload: any = {
       ...validation.data,
       companyId,
-      userId
+      userId,
+      parts: {
+        billOfMaterial: validation.data.billOfMaterial,
+        billOfProcess: validation.data.billOfProcess,
+        parameters: validation.data.parameters,
+        tools: validation.data.tools,
+        steps: validation.data.steps,
+        workInstructions: validation.data.workInstructions
+      }
     };
 
     // Only add configuration if it exists

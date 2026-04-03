@@ -1,9 +1,11 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { convertSalesOrderLinesToJobs } from "~/modules/production/production.service";
+import { getSalesOrder } from "~/modules/sales";
 import { path, requestReferrer } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -21,18 +23,37 @@ export async function action({ request, params }: ActionFunctionArgs) {
     create: "production"
   });
 
-  const salesOrder = await convertSalesOrderLinesToJobs(client, {
+  const salesOrder = await getSalesOrder(client, orderId);
+  if (salesOrder.error) {
+    throw redirect(
+      path.to.salesOrder(orderId),
+      await flash(request, error(salesOrder.error, "Failed to get sales order"))
+    );
+  }
+
+  const serviceRole = getCarbonServiceRole();
+
+  const convertedJobs = await convertSalesOrderLinesToJobs(serviceRole, {
     orderId,
     companyId,
     userId
   });
 
-  if (salesOrder.error) {
+  if (convertedJobs.error) {
+    const errorObj = convertedJobs.error as any;
+    const errorMessage =
+      typeof errorObj === "string"
+        ? errorObj
+        : errorObj?.details || errorObj?.message || "Unknown error";
+
     throw redirect(
       path.to.salesOrder(orderId),
       await flash(
         request,
-        error(salesOrder.error, "Failed to convert sales order lines to jobs")
+        error(
+          convertedJobs.error,
+          `Failed to convert sales order lines to jobs: ${errorMessage}`
+        )
       )
     );
   }

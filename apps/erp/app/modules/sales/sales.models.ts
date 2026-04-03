@@ -47,7 +47,8 @@ export const salesRFQStatusType = [
 export const customerAccountingValidator = z.object({
   id: zfd.text(z.string()),
   customerTypeId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional())
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional())
 });
 
 export const customerContactValidator = z.object({
@@ -69,13 +70,14 @@ export const customerValidator = z.object({
   customerTypeId: zfd.text(z.string().optional()),
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
+  taxId: zfd.text(z.string().optional()),
   taxPercent: zfd.numeric(
     z.number().min(0).max(1, { message: "Tax percent must be between 0 and 1" })
   ),
+  vatNumber: zfd.text(z.string().optional()),
   salesContactId: zfd.text(z.string().optional()),
-  invoicingContactId: zfd.text(z.string().optional()),
-  website: zfd.text(z.string().optional()),
-  defaultCc: z.array(z.string().email()).default([])
+  website: zfd.text(z.string().optional())
+  // defaultCc: z.array(z.string().email()).default([])
 });
 
 export const customerPaymentValidator = z.object({
@@ -124,8 +126,14 @@ export const externalQuoteValidator = z.discriminatedUnion("type", [
 
 export const getMethodValidator = z.object({
   type: z.enum(["item", "quoteLine", "method", "quoteToQuote"]),
-  sourceId: z.string(),
-  targetId: z.string()
+  sourceId: z.string().min(1, { message: "Please select a source method" }),
+  targetId: z.string().min(1, { message: "Please select a target method" }),
+  billOfMaterial: zfd.checkbox(),
+  billOfProcess: zfd.checkbox(),
+  parameters: zfd.checkbox(),
+  tools: zfd.checkbox(),
+  steps: zfd.checkbox(),
+  workInstructions: zfd.checkbox()
 });
 
 export const noQuoteReasonValidator = z.object({
@@ -165,7 +173,7 @@ export const quoteValidator = z.object({
   customerContactId: zfd.text(z.string().optional()),
   customerEngineeringContactId: zfd.text(z.string().optional()),
   customerReference: zfd.text(z.string().optional()),
-  locationId: zfd.text(z.string().optional()),
+  locationId: z.string().min(1, { message: "Location is required" }),
   status: z.enum(quoteStatusType).optional(),
   notes: z.any().optional(),
   dueDate: zfd.text(z.string().optional()),
@@ -180,9 +188,28 @@ export const quoteValidator = z.object({
 export const quoteLineAdditionalChargesValidator = z.record(
   z.object({
     description: z.string(),
-    amounts: z.record(z.number())
+    amounts: z.record(z.number()),
+    taxable: z.boolean().default(true)
   })
 );
+
+export const costCategoryKeys = [
+  "materialCost",
+  "partCost",
+  "toolCost",
+  "consumableCost",
+  "serviceCost",
+  "laborCost",
+  "machineCost",
+  "overheadCost",
+  "outsideCost"
+] as const;
+
+export type CostCategoryKey = (typeof costCategoryKeys)[number];
+
+export const quoteLineCategoryMarkupsValidator = z
+  .record(z.number().min(0))
+  .default({});
 
 export const quoteLineValidator = z.object({
   id: zfd.text(z.string().optional()),
@@ -510,8 +537,7 @@ export const quoteShipmentValidator = z.object({
   locationId: zfd.text(z.string().optional()),
   shippingMethodId: zfd.text(z.string().optional()),
   receiptRequestedDate: zfd.text(z.string().optional()),
-  shippingCost: zfd.numeric(z.number().optional()),
-  leadTime: zfd.numeric(z.number().optional())
+  shippingCost: zfd.numeric(z.number().optional())
 });
 
 export const salesOrderLineType = [
@@ -565,7 +591,7 @@ export const salesOrderValidator = z.object({
   customerEngineeringContactId: zfd.text(z.string().optional()),
   customerReference: zfd.text(z.string().optional()),
   quoteId: zfd.text(z.string().optional()),
-  locationId: zfd.text(z.string().optional()),
+  locationId: z.string().min(1, { message: "Location is required" }),
   currencyCode: zfd.text(z.string()),
   exchangeRate: zfd.numeric(z.number().optional()),
   exchangeRateUpdatedAt: zfd.text(z.string().optional()),
@@ -615,6 +641,7 @@ export const salesOrderLineValidator = z
     accountNumber: zfd.text(z.string().optional()),
     shippingCost: zfd.numeric(z.number().optional()),
     addOnCost: zfd.numeric(z.number().optional()),
+    nonTaxableAddOnCost: zfd.numeric(z.number().optional()),
     assetId: zfd.text(z.string().optional()),
     description: zfd.text(z.string().optional()),
     itemId: zfd.text(z.string().optional()),
@@ -750,6 +777,8 @@ export const salesRfqLineValidator = z.object({
 export const selectedLineSchema = z.object({
   addOn: z.number().optional(),
   convertedAddOn: z.number().optional(),
+  taxableAddOn: z.number().optional(),
+  convertedTaxableAddOn: z.number().optional(),
   convertedNetUnitPrice: z.number(),
   convertedShippingCost: z.number(),
   leadTime: z.number(),
@@ -759,3 +788,29 @@ export const selectedLineSchema = z.object({
 });
 
 export const selectedLinesValidator = z.record(z.string(), selectedLineSchema);
+
+// Sales Order Locked Status
+export const SALES_ORDER_LOCKED_STATUSES = [
+  "To Ship and Invoice",
+  "To Ship",
+  "To Invoice",
+  "Completed",
+  "Cancelled",
+  "Closed"
+] as const;
+
+export function isSalesOrderLocked(status: string | null | undefined): boolean {
+  return SALES_ORDER_LOCKED_STATUSES.includes(
+    status as (typeof SALES_ORDER_LOCKED_STATUSES)[number]
+  );
+}
+
+// Sales RFQ Locked Status
+export function isSalesRfqLocked(status: string | null | undefined): boolean {
+  return status !== null && status !== undefined && status !== "Draft";
+}
+
+// Quote Locked Status
+export function isQuoteLocked(status: string | null | undefined): boolean {
+  return status !== null && status !== undefined && status !== "Draft";
+}

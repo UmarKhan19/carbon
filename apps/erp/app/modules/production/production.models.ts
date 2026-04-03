@@ -46,6 +46,14 @@ export const jobStatus = [
   "Due Today" // deprecated
 ] as const;
 
+export const JOB_LOCKED_STATUSES = ["Completed", "Cancelled"] as const;
+
+export function isJobLocked(status: string | null | undefined): boolean {
+  return JOB_LOCKED_STATUSES.includes(
+    status as (typeof JOB_LOCKED_STATUSES)[number]
+  );
+}
+
 export const jobOperationStatus = [
   "Todo",
   "Ready",
@@ -739,7 +747,13 @@ export const jobMaterialValidatorForReleasedJob = baseMaterialValidator
 
 export const getJobMethodValidator = z.object({
   sourceId: z.string().min(1, { message: "Source ID is required" }),
-  targetId: z.string().min(1, { message: "Please select a source method" })
+  targetId: z.string().min(1, { message: "Please select a source method" }),
+  billOfMaterial: zfd.checkbox(),
+  billOfProcess: zfd.checkbox(),
+  parameters: zfd.checkbox(),
+  tools: zfd.checkbox(),
+  steps: zfd.checkbox(),
+  workInstructions: zfd.checkbox()
 });
 
 // export const getJobMaterialMethodValidator = z.object({
@@ -865,7 +879,7 @@ export const productionOrderValidator = z.object({
 export type ProductionOrder = z.infer<typeof productionOrderValidator>;
 
 export const productionQuantityValidator = z.object({
-  id: z.string().min(0, { message: "ID is required" }),
+  id: zfd.text(z.string().optional()),
   jobOperationId: z.string().min(1, { message: "Operation is required" }),
   type: z.enum(["Rework", "Scrap", "Production"], {
     errorMap: () => ({ message: "Quantity type is required" })

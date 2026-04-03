@@ -3,7 +3,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   DropdownMenu,
@@ -21,7 +20,7 @@ import {
   Tr,
   toast
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import { convertKbToString, formatDate } from "@carbon/utils";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
 import { LuAxis3D, LuEllipsisVertical, LuUpload } from "react-icons/lu";
@@ -250,9 +249,6 @@ const Documents = ({
       <HStack className="justify-between items-start">
         <CardHeader>
           <CardTitle>Files</CardTitle>
-          {sourceDocument && (
-            <CardDescription>{sourceDocument} documents</CardDescription>
-          )}
         </CardHeader>
         <CardAction>
           <File
@@ -275,6 +271,7 @@ const Documents = ({
             <Tr>
               <Th>Name</Th>
               <Th>Size</Th>
+              <Th>Created</Th>
               <Th></Th>
             </Tr>
           </Thead>
@@ -303,6 +300,7 @@ const Documents = ({
                       )
                     : "--"}
                 </Td>
+                <Td className="text-xs font-mono">--</Td>
                 <Td>
                   <div className="flex justify-end w-full">
                     <DropdownMenu>
@@ -385,6 +383,9 @@ const Documents = ({
                     {convertKbToString(
                       Math.floor((file.metadata?.size ?? 0) / 1024)
                     )}
+                  </Td>
+                  <Td className="text-xs font-mono">
+                    {file.created_at ? formatDate(file.created_at) : "--"}
                   </Td>
                   <Td>
                     <div className="flex justify-end w-full">

@@ -27,7 +27,7 @@ import type { action } from "~/routes/x+/items+/update";
 import { useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
-import { isRfqEditable } from "../../purchasing.models";
+import { isRfqEditable, isRfqLocked } from "../../purchasing.models";
 import type { PurchasingRFQ, PurchasingRFQSupplier } from "../../types";
 import { SupplierForm } from "../Supplier";
 
@@ -82,7 +82,7 @@ const PurchasingRFQProperties = () => {
       formData.append("value", value ?? "");
       fetcher.submit(formData, {
         method: "post",
-        action: path.to.purchasingRfqDetails(rfqId)
+        action: path.to.bulkUpdatePurchasingRfq
       });
     },
 
@@ -112,12 +112,15 @@ const PurchasingRFQProperties = () => {
     (supplierIds: string[]) => {
       const formData = new FormData();
 
-      formData.append("purchasingRfqId", rfqId);
-      supplierIds.forEach((id) => formData.append("supplierIds", id));
+      formData.append("ids", rfqId);
+      formData.append("field", "supplierIds");
+      for (const id of supplierIds) {
+        formData.append("value", id);
+      }
 
       fetcher.submit(formData, {
         method: "post",
-        action: path.to.purchasingRfqSuppliers(rfqId)
+        action: path.to.bulkUpdatePurchasingRfq
       });
     },
 
@@ -134,9 +137,10 @@ const PurchasingRFQProperties = () => {
       : routeData?.rfqSummary?.assignee;
   const permissions = usePermissions();
 
+  const canUpdate = permissions.can("update", "purchasing");
+  const isLocked = isRfqLocked(routeData?.rfqSummary?.status);
   const isDisabled =
-    !permissions.can("update", "purchasing") ||
-    !isRfqEditable(routeData?.rfqSummary?.status);
+    !canUpdate || !isRfqEditable(routeData?.rfqSummary?.status) || isLocked;
 
   return (
     <VStack
@@ -198,7 +202,7 @@ const PurchasingRFQProperties = () => {
         table="purchasingRfq"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={!permissions.can("update", "purchasing")}
+        isReadOnly={!canUpdate}
       />
 
       <ValidatedForm
@@ -329,7 +333,6 @@ const PurchasingRFQProperties = () => {
         table="purchasingRfq"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

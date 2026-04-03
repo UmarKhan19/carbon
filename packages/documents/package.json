@@ -5,23 +5,24 @@
     "@hookform/resolvers": "^3.3.4",
     "@react-email/components": "^1.0.3",
     "@react-pdf/renderer": "^3.1.14",
+    "cookie": "1.1.1",
+    "dompurify": "3.3.3",
+    "nanoid": "5.1.7",
     "react-icons": "^5.4.0",
     "react-pdf-tailwind": "~2.3.0"
   },
   "devDependencies": {
     "@carbon/auth": "*",
+    "@carbon/config": "*",
     "@carbon/database": "*",
-    "@carbon/jest": "*",
-    "@carbon/tsconfig": "*",
     "@internationalized/date": "^3.5.2",
     "@testing-library/dom": "^8.11.1",
     "@types/dompurify": "^2.4.0",
-    "@types/jest": "^26.0.22",
     "@types/react": "^18.2.74",
-    "jest": "^26.6.3",
     "react": "^18.3.1",
-    "tsup": "^6.5.0",
-    "typescript": "^5.2.2"
+    "tsup": "^8.5.1",
+    "typescript": "^5.2.2",
+    "vitest": "^4.1.0"
   },
   "exports": {
     "./email": "./src/email/index.ts",
@@ -29,14 +30,12 @@
     "./zpl": "./src/zpl/index.ts",
     "./qr": "./src/qr/qr-code.ts"
   },
-  "jest": {
-    "preset": "@carbon/jest/node"
-  },
   "private": true,
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
     "lint": "biome lint --write ",
-    "test": "jest",
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit",
     "types": "tsc"
   },
   "sideEffects": false,

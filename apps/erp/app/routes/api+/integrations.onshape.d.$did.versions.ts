@@ -1,18 +1,16 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { Onshape as OnshapeConfig } from "@carbon/ee";
-import { OnshapeClient } from "@carbon/ee/onshape";
+import { getOnshapeClient } from "@carbon/ee/onshape";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction
 } from "react-router";
-import { getIntegration } from "~/modules/settings/settings.service";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => {
   return false;
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {});
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
   const { did } = params;
   if (!did) {
@@ -22,31 +20,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     };
   }
 
-  const integration = await getIntegration(client, "onshape", companyId);
+  const result = await getOnshapeClient(client, companyId, userId);
 
-  if (integration.error || !integration.data) {
+  if (result.error) {
     return {
       data: [],
-      error: integration.error
+      error: result.error
     };
   }
 
-  const integrationMetadata = OnshapeConfig.schema.safeParse(
-    integration?.data?.metadata
-  );
-
-  if (!integrationMetadata.success) {
-    return {
-      data: [],
-      error: integrationMetadata.error
-    };
-  }
-
-  const onshapeClient = new OnshapeClient({
-    baseUrl: integrationMetadata.data.baseUrl,
-    accessKey: integrationMetadata.data.accessKey,
-    secretKey: integrationMetadata.data.secretKey
-  });
+  const onshapeClient = result.client;
 
   try {
     let limit = 20;

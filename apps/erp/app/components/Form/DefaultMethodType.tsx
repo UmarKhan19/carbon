@@ -1,5 +1,6 @@
 import type { SelectProps } from "@carbon/form";
 import { SelectControlled } from "@carbon/form";
+import { getValidMethodTypes } from "~/modules/shared/shared.models";
 import { MethodIcon } from "../Icons";
 
 export type DefaultMethodTypeSelectProps = Omit<SelectProps, "options"> & {
@@ -10,13 +11,7 @@ const DefaultMethodType = ({
   replenishmentSystem,
   ...props
 }: DefaultMethodTypeSelectProps) => {
-  const options = (
-    replenishmentSystem === "Buy"
-      ? ["Buy", "Pick"]
-      : replenishmentSystem === "Make"
-        ? ["Make", "Pick"]
-        : ["Buy", "Make", "Pick"]
-  ).map((t) => ({
+  const options = getValidMethodTypes(replenishmentSystem).map((t) => ({
     value: t,
     label: (
       <span className="flex items-center gap-2">

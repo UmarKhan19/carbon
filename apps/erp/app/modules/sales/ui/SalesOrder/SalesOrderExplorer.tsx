@@ -54,6 +54,7 @@ import type { MethodItemType } from "~/modules/shared";
 import { methodItemType } from "~/modules/shared";
 import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
+import { isSalesOrderLocked } from "../../sales.models";
 import type {
   Customer,
   SalesOrder,
@@ -132,6 +133,7 @@ export default function SalesOrderExplorer() {
     saleQuantity: 1,
     unitPrice: 0,
     addOnCost: 0,
+    nonTaxableAddOnCost: 0,
     locationId:
       salesOrderData?.salesOrder?.locationId ?? defaults.locationId ?? "",
     taxPercent: salesOrderData?.customer?.taxPercent ?? 0,
@@ -145,7 +147,10 @@ export default function SalesOrderExplorer() {
   const newSalesOrderLineDisclosure = useDisclosure();
   const deleteLineDisclosure = useDisclosure();
   const [deleteLine, setDeleteLine] = useState<SalesOrderLine | null>(null);
-  const isDisabled = salesOrderData?.salesOrder?.status !== "Draft";
+  const isLocked = isSalesOrderLocked(salesOrderData?.salesOrder?.status);
+  const isDisabled = isLocked
+    ? true
+    : salesOrderData?.salesOrder?.status !== "Draft";
 
   useRealtime(
     "modelUpload",
@@ -475,7 +480,7 @@ function RelatedItemTreeNode({
   return (
     <>
       <button
-        className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-muted/90 w-full font-medium"
+        className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-accent w-full font-medium"
         onClick={(e) => {
           e.stopPropagation();
           setIsExpanded(!isExpanded);
@@ -537,7 +542,7 @@ function RelatedItemLink({
   const getIcon = () => {
     switch (nodeType) {
       case "jobs":
-        return <MethodIcon type="Make" />;
+        return <MethodIcon type="Make to Order" />;
       case "shipments":
         return <LuTruck className="text-indigo-600" />;
       default:
@@ -548,7 +553,7 @@ function RelatedItemLink({
   return (
     <Hyperlink
       to={getLinkForItem()}
-      className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-muted/90 w-full font-medium whitespace-nowrap"
+      className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-accent w-full font-medium whitespace-nowrap"
     >
       <LevelLine isSelected={false} className="mr-2" />
       <div className="mr-2">{getIcon()}</div>

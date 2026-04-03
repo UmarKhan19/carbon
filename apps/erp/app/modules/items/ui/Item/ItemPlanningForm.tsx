@@ -14,7 +14,6 @@ import type { z } from "zod";
 import {
   CustomFormFields,
   Hidden,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select as SelectForm,
   Submit
@@ -155,7 +154,7 @@ const ItemPlanningForm = ({
             )}
             {/* <Boolean name="critical" label="Critical" /> */}
 
-            <CustomFormFields table="partPlanning" />
+            <CustomFormFields table="itemPlanning" />
           </div>
         </CardContent>
         <CardFooter>

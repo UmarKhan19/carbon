@@ -1,5 +1,8 @@
 @import url("non.geist");
 @import url("non.geist/mono");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap");
+
+
 
 @tailwind base;
 @tailwind components;
@@ -28,7 +31,7 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 240 10% 3.9%;
-    --radius: 0.5rem;
+    --radius: 0.675rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;

@@ -1,17 +1,16 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  success
-} from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
   convertSupplierQuoteToOrder,
+  getSupplier,
+  getSupplierQuote,
   selectedLinesValidator
 } from "~/modules/purchasing";
+import { getCompanySettings } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 // the edge function grows larger than 2MB - so this is a workaround to avoid the edge function limit
@@ -50,6 +49,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const selectedLines = parseResult.data;
 
   const serviceRole = getCarbonServiceRole();
+
+  // Check supplier approval status
+  const [quote, companySettingsResult] = await Promise.all([
+    getSupplierQuote(serviceRole, id),
+    getCompanySettings(serviceRole, companyId)
+  ]);
+
+  if (companySettingsResult.data?.supplierApproval && quote.data?.supplierId) {
+    const supplier = await getSupplier(serviceRole, quote.data.supplierId);
+    // @ts-expect-error TS2339 - TODO: fix type
+    if (supplier.data?.supplierStatus !== "Active") {
+      throw redirect(
+        path.to.supplierQuoteDetails(id),
+        await flash(
+          request,
+          error("Cannot convert to order: supplier is not approved (Active)")
+        )
+      );
+    }
+  }
+
   const convert = await convertSupplierQuoteToOrder(serviceRole, {
     id: id,
     companyId,

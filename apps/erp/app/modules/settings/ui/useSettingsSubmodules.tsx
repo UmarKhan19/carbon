@@ -6,11 +6,14 @@ import {
   LuCreditCard,
   LuCrown,
   LuFactory,
+  LuHistory,
   LuImage,
+  LuKey,
   LuLayoutDashboard,
   LuSheet,
   LuShoppingCart,
   LuSquareStack,
+  LuUsers,
   LuWebhook,
   LuWorkflow,
   LuWrench
@@ -71,6 +74,12 @@ const settingsRoutes: AuthenticatedRouteGroup<{
         icon: <LuSquareStack />
       },
       {
+        name: "People",
+        to: path.to.peopleSettings,
+        role: "employee",
+        icon: <LuUsers />
+      },
+      {
         name: "Purchasing",
         to: path.to.purchasingSettings,
         role: "employee",
@@ -106,10 +115,22 @@ const settingsRoutes: AuthenticatedRouteGroup<{
     name: "System",
     routes: [
       {
+        name: "API Keys",
+        to: path.to.apiKeys,
+        role: "employee",
+        icon: <LuKey />
+      },
+      {
         name: "Approval Rules",
         to: path.to.approvalRules,
         role: "employee",
         icon: <LuCircleCheck />
+      },
+      {
+        name: "Audit Logs",
+        to: path.to.auditLog,
+        role: "employee",
+        icon: <LuHistory />
       },
       {
         name: "Custom Fields",

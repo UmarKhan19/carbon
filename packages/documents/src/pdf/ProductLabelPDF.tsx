@@ -73,10 +73,15 @@ const ProductLabelPDF = ({ items, labelSize }: ProductLabelProps) => {
   const labelsPerPage = rows * columns;
   const pageCount = Math.ceil(items.length / labelsPerPage);
 
+  // Reserve space for the footer (page number) at the bottom
+  const footerHeight = 35;
+
   // Calculate margins to center labels on the page
   // Use effective dimensions for rotated labels
   const horizontalMargin = (pageWidth - columns * effectiveLabelWidthPt) / 2;
-  const verticalMargin = (pageHeight - rows * effectiveLabelHeightPt) / 2;
+  const availableHeight =
+    rows > 1 || columns > 1 ? pageHeight - footerHeight : pageHeight;
+  const verticalMargin = (availableHeight - rows * effectiveLabelHeightPt) / 2;
 
   return (
     <Document>

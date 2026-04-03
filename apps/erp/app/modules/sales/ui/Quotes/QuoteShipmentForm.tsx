@@ -13,14 +13,13 @@ import {
   DatePicker,
   Hidden,
   Location,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   ShippingMethod,
   Submit
 } from "~/components/Form";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
-import { quoteShipmentValidator } from "../../sales.models";
+import { isQuoteLocked, quoteShipmentValidator } from "../../sales.models";
 import type { Quotation } from "../../types";
 
 type QuoteShipmentFormProps = {
@@ -35,7 +34,7 @@ export type QuoteShipmentFormRef = {
 const QuoteShipmentForm = forwardRef<
   QuoteShipmentFormRef,
   QuoteShipmentFormProps
->(({ initialValues, defaultCollapsed = true }, ref) => {
+>(({ initialValues, defaultCollapsed = false }, ref) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<{}>();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
@@ -61,9 +60,8 @@ const QuoteShipmentForm = forwardRef<
     quote: Quotation;
   }>(path.to.quote(quoteId));
 
-  const isEditable = ["Draft", "To Review"].includes(
-    routeData?.quote?.status ?? ""
-  );
+  const isLocked = isQuoteLocked(routeData?.quote?.status);
+  const isEditable = !isLocked;
 
   const { company } = useUser();
 
@@ -81,6 +79,7 @@ const QuoteShipmentForm = forwardRef<
         validator={quoteShipmentValidator}
         defaultValues={initialValues}
         fetcher={fetcher}
+        isDisabled={isLocked}
       >
         <CardHeader>
           <CardTitle>Shipping</CardTitle>
@@ -107,16 +106,6 @@ const QuoteShipmentForm = forwardRef<
             <ShippingMethod name="shippingMethodId" label="Shipping Method" />
 
             <DatePicker name="receiptRequestedDate" label="Requested Date" />
-            <Number
-              name="leadTime"
-              label="Lead Time"
-              formatOptions={{
-                style: "unit",
-                unit: "day",
-                unitDisplay: "long"
-              }}
-              minValue={0}
-            />
           </div>
         </CardContent>
         <CardFooter>

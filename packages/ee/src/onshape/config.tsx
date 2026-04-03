@@ -1,4 +1,4 @@
-import { Badge } from "@carbon/react";
+import { ONSHAPE_CLIENT_ID } from "@carbon/auth";
 import type { SVGProps } from "react";
 import { z } from "zod";
 import { defineIntegration } from "../fns";
@@ -6,81 +6,49 @@ import { defineIntegration } from "../fns";
 export const Onshape = defineIntegration({
   name: "Onshape",
   id: "onshape",
-  active: true,
+  active: !!ONSHAPE_CLIENT_ID,
   category: "CAD",
   logo: Logo,
   description:
-    "Onshape is a CAD software that allows you to create 2D and 3D designs. This integration will sync data from Onshape to Carbon.",
+    "Onshape is a browser-based CAD/PLM software for modern engineering teams. This integration will sync data from Onshape to Carbon.",
   shortDescription: "Sync data from Onshape to Carbon.",
-  setupInstructions: SetupInstructions,
   images: [],
+  settings: [],
+  schema: z.object({}),
+  onClientInstall: async () => {
+    const response = await fetch("/api/integrations/onshape/install").then(
+      (res) => res.json()
+    );
 
-  settings: [
-    {
-      name: "baseUrl",
-      label: "Base URL",
-      type: "text",
-      required: true,
-      value: "https://cad.onshape.com"
-    },
-    {
-      name: "accessKey",
-      label: "Access Key/Username",
-      type: "text",
-      required: true,
-      value: ""
-    },
-    {
-      name: "secretKey",
-      label: "Secret Key/Password",
-      type: "text",
-      required: true,
-      value: ""
-    },
-    {
-      name: "companyId",
-      label: "Company ID",
-      type: "text",
-      required: true,
-      value: ""
+    const { url } = response;
+
+    const width = 600;
+    const height = 800;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2.5;
+
+    const popup = window.open(
+      url,
+      "",
+      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${width}, height=${height}, top=${top}, left=${left}`
+    );
+
+    if (!popup) {
+      window.location.href = url;
+      return;
     }
-  ],
-  schema: z.object({
-    baseUrl: z
-      .string()
-      .min(1, { message: "Base URL is required" })
-      .regex(/^https:\/\/.*onshape\.com$/, {
-        message: "URL must start with https:// and end with onshape.com"
-      }),
 
-    accessKey: z.string().min(1, { message: "Access Key is required" }),
-    secretKey: z.string().min(1, { message: "Secret Key is required" }),
-    companyId: z.string().min(1, { message: "Company ID is required" })
-  })
+    const listener = (e: MessageEvent) => {
+      if (e.data === "app_oauth_completed") {
+        window.location.reload();
+        window.removeEventListener("message", listener);
+        popup.close();
+      }
+    };
+
+    window.addEventListener("message", listener);
+  }
 });
-
-function SetupInstructions({ companyId }: { companyId: string }) {
-  return (
-    <>
-      <p className="text-sm text-muted-foreground">
-        First, get the base URL of your Onshape account. This is either{" "}
-        <Badge className="font-mono lowercase" variant="secondary">
-          https://cad.onshape.com
-        </Badge>{" "}
-        or something like{" "}
-        <Badge className="font-mono lowercase" variant="secondary">
-          https://your-company.onshape.com/
-        </Badge>
-        .
-      </p>
-      <p className="text-sm text-muted-foreground">
-        Next, copy the API Key and Secret Key from your Onshape account and
-        paste them into the API Key and Secret Key fields below. Finally, enter
-        the Company ID of your Onshape account.
-      </p>
-    </>
-  );
-}
 
 export function Logo(props: SVGProps<SVGSVGElement>) {
   return (

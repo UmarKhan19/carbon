@@ -25,6 +25,7 @@ const CompanyForm = ({ company }: CompanyFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             <Input name="name" label="Company Name" />
             <Input name="taxId" label="Tax ID" />
+            <Input name="vatNumber" label="VAT Number" />
             <AddressAutocomplete variant="grid" />
             <Currency
               name="baseCurrencyCode"

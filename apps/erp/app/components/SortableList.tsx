@@ -84,7 +84,7 @@ function SortableListItem<T>({
           value={item}
           className={cn(
             "relative z-auto grow",
-            "h-full rounded-md bg-muted/30",
+            "h-full rounded-md bg-muted/40",
             "border border-border rounded-lg ",
             !isExpanded && !isReadOnly && "cursor-grab",
             isHighlighted && "border-2 border-primary",

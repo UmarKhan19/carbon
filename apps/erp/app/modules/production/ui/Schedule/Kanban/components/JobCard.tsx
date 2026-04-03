@@ -1,4 +1,5 @@
 import {
+  BarProgress,
   Card,
   CardContent,
   CardFooter,
@@ -11,7 +12,6 @@ import {
   DropdownMenuTrigger,
   HStack,
   IconButton,
-  Progress as ProgressComponent,
   Tooltip,
   TooltipContent,
   TooltipTrigger
@@ -21,10 +21,10 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cva } from "class-variance-authority";
 import { AiOutlinePartition } from "react-icons/ai";
-import { FaTasks } from "react-icons/fa";
 import {
   LuCalendarDays,
   LuCircleCheck,
+  LuClock,
   LuEllipsisVertical,
   LuFlashlight,
   LuFlashlightOff,
@@ -73,28 +73,6 @@ const cardVariants = cva(
         Cancelled: "border-red-500/30",
         Overdue: "border-red-500/50",
         "Due Today": "border-orange-500/50"
-      }
-    },
-    defaultVariants: {
-      status: "Planned"
-    }
-  }
-);
-
-const cardHeaderVariants = cva(
-  "-mx-4  relative border-b border-border/50 pt-4 pl-4 pr-6 rounded-t-lg",
-  {
-    variants: {
-      status: {
-        Draft: "",
-        Planned: "",
-        Ready: "",
-        "In Progress": "",
-        Paused: "",
-        Completed: "",
-        Cancelled: "",
-        Overdue: "",
-        "Due Today": ""
       }
     },
     defaultVariants: {
@@ -163,7 +141,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "max-w-[330px] shadow-sm dark:shadow-sm py-0",
+        "max-w-[330px]",
         item.hasConflict && "border-red-500 border-2",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
@@ -172,13 +150,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
         })
       )}
     >
-      <CardHeader
-        className={cn(
-          cardHeaderVariants({
-            status: status
-          })
-        )}
-      >
+      <CardHeader className="flex flex-col justify-between relative gap-2">
         <div className="flex w-full max-w-full justify-between items-start gap-0">
           <div className="flex flex-col gap-0.5 space-y-0 min-w-0">
             {item.itemReadableId && (
@@ -263,17 +235,17 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
           Number.isFinite(item.progress) &&
           Number(item.progress) >= 0 && (
             <HStack>
-              <ProgressComponent
-                indicatorClassName={
+              <BarProgress
+                activeClassName={
                   status === "Completed" ? "bg-emerald-500" : "bg-blue-500"
                 }
-                value={Math.min((item.progress ?? 0) * 100, 100)}
+                progress={Math.min((item.progress ?? 0) * 100, 100)}
               />
-              <FaTasks className="text-muted-foreground w-4 h-4" />
+              <LuClock className="text-muted-foreground w-4 h-4" />
             </HStack>
           )}
       </CardHeader>
-      <CardContent className="pt-3 px-1 gap-2 text-left whitespace-pre-wrap text-sm">
+      <CardContent className="gap-2 text-left whitespace-pre-wrap text-sm">
         {displaySettings.showThumbnail && item.thumbnailPath && (
           <div className="flex justify-center">
             <img
@@ -361,7 +333,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
             </HStack>
           )}
       </CardContent>
-      <CardFooter className="bg-accent/50 -mx-4 border-t px-4 py-2 items-center justify-between rounded-b-lg">
+      <CardFooter className="items-center justify-between text-xs flex-wrap">
         <HStack className="justify-start gap-2 w-full">
           <Assignee
             table="job"

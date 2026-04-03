@@ -30,6 +30,7 @@ import {
 } from "~/hooks";
 import { useItems } from "~/stores";
 import { getPrivateUrl, path } from "~/utils/path";
+import { isPurchaseOrderLocked } from "../../purchasing.models";
 import type {
   PurchaseOrder,
   PurchaseOrderDelivery,
@@ -167,7 +168,10 @@ const LineItems = ({
                           className="flex items-center gap-2"
                         >
                           {line.purchaseQuantity}
-                          <MethodIcon type={line.methodType ?? "Pick"} />
+                          <MethodIcon
+                            // @ts-ignore
+                            type={line.methodType ?? "Pull from Inventory"}
+                          />
                         </Badge>
                         <Badge variant="green">
                           {formatter.format(line.unitPrice ?? 0)}{" "}
@@ -343,9 +347,7 @@ const PurchaseOrderSummary = ({
     supplier: Supplier;
   }>(path.to.purchaseOrder(orderId));
 
-  const isEditable = ["Draft", "To Review", "Needs Approval"].includes(
-    routeData?.purchaseOrder?.status ?? ""
-  );
+  const isEditable = !isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
   const { locale } = useLocale();
   const formatter = useCurrencyFormatter();

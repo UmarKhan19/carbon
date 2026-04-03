@@ -1,5 +1,4 @@
 import { useCarbon } from "@carbon/auth";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Combobox, Hidden, Number, Submit, ValidatedForm } from "@carbon/form";
 import {
   Button,
@@ -34,12 +33,12 @@ import { flushSync } from "react-dom";
 import { AiOutlinePartition } from "react-icons/ai";
 import {
   LuChevronRight,
+  LuCirclePlay,
   LuCirclePlus,
   LuContainer,
   LuEllipsisVertical,
   LuFileText,
   LuHandCoins,
-  LuHardHat,
   LuQrCode,
   LuSearch,
   LuShoppingCart,
@@ -185,7 +184,7 @@ export function IssueAssociationItem({
 
   return (
     <>
-      <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-muted/90">
+      <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-accent">
         <button
           className="flex flex-grow cursor-pointer items-center overflow-hidden font-medium"
           onClick={(e) => {
@@ -236,7 +235,7 @@ export function IssueAssociationItem({
               >
                 <Link
                   to={getAssociationLink(child, node.key)}
-                  className="flex pr-7 h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-muted/90 w-full font-medium whitespace-nowrap"
+                  className="flex pr-7 h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-accent w-full font-medium whitespace-nowrap"
                 >
                   <LevelLine isSelected={false} />
                   <div className="flex flex-grow justify-between gap-2">
@@ -302,7 +301,7 @@ function getAssociationIcon(key: IssueAssociationKey) {
     case "suppliers":
       return <LuContainer />;
     case "jobOperations":
-      return <LuHardHat className="text-amber-600" />;
+      return <LuCirclePlay className="text-amber-600" />;
     case "purchaseOrderLines":
       return <LuShoppingCart className="text-blue-600" />;
     case "salesOrderLines":

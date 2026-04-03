@@ -55,9 +55,16 @@ import {
 } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { useNumberFormatter } from "@react-aria/i18n";
-import { AnimatePresence, LayoutGroup, motion, Reorder } from "framer-motion";
+import type { DragControls } from "framer-motion";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  Reorder,
+  useDragControls
+} from "framer-motion";
 import { nanoid } from "nanoid";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -93,7 +100,6 @@ import Activity from "~/components/Activity";
 import {
   Hidden,
   InputControlled,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Process,
@@ -146,9 +152,11 @@ import {
 import { getProductionEventsPage } from "../../production.service";
 import type { Job, JobOperation } from "../../types";
 import { JobOperationStatus, JobOperationTags } from "./JobOperationStatus";
+import { OperationDueDatePicker } from "./OperationDueDatePicker";
 
 export type Operation = z.infer<typeof jobOperationValidator> & {
   assignee: string | null;
+  dueDate?: string | null;
   status: JobOperation["status"];
   tags: string[] | null;
   workInstruction: JSONContent | null;
@@ -258,6 +266,10 @@ function makeItem(
           />
         </HStack>
         <HStack>
+          <OperationDueDatePicker
+            operationId={operation.id!}
+            dueDate={operation.dueDate ?? null}
+          />
           <JobOperationTags operation={operation} availableTags={tags} />
           <Tooltip>
             <TooltipTrigger asChild>
@@ -1296,22 +1308,25 @@ function StepsForm({
               if (!step) return null;
               const index = sortOrder.indexOf(stepId);
               return (
-                <Reorder.Item
+                <DraggableStepItem
                   key={stepId}
-                  value={stepId}
-                  dragListener={!isDisabled}
+                  stepId={stepId}
+                  isDisabled={isDisabled}
                 >
-                  <StepsListItem
-                    attribute={step}
-                    operationId={operationId}
-                    typeOptions={typeOptions}
-                    isDisabled={isDisabled}
-                    itemMentions={itemMentions}
-                    className={
-                      index === sortOrder.length - 1 ? "border-none" : ""
-                    }
-                  />
-                </Reorder.Item>
+                  {(dragControls) => (
+                    <StepsListItem
+                      attribute={step}
+                      operationId={operationId}
+                      typeOptions={typeOptions}
+                      isDisabled={isDisabled}
+                      dragControls={dragControls}
+                      itemMentions={itemMentions}
+                      className={
+                        index === sortOrder.length - 1 ? "border-none" : ""
+                      }
+                    />
+                  )}
+                </DraggableStepItem>
               );
             })}
           </Reorder.Group>
@@ -1321,11 +1336,34 @@ function StepsForm({
   );
 }
 
+function DraggableStepItem({
+  stepId,
+  isDisabled,
+  children
+}: {
+  stepId: string;
+  isDisabled: boolean;
+  children: (dragControls: DragControls) => ReactNode;
+}) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      key={stepId}
+      value={stepId}
+      dragListener={false}
+      dragControls={dragControls}
+    >
+      {children(dragControls)}
+    </Reorder.Item>
+  );
+}
+
 function StepsListItem({
   attribute,
   operationId,
   typeOptions,
   isDisabled = false,
+  dragControls,
   itemMentions,
   className
 }: {
@@ -1333,6 +1371,7 @@ function StepsListItem({
   operationId: string;
   typeOptions: { label: JSX.Element; value: string }[];
   isDisabled?: boolean;
+  dragControls?: DragControls;
   itemMentions: { id: string; label: string }[];
   className?: string;
 }) {
@@ -1536,7 +1575,11 @@ function StepsListItem({
                 icon={<LuGripVertical />}
                 variant="ghost"
                 disabled={isDisabled}
-                className="cursor-grab"
+                className="cursor-grab active:cursor-grabbing"
+                onPointerDown={(e) => {
+                  if (!isDisabled && dragControls) dragControls.start(e);
+                }}
+                style={{ touchAction: "none" }}
               />
               <HStack spacing={4} className="flex-1">
                 <div className="bg-muted border rounded-full flex items-center justify-center p-2">
@@ -2919,7 +2962,7 @@ function ToolsListItem({
   const date = updatedAt ?? createdAt;
 
   return (
-    <div className={cn("border-b p-6", className)}>
+    <div className={cn("border-b p-6 bg-card", className)}>
       {disclosure.isOpen ? (
         <ValidatedForm
           action={path.to.jobOperationTool(id)}

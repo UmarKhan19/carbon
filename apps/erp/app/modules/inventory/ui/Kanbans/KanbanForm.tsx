@@ -1,5 +1,4 @@
 import { useCarbon } from "@carbon/auth";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Boolean, Hidden, SelectControlled, ValidatedForm } from "@carbon/form";
 import {
   Button,
@@ -21,7 +20,6 @@ import {
   ConversionFactor,
   Item,
   Location,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   SequenceOrCustomId,
   Shelf,

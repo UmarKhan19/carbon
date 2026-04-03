@@ -348,10 +348,10 @@ export const ItemPlanningChart = ({
   return (
     <>
       <Card className={cn(compact && "border-none p-0 dark:shadow-none")}>
-        <CardHeader className={cn(compact && "px-0")}>
+        <CardHeader>
           <CardTitle>Projections</CardTitle>
         </CardHeader>
-        <CardContent className={cn(compact && "px-0")}>
+        <CardContent>
           <div className="w-full h-[360px]">
             <Loading isLoading={isFetching}>
               <ChartContainer config={chartConfig} className="w-full h-full">
@@ -457,7 +457,7 @@ export const ItemPlanningChart = ({
       <Tabs defaultValue="all" className="w-full">
         <Card className={cn(compact && "border-none p-0 dark:shadow-none")}>
           <HStack className="w-full justify-between">
-            <CardHeader className={cn(compact && "px-0")}>
+            <CardHeader>
               <CardTitle>Supply & Demand</CardTitle>
             </CardHeader>
             <CardAction className="flex items-center gap-2">
@@ -468,7 +468,7 @@ export const ItemPlanningChart = ({
               </TabsList>
             </CardAction>
           </HStack>
-          <CardContent className={cn(compact && "px-0")}>
+          <CardContent>
             <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 py-4">
               <Card>
                 <CardHeader className="pb-8">

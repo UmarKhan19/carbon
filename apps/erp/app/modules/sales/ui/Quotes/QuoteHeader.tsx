@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Heading,
   HStack,
@@ -46,10 +47,12 @@ import {
   LuTrophy
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
+import { isQuoteLocked } from "../../sales.models";
 import type {
   Opportunity,
   Quotation,
@@ -66,6 +69,7 @@ const QuoteHeader = () => {
   const { quoteId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
 
+  const { company } = useUser();
   const { toggleExplorer, toggleProperties } = usePanels();
 
   const routeData = useRouteData<{
@@ -85,11 +89,17 @@ const QuoteHeader = () => {
   const shareModal = useDisclosure();
   const createRevisionModal = useDisclosure();
   const deleteQuoteModal = useDisclosure();
-
   const [asRevision, setAsRevision] = useState(false);
 
   const finalizeFetcher = useFetcher<{}>();
   const statusFetcher = useFetcher<{}>();
+
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "salesQuote",
+    entityId: quoteId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
 
   return (
     <>
@@ -126,6 +136,8 @@ const QuoteHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {auditLogTrigger}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
                     setAsRevision(false);
@@ -147,7 +159,8 @@ const QuoteHeader = () => {
                 <DropdownMenuItem
                   disabled={
                     !permissions.can("delete", "sales") ||
-                    !permissions.is("employee")
+                    !permissions.is("employee") ||
+                    isQuoteLocked(routeData?.quote?.status)
                   }
                   destructive
                   onClick={deleteQuoteModal.onOpen}
@@ -353,6 +366,7 @@ const QuoteHeader = () => {
           shipment={routeData?.shipment ?? null}
           onClose={finalizeModal.onClose}
           fetcher={finalizeFetcher}
+          // @ts-expect-error TS2339 - TODO: fix type
           defaultCc={routeData?.defaultCc ?? []}
         />
       )}
@@ -393,6 +407,7 @@ const QuoteHeader = () => {
           }}
         />
       )}
+      {auditLogDrawer}
     </>
   );
 };

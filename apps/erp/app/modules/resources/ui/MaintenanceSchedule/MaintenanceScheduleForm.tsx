@@ -1,5 +1,7 @@
 import {
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
   Boolean,
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: Number is a component name
   Number,
   Select,
   useControlField,
@@ -29,7 +31,14 @@ import { HighPriorityIcon } from "~/assets/icons/HighPriorityIcon";
 import { LowPriorityIcon } from "~/assets/icons/LowPriorityIcon";
 import { MediumPriorityIcon } from "~/assets/icons/MediumPriorityIcon";
 import { Enumerable } from "~/components/Enumerable";
-import { Hidden, Input, Submit, WorkCenter } from "~/components/Form";
+import {
+  Hidden,
+  Input,
+  Location,
+  Procedure,
+  Submit,
+  WorkCenter
+} from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 import {
@@ -149,6 +158,7 @@ const MaintenanceScheduleForm = ({
               <VStack spacing={4}>
                 <Input name="name" label="Schedule Name" />
                 <WorkCenter name="workCenterId" label="Work Center" />
+                <Location name="locationId" label="Location" />
                 <Select
                   name="frequency"
                   label="Frequency"
@@ -175,6 +185,7 @@ const MaintenanceScheduleForm = ({
                   label="Estimated Duration (minutes)"
                   minValue={0}
                 />
+                <Procedure name="procedureId" />
                 <Boolean name="active" label="Active" />
                 <DailyScheduleOptions />
               </VStack>

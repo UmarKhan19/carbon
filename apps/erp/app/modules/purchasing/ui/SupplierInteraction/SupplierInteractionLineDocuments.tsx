@@ -3,7 +3,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   DropdownMenu,
@@ -21,7 +20,7 @@ import {
   Tr,
   toast
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import { convertKbToString, formatDate } from "@carbon/utils";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -183,6 +182,7 @@ const useSupplierInteractionLineDocuments = ({
 type SupplierInteractionLineDocumentsProps = {
   files: FileObject[];
   id: string;
+  isReadOnly?: boolean;
   lineId: string;
   type: SupportedDocument;
 };
@@ -190,6 +190,7 @@ type SupplierInteractionLineDocumentsProps = {
 const SupplierInteractionLineDocuments = ({
   files,
   id,
+  isReadOnly,
   lineId,
   type
 }: SupplierInteractionLineDocumentsProps) => {
@@ -227,16 +228,15 @@ const SupplierInteractionLineDocuments = ({
         <HStack className="justify-between items-start">
           <CardHeader>
             <CardTitle>Files</CardTitle>
-            <CardDescription>
-              Supplier interaction line documents
-            </CardDescription>
           </CardHeader>
           <CardAction>
-            <SupplierInteractionLineDocumentForm
-              id={id}
-              type={type}
-              lineId={lineId}
-            />
+            {!isReadOnly && (
+              <SupplierInteractionLineDocumentForm
+                id={id}
+                type={type}
+                lineId={lineId}
+              />
+            )}
           </CardAction>
         </HStack>
         <CardContent>
@@ -245,6 +245,7 @@ const SupplierInteractionLineDocuments = ({
               <Tr>
                 <Th>Name</Th>
                 <Th>Size</Th>
+                <Th>Created</Th>
                 <Th />
               </Tr>
             </Thead>
@@ -291,6 +292,9 @@ const SupplierInteractionLineDocuments = ({
                         Math.floor((file.metadata?.size ?? 0) / 1024)
                       )}
                     </Td>
+                    <Td className="text-xs font-mono">
+                      {file.created_at ? formatDate(file.created_at) : "--"}
+                    </Td>
                     <Td>
                       <div className="flex justify-end w-full">
                         <DropdownMenu>
@@ -307,7 +311,7 @@ const SupplierInteractionLineDocuments = ({
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               destructive
-                              disabled={!canDelete}
+                              disabled={!canDelete || isReadOnly}
                               onClick={() => deleteFile(file)}
                             >
                               Delete
@@ -331,7 +335,7 @@ const SupplierInteractionLineDocuments = ({
               )}
             </Tbody>
           </Table>
-          <FileDropzone onDrop={onDrop} />
+          {!isReadOnly && <FileDropzone onDrop={onDrop} />}
         </CardContent>
       </Card>
     </>

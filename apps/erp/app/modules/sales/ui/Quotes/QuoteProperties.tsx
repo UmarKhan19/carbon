@@ -35,6 +35,7 @@ import type { action } from "~/routes/x+/items+/update";
 import type { action as exchangeRateAction } from "~/routes/x+/quote+/$quoteId.exchange-rate";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
+import { isQuoteLocked } from "../../sales.models";
 import type { Quotation } from "../../types";
 
 const QuoteProperties = () => {
@@ -112,9 +113,9 @@ const QuoteProperties = () => {
       : routeData?.quote?.assignee;
   const permissions = usePermissions();
 
-  const isDisabled =
-    !permissions.can("update", "sales") ||
-    !["Draft"].includes(routeData?.quote?.status ?? "");
+  const canUpdate = permissions.can("update", "sales");
+  const isLocked = isQuoteLocked(routeData?.quote?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -174,7 +175,7 @@ const QuoteProperties = () => {
         table="quote"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={!permissions.can("update", "sales")}
+        isReadOnly={!canUpdate}
       />
       <ValidatedForm
         defaultValues={{ customerId: routeData?.quote?.customerId }}
@@ -462,6 +463,7 @@ const QuoteProperties = () => {
         <span className="text-xs font-medium text-muted-foreground">
           Created By
         </span>
+        {/* @ts-expect-error TS2322 */}
         <EmployeeAvatar employeeId={routeData?.quote?.createdBy} />
       </VStack>
 
@@ -472,7 +474,6 @@ const QuoteProperties = () => {
         table="quote"
         tags={[]}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

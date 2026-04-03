@@ -274,6 +274,7 @@ serve(async (req: Request) => {
               [purchaseOrderLine.id]: {
                 quantityReceived: newQuantityReceived,
                 receivedComplete,
+                receivedDate: today,
               },
             };
           }

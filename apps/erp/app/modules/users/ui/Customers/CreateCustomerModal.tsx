@@ -59,7 +59,6 @@ const CreateCustomerModal = () => {
             id: params.get("id") ?? "",
             customer: params.get("customer") ?? ""
           }}
-          // @ts-ignore
           fetcher={formFetcher}
           className="flex flex-col h-full"
         >
@@ -100,14 +99,14 @@ const CreateCustomerModal = () => {
                 </>
               )}
             </VStack>
-            <ModalFooter>
-              <HStack>
-                <Submit isLoading={formFetcher.state !== "idle"}>
-                  Create User
-                </Submit>
-              </HStack>
-            </ModalFooter>
           </ModalBody>
+          <ModalFooter>
+            <HStack>
+              <Submit isLoading={formFetcher.state !== "idle"}>
+                Create User
+              </Submit>
+            </HStack>
+          </ModalFooter>
         </ValidatedForm>
       </ModalContent>
     </Modal>
@@ -156,7 +155,6 @@ const CustomerContact = ({
       customerContactFetcher.data?.data
         ? customerContactFetcher.data?.data.map((c) => ({
             value: c.id,
-            // @ts-ignore
             label: `${c.contact?.firstName} ${c.contact?.lastName}`
           }))
         : [],
@@ -171,6 +169,7 @@ const CustomerContact = ({
         (c) => c.id === newValue
       );
 
+      // @ts-expect-error TS2322 - TODO: fix type
       onChange({ id: newValue, contact: contact?.contact ?? null });
     }
   };

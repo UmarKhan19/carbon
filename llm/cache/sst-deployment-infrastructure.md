@@ -53,7 +53,6 @@ Both ERP and MES services receive identical environment variable configurations 
 - `SESSION_SECRET` - Session management
 
 #### External Services
-- `AUTODESK_*` - CAD integration
 - `CLOUDFLARE_TURNSTILE_*` - Bot protection
 - `EXCHANGE_RATES_API_KEY` - Currency exchange
 - `NOVU_*` - Notifications

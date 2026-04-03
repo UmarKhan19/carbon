@@ -1,22 +1,8 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import axios, { type AxiosInstance } from "axios";
-import type z from "zod";
-import type { LinearIssueSchema } from "./service";
 import { getLinearIntegration } from "./service";
+import type { LinearIssue, LinearTeam, LinearUser } from "./types";
 import type { LinearWorkStateType } from "./utils";
-
-export type LinearIssue = z.infer<typeof LinearIssueSchema>;
-
-export interface LinearTeam {
-  id: string;
-  name: string;
-}
-
-export interface LinearUser {
-  id: string;
-  email: string;
-  name: string;
-}
 export class LinearClient {
   instance: AxiosInstance;
 

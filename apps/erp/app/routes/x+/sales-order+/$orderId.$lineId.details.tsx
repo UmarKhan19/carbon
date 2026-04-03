@@ -1,10 +1,6 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  notFound
-} from "@carbon/auth";
+import { assertIsPost, error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
@@ -29,8 +25,10 @@ import type {
 } from "~/modules/sales";
 import {
   getOpportunityLineDocuments,
+  getSalesOrder,
   getSalesOrderLine,
   getSalesOrderLineShipments,
+  isSalesOrderLocked,
   salesOrderLineValidator,
   upsertSalesOrderLine
 } from "~/modules/sales";
@@ -44,6 +42,7 @@ import {
 } from "~/modules/sales/ui/SalesOrder";
 import { SalesOrderLineShipments } from "~/modules/sales/ui/SalesOrder/SalesOrderLineShipments";
 import { getCustomFields, setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -76,7 +75,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     line: line?.data ?? null,
     itemReplenishment:
-      itemId && line.data.methodType === "Make"
+      itemId && line.data.methodType === "Make to Order"
         ? getItemReplenishment(serviceRole, itemId, companyId)
         : Promise.resolve({ data: null }),
     files: getOpportunityLineDocuments(serviceRole, companyId, lineId, itemId),
@@ -87,13 +86,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    create: "sales"
-  });
-
   const { orderId, lineId } = params;
   if (!orderId) throw new Error("Could not find orderId");
   if (!lineId) throw new Error("Could not find lineId");
+
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "sales"
+  });
+
+  const salesOrder = await getSalesOrder(viewClient, orderId);
+  await requireUnlocked({
+    request,
+    isLocked: isSalesOrderLocked(salesOrder.data?.status),
+    redirectTo: path.to.salesOrderLine(orderId, lineId),
+    message: "Cannot modify a locked sales order. Reopen it first."
+  });
+
+  const { client, userId } = await requirePermissions(request, {
+    create: "sales"
+  });
 
   const formData = await request.formData();
   const validation = await validator(salesOrderLineValidator).validate(
@@ -155,6 +166,8 @@ export default function EditSalesOrderLineRoute() {
   if (!orderData?.opportunity) throw new Error("Failed to load opportunity");
   if (!orderData?.salesOrder) throw new Error("Failed to load sales order");
 
+  const isReadOnly = isSalesOrderLocked(orderData.salesOrder.status);
+
   const initialValues = {
     id: line?.id ?? undefined,
     salesOrderId: line?.salesOrderId ?? "",
@@ -166,7 +179,8 @@ export default function EditSalesOrderLineRoute() {
     assetId: line?.assetId ?? "",
     description: line?.description ?? "",
     locationId: line?.locationId ?? "",
-    methodType: line?.methodType ?? "Make",
+    methodType: line?.methodType ?? "Make to Order",
+    nonTaxableAddOnCost: line?.nonTaxableAddOnCost ?? 0,
     promisedDate: line?.promisedDate ?? undefined,
     saleQuantity: line?.saleQuantity ?? 1,
     setupPrice: line?.setupPrice ?? 0,
@@ -186,7 +200,16 @@ export default function EditSalesOrderLineRoute() {
         initialValues={initialValues}
       />
 
-      {line.methodType === "Make" && (
+      <OpportunityLineNotes
+        id={line.id}
+        table="salesOrderLine"
+        title="Notes"
+        subTitle={line.itemReadableId ?? ""}
+        internalNotes={line.internalNotes as JSONContent}
+        externalNotes={line.externalNotes as JSONContent}
+      />
+
+      {line.methodType === "Make to Order" && (
         <Suspense
           fallback={
             <Card className="min-h-[264px]">
@@ -225,15 +248,6 @@ export default function EditSalesOrderLineRoute() {
         shipments={shipments}
       />
 
-      <OpportunityLineNotes
-        id={line.id}
-        table="salesOrderLine"
-        title="Notes"
-        subTitle={line.itemReadableId ?? ""}
-        internalNotes={line.internalNotes as JSONContent}
-        externalNotes={line.externalNotes as JSONContent}
-      />
-
       <Suspense
         fallback={
           <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
@@ -250,12 +264,13 @@ export default function EditSalesOrderLineRoute() {
               itemId={line?.itemId}
               modelUpload={line ?? undefined}
               type="Sales Order"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>
       </Suspense>
       <CadModel
-        isReadOnly={!permissions.can("update", "sales")}
+        isReadOnly={isReadOnly || !permissions.can("update", "sales")}
         metadata={{
           salesOrderLineId: line?.id ?? undefined,
           itemId: line?.itemId ?? undefined

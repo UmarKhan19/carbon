@@ -1,5 +1,6 @@
-import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
+import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
@@ -14,10 +15,13 @@ import {
   useParams
 } from "react-router";
 import { CadModel } from "~/components";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
+import type { PurchasingRFQ } from "~/modules/purchasing";
 import {
+  getPurchasingRFQ,
   getPurchasingRFQLine,
   getSupplierInteractionLineDocuments,
+  isRfqLocked,
   purchasingRfqLineValidator,
   upsertPurchasingRFQLine
 } from "~/modules/purchasing";
@@ -27,6 +31,7 @@ import {
   SupplierInteractionLineNotes
 } from "~/modules/purchasing/ui/SupplierInteraction";
 import { setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -57,6 +62,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "purchasing"
+  });
   const { client, companyId, userId } = await requirePermissions(request, {
     update: "purchasing"
   });
@@ -64,6 +72,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { rfqId, lineId } = params;
   if (!rfqId) throw new Error("Could not find rfqId");
   if (!lineId) throw new Error("Could not find lineId");
+
+  const rfq = await getPurchasingRFQ(viewClient, rfqId);
+  await requireUnlocked({
+    request,
+    isLocked: isRfqLocked(rfq.data?.status),
+    redirectTo: path.to.purchasingRfq(rfqId),
+    message: "Cannot modify a locked RFQ. Reopen it first."
+  });
 
   const formData = await request.formData();
 
@@ -104,6 +120,12 @@ export default function PurchasingRFQLine() {
   const { rfqId, lineId } = useParams();
   if (!rfqId) throw new Error("Could not find rfqId");
   if (!lineId) throw new Error("Could not find lineId");
+
+  const rfqData = useRouteData<{
+    rfqSummary: PurchasingRFQ;
+  }>(path.to.purchasingRfq(rfqId));
+
+  const isReadOnly = isRfqLocked(rfqData?.rfqSummary?.status);
 
   const initialValues = {
     ...line,
@@ -148,12 +170,13 @@ export default function PurchasingRFQLine() {
               id={rfqId}
               lineId={lineId}
               type="Purchasing Request for Quote"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>
       </Suspense>
       <CadModel
-        isReadOnly={!permissions.can("update", "purchasing")}
+        isReadOnly={isReadOnly || !permissions.can("update", "purchasing")}
         metadata={{
           purchasingRfqLineId: line.id ?? undefined,
           itemId: line.itemId ?? undefined

@@ -126,7 +126,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
         align="start"
       >
         <div className="flex flex-col">
-          <div className="my-1 px-2 text-sm font-semibold text-muted-foreground">
+          <div className="my-1 px-2 text-sm font-medium text-muted-foreground">
             Color
           </div>
           {TEXT_COLORS.map(({ name, color }, index) => (
@@ -156,7 +156,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
           ))}
         </div>
         <div>
-          <div className="my-1 px-2 text-sm font-semibold text-muted-foreground">
+          <div className="my-1 px-2 text-sm font-medium text-muted-foreground">
             Background
           </div>
           {HIGHLIGHT_COLORS.map(({ name, color }, index) => (

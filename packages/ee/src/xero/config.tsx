@@ -1,14 +1,4 @@
-import { getCarbonServiceRole, XERO_CLIENT_ID } from "@carbon/auth";
-import type { CreateSubscriptionParams } from "@carbon/database/event";
-import {
-  createEventSystemSubscription,
-  deleteEventSystemSubscriptionsByName
-} from "@carbon/database/event";
-import {
-  getProviderIntegration,
-  ProviderID,
-  type ProviderIntegrationMetadata
-} from "@carbon/ee/accounting";
+import { XERO_CLIENT_ID } from "@carbon/auth";
 import type { ComponentProps } from "react";
 import { z } from "zod";
 import { defineIntegration } from "../fns";
@@ -30,13 +20,16 @@ const XeroSettingsSchema = z.object({
   vendorOwner: SystemOfRecordSchema.optional().default("accounting"),
   itemOwner: SystemOfRecordSchema.optional().default("carbon"),
   invoiceOwner: SystemOfRecordSchema.optional().default("accounting"),
-  billOwner: SystemOfRecordSchema.optional().default("accounting")
+  billOwner: SystemOfRecordSchema.optional().default("accounting"),
+  // Default account codes for line items
+  defaultSalesAccountCode: z.string().optional(),
+  defaultPurchaseAccountCode: z.string().optional()
 });
 
 export const Xero = defineIntegration({
   name: "Xero",
   id: "xero",
-  active: false,
+  active: true,
   category: "Accounting",
   logo: Logo,
   description:
@@ -48,6 +41,10 @@ export const Xero = defineIntegration({
     {
       name: "Source of Truth",
       description: "Which system's data takes priority when there are conflicts"
+    },
+    {
+      name: "Account Mapping",
+      description: "Default accounts for syncing transactions to Xero"
     }
   ],
   settings: [
@@ -177,6 +174,26 @@ export const Xero = defineIntegration({
       ],
       required: false,
       value: "accounting"
+    },
+    {
+      name: "defaultSalesAccountCode",
+      label: "Default Sales Account",
+      description: "Account code to use for sales invoice line items",
+      group: "Account Mapping",
+      type: "options" as const,
+      listOptions: [], // Populated dynamically from Xero
+      required: true,
+      value: ""
+    },
+    {
+      name: "defaultPurchaseAccountCode",
+      label: "Default Purchase Account",
+      description: "Account code to use for purchase order and bill line items",
+      group: "Account Mapping",
+      type: "options" as const,
+      listOptions: [], // Populated dynamically from Xero
+      required: true,
+      value: ""
     }
   ],
   schema: XeroSettingsSchema,
@@ -199,49 +216,7 @@ export const Xero = defineIntegration({
       description: "Runs the initial backfill for the selected entities above",
       endpoint: "/api/integrations/xero/backfill"
     }
-  ],
-  async onHealthcheck(companyId, metadata) {
-    const provider = getProviderIntegration(
-      getCarbonServiceRole(),
-      companyId,
-      ProviderID.XERO,
-      metadata as ProviderIntegrationMetadata
-    );
-
-    return await provider.validate();
-  },
-  async onInstall(companyId) {
-    const client = getCarbonServiceRole();
-
-    const tables: CreateSubscriptionParams["table"][] = [
-      "address",
-      "contact",
-      "customer",
-      "supplier",
-      "item",
-      "salesInvoice",
-      "purchaseInvoice"
-    ];
-
-    for (const table of tables) {
-      await createEventSystemSubscription(client, {
-        table,
-        companyId,
-        name: "xero-sync",
-        operations: ["INSERT", "UPDATE", "DELETE"],
-        type: "SYNC",
-        config: {
-          provider: ProviderID.XERO
-        }
-      });
-    }
-  },
-  async onUninstall(companyId) {
-    const client = getCarbonServiceRole();
-
-    // Delete all Xero sync subscriptions for this company
-    await deleteEventSystemSubscriptionsByName(client, companyId, "xero-sync");
-  }
+  ]
 });
 
 function Logo(props: ComponentProps<"svg">) {

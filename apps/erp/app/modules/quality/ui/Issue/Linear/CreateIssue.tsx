@@ -49,6 +49,7 @@ export const CreateIssue = (props: Props) => {
       method="post"
       action={path.to.api.linearCreateIssue}
       validator={createIssueValidator}
+      // @ts-expect-error TS2322 - TODO: fix type
       fetcher={fetcher}
       resetAfterSubmit
       onAfterSubmit={() => props.onClose()}

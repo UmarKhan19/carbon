@@ -21,7 +21,7 @@ export function useTheme() {
   const optimisticTheme = useOptimisticTheme();
   const routeData = useRouteData<{ theme: string }>(path.to.root);
 
-  let theme = routeData?.theme ?? "carbon";
+  let theme = routeData?.theme ?? "zinc";
 
   if (optimisticTheme) {
     theme = optimisticTheme;

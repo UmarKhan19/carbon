@@ -208,6 +208,7 @@ export default function ToolDetailsRoute() {
               )}
             </Await>
           </Suspense>
+
           {manufacturingInitialValues && (
             <ItemManufacturingForm
               key={itemId}
@@ -216,31 +217,38 @@ export default function ToolDetailsRoute() {
               withConfiguration={false}
             />
           )}
-          <BillOfMaterial
-            key={`bom:${itemId}`}
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            materials={methodData.methodMaterials ?? []}
-            // @ts-ignore
-            operations={methodData.methodOperations}
-          />
-          <BillOfProcess
-            key={`bop:${itemId}`}
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            operations={methodData.methodOperations ?? []}
-            tags={tags}
-          />
-        </>
-      )}
-      {permissions.is("employee") && (
-        <>
           <ItemNotes
             id={toolData.toolSummary?.id ?? null}
             title={toolData.toolSummary?.name ?? ""}
             subTitle={toolData.toolSummary?.readableIdWithRevision ?? ""}
             notes={toolData.toolSummary?.notes as JSONContent}
           />
+          {["Make", "Buy and Make"].includes(
+            toolData.toolSummary?.replenishmentSystem ?? ""
+          ) && (
+            <>
+              <BillOfMaterial
+                key={`bom:${itemId}`}
+                makeMethod={methodData.makeMethod}
+                // @ts-ignore
+                materials={methodData.methodMaterials ?? []}
+                // @ts-ignore
+                operations={methodData.methodOperations}
+                replenishmentSystem={toolData.toolSummary?.replenishmentSystem}
+              />
+              <BillOfProcess
+                key={`bop:${itemId}`}
+                makeMethod={methodData.makeMethod}
+                // @ts-ignore
+                operations={methodData.methodOperations ?? []}
+                tags={tags}
+              />
+            </>
+          )}
+        </>
+      )}
+      {permissions.is("employee") && (
+        <>
           <Suspense
             fallback={
               <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">

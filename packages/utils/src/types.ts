@@ -3,7 +3,8 @@ import { z } from "zod";
 export enum Edition {
   Cloud = "cloud",
   Enterprise = "enterprise",
-  Community = "community"
+  Community = "community",
+  Test = "test"
 }
 
 export type Mode = "light" | "dark";

@@ -242,15 +242,15 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
               getNodeProps={getNodeProps}
               getTreeProps={getTreeProps}
               renderNode={({ node, state }) => (
-                <HoverCard>
+                <HoverCard openDelay={500}>
                   <HoverCardTrigger asChild>
                     <div
                       key={node.id}
                       className={cn(
                         "flex h-8 cursor-pointer items-center overflow-hidden rounded-sm pr-2 gap-1",
                         state.selected
-                          ? "bg-muted hover:bg-muted/90"
-                          : "bg-transparent hover:bg-muted/90"
+                          ? "bg-muted hover:bg-accent"
+                          : "bg-transparent hover:bg-accent"
                       )}
                       onClick={() => {
                         selectNode(node.id, false);
@@ -308,7 +308,7 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
                       <div className="flex w-full items-center justify-between gap-2">
                         <div className="flex items-center gap-2 overflow-x-hidden">
                           {bomIdMap.get(node.id) && (
-                            <Badge variant="outline">
+                            <Badge variant="outline" className="flex-shrink-0">
                               {bomIdMap.get(node.id)}
                             </Badge>
                           )}
@@ -446,7 +446,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
           <span>{node.data.itemType}</span>
         </HStack>
       </VStack>
-      {node.data.methodType === "Make" && (
+      {node.data.methodType === "Make to Order" && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
             Make Method Version
@@ -474,7 +474,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
 function getNodePath(node: FlatTreeItem<JobMethod>) {
   return node.data.isRoot
     ? path.to.jobDetails(node.data.jobId)
-    : node.data.methodType === "Make"
+    : node.data.methodType === "Make to Order"
       ? path.to.jobMakeMethod(
           node.data.jobId,
           node.data.jobMaterialMakeMethodId

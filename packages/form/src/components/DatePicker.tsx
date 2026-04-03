@@ -11,6 +11,7 @@ import { parseDate } from "@internationalized/date";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useField } from "../hooks";
+import { useFormStateContext } from "../internal/formStateContext";
 
 type DatePickerProps = {
   name: string;
@@ -27,7 +28,7 @@ type DatePickerProps = {
 const DatePicker = ({
   name,
   label,
-  isDisabled = false,
+  isDisabled: isDisabledProp = false,
   minValue,
   maxValue,
   inline = false,
@@ -35,6 +36,9 @@ const DatePicker = ({
   value,
   onChange
 }: DatePickerProps) => {
+  const formState = useFormStateContext();
+  const isDisabled =
+    formState.isDisabled || formState.isReadOnly || isDisabledProp;
   const { validate } = useFormContext();
   const { error, defaultValue, validate: validateField } = useField(name);
   const [date, setDate] = useState<CalendarDate | undefined>(
@@ -51,7 +55,8 @@ const DatePicker = ({
     }
   }, [value]);
 
-  const handleChange = async (newDate: CalendarDate) => {
+  const handleChange = async (newDate: CalendarDate | null) => {
+    if (!newDate) return;
     const formattedDate = newDate ? newDate.toString() : null;
     flushSync(() => {
       setDate(newDate);
@@ -86,7 +91,7 @@ const DatePicker = ({
         isDisabled={isDisabled}
         minValue={minValue}
         maxValue={maxValue}
-        onChange={handleChange}
+        onChange={handleChange as any}
         inline={inline ? DatePickerPreview : undefined}
         helperText={helperText}
         label={label}

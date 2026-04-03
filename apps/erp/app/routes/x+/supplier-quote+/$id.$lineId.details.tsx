@@ -1,5 +1,6 @@
-import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
+import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
@@ -20,8 +21,10 @@ import type {
 } from "~/modules/purchasing";
 import {
   getSupplierInteractionLineDocuments,
+  getSupplierQuote,
   getSupplierQuoteLine,
   getSupplierQuoteLinePrices,
+  isSupplierQuoteLocked,
   supplierQuoteLineValidator,
   upsertSupplierQuoteLine
 } from "~/modules/purchasing";
@@ -35,6 +38,7 @@ import {
 } from "~/modules/purchasing/ui/SupplierQuote";
 import type { MethodItemType } from "~/modules/shared";
 import { setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -81,6 +85,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id, lineId } = params;
   if (!id) throw new Error("Could not find id");
   if (!lineId) throw new Error("Could not find lineId");
+
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "purchasing"
+  });
+  const quote = await getSupplierQuote(viewClient, id);
+  await requireUnlocked({
+    request,
+    isLocked: isSupplierQuoteLocked(quote.data?.status),
+    redirectTo: path.to.supplierQuote(id),
+    message: "Cannot modify a locked supplier quote. Reopen it first."
+  });
 
   const formData = await request.formData();
 
@@ -129,6 +144,7 @@ export default function SupplierQuoteLine() {
   }>(path.to.supplierQuote(id));
 
   const exchangeRate = routeData?.quote?.exchangeRate ?? 1;
+  const isReadOnly = isSupplierQuoteLocked(routeData?.quote?.status);
 
   const initialValues = {
     ...line,
@@ -148,11 +164,6 @@ export default function SupplierQuoteLine() {
   return (
     <Fragment key={lineId}>
       <SupplierQuoteLineForm key={lineId} initialValues={initialValues} />
-      <SupplierQuoteLinePricing
-        line={line}
-        pricesByQuantity={pricesByQuantity}
-        exchangeRate={exchangeRate}
-      />
       <SupplierInteractionLineNotes
         id={line.id}
         table="supplierQuoteLine"
@@ -160,6 +171,11 @@ export default function SupplierQuoteLine() {
         subTitle={line.itemReadableId ?? ""}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
+      />
+      <SupplierQuoteLinePricing
+        line={line}
+        pricesByQuantity={pricesByQuantity}
+        exchangeRate={exchangeRate}
       />
 
       <Suspense
@@ -176,6 +192,7 @@ export default function SupplierQuoteLine() {
               id={id}
               lineId={lineId}
               type="Supplier Quote"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>

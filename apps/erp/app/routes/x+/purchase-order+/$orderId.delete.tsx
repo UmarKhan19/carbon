@@ -1,10 +1,6 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  notFound
-} from "@carbon/auth";
+import { assertIsPost, error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";

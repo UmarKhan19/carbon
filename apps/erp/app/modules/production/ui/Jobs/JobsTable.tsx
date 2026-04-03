@@ -1,6 +1,7 @@
 import { useCarbon } from "@carbon/auth";
 import {
   Badge,
+  BarProgress,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -9,7 +10,6 @@ import {
   HStack,
   MenuIcon,
   MenuItem,
-  Progress,
   toast,
   useDisclosure,
   VStack
@@ -236,20 +236,22 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
         accessorKey: "quantity",
         header: "Quantity",
         cell: ({ row }) => {
-          if (row.original.status === "Ready") {
+          const quantity = row.original.quantity;
+          const quantityComplete = row.original.quantityComplete ?? 0;
+
+          if (
+            ["In Progress", "Released", "Paused"].includes(
+              row.original.status ?? ""
+            )
+          ) {
             return (
-              <Progress
-                value={
-                  ((row.original.quantityComplete ?? 0) /
-                    (row.original.quantity ?? 0)) *
-                  100
-                }
-                numerator={(row.original.quantityComplete ?? 0).toString()}
-                denominator={(row.original.quantity ?? 0).toString()}
+              <BarProgress
+                progress={(quantityComplete / (quantity ?? 0)) * 100}
+                value={`${quantityComplete}/${quantity}`}
               />
             );
           }
-          return row.original.quantity;
+          return quantity;
         },
         meta: {
           icon: <LuHash />,

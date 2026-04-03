@@ -15,6 +15,7 @@ import { useState } from "react";
 import {
   LuCalendar,
   LuContainer,
+  LuFile,
   LuHash,
   LuList,
   LuSquareUser,
@@ -24,7 +25,6 @@ import {
 } from "react-icons/lu";
 import { useParams } from "react-router";
 import type { z } from "zod";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Array, Hidden, Input, Submit, Tags } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { AttributeDataType } from "~/modules/people";
@@ -175,6 +175,8 @@ function CustomFieldDataTypeIcon({
       return (
         <LuContainer className={cn("w-4 h-4 text-emerald-600", className)} />
       );
+    case DataType.File:
+      return <LuFile className={cn("w-4 h-4 text-indigo-600", className)} />;
     default:
       return null;
   }

@@ -1,5 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import {
+  BarProgress,
   Card,
   CardContent,
   CardFooter,
@@ -12,7 +13,6 @@ import {
   DropdownMenuTrigger,
   HStack,
   IconButton,
-  Progress as ProgressComponent,
   Tooltip,
   TooltipContent,
   TooltipTrigger
@@ -29,12 +29,12 @@ import { cva } from "class-variance-authority";
 import {
   LuCalendarDays,
   LuCircleCheck,
+  LuCirclePlay,
   LuClipboardCheck,
   LuEllipsisVertical,
   LuFlashlight,
   LuFlashlightOff,
   LuGripVertical,
-  LuHardHat,
   LuPencil,
   LuPlay,
   LuSquareUser,
@@ -82,27 +82,6 @@ const cardVariants = cva(
         Cancelled: "border-red-500/30",
         Waiting: "opacity-50",
         Todo: "border-border"
-      }
-    },
-    defaultVariants: {
-      status: "Todo"
-    }
-  }
-);
-
-const cardHeaderVariants = cva(
-  "-mx-4  relative border-b border-border/50 pt-4 pl-4 pr-6 rounded-t-lg",
-  {
-    variants: {
-      status: {
-        "In Progress": "",
-        Ready: "",
-        Done: "",
-        Todo: "",
-        Paused: "",
-        Canceled: "",
-        Cancelled: "",
-        Waiting: ""
       }
     },
     defaultVariants: {
@@ -163,21 +142,16 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "max-w-[330px] shadow-sm dark:shadow-sm py-0",
+        "max-w-[330px]",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
+          // @ts-expect-error TS2322 - TODO: fix type
           status: status,
           highlighted: isHighlighted
         })
       )}
     >
-      <CardHeader
-        className={cn(
-          cardHeaderVariants({
-            status: status
-          })
-        )}
-      >
+      <CardHeader className="flex flex-col justify-between relative gap-2">
         <div className="flex w-full max-w-full justify-between items-start gap-0">
           <div className="flex flex-col space-y-0 min-w-0">
             {item.itemReadableId && (
@@ -246,25 +220,20 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
 
         {displaySettings.showProgress &&
           Number.isFinite(progress) &&
+          // @ts-expect-error TS2339 - TODO: fix type
           Number.isFinite(item?.duration) &&
           Number(progress) >= 0 &&
+          // @ts-expect-error TS2339 - TODO: fix type
           Number(item?.duration) >= 0 && (
             <HStack>
-              <ProgressComponent
-                indicatorClassName={
-                  (progress ?? 0) > (item.duration ?? 0)
-                    ? "bg-red-500"
-                    : status === "Paused"
-                      ? "bg-yellow-500"
-                      : ""
-                }
-                numerator={progress ? formatDurationMilliseconds(progress) : ""}
-                denominator={
-                  item.duration ? formatDurationMilliseconds(item.duration) : ""
-                }
-                value={Math.min(
+              <BarProgress
+                gradient
+                invertGradient
+                progress={Math.min(
+                  // @ts-expect-error TS2339 - TODO: fix type
                   progress && item.duration
-                    ? (progress / item.duration) * 100
+                    ? // @ts-expect-error TS2339 - TODO: fix type
+                      (progress / item.duration) * 100
                     : 0,
                   100
                 )}
@@ -276,17 +245,12 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           Number.isFinite(item.targetQuantity ?? item.quantity) &&
           Number(item.targetQuantity ?? item.quantity) > 0 && (
             <HStack>
-              <ProgressComponent
-                numerator={(item.quantityCompleted ?? 0).toString()}
-                denominator={(
-                  item.targetQuantity ??
-                  item.quantity ??
-                  0
-                ).toString()}
-                value={
+              <BarProgress
+                progress={
                   item.quantityCompleted &&
                   (item.targetQuantity ?? item.quantity)
                     ? (item.quantityCompleted /
+                        // @ts-expect-error TS2532 - TODO: fix type
                         (item.targetQuantity ?? item.quantity)) *
                       100
                     : 0
@@ -296,7 +260,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             </HStack>
           )}
       </CardHeader>
-      <CardContent className="pt-3 px-1 gap-2 text-left whitespace-pre-wrap text-sm">
+      <CardContent className="gap-2 text-left whitespace-pre-wrap text-sm">
         {displaySettings.showThumbnail && item.thumbnailPath && (
           <div className="flex justify-center">
             <img
@@ -307,7 +271,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           </div>
         )}
         <HStack className="justify-start space-x-2">
-          <LuHardHat className="text-muted-foreground" />
+          <LuCirclePlay className="text-muted-foreground" />
           <span className="text-sm line-clamp-1">{item.title}</span>
         </HStack>
         {displaySettings.showDescription && item.description && (
@@ -321,6 +285,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             <JobOperationStatus
               operation={{
                 id: item.id,
+                // @ts-expect-error TS2322 - TODO: fix type
                 status: status ?? "Todo",
                 jobId: item.jobId
               }}
@@ -329,10 +294,12 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             <span className="text-sm">{status}</span>
           </HStack>
         )}
+        {/* @ts-expect-error TS2339 */}
         {displaySettings.showDuration && typeof item.duration === "number" && (
           <HStack className="justify-start space-x-2">
             <LuTimer className="text-muted-foreground" />
             <span className="text-sm">
+              {/* @ts-expect-error TS2339 */}
               {formatDurationMilliseconds(item.duration)}
             </span>
           </HStack>
@@ -406,7 +373,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           </HStack>
         )}
       </CardContent>
-      <CardFooter className="bg-accent/50 -mx-4 border-t px-4 py-2 items-center justify-between rounded-b-lg">
+      <CardFooter className="items-center justify-between text-xs flex-wrap">
         <HStack>
           <Assignee
             table="jobOperation"

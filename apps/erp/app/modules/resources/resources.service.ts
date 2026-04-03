@@ -395,7 +395,8 @@ export async function getMaintenanceDispatch(
       assignee:user!maintenanceDispatch_assignee_fkey(id, fullName, avatarUrl),
       suspectedFailureMode:maintenanceFailureMode!maintenanceDispatch_suspectedFailureModeId_fkey(id, name),
       actualFailureMode:maintenanceFailureMode!maintenanceDispatch_actualFailureModeId_fkey(id, name),
-      schedule:maintenanceSchedule(id, name)`
+      schedule:maintenanceSchedule(id, name),
+      procedure:procedureId(id, name)`
     )
     .eq("id", dispatchId)
     .single();
@@ -1303,11 +1304,14 @@ export async function upsertMaintenanceDispatch(
       })
 ) {
   if ("createdBy" in dispatch) {
-    return client
-      .from("maintenanceDispatch")
-      .insert([dispatch])
-      .select("id")
-      .single();
+    return (
+      client
+        .from("maintenanceDispatch")
+        // @ts-expect-error TS2769 - TODO: fix type
+        .insert([dispatch])
+        .select("id")
+        .single()
+    );
   } else {
     return client
       .from("maintenanceDispatch")
@@ -1491,6 +1495,7 @@ export async function upsertPartner(
       .update(sanitize(partner))
       .eq("id", partner.id);
   } else {
+    // @ts-expect-error TS2769 - TODO: fix type
     return await client.from("partner").insert([partner]);
   }
 }

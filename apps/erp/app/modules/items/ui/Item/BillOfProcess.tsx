@@ -38,9 +38,16 @@ import {
 import { Editor } from "@carbon/react/Editor";
 import { formatRelativeTime } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { AnimatePresence, LayoutGroup, motion, Reorder } from "framer-motion";
+import type { DragControls } from "framer-motion";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  Reorder,
+  useDragControls
+} from "framer-motion";
 import { nanoid } from "nanoid";
-import type { Dispatch, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -74,7 +81,6 @@ import type { Configuration } from "~/components/Configurator/types";
 import {
   Hidden,
   InputControlled,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Process,
@@ -1945,25 +1951,28 @@ function AttributesForm({
               if (!step) return null;
               const index = sortOrder.indexOf(stepId);
               return (
-                <Reorder.Item
+                <DraggableStepItem
                   key={stepId}
-                  value={stepId}
-                  dragListener={!isDisabled}
+                  stepId={stepId}
+                  isDisabled={isDisabled}
                 >
-                  <AttributesListItem
-                    attribute={step}
-                    operationId={operationId}
-                    typeOptions={typeOptions}
-                    isDisabled={isDisabled}
-                    className={
-                      index === sortOrder.length - 1 ? "border-none" : ""
-                    }
-                    configurable={configurable}
-                    rulesByField={rulesByField}
-                    onConfigure={onConfigure}
-                    itemMentions={itemMentions}
-                  />
-                </Reorder.Item>
+                  {(dragControls) => (
+                    <AttributesListItem
+                      attribute={step}
+                      operationId={operationId}
+                      typeOptions={typeOptions}
+                      isDisabled={isDisabled}
+                      dragControls={dragControls}
+                      className={
+                        index === sortOrder.length - 1 ? "border-none" : ""
+                      }
+                      configurable={configurable}
+                      rulesByField={rulesByField}
+                      onConfigure={onConfigure}
+                      itemMentions={itemMentions}
+                    />
+                  )}
+                </DraggableStepItem>
               );
             })}
           </Reorder.Group>
@@ -1978,6 +1987,28 @@ function AttributesForm({
   );
 }
 
+function DraggableStepItem({
+  stepId,
+  isDisabled,
+  children
+}: {
+  stepId: string;
+  isDisabled: boolean;
+  children: (dragControls: DragControls) => ReactNode;
+}) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      key={stepId}
+      value={stepId}
+      dragListener={false}
+      dragControls={dragControls}
+    >
+      {children(dragControls)}
+    </Reorder.Item>
+  );
+}
+
 function AttributesListItem({
   attribute,
   operationId,
@@ -1987,6 +2018,7 @@ function AttributesListItem({
   rulesByField,
   onConfigure,
   isDisabled = false,
+  dragControls,
   itemMentions
 }: {
   attribute: OperationStep;
@@ -1997,6 +2029,7 @@ function AttributesListItem({
   rulesByField: Map<string, ConfigurationRule>;
   onConfigure?: (c: Configuration) => void;
   isDisabled?: boolean;
+  dragControls?: DragControls;
   itemMentions: { id: string; label: string }[];
 }) {
   const {
@@ -2231,7 +2264,7 @@ function AttributesListItem({
                 Cancel
               </Button>
               <Submit
-                isDisabled={fetcher.state !== "idle"}
+                isDisabled={isDisabled || fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
                 Save
@@ -2247,7 +2280,11 @@ function AttributesListItem({
               icon={<LuGripVertical />}
               variant="ghost"
               disabled={isDisabled}
-              className="cursor-grab"
+              className="cursor-grab active:cursor-grabbing"
+              onPointerDown={(e) => {
+                if (!isDisabled && dragControls) dragControls.start(e);
+              }}
+              style={{ touchAction: "none" }}
             />
             <HStack spacing={4} className="flex-1">
               <div className="bg-muted border rounded-full flex items-center justify-center p-2">
@@ -2345,26 +2382,28 @@ function AttributesListItem({
               </span>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <IconButton
-                  aria-label="Open menu"
-                  icon={<LuEllipsisVertical />}
-                  variant="ghost"
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={disclosure.onOpen}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  destructive
-                  onClick={deleteModalDisclosure.onOpen}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {!isDisabled && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <IconButton
+                    aria-label="Open menu"
+                    icon={<LuEllipsisVertical />}
+                    variant="ghost"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={disclosure.onOpen}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    destructive
+                    onClick={deleteModalDisclosure.onOpen}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       )}
@@ -2472,6 +2511,7 @@ function ParametersForm({
                 configurable={configurable}
                 rulesByField={rulesByField}
                 onConfigure={onConfigure}
+                isDisabled={isDisabled}
               />
             ))}
         </div>
@@ -2491,7 +2531,8 @@ function ParametersListItem({
   className,
   configurable,
   rulesByField,
-  onConfigure
+  onConfigure,
+  isDisabled = false
 }: {
   parameter: OperationParameter;
   operationId: string;
@@ -2499,6 +2540,7 @@ function ParametersListItem({
   configurable: boolean;
   rulesByField: Map<string, ConfigurationRule>;
   onConfigure?: (c: Configuration) => void;
+  isDisabled?: boolean;
 }) {
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
@@ -2578,7 +2620,7 @@ function ParametersListItem({
                 Cancel
               </Button>
               <Submit
-                isDisabled={fetcher.state !== "idle"}
+                isDisabled={isDisabled || fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
                 Save
@@ -2631,26 +2673,28 @@ function ParametersListItem({
               </span>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <IconButton
-                  aria-label="Open menu"
-                  icon={<LuEllipsisVertical />}
-                  variant="ghost"
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={disclosure.onOpen}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  destructive
-                  onClick={deleteModalDisclosure.onOpen}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {!isDisabled && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <IconButton
+                    aria-label="Open menu"
+                    icon={<LuEllipsisVertical />}
+                    variant="ghost"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={disclosure.onOpen}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    destructive
+                    onClick={deleteModalDisclosure.onOpen}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       )}
@@ -2700,7 +2744,7 @@ function ToolsForm({
   return (
     <div className="flex flex-col gap-6">
       {!isDisabled && (
-        <div className="p-6 border rounded-lg">
+        <div className="p-6 border rounded-lg bg-card">
           <ValidatedForm
             action={path.to.newMethodOperationTool}
             method="post"
@@ -2750,6 +2794,7 @@ function ToolsForm({
                 tool={t}
                 operationId={operationId}
                 className={index === tools.length - 1 ? "border-none" : ""}
+                isDisabled={isDisabled}
               />
             ))}
         </div>
@@ -2766,11 +2811,13 @@ function ToolsForm({
 function ToolsListItem({
   tool: { toolId, quantity, id, updatedBy, updatedAt, createdBy, createdAt },
   operationId,
-  className
+  className,
+  isDisabled = false
 }: {
   tool: OperationTool;
   operationId: string;
   className?: string;
+  isDisabled?: boolean;
 }) {
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
@@ -2794,7 +2841,7 @@ function ToolsListItem({
   const date = updatedAt ?? createdAt;
 
   return (
-    <div className={cn("border-b p-6", className)}>
+    <div className={cn("border-b p-6 bg-card", className)}>
       {disclosure.isOpen ? (
         <ValidatedForm
           action={path.to.methodOperationTool(id)}
@@ -2824,7 +2871,7 @@ function ToolsListItem({
                 Cancel
               </Button>
               <Submit
-                isDisabled={fetcher.state !== "idle"}
+                isDisabled={isDisabled || fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
                 Save
@@ -2859,26 +2906,28 @@ function ToolsListItem({
               </span>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <IconButton
-                  aria-label="Open menu"
-                  icon={<LuEllipsisVertical />}
-                  variant="ghost"
-                />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={disclosure.onOpen}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  destructive
-                  onClick={deleteModalDisclosure.onOpen}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {!isDisabled && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <IconButton
+                    aria-label="Open menu"
+                    icon={<LuEllipsisVertical />}
+                    variant="ghost"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={disclosure.onOpen}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    destructive
+                    onClick={deleteModalDisclosure.onOpen}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       )}

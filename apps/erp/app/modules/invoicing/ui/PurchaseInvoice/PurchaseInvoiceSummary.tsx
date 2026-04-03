@@ -30,6 +30,7 @@ import {
 } from "~/hooks";
 import { useItems } from "~/stores";
 import { getPrivateUrl, path } from "~/utils/path";
+import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 import type {
   PurchaseInvoice,
   PurchaseInvoiceDelivery,
@@ -169,7 +170,10 @@ const LineItems = ({
                           className="flex items-center gap-2"
                         >
                           {line.quantity}
-                          <MethodIcon type={line.methodType ?? "Pick"} />
+                          <MethodIcon
+                            // @ts-ignore
+                            type={line.methodType ?? "Pull from Inventory"}
+                          />
                         </Badge>
                         <Badge variant="green">
                           {formatter.format(line.unitPrice ?? 0)}{" "}
@@ -354,8 +358,8 @@ const PurchaseInvoiceSummary = ({
     currency: routeData?.purchaseInvoice?.currencyCode ?? "USD"
   });
 
-  const isEditable = ["Draft", "To Review"].includes(
-    routeData?.purchaseInvoice?.status ?? ""
+  const isEditable = !isPurchaseInvoiceLocked(
+    routeData?.purchaseInvoice?.status
   );
 
   // Calculate totals

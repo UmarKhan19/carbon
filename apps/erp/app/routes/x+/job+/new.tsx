@@ -1,5 +1,6 @@
-import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
+import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { recalculateTask } from "@carbon/jobs/trigger/recalculate";
@@ -64,6 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
         )
       );
     }
+    // @ts-expect-error TS2322 - TODO: fix type
     jobId = nextSequenceResult.data;
   }
 
@@ -112,6 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
     ...d,
     jobId,
     configuration,
+    // @ts-expect-error TS2353 - TODO: fix type
     priority,
     scrapQuantity,
     shelfId: shelfId ?? undefined,

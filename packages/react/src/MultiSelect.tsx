@@ -143,7 +143,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                         <Badge
                           key={item}
                           variant="secondary"
-                          className="border border-card shadow-sm"
+                          className="border border-card"
                         >
                           {
                             options.find((option) => option.value === item)
@@ -281,7 +281,7 @@ function VirtualizedCommand({
           }}
         >
           {items.map((virtualRow) => {
-            const option = filteredOptions[virtualRow.index];
+            const option = filteredOptions[virtualRow.index]!;
             const isSelected = value.includes(option.value);
 
             return (

@@ -28,8 +28,10 @@ import {
   Submit
 } from "~/components/Form";
 import PaymentTerm from "~/components/Form/PaymentTerm";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
 import { salesInvoiceValidator } from "~/modules/invoicing";
+import { path } from "~/utils/path";
+import { isSalesInvoiceLocked } from "../../invoicing.models";
 
 type SalesInvoiceFormValues = z.infer<typeof salesInvoiceValidator>;
 
@@ -41,6 +43,12 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const isEditing = initialValues.id !== undefined;
+
+  const invoiceId = initialValues.id;
+  const routeData = useRouteData<{ salesInvoice: { status: string } }>(
+    invoiceId ? path.to.salesInvoice(invoiceId) : ""
+  );
+  const isLocked = isSalesInvoiceLocked(routeData?.salesInvoice?.status);
 
   const [invoiceCustomer, setInvoiceCustomer] = useState<{
     id: string | undefined;
@@ -65,7 +73,6 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
   const onCustomerChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     setCustomer({ id: newValue?.value });
@@ -77,7 +84,6 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
   const onInvoiceCustomerChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -100,7 +106,9 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
       const [customerData, paymentTermData] = await Promise.all([
         carbon
           ?.from("customer")
-          .select("currencyCode")
+          .select(
+            "currencyCode, salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+          )
           .eq("id", newValue.value)
           .single(),
         carbon
@@ -117,9 +125,13 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
           ...prev,
           id: newValue.value,
           invoiceCustomerContactId:
-            paymentTermData.data.invoiceCustomerContactId ?? undefined,
+            paymentTermData.data.invoiceCustomerContactId ??
+            customerData.data.salesContactId ??
+            undefined,
           invoiceCustomerLocationId:
-            paymentTermData.data.invoiceCustomerLocationId ?? undefined,
+            paymentTermData.data.invoiceCustomerLocationId ??
+            customerData.data.customerShipping?.shippingCustomerLocationId ??
+            undefined,
           currencyCode: customerData.data.currencyCode ?? undefined,
           paymentTermId: paymentTermData.data.paymentTermId ?? undefined
         }));
@@ -140,6 +152,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
       method="post"
       validator={salesInvoiceValidator}
       defaultValues={initialValues}
+      isDisabled={isEditing && isLocked}
     >
       <Card>
         <CardHeader>
@@ -252,7 +265,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
           <Submit
             isDisabled={
               isEditing
-                ? !permissions.can("update", "invoicing")
+                ? isLocked || !permissions.can("update", "invoicing")
                 : !permissions.can("create", "invoicing")
             }
           >

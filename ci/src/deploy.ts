@@ -10,6 +10,7 @@ export type Workspace = {
   seeded: boolean;
 
   // AWS Configuration
+  aws: boolean;
   aws_account_id: string | null;
   aws_region: string | null;
 
@@ -30,12 +31,15 @@ export type Workspace = {
   service_role_key: string | null;
 
   // App Configuration
+  auth_providers: string | null;
   carbon_edition: string | null;
   cloudflare_turnstile_secret_key: string | null;
   cloudflare_turnstile_site_key: string | null;
   controlled_environment: string | null;
   exchange_rates_api_key: string | null;
+  google_places_api_key: string | null;
   novu_application_id: string | null;
+  novu_api_url: string | null;
   novu_secret_key: string | null;
   openai_api_key: string | null;
   posthog_api_host: string | null;
@@ -43,7 +47,9 @@ export type Workspace = {
   quickbooks_client_id: string | null;
   quickbooks_client_secret: string | null;
   quickbooks_webhook_secret: string | null;
+  redis_url: string | null;
   resend_api_key: string | null;
+  resend_domain: string | null;
   session_secret: string | null;
   slack_bot_token: string | null;
   slack_client_id: string | null;
@@ -57,8 +63,7 @@ export type Workspace = {
   trigger_api_url: string | null;
   trigger_project_id: string | null;
   trigger_secret_key: string | null;
-  upstash_redis_rest_token: string | null;
-  upstash_redis_rest_url: string | null;
+  redis_url: string | null;
   url_erp: string | null;
   url_mes: string | null;
   xero_client_id: string | null;
@@ -69,14 +74,24 @@ export type Workspace = {
 async function deploy(): Promise<void> {
   console.log("✅ 🌱 Starting deployment");
 
+  const imageTag = process.env.IMAGE_TAG;
+  if (!imageTag) {
+    console.error("🔴 🍳 Missing IMAGE_TAG environment variable");
+    process.exit(1);
+  }
+
+  console.log(`✅ 🏷️ Using image tag: ${imageTag}`);
+
   const { data: workspaces, error } = await client
     .from("workspaces")
     .select("*");
 
   if (error) {
     console.error("🔴 🍳 Failed to fetch workspaces", error);
-    return;
+    process.exit(1);
   }
+
+  let hasErrors = false;
 
   console.log("✅ 🛩️ Successfully retreived workspaces");
 
@@ -84,8 +99,10 @@ async function deploy(): Promise<void> {
     try {
       console.log(`✅ 🥚 Migrating ${workspace.id}`);
       const {
+        aws,
         aws_account_id,
         aws_region,
+        auth_providers,
         domain_name,
         cert_arn_erp,
         cert_arn_mes,
@@ -100,7 +117,9 @@ async function deploy(): Promise<void> {
         cloudflare_turnstile_site_key,
         controlled_environment,
         exchange_rates_api_key,
+        google_places_api_key,
         novu_application_id,
+        novu_api_url,
         novu_secret_key,
         openai_api_key,
         posthog_api_host,
@@ -109,6 +128,7 @@ async function deploy(): Promise<void> {
         quickbooks_client_secret,
         quickbooks_webhook_secret,
         resend_api_key,
+        resend_domain,
         session_secret,
         slack_bot_token,
         slack_client_secret,
@@ -122,8 +142,7 @@ async function deploy(): Promise<void> {
         trigger_api_url,
         trigger_project_id,
         trigger_secret_key,
-        upstash_redis_rest_token,
-        upstash_redis_rest_url,
+        redis_url,
         url_erp,
         url_mes,
         xero_client_id,
@@ -131,7 +150,7 @@ async function deploy(): Promise<void> {
         xero_webhook_secret,
       } = workspace;
 
-      if (slug === "app") {
+      if (!aws) {
         continue;
       }
 
@@ -166,7 +185,9 @@ async function deploy(): Promise<void> {
       }
 
       if (!database_connection_pooler_url) {
-        console.log(`🔴🍳 Missing database connection pooler url for ${workspace.id}`);
+        console.log(
+          `🔴🍳 Missing database connection pooler url for ${workspace.id}`
+        );
         continue;
       }
 
@@ -185,22 +206,7 @@ async function deploy(): Promise<void> {
         continue;
       }
 
-      if (!openai_api_key) {
-        console.log(`🔴🍳 Missing OpenAI API key for ${workspace.id}`);
-        continue;
-      }
-
-      if (!posthog_api_host) {
-        console.log(`🔴🍳 Missing Posthog API host for ${workspace.id}`);
-        continue;
-      }
-
-      if (!posthog_project_public_key) {
-        console.log(
-          `🔴🍳 Missing posthog project public key for ${workspace.id}`
-        );
-        continue;
-      }
+      
 
       if (!resend_api_key) {
         console.log(`🔴🍳 Missing Resend API key for ${workspace.id}`);
@@ -227,15 +233,8 @@ async function deploy(): Promise<void> {
         continue;
       }
 
-      if (!upstash_redis_rest_token) {
-        console.log(
-          `🔴🍳 Missing Upstash Redis REST token for ${workspace.id}`
-        );
-        continue;
-      }
-
-      if (!upstash_redis_rest_url) {
-        console.log(`🔴🍳 Missing Upstash Redis rest url for ${workspace.id}`);
+      if (!redis_url) {
+        console.log(`🔴🍳 Missing Redis URL for ${workspace.id}`);
         continue;
       }
 
@@ -256,6 +255,8 @@ async function deploy(): Promise<void> {
         env: {
           AWS_ACCOUNT_ID: aws_account_id,
           AWS_REGION: aws_region,
+          IMAGE_TAG: imageTag,
+          AUTH_PROVIDERS: auth_providers ?? undefined,
           CARBON_EDITION: carbon_edition ?? "enterprise",
           CERT_ARN_ERP: cert_arn_erp,
           CERT_ARN_MES: cert_arn_mes,
@@ -266,7 +267,9 @@ async function deploy(): Promise<void> {
           CONTROLLED_ENVIRONMENT: controlled_environment ?? undefined,
           DOMAIN: domain_name,
           EXCHANGE_RATES_API_KEY: exchange_rates_api_key ?? undefined,
+          GOOGLE_PLACES_API_KEY: google_places_api_key ?? undefined,
           NOVU_APPLICATION_ID: novu_application_id ?? undefined,
+          NOVU_API_URL: novu_api_url ?? undefined,
           NOVU_SECRET_KEY: novu_secret_key ?? undefined,
           OPENAI_API_KEY: openai_api_key,
           POSTHOG_API_HOST: posthog_api_host ?? undefined,
@@ -274,7 +277,9 @@ async function deploy(): Promise<void> {
           QUICKBOOKS_CLIENT_ID: quickbooks_client_id ?? undefined,
           QUICKBOOKS_CLIENT_SECRET: quickbooks_client_secret ?? undefined,
           QUICKBOOKS_WEBHOOK_SECRET: quickbooks_webhook_secret ?? undefined,
+          REDIS_URL: redis_url ?? undefined,
           RESEND_API_KEY: resend_api_key,
+          RESEND_DOMAIN: resend_domain ?? "carbon.ms",
           SESSION_SECRET: session_secret,
           SLACK_BOT_TOKEN: slack_bot_token ?? undefined,
           SLACK_CLIENT_ID: slack_client_id ?? undefined,
@@ -286,17 +291,13 @@ async function deploy(): Promise<void> {
           STRIPE_SECRET_KEY: stripe_secret_key ?? undefined,
           STRIPE_WEBHOOK_SECRET: stripe_webhook_secret ?? undefined,
           SUPABASE_ANON_KEY: anon_key,
-          SUPABASE_ANON_PUBLIC: anon_key,
-          SUPABASE_API_URL: database_url,
           SUPABASE_DB_URL: database_connection_pooler_url,
-          SUPABASE_SERVICE_ROLE: service_role_key,
           SUPABASE_SERVICE_ROLE_KEY: service_role_key,
           SUPABASE_URL: database_url,
           TRIGGER_API_URL: trigger_api_url,
           TRIGGER_PROJECT_ID: trigger_project_id,
           TRIGGER_SECRET_KEY: trigger_secret_key,
-          UPSTASH_REDIS_REST_TOKEN: upstash_redis_rest_token,
-          UPSTASH_REDIS_REST_URL: upstash_redis_rest_url,
+          REDIS_URL: redis_url,
           URL_ERP: url_erp,
           URL_MES: url_mes,
           VERCEL_ENV: "production",
@@ -306,18 +307,29 @@ async function deploy(): Promise<void> {
         },
         // Run SST from the repository root where sst.config.ts is located
         cwd: "..",
-        stdio: "pipe",
+        stdio: "inherit",
       });
 
       console.log(`🚀 🐓 Deploying apps for ${workspace.id} with SST`);
 
-      await $$`npx --yes sst deploy --stage prod`;
+      await $$`npx --yes sst@3.17.24 deploy --stage prod`;
 
       console.log(`✅ 🍗 Successfully deployed ${workspace.id}`);
     } catch (error) {
       console.error(`🔴 🍳 Failed to deploy ${workspace.id}`, error);
+      hasErrors = true;
     }
   }
+
+  if (hasErrors) {
+    console.error("🔴 Deployment completed with errors");
+    process.exit(1);
+  }
+
+  console.log("✅ All deployments completed successfully");
 }
 
-deploy();
+deploy().catch((error) => {
+  console.error("🔴 Unexpected error during deployment", error);
+  process.exit(1);
+});

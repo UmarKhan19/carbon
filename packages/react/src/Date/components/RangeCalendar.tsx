@@ -95,7 +95,7 @@ export function RangeCalendar({
             size="sm"
             variant="ghost"
           />
-          <div className="font-semibold text-left text-base flex-1 pl-2">
+          <div className="font-medium text-left text-base flex-1 pl-2">
             {startTitle}
           </div>
         </div>
@@ -109,7 +109,7 @@ export function RangeCalendar({
         })}
       >
         <div className="flex items-center pb-4">
-          <div className="font-semibold text-right text-base flex-1 pr-2">
+          <div className="font-medium text-right text-base flex-1 pr-2">
             {endTitle}
           </div>
           <CalendarButton

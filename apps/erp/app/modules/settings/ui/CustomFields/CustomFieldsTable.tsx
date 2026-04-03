@@ -1,10 +1,10 @@
-import { Button, MenuIcon, MenuItem } from "@carbon/react";
+import { Button, HStack, MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { BiAddToQueue } from "react-icons/bi";
 import { BsListUl } from "react-icons/bs";
 import { LuDatabase, LuLayoutGrid, LuList, LuTags } from "react-icons/lu";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { Hyperlink, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { usePermissions, useUrlParams } from "~/hooks";
@@ -58,25 +58,32 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
       {
         header: "Fields",
         cell: ({ row }) => (
-          <Button variant="secondary" asChild>
-            <Link
-              to={`${path.to.customFieldList(
-                row.original.table!
-              )}?${params?.toString()}`}
-            >
+          <HStack className="text-xs text-muted-foreground">
+            <LuList />
+            <span>
               {Array.isArray(row.original.fields)
                 ? (row.original.fields?.length ?? 0)
                 : 0}{" "}
               Fields
-            </Link>
-          </Button>
-        ),
-        meta: {
-          icon: <LuList />
-        }
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                navigate(
+                  `${path.to.customFieldList(
+                    row.original.table!
+                  )}?${params?.toString()}`
+                );
+              }}
+            >
+              Edit
+            </Button>
+          </HStack>
+        )
       }
     ];
-  }, [params]);
+  }, [navigate, params]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const renderContextMenu = useCallback(

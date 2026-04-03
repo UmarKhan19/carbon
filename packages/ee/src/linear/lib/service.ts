@@ -1,27 +1,10 @@
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { z } from "zod";
+import type z from "zod";
 import { markdownToTiptap } from "./richtext";
-import { LinearWorkStateType, mapLinearStatusToCarbonStatus } from "./utils";
-
-export const LinearIssueSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string().nullish(),
-  url: z.string(),
-  state: z.object({
-    name: z.string(),
-    color: z.string(),
-    type: z.nativeEnum(LinearWorkStateType)
-  }),
-  identifier: z.string(),
-  dueDate: z.string().nullish(),
-  assignee: z
-    .object({
-      email: z.string()
-    })
-    .nullish()
-});
+import { LinearIssueSchema } from "./types";
+import { mapLinearStatusToCarbonStatus } from "./utils";
 
 export async function getLinearIntegration(
   client: SupabaseClient<Database>,
@@ -79,7 +62,9 @@ export async function linkActionToLinearIssue(
     .select("nonConformanceId");
 
   // Upsert the Linear mapping in externalIntegrationMapping
-  await client
+  // Use service role to bypass RLS (no DELETE policy for authenticated users)
+  const serviceRoleForLink = getCarbonServiceRole();
+  await serviceRoleForLink
     .from("externalIntegrationMapping")
     .delete()
     .eq("entityType", "nonConformanceActionTask")
@@ -121,8 +106,9 @@ export async function unlinkActionFromLinearIssue(
     assignee?: string | null;
   }
 ) {
-  // Delete the Linear mapping from externalIntegrationMapping
-  await client
+  // Delete the Linear mapping using service role to bypass RLS
+  const serviceRole = getCarbonServiceRole();
+  await serviceRole
     .from("externalIntegrationMapping")
     .delete()
     .eq("entityType", "nonConformanceActionTask")

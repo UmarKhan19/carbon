@@ -42,11 +42,12 @@ import {
 } from "react-icons/lu";
 import type { FetcherWithComponents } from "react-router";
 import { Await, Link, useFetcher, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
 import { CustomerContact, EmailRecipients } from "~/components/Form";
 import { usePanels } from "~/components/Layout";
 import Confirm from "~/components/Modals/Confirm/Confirm";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import type { Shipment } from "~/modules/inventory/types";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
@@ -57,7 +58,7 @@ import type { action as confirmAction } from "~/routes/x+/sales-order+/$orderId.
 import type { action as statusAction } from "~/routes/x+/sales-order+/$orderId.status";
 import { useCustomers } from "~/stores/customers";
 import { path } from "~/utils/path";
-import { salesConfirmValidator } from "../../sales.models";
+import { isSalesOrderLocked, salesConfirmValidator } from "../../sales.models";
 import type { Opportunity, SalesOrder, SalesOrderLine } from "../../types";
 import SalesStatus from "./SalesStatus";
 import { useSalesOrder } from "./useSalesOrder";
@@ -173,6 +174,7 @@ const SalesOrderHeader = () => {
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
 
+  const { company } = useUser();
   const { toggleExplorer, toggleProperties } = usePanels();
 
   const routeData = useRouteData<{
@@ -190,15 +192,28 @@ const SalesOrderHeader = () => {
   if (!routeData?.salesOrder) throw new Error("Failed to load sales order");
 
   const permissions = usePermissions();
+  const isLocked = isSalesOrderLocked(routeData?.salesOrder?.status);
 
   const statusFetcher = useFetcher<typeof statusAction>();
   const confirmFetcher = useFetcher<typeof confirmAction>();
   const { ship, invoice } = useSalesOrder();
 
+  // Check if there are any lines with "Make" method type that would require jobs
+  const hasMakeItems =
+    routeData?.lines?.some((line) => line.methodType === "Make to Order") ??
+    false;
+
   const salesOrderToJobsModal = useDisclosure();
   const confirmDisclosure = useDisclosure();
   const deleteSalesOrderModal = useDisclosure();
   const [customers] = useCustomers();
+
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "salesOrder",
+    entityId: orderId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
 
   const csvExportData = useMemo(() => {
     const headers = [
@@ -259,6 +274,8 @@ const SalesOrderHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {auditLogTrigger}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
                     !["To Ship and Invoice", "To Ship"].includes(
@@ -266,7 +283,8 @@ const SalesOrderHeader = () => {
                     ) ||
                     !permissions.can("create", "production") ||
                     !permissions.is("employee") ||
-                    !!routeData?.salesOrder?.jobs
+                    !!routeData?.salesOrder?.jobs ||
+                    !hasMakeItems
                   }
                   onClick={salesOrderToJobsModal.onOpen}
                 >
@@ -285,6 +303,7 @@ const SalesOrderHeader = () => {
                 <DropdownMenuItem
                   destructive
                   disabled={
+                    isLocked ||
                     !permissions.can("delete", "sales") ||
                     !permissions.is("employee")
                   }
@@ -308,7 +327,10 @@ const SalesOrderHeader = () => {
               lines={
                 routeData?.salesOrder?.lines as Array<{
                   id: string;
-                  methodType: "Buy" | "Make" | "Pick";
+                  methodType:
+                    | "Purchase to Order"
+                    | "Make to Order"
+                    | "Pull from Inventory";
                   saleQuantity: number;
                 }>
               }
@@ -619,6 +641,7 @@ const SalesOrderHeader = () => {
           }}
         />
       )}
+      {auditLogDrawer}
     </>
   );
 };

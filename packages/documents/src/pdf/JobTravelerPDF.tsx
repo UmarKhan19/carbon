@@ -25,6 +25,7 @@ interface JobTravelerProps extends PDF {
   bomId?: string;
   notes?: JSONContent;
   thumbnail?: string | null;
+  includeWorkInstructions?: boolean;
 }
 
 function getStartPath(operationId: string) {
@@ -117,7 +118,6 @@ const JobHeader = ({
   customer,
   item,
   job,
-  operations,
   methodRevision,
   thumbnail,
   jobOperations
@@ -251,15 +251,11 @@ export const JobTravelerPageContent = ({
   bomId,
   notes,
   thumbnail,
-  methodRevision
+  methodRevision,
+  includeWorkInstructions = false
 }: Omit<JobTravelerProps, "meta" | "title" | "locale" | "jobMakeMethod"> & {
   methodRevision?: string | null;
 }) => {
-  const subtitle = batchNumber
-    ? batchNumber
-    : (item.name ?? item.readableIdWithRevision);
-  const tertiaryTitle = `Assembly ${bomId}`;
-
   return (
     <View style={tw("flex flex-col")}>
       {/* Original Header Section with company logo and job title */}
@@ -268,6 +264,7 @@ export const JobTravelerPageContent = ({
           company={company}
           title="Job Traveler"
           documentId={job.jobId}
+          date={job.startDate}
         />
       </View>
 
@@ -346,15 +343,33 @@ export const JobTravelerPageContent = ({
             const hasExpectedTimes =
               setupTimeFormatted || laborTimeFormatted || machineTimeFormatted;
 
+            const workInstruction = operation.workInstruction as
+              | JSONContent
+              | undefined;
+            const hasWorkInstruction =
+              includeWorkInstructions &&
+              workInstruction &&
+              typeof workInstruction === "object" &&
+              "content" in workInstruction &&
+              Array.isArray(workInstruction.content) &&
+              workInstruction.content.length > 0;
+            const hasProcedureSteps =
+              includeWorkInstructions &&
+              operation.jobOperationStep &&
+              operation.jobOperationStep.length > 0;
+
             return (
               <View
                 style={tw(
                   "flex flex-col border-b border-gray-300 py-4 px-[6px] page-break-inside-avoid"
                 )}
                 key={operation.id}
-                wrap={false}
+                wrap={includeWorkInstructions ? true : false}
               >
-                <View style={tw("flex flex-row justify-between items-start")}>
+                <View
+                  style={tw("flex flex-row justify-between items-start")}
+                  wrap={false}
+                >
                   <Text style={tw("w-1/12 text-left")}>
                     {getParallelizedOrder(index, operation, jobOperations)}
                   </Text>
@@ -417,71 +432,84 @@ export const JobTravelerPageContent = ({
                     </View>
                   </View>
                 </View>
+                {(hasWorkInstruction || hasProcedureSteps) && (
+                  <View style={tw("mt-2 ml-8")}>
+                    {hasProcedureSteps && (
+                      <View style={tw("mb-2")}>
+                        <Text
+                          style={{
+                            marginBottom: 8,
+                            borderTopWidth: 1,
+                            borderTopColor: "#d1d5db",
+                            borderBottomWidth: 1,
+                            borderColor: "#d1d5db",
+                            paddingTop: 4,
+                            paddingBottom: 4,
+                            fontSize: 9,
+                            fontWeight: 700,
+                            textTransform: "uppercase"
+                          }}
+                        >
+                          Procedure Steps
+                        </Text>
+                        {operation
+                          .jobOperationStep!.sort(
+                            (a, b) => a.sortOrder - b.sortOrder
+                          )
+                          .map((step) => {
+                            const stepDescription = step.description as
+                              | JSONContent
+                              | undefined;
+                            const hasStepDescription =
+                              stepDescription &&
+                              typeof stepDescription === "object" &&
+                              "content" in stepDescription &&
+                              Array.isArray(stepDescription.content) &&
+                              stepDescription.content.length > 0;
+
+                            return (
+                              <View
+                                key={step.id}
+                                style={tw("flex flex-row items-start mb-1")}
+                              >
+                                <View
+                                  style={{
+                                    width: 9,
+                                    height: 9,
+                                    borderWidth: 1,
+                                    borderColor: "#374151",
+                                    marginRight: 6,
+                                    marginTop: 1
+                                  }}
+                                />
+                                <View style={tw("flex-1")}>
+                                  <Text style={tw("text-[9px] font-bold")}>
+                                    {step.name}
+                                  </Text>
+                                  {hasStepDescription && (
+                                    <Note
+                                      title="Procedure Step"
+                                      content={stepDescription}
+                                    />
+                                  )}
+                                </View>
+                              </View>
+                            );
+                          })}
+                      </View>
+                    )}
+                    {hasWorkInstruction && (
+                      <Note
+                        title="Work Instructions"
+                        content={workInstruction}
+                      />
+                    )}
+                  </View>
+                )}
               </View>
             );
           })}
       </View>
-
-      {/* Work Instructions and Procedure Steps Section */}
-      {/* {jobOperations
-        .sort((a, b) => a.order - b.order)
-        .map((operation) => {
-          const workInstruction = operation.workInstruction as
-            | JSONContent
-            | undefined;
-          const hasWorkInstruction =
-            workInstruction &&
-            typeof workInstruction === "object" &&
-            "content" in workInstruction &&
-            Array.isArray(workInstruction.content) &&
-            workInstruction.content.length > 0;
-
-          const hasProcedureSteps =
-            operation.jobOperationStep && operation.jobOperationStep.length > 0;
-
-          if (!hasWorkInstruction && !hasProcedureSteps) {
-            return null;
-          }
-
-          return (
-            <View key={`instructions-${operation.id}`}>
-              {hasProcedureSteps && (
-                <View>
-                  {operation
-                    .jobOperationStep!.sort((a, b) => a.sortOrder - b.sortOrder)
-                    .map((step) => {
-                      const stepDescription = step.description as
-                        | JSONContent
-                        | undefined;
-                      const hasStepDescription =
-                        stepDescription &&
-                        typeof stepDescription === "object" &&
-                        "content" in stepDescription &&
-                        Array.isArray(stepDescription.content) &&
-                        stepDescription.content.length > 0;
-
-                      return (
-                        <View key={step.id}>
-                          {hasStepDescription && (
-                            <Note
-                              title="Procedure Step"
-                              content={stepDescription}
-                            />
-                          )}
-                          <Text style={tw("text-[8px]")}>{step.name}</Text>
-                        </View>
-                      );
-                    })}
-                </View>
-              )}
-              {hasWorkInstruction && (
-                <View>
-                  <Note title="Work Instructions" content={workInstruction} />
-                </View>
-              )}
-            </View>
-          );
-        })} */}
 
       {/* Notes Section */}
       {notes && (
@@ -505,7 +533,8 @@ const JobTravelerPDF = ({
   meta,
   notes,
   thumbnail,
-  title = "Job Traveler"
+  title = "Job Traveler",
+  includeWorkInstructions = false
 }: JobTravelerProps) => {
   return (
     <Template
@@ -527,6 +556,7 @@ const JobTravelerPDF = ({
         notes={notes}
         thumbnail={thumbnail}
         methodRevision={jobMakeMethod.version?.toString()}
+        includeWorkInstructions={includeWorkInstructions}
       />
     </Template>
   );
@@ -544,7 +574,7 @@ function getParallelizedOrder(
   if (item?.operationOrder !== "With Previous") return index + 1;
   // traverse backwards through the list of items to find the first item that is not "With Previous" and return its index + 1
   for (let i = index - 1; i >= 0; i--) {
-    if (items[i].operationOrder !== "With Previous") {
+    if (items[i]?.operationOrder !== "With Previous") {
       return i + 1;
     }
   }

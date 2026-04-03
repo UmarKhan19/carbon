@@ -11,10 +11,12 @@ COPY packages ./packages
 RUN npm install --legacy-peer-deps
 
 FROM deps AS build
-# Build only ERP and its deps
+ARG NODE_OPTIONS
+ENV NODE_OPTIONS=${NODE_OPTIONS:-"--max-old-space-size=4096"}
+# Build only MES and its deps
 RUN npx turbo run build --filter=./apps/mes
 
-FROM node:20
+FROM node:20-slim
 WORKDIR /repo
 # Install specific npm version
 RUN npm install -g npm@10.8.2

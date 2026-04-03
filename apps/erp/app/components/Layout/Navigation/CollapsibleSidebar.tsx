@@ -1,8 +1,15 @@
-import { cn, IconButton, useDisclosure } from "@carbon/react";
+import { cn, IconButton, useIsMobile } from "@carbon/react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ComponentProps, PropsWithChildren } from "react";
-import { createContext, forwardRef, useContext, useMemo } from "react";
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useEffect,
+  useMemo
+} from "react";
 import { LuPanelLeft } from "react-icons/lu";
+import { useUIStore } from "~/stores/ui";
 
 interface CollapsibleSidebarContextValue {
   hasSidebar: boolean;
@@ -24,14 +31,25 @@ export function useCollapsibleSidebar() {
 }
 
 export function CollapsibleSidebarProvider({ children }: PropsWithChildren) {
-  const disclosure = useDisclosure({ defaultIsOpen: true });
+  const isMobile = useIsMobile();
+  const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+  const setSidebarOpen = useUIStore((state) => state.setSidebarOpen);
+  const toggleSidebar = useUIStore((state) => state.toggleSidebar);
+
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  }, [isMobile, setSidebarOpen]);
 
   return (
     <CollapsibleSidebarContext.Provider
       value={{
         hasSidebar: true,
-        isOpen: disclosure.isOpen,
-        onToggle: disclosure.onToggle
+        isOpen: isSidebarOpen,
+        onToggle: toggleSidebar
       }}
     >
       {children}

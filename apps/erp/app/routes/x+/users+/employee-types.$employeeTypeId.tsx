@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useLoaderData } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import {
   EmployeeTypeForm,
   employeeTypePermissionsValidator,
@@ -53,10 +53,10 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { id, name, data } = validation.data;
+  const { id, name, data: permissionData } = validation.data;
   if (!id) throw notFound("id not found");
 
-  const permissions = JSON.parse(data);
+  const permissions = JSON.parse(permissionData);
   const jsonValidation =
     employeeTypePermissionsValidator.safeParse(permissions);
   if (jsonValidation.success === false) {

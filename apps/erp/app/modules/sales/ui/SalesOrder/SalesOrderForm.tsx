@@ -30,9 +30,9 @@ import {
   Submit
 } from "~/components/Form";
 import ExchangeRate from "~/components/Form/ExchangeRate";
-import { usePermissions, useUser } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
-import { salesOrderValidator } from "../../sales.models";
+import { isSalesOrderLocked, salesOrderValidator } from "../../sales.models";
 
 type SalesOrderFormValues = z.infer<typeof salesOrderValidator>;
 
@@ -51,19 +51,28 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
   const [customer, setCustomer] = useState<{
     id: string | undefined;
     currencyCode: string | undefined;
+    customerContactId: string | undefined;
+    customerLocationId: string | undefined;
   }>({
     id: initialValues.customerId,
-    currencyCode: initialValues.currencyCode
+    currencyCode: initialValues.currencyCode,
+    customerContactId: initialValues.customerContactId,
+    customerLocationId: initialValues.customerLocationId
   });
   const isEditing = initialValues.id !== undefined;
   const isCustomer = permissions.is("customer");
+
+  const orderId = initialValues.id;
+  const routeData = useRouteData<{ salesOrder: { status: string } }>(
+    orderId ? path.to.salesOrder(orderId) : ""
+  );
+  const isLocked = isSalesOrderLocked(routeData?.salesOrder?.status);
 
   const exchangeRateFetcher = useFetcher<{ exchangeRate: number }>();
 
   const onCustomerChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -76,13 +85,17 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
         // update the customer immediately
         setCustomer({
           id: newValue?.value,
-          currencyCode: undefined
+          currencyCode: undefined,
+          customerContactId: undefined,
+          customerLocationId: undefined
         });
       });
 
       const { data, error } = await carbon
         ?.from("customer")
-        .select("currencyCode")
+        .select(
+          "currencyCode, salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+        )
         .eq("id", newValue.value)
         .single();
       if (error) {
@@ -90,13 +103,18 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
       } else {
         setCustomer((prev) => ({
           ...prev,
-          currencyCode: data.currencyCode ?? undefined
+          currencyCode: data.currencyCode ?? undefined,
+          customerContactId: data.salesContactId ?? undefined,
+          customerLocationId:
+            data.customerShipping?.shippingCustomerLocationId ?? undefined
         }));
       }
     } else {
       setCustomer({
         id: undefined,
-        currencyCode: undefined
+        currencyCode: undefined,
+        customerContactId: undefined,
+        customerLocationId: undefined
       });
     }
   };
@@ -107,6 +125,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
         method="post"
         validator={salesOrderValidator}
         defaultValues={initialValues}
+        isDisabled={isEditing && isLocked}
       >
         <CardHeader>
           <CardTitle>{isEditing ? "Sales Order" : "New Sales Order"}</CardTitle>
@@ -148,6 +167,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
                 name="customerContactId"
                 label="Purchasing Contact"
                 customer={customer.id}
+                value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
@@ -158,6 +178,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
                 name="customerLocationId"
                 label="Customer Location"
                 customer={customer.id}
+                value={customer.customerLocationId}
               />
 
               {initialValues.originatedFromQuote &&

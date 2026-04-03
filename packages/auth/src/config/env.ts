@@ -5,10 +5,15 @@ declare global {
     env: {
       AUTH_PROVIDERS: string;
       CARBON_EDITION: string;
+      CARBON_API_URL: string;
       CLOUDFLARE_TURNSTILE_SITE_KEY: string;
       CONTROLLED_ENVIRONMENT: string;
       ERP_URL: string;
+      JIRA_CLIENT_ID: string;
       MES_URL: string;
+      NOVU_APPLICATION_ID: string;
+      NOVU_API_URL: string;
+      ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;
       SUPABASE_URL: string;
@@ -25,12 +30,22 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       CARBON_EDITION: string;
+      CARBON_API_URL: string;
       CLOUDFLARE_TURNSTILE_SITE_KEY: string;
       CLOUDFLARE_TURNSTILE_SECRET_KEY: string;
       DOMAIN: string;
       ERP_URL: string;
+      JIRA_CLIENT_ID: string;
+      JIRA_CLIENT_SECRET: string;
+      JIRA_OAUTH_REDIRECT_URL: string;
+      JIRA_STATE_SECRET: string;
       MES_URL: string;
+      NOVU_APPLICATION_ID: string;
+      NOVU_API_URL: string;
       NOVU_SECRET_KEY: string;
+      ONSHAPE_CLIENT_ID: string;
+      ONSHAPE_CLIENT_SECRET: string;
+      ONSHAPE_OAUTH_REDIRECT_URL: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;
       QUICKBOOKS_CLIENT_SECRET: string;
@@ -55,8 +70,7 @@ declare global {
       SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_ID: string;
       SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: string;
       SUPABASE_SERVICE_ROLE_KEY: string;
-      UPSTASH_REDIS_REST_URL: string;
-      UPSTASH_REDIS_REST_TOKEN: string;
+      REDIS_URL: string;
       VERCEL_URL: string;
       VERCEL_ENV: string;
       XERO_CLIENT_SECRET: string;
@@ -109,10 +123,19 @@ const getEdition = () => {
   if (CARBON_EDITION === "enterprise") {
     return Edition.Enterprise;
   }
+  if (CARBON_EDITION === "test") {
+    return Edition.Test;
+  }
   return Edition.Community;
 };
 
 export const CarbonEdition = getEdition();
+
+export const CARBON_API_URL =
+  getEnv("CARBON_API_URL", {
+    isRequired: false,
+    isSecret: false
+  }) ?? getEnv("SUPABASE_URL", { isSecret: false });
 
 export const CLOUDFLARE_TURNSTILE_SITE_KEY = getEnv(
   "CLOUDFLARE_TURNSTILE_SITE_KEY",
@@ -151,9 +174,26 @@ export const NOVU_APPLICATION_ID = getEnv("NOVU_APPLICATION_ID", {
   isRequired: false,
   isSecret: false
 });
+export const NOVU_API_URL =
+  getEnv("NOVU_API_URL", {
+    isRequired: false,
+    isSecret: false
+  }) ?? "https://api.novu.co";
+
 export const NOVU_SECRET_KEY = getEnv("NOVU_SECRET_KEY", {
   isRequired: false,
   isSecret: true
+});
+
+export const ONSHAPE_CLIENT_ID = getEnv("ONSHAPE_CLIENT_ID", {
+  isRequired: false
+});
+export const ONSHAPE_CLIENT_SECRET = getEnv("ONSHAPE_CLIENT_SECRET", {
+  isRequired: false,
+  isSecret: true
+});
+export const ONSHAPE_OAUTH_REDIRECT_URL = getEnv("ONSHAPE_OAUTH_REDIRECT_URL", {
+  isRequired: false
 });
 
 export const QUICKBOOKS_CLIENT_ID = getEnv("QUICKBOOKS_CLIENT_ID", {
@@ -232,11 +272,9 @@ export const STRIPE_BYPASS_COMPANY_IDS = getEnv("STRIPE_BYPASS_COMPANY_IDS", {
 export const STRIPE_BYPASS_USER_IDS = getEnv("STRIPE_BYPASS_USER_IDS", {
   isRequired: false
 });
-export const UPSTASH_REDIS_REST_URL = getEnv("UPSTASH_REDIS_REST_URL", {
-  isRequired: false
-});
-export const UPSTASH_REDIS_REST_TOKEN = getEnv("UPSTASH_REDIS_REST_TOKEN", {
-  isRequired: false
+export const REDIS_URL = getEnv("REDIS_URL", {
+  isRequired: true,
+  isSecret: true
 });
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days;
 export const REFRESH_ACCESS_TOKEN_THRESHOLD = 60 * 10; // 10 minutes left before token expires
@@ -250,6 +288,21 @@ export const XERO_CLIENT_SECRET = getEnv("XERO_CLIENT_SECRET", {
   isSecret: true
 });
 export const XERO_WEBHOOK_SECRET = getEnv("XERO_WEBHOOK_SECRET", {
+  isRequired: false,
+  isSecret: true
+});
+
+export const JIRA_CLIENT_ID = getEnv("JIRA_CLIENT_ID", {
+  isRequired: false
+});
+export const JIRA_CLIENT_SECRET = getEnv("JIRA_CLIENT_SECRET", {
+  isRequired: false,
+  isSecret: true
+});
+export const JIRA_OAUTH_REDIRECT_URL = getEnv("JIRA_OAUTH_REDIRECT_URL", {
+  isRequired: false
+});
+export const JIRA_STATE_SECRET = getEnv("JIRA_STATE_SECRET", {
   isRequired: false,
   isSecret: true
 });
@@ -316,16 +369,22 @@ export function getMESUrl() {
 export function getBrowserEnv() {
   return {
     CARBON_EDITION,
-    CONTROLLED_ENVIRONMENT,
+    CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
+    CONTROLLED_ENVIRONMENT,
+    ERP_URL,
     GOOGLE_PLACES_API_KEY,
-    POSTHOG_API_HOST,
-    POSTHOG_PROJECT_PUBLIC_KEY,
+    JIRA_CLIENT_ID,
+    MES_URL,
     NODE_ENV,
     NOVU_APPLICATION_ID,
+    NOVU_API_URL,
+    ONSHAPE_CLIENT_ID,
+    POSTHOG_API_HOST,
+    POSTHOG_PROJECT_PUBLIC_KEY,
     QUICKBOOKS_CLIENT_ID,
-    SUPABASE_URL,
     SUPABASE_ANON_KEY,
+    SUPABASE_URL,
     VERCEL_ENV,
     VERCEL_URL,
     XERO_CLIENT_ID
@@ -333,5 +392,5 @@ export function getBrowserEnv() {
 }
 
 export function isVercel() {
-  return VERCEL_URL.includes("vercel.app");
+  return VERCEL_URL?.includes("vercel.app") ?? false;
 }

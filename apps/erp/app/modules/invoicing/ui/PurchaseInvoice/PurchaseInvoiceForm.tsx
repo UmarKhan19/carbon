@@ -13,6 +13,7 @@ import {
 } from "@carbon/react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
+import { useParams } from "react-router";
 import type { z } from "zod";
 import {
   Currency,
@@ -28,8 +29,10 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import PaymentTerm from "~/components/Form/PaymentTerm";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 import { purchaseInvoiceValidator } from "~/modules/invoicing";
+import { path } from "~/utils/path";
+import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 
 type PurchaseInvoiceFormValues = z.infer<typeof purchaseInvoiceValidator>;
 
@@ -39,8 +42,15 @@ type PurchaseInvoiceFormProps = {
 
 const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const permissions = usePermissions();
+  const settings = useSettings();
   const { carbon } = useCarbon();
   const isEditing = initialValues.id !== undefined;
+
+  const { invoiceId } = useParams();
+  const routeData = useRouteData<{ purchaseInvoice: { status: string } }>(
+    invoiceId ? path.to.purchaseInvoice(invoiceId) : ""
+  );
+  const isLocked = isPurchaseInvoiceLocked(routeData?.purchaseInvoice?.status);
 
   const [invoiceSupplier, setInvoiceSupplier] = useState<{
     id: string | undefined;
@@ -65,7 +75,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const onSupplierChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     setSupplier({ id: newValue?.value });
@@ -77,7 +86,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const onInvoiceSupplierChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -100,7 +108,9 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       const [supplierData, paymentTermData] = await Promise.all([
         carbon
           ?.from("supplier")
-          .select("currencyCode")
+          .select(
+            "currencyCode, purchasingContactId, supplierShipping!supplierId(shippingSupplierLocationId)"
+          )
           .eq("id", newValue.value)
           .single(),
         carbon
@@ -117,9 +127,13 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
           ...prev,
           id: newValue.value,
           invoiceSupplierContactId:
-            paymentTermData.data.invoiceSupplierContactId ?? undefined,
+            paymentTermData.data.invoiceSupplierContactId ??
+            supplierData.data.purchasingContactId ??
+            undefined,
           invoiceSupplierLocationId:
-            paymentTermData.data.invoiceSupplierLocationId ?? undefined,
+            paymentTermData.data.invoiceSupplierLocationId ??
+            supplierData.data.supplierShipping?.shippingSupplierLocationId ??
+            undefined,
           currencyCode: supplierData.data.currencyCode ?? undefined,
           paymentTermId: paymentTermData.data.paymentTermId ?? undefined
         }));
@@ -140,6 +154,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       method="post"
       validator={purchaseInvoiceValidator}
       defaultValues={initialValues}
+      isDisabled={isEditing && isLocked}
     >
       <Card>
         <CardHeader>
@@ -176,6 +191,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 name="supplierId"
                 label="Supplier"
                 onChange={onSupplierChange}
+                onlyApproved={settings?.supplierApproval ?? false}
               />
               <Input name="supplierReference" label="Supplier Invoice Number" />
 
@@ -184,6 +200,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label="Invoice Supplier"
                 value={invoiceSupplier.id}
                 onChange={onInvoiceSupplierChange}
+                onlyApproved={settings?.supplierApproval ?? false}
               />
               <SupplierLocation
                 name="invoiceSupplierLocationId"

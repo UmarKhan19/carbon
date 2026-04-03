@@ -27,7 +27,6 @@ import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
-import type { Route } from "./+types/root";
 import { getTheme } from "./services/theme.server";
 
 export function links() {
@@ -99,7 +98,7 @@ function Document({
   children,
   title = "Carbon",
   mode = "light",
-  theme = "blue"
+  theme = "zinc"
 }: {
   children: React.ReactNode;
   title?: string;
@@ -131,7 +130,7 @@ function Document({
   // Combine the styles with proper selectors
   const themeStyle = {
     ...(mode === "dark" ? darkVars : lightVars),
-    "--radius": "0.5rem"
+    "--radius": "0.675rem"
   } as React.CSSProperties;
 
   return (
@@ -188,7 +187,7 @@ export default function App() {
   );
 }
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+export function ErrorBoundary({ error }: { error: unknown }) {
   const message = isRouteErrorResponse(error)
     ? (error.data.message ?? error.data)
     : error instanceof Error

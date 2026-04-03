@@ -18,6 +18,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
+
   const validation = await validator(supplierValidator).validate(formData);
 
   if (validation.error) {
@@ -62,13 +63,13 @@ export default function SupplierEditRoute() {
     id: routeData?.supplier?.id ?? undefined,
     name: routeData?.supplier?.name ?? "",
     supplierTypeId: routeData?.supplier?.supplierTypeId ?? undefined,
-    supplierStatusId: routeData?.supplier?.supplierStatusId ?? undefined,
+    supplierStatus: routeData?.supplier?.status as "Active",
     accountManagerId: routeData?.supplier?.accountManagerId ?? undefined,
     taxId: routeData?.supplier?.taxId ?? "",
+    vatNumber: routeData?.supplier?.vatNumber ?? "",
     currencyCode: routeData?.supplier?.currencyCode ?? undefined,
     website: routeData?.supplier?.website ?? "",
     purchasingContactId: routeData?.supplier?.purchasingContactId ?? undefined,
-    invoicingContactId: routeData?.supplier?.invoicingContactId ?? undefined,
     defaultCc: routeData?.supplier?.defaultCc ?? [],
     ...getCustomFields(routeData?.supplier?.customFields)
   };

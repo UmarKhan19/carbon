@@ -33,6 +33,16 @@ export const magicLinkValidator = z.object({
   turnstileToken: zfd.text(z.string().optional())
 });
 
+export const passwordLoginValidator = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email("Must be a valid email"),
+  password: z.string().min(6, { message: "Password is too short" }),
+  redirectTo: zfd.text(z.string().optional()),
+  turnstileToken: zfd.text(z.string().optional())
+});
+
 export const resetPasswordValidator = z.object({
   password: z.string().min(6, { message: "Password is too short" })
 });

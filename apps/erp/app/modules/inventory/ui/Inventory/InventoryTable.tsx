@@ -98,7 +98,7 @@ const InventoryTable = memo(
               <ItemThumbnail
                 size="sm"
                 thumbnailPath={row.original.thumbnailPath}
-                // @ts-ignore
+                // @ts-expect-error
                 type={row.original.type}
               />
 
@@ -253,6 +253,16 @@ const InventoryTable = memo(
           header: "On Sales Order",
           cell: ({ row }) =>
             numberFormatter.format(row.original.quantityOnSalesOrder),
+          meta: {
+            icon: <LuMoveDown className="text-red-500" />,
+            renderTotal: true
+          }
+        },
+        {
+          accessorKey: "demandForecast",
+          header: "Demand Forecast",
+          cell: ({ row }) =>
+            numberFormatter.format(row.original.demandForecast),
           meta: {
             icon: <LuMoveDown className="text-red-500" />,
             renderTotal: true
@@ -417,6 +427,7 @@ const InventoryTable = memo(
           header: "Tags",
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
+              {/* @ts-expect-error TS2339 */}
               {(row.original.tags || []).map((tag) => (
                 <Badge key={tag} variant="secondary">
                   {tag}

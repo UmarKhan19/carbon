@@ -128,3 +128,22 @@ const { client, companyId, userId } = await requirePermissions(request, {
 - Responsive design with Tailwind utilities
 - Accessibility considerations (ARIA attributes)
 - Dark mode support via theme system
+
+## Theme System
+
+Themes are defined in `packages/utils/src/themes.ts` with CSS variables for colors. The user's selected theme is stored in the database and accessed via the `useTheme()` hook in `apps/erp/app/hooks/useTheme.tsx`.
+
+Each theme defines a `primary` CSS variable that represents the theme's main color. To use the theme color dynamically:
+
+```typescript
+// In Recharts components, use hsl(var(--primary)) for theme-aware colors
+<Bar dataKey="value" fill="hsl(var(--primary))" radius={2} />
+```
+
+The theme CSS variables are applied to the body element and include:
+- `--primary` / `--primary-foreground`: Main theme color
+- `--background` / `--foreground`: Base colors
+- `--card`, `--popover`, `--secondary`, `--muted`, `--accent`: Component colors
+- `--destructive`, `--success`: Semantic colors
+
+Available themes: zinc (Modern), neutral (Brutal), red (Cherry), orange (Apricot), yellow (Lemon), green (Mint), blue (Blueberry), violet (Lavender)

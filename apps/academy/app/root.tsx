@@ -51,7 +51,6 @@ import { modules } from "~/config";
 import { getMode, setMode } from "~/services/mode.server";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
-import type { Route } from "./+types/root";
 import AvatarMenu from "./components/AvatarMenu";
 import { useOptionalUser } from "./hooks/useUser";
 import { path } from "./utils/path";
@@ -74,6 +73,7 @@ export const meta: MetaFunction = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const {
     CARBON_EDITION,
+    CARBON_API_URL,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
     SUPABASE_URL,
@@ -123,6 +123,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       challengeAttempts,
       env: {
         CARBON_EDITION,
+        CARBON_API_URL,
         POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY,
         SUPABASE_URL,
@@ -195,7 +196,7 @@ export default function App() {
   const env = loaderData?.env ?? {};
   const result = loaderData?.result;
   const prefs = loaderData?.preferences;
-  const theme = "blue";
+  const theme = "zinc";
 
   const challengeAttempts = loaderData?.challengeAttempts ?? [];
 
@@ -430,7 +431,7 @@ export default function App() {
   );
 }
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+export function ErrorBoundary({ error }: { error: unknown }) {
   const message = isRouteErrorResponse(error)
     ? (error.data.message ?? error.data)
     : error instanceof Error

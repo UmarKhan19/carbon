@@ -1,11 +1,9 @@
 import { useCarbon } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   DatePicker,
   Input,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   ValidatedForm
 } from "@carbon/form";
@@ -202,7 +200,7 @@ const GaugeCalibrationRecordForm = ({
               <Hidden name="notes" value={JSON.stringify(notes)} />
 
               <VStack spacing={4}>
-                <Card className="p-2">
+                <Card>
                   <Loading isLoading={loading}>
                     <HStack className="w-full justify-between">
                       <CardHeader>

@@ -294,7 +294,7 @@ export async function getJobMaterialsByOperationId(
       .from("jobMaterialWithMakeMethodId")
       .select("*")
       .in("jobMakeMethodId", Array.from(kittedMakeMethodIds))
-      .neq("methodType", "Make");
+      .neq("methodType", "Make to Order");
 
     // Create a map of parent kit materials by their make method ID
     const kitParentMap = new Map();
@@ -940,7 +940,7 @@ export async function getJobMethodBomIdMap(
     return new Map();
   }
 
-  const tree = arrayToTree(result.data as JobMethod[]);
+  const tree = arrayToTree(result.data as unknown as JobMethod[]);
   if (tree.length === 0) {
     return new Map();
   }

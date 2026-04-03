@@ -16,7 +16,6 @@ import type {
   getSupplierQuoteLinePricesByQuoteId,
   getSupplierQuoteLines,
   getSupplierQuotes,
-  getSupplierStatuses,
   getSuppliers,
   getSupplierTypes
 } from "./purchasing.service";
@@ -100,10 +99,6 @@ export type SupplierQuoteLine = NonNullable<
 
 export type SupplierQuoteLinePrice = NonNullable<
   Awaited<ReturnType<typeof getSupplierQuoteLinePricesByQuoteId>>["data"]
->[number];
-
-export type SupplierStatus = NonNullable<
-  Awaited<ReturnType<typeof getSupplierStatuses>>["data"]
 >[number];
 
 export type SupplierType = NonNullable<

@@ -4,7 +4,10 @@ import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { upsertMethodOperationStep } from "~/modules/items";
+import {
+  assertMethodOperationIsDraft,
+  upsertMethodOperationStep
+} from "~/modules/items";
 import { operationStepValidator } from "~/modules/shared";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -26,6 +29,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const { id: _id, ...d } = validation.data;
+
+  await assertMethodOperationIsDraft(client, validation.data.operationId);
 
   const update = await upsertMethodOperationStep(client, {
     id,

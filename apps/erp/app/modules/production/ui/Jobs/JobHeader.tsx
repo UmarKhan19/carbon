@@ -48,7 +48,6 @@ import {
   LuClipboardList,
   LuClock,
   LuEllipsisVertical,
-  LuHardHat,
   LuList,
   LuLoaderCircle,
   LuPackage,
@@ -65,14 +64,20 @@ import {
 import { RiProgress8Line } from "react-icons/ri";
 import type { FetcherWithComponents } from "react-router";
 import { Link, useFetcher, useNavigate, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
 import { Location, Shelf } from "~/components/Form";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import Select from "~/components/Select";
 import SupplierAvatar from "~/components/SupplierAvatar";
-import { useOptimisticLocation, usePermissions, useRouteData } from "~/hooks";
+import {
+  useOptimisticLocation,
+  usePermissions,
+  useRouteData,
+  useUser
+} from "~/hooks";
 import { path } from "~/utils/path";
-import { jobCompleteValidator } from "../../production.models";
+import { isJobLocked, jobCompleteValidator } from "../../production.models";
 import type { Job } from "../../types";
 import JobStatus from "./JobStatus";
 
@@ -82,14 +87,20 @@ const JobHeader = () => {
   const { jobId } = useParams();
   if (!jobId) throw new Error("jobId not found");
 
+  const { company } = useUser();
   const location = useOptimisticLocation();
   const { toggleExplorer, toggleProperties } = usePanels();
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "productionJob",
+    entityId: jobId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
 
   const releaseModal = useDisclosure();
   const cancelModal = useDisclosure();
   const completeModal = useDisclosure();
   const deleteJobModal = useDisclosure();
-
   const routeData = useRouteData<{ job: Job }>(path.to.job(jobId));
 
   const statusFetcher = useFetcher<{}>();
@@ -148,10 +159,13 @@ const JobHeader = () => {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              {auditLogTrigger}
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 disabled={
                   !permissions.can("delete", "production") ||
-                  !permissions.is("employee")
+                  !permissions.is("employee") ||
+                  isJobLocked(routeData?.job?.status)
                 }
                 destructive
                 onClick={deleteJobModal.onOpen}
@@ -411,6 +425,7 @@ const JobHeader = () => {
           }}
         />
       )}
+      {auditLogDrawer}
     </>
   );
 };
@@ -447,7 +462,7 @@ function getExplorerMenuIcon(type: string) {
     case "quantities":
       return <LuSquareSigma />;
     default:
-      return <LuHardHat />;
+      return <LuCirclePlay />;
   }
 }
 
@@ -594,7 +609,7 @@ export function JobStartModal({
         ?.filter(
           (m) =>
             m.jobMaterialMakeMethodId &&
-            m.methodType === "Make" &&
+            m.methodType === "Make to Order" &&
             !kittedMakeMethodIds.has(m.jobMaterialMakeMethodId)
         )
         .map((m) => m.jobMaterialMakeMethodId) ?? []
@@ -652,12 +667,6 @@ export function JobStartModal({
       >
         <ModalHeader>
           <ModalTitle>Release Job {job?.jobId}</ModalTitle>
-          {eachAssemblyHasAnOperation && eachOutsideOperationHasASupplier && (
-            <ModalDescription>
-              Are you sure you want to release this job? It will become
-              available to the shop floor, and drive purchasing and production.
-            </ModalDescription>
-          )}
         </ModalHeader>
         {loading ? (
           <ModalBody>
@@ -670,6 +679,14 @@ export function JobStartModal({
           <>
             <ModalBody>
               <VStack>
+                {eachAssemblyHasAnOperation &&
+                  eachOutsideOperationHasASupplier && (
+                    <p className="text-sm">
+                      Are you sure you want to release this job? It will become
+                      available to the shop floor, and drive purchasing and
+                      production.
+                    </p>
+                  )}
                 {hasOutsideOperations && eachOutsideOperationHasASupplier && (
                   <>
                     <Alert>

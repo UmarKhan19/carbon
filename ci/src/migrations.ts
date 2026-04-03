@@ -33,13 +33,16 @@ async function migrate(): Promise<void> {
 
   if (error) {
     console.error("🔴 🍳 Failed to fetch workspaces", error);
-    return;
+    process.exit(1);
   }
+
+  let hasErrors = false;
 
   console.log("✅ 🛩️ Successfully retreived workspaces");
 
   console.log("👯‍♀️ Copying supabase folder");
   await $`cp -r ../packages/database/supabase .`;
+  await $`cp -r ../packages/database/src .`;
 
   for await (const workspace of workspaces as Workspace[]) {
     try {
@@ -118,8 +121,19 @@ async function migrate(): Promise<void> {
       console.log(`✅ 🐓 Successfully migrated ${workspace.id}`);
     } catch (error) {
       console.error(`🔴 🍳 Failed to migrate ${workspace.id}`, error);
+      hasErrors = true;
     }
   }
+
+  if (hasErrors) {
+    console.error("🔴 Migration completed with errors");
+    process.exit(1);
+  }
+
+  console.log("✅ All migrations completed successfully");
 }
 
-migrate();
+migrate().catch((error) => {
+  console.error("🔴 Unexpected error during migration", error);
+  process.exit(1);
+});

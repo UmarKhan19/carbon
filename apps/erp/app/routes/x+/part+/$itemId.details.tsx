@@ -232,67 +232,88 @@ export default function PartDetailsRoute() {
     <VStack spacing={2} className="p-2">
       {permissions.is("employee") && methodData && (
         <>
-          <Suspense fallback={<Menubar />}>
-            <Await resolve={partData?.makeMethods}>
-              {(makeMethods) => (
-                <MakeMethodTools
-                  itemId={methodData.makeMethod.itemId}
-                  makeMethods={makeMethods?.data ?? []}
-                  type="Part"
-                  currentMethodId={methodData.makeMethod.id}
+          {["Make", "Buy and Make"].includes(
+            partData.partSummary?.replenishmentSystem ?? ""
+          ) && (
+            <>
+              <Suspense fallback={<Menubar />}>
+                <Await resolve={partData?.makeMethods}>
+                  {(makeMethods) => (
+                    <MakeMethodTools
+                      itemId={methodData.makeMethod.itemId}
+                      makeMethods={makeMethods?.data ?? []}
+                      type="Part"
+                      currentMethodId={methodData.makeMethod.id}
+                    />
+                  )}
+                </Await>
+              </Suspense>
+              {manufacturingInitialValues && (
+                <ItemManufacturingForm
+                  key={itemId}
+                  // @ts-ignore
+                  initialValues={manufacturingInitialValues}
                 />
               )}
-            </Await>
-          </Suspense>
-          {manufacturingInitialValues && (
-            <ItemManufacturingForm
-              key={itemId}
-              // @ts-ignore
-              initialValues={manufacturingInitialValues}
-            />
+              {methodData.partManufacturing?.requiresConfiguration && (
+                <ConfigurationParametersForm
+                  key={`options:${itemId}`}
+                  parameters={
+                    methodData.configurationParametersAndGroups.parameters
+                  }
+                  groups={methodData.configurationParametersAndGroups.groups}
+                />
+              )}
+            </>
           )}
-          {methodData.partManufacturing?.requiresConfiguration && (
-            <ConfigurationParametersForm
-              key={`options:${itemId}`}
-              parameters={
-                methodData.configurationParametersAndGroups.parameters
-              }
-              groups={methodData.configurationParametersAndGroups.groups}
-            />
-          )}
-          <BillOfMaterial
-            key={`bom:${itemId}`}
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            materials={methodData.methodMaterials ?? []}
-            // @ts-ignore
-            operations={methodData.methodOperations}
-            configurable={methodData.partManufacturing?.requiresConfiguration}
-            configurationRules={methodData.configurationRules}
-            parameters={methodData.configurationParametersAndGroups.parameters}
-          />
-          <BillOfProcess
-            key={`bop:${itemId}`}
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            operations={methodData.methodOperations ?? []}
-            configurable={methodData.partManufacturing?.requiresConfiguration}
-            // @ts-ignore
-            materials={methodData.methodMaterials ?? []}
-            configurationRules={methodData.configurationRules}
-            parameters={methodData.configurationParametersAndGroups.parameters}
-            tags={tags}
-          />
-        </>
-      )}
-      {permissions.is("employee") && (
-        <>
           <ItemNotes
             id={partData.partSummary?.id ?? null}
             title={partData.partSummary?.name ?? ""}
             subTitle={partData.partSummary?.readableIdWithRevision ?? ""}
             notes={partData.partSummary?.notes as JSONContent}
           />
+          {["Make", "Buy and Make"].includes(
+            partData.partSummary?.replenishmentSystem ?? ""
+          ) && (
+            <>
+              <BillOfMaterial
+                key={`bom:${itemId}`}
+                makeMethod={methodData.makeMethod}
+                // @ts-ignore
+                materials={methodData.methodMaterials ?? []}
+                // @ts-ignore
+                operations={methodData.methodOperations}
+                configurable={
+                  methodData.partManufacturing?.requiresConfiguration
+                }
+                configurationRules={methodData.configurationRules}
+                parameters={
+                  methodData.configurationParametersAndGroups.parameters
+                }
+                replenishmentSystem={partData.partSummary?.replenishmentSystem}
+              />
+              <BillOfProcess
+                key={`bop:${itemId}`}
+                makeMethod={methodData.makeMethod}
+                // @ts-ignore
+                operations={methodData.methodOperations ?? []}
+                configurable={
+                  methodData.partManufacturing?.requiresConfiguration
+                }
+                // @ts-ignore
+                materials={methodData.methodMaterials ?? []}
+                configurationRules={methodData.configurationRules}
+                parameters={
+                  methodData.configurationParametersAndGroups.parameters
+                }
+                tags={tags}
+              />
+            </>
+          )}
+        </>
+      )}
+      {permissions.is("employee") && (
+        <>
           <Suspense
             fallback={
               <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">

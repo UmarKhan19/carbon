@@ -10,16 +10,22 @@ import {
   CardHeader,
   CardTitle,
   Heading,
+  HStack,
   Label,
   ScrollArea,
+  Switch,
   toast,
   VStack
 } from "@carbon/react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { Users } from "~/components/Form";
-import { getCompanySettings, jobCompletedValidator } from "~/modules/settings";
+import {
+  getCompanySettings,
+  jobCompletedValidator,
+  updateJobTravelerWorkInstructions
+} from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -52,30 +58,52 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
-  const validation = await validator(jobCompletedValidator).validate(formData);
+  const intent = formData.get("intent");
 
-  if (validation.error) {
-    return { success: false, message: "Invalid form data" };
+  if (intent === "jobCompleted") {
+    const validation = await validator(jobCompletedValidator).validate(
+      formData
+    );
+
+    if (validation.error) {
+      return { success: false, message: "Invalid form data" };
+    }
+
+    const update = await client
+      .from("companySettings")
+      .update({
+        inventoryJobCompletedNotificationGroup:
+          validation.data.inventoryJobCompletedNotificationGroup ?? [],
+        salesJobCompletedNotificationGroup:
+          validation.data.salesJobCompletedNotificationGroup ?? []
+      })
+      .eq("id", companyId);
+
+    if (update.error) return { success: false, message: update.error.message };
+
+    return { success: true, message: "Job notification settings updated" };
   }
 
-  const update = await client
-    .from("companySettings")
-    .update({
-      inventoryJobCompletedNotificationGroup:
-        validation.data.inventoryJobCompletedNotificationGroup ?? [],
-      salesJobCompletedNotificationGroup:
-        validation.data.salesJobCompletedNotificationGroup ?? []
-    })
-    .eq("id", companyId);
+  if (intent === "jobTraveler") {
+    const enabled = formData.get("enabled") === "true";
+    const update = await updateJobTravelerWorkInstructions(
+      client,
+      companyId,
+      enabled
+    );
 
-  if (update.error) return { success: false, message: update.error.message };
+    if (update.error) return { success: false, message: update.error.message };
 
-  return { success: true, message: "Job notification settings updated" };
+    return { success: true, message: "Job traveler settings updated" };
+  }
+
+  return { success: false, message: "Unknown intent" };
 }
 
 export default function ProductionSettingsRoute() {
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const toggleFetcher = useFetcher<typeof action>();
 
   useEffect(() => {
     if (fetcher.data?.success === true && fetcher?.data?.message) {
@@ -86,6 +114,25 @@ export default function ProductionSettingsRoute() {
       toast.error(fetcher.data.message);
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
+
+  useEffect(() => {
+    if (toggleFetcher.data?.success === true && toggleFetcher?.data?.message) {
+      toast.success(toggleFetcher.data.message);
+    }
+    if (toggleFetcher.data?.success === false && toggleFetcher?.data?.message) {
+      toast.error(toggleFetcher.data.message);
+    }
+  }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
+
+  const handleJobTravelerToggle = useCallback(
+    (checked: boolean) => {
+      toggleFetcher.submit(
+        { intent: "jobTraveler", enabled: String(checked) },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
@@ -107,6 +154,7 @@ export default function ProductionSettingsRoute() {
             }}
             fetcher={fetcher}
           >
+            <input type="hidden" name="intent" value="jobCompleted" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 Completed Job Notifications
@@ -144,6 +192,38 @@ export default function ProductionSettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Job Traveler</CardTitle>
+            <CardDescription>
+              Configure the content displayed on job traveler PDFs.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between items-center">
+              <VStack className="items-start gap-1">
+                <span className="font-medium">
+                  {companySettings.jobTravelerIncludeWorkInstructions
+                    ? "Work instructions are included"
+                    : "Work instructions are not included"}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {companySettings.jobTravelerIncludeWorkInstructions
+                    ? "Job traveler PDFs include work instructions."
+                    : "Enable to include work instructions on job traveler PDFs."}
+                </span>
+              </VStack>
+              <Switch
+                checked={
+                  companySettings.jobTravelerIncludeWorkInstructions ?? false
+                }
+                onCheckedChange={handleJobTravelerToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardContent>
         </Card>
       </VStack>
     </ScrollArea>

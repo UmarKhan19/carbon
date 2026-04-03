@@ -90,11 +90,11 @@ export const getSalesOrderJobStatus = (
 ) => {
   const filteredJobs =
     jobs?.filter((j) => j.salesOrderLineId === line.id) ?? [];
-  const isMade = line.methodType === "Make";
+  const isMade = line.methodType === "Make to Order";
   const saleQuantity = line.saleQuantity ?? 0;
 
   const totalProduction = filteredJobs.reduce(
-    (acc, job) => acc + job.productionQuantity,
+    (acc, job) => acc + (job.productionQuantity ?? 0),
     0
   );
   const totalCompleted = filteredJobs.reduce(
@@ -103,7 +103,7 @@ export const getSalesOrderJobStatus = (
   );
   const totalReleased = filteredJobs.reduce((acc, job) => {
     if (job.status !== "Planned" && job.status !== "Draft") {
-      return acc + job.productionQuantity;
+      return acc + (job.productionQuantity ?? 0);
     }
     return acc;
   }, 0);
@@ -113,8 +113,8 @@ export const getSalesOrderJobStatus = (
   const hasAnyQuantityReleased = totalReleased > 0;
   const isCompleted =
     hasEnoughJobsToCoverQuantity && hasEnoughCompletedToCoverQuantity;
-  const isPartiallyShipped =
-    line.quantitySent > 0 && line.quantitySent < saleQuantity;
+  const quantitySent = line.quantitySent ?? 0;
+  const isPartiallyShipped = quantitySent > 0 && quantitySent < saleQuantity;
 
   let jobVariant: "green" | "red" | "orange";
   let jobLabel:
@@ -157,7 +157,7 @@ type SalesOrderForProductionCheck = {
   }>;
   lines?: Array<{
     id: string;
-    methodType: "Buy" | "Make" | "Pick";
+    methodType: "Purchase to Order" | "Make to Order" | "Pull from Inventory";
     saleQuantity: number;
   }>;
 };
@@ -173,7 +173,7 @@ export const hasIncompleteJobs = (
   const jobs = salesOrder.jobs ?? [];
   const lines = salesOrder.lines ?? [];
 
-  const makeLines = lines.filter((line) => line.methodType === "Make");
+  const makeLines = lines.filter((line) => line.methodType === "Make to Order");
   if (makeLines.length === 0) {
     return false;
   }

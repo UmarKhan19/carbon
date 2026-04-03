@@ -114,7 +114,6 @@ export function MaintenanceDispatchNotes({
         ) : (
           <div
             className="prose dark:prose-invert"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: suppressed due to migration
             dangerouslySetInnerHTML={{
               __html: generateHTML(content as JSONContent)
             }}
@@ -130,9 +129,6 @@ export function MaintenanceDispatchFilesSkeleton() {
     <Card>
       <CardHeader>
         <CardTitle>Files</CardTitle>
-        <CardDescription>
-          Attachments and documents related to this dispatch
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-2">
@@ -160,9 +156,6 @@ export function MaintenanceDispatchFiles({
     <Card>
       <CardHeader>
         <CardTitle>Files</CardTitle>
-        <CardDescription>
-          Attachments and documents related to this dispatch
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <Suspense fallback={<MaintenanceDispatchFilesSkeleton />}>
@@ -292,6 +285,7 @@ function MaintenanceFilesContent({
     <>
       {!isReadOnly && (
         <div className="flex justify-end mb-4">
+          {/* @ts-expect-error TS2322 */}
           <File leftIcon={<LuUpload />} onChange={uploadFiles} multiple>
             Upload
           </File>
@@ -332,7 +326,7 @@ function MaintenanceFilesContent({
                         <DocumentPreview
                           bucket="private"
                           pathToFile={getFilePath(file.name)}
-                          // @ts-ignore
+                          // @ts-expect-error
                           type={type}
                         >
                           {file.name}

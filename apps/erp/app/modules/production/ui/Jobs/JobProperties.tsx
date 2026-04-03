@@ -44,7 +44,7 @@ import type { MethodItemType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
-import { deadlineTypes } from "../../production.models";
+import { deadlineTypes, isJobLocked } from "../../production.models";
 import type { Job } from "../../types";
 import { getDeadlineIcon } from "./Deadline";
 
@@ -158,9 +158,9 @@ const JobProperties = () => {
       ? optimisticAssignment
       : routeData?.job?.assignee;
 
-  const isDisabled =
-    !permissions.can("update", "production") ||
-    ["Completed", "Cancelled"].includes(routeData?.job?.status ?? "");
+  const canUpdate = permissions.can("update", "production");
+  const isLocked = isJobLocked(routeData?.job?.status);
+  const isDisabled = !canUpdate || isLocked;
 
   return (
     <VStack
@@ -321,7 +321,7 @@ const JobProperties = () => {
         table="job"
         value={assignee ?? ""}
         variant="inline"
-        isReadOnly={!permissions.can("update", "production")}
+        isReadOnly={!canUpdate}
       />
 
       <ValidatedForm
@@ -545,7 +545,7 @@ const JobProperties = () => {
         <span className="text-xs font-medium text-muted-foreground">
           Created By
         </span>
-        <EmployeeAvatar employeeId={routeData?.job?.createdBy} />
+        <EmployeeAvatar employeeId={routeData?.job?.createdBy ?? null} />
       </VStack>
 
       <CustomFormInlineFields
@@ -555,7 +555,6 @@ const JobProperties = () => {
         table="job"
         tags={routeData?.job.tags ?? []}
         onUpdate={onUpdateCustomFields}
-        isDisabled={isDisabled}
       />
     </VStack>
   );

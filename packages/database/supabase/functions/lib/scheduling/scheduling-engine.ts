@@ -484,7 +484,7 @@ export class SchedulingEngine {
       .selectFrom("jobMaterial")
       .select(["id", "jobMakeMethodId"])
       .where("jobMakeMethodId", "in", makeMethodIds)
-      .where("methodType", "=", "Make")
+      .where("methodType", "=", "Make to Order")
       .where("jobOperationId", "is", null)
       .execute();
 

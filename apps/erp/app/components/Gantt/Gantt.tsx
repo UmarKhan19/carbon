@@ -173,8 +173,8 @@ const Gantt = ({
                     className={cn(
                       "flex h-8 cursor-pointer items-center overflow-hidden rounded-l-sm pr-2",
                       state.selected
-                        ? "bg-muted hover:bg-muted/90"
-                        : "bg-transparent hover:bg-muted/90"
+                        ? "bg-muted hover:bg-accent"
+                        : "bg-transparent hover:bg-accent"
                     )}
                     onClick={() => {
                       selectNode(node.id);
@@ -301,6 +301,7 @@ const Gantt = ({
         <div className="flex items-center gap-4">
           <Slider
             className="w-20"
+            // @ts-expect-error TS2322 - TODO: fix type
             leftIcon={<LuZoomOut />}
             rightIcon={<LuZoomIn />}
             value={[scale]}
@@ -513,7 +514,7 @@ const GanttTimeline = ({
                     className={cn(
                       "group flex h-8 items-center",
                       state.selected
-                        ? "bg-muted hover:bg-muted/90"
+                        ? "bg-muted hover:bg-accent"
                         : "bg-transparent hover:bg-muted"
                     )}
                     // onMouseOver={() => console.log(`hover ${index}`)}

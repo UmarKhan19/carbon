@@ -1,9 +1,16 @@
-import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
+import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
+import {
+  getMaintenanceDispatch,
+  isMaintenanceDispatchLocked
+} from "~/modules/resources";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
+import { path } from "~/utils/path";
 
 const addAndIssueValidator = z.object({
   itemId: z.string().min(1),
@@ -32,6 +39,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
       { status: 400 }
     );
   }
+
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "resources"
+  });
+  const dispatch = await getMaintenanceDispatch(viewClient, dispatchId);
+  await requireUnlocked({
+    request,
+    isLocked: isMaintenanceDispatchLocked(dispatch.data?.status),
+    redirectTo: path.to.maintenanceDispatch(dispatchId),
+    message: "Cannot modify a locked dispatch. Reopen it first."
+  });
 
   const json = await request.json();
   const validation = addAndIssueValidator.safeParse(json);

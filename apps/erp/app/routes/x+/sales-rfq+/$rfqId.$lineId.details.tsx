@@ -1,5 +1,6 @@
-import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
+import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
@@ -14,10 +15,13 @@ import {
   useParams
 } from "react-router";
 import { CadModel } from "~/components";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
+import type { SalesRFQ } from "~/modules/sales";
 import {
   getOpportunityLineDocuments,
+  getSalesRFQ,
   getSalesRFQLine,
+  isSalesRfqLocked,
   salesRfqLineValidator,
   upsertSalesRFQLine
 } from "~/modules/sales";
@@ -27,6 +31,7 @@ import {
 } from "~/modules/sales/ui/Opportunity";
 import { SalesRFQLineForm } from "~/modules/sales/ui/SalesRFQ";
 import { setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -59,13 +64,26 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    create: "sales"
-  });
 
   const { rfqId, lineId } = params;
   if (!rfqId) throw new Error("Could not find rfqId");
   if (!lineId) throw new Error("Could not find lineId");
+
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "sales"
+  });
+
+  const rfq = await getSalesRFQ(viewClient, rfqId);
+  await requireUnlocked({
+    request,
+    isLocked: isSalesRfqLocked(rfq.data?.status),
+    redirectTo: path.to.salesRfqLine(rfqId, lineId),
+    message: "Cannot modify a locked RFQ. Reopen it first."
+  });
+
+  const { client, userId } = await requirePermissions(request, {
+    create: "sales"
+  });
 
   const formData = await request.formData();
 
@@ -106,6 +124,12 @@ export default function SalesRFQLine() {
   const { rfqId, lineId } = useParams();
   if (!rfqId) throw new Error("Could not find rfqId");
   if (!lineId) throw new Error("Could not find lineId");
+
+  const rfqData = useRouteData<{
+    rfqSummary: SalesRFQ;
+  }>(path.to.salesRfq(rfqId));
+
+  const isReadOnly = isSalesRfqLocked(rfqData?.rfqSummary?.status);
 
   const initialValues = {
     ...line,
@@ -149,12 +173,13 @@ export default function SalesRFQLine() {
               itemId={line?.itemId}
               modelUpload={line ?? undefined}
               type="Request for Quote"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>
       </Suspense>
       <CadModel
-        isReadOnly={!permissions.can("update", "sales")}
+        isReadOnly={isReadOnly || !permissions.can("update", "sales")}
         metadata={{
           salesRfqLineId: line.id ?? undefined,
           itemId: line.itemId ?? undefined

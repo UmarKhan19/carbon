@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { FunctionsResponse } from "@supabase/functions-js";
 import { FunctionRegion } from "@supabase/supabase-js";
 import { task } from "@trigger.dev/sdk";
@@ -73,7 +73,7 @@ export const recalculateTask = task({
 });
 
 async function recalculateJobRequirements(
-  client,
+  client: ReturnType<typeof getCarbonServiceRole>,
   params: {
     id: string;
     companyId: string;
@@ -89,7 +89,7 @@ async function recalculateJobRequirements(
 }
 
 async function recalculateJobMakeMethodRequirements(
-  client,
+  client: ReturnType<typeof getCarbonServiceRole>,
   params: {
     id: string;
     companyId: string;

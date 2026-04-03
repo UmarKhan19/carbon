@@ -21,6 +21,7 @@ import {
   LuCheckCheck,
   LuChevronDown,
   LuDollarSign,
+  LuEllipsisVertical,
   LuEye,
   LuFile,
   LuPanelLeft,
@@ -30,8 +31,9 @@ import {
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
 import { Link, useFetcher, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
 import type { SalesInvoice, SalesInvoiceLine } from "~/modules/invoicing";
 import { salesInvoiceStatusType } from "~/modules/invoicing";
@@ -46,8 +48,17 @@ import SalesInvoiceVoidModal from "./SalesInvoiceVoidModal";
 const SalesInvoiceHeader = () => {
   const permissions = usePermissions();
   const { invoiceId } = useParams();
+  const { company } = useUser();
   const postingModal = useDisclosure();
   const voidModal = useDisclosure();
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "salesInvoice",
+    // @ts-expect-error TS2322 - TODO: fix type
+    entityId: invoiceId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
+
   const postFetcher = useFetcher<typeof action>();
   const statusFetcher = useFetcher<typeof statusAction>();
 
@@ -154,6 +165,10 @@ const SalesInvoiceHeader = () => {
     );
   };
 
+  const IS_PAYMENT_DROPDOWN_DISABLED =
+    ["Voided", "Draft", "Pending"].includes(salesInvoice.status ?? "") ||
+    !permissions.can("update", "invoicing");
+
   return (
     <>
       <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide">
@@ -171,6 +186,17 @@ const SalesInvoiceHeader = () => {
               </Heading>
             </Link>
             <Copy text={routeData?.salesInvoice?.invoiceId ?? ""} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <IconButton
+                  aria-label="More options"
+                  icon={<LuEllipsisVertical />}
+                  variant="secondary"
+                  size="sm"
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>{auditLogTrigger}</DropdownMenuContent>
+            </DropdownMenu>
             <SalesInvoiceStatus status={salesInvoice.status} />
           </HStack>
           <HStack>
@@ -293,14 +319,13 @@ const SalesInvoiceHeader = () => {
               </Button>
             )}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger
+                asChild
+                disabled={IS_PAYMENT_DROPDOWN_DISABLED}
+              >
                 <Button
                   variant="secondary"
-                  isDisabled={
-                    ["Voided", "Draft", "Pending"].includes(
-                      salesInvoice.status ?? ""
-                    ) || !permissions.can("update", "invoicing")
-                  }
+                  isDisabled={IS_PAYMENT_DROPDOWN_DISABLED}
                   leftIcon={<LuDollarSign />}
                   rightIcon={<LuChevronDown />}
                 >
@@ -350,6 +375,7 @@ const SalesInvoiceHeader = () => {
       {voidModal.isOpen && (
         <SalesInvoiceVoidModal onClose={voidModal.onClose} />
       )}
+      {auditLogDrawer}
     </>
   );
 };

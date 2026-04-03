@@ -4,7 +4,6 @@ import {
   LuFileText,
   LuLayoutList,
   LuPackageSearch,
-  LuShapes,
   LuSquareChartGantt,
   LuStar
 } from "react-icons/lu";
@@ -64,12 +63,6 @@ const purchasingRoutes: AuthenticatedRouteGroup[] = [
   {
     name: "Configure",
     routes: [
-      {
-        name: "Statuses",
-        to: path.to.supplierStatuses,
-        role: "employee",
-        icon: <LuShapes />
-      },
       {
         name: "Types",
         to: path.to.supplierTypes,

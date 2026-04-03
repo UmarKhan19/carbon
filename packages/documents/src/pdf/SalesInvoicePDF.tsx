@@ -1,24 +1,34 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { formatCityStatePostalCode } from "@carbon/utils";
+import { formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
-import type { PDF } from "../types";
+import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import {
   getLineDescription,
   getLineDescriptionDetails,
-  getLineSubtotal,
+  getLineTaxableSubtotal,
   getLineTotal,
   getTotal
 } from "../utils/sales-invoice";
 import { getCurrencyFormatter } from "../utils/shared";
-import { Header, Note, Template } from "./components";
+import {
+  Header,
+  Note,
+  PartyDetails,
+  ShipBillDetails,
+  Template
+} from "./components";
 
 interface SalesInvoicePDFProps extends PDF {
   salesInvoice: Database["public"]["Views"]["salesInvoices"]["Row"];
   salesInvoiceLines: Database["public"]["Views"]["salesInvoiceLines"]["Row"][];
   salesInvoiceLocations: Database["public"]["Views"]["salesInvoiceLocations"]["Row"];
   salesInvoiceShipment: Database["public"]["Tables"]["salesInvoiceShipment"]["Row"];
+  accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
+  companySettings?:
+    | Database["public"]["Tables"]["companySettings"]["Row"]
+    | null;
   paymentTerms: { id: string; name: string }[];
   shippingMethods: { id: string; name: string }[];
   terms: JSONContent;
@@ -45,7 +55,9 @@ const tw = createTw({
 });
 
 const SalesInvoicePDF = ({
+  accountsReceivableBillingAddress,
   company,
+  companySettings,
   locale,
   meta,
   salesInvoice,
@@ -72,11 +84,18 @@ const SalesInvoicePDF = ({
     invoiceCity,
     invoiceStateProvince,
     invoicePostalCode,
-    invoiceCountryName
+    invoiceCountryName,
+    shipmentCustomerName,
+    shipmentAddressLine1,
+    shipmentAddressLine2,
+    shipmentCity,
+    shipmentStateProvince,
+    shipmentPostalCode,
+    shipmentCountryName
   } = salesInvoiceLocations;
 
   const currencyCode = salesInvoice.currencyCode ?? company.baseCurrencyCode;
-  const formatter = getCurrencyFormatter(currencyCode, locale);
+  const formatter = getCurrencyFormatter(currencyCode ?? "USD", locale);
 
   const paymentTerm = paymentTerms?.find(
     (term) => term.id === salesInvoice?.paymentTermId
@@ -85,20 +104,6 @@ const SalesInvoicePDF = ({
   const shippingMethod = shippingMethods?.find(
     (method) => method.id === salesInvoiceShipment?.shippingMethodId
   );
-
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return null;
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-    } catch {
-      return dateStr;
-    }
-  };
 
   let rowIndex = 0;
 
@@ -115,69 +120,61 @@ const SalesInvoicePDF = ({
         company={company}
         title="Invoice"
         documentId={salesInvoice?.invoiceId}
+        date={salesInvoice?.dateIssued}
+        currencyCode={salesInvoice?.currencyCode}
       />
 
-      {/* Ship To & Bill To */}
-      <View style={tw("border border-gray-200 mb-4")}>
-        <View style={tw("flex flex-row")}>
-          <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Ship To
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {customerName && (
-                <Text style={tw("font-bold")}>{customerName}</Text>
-              )}
-              {customerAddressLine1 && (
-                <Text style={tw("mt-1")}>{customerAddressLine1}</Text>
-              )}
-              {customerAddressLine2 && <Text>{customerAddressLine2}</Text>}
-              {(customerCity ||
-                customerStateProvince ||
-                customerPostalCode) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    customerCity,
-                    customerStateProvince,
-                    customerPostalCode
-                  )}
-                </Text>
-              )}
-              {customerCountryName && <Text>{customerCountryName}</Text>}
-            </View>
-          </View>
-          <View style={tw("w-1/2 p-3")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Bill To
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {invoiceCustomerName && (
-                <Text style={tw("font-bold")}>{invoiceCustomerName}</Text>
-              )}
-              {invoiceAddressLine1 && (
-                <Text style={tw("mt-1")}>{invoiceAddressLine1}</Text>
-              )}
-              {invoiceAddressLine2 && <Text>{invoiceAddressLine2}</Text>}
-              {(invoiceCity || invoiceStateProvince || invoicePostalCode) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    invoiceCity,
-                    invoiceStateProvince,
-                    invoicePostalCode
-                  )}
-                </Text>
-              )}
-              {invoiceCountryName && <Text>{invoiceCountryName}</Text>}
-            </View>
-          </View>
-        </View>
-      </View>
+      <PartyDetails
+        company={company}
+        companyAddressOverride={
+          accountsReceivableBillingAddress
+            ? {
+                name: accountsReceivableBillingAddress.name,
+                addressLine1: accountsReceivableBillingAddress.addressLine1,
+                addressLine2: accountsReceivableBillingAddress.addressLine2,
+                city: accountsReceivableBillingAddress.city,
+                stateProvince: accountsReceivableBillingAddress.state,
+                postalCode: accountsReceivableBillingAddress.postalCode,
+                countryCode: accountsReceivableBillingAddress.countryCode
+              }
+            : undefined
+        }
+        companyLabel="Seller"
+        counterParty={{
+          name: customerName,
+          addressLine1: customerAddressLine1,
+          addressLine2: customerAddressLine2,
+          city: customerCity,
+          stateProvince: customerStateProvince,
+          postalCode: customerPostalCode,
+          countryCode: customerCountryName
+        }}
+        counterPartyLabel="Buyer"
+        accountsReceivableEmail={companySettings?.accountsReceivableEmail}
+      />
 
-      {/* Invoice Details */}
+      <ShipBillDetails
+        shipTo={{
+          name: shipmentCustomerName,
+          addressLine1: shipmentAddressLine1,
+          addressLine2: shipmentAddressLine2,
+          city: shipmentCity,
+          stateProvince: shipmentStateProvince,
+          postalCode: shipmentPostalCode,
+          countryCode: shipmentCountryName
+        }}
+        billTo={{
+          name: invoiceCustomerName,
+          addressLine1: invoiceAddressLine1,
+          addressLine2: invoiceAddressLine2,
+          city: invoiceCity,
+          stateProvince: invoiceStateProvince,
+          postalCode: invoicePostalCode,
+          countryCode: invoiceCountryName
+        }}
+      />
+
+      {/* Invoice Details & Notes */}
       <View style={tw("border border-gray-200 mb-4")}>
         <View style={tw("flex flex-row")}>
           <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
@@ -197,18 +194,27 @@ const SalesInvoicePDF = ({
                 <Text>Customer Ref: {salesInvoice.customerReference}</Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+              {shippingMethod && <Text>Shipping: {shippingMethod.name}</Text>}
+              {salesInvoiceShipment?.shippingTermId && (
+                <Text>
+                  Shipping Terms: {salesInvoiceShipment.shippingTermId}
+                </Text>
+              )}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>
             <Text
               style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
             >
-              Shipping
+              Notes
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
-              {shippingMethod && <Text>Method: {shippingMethod.name}</Text>}
-              {salesInvoiceShipment?.shippingTermId && (
-                <Text>Terms: {salesInvoiceShipment.shippingTermId}</Text>
+              {Object.keys(salesInvoice?.externalNotes ?? {}).length > 0 ? (
+                <Note
+                  content={(salesInvoice.externalNotes ?? {}) as JSONContent}
+                />
+              ) : (
+                <Text style={tw("text-gray-400")}>None</Text>
               )}
             </View>
           </View>
@@ -234,6 +240,18 @@ const SalesInvoicePDF = ({
           const isEven = rowIndex % 2 === 0;
           rowIndex++;
 
+          const lineAddOnCost = line.convertedAddOnCost ?? 0;
+          const lineNonTaxableAddOnCost =
+            line.convertedNonTaxableAddOnCost ?? 0;
+          const lineShippingCost = line.convertedShippingCost ?? 0;
+          const lineTaxPercent = line.taxPercent ?? 0;
+          const lineTaxAmount = getLineTaxableSubtotal(line) * lineTaxPercent;
+          const totalTaxAndFees =
+            lineAddOnCost +
+            lineNonTaxableAddOnCost +
+            lineShippingCost +
+            lineTaxAmount;
+
           return (
             <View
               key={line.id}
@@ -251,20 +269,50 @@ const SalesInvoicePDF = ({
                 <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                   {getLineDescriptionDetails(line)}
                 </Text>
-                {thumbnails && line.id in thumbnails && thumbnails[line.id] && (
-                  <View style={tw("mt-1 w-16")}>
-                    <Image
-                      src={thumbnails[line.id]!}
-                      style={tw("w-full h-auto")}
-                    />
-                  </View>
-                )}
+                {thumbnails &&
+                  line.id &&
+                  line.id in thumbnails &&
+                  thumbnails[line.id] && (
+                    <View style={tw("mt-1 w-16")}>
+                      <Image
+                        src={thumbnails[line.id]!}
+                        style={tw("w-full h-auto")}
+                      />
+                    </View>
+                  )}
                 {Object.keys(line.externalNotes ?? {}).length > 0 && (
                   <View style={tw("mt-1")}>
                     <Note
                       key={`${line.id}-notes`}
                       content={line.externalNotes as JSONContent}
                     />
+                  </View>
+                )}
+                {line.invoiceLineType !== "Comment" && totalTaxAndFees > 0 && (
+                  <View style={tw("mt-1")}>
+                    <Text style={tw("text-[8px] text-gray-400 font-bold")}>
+                      Tax & Fees
+                    </Text>
+                    {lineShippingCost > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Shipping
+                      </Text>
+                    )}
+                    {lineAddOnCost > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Add-On
+                      </Text>
+                    )}
+                    {lineNonTaxableAddOnCost > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Non-Taxable Add-On
+                      </Text>
+                    )}
+                    {lineTaxPercent > 0 && (
+                      <Text style={tw("text-[8px] text-gray-400")}>
+                        - Tax ({(lineTaxPercent * 100).toFixed(0)}%)
+                      </Text>
+                    )}
                   </View>
                 )}
               </View>
@@ -289,23 +337,57 @@ const SalesInvoicePDF = ({
 
         {/* Summary */}
         <View>
-          {/* Subtotal - before tax */}
+          {/* Subtotal - extended price only */}
           <View style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}>
             <View style={tw("w-4/6")} />
             <Text style={tw("w-1/6 text-right text-gray-600")}>Subtotal</Text>
             <Text style={tw("w-1/6 text-right text-gray-800")}>
               {formatter.format(
                 salesInvoiceLines.reduce(
-                  (sum, line) => sum + getLineSubtotal(line),
+                  (sum, line) =>
+                    sum + (line.quantity ?? 0) * (line.convertedUnitPrice ?? 0),
                   0
                 )
               )}
             </Text>
           </View>
 
+          {/* Add-Ons */}
+          {salesInvoiceLines.some(
+            (line) =>
+              (line.convertedAddOnCost ?? 0) > 0 ||
+              (line.convertedNonTaxableAddOnCost ?? 0) > 0
+          ) && (
+            <View
+              style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}
+            >
+              <View style={tw("w-4/6")} />
+              <Text style={tw("w-1/6 text-right text-gray-600")}>Add-Ons</Text>
+              <Text style={tw("w-1/6 text-right text-gray-800")}>
+                {formatter.format(
+                  salesInvoiceLines.reduce(
+                    (sum, line) =>
+                      sum +
+                      (line.convertedAddOnCost ?? 0) +
+                      (line.convertedNonTaxableAddOnCost ?? 0),
+                    0
+                  )
+                )}
+              </Text>
+            </View>
+          )}
+
           {/* Shipping */}
-          {salesInvoiceShipment?.shippingCost &&
-            salesInvoiceShipment.shippingCost > 0 && (
+          {(() => {
+            const lineShipping = salesInvoiceLines.reduce(
+              (sum, line) => sum + (line.convertedShippingCost ?? 0),
+              0
+            );
+            const invoiceShipping =
+              (salesInvoiceShipment?.shippingCost ?? 0) *
+              (salesInvoice.exchangeRate ?? 1);
+            const totalShipping = lineShipping + invoiceShipping;
+            return totalShipping > 0 ? (
               <View
                 style={tw("flex flex-row py-1.5 px-3 bg-gray-50 text-[10px]")}
               >
@@ -314,13 +396,11 @@ const SalesInvoicePDF = ({
                   Shipping
                 </Text>
                 <Text style={tw("w-1/6 text-right text-gray-800")}>
-                  {formatter.format(
-                    (salesInvoiceShipment.shippingCost ?? 0) *
-                      (salesInvoice.exchangeRate ?? 1)
-                  )}
+                  {formatter.format(totalShipping)}
                 </Text>
               </View>
-            )}
+            ) : null;
+          })()}
 
           {/* Taxes */}
           {salesInvoiceLines.some((line) => (line.taxPercent ?? 0) > 0) && (
@@ -333,7 +413,7 @@ const SalesInvoicePDF = ({
                 {formatter.format(
                   salesInvoiceLines.reduce((sum, line) => {
                     const taxPercent = line.taxPercent ?? 0;
-                    return sum + getLineSubtotal(line) * taxPercent;
+                    return sum + getLineTaxableSubtotal(line) * taxPercent;
                   }, 0)
                 )}
               </Text>
@@ -355,16 +435,7 @@ const SalesInvoicePDF = ({
         </View>
       </View>
 
-      {/* Notes & Terms */}
-      <View style={tw("flex flex-col gap-3 w-full")}>
-        {Object.keys(salesInvoice.externalNotes ?? {}).length > 0 && (
-          <Note
-            title="Notes"
-            content={(salesInvoice.externalNotes ?? {}) as JSONContent}
-          />
-        )}
-        <Note title="Standard Terms & Conditions" content={terms} />
-      </View>
+      <Note title="Standard Terms & Conditions" content={terms} />
     </Template>
   );
 };

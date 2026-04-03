@@ -5,6 +5,7 @@ import { BreadcrumbItem, BreadcrumbLink, Breadcrumbs } from "./Breadcrumb";
 import CadModel from "./CadModel";
 import Contact from "./Contact";
 import CustomerAvatar from "./CustomerAvatar";
+import { DateSelect } from "./DateSelect";
 import { DirectionAwareTabs } from "./DirectionAwareTabs";
 import DocumentPreview from "./DocumentPreview";
 import Documents from "./Documents";
@@ -19,6 +20,7 @@ import {
   MethodItemTypeIcon,
   ModuleIcon,
   OperationStatusIcon,
+  SourcingTypeIcon,
   TimeTypeIcon,
   TrackingTypeIcon
 } from "./Icons";
@@ -41,6 +43,7 @@ export {
   CadModel,
   Contact,
   CustomerAvatar,
+  DateSelect,
   DirectionAwareTabs,
   DocumentPreview,
   Documents,
@@ -60,6 +63,7 @@ export {
   RealtimeDataProvider,
   SearchFilter,
   Select,
+  SourcingTypeIcon,
   SupplierAvatar,
   Table,
   TimeTypeIcon,

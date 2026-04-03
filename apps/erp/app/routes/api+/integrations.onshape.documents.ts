@@ -1,44 +1,27 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { Onshape as OnshapeConfig } from "@carbon/ee";
-import { OnshapeClient } from "@carbon/ee/onshape";
+import { getOnshapeClient } from "@carbon/ee/onshape";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction
 } from "react-router";
-import { getIntegration } from "~/modules/settings/settings.service";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => {
   return false;
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {});
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
-  const integration = await getIntegration(client, "onshape", companyId);
+  const result = await getOnshapeClient(client, companyId, userId);
 
-  if (integration.error || !integration.data) {
+  if (result.error) {
     return {
       data: [],
-      error: integration.error
+      error: result.error
     };
   }
 
-  const integrationMetadata = OnshapeConfig.schema.safeParse(
-    integration?.data?.metadata
-  );
-
-  if (!integrationMetadata.success) {
-    return {
-      data: [],
-      error: integrationMetadata.error
-    };
-  }
-
-  const onshapeClient = new OnshapeClient({
-    baseUrl: integrationMetadata.data.baseUrl,
-    accessKey: integrationMetadata.data.accessKey,
-    secretKey: integrationMetadata.data.secretKey
-  });
+  const onshapeClient = result.client;
 
   try {
     let limit = 20;
@@ -46,6 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let allDocuments: Array<{ id: string; name: string }> = [];
 
     while (true) {
+      // @ts-expect-error TS18047 - TODO: fix type
       const response = await onshapeClient.getDocuments(limit, offset);
 
       if (!response.items || response.items.length === 0) {

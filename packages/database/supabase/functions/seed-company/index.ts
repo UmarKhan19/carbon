@@ -21,7 +21,6 @@ import {
   postingGroupSales,
   scrapReasons,
   sequences,
-  supplierStauses,
   unitOfMeasures,
 } from "../lib/seed.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
@@ -64,7 +63,6 @@ serve(async (req: Request) => {
     await db.transaction().execute(async (trx) => {
       await trx
         .withSchema("storage")
-        // @ts-expect-error - it's legit, chill typescript
         .insertInto("buckets")
         .values({
           id: companyId,
@@ -103,6 +101,7 @@ serve(async (req: Request) => {
             name: "Admin",
             companyId,
             protected: true,
+            systemType: "Admin" as const,
           },
         ])
         .returning(["id"])
@@ -150,18 +149,6 @@ serve(async (req: Request) => {
             active: true,
           },
         ])
-        .execute();
-
-      // supplier status
-      await trx
-        .insertInto("supplierStatus")
-        .values(
-          supplierStauses.map((name) => ({
-            name,
-            companyId,
-            createdBy: "system",
-          }))
-        )
         .execute();
 
       // customer status

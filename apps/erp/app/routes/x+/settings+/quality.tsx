@@ -1,7 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Submit, ValidatedForm, validator } from "@carbon/form";
+import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -30,7 +30,13 @@ export const handle: Handle = {
 };
 
 const gaugeCalibrationValidator = z.object({
+  intent: z.literal("gaugeCalibration"),
   gaugeCalibrationExpiredNotificationGroup: z.array(z.string()).optional()
+});
+
+const dashboardValidator = z.object({
+  intent: z.literal("dashboard"),
+  qualityIssueTarget: z.coerce.number().int().min(0)
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -57,6 +63,24 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "dashboard") {
+    const validation = await validator(dashboardValidator).validate(formData);
+    if (validation.error) {
+      return { success: false, message: "Invalid form data" };
+    }
+
+    const update = await client
+      .from("companySettings")
+      .update({ qualityIssueTarget: validation.data.qualityIssueTarget })
+      .eq("id", companyId);
+
+    if (update.error) return { success: false, message: update.error.message };
+
+    return { success: true, message: "Dashboard settings updated" };
+  }
+
   const validation = await validator(gaugeCalibrationValidator).validate(
     formData
   );
@@ -108,11 +132,13 @@ export default function QualitySettingsRoute() {
             method="post"
             validator={gaugeCalibrationValidator}
             defaultValues={{
+              intent: "gaugeCalibration" as const,
               gaugeCalibrationExpiredNotificationGroup:
                 companySettings.gaugeCalibrationExpiredNotificationGroup ?? []
             }}
             fetcher={fetcher}
           >
+            <Hidden name="intent" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 Gauge Calibration Notifications
@@ -130,6 +156,45 @@ export default function QualitySettingsRoute() {
                     label="Who should receive notifications when a gauge goes out of calibration?"
                     type="employee"
                   />
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={fetcher.state !== "idle"}
+              >
+                Save
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={dashboardValidator}
+            defaultValues={{
+              intent: "dashboard" as const,
+              qualityIssueTarget: companySettings.qualityIssueTarget ?? 20
+            }}
+            fetcher={fetcher}
+          >
+            <Hidden name="intent" />
+            <CardHeader>
+              <CardTitle>Dashboard</CardTitle>
+              <CardDescription>
+                Configure defaults for the quality dashboard.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-8 max-w-[400px]">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="qualityIssueTarget">Issue Target</Label>
+                  <Input name="qualityIssueTarget" type="number" min={0} />
+                  <p className="text-xs text-muted-foreground">
+                    Target number of open issues shown as a reference line on
+                    the Issue Trend chart.
+                  </p>
                 </div>
               </div>
             </CardContent>

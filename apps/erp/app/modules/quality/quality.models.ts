@@ -35,6 +35,10 @@ export const nonConformanceStatus = [
   "Closed"
 ] as const;
 
+export function isIssueLocked(status: string | null | undefined): boolean {
+  return status === "Closed";
+}
+
 export const nonConformanceTaskStatus = [
   "Pending",
   "In Progress",
@@ -317,6 +321,16 @@ export const qualityDocumentApprovalValidator = z.object({
   decision: z.enum(["Approved", "Rejected"]),
   notes: zfd.text(z.string().optional())
 });
+
+export const QualityKPIs = [
+  { key: "weeklyTracking", label: "Issue Trend" },
+  { key: "statusDistribution", label: "Status Distribution" },
+  { key: "paretoByType", label: "Pareto by Type" },
+  { key: "ncrsByType", label: "NCRs by Type" },
+  { key: "sourceAnalysis", label: "Source Analysis" },
+  { key: "supplierQuality", label: "Supplier Quality" },
+  { key: "weeksOpen", label: "Weeks Open" }
+] as const;
 
 export const riskRegisterValidator = z.object({
   id: zfd.text(z.string().optional()),

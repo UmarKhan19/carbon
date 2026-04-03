@@ -73,7 +73,7 @@ const NavigationIconLink = forwardRef<
   NavigationIconButtonProps
 >(({ link, isActive = false, isOpen = false, onClick, ...props }, ref) => {
   const iconClasses = [
-    "absolute left-3 top-3 flex rounded-md items-center items-center justify-center" // Layout
+    "absolute left-3 top-3 flex items-center items-center justify-center" // Layout
   ];
 
   const classes = [
@@ -94,7 +94,7 @@ const NavigationIconLink = forwardRef<
     // Hover state (non-active items)
     !isActive && "hover:bg-accent hover:text-accent-foreground",
     // Active/selected state - solid background, no gradient overlay
-    isActive && "bg-active text-active-foreground shadow-button-base",
+    isActive && "bg-active text-active-foreground dark:shadow-button-base",
     "group/item"
   ];
 

@@ -30,6 +30,7 @@ import {
 } from "~/hooks";
 import { useItems } from "~/stores";
 import { getPrivateUrl, path } from "~/utils/path";
+import { isSalesInvoiceLocked } from "../../invoicing.models";
 import type {
   SalesInvoice,
   SalesInvoiceLine,
@@ -76,12 +77,14 @@ const LineItems = ({
           (line.convertedUnitPrice ?? 0) * (line.quantity ?? 0);
         const total =
           (lineSubtotal + (line.addOnCost ?? 0) + (line.shippingCost ?? 0)) *
-          (1 + (line.taxPercent ?? 0));
+            (1 + (line.taxPercent ?? 0)) +
+          (line.nonTaxableAddOnCost ?? 0);
         const customerTotal =
           (customerSubtotal +
             (line.convertedAddOnCost ?? 0) +
             (line.convertedShippingCost ?? 0)) *
-          (1 + (line.taxPercent ?? 0));
+            (1 + (line.taxPercent ?? 0)) +
+          (line.convertedNonTaxableAddOnCost ?? 0);
 
         const lineTaxAmount =
           (line.taxPercent ?? 0) *
@@ -178,7 +181,9 @@ const LineItems = ({
                           className="flex items-center gap-2"
                         >
                           {line.quantity}
-                          <MethodIcon type={line.methodType ?? "Pick"} />
+                          <MethodIcon
+                            type={line.methodType ?? "Pull from Inventory"}
+                          />
                         </Badge>
                         <Badge variant="green">
                           {formatter.format(line.unitPrice ?? 0)}{" "}
@@ -348,9 +353,7 @@ const SalesInvoiceSummary = ({
     currency: routeData?.salesInvoice?.currencyCode ?? "USD"
   });
 
-  const isEditable = ["Draft", "To Review"].includes(
-    routeData?.salesInvoice?.status ?? ""
-  );
+  const isEditable = !isSalesInvoiceLocked(routeData?.salesInvoice?.status);
 
   // Calculate totals
   const subtotal =
@@ -358,7 +361,8 @@ const SalesInvoiceSummary = ({
       const lineSubtotal =
         (line.unitPrice ?? 0) * (line.quantity ?? 0) +
         (line.shippingCost ?? 0) +
-        (line.addOnCost ?? 0);
+        (line.addOnCost ?? 0) +
+        (line.nonTaxableAddOnCost ?? 0);
       return acc + lineSubtotal;
     }, 0) ?? 0;
 
@@ -367,7 +371,8 @@ const SalesInvoiceSummary = ({
       const lineSubtotal =
         (line.convertedUnitPrice ?? 0) * (line.quantity ?? 0) +
         (line.convertedShippingCost ?? 0) +
-        (line.convertedAddOnCost ?? 0);
+        (line.convertedAddOnCost ?? 0) +
+        (line.convertedNonTaxableAddOnCost ?? 0);
 
       return acc + lineSubtotal;
     }, 0) ?? 0;

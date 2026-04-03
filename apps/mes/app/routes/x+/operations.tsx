@@ -1,5 +1,6 @@
-import { getCarbonServiceRole, useCarbon } from "@carbon/auth";
+import { useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   Button,
   ClientOnly,
@@ -243,7 +244,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
           title: op.jobReadableId,
           subtitle: op.itemReadableId,
           description: op.description,
-          dueDate: op.jobDueDate,
+          dueDate: op.operationDueDate,
           duration:
             operation.setupDuration +
             Math.max(operation.laborDuration, operation.machineDuration),
@@ -313,6 +314,11 @@ function KanbanSchedule() {
     availableTags
   } = useLoaderData<typeof loader>();
   const [items, setItems] = useState<Item[]>(initialItems);
+
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
+
   const [displaySettings, setDisplaySettings] = useLocalStorage(
     DISPLAY_SETTINGS_KEY,
     defaultDisplaySettings

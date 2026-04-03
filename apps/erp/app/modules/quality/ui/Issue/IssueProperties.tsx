@@ -33,6 +33,7 @@ import type { ListItem, StorageItem } from "~/types";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
 import {
+  isIssueLocked,
   nonConformanceApprovalRequirement,
   nonConformancePriority,
   nonConformanceSource
@@ -65,6 +66,7 @@ const IssueProperties = () => {
       : routeData?.nonConformance?.assignee;
 
   const isStarted = routeData?.nonConformance?.status !== "Registered";
+  const isLocked = isIssueLocked(routeData?.nonConformance?.status);
 
   const fetcher = useFetcher<typeof action>();
   useEffect(() => {
@@ -79,7 +81,6 @@ const IssueProperties = () => {
       field:
         | "source"
         | "priority"
-        | "investigationTypeIds"
         | "requiredActionIds"
         | "approvalRequirements"
         | "name"
@@ -148,7 +149,7 @@ const IssueProperties = () => {
   );
 
   const disableStructureUpdate =
-    !permissions.can("delete", "quality") || isStarted;
+    !permissions.can("delete", "quality") || isStarted || isLocked;
 
   return (
     <VStack
@@ -240,6 +241,7 @@ const IssueProperties = () => {
                 name="name"
                 size="sm"
                 inline
+                isReadOnly={isLocked}
                 value={routeData?.nonConformance?.name ?? ""}
                 onBlur={(e) => {
                   onUpdate("name", e.target.value ?? null);
@@ -443,7 +445,7 @@ const IssueProperties = () => {
           name="openDate"
           label="Open Date"
           inline
-          isDisabled={!permissions.can("update", "quality")}
+          isDisabled={!permissions.can("update", "quality") || isLocked}
           onChange={(date) => {
             onUpdate("openDate", date);
           }}
@@ -471,7 +473,7 @@ const IssueProperties = () => {
           name="dueDate"
           label="Due Date"
           inline
-          isDisabled={!permissions.can("update", "quality")}
+          isDisabled={!permissions.can("update", "quality") || isLocked}
           onChange={(date) => {
             onUpdate("dueDate", date);
           }}
@@ -491,7 +493,7 @@ const IssueProperties = () => {
           name="closeDate"
           label="Close Date"
           inline
-          isDisabled={!permissions.can("update", "quality")}
+          isDisabled={!permissions.can("update", "quality") || isLocked}
           onChange={(date) => {
             onUpdate("closeDate", date);
           }}

@@ -19,7 +19,6 @@ import {
   CustomFormFields,
   Hidden,
   Item,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Shelf,
   Submit,
@@ -29,6 +28,7 @@ import { usePermissions } from "~/hooks";
 import type { MethodItemType } from "~/modules/shared/types";
 import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
+import { isWarehouseTransferLocked } from "../../inventory.models";
 import type { WarehouseTransfer } from "../../types";
 
 const warehouseTransferLineFormValidator = z.discriminatedUnion("type", [
@@ -87,9 +87,12 @@ const WarehouseTransferLineForm = ({
   );
 
   const isEditing = initialValues.id !== undefined;
-  const isDisabled = isEditing
-    ? !permissions.can("update", "inventory")
-    : !permissions.can("create", "inventory");
+  const isLocked = isWarehouseTransferLocked(warehouseTransfer.status);
+  const isDisabled =
+    isLocked ||
+    (isEditing
+      ? !permissions.can("update", "inventory")
+      : !permissions.can("create", "inventory"));
 
   const action = initialValues.id
     ? path.to.warehouseTransferLine(transferId, initialValues.id)
@@ -118,6 +121,7 @@ const WarehouseTransferLineForm = ({
           action={action}
           className="flex flex-col h-full"
           fetcher={fetcher}
+          isDisabled={isDisabled}
         >
           <DrawerHeader>
             <DrawerTitle>

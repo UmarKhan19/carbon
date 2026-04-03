@@ -33,19 +33,21 @@ import {
   ScrollRestoration,
   useLoaderData
 } from "react-router";
+import SonnerStyle from "sonner/dist/styles.css?url";
 import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
-import "./polyfill";
 import type { Route } from "./+types/root";
+import "./polyfill";
 import { getTheme } from "./services/theme.server";
 
 export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: Tailwind },
     { rel: "stylesheet", href: Background },
-    { rel: "stylesheet", href: NProgress }
+    { rel: "stylesheet", href: NProgress },
+    { rel: "stylesheet", href: SonnerStyle }
   ];
 };
 
@@ -60,10 +62,16 @@ export const meta: MetaFunction = () => {
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const {
     CARBON_EDITION,
+    CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
     CONTROLLED_ENVIRONMENT,
+    ERP_URL,
     GOOGLE_PLACES_API_KEY,
+    JIRA_CLIENT_ID,
+    MES_URL,
     NOVU_APPLICATION_ID,
+    NOVU_API_URL,
+    ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
     QUICKBOOKS_CLIENT_ID,
@@ -80,10 +88,16 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     {
       env: {
         CARBON_EDITION,
+        CARBON_API_URL,
         CLOUDFLARE_TURNSTILE_SITE_KEY,
         CONTROLLED_ENVIRONMENT,
+        ERP_URL,
         GOOGLE_PLACES_API_KEY,
+        JIRA_CLIENT_ID,
+        MES_URL,
         NOVU_APPLICATION_ID,
+        NOVU_API_URL,
+        ONSHAPE_CLIENT_ID,
         POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY,
         QUICKBOOKS_CLIENT_ID,
@@ -127,7 +141,7 @@ export function Document({
   children,
   title = "Carbon",
   mode = "light",
-  theme = "blue"
+  theme = "zinc"
 }: {
   children: React.ReactNode;
   title?: string;
@@ -159,7 +173,7 @@ export function Document({
   // Combine the styles with proper selectors
   const themeStyle = {
     ...(mode === "light" ? lightVars : darkVars),
-    "--radius": "0.5rem"
+    "--radius": "0.675rem"
   } as React.CSSProperties;
 
   return (
@@ -170,7 +184,10 @@ export function Document({
     >
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
         <Meta />
         <title>{title}</title>
         <link rel="manifest" href="/site.webmanifest" />
@@ -191,7 +208,7 @@ export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const env = loaderData?.env ?? {};
   const result = loaderData?.result;
-  const theme = loaderData?.theme ?? "blue";
+  const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
   const mode = useMode();
 

@@ -32,16 +32,16 @@ import {
   LuHammer,
   LuHardHat,
   LuHeadphones,
-  LuHexagon,
   LuImage,
   LuList,
   LuPizza,
   LuQrCode,
   LuShoppingCart,
   LuSquare,
-  LuSwords,
+  LuTarget,
   LuTimer,
   LuToggleLeft,
+  LuTruck,
   LuUser
 } from "react-icons/lu";
 import { RxCodesandboxLogo } from "react-icons/rx";
@@ -85,6 +85,25 @@ export const MethodItemTypeIcon = ({
   return <LuSquare className={cn("text-muted-foreground", className)} />;
 };
 
+export const SourcingTypeIcon = ({
+  type,
+  className
+}: {
+  type: string;
+  className?: string;
+}) => {
+  switch (type) {
+    case "Specified":
+      return <LuTarget className={cn("text-red-500", className)} />;
+    case "Drop Ship":
+      return <LuShoppingCart className={cn("text-blue-500", className)} />;
+    case "Ship from Inventory":
+      return <LuTruck className={cn("text-cyan-500", className)} />;
+  }
+
+  return <LuSquare className={cn("text-muted-foreground", className)} />;
+};
+
 export const MethodIcon = ({
   type,
   className,
@@ -99,15 +118,13 @@ export const MethodIcon = ({
       return (
         <AiOutlinePartition className={cn(className, "text-foreground")} />
       );
-    case "Buy":
+    case "Purchase to Order":
       return <LuShoppingCart className={cn("text-blue-500", className)} />;
-    case "Make":
-      return isKit ? (
-        <LuHexagon className={cn("text-emerald-500", className)} />
-      ) : (
+    case "Make to Order":
+      return (
         <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
       );
-    case "Pick":
+    case "Pull from Inventory":
       return <FaCodePullRequest className={cn("text-yellow-500", className)} />;
   }
 
@@ -115,7 +132,7 @@ export const MethodIcon = ({
 };
 
 type MethodBadgeProps = {
-  type: "Buy" | "Make" | "Pick" | "Make Inactive";
+  type: MethodType;
   text: string;
   to: string;
   className?: string;
@@ -127,10 +144,7 @@ export function MethodBadge({ type, text, to, className }: MethodBadgeProps) {
   return (
     <Link to={to} prefetch="intent" className="group flex items-center gap-1">
       <Badge style={style} className={className}>
-        <MethodIcon
-          type={type === "Make Inactive" ? "Make" : type}
-          className="w-3 h-3 mr-1 "
-        />
+        <MethodIcon type={type} className="w-3 h-3 mr-1 " />
         {text}
       </Badge>
       <span className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 w-4 h-4 text-foreground">
@@ -140,17 +154,12 @@ export function MethodBadge({ type, text, to, className }: MethodBadgeProps) {
   );
 }
 
-function getReplenishmentBadgeColor(
-  type: MethodType | "Make Inactive",
-  mode: "light" | "dark"
-) {
-  return type === "Buy"
+function getReplenishmentBadgeColor(type: MethodType, mode: "light" | "dark") {
+  return type === "Purchase to Order"
     ? getColor("blue", mode)
-    : type === "Make"
+    : type === "Make to Order"
       ? getColor("green", mode)
-      : type === "Make Inactive"
-        ? getColor("gray", mode)
-        : getColor("orange", mode);
+      : getColor("orange", mode);
 }
 
 export const OnshapeStatus = ({
@@ -359,7 +368,7 @@ export const ReplenishmentSystemIcon = ({
         <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
       );
     case "Buy and Make":
-      return <LuSwords className={cn("text-yellow-500", className)} />;
+      return <LuFlaskConical className={cn("text-teal-500", className)} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
@@ -475,6 +484,83 @@ export const LinearIssueStateBadge = (props: {
     <Badge variant={"secondary"} className="py-1 bg-transparent">
       {icon}
       <span className="ml-1">{props.state.name}</span>
+    </Badge>
+  );
+};
+
+export const JiraIcon = (props: React.SVGProps<SVGSVGElement>) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 65 65"
+      fill="currentColor"
+      className={props.className}
+      {...props}
+    >
+      <defs>
+        <linearGradient
+          id="jira-gradient-1"
+          x1="98.03%"
+          y1="0.16%"
+          x2="58.89%"
+          y2="40.53%"
+        >
+          <stop offset="0.18" stopColor="currentColor" stopOpacity="0.4" />
+          <stop offset="1" stopColor="currentColor" />
+        </linearGradient>
+        <linearGradient
+          id="jira-gradient-2"
+          x1="100.17%"
+          y1="0.05%"
+          x2="55.99%"
+          y2="44.23%"
+        >
+          <stop offset="0.18" stopColor="currentColor" stopOpacity="0.4" />
+          <stop offset="1" stopColor="currentColor" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M62.75 30.02L35.58 2.85 32.5 0 12.77 19.73 1.25 31.25a1.69 1.69 0 0 0 0 2.39L20 52.11l12.5 12.5 19.73-19.73.62-.62 9.9-9.9a1.69 1.69 0 0 0 0-2.34zM32.5 42.15l-9.65-9.65 9.65-9.65 9.65 9.65z"
+        fill="currentColor"
+      />
+      <path
+        d="M32.5 22.85A13.85 13.85 0 0 1 32.4 3L12.65 22.77l9.85 9.85z"
+        fill="url(#jira-gradient-1)"
+      />
+      <path
+        d="M42.17 32.48L32.5 42.15a13.86 13.86 0 0 1 0 19.6l19.77-19.75z"
+        fill="url(#jira-gradient-2)"
+      />
+    </svg>
+  );
+};
+
+export const JiraIssueStatusBadge = (props: {
+  status: { name: string; category: "new" | "indeterminate" | "done" };
+  className?: string;
+}) => {
+  let className = props.className;
+
+  let icon: React.ReactNode = (
+    <LuCircleDashed className={cn("text-foreground", className)} />
+  );
+
+  switch (props.status.category) {
+    case "new":
+      icon = <LuCircleDashed className={cn("text-foreground", className)} />;
+      break;
+    case "indeterminate":
+      icon = <AlmostDoneIcon className={className} />;
+      break;
+    case "done":
+      icon = <LuCircleCheck className={cn("text-emerald-600", className)} />;
+      break;
+  }
+
+  return (
+    <Badge variant={"secondary"} className="py-1 bg-transparent">
+      {icon}
+      <span className="ml-1">{props.status.name}</span>
     </Badge>
   );
 };

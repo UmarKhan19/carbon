@@ -1,11 +1,9 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { Onshape as OnshapeConfig } from "@carbon/ee";
-import { OnshapeClient } from "@carbon/ee/onshape";
+import { getOnshapeClient } from "@carbon/ee/onshape";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction
 } from "react-router";
-import { getIntegration } from "~/modules/settings/settings.service";
 import { getReadableIdWithRevision } from "~/utils/string";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => {
@@ -13,7 +11,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {});
+  const { client, companyId, userId } = await requirePermissions(request, {});
 
   const { did } = params;
   if (!did) {
@@ -39,31 +37,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     };
   }
 
-  const integration = await getIntegration(client, "onshape", companyId);
+  const result = await getOnshapeClient(client, companyId, userId);
 
-  if (integration.error || !integration.data) {
+  if (result.error) {
     return {
       data: [],
-      error: integration.error
+      error: result.error
     };
   }
 
-  const integrationMetadata = OnshapeConfig.schema.safeParse(
-    integration?.data?.metadata
-  );
-
-  if (!integrationMetadata.success) {
-    return {
-      data: [],
-      error: integrationMetadata.error
-    };
-  }
-
-  const onshapeClient = new OnshapeClient({
-    baseUrl: integrationMetadata.data.baseUrl,
-    accessKey: integrationMetadata.data.accessKey,
-    secretKey: integrationMetadata.data.secretKey
-  });
+  const onshapeClient = result.client;
 
   try {
     const response = await onshapeClient.getBillOfMaterials(did, vid, eid);
@@ -159,7 +142,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
         if (!defaultMethodType) {
           defaultMethodType =
-            row["Purchasing Level"] === "Purchased" ? "Pick" : "Make";
+            row["Purchasing Level"] === "Purchased"
+              ? "Pull from Inventory"
+              : "Make to Order";
         }
 
         return {
@@ -174,7 +159,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             row["Revision"]
           ),
           // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
-          name: row["Name"],
+          name: row["Name"] || row["Description"] || row["Part number"] || "",
           id: item?.itemId ?? undefined,
           replenishmentSystem,
           defaultMethodType,
@@ -201,7 +186,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     console.error(error);
     return {
       data: [],
-      error: error
+      error: error instanceof Error ? error.message : String(error)
     };
   }
 }

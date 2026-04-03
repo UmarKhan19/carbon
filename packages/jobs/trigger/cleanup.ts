@@ -1,4 +1,5 @@
-import { getCarbonServiceRole, NOVU_SECRET_KEY } from "@carbon/auth";
+import { NOVU_API_URL, NOVU_SECRET_KEY } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { TriggerPayload } from "@carbon/notifications";
 import {
   getSubscriberId,
@@ -10,7 +11,9 @@ import { Novu } from "@novu/node";
 import { schedules } from "@trigger.dev/sdk";
 
 const serviceRole = getCarbonServiceRole();
-const novu = new Novu(NOVU_SECRET_KEY!);
+const novu = new Novu(NOVU_SECRET_KEY!, {
+  backendUrl: NOVU_API_URL,
+});
 
 export const cleanup = schedules.task({
   id: "cleanup",
@@ -85,8 +88,8 @@ export const cleanup = schedules.task({
         .from("purchasingRfq")
         .select("*")
         .in("status", ["Draft", "Requested"])
-        .not("dueDate", "is", null)
-        .lt("dueDate", new Date().toISOString());
+        .not("expirationDate", "is", null)
+        .lt("expirationDate", new Date().toISOString());
 
       if (expiredRfqs.error) {
         console.error(
@@ -188,7 +191,7 @@ export const cleanup = schedules.task({
 
         // Get unique company IDs
         const companyIds = [
-          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId)),
+          ...new Set(outOfCalibrationGauges.data.map((g) => g.companyId).filter((id): id is string => id !== null)),
         ];
 
         // Fetch all company settings at once
@@ -216,6 +219,8 @@ export const cleanup = schedules.task({
 
           // Create notification payloads for each gauge
           for (const gauge of outOfCalibrationGauges.data) {
+            if (!gauge.companyId || !gauge.id) continue;
+
             const notificationGroup =
               notificationGroupsByCompany.get(gauge.companyId) ?? [];
 

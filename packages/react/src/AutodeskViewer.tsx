@@ -1,3 +1,4 @@
+/// <reference path="./autodesk.d.ts" />
 import {
   createContext,
   useCallback,
@@ -40,7 +41,7 @@ function AutodeskProvider({ children, tokenEndpoint }: AutodeskProviderProps) {
       return newToken;
     } catch (error) {
       console.error("Failed to refresh Autodesk token:", error);
-      return null;
+      return "";
     }
   }, [tokenEndpoint]);
 

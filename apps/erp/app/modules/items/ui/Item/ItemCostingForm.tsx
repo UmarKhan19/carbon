@@ -11,7 +11,6 @@ import {
   CustomFormFields,
   Hidden,
   ItemPostingGroup,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Submit
 } from "~/components/Form";
@@ -55,6 +54,7 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
               name="itemPostingGroupId"
               label="Item Group"
               helperText="Group used together with the supplier type, customer type, and location to determine the account"
+              isClearable
             />
             {/* <Select
               name="costingMethod"

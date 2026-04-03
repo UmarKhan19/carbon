@@ -23,6 +23,7 @@ import DateField from "./components/DateField";
 const DatePicker = (
   props: DatePickerProps<CalendarDate> & {
     inline?: ReactNode;
+    isPreviewInline?: boolean;
     helperText?: string;
   }
 ) => {
@@ -41,32 +42,50 @@ const DatePicker = (
         <HStack className="w-full" spacing={0}>
           {props.inline ? (
             <>
-              <div className="flex-grow">{props.inline}</div>
-              <HStack spacing={0}>
-                {props.helperText && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <IconButton
-                        icon={<LuInfo />}
-                        variant="ghost"
-                        size="sm"
-                        aria-label="Helper information"
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>{props.helperText}</TooltipContent>
-                  </Tooltip>
-                )}
+              {props.isPreviewInline && typeof props.inline !== "boolean" ? (
                 <PopoverTrigger asChild>
-                  <IconButton
-                    icon={<LuCalendarClock />}
+                  <Button
                     variant="secondary"
                     size="sm"
+                    className="gap-1.5"
                     aria-label="Open date picker"
                     isDisabled={props.isDisabled}
                     {...buttonProps}
-                  />
+                  >
+                    {props.inline}
+                    <LuCalendarClock />
+                  </Button>
                 </PopoverTrigger>
-              </HStack>
+              ) : (
+                <>
+                  <div className="flex-grow">{props.inline}</div>
+                  <HStack spacing={0}>
+                    {props.helperText && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <IconButton
+                            icon={<LuInfo />}
+                            variant="ghost"
+                            size="sm"
+                            aria-label="Helper information"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>{props.helperText}</TooltipContent>
+                      </Tooltip>
+                    )}
+                    <PopoverTrigger asChild>
+                      <IconButton
+                        icon={<LuCalendarClock />}
+                        variant="secondary"
+                        size="sm"
+                        aria-label="Open date picker"
+                        isDisabled={props.isDisabled}
+                        {...buttonProps}
+                      />
+                    </PopoverTrigger>
+                  </HStack>
+                </>
+              )}
             </>
           ) : (
             <>

@@ -55,7 +55,7 @@ type ItemSelectProps = Omit<ComboboxProps, "options" | "type" | "inline"> & {
 
 const ItemPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const item = options.find((o) => o.value === value);
   if (!item) return null;
@@ -82,7 +82,7 @@ const Item = ({
     let results = items
       .filter((item) => {
         // Filter by type
-        // @ts-ignore
+        // @ts-expect-error
         if (validItemTypes && !validItemTypes.includes(item.type)) return false;
 
         if (type !== "Item" && type !== item.type) return false;
@@ -106,7 +106,11 @@ const Item = ({
       .map((item) => ({
         value: item.id,
         label: item.readableIdWithRevision,
-        helper: item.name
+        helper: item.name,
+        helperRight:
+          item.quantityOnHand !== undefined
+            ? `${item.quantityOnHand} ${item.unitOfMeasureCode}`
+            : undefined
       }));
 
     if (props.whitelist) {
@@ -192,7 +196,6 @@ const Item = ({
               onChange(newValue?.replace(/"/g, '\\"') ?? "");
             }}
             isClearable={isOptional && !props.isReadOnly}
-            // @ts-ignore
             label={label === "Item" ? "Item" : label}
             itemHeight={44}
             onCreateOption={(option) => {
@@ -236,7 +239,7 @@ const Item = ({
               <DropdownMenuContent>
                 <DropdownMenuRadioGroup
                   value={type}
-                  // @ts-ignore
+                  // @ts-expect-error
                   onValueChange={onTypeChange}
                 >
                   <DropdownMenuRadioItem
@@ -348,7 +351,9 @@ const Item = ({
             replenishmentSystem: props?.replenishmentSystem ?? "Make",
             unitOfMeasureCode: "EA",
             defaultMethodType:
-              props?.replenishmentSystem === "Buy" ? "Pick" : "Make",
+              props?.replenishmentSystem === "Buy"
+                ? "Pull from Inventory"
+                : "Make to Order",
             unitCost: 0,
             lotSize: 0,
             tags: []
@@ -370,7 +375,7 @@ const Item = ({
             itemTrackingType: "Non-Inventory",
             unitOfMeasureCode: "EA",
             replenishmentSystem: "Buy",
-            defaultMethodType: "Buy",
+            defaultMethodType: "Pull from Inventory",
             unitCost: 0,
             tags: []
           }}
@@ -393,7 +398,7 @@ const Item = ({
             itemTrackingType: "Inventory",
             unitOfMeasureCode: "EA",
             replenishmentSystem: "Buy",
-            defaultMethodType: "Buy",
+            defaultMethodType: "Pull from Inventory",
             unitCost: 0,
             tags: []
           }}
@@ -417,7 +422,9 @@ const Item = ({
             unitOfMeasureCode: "EA",
             replenishmentSystem: props?.replenishmentSystem ?? "Buy",
             defaultMethodType:
-              props?.replenishmentSystem === "Buy" ? "Pick" : "Make",
+              props?.replenishmentSystem === "Buy"
+                ? "Pull from Inventory"
+                : "Make to Order",
             unitCost: 0,
             tags: []
           }}

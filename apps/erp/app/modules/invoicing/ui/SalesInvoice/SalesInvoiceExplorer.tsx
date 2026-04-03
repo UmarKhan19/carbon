@@ -34,6 +34,7 @@ import type { MethodItemType } from "~/modules/shared";
 import { methodItemType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
+import { isSalesInvoiceLocked } from "../../invoicing.models";
 import type { SalesInvoice, SalesInvoiceLine } from "../../types";
 import DeleteSalesInvoiceLine from "./DeleteSalesInvoiceLine";
 import SalesInvoiceLineForm from "./SalesInvoiceLineForm";
@@ -61,6 +62,7 @@ export default function SalesInvoiceExplorer() {
     unitPrice: 0,
     shippingCost: 0,
     addOnCost: 0,
+    nonTaxableAddOnCost: 0,
     taxAmount: 0,
     exchangeRate: salesInvoiceData?.salesInvoice?.exchangeRate ?? 1
   };
@@ -68,7 +70,10 @@ export default function SalesInvoiceExplorer() {
   const newSalesInvoiceLineDisclosure = useDisclosure();
   const deleteLineDisclosure = useDisclosure();
   const [deleteLine, setDeleteLine] = useState<SalesInvoiceLine | null>(null);
-  const isDisabled = salesInvoiceData?.salesInvoice?.status !== "Draft";
+  const isLocked = isSalesInvoiceLocked(salesInvoiceData?.salesInvoice?.status);
+  const isDisabled = isLocked
+    ? true
+    : salesInvoiceData?.salesInvoice?.status !== "Draft";
 
   const onDeleteLine = (line: SalesInvoiceLine) => {
     setDeleteLine(line);

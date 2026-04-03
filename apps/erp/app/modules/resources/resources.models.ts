@@ -157,6 +157,19 @@ export const maintenanceDispatchStatus = [
   "Cancelled"
 ] as const;
 
+export const MAINTENANCE_DISPATCH_LOCKED_STATUSES = [
+  "Completed",
+  "Cancelled"
+] as const;
+
+export function isMaintenanceDispatchLocked(
+  status: string | null | undefined
+): boolean {
+  return MAINTENANCE_DISPATCH_LOCKED_STATUSES.includes(
+    status as (typeof MAINTENANCE_DISPATCH_LOCKED_STATUSES)[number]
+  );
+}
+
 export const maintenanceDispatchValidator = z.object({
   id: zfd.text(z.string().optional()),
   status: z.enum(maintenanceDispatchStatus),
@@ -176,7 +189,7 @@ export const maintenanceDispatchValidator = z.object({
     .enum(["Down", "Planned", "Impact", "No Impact"] as const)
     .optional(),
   workCenterId: zfd.text(z.string().optional()),
-  locationId: zfd.text(z.string().optional()),
+  locationId: z.string().min(1, { message: "Location is required" }),
   suspectedFailureModeId: zfd.text(z.string().optional()),
   plannedStartTime: zfd.text(z.string().optional()),
   plannedEndTime: zfd.text(z.string().optional()),
@@ -231,6 +244,7 @@ export const maintenanceScheduleValidator = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   description: zfd.text(z.string().optional()),
   workCenterId: z.string().min(1, { message: "Work center is required" }),
+  locationId: z.string().min(1, { message: "Location is required" }),
   frequency: z.enum(maintenanceFrequency),
   priority: z.enum(maintenanceDispatchPriority),
   estimatedDuration: zfd.numeric(z.number().optional()),
@@ -244,7 +258,9 @@ export const maintenanceScheduleValidator = z.object({
   saturday: zfd.checkbox(),
   sunday: zfd.checkbox(),
   // Skip holidays option
-  skipHolidays: zfd.checkbox()
+  skipHolidays: zfd.checkbox(),
+  // Procedure
+  procedureId: zfd.text(z.string().optional())
 });
 
 export const maintenanceSeverity = [

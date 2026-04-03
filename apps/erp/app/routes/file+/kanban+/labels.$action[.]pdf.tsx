@@ -129,6 +129,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "Content-Disposition": `inline; filename="${company.data.name} - Kanban Labels.pdf"`
   });
 
-  // @ts-ignore
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

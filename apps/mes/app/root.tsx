@@ -56,7 +56,10 @@ export const meta: MetaFunction = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const {
     CARBON_EDITION,
+    CARBON_API_URL,
     CONTROLLED_ENVIRONMENT,
+    ERP_URL,
+    MES_URL,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
     SUPABASE_URL,
@@ -71,7 +74,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       env: {
         CARBON_EDITION,
+        CARBON_API_URL,
         CONTROLLED_ENVIRONMENT,
+        ERP_URL,
+        MES_URL,
         POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY,
         SUPABASE_URL,
@@ -113,7 +119,7 @@ function Document({
   children,
   title = "Carbon",
   mode = "light",
-  theme = "blue"
+  theme = "zinc"
 }: {
   children: React.ReactNode;
   title?: string;
@@ -145,7 +151,7 @@ function Document({
   // Combine the styles with proper selectors
   const themeStyle = {
     ...(mode === "dark" ? darkVars : lightVars),
-    "--radius": "0.5rem"
+    "--radius": "0.675rem"
   } as React.CSSProperties;
 
   return (
@@ -156,12 +162,12 @@ function Document({
     >
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
         <Meta />
         <title>{title}</title>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
         <link rel="manifest" href="/site.webmanifest" />
         <Links />
       </head>
@@ -180,7 +186,7 @@ export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const env = loaderData?.env ?? {};
   const result = loaderData?.result;
-  const theme = loaderData?.theme ?? "blue";
+  const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
 
   /* Toast Messages */

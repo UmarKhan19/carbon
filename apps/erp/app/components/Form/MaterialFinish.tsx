@@ -21,7 +21,7 @@ type MaterialFinishSelectProps = Omit<
 
 const MaterialFinishPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const finish = options.find((o) => o.value === value);
   if (!finish) return null;
@@ -61,7 +61,9 @@ const MaterialFinish = (props: MaterialFinishSelectProps) => {
     }));
   }, [materialFinishesLoader.data?.data]);
 
-  const onChange = (newValue: { label: string; value: string } | null) => {
+  const onChange = (
+    newValue: { label: string | JSX.Element; value: string } | null
+  ) => {
     const finish =
       materialFinishesLoader.data?.data?.find(
         (finish) => finish.id === newValue?.value

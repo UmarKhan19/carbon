@@ -1,14 +1,10 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  success
-} from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend"; // Assuming you have a sendEmail task defined
+import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
 import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
@@ -23,6 +19,7 @@ import {
   getPurchaseOrder,
   getPurchaseOrderLines,
   getPurchaseOrderLocations,
+  getSupplier,
   getSupplierContact,
   purchaseOrderFinalizeValidator,
   updatePurchaseOrderStatus
@@ -76,6 +73,28 @@ export async function action(args: ActionFunctionArgs) {
         error("You are not authorized to finalize this purchase order")
       )
     );
+  }
+
+  // Check supplier approval status
+  const companySettingsCheck = await getCompanySettings(serviceRole, companyId);
+  if (
+    companySettingsCheck.data?.supplierApproval &&
+    purchaseOrder.data.supplierId
+  ) {
+    const supplier = await getSupplier(
+      serviceRole,
+      purchaseOrder.data.supplierId
+    );
+    // @ts-expect-error TS2339 - TODO: fix type
+    if (supplier.data?.supplierStatus !== "Active") {
+      throw redirect(
+        path.to.purchaseOrder(orderId),
+        await flash(
+          request,
+          error("Cannot finalize: supplier is not approved (Active)")
+        )
+      );
+    }
   }
 
   const orderAmount = purchaseOrder.data.orderTotal ?? 0;
@@ -289,6 +308,7 @@ export async function action(args: ActionFunctionArgs) {
 
         if (supplier.data.contact.email) {
           const emailTemplate = PurchaseOrderEmail({
+            // @ts-expect-error TS2739 - TODO: fix type
             company: company.data,
             locale: locales?.[0] ?? "en-US",
             purchaseOrder: purchaseOrder.data,

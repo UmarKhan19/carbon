@@ -1,4 +1,3 @@
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Boolean, DatePicker, Input, Number, Select } from "@carbon/form";
 import { useCustomFieldsSchema } from "~/hooks/useCustomFieldsSchema";
 import { DataType } from "~/modules/shared";

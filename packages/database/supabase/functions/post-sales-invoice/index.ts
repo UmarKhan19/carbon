@@ -253,7 +253,7 @@ serve(async (req: Request) => {
                 // if the sales order line is null, we ship the part, do the normal entries and do not use accrual/reversing
                 if (
                   invoiceLine.salesOrderLineId === null &&
-                  invoiceLine.methodType !== "Make"
+                  invoiceLine.methodType !== "Make to Order"
                 ) {
                   // create the shipment line
                   shipmentLineInserts.push({

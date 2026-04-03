@@ -23,9 +23,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  Status,
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { useMemo } from "react";
 import {
   LuCheckCheck,
   LuChevronDown,
@@ -43,14 +45,16 @@ import {
   LuTriangleAlert
 } from "react-icons/lu";
 import type { FetcherWithComponents } from "react-router";
-import { Link, useFetcher, useParams } from "react-router";
+import { Link, useFetcher, useParams, useRevalidator } from "react-router";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 
+import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
 
+import { isSupplierQuoteLocked } from "../../purchasing.models";
 import type {
   SupplierInteraction,
   SupplierQuote,
@@ -68,7 +72,9 @@ const SupplierQuoteHeader = () => {
 
   const { toggleExplorer, toggleProperties } = usePanels();
   const permissions = usePermissions();
+  const revalidator = useRevalidator();
 
+  const settings = useSettings();
   const routeData = useRouteData<{
     quote: SupplierQuote;
     lines: SupplierQuoteLine[];
@@ -78,6 +84,15 @@ const SupplierQuoteHeader = () => {
       supplier: { id: string; name: string };
     })[];
   }>(path.to.supplierQuote(id));
+
+  const [suppliers] = useSuppliers();
+  const isSupplierApproved = useMemo(
+    () =>
+      !settings?.supplierApproval ||
+      suppliers.find((s) => s.id === routeData?.quote?.supplierId)
+        ?.supplierStatus === "Active",
+    [settings?.supplierApproval, routeData?.quote?.supplierId, suppliers]
+  );
 
   const isOutsideProcessing =
     routeData?.quote?.supplierQuoteType === "Outside Processing";
@@ -94,6 +109,7 @@ const SupplierQuoteHeader = () => {
   const statusFetcher = useFetcher<{}>();
 
   const hasLines = routeData?.lines && routeData.lines.length > 0;
+  const isLocked = isSupplierQuoteLocked(routeData?.quote?.status);
   const quoteStatus: string = routeData?.quote?.status ?? "";
   const editableStatuses = ["Draft", "Declined"];
   const isEditableStatus = editableStatuses.includes(quoteStatus);
@@ -138,6 +154,7 @@ const SupplierQuoteHeader = () => {
               <DropdownMenuContent>
                 <DropdownMenuItem
                   disabled={
+                    isLocked ||
                     !permissions.can("delete", "purchasing") ||
                     !permissions.is("employee")
                   }
@@ -154,6 +171,9 @@ const SupplierQuoteHeader = () => {
               <Badge variant="default">
                 {routeData?.quote?.supplierQuoteType}
               </Badge>
+            )}
+            {settings?.supplierApproval && !isSupplierApproved && (
+              <Status color="red">Unapproved Supplier</Status>
             )}
           </HStack>
           <HStack>
@@ -202,7 +222,10 @@ const SupplierQuoteHeader = () => {
 
             {canFinalize && (
               <Button
-                onClick={finalizeModal.onOpen}
+                onClick={() => {
+                  revalidator.revalidate();
+                  finalizeModal.onOpen();
+                }}
                 isLoading={finalizeFetcher.state !== "idle"}
                 isDisabled={
                   finalizeFetcher.state !== "idle" ||
@@ -221,7 +244,10 @@ const SupplierQuoteHeader = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      isDisabled={!permissions.can("update", "purchasing")}
+                      isDisabled={
+                        !permissions.can("update", "purchasing") ||
+                        !isSupplierApproved
+                      }
                       variant="primary"
                       leftIcon={<LuShoppingCart />}
                       rightIcon={<LuChevronDown />}
@@ -242,7 +268,10 @@ const SupplierQuoteHeader = () => {
                 </DropdownMenu>
               ) : (
                 <Button
-                  isDisabled={!permissions.can("update", "purchasing")}
+                  isDisabled={
+                    !permissions.can("update", "purchasing") ||
+                    !isSupplierApproved
+                  }
                   variant="primary"
                   leftIcon={<LuShoppingCart />}
                   onClick={convertToOrderModal.onOpen}
@@ -345,6 +374,7 @@ const SupplierQuoteHeader = () => {
           onClose={sendModal.onClose}
           fetcher={sendFetcher}
           externalLinkId={routeData?.quote?.externalLinkId ?? ""}
+          // @ts-expect-error TS2339 - TODO: fix type
           defaultCc={routeData?.defaultCc ?? []}
         />
       )}

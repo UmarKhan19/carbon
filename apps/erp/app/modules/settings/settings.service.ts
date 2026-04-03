@@ -1,15 +1,15 @@
 import { SUPABASE_URL } from "@carbon/auth";
-
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { nanoid } from "nanoid";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { interpolateSequenceDate } from "~/utils/string";
 import { sanitize } from "~/utils/supabase";
 import type {
+  accountsPayableBillingAddressValidator,
+  accountsReceivableBillingAddressValidator,
   apiKeyValidator,
   companyValidator,
   kanbanOutputTypes,
@@ -17,6 +17,52 @@ import type {
   sequenceValidator,
   webhookValidator
 } from "./settings.models";
+
+export async function getAccountsPayableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyAccountsPayableBillingAddress")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+}
+
+export async function getAccountsReceivableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyAccountsReceivableBillingAddress")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+}
+
+export async function updateAccountsPayableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  data: z.infer<typeof accountsPayableBillingAddressValidator>,
+  updatedBy: string
+) {
+  return client
+    .from("companyAccountsPayableBillingAddress")
+    .update(sanitize({ ...data, updatedBy }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableBillingAddress(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  data: z.infer<typeof accountsReceivableBillingAddressValidator>,
+  updatedBy: string
+) {
+  return client
+    .from("companyAccountsReceivableBillingAddress")
+    .update(sanitize({ ...data, updatedBy }))
+    .eq("id", companyId);
+}
 
 export async function deleteApiKey(
   client: SupabaseClient<Database>,
@@ -49,9 +95,7 @@ export async function getApiKeys(
 ) {
   let query = client
     .from("apiKey")
-    .select("*", {
-      count: "exact"
-    })
+    .select("*", { count: "exact" })
     .eq("companyId", companyId);
 
   if (args?.search) {
@@ -449,23 +493,74 @@ export async function updateMetricSettings(
 export async function upsertApiKey(
   client: SupabaseClient<Database>,
   apiKey:
-    | (Omit<z.infer<typeof apiKeyValidator>, "id"> & {
+    | (Omit<z.infer<typeof apiKeyValidator>, "id" | "scopes" | "expiresAt"> & {
         createdBy: string;
         companyId: string;
+        scopes: Record<string, string[]>;
+        expiresAt?: string;
+        rawKey: string;
+        keyHash: string;
+        keyPreview: string;
       })
-    | (Omit<z.infer<typeof apiKeyValidator>, "id"> & {
+    | (Omit<z.infer<typeof apiKeyValidator>, "id" | "scopes" | "expiresAt"> & {
         id: string;
+        scopes: Record<string, string[]>;
+        expiresAt?: string;
       })
 ) {
   if ("createdBy" in apiKey) {
-    const key = `crbn_${nanoid()}`;
-    return client
+    // Create: store the hash, return the raw key (caller generates both)
+    // Strip rateLimit/rateLimitWindow — these are platform-controlled, not user-configurable
+    const {
+      scopes,
+      expiresAt,
+      rawKey,
+      keyHash,
+      rateLimit: _rl,
+      rateLimitWindow: _rlw,
+      ...rest
+    } = apiKey as any;
+
+    const result = await client
       .from("apiKey")
-      .insert({ ...apiKey, key })
-      .select("key")
+      .insert(
+        sanitize({
+          ...rest,
+          keyHash,
+          scopes: scopes as any,
+          expiresAt: expiresAt || null
+        }) as any
+      )
+      .select("id")
       .single();
+
+    if (result.error) {
+      return { data: null, error: result.error };
+    }
+
+    // Return the raw key (shown to user once, never stored)
+    return { data: { key: rawKey, id: result.data.id }, error: null };
   }
-  return client.from("apiKey").update(sanitize(apiKey)).eq("id", apiKey.id);
+
+  // Update: update name, scopes, expiration (never the key itself)
+  // Strip rateLimit/rateLimitWindow — these are platform-controlled, not user-configurable
+  const {
+    scopes,
+    expiresAt,
+    rateLimit: _rl,
+    rateLimitWindow: _rlw,
+    ...rest
+  } = apiKey as any;
+  return client
+    .from("apiKey")
+    .update(
+      sanitize({
+        ...rest,
+        scopes: scopes as any,
+        expiresAt: expiresAt || null
+      }) as any
+    )
+    .eq("id", apiKey.id);
 }
 
 export async function updateDigitalQuoteSetting(
@@ -589,6 +684,151 @@ export async function updateSalesPdfThumbnails(
     .eq("id", companyId);
 }
 
+export async function updateJobTravelerWorkInstructions(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  jobTravelerIncludeWorkInstructions: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
+    .eq("id", companyId);
+}
+
+export async function updateTimeCardSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  timeCardEnabled: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ timeCardEnabled }))
+    .eq("id", companyId);
+}
+
+export async function updateConsoleSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  consoleEnabled: boolean,
+  userId?: string
+) {
+  const update = await client
+    .from("companySettings")
+    .update(sanitize({ consoleEnabled }) as any)
+    .eq("id", companyId);
+
+  // When enabling, create "Console Operator" employee type if it doesn't exist
+  if (consoleEnabled) {
+    const existing = await client
+      .from("employeeType")
+      .select("id")
+      .eq("companyId", companyId)
+      .eq("systemType", "Console Operator")
+      .maybeSingle();
+
+    if (!existing.data) {
+      const newType = await client
+        .from("employeeType")
+        .insert({
+          name: "Console Operator",
+          companyId,
+          protected: true,
+          systemType: "Console Operator"
+        })
+        .select("id")
+        .single();
+
+      // Create default permissions for the Console Operator type.
+      // Only grant what's needed for MES operations — not ERP modules.
+      if (newType.data) {
+        const mesModules = [
+          // Production: start/end operations, complete, scrap, rework
+          {
+            module: "Production",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // Inventory: issue materials, adjustments
+          {
+            module: "Inventory",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // Resources: view work centers, locations
+          {
+            module: "Resources",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          },
+          // Items/Parts: view items for operations
+          {
+            module: "Items",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          },
+          // Quality: record defects, non-conformances
+          {
+            module: "Quality",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // People: view employees (for console operator list)
+          {
+            module: "People",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          }
+        ];
+
+        const permissions = mesModules.map((m) => ({
+          employeeTypeId: newType.data.id,
+          module: m.module as "Accounting",
+          create: m.create ? [companyId] : [],
+          update: m.update ? [companyId] : [],
+          delete: m.delete ? [companyId] : [],
+          view: m.view ? [companyId] : []
+        }));
+
+        await client.from("employeeTypePermission").insert(permissions);
+      }
+    }
+
+    // Auto-generate a PIN for the enabling user if they don't have one
+    let generatedPin: string | null = null;
+    if (userId) {
+      const userEmployee = await client
+        .from("employee")
+        .select("id, pin" as any)
+        .eq("id", userId)
+        .eq("companyId", companyId)
+        .maybeSingle();
+
+      if (userEmployee.data && !(userEmployee.data as any).pin) {
+        generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
+        await client
+          .from("employee")
+          .update({ pin: generatedPin } as any)
+          .eq("id", userId)
+          .eq("companyId", companyId);
+      }
+    }
+  }
+
+  return update;
+}
+
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -649,6 +889,63 @@ export async function updatePurchasePriceUpdateTimingSetting(
     .eq("id", companyId);
 }
 
+export async function updateSupplierApprovalSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  supplierApproval: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ supplierApproval }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsPayableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsReceivableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsPayableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableEmail: accountsPayableEmail ?? null }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({ accountsReceivableEmail: accountsReceivableEmail ?? null })
+    )
+    .eq("id", companyId);
+}
+
 export async function updateDefaultSupplierCc(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -668,6 +965,17 @@ export async function updateDefaultCustomerCc(
   return client
     .from("companySettings")
     .update(sanitize({ defaultCustomerCc }))
+    .eq("id", companyId);
+}
+
+export async function updateQuoteLineCategoryMarkups(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  quoteLineCategoryMarkups: Record<string, number>
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ quoteLineCategoryMarkups }))
     .eq("id", companyId);
 }
 

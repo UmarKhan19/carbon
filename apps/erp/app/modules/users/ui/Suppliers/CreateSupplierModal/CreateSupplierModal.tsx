@@ -58,7 +58,6 @@ const CreateSupplierModal = () => {
             id: params.get("id") ?? "",
             supplier: params.get("supplier") ?? ""
           }}
-          // @ts-ignore
           fetcher={formFetcher}
           className="flex flex-col h-full"
         >
@@ -99,14 +98,14 @@ const CreateSupplierModal = () => {
                 </>
               )}
             </VStack>
-            <ModalFooter>
-              <HStack>
-                <Submit isLoading={formFetcher.state !== "idle"}>
-                  Create User
-                </Submit>
-              </HStack>
-            </ModalFooter>
           </ModalBody>
+          <ModalFooter>
+            <HStack>
+              <Submit isLoading={formFetcher.state !== "idle"}>
+                Create User
+              </Submit>
+            </HStack>
+          </ModalFooter>
         </ValidatedForm>
       </ModalContent>
     </Modal>
@@ -169,6 +168,7 @@ const SupplierContact = ({
         (c) => c.id === newValue
       );
 
+      // @ts-expect-error TS2322 - TODO: fix type
       onChange({ id: newValue, contact: contact?.contact ?? null });
     }
   };

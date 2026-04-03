@@ -233,7 +233,10 @@ class CarbonClient {
           quantity: number[];
           itemId: string;
           description: string;
-          methodType: "Buy" | "Make" | "Pick";
+          methodType:
+            | "Purchase to Order"
+            | "Make to Order"
+            | "Pull from Inventory";
           unitOfMeasureCode: string;
           configuration?: Record<string, unknown>;
         }
@@ -243,7 +246,10 @@ class CarbonClient {
           quantity: number[];
           itemId: string;
           description: string;
-          methodType: "Buy" | "Make" | "Pick";
+          methodType:
+            | "Purchase to Order"
+            | "Make to Order"
+            | "Pull from Inventory";
           unitOfMeasureCode: string;
           configuration?: Record<string, unknown>;
         }

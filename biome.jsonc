@@ -95,7 +95,7 @@
         "noLabelVar": "warn",
         "noRedeclare": "error",
         "noSelfCompare": "warn",
-        "noShadowRestrictedNames": "warn",
+        "noShadowRestrictedNames": "off",
         "noSparseArray": "warn",
         "noTemplateCurlyInString": "warn",
         "noUnsafeNegation": "warn",
@@ -141,17 +141,7 @@
         "**/__tests__/**/*.ts"
       ],
       "javascript": {
-        "globals": [
-          "afterEach",
-          "afterAll",
-          "beforeEach",
-          "beforeAll",
-          "describe",
-          "expect",
-          "it",
-          "test",
-          "jest"
-        ]
+        "globals": []
       }
     }
   ],

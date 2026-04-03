@@ -1,3 +1,4 @@
+import { useCarbon } from "@carbon/auth";
 import { ValidatedForm } from "@carbon/form";
 import {
   Card,
@@ -7,9 +8,11 @@ import {
   CardHeader,
   CardTitle,
   cn,
+  toast,
   VStack
 } from "@carbon/react";
 import { useState } from "react";
+import { flushSync } from "react-dom";
 import type { z } from "zod";
 import {
   Customer,
@@ -24,8 +27,10 @@ import {
   SequenceOrCustomId,
   Submit
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
-import { salesRfqValidator } from "../../sales.models";
+import { usePermissions, useRouteData } from "~/hooks";
+import { path } from "~/utils/path";
+import { isSalesRfqLocked, salesRfqValidator } from "../../sales.models";
+import type { SalesRFQ } from "../../types";
 
 type SalesRFQFormValues = z.infer<typeof salesRfqValidator>;
 
@@ -35,14 +40,72 @@ type SalesRFQFormProps = {
 
 const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
   const permissions = usePermissions();
-  const [customer, setCustomer] = useState<string | undefined>(
-    initialValues.customerId
-  );
+  const { carbon } = useCarbon();
+  const [customer, setCustomer] = useState<{
+    id: string | undefined;
+    customerContactId: string | undefined;
+    customerLocationId: string | undefined;
+  }>({
+    id: initialValues.customerId,
+    customerContactId: initialValues.customerContactId,
+    customerLocationId: initialValues.customerLocationId
+  });
   const isEditing = initialValues.id !== undefined;
   const isCustomer = permissions.is("customer");
+
+  const routeData = useRouteData<{
+    rfqSummary: SalesRFQ;
+  }>(initialValues.id ? path.to.salesRfq(initialValues.id) : "");
+
+  const isLocked = isSalesRfqLocked(routeData?.rfqSummary?.status);
   const isDraft = ["Draft", "Ready to Quote"].includes(
     initialValues.status ?? ""
   );
+
+  const onCustomerChange = async (
+    newValue: {
+      value: string | undefined;
+    } | null
+  ) => {
+    if (!carbon) {
+      toast.error("Carbon client not found");
+      return;
+    }
+
+    if (newValue?.value) {
+      flushSync(() => {
+        setCustomer({
+          id: newValue?.value,
+          customerContactId: undefined,
+          customerLocationId: undefined
+        });
+      });
+
+      const { data, error } = await carbon
+        ?.from("customer")
+        .select(
+          "salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+        )
+        .eq("id", newValue.value)
+        .single();
+      if (error) {
+        toast.error("Error fetching customer data");
+      } else {
+        setCustomer((prev) => ({
+          ...prev,
+          customerContactId: data.salesContactId ?? undefined,
+          customerLocationId:
+            data.customerShipping?.shippingCustomerLocationId ?? undefined
+        }));
+      }
+    } else {
+      setCustomer({
+        id: undefined,
+        customerContactId: undefined,
+        customerLocationId: undefined
+      });
+    }
+  };
 
   return (
     <Card>
@@ -50,6 +113,7 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
         method="post"
         validator={salesRfqValidator}
         defaultValues={initialValues}
+        isDisabled={isEditing && isLocked}
       >
         <CardHeader>
           <CardTitle>{isEditing ? "RFQ" : "New RFQ"}</CardTitle>
@@ -82,25 +146,25 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
                 autoFocus={!isEditing}
                 name="customerId"
                 label="Customer"
-                onChange={(newValue) =>
-                  setCustomer(newValue?.value as string | undefined)
-                }
+                onChange={onCustomerChange}
               />
               <Input name="customerReference" label="Customer RFQ" />
               <CustomerContact
                 name="customerContactId"
                 label="Purchasing Contact"
-                customer={customer}
+                customer={customer.id}
+                value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
                 label="Engineering Contact"
-                customer={customer}
+                customer={customer.id}
               />
               <CustomerLocation
                 name="customerLocationId"
                 label="Customer Location"
-                customer={customer}
+                customer={customer.id}
+                value={customer.customerLocationId}
               />
               <DatePicker
                 name="rfqDate"

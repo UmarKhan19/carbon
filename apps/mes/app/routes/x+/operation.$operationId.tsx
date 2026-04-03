@@ -1,5 +1,6 @@
-import { error, getCarbonServiceRole } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useParams } from "react-router";
@@ -131,7 +132,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }),
     operation: makeDurations(operation.data?.[0]) as OperationWithDetails,
     procedure: getJobOperationProcedure(serviceRole, operation.data?.[0].id),
-    workCenter: getWorkCenter(serviceRole, operation.data?.[0].workCenterId),
+    workCenter: getWorkCenter(
+      serviceRole,
+      operation.data?.[0].workCenterId
+    ) as Promise<
+      import("@supabase/supabase-js").PostgrestSingleResponse<{
+        name: string;
+        id: string;
+        isBlocked: boolean | null;
+        blockingDispatchId: string | null;
+        blockingDispatchReadableId: string | null;
+      }>
+    >,
     thumbnailPath
   };
 }
@@ -152,11 +164,8 @@ export default function OperationRoute() {
     thumbnailPath,
     trackedEntities,
     workCenter,
-    nonConformanceActions,
-    bomIdMap
+    nonConformanceActions
   } = useLoaderData<typeof loader>();
-
-  console.log({ bomIdMap });
 
   return (
     <JobOperation

@@ -26,7 +26,9 @@ const Topbar = () => {
         {permissions.is("employee") ? <Search /> : <div />}
       </div>
       <HStack spacing={1} className="flex-1 justify-end py-2">
-        <Suggestion />
+        <div className="hidden sm:block">
+          <Suggestion />
+        </div>
         <CreateMenu
           trigger={
             <IconButton

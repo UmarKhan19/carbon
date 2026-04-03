@@ -1,8 +1,6 @@
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Array,
   ArrayNumeric,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Combobox,
   CreatableCombobox,
@@ -14,7 +12,6 @@ import {
   Input,
   InputControlled,
   MultiSelect,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Password,
@@ -55,6 +52,7 @@ import Location from "./Location";
 import MaterialType from "./MaterialType";
 import Part from "./Part";
 import PaymentTerm from "./PaymentTerm";
+import Procedure from "./Procedure";
 import Process from "./Process";
 import Processes from "./Processes";
 import Sequence from "./Sequence";
@@ -126,6 +124,7 @@ export {
   Password,
   PaymentTerm,
   PhoneInput,
+  Procedure,
   Process,
   Processes,
   Radios,

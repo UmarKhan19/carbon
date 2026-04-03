@@ -1,0 +1,1340 @@
+/**
+ * Shared seed data for company initialization
+ * Used by both seed-dev.ts (Node.js) and seed-company edge function (Deno)
+ *
+ * This is the single source of truth for all seed data.
+ */
+
+export const supplierStatuses = [
+  "Active",
+  "Inactive",
+  "Pending",
+  "Rejected"
+] as const;
+
+export const customerStatuses = [
+  "Active",
+  "Inactive",
+  "Lead",
+  "On Hold",
+  "Cancelled"
+] as const;
+
+export const scrapReasons = ["Defective", "Damaged", "Quality"] as const;
+
+export const paymentTerms = [
+  {
+    name: "Net 15",
+    daysDue: 15,
+    calculationMethod: "Net",
+    daysDiscount: 0,
+    discountPercentage: 0,
+    createdBy: "system"
+  },
+  {
+    name: "Net 30",
+    daysDue: 30,
+    calculationMethod: "Net",
+    daysDiscount: 0,
+    discountPercentage: 0,
+    createdBy: "system"
+  },
+  {
+    name: "Net 60",
+    daysDue: 60,
+    calculationMethod: "Net",
+    daysDiscount: 0,
+    discountPercentage: 0,
+    createdBy: "system"
+  },
+  {
+    name: "1% 10 Net 30",
+    daysDue: 30,
+    calculationMethod: "Net",
+    daysDiscount: 10,
+    discountPercentage: 1,
+    createdBy: "system"
+  },
+  {
+    name: "2% 10 Net 30",
+    daysDue: 30,
+    calculationMethod: "Net",
+    daysDiscount: 10,
+    discountPercentage: 2,
+    createdBy: "system"
+  },
+  {
+    name: "COD",
+    daysDue: 0,
+    calculationMethod: "Net",
+    daysDiscount: 0,
+    discountPercentage: 0,
+    createdBy: "system"
+  },
+  {
+    name: "Prepaid/ Pro forma",
+    daysDue: 0,
+    calculationMethod: "Net",
+    daysDiscount: 0,
+    discountPercentage: 0,
+    createdBy: "system"
+  },
+  {
+    name: "Net EOM 10th",
+    daysDue: 10,
+    calculationMethod: "End of Month",
+    daysDiscount: 0,
+    discountPercentage: 0,
+    createdBy: "system"
+  }
+] as const;
+
+export const unitOfMeasures = [
+  { name: "Each", code: "EA", createdBy: "system" },
+  { name: "Case", code: "CS", createdBy: "system" },
+  { name: "Pack", code: "PK", createdBy: "system" },
+  { name: "Pallet", code: "PL", createdBy: "system" },
+  { name: "Roll", code: "RL", createdBy: "system" },
+  { name: "Box", code: "BX", createdBy: "system" },
+  { name: "Bag", code: "BG", createdBy: "system" },
+  { name: "Drum", code: "DR", createdBy: "system" },
+  { name: "Gallon", code: "GL", createdBy: "system" },
+  { name: "Liter", code: "LT", createdBy: "system" },
+  { name: "Ounce", code: "OZ", createdBy: "system" },
+  { name: "Pound", code: "LB", createdBy: "system" },
+  { name: "Ton", code: "TN", createdBy: "system" },
+  { name: "Yard", code: "YD", createdBy: "system" },
+  { name: "Meter", code: "MT", createdBy: "system" },
+  { name: "Inch", code: "INCH", createdBy: "system" },
+  { name: "Foot", code: "FOOT", createdBy: "system" }
+] as const;
+
+export const gaugeTypes = [
+  "Gauge Block",
+  "Caliper - Inside",
+  "Caliper - Outside",
+  "Caliper - Depth",
+  "Micrometer - Outside",
+  "Micrometer - Inside",
+  "Micrometer - Depth",
+  "Dial Indicator",
+  "Height Gauge",
+  "Thread Gauge",
+  "Pin Gauge",
+  "Ring Gauge",
+  "Plug Gauge",
+  "Bore Gauge",
+  "Feeler Gauge",
+  "Surface Plate",
+  "Go/No-Go Gauge",
+  "Profile Gauge",
+  "Coordinate Measuring Machine (CMM)",
+  "Optical Comparator"
+] as const;
+
+export const failureModes = [
+  "Bearing Failure",
+  "Lubrication Failure",
+  "Electrical Fault",
+  "Leak",
+  "Excessive Wear",
+  "Misalignment",
+  "Overheating",
+  "Cracking/Fatigue",
+  "Blockage",
+  "Excessive Vibration"
+] as const;
+
+export const nonConformanceTypes = [
+  { name: "Design Error", createdBy: "system" },
+  { name: "Manufacturing Defect", createdBy: "system" },
+  { name: "Process Deviation", createdBy: "system" },
+  { name: "Material Issue", createdBy: "system" },
+  { name: "Testing Failure", createdBy: "system" },
+  { name: "Documentation Error", createdBy: "system" },
+  { name: "Training Issue", createdBy: "system" },
+  { name: "Equipment Malfunction", createdBy: "system" },
+  { name: "Supplier Issue", createdBy: "system" },
+  { name: "Customer Complaint", createdBy: "system" }
+] as const;
+
+export const nonConformanceRequiredActions = [
+  { name: "Corrective Action", systemType: "Corrective" as const, createdBy: "system" },
+  { name: "Preventive Action", systemType: "Preventive" as const, createdBy: "system" },
+  { name: "Containment Action", systemType: "Containment" as const, createdBy: "system" },
+  { name: "Verification", systemType: "Verification" as const, createdBy: "system" },
+  { name: "Customer Communication", systemType: "Communication" as const, createdBy: "system" },
+  { name: "Root Cause Analysis", createdBy: "system" },
+  { name: "Inventory", createdBy: "system" },
+  { name: "WIP", createdBy: "system" },
+  { name: "Finished Goods", createdBy: "system" },
+  { name: "Incoming Materials", createdBy: "system" },
+  { name: "Process", createdBy: "system" },
+  { name: "Documentation", createdBy: "system" }
+] as const;
+
+export const sequences = [
+  {
+    table: "job",
+    name: "Job",
+    prefix: "J",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "gauge",
+    name: "Gauge",
+    prefix: "G",
+    suffix: null,
+    next: 0,
+    size: 5,
+    step: 1
+  },
+  {
+    table: "maintenanceDispatch",
+    name: "Maintenance Dispatch",
+    prefix: "MAIN",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "nonConformance",
+    name: "Issue",
+    prefix: "NCR",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "purchaseOrder",
+    name: "Purchase Order",
+    prefix: "PO",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "purchaseInvoice",
+    name: "Purchase Invoice",
+    prefix: "AP",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "purchasingRfq",
+    name: "Purchasing RFQ",
+    prefix: "PRFQ",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "receipt",
+    name: "Receipt",
+    prefix: "RE",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "salesRfq",
+    name: "RFQ (Sales)",
+    prefix: "RFQ",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "salesOrder",
+    name: "Sales Order",
+    prefix: "SO",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "salesInvoice",
+    name: "Sales Invoice",
+    prefix: "AR",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "stockTransfer",
+    name: "Stock Transfer",
+    prefix: "ST",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "quote",
+    name: "Quote",
+    prefix: "Q",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "supplierQuote",
+    name: "Supplier Quote",
+    prefix: "SQ",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "shipment",
+    name: "Shipment",
+    prefix: "SHP",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "warehouseTransfer",
+    name: "Warehouse Transfer",
+    prefix: "WT",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  }
+] as const;
+
+// All 118 currencies from the original seed
+export const currencies = [
+  { code: "USD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "CAD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "EUR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "AED", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "AFN", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "ALL", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "AMD", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "ARS", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "AUD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "AZN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BAM", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BDT", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BGN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BHD", exchangeRate: 1, decimalPlaces: 3, createdBy: "system" },
+  { code: "BIF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "BND", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BOB", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BRL", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BWP", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BYN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "BZD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "CDF", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "CHF", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "CLP", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "CNY", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "COP", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "CRC", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "CVE", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "CZK", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "DJF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "DKK", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "DOP", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "DZD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "EGP", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "ERN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "ETB", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "GBP", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "GEL", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "GHS", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "GNF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "GTQ", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "HKD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "HNL", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "HRK", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "HUF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "IDR", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "ILS", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "INR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "IQD", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "IRR", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "ISK", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "JMD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "JOD", exchangeRate: 1, decimalPlaces: 3, createdBy: "system" },
+  { code: "JPY", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "KES", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "KHR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "KMF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "KRW", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "KWD", exchangeRate: 1, decimalPlaces: 3, createdBy: "system" },
+  { code: "KZT", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "LBP", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "LKR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "LTL", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "LVL", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "LYD", exchangeRate: 1, decimalPlaces: 3, createdBy: "system" },
+  { code: "MAD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "MDL", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "MGA", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "MKD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "MMK", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "MOP", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "MUR", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "MXN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "MYR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "MZN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "NAD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "NGN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "NIO", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "NOK", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "NPR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "NZD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "OMR", exchangeRate: 1, decimalPlaces: 3, createdBy: "system" },
+  { code: "PAB", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "PEN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "PHP", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "PKR", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "PLN", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "PYG", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "QAR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "RON", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "RSD", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "RUB", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "RWF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "SAR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "SDG", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "SEK", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "SGD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "SOS", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "SYP", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "THB", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "TND", exchangeRate: 1, decimalPlaces: 3, createdBy: "system" },
+  { code: "TOP", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "TRY", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "TTD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "TWD", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "TZS", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "UAH", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "UGX", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "UYU", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "UZS", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "VEF", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "VND", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "XAF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "XOF", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "YER", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "ZAR", exchangeRate: 1, decimalPlaces: 2, createdBy: "system" },
+  { code: "ZMK", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" },
+  { code: "ZWL", exchangeRate: 1, decimalPlaces: 0, createdBy: "system" }
+] as const;
+
+export const accountCategories = [
+  {
+    category: "Bank",
+    class: "Asset",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Accounts Receivable",
+    class: "Asset",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Inventory",
+    class: "Asset",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Other Current Asset",
+    class: "Asset",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Fixed Asset",
+    class: "Asset",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Accumulated Depreciation",
+    class: "Asset",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Other Asset",
+    class: "Asset",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Accounts Payable",
+    class: "Liability",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Other Current Liability",
+    class: "Liability",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Long Term Liability",
+    class: "Liability",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Equity - No Close",
+    class: "Equity",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Equity - Close",
+    class: "Equity",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Retained Earnings",
+    class: "Equity",
+    incomeBalance: "Balance Sheet",
+    createdBy: "system"
+  },
+  {
+    category: "Income",
+    class: "Revenue",
+    incomeBalance: "Income Statement",
+    createdBy: "system"
+  },
+  {
+    category: "Cost of Goods Sold",
+    class: "Expense",
+    incomeBalance: "Income Statement",
+    createdBy: "system"
+  },
+  {
+    category: "Expense",
+    class: "Expense",
+    incomeBalance: "Income Statement",
+    createdBy: "system"
+  },
+  {
+    category: "Other Income",
+    class: "Expense",
+    incomeBalance: "Income Statement",
+    createdBy: "system"
+  },
+  {
+    category: "Other Expense",
+    class: "Expense",
+    incomeBalance: "Income Statement",
+    createdBy: "system"
+  }
+] as const;
+
+// Complete chart of accounts (64 accounts)
+export const accounts = [
+  {
+    number: "10000",
+    name: "Income Statement",
+    type: "Begin Total",
+    accountCategory: "Income",
+    incomeBalance: "Income Statement",
+    class: null,
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "11000",
+    name: "Revenue",
+    type: "Begin Total",
+    accountCategory: "Income",
+    incomeBalance: "Income Statement",
+    class: "Revenue",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "11210",
+    name: "Sales",
+    type: "Posting",
+    accountCategory: "Income",
+    incomeBalance: "Income Statement",
+    class: "Revenue",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "11600",
+    name: "Sales Discounts",
+    type: "Posting",
+    accountCategory: "Income",
+    incomeBalance: "Income Statement",
+    class: "Revenue",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "19999",
+    name: "Revenue, Total",
+    type: "End Total",
+    accountCategory: "Income",
+    incomeBalance: "Income Statement",
+    class: "Revenue",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "20000",
+    name: "Costs of Goods Sold",
+    type: "Begin Total",
+    accountCategory: "Cost of Goods Sold",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "21210",
+    name: "Cost of Goods Sold",
+    type: "Posting",
+    accountCategory: "Cost of Goods Sold",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "21410",
+    name: "Purchases",
+    type: "Posting",
+    accountCategory: "Cost of Goods Sold",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "21590",
+    name: "Direct Cost Applied",
+    type: "Posting",
+    accountCategory: "Cost of Goods Sold",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "21600",
+    name: "Overhead Applied",
+    type: "Posting",
+    accountCategory: "Cost of Goods Sold",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "21610",
+    name: "Purchase Variance",
+    type: "Posting",
+    accountCategory: "Cost of Goods Sold",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "21700",
+    name: "Inventory Adjustment",
+    type: "Posting",
+    accountCategory: "Cost of Goods Sold",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "24999",
+    name: "Costs of Goods Sold, Total",
+    type: "End Total",
+    accountCategory: "Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "25000",
+    name: "Direct Capacity Cost",
+    type: "Begin Total",
+    accountCategory: "Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "25705",
+    name: "Material Variance",
+    type: "Posting",
+    accountCategory: "Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "25710",
+    name: "Capacity Variance",
+    type: "Posting",
+    accountCategory: "Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "25720",
+    name: "Overhead Accounts",
+    type: "Posting",
+    accountCategory: "Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "47045",
+    name: "Maintenance Expense",
+    type: "Posting",
+    accountCategory: "Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "49999",
+    name: "Direct Capacity Cost, Total",
+    type: "End Total",
+    accountCategory: "Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "50000",
+    name: "Depreciation of Fixed Assets",
+    type: "Begin Total",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "50015",
+    name: "Depreciation Expense",
+    type: "Posting",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "50040",
+    name: "Gains and Losses on Disposal",
+    type: "Posting",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "50045",
+    name: "Service Charge Account",
+    type: "Posting",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "50999",
+    name: "Depreciation of Fixed Assets, Total",
+    type: "End Total",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "51000",
+    name: "Interest",
+    type: "Begin Total",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "51110",
+    name: "Interest Account",
+    type: "Posting",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "51115",
+    name: "Supplier Payment Discounts",
+    type: "Posting",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "51120",
+    name: "Customer Payment Discounts",
+    type: "Posting",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "51235",
+    name: "Rounding Account",
+    type: "Posting",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "51999",
+    name: "Interest, Total",
+    type: "End Total",
+    accountCategory: "Other Expense",
+    incomeBalance: "Income Statement",
+    class: "Expense",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "79999",
+    name: "Income Statement, Total",
+    type: "Total",
+    accountCategory: "Income",
+    incomeBalance: "Income Statement",
+    class: null,
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "80000",
+    name: "Balance Sheet",
+    type: "Begin Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: null,
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "80001",
+    name: "Assets",
+    type: "Begin Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "81000",
+    name: "Fixed Assets",
+    type: "Begin Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "81010",
+    name: "Fixed Asset Acquisition Cost",
+    type: "Posting",
+    accountCategory: "Fixed Asset",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "81015",
+    name: "Fixed Asset Acquisition Cost on Disposal",
+    type: "Posting",
+    accountCategory: "Fixed Asset",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "81020",
+    name: "Accumulated Depreciation",
+    type: "Posting",
+    accountCategory: "Accumulated Depreciation",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "81030",
+    name: "Fixed Asset Acquisition Depreciation on Disposal",
+    type: "Posting",
+    accountCategory: "Accumulated Depreciation",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "81999",
+    name: "Fixed Assets, Total",
+    type: "End Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "83000",
+    name: "Current Assets",
+    type: "Begin Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "83105",
+    name: "Inventory",
+    type: "Posting",
+    accountCategory: "Inventory",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "83120",
+    name: "Inventory Interim",
+    type: "Posting",
+    accountCategory: "Inventory",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "83125",
+    name: "Work In Progress (WIP)",
+    type: "Posting",
+    accountCategory: "Inventory",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "85005",
+    name: "Receivables",
+    type: "Posting",
+    accountCategory: "Accounts Receivable",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "85020",
+    name: "Inventory Invoiced Not Received",
+    type: "Posting",
+    accountCategory: "Accounts Receivable",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "86005",
+    name: "Bank - Cash",
+    type: "Posting",
+    accountCategory: "Bank",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "86010",
+    name: "Bank - Local Currency",
+    type: "Posting",
+    accountCategory: "Bank",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "86015",
+    name: "Bank - Foreign Currency",
+    type: "Posting",
+    accountCategory: "Bank",
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "87999",
+    name: "Current Assets, Total",
+    type: "End Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "89999",
+    name: "Assets, Total",
+    type: "End Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Asset",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "90000",
+    name: "Liabilities",
+    type: "Begin Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "92210",
+    name: "Customer Prepayments",
+    type: "Posting",
+    accountCategory: "Other Current Liability",
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "93005",
+    name: "Payables",
+    type: "Posting",
+    accountCategory: "Accounts Payable",
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "93010",
+    name: "Inventory Received Not Invoiced",
+    type: "Posting",
+    accountCategory: "Other Current Liability",
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "93110",
+    name: "Inventory Shipped Not Invoiced",
+    type: "Posting",
+    accountCategory: "Other Current Liability",
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "94100",
+    name: "Sales Tax Payable",
+    type: "Posting",
+    accountCategory: "Other Current Liability",
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "94110",
+    name: "Purchase Tax Payable",
+    type: "Posting",
+    accountCategory: "Other Current Liability",
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "94115",
+    name: "Reverse Charge Tax Payable",
+    type: "Posting",
+    accountCategory: "Other Current Liability",
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "94999",
+    name: "Liabilities, Total",
+    type: "End Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Liability",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "95000",
+    name: "Equity",
+    type: "Begin Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Equity",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "95010",
+    name: "Retained Earnings",
+    type: "Posting",
+    accountCategory: "Retained Earnings",
+    incomeBalance: "Balance Sheet",
+    class: "Equity",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "96010",
+    name: "Owner Equity",
+    type: "Posting",
+    accountCategory: "Equity - No Close",
+    incomeBalance: "Balance Sheet",
+    class: "Equity",
+    directPosting: true,
+    createdBy: "system"
+  },
+  {
+    number: "96999",
+    name: "Equity, Total",
+    type: "End Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: "Equity",
+    directPosting: false,
+    createdBy: "system"
+  },
+  {
+    number: "99999",
+    name: "Balance Sheet, Total",
+    type: "Total",
+    accountCategory: null,
+    incomeBalance: "Balance Sheet",
+    class: null,
+    directPosting: false,
+    createdBy: "system"
+  }
+] as const;
+
+export const accountDefaults = {
+  salesAccount: "11210",
+  salesDiscountAccount: "11600",
+  costOfGoodsSoldAccount: "21210",
+  purchaseAccount: "21410",
+  directCostAppliedAccount: "21590",
+  overheadCostAppliedAccount: "21600",
+  purchaseVarianceAccount: "21610",
+  inventoryAdjustmentVarianceAccount: "21700",
+  materialVarianceAccount: "25705",
+  capacityVarianceAccount: "25710",
+  overheadAccount: "25720",
+  maintenanceAccount: "47045",
+  assetDepreciationExpenseAccount: "50015",
+  assetGainsAndLossesAccount: "50040",
+  serviceChargeAccount: "50045",
+  interestAccount: "51110",
+  supplierPaymentDiscountAccount: "51115",
+  customerPaymentDiscountAccount: "51120",
+  roundingAccount: "51235",
+  assetAquisitionCostAccount: "81010",
+  assetAquisitionCostOnDisposalAccount: "81015",
+  accumulatedDepreciationAccount: "81020",
+  accumulatedDepreciationOnDisposalAccount: "81030",
+  inventoryAccount: "83105",
+  inventoryInterimAccrualAccount: "83120",
+  workInProgressAccount: "83125",
+  receivablesAccount: "85005",
+  inventoryInvoicedNotReceivedAccount: "85020",
+  bankCashAccount: "86005",
+  bankLocalCurrencyAccount: "86010",
+  bankForeignCurrencyAccount: "86015",
+  prepaymentAccount: "92210",
+  payablesAccount: "93005",
+  inventoryReceivedNotInvoicedAccount: "93010",
+  inventoryShippedNotInvoicedAccount: "93110",
+  salesTaxPayableAccount: "94100",
+  purchaseTaxPayableAccount: "94110",
+  reverseChargeSalesTaxPayableAccount: "94115",
+  retainedEarningsAccount: "95010"
+} as const;
+
+export const postingGroupInventory = {
+  costOfGoodsSoldAccount: accountDefaults.costOfGoodsSoldAccount,
+  inventoryAccount: accountDefaults.inventoryAccount,
+  inventoryInterimAccrualAccount:
+    accountDefaults.inventoryInterimAccrualAccount,
+  inventoryReceivedNotInvoicedAccount:
+    accountDefaults.inventoryReceivedNotInvoicedAccount,
+  inventoryInvoicedNotReceivedAccount:
+    accountDefaults.inventoryInvoicedNotReceivedAccount,
+  inventoryShippedNotInvoicedAccount:
+    accountDefaults.inventoryShippedNotInvoicedAccount,
+  workInProgressAccount: accountDefaults.workInProgressAccount,
+  directCostAppliedAccount: accountDefaults.directCostAppliedAccount,
+  overheadCostAppliedAccount: accountDefaults.overheadCostAppliedAccount,
+  purchaseVarianceAccount: accountDefaults.purchaseVarianceAccount,
+  inventoryAdjustmentVarianceAccount:
+    accountDefaults.inventoryAdjustmentVarianceAccount,
+  materialVarianceAccount: accountDefaults.materialVarianceAccount,
+  capacityVarianceAccount: accountDefaults.capacityVarianceAccount,
+  overheadAccount: accountDefaults.overheadAccount,
+  updatedBy: "system"
+} as const;
+
+export const postingGroupPurchasing = {
+  payablesAccount: accountDefaults.payablesAccount,
+  purchaseAccount: accountDefaults.purchaseAccount,
+  purchaseDiscountAccount: accountDefaults.purchaseAccount,
+  purchaseCreditAccount: accountDefaults.purchaseAccount,
+  purchasePrepaymentAccount: accountDefaults.prepaymentAccount,
+  purchaseTaxPayableAccount: accountDefaults.purchaseTaxPayableAccount,
+  updatedBy: "system"
+} as const;
+
+export const postingGroupSales = {
+  receivablesAccount: accountDefaults.receivablesAccount,
+  salesAccount: accountDefaults.salesAccount,
+  salesDiscountAccount: accountDefaults.salesDiscountAccount,
+  salesCreditAccount: accountDefaults.salesAccount,
+  salesPrepaymentAccount: accountDefaults.prepaymentAccount,
+  salesTaxPayableAccount: accountDefaults.salesTaxPayableAccount,
+  updatedBy: "system"
+} as const;
+
+export const fiscalYearSettings = {
+  startMonth: "January",
+  taxStartMonth: "January",
+  updatedBy: "system"
+} as const;
+
+/**
+ * Default location seeded for new companies
+ * Required for inventory quantities, jobs, and other location-dependent features
+ */
+export const defaultLocation = {
+  name: "Headquarters",
+  addressLine1: "123 Main Street",
+  city: "Austin",
+  stateProvince: "TX",
+  postalCode: "78701",
+  countryCode: "US",
+  timezone: "America/Chicago",
+  createdBy: "system"
+} as const;
+
+export const groups = [
+  {
+    idPrefix: "00000000-0000",
+    name: "All Employees",
+    isCustomerTypeGroup: false,
+    isEmployeeTypeGroup: true,
+    isSupplierTypeGroup: false
+  },
+  {
+    idPrefix: "11111111-1111",
+    name: "All Customers",
+    isCustomerTypeGroup: true,
+    isEmployeeTypeGroup: false,
+    isSupplierTypeGroup: false
+  },
+  {
+    idPrefix: "22222222-2222",
+    name: "All Suppliers",
+    isCustomerTypeGroup: false,
+    isEmployeeTypeGroup: false,
+    isSupplierTypeGroup: true
+  }
+] as const;
+
+/**
+ * Helper to generate group ID from idPrefix and company ID
+ * The resulting ID format: {idPrefix}-{companyId formatted as XXXX-YYYY-ZZZZZZZZZZZZ}
+ */
+export function getGroupId(idPrefix: string, companyId: string): string {
+  const companyIdPart = `${companyId.substring(0, 4)}-${companyId.substring(
+    4,
+    8
+  )}-${companyId.substring(8, 20)}`;
+  return `${idPrefix}-${companyIdPart}`;
+}

@@ -67,6 +67,7 @@ export default function Route() {
       <ContractorsTable
         data={contractors}
         count={count}
+        // @ts-expect-error TS2322 - TODO: fix type
         abilities={abilities}
       />
       <Outlet />

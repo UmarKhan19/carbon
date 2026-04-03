@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { Combobox, ValidatedForm } from "@carbon/form";
+import { Combobox, DatePicker, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   cn,
@@ -19,6 +19,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useMemo, useState } from "react";
 import { useFetcher, useParams } from "react-router";
@@ -41,9 +42,13 @@ import {
   useRouteData,
   useUser
 } from "~/hooks";
+import { getSupplierPartPriceBreaks } from "~/modules/items";
 import type { PurchaseOrder, PurchaseOrderLine } from "~/modules/purchasing";
-import { purchaseOrderLineValidator } from "~/modules/purchasing";
-import type { MethodItemType } from "~/modules/shared";
+import {
+  isPurchaseOrderLocked,
+  purchaseOrderLineValidator
+} from "~/modules/purchasing";
+import { type MethodItemType, resolveSupplierPrice } from "~/modules/shared";
 import type { action } from "~/routes/x+/purchase-order+/$orderId.$lineId.details";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
@@ -75,7 +80,7 @@ const PurchaseOrderLineForm = ({
 
   const isOutsideProcessing =
     routeData?.purchaseOrder?.purchaseOrderType === "Outside Processing";
-  const isEditable = ["Draft"].includes(routeData?.purchaseOrder?.status ?? "");
+  const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
   const [itemType, setItemType] = useState<MethodItemType>(
     initialValues.purchaseOrderLineType as MethodItemType
@@ -83,29 +88,35 @@ const PurchaseOrderLineForm = ({
   const [locationId, setLocationId] = useState(initialValues.locationId);
   const [itemData, setItemData] = useState<{
     itemId: string;
-    description: string;
-    purchaseQuantity: number;
-    supplierUnitPrice: number;
-    supplierShippingCost: number;
-    purchaseUom: string;
-    inventoryUom: string;
     conversionFactor: number;
-    shelfId: string | null;
+    description: string;
+    fallbackUnitPrice: number;
+    inventoryUom: string;
     minimumOrderQuantity?: number;
+    priceBreaks: Array<{ quantity: number; unitPrice: number }>;
+    purchaseQuantity: number;
+    purchaseUom: string;
+    requestedDate: string | null;
+    shelfId: string | null;
+    supplierShippingCost: number;
     supplierTaxAmount: number;
+    supplierUnitPrice: number;
     taxPercent: number;
   }>({
     itemId: initialValues.itemId ?? "",
-    description: initialValues.description ?? "",
-    purchaseQuantity: initialValues.purchaseQuantity ?? 1,
-    supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
-    supplierShippingCost: initialValues.supplierShippingCost ?? 0,
-    purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
-    inventoryUom: initialValues.inventoryUnitOfMeasureCode ?? "",
     conversionFactor: initialValues.conversionFactor ?? 1,
-    shelfId: initialValues.shelfId ?? "",
+    description: initialValues.description ?? "",
+    fallbackUnitPrice: initialValues.supplierUnitPrice ?? 0,
+    inventoryUom: initialValues.inventoryUnitOfMeasureCode ?? "",
     minimumOrderQuantity: undefined,
+    purchaseQuantity: initialValues.purchaseQuantity ?? 1,
+    purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
+    priceBreaks: [],
+    requestedDate: initialValues?.requestedDate ?? null,
+    shelfId: initialValues.shelfId ?? "",
+    supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
+    supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
     taxPercent:
       (initialValues.supplierUnitPrice ?? 0) *
         (initialValues.purchaseQuantity ?? 1) +
@@ -137,11 +148,35 @@ const PurchaseOrderLineForm = ({
   ]);
 
   const isEditing = initialValues.id !== undefined;
-  const isDisabled = !isEditable
-    ? true
-    : isEditing
-      ? !permissions.can("update", "purchasing")
-      : !permissions.can("create", "purchasing");
+
+  // Load price breaks on mount when editing so quantity changes resolve correctly
+  useMount(() => {
+    if (!isEditing || !initialValues.itemId) return;
+    const supplierId = routeData?.purchaseOrder?.supplierId;
+    if (!supplierId) return;
+
+    (async () => {
+      const supplierPart = await carbon
+        .from("supplierPart")
+        .select("id")
+        .eq("itemId", initialValues.itemId!)
+        .eq("companyId", company.id)
+        .eq("supplierId", supplierId)
+        .maybeSingle();
+
+      if (supplierPart?.data?.id) {
+        const breaks = await getSupplierPartPriceBreaks(
+          carbon,
+          supplierPart.data.id
+        );
+        setItemData((d) => ({ ...d, priceBreaks: breaks }));
+      }
+    })();
+  });
+
+  const isDisabled = isEditing
+    ? !permissions.can("update", "purchasing")
+    : !permissions.can("create", "purchasing");
 
   const deleteDisclosure = useDisclosure();
   const currencyFormatter = useCurrencyFormatter();
@@ -152,16 +187,19 @@ const PurchaseOrderLineForm = ({
     setItemType(t as MethodItemType);
     setItemData({
       itemId: "",
-      description: "",
-      purchaseQuantity: 1,
-      supplierUnitPrice: 0,
-      supplierShippingCost: 0,
-      inventoryUom: "",
-      purchaseUom: "",
       conversionFactor: 1,
-      shelfId: "",
+      description: "",
+      fallbackUnitPrice: 0,
+      inventoryUom: "",
       minimumOrderQuantity: undefined,
+      priceBreaks: [],
+      purchaseQuantity: 1,
+      purchaseUom: "",
+      requestedDate: null,
+      shelfId: "",
+      supplierShippingCost: 0,
       supplierTaxAmount: 0,
+      supplierUnitPrice: 0,
       taxPercent: 0
     });
   };
@@ -202,14 +240,28 @@ const PurchaseOrderLineForm = ({
 
         const itemCost = item?.data?.itemCost?.[0];
         const itemReplenishment = item?.data?.itemReplenishment;
+        const exchangeRate = routeData?.purchaseOrder?.exchangeRate ?? 1;
+        const initialQty = supplierPart?.data?.minimumOrderQuantity ?? 1;
+        const leadTime = item?.data?.itemReplenishment?.leadTime ?? 0;
+        const baseFallback =
+          (supplierPart?.data?.unitPrice ?? itemCost?.unitCost ?? 0) /
+          exchangeRate;
+
+        const breaks = supplierPart?.data?.id
+          ? await getSupplierPartPriceBreaks(carbon, supplierPart.data.id)
+          : [];
+        const resolvedPrice = resolveSupplierPrice(
+          breaks,
+          initialQty,
+          baseFallback,
+          exchangeRate
+        );
 
         setItemData({
           itemId: itemId,
           description: item.data?.name ?? "",
-          purchaseQuantity: supplierPart?.data?.minimumOrderQuantity ?? 1,
-          supplierUnitPrice:
-            (supplierPart?.data?.unitPrice ?? itemCost?.unitCost ?? 0) /
-            (routeData?.purchaseOrder?.exchangeRate ?? 1),
+          purchaseQuantity: initialQty,
+          supplierUnitPrice: resolvedPrice,
           supplierShippingCost: 0,
           purchaseUom:
             supplierPart?.data?.supplierUnitOfMeasureCode ??
@@ -221,9 +273,15 @@ const PurchaseOrderLineForm = ({
             supplierPart?.data?.conversionFactor ??
             itemReplenishment?.conversionFactor ??
             1,
+          requestedDate:
+            leadTime === 0
+              ? null
+              : today(getLocalTimeZone()).add({ days: leadTime }).toString(),
           shelfId: inventory.data?.defaultShelfId ?? null,
           supplierTaxAmount: 0,
-          taxPercent: 0
+          taxPercent: 0,
+          priceBreaks: breaks,
+          fallbackUnitPrice: baseFallback
         });
 
         if (item.data?.type) {
@@ -279,6 +337,7 @@ const PurchaseOrderLineForm = ({
               }
               className="w-full"
               fetcher={fetcher}
+              isDisabled={isLocked}
               onSubmit={() => {
                 if (type === "modal") onClose?.();
               }}
@@ -310,8 +369,10 @@ const PurchaseOrderLineForm = ({
                           )}{" "}
                           {initialValues?.purchaseUnitOfMeasureCode}
                         </Badge>
+                        {/* @ts-expect-error TS2339 */}
                         {initialValues?.taxPercent > 0 ? (
                           <Badge variant="red">
+                            {/* @ts-expect-error TS2339 */}
                             {percentFormatter.format(initialValues?.taxPercent)}{" "}
                             Tax
                           </Badge>
@@ -342,7 +403,6 @@ const PurchaseOrderLineForm = ({
                     <Item
                       name="itemId"
                       label={itemType}
-                      // @ts-ignore
                       type={itemType}
                       replenishmentSystem={
                         isOutsideProcessing ? undefined : "Buy"
@@ -353,7 +413,7 @@ const PurchaseOrderLineForm = ({
                       onTypeChange={onTypeChange}
                     />
 
-                    <FormControl className="col-span-2">
+                    <FormControl>
                       <FormLabel>Description</FormLabel>
                       <Input
                         value={itemData.description}
@@ -370,15 +430,35 @@ const PurchaseOrderLineForm = ({
                       <JobOperationSelect jobId={initialValues.jobId} />
                     )}
 
+                    <DatePicker
+                      name="requestedDate"
+                      label="Required Date"
+                      value={itemData?.requestedDate ?? undefined}
+                      onChange={(date) => {
+                        setItemData((d) => ({
+                          ...d,
+                          requestedDate: date
+                        }));
+                      }}
+                    />
+
                     <NumberControlled
                       minValue={itemData.minimumOrderQuantity}
                       name="purchaseQuantity"
                       label="Quantity"
                       value={itemData.purchaseQuantity}
                       onChange={(value) => {
+                        const exchangeRate =
+                          routeData?.purchaseOrder?.exchangeRate ?? 1;
                         setItemData((d) => ({
                           ...d,
-                          purchaseQuantity: value
+                          purchaseQuantity: value,
+                          supplierUnitPrice: resolveSupplierPrice(
+                            d.priceBreaks,
+                            value,
+                            d.fallbackUnitPrice,
+                            exchangeRate
+                          )
                         }));
                       }}
                     />

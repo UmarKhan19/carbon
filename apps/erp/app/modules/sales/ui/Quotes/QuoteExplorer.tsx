@@ -51,6 +51,7 @@ import {
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
+import { isQuoteLocked } from "../../sales.models";
 import type {
   Customer,
   Quotation,
@@ -84,7 +85,7 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
     estimatorId: userId,
     itemId: "",
     locationId: quoteData?.quote?.locationId ?? defaults.locationId ?? "",
-    methodType: "Make" as const,
+    methodType: "Make to Order" as const,
     status: "Not Started" as const,
     quantity: [1],
     unitOfMeasureCode: "",
@@ -100,7 +101,8 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
   const deleteLineDisclosure = useDisclosure();
   const [deleteLine, setDeleteLine] = useState<QuotationLine | null>(null);
   const isDisabled =
-    !permissions.can("delete", "sales") || quoteData?.quote?.status !== "Draft";
+    !permissions.can("delete", "sales") ||
+    isQuoteLocked(quoteData?.quote?.status);
 
   const onDeleteLine = (line: QuotationLine) => {
     setDeleteLine(line);
@@ -366,7 +368,7 @@ function QuoteLineItem({
 
   const isSelected = lineId === line.id;
   const onLineClick = (line: QuotationLine) => {
-    if (line.methodType === "Make") {
+    if (line.methodType === "Make to Order") {
       disclosure.onOpen();
     }
 
@@ -408,7 +410,7 @@ function QuoteLineItem({
         </HStack>
         <div className="absolute right-2">
           <HStack spacing={1}>
-            {line.methodType === "Make" &&
+            {line.methodType === "Make to Order" &&
               permissions.can("update", "sales") &&
               line.status !== "No Quote" && (
                 <IconButton
@@ -455,7 +457,7 @@ function QuoteLineItem({
                     View Item Master
                   </Link>
                 </DropdownMenuItem>
-                {line.methodType === "Make" && (
+                {line.methodType === "Make to Order" && (
                   <>
                     <DropdownMenuItem onClick={searchDisclosure.onOpen}>
                       <DropdownMenuIcon icon={<LuSearch />} />
@@ -561,7 +563,7 @@ function QuoteLineItem({
         </div>
       </HStack>
       {disclosure.isOpen &&
-        line.methodType === "Make" &&
+        line.methodType === "Make to Order" &&
         permissions.can("update", "sales") &&
         line.status !== "No Quote" && (
           <VStack className="border-b border-border p-1">

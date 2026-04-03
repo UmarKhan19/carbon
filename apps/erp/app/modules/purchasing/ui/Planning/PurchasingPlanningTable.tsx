@@ -290,7 +290,7 @@ const PlanningTable = memo(
       return [
         {
           accessorKey: "readableIdWithRevision",
-          header: "Part ID",
+          header: "Item ID",
           cell: ({ row }) => (
             <HStack
               className="py-1 cursor-pointer"
@@ -406,6 +406,22 @@ const PlanningTable = memo(
           }
         },
         ...periodColumns,
+        {
+          accessorKey: "quantityToOrder",
+          header: "Qty to Order",
+          cell: ({ row }) => {
+            const value = row.original.quantityToOrder;
+            if (value === undefined || value === 0) return "-";
+            return (
+              <span className="font-medium">
+                {numberFormatter.format(value)}
+              </span>
+            );
+          },
+          meta: {
+            icon: <LuCirclePlay />
+          }
+        },
         {
           accessorKey: "type",
           header: "Type",

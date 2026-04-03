@@ -1,10 +1,6 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  success
-} from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -27,7 +23,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const typeParam = url.searchParams.get("type");
   const documentType: ApprovalDocumentType | null =
-    typeParam === "purchaseOrder" || typeParam === "qualityDocument"
+    typeParam === "purchaseOrder" ||
+    typeParam === "qualityDocument" ||
+    typeParam === "supplier"
       ? typeParam
       : null;
 

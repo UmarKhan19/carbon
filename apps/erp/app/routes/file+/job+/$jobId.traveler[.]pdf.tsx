@@ -1,6 +1,6 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { JobTravelerPageContent } from "@carbon/documents/pdf";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { Footer, JobTravelerPageContent } from "@carbon/documents/pdf";
 import type { JSONContent } from "@carbon/react";
 import { flattenTree, generateBomIds } from "@carbon/utils";
 import {
@@ -17,7 +17,7 @@ import {
   getJobOperationsByMethodId,
   getTrackedEntityByJobId
 } from "~/modules/production/production.service";
-import { getCompany } from "~/modules/settings";
+import { getCompany, getCompanySettings } from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -52,10 +52,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load job make methods");
   }
 
-  const company = await getCompany(serviceRole, job.data.companyId ?? "");
+  const [company, companySettings] = await Promise.all([
+    getCompany(serviceRole, job.data.companyId ?? ""),
+    getCompanySettings(serviceRole, job.data.companyId ?? "")
+  ]);
   if (company.error) {
     console.error(company.error);
     throw new Error("Failed to load company");
+  }
+  if (companySettings.error) {
+    console.error(companySettings.error);
+    throw new Error("Failed to load company settings");
   }
 
   const customer = await serviceRole
@@ -166,7 +173,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const styles = StyleSheet.create({
     body: {
       fontFamily: "Inter",
-      padding: "20px 40px",
+      padding: "20px 40px 50px 40px",
       color: "#000000",
       backgroundColor: "#FFFFFF"
     }
@@ -183,7 +190,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       {makeMethodsWithData.map((data, index) => (
         <Page key={data.makeMethod.id} size="A4" style={styles.body}>
           <JobTravelerPageContent
-            company={company.data}
+            company={company.data as any}
             job={job.data}
             jobOperations={data.operations}
             customer={customer.data}
@@ -193,7 +200,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             notes={index === 0 ? jobNotes : undefined}
             thumbnail={data.thumbnail}
             methodRevision={data.makeMethod.version?.toString()}
+            includeWorkInstructions={
+              companySettings.data?.jobTravelerIncludeWorkInstructions ?? false
+            }
           />
+          <Footer />
         </Page>
       ))}
     </Document>
@@ -214,5 +225,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "Content-Type": "application/pdf",
     "Content-Disposition": `inline; filename="${company.data.name} - ${job.data.jobId}.pdf"`
   });
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

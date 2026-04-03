@@ -10,7 +10,6 @@ import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Customer,
   CustomerLocation,
@@ -19,14 +18,16 @@ import {
   Hidden,
   Input,
   Location,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   ShippingMethod,
   Submit
 } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { PurchaseOrder } from "~/modules/purchasing";
-import { purchaseOrderDeliveryValidator } from "~/modules/purchasing";
+import {
+  isPurchaseOrderLocked,
+  purchaseOrderDeliveryValidator
+} from "~/modules/purchasing";
 import type { action } from "~/routes/x+/purchase-order+/$orderId.delivery";
 import { path } from "~/utils/path";
 
@@ -43,7 +44,7 @@ export type PurchaseOrderDeliveryFormRef = {
 const PurchaseOrderDeliveryForm = forwardRef<
   PurchaseOrderDeliveryFormRef,
   PurchaseOrderDeliveryFormProps
->(({ initialValues, currencyCode, defaultCollapsed = true }, ref) => {
+>(({ initialValues, currencyCode, defaultCollapsed = false }, ref) => {
   const { orderId } = useParams();
   if (!orderId) {
     throw new Error("orderId not found");
@@ -53,9 +54,7 @@ const PurchaseOrderDeliveryForm = forwardRef<
     purchaseOrder: PurchaseOrder;
   }>(path.to.purchaseOrder(orderId));
 
-  const isEditable = ["Draft", "To Review", "Needs Approval"].includes(
-    routeData?.purchaseOrder?.status ?? ""
-  );
+  const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
   const permissions = usePermissions();
   const fetcher = useFetcher<typeof action>();
@@ -96,6 +95,7 @@ const PurchaseOrderDeliveryForm = forwardRef<
         validator={purchaseOrderDeliveryValidator}
         defaultValues={initialValues}
         fetcher={fetcher}
+        isDisabled={isLocked}
       >
         <CardHeader>
           <CardTitle>Shipping</CardTitle>
@@ -149,9 +149,7 @@ const PurchaseOrderDeliveryForm = forwardRef<
           </div>
         </CardContent>
         <CardFooter>
-          <Submit
-            isDisabled={!permissions.can("update", "purchasing") || !isEditable}
-          >
+          <Submit isDisabled={!permissions.can("update", "purchasing")}>
             Save
           </Submit>
         </CardFooter>

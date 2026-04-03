@@ -1,14 +1,18 @@
-import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
+import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
+  getSupplierQuote,
+  isSupplierQuoteLocked,
   supplierQuoteLineValidator,
   upsertSupplierQuoteLine
 } from "~/modules/purchasing";
 import { setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -19,6 +23,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { id: supplierQuoteId } = params;
   if (!supplierQuoteId) throw new Error("Could not find supplierQuoteId");
+
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "purchasing"
+  });
+  const quote = await getSupplierQuote(viewClient, supplierQuoteId);
+  await requireUnlocked({
+    request,
+    isLocked: isSupplierQuoteLocked(quote.data?.status),
+    redirectTo: path.to.supplierQuote(supplierQuoteId),
+    message: "Cannot modify a locked supplier quote. Reopen it first."
+  });
 
   const formData = await request.formData();
   const validation = await validator(supplierQuoteLineValidator).validate(

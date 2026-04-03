@@ -15,7 +15,7 @@ const Enumerable = ({ value, color, ...props }: EnumerableProps) => {
 
   const style = color ? getColor(color, mode) : getColorByValue(value, mode);
   return (
-    <Badge style={style} {...props}>
+    <Badge style={{ ...style, borderColor: `${style.color}33` }} {...props}>
       {value}
     </Badge>
   );

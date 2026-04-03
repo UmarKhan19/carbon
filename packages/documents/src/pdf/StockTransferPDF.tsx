@@ -79,7 +79,12 @@ const StockTransferPDF = ({
       <View style={tw("flex flex-col")}>
         {/* Header Section - Always at the top */}
         <View style={tw("mb-4")}>
-          <Header company={company} title={title} />
+          <Header
+            company={company}
+            title={title}
+            documentId={stockTransfer?.stockTransferId}
+            date={stockTransfer?.createdAt}
+          />
           <Summary company={company} items={details} />
         </View>
 
@@ -103,7 +108,7 @@ const StockTransferPDF = ({
               return shelfA.localeCompare(shelfB);
             })
             .map((line) => {
-              const barcodeDataUrl = generateBarcode(line.itemReadableId);
+              const barcodeDataUrl = generateBarcode(line.itemReadableId ?? "");
               let pickUrl = `${getAppUrl()}/api/stock-transfer/${line.id}/pick`;
               if (line.requiresSerialTracking) {
                 pickUrl += "?type=serial";
@@ -129,6 +134,7 @@ const StockTransferPDF = ({
                     </Text>
 
                     {thumbnails &&
+                      line.id != null &&
                       line.id in thumbnails &&
                       thumbnails[line.id] && (
                         <View style={tw("mt-2 mb-2")}>

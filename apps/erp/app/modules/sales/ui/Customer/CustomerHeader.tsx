@@ -1,7 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Card,
-  CardAction,
   CardAttribute,
   CardAttributeLabel,
   CardAttributes,
@@ -9,17 +8,28 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   HStack,
+  IconButton,
+  useDisclosure,
   VStack
 } from "@carbon/react";
 import { useCallback } from "react";
+import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { EmployeeAvatar } from "~/components";
+import { useAuditLog } from "~/components/AuditLog";
 import { Enumerable } from "~/components/Enumerable";
 import { Tags } from "~/components/Form";
 import { useCustomerTypes } from "~/components/Form/CustomerType";
-import { useRouteData } from "~/hooks";
+import { ConfirmDelete } from "~/components/Modals";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import type { action } from "~/routes/x+/settings+/tags";
 import { path } from "~/utils/path";
 import type { CustomerDetail, CustomerStatus } from "../../types";
@@ -29,6 +39,9 @@ const CustomerHeader = () => {
 
   if (!customerId) throw new Error("Could not find customerId");
   const fetcher = useFetcher<typeof action>();
+  const permissions = usePermissions();
+  const { company } = useUser();
+  const deleteModal = useDisclosure();
   const routeData = useRouteData<{
     customer: CustomerDetail;
     tags: { name: string }[];
@@ -39,6 +52,13 @@ const CustomerHeader = () => {
     (type) => type.value === routeData?.customer?.customerTypeId
   )?.label;
 
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "customer",
+    entityId: customerId,
+    companyId: company.id,
+    variant: "dropdown"
+  });
+
   const sharedCustomerData = useRouteData<{
     customerStatuses: CustomerStatus[];
   }>(path.to.customerRoot);
@@ -46,7 +66,7 @@ const CustomerHeader = () => {
     (status) => status.id === routeData?.customer?.customerStatusId
   )?.name;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const onUpdateTags = useCallback(
     (value: string[]) => {
       const formData = new FormData();
@@ -64,71 +84,95 @@ const CustomerHeader = () => {
       });
     },
 
-    [customerId]
+    [customerId, fetcher.submit]
   );
 
   return (
-    <VStack>
-      <Card>
-        <HStack className="justify-between items-start">
-          <CardHeader>
-            <CardTitle>{routeData?.customer?.name}</CardTitle>
-          </CardHeader>
-          <CardAction>
-            {/* <Button onClick={() => alert("TODO")} leftIcon={<FaHistory />}>
-              Customer Details
-            </Button> */}
-          </CardAction>
-        </HStack>
-        <CardContent>
-          <CardAttributes>
-            <CardAttribute>
-              <CardAttributeLabel>Status</CardAttributeLabel>
-              <CardAttributeValue>
-                {customerStatus ? <Enumerable value={customerStatus!} /> : "-"}
-              </CardAttributeValue>
-            </CardAttribute>
-            <CardAttribute>
-              <CardAttributeLabel>Type</CardAttributeLabel>
-              <CardAttributeValue>
-                {customerType ? <Enumerable value={customerType!} /> : "-"}
-              </CardAttributeValue>
-            </CardAttribute>
-            <CardAttribute>
-              <CardAttributeLabel>Account Manager</CardAttributeLabel>
-              <CardAttributeValue>
-                {routeData?.customer?.accountManagerId ? (
-                  <EmployeeAvatar
-                    employeeId={routeData?.customer?.accountManagerId ?? null}
-                  />
-                ) : (
-                  "-"
-                )}
-              </CardAttributeValue>
-            </CardAttribute>
-            <CardAttribute>
-              <CardAttributeValue>
-                <ValidatedForm
-                  defaultValues={{
-                    tags: routeData?.customer?.tags ?? []
-                  }}
-                  validator={z.object({
-                    tags: z.array(z.string()).optional()
-                  })}
-                  className="w-full"
-                >
-                  <Tags
-                    label="Tags"
-                    name="tags"
-                    availableTags={routeData?.tags ?? []}
-                    table="customer"
-                    inline
-                    onChange={onUpdateTags}
-                  />
-                </ValidatedForm>
-              </CardAttributeValue>
-            </CardAttribute>
-            {/* {permissions.is("employee") && (
+    <>
+      <VStack>
+        <Card>
+          <HStack className="justify-between items-start">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <span>{routeData?.customer?.name}</span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <IconButton
+                      aria-label="More options"
+                      icon={<LuEllipsisVertical />}
+                      variant="secondary"
+                      size="sm"
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {auditLogTrigger}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      disabled={!permissions.can("delete", "sales")}
+                      destructive
+                      onClick={deleteModal.onOpen}
+                    >
+                      <DropdownMenuIcon icon={<LuTrash />} />
+                      Delete Customer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardTitle>
+            </CardHeader>
+          </HStack>
+          <CardContent>
+            <CardAttributes>
+              <CardAttribute>
+                <CardAttributeLabel>Status</CardAttributeLabel>
+                <CardAttributeValue>
+                  {customerStatus ? (
+                    <Enumerable value={customerStatus!} />
+                  ) : (
+                    "-"
+                  )}
+                </CardAttributeValue>
+              </CardAttribute>
+              <CardAttribute>
+                <CardAttributeLabel>Type</CardAttributeLabel>
+                <CardAttributeValue>
+                  {customerType ? <Enumerable value={customerType!} /> : "-"}
+                </CardAttributeValue>
+              </CardAttribute>
+              <CardAttribute>
+                <CardAttributeLabel>Account Manager</CardAttributeLabel>
+                <CardAttributeValue>
+                  {routeData?.customer?.accountManagerId ? (
+                    <EmployeeAvatar
+                      employeeId={routeData?.customer?.accountManagerId ?? null}
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </CardAttributeValue>
+              </CardAttribute>
+              <CardAttribute>
+                <CardAttributeValue>
+                  <ValidatedForm
+                    defaultValues={{
+                      tags: routeData?.customer?.tags ?? []
+                    }}
+                    validator={z.object({
+                      tags: z.array(z.string()).optional()
+                    })}
+                    className="w-full"
+                  >
+                    <Tags
+                      label="Tags"
+                      name="tags"
+                      availableTags={routeData?.tags ?? []}
+                      table="customer"
+                      inline
+                      onChange={onUpdateTags}
+                    />
+                  </ValidatedForm>
+                </CardAttributeValue>
+              </CardAttribute>
+              {/* {permissions.is("employee") && (
               <CardAttribute>
                 <CardAttributeLabel>Assignee</CardAttributeLabel>
                 <CardAttributeValue>
@@ -141,10 +185,22 @@ const CustomerHeader = () => {
                 </CardAttributeValue>
               </CardAttribute>
             )} */}
-          </CardAttributes>
-        </CardContent>
-      </Card>
-    </VStack>
+            </CardAttributes>
+          </CardContent>
+        </Card>
+      </VStack>
+      {deleteModal.isOpen && (
+        <ConfirmDelete
+          action={path.to.deleteCustomer(customerId)}
+          isOpen={deleteModal.isOpen}
+          name={routeData?.customer?.name!}
+          text={`Are you sure you want to delete ${routeData?.customer?.name!}? This cannot be undone.`}
+          onCancel={deleteModal.onClose}
+          onSubmit={deleteModal.onClose}
+        />
+      )}
+      {auditLogDrawer}
+    </>
   );
 };
 

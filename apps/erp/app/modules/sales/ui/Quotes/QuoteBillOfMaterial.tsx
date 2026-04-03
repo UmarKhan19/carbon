@@ -52,8 +52,6 @@ import {
   Hidden,
   InputControlled,
   Item,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
-  Number,
   NumberControlled,
   Select,
   Shelf,
@@ -67,6 +65,7 @@ import type {
 } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import { usePermissions, useRouteData, useUrlParams, useUser } from "~/hooks";
+import { lookupBuyPrice as lookupBuyPriceAsync } from "~/modules/items";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import type { Item as ItemType } from "~/stores";
@@ -136,7 +135,10 @@ function makeItem(
         <div className="flex items-center gap-2 group">
           <h3 className="font-semibold truncate">{itemReadableId}</h3>
           {material.itemId && material.itemType && (
-            <Link to={getLinkToItemDetails(material.itemType, material.itemId)}>
+            <Link
+              to={getLinkToItemDetails(material.itemType, material.itemId)}
+              onClick={(e) => e.stopPropagation()}
+            >
               <LuExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100" />
             </Link>
           )}
@@ -203,7 +205,7 @@ const initialMethodMaterial: Omit<Material, "quoteMakeMethodId" | "order"> & {
   itemReadableId: "",
   // @ts-ignore
   itemType: "Item" as const,
-  methodType: "Buy" as const,
+  methodType: "Purchase to Order" as const,
   description: "",
   quantity: 1,
   unitCost: 0,
@@ -665,7 +667,7 @@ function MaterialForm({
     quoteOperationId?: string;
   }>({
     itemId: item.data.itemId ?? "",
-    methodType: item.data.methodType ?? "Buy",
+    methodType: item.data.methodType ?? "Pull from Inventory",
     description: item.data.description ?? "",
     unitCost: item.data.unitCost ?? 0,
     unitOfMeasureCode: item.data.unitOfMeasureCode ?? "EA",
@@ -680,7 +682,7 @@ function MaterialForm({
     setItemType(value as MethodItemType);
     setItemData({
       itemId: "",
-      methodType: "Buy",
+      methodType: "Pull from Inventory",
       quantity: 1,
       unitCost: 0,
       description: "",
@@ -688,6 +690,14 @@ function MaterialForm({
       kit: false
     });
   };
+
+  const lookupBuyPriceFn = useCallback(
+    async (itemId: string, qty: number, fallbackCost: number) => {
+      if (!carbon) return fallbackCost;
+      return lookupBuyPriceAsync(carbon, itemId, qty, fallbackCost);
+    },
+    [carbon]
+  );
 
   const onItemChange = async (itemId: string) => {
     if (!carbon) return;
@@ -713,13 +723,24 @@ function MaterialForm({
       return;
     }
 
+    let unitCost = itemCost.data?.unitCost ?? 0;
+    const isBuyPart = item.data?.defaultMethodType === "Purchase to Order";
+
+    if (isBuyPart) {
+      unitCost = await lookupBuyPriceFn(
+        itemId,
+        itemData.quantity ?? 1,
+        unitCost
+      );
+    }
+
     setItemData((d) => ({
       ...d,
       itemId,
       description: item.data?.name ?? "",
-      unitCost: itemCost.data?.unitCost ?? 0,
+      unitCost,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Buy",
+      methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
       requiresBatchTracking: item.data?.itemTrackingType === "Batch",
       requiresSerialTracking: item.data?.itemTrackingType === "Serial"
     }));
@@ -728,6 +749,32 @@ function MaterialForm({
       setItemType(item.data.type as MethodItemType);
     }
   };
+
+  const onQuantityChange = useCallback(
+    async (newQty: number) => {
+      setItemData((d) => ({ ...d, quantity: newQty }));
+
+      if (itemData.methodType !== "Purchase to Order" || !itemData.itemId)
+        return;
+      if (!carbon) return;
+
+      const itemCost = await carbon
+        .from("itemCost")
+        .select("unitCost")
+        .eq("itemId", itemData.itemId)
+        .single();
+
+      const fallbackCost = itemCost.data?.unitCost ?? 0;
+      const unitCost = await lookupBuyPriceFn(
+        itemData.itemId,
+        newQty,
+        fallbackCost
+      );
+
+      setItemData((d) => ({ ...d, unitCost }));
+    },
+    [carbon, itemData.methodType, itemData.itemId, lookupBuyPriceFn]
+  );
 
   const sourceDisclosure = useDisclosure();
   const backflushDisclosure = useDisclosure();
@@ -753,11 +800,10 @@ function MaterialForm({
         <Hidden name="kit" value={itemData.kit.toString()} />
         <Hidden name="order" />
 
-        {itemData.methodType === "Make" && (
+        {itemData.methodType === "Make to Order" && (
           <Hidden name="unitCost" value={itemData.unitCost} />
         )}
       </div>
-
       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
         <Item
           blacklist={[params.itemId!]}
@@ -773,7 +819,12 @@ function MaterialForm({
           onTypeChange={onTypeChange}
         />
 
-        <Number name="quantity" label="Quantity" />
+        <NumberControlled
+          name="quantity"
+          label="Quantity"
+          value={itemData.quantity}
+          onChange={onQuantityChange}
+        />
         <UnitOfMeasure
           name="unitOfMeasureCode"
           value={itemData.unitOfMeasureCode}
@@ -793,7 +844,7 @@ function MaterialForm({
           }}
           className="col-span-2"
         />
-        {itemData.methodType !== "Make" && (
+        {itemData.methodType !== "Make to Order" && (
           <NumberControlled
             name="unitCost"
             label="Unit Cost"
@@ -806,14 +857,13 @@ function MaterialForm({
           />
         )}
       </div>
-
       <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
         <HStack
           className="w-full justify-between cursor-pointer"
           onClick={sourceDisclosure.onToggle}
         >
           <HStack>
-            {itemData.methodType === "Make" ? (
+            {itemData.methodType === "Make to Order" ? (
               <>
                 <LuGitPullRequestCreate />
                 <Label>Finish To</Label>
@@ -831,13 +881,19 @@ function MaterialForm({
               {itemData.methodType}
             </Badge>
             <LuArrowLeft
-              className={cn(itemData.methodType !== "Pick" ? "rotate-180" : "")}
+              className={cn(
+                itemData.methodType !== "Pull from Inventory"
+                  ? "rotate-180"
+                  : ""
+              )}
             />
             <Badge variant="secondary">
               <LuGitPullRequest className="size-3 mr-1" />
               {shelves.options?.find((s) => s.value === itemData.shelfId)
                 ?.label ??
-                (itemData.methodType === "Make" ? "WIP" : "Default Shelf")}
+                (itemData.methodType === "Make to Order"
+                  ? "WIP"
+                  : "Default Shelf")}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -881,7 +937,6 @@ function MaterialForm({
           />
         </div>
       </div>
-
       <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
         <HStack
           className="w-full justify-between cursor-pointer"
@@ -943,7 +998,6 @@ function MaterialForm({
           />
         </div>
       </div>
-
       <motion.div
         className="flex flex-1 items-center justify-end w-full pt-2"
         initial={{ opacity: 0, filter: "blur(4px)" }}
@@ -958,11 +1012,13 @@ function MaterialForm({
           layout
           className="flex items-center justify-between gap-2 w-full"
         >
-          {itemData.methodType === "Make" ? (
+          {itemData.methodType === "Make to Order" ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  leftIcon={<MethodIcon type={"Make"} isKit={itemData.kit} />}
+                  leftIcon={
+                    <MethodIcon type={"Make to Order"} isKit={itemData.kit} />
+                  }
                   variant="secondary"
                   size="sm"
                   rightIcon={<LuChevronDown />}

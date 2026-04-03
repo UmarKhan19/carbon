@@ -104,8 +104,9 @@ const GroupedContentSidebar = ({
                         variant={isActive ? "active" : "ghost"}
                         className={cn(
                           "justify-start flex-grow truncate",
-                          !isActive &&
-                            "hover:bg-active hover:text-active-foreground hover:scale-100 focus-visible:scale-100"
+                          isActive
+                            ? "shadow-none dark:shadow-button-base"
+                            : "hover:bg-active hover:text-active-foreground hover:scale-100 focus-visible:scale-100"
                         )}
                       >
                         <Link
@@ -231,9 +232,10 @@ const ViewsReorderGroup = ({
                 asChild
                 variant={isViewActive ? "active" : "ghost"}
                 className={cn(
-                  "justify-start text-sm pl-7 pr-7 truncate flex-grow",
-                  !isViewActive &&
-                    "hover:bg-active hover:text-active-foreground"
+                  "justify-start text-sm pl-7 pr-7 truncate flex-grow !shadow-none",
+                  isViewActive
+                    ? "shadow-none border-active-foreground/30 dark:border-none dark:shadow-button-base"
+                    : "hover:bg-active hover:text-active-foreground"
                 )}
               >
                 <Link to={view.to} prefetch="intent">

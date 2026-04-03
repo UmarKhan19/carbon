@@ -31,9 +31,10 @@ import {
   Submit
 } from "~/components/Form";
 import ExchangeRate from "~/components/Form/ExchangeRate";
-import { usePermissions, useUser } from "~/hooks";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
-import { quoteValidator } from "../../sales.models";
+import { isQuoteLocked, quoteValidator } from "../../sales.models";
+import type { Quotation } from "../../types";
 
 type QuoteFormValues = z.infer<typeof quoteValidator>;
 
@@ -48,20 +49,29 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
   const [customer, setCustomer] = useState<{
     id: string | undefined;
     currencyCode: string | undefined;
+    customerContactId: string | undefined;
+    customerLocationId: string | undefined;
   }>({
     id: initialValues.customerId,
-    currencyCode: initialValues.currencyCode
+    currencyCode: initialValues.currencyCode,
+    customerContactId: initialValues.customerContactId,
+    customerLocationId: initialValues.customerLocationId
   });
   const isCustomer = permissions.is("customer");
-  const isDisabled = initialValues?.status !== "Draft";
   const isEditing = initialValues.id !== undefined;
+
+  const routeData = useRouteData<{
+    quote: Quotation;
+  }>(path.to.quote(initialValues.id ?? ""));
+
+  const isLocked = isQuoteLocked(routeData?.quote?.status);
+  const isDisabled = isEditing && isLocked;
 
   const exchangeRateFetcher = useFetcher<{ exchangeRate: number }>();
 
   const onCustomerChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -74,13 +84,17 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         // update the customer immediately
         setCustomer({
           id: newValue?.value,
-          currencyCode: undefined
+          currencyCode: undefined,
+          customerContactId: undefined,
+          customerLocationId: undefined
         });
       });
 
       const { data, error } = await carbon
         ?.from("customer")
-        .select("currencyCode")
+        .select(
+          "currencyCode, salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+        )
         .eq("id", newValue.value)
         .single();
       if (error) {
@@ -88,13 +102,18 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
       } else {
         setCustomer((prev) => ({
           ...prev,
-          currencyCode: data.currencyCode ?? undefined
+          currencyCode: data.currencyCode ?? undefined,
+          customerContactId: data.salesContactId ?? undefined,
+          customerLocationId:
+            data.customerShipping?.shippingCustomerLocationId ?? undefined
         }));
       }
     } else {
       setCustomer({
         id: undefined,
-        currencyCode: undefined
+        currencyCode: undefined,
+        customerContactId: undefined,
+        customerLocationId: undefined
       });
     }
   };
@@ -105,6 +124,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         method="post"
         validator={quoteValidator}
         defaultValues={initialValues}
+        isDisabled={isDisabled}
       >
         <CardHeader>
           <CardTitle>{isEditing ? "Quote" : "New Quote"}</CardTitle>
@@ -136,7 +156,11 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 autoFocus={!isEditing}
                 name="customerId"
                 label="Customer"
-                onChange={onCustomerChange}
+                onChange={(newValue) => {
+                  if (newValue?.value) {
+                    onCustomerChange(newValue);
+                  }
+                }}
               />
               <Input name="customerReference" label="Customer RFQ" />
               <CustomerContact
@@ -144,6 +168,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 label="Purchasing Contact"
                 isOptional
                 customer={customer.id}
+                value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
@@ -156,11 +181,11 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 label="Customer Location"
                 isOptional
                 customer={customer.id}
+                value={customer.customerLocationId}
               />
               <Employee name="salesPersonId" label="Sales Person" isOptional />
               <Employee name="estimatorId" label="Estimator" isOptional />
               <Location name="locationId" label="Quote Location" />
-
               <DatePicker
                 name="dueDate"
                 label="Due Date"
@@ -171,7 +196,6 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 label="Expiration Date"
                 isDisabled={isCustomer}
               />
-
               <Currency
                 name="currencyCode"
                 label="Currency"
@@ -190,7 +214,6 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                   }
                 }}
               />
-
               {isEditing &&
                 !!customer.currencyCode &&
                 customer.currencyCode !== company.baseCurrencyCode && (
@@ -214,7 +237,6 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                     }}
                   />
                 )}
-
               <CustomFormFields table="quote" />
             </div>
           </VStack>

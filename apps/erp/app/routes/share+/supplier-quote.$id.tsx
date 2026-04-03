@@ -1,4 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Input, TextArea, ValidatedForm } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import {
@@ -192,8 +192,8 @@ const EditableBadge = () => {
 };
 
 const Header = ({ company, quote }: { company: any; quote: any }) => (
-  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-4 sm:space-y-2 pb-7">
-    <VStack spacing={4}>
+  <div className="flex justify-between">
+    <VStack spacing={4} className="tracking-tight">
       <div>
         <CardTitle className="text-3xl">{company?.name ?? ""}</CardTitle>
         {quote?.supplierQuoteId && (
@@ -215,7 +215,7 @@ const Header = ({ company, quote }: { company: any; quote: any }) => (
         </span>
       ) : null}
     </VStack>
-  </CardHeader>
+  </div>
 );
 
 const NotesEditorModal = ({
@@ -815,11 +815,32 @@ const Quote = ({
     }
   }, [fetcher.state, submitModal, declineModal]);
 
-  // Initialize selected lines - don't select by default
+  // Initialize selected lines from existing pricing data
   const [selectedLines, setSelectedLines] = useState<
     Record<string, Record<number, SelectedLine>>
   >(() => {
-    return {};
+    const initial: Record<string, Record<number, SelectedLine>> = {};
+    for (const price of quoteLinePrices) {
+      if (!price.supplierQuoteLineId) continue;
+      if (
+        (price.supplierUnitPrice && price.supplierUnitPrice > 0) ||
+        (price.leadTime && price.leadTime > 0)
+      ) {
+        if (!initial[price.supplierQuoteLineId]) {
+          initial[price.supplierQuoteLineId] = {};
+        }
+        initial[price.supplierQuoteLineId][price.quantity] = {
+          quantity: price.quantity,
+          supplierUnitPrice: price.supplierUnitPrice ?? 0,
+          unitPrice: price.unitPrice ?? 0,
+          leadTime: price.leadTime ?? 0,
+          shippingCost: price.shippingCost ?? 0,
+          supplierShippingCost: price.supplierShippingCost ?? 0,
+          supplierTaxAmount: price.supplierTaxAmount ?? 0
+        };
+      }
+    }
+    return initial;
   });
 
   // Handler to save notes for a line
@@ -858,17 +879,20 @@ const Quote = ({
         />
       )}
       <Card className="w-full max-w-5xl mx-auto">
-        <div className="w-full text-center">
-          {quote?.status && (quote?.status as string) !== "Draft" && (
-            <Status
-              className="inline-flex"
-              color={quote.status === "Active" ? "green" : "gray"}
-            >
-              {quote.status}
-            </Status>
-          )}
-        </div>
-        <Header company={company} quote={quote} />
+        <CardHeader>
+          <div className="w-full text-center">
+            {quote?.status && (quote?.status as string) !== "Draft" && (
+              <Status
+                className="inline-flex"
+                color={quote.status === "Active" ? "green" : "gray"}
+              >
+                {quote.status}
+              </Status>
+            )}
+          </div>
+
+          <Header company={company} quote={quote} />
+        </CardHeader>
         <CardContent>
           <LineItems
             currencyCode={quote.currencyCode ?? "USD"}

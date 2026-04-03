@@ -197,7 +197,7 @@ export function RevisionsItem({
     <>
       <div className="relative w-full">
         <button
-          className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-muted/90 w-full font-medium"
+          className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-accent w-full font-medium"
           onClick={(e) => {
             e.stopPropagation();
             setIsExpanded(!isExpanded);
@@ -255,8 +255,8 @@ export function RevisionsItem({
                   <Hyperlink
                     to={getUseInLink(child, node.key, "")}
                     className={cn(
-                      "pr-6 flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-muted/90 w-full font-medium whitespace-nowrap",
-                      isActive && "bg-muted/90"
+                      "pr-6 flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-accent w-full font-medium whitespace-nowrap",
+                      isActive && "bg-accent"
                     )}
                   >
                     <LevelLine isSelected={isActive} className="mr-2" />
@@ -394,7 +394,7 @@ export function UsedInItem({
   return (
     <>
       <button
-        className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-muted/90 w-full font-medium"
+        className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-2 gap-2 text-sm hover:bg-accent w-full font-medium"
         onClick={(e) => {
           e.stopPropagation();
           setIsExpanded(!isExpanded);
@@ -424,7 +424,7 @@ export function UsedInItem({
               <Hyperlink
                 key={index}
                 to={getUseInLink(child, node.key, itemReadableIdWithRevision)}
-                className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-muted/90 w-full font-medium whitespace-nowrap"
+                className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-accent w-full font-medium whitespace-nowrap"
               >
                 <LevelLine isSelected={false} className="mr-2" />
                 {child.methodType === "Shipment" ? (

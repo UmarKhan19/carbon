@@ -1,4 +1,5 @@
 import type {
+  PostgrestClientOptions,
   PostgrestError,
   PostgrestFilterBuilder
 } from "@supabase/postgrest-js";
@@ -25,6 +26,7 @@ export type PaginatedResult<T> =
  */
 export async function fetchAllRecords<T extends object>(
   baseQuery: PostgrestFilterBuilder<
+    PostgrestClientOptions,
     Database["public"],
     Record<string, unknown>,
     T[]
@@ -82,7 +84,7 @@ export async function fetchAllFromTable<T extends object>(
   filterFn?: (query: any) => any
 ): Promise<PaginatedResult<T>> {
   let baseQuery = client
-    // @ts-ignore
+    // @ts-expect-error
     .from(tableName)
     .select(selectColumns, { count: "exact" });
 
@@ -90,7 +92,7 @@ export async function fetchAllFromTable<T extends object>(
     baseQuery = filterFn(baseQuery);
   }
 
-  // @ts-ignore
+  // @ts-expect-error
   return fetchAllRecords(baseQuery);
 }
 
@@ -100,6 +102,7 @@ export async function fetchAllFromTable<T extends object>(
  */
 export async function* fetchRecordsInBatches<T extends object>(
   baseQuery: PostgrestFilterBuilder<
+    PostgrestClientOptions,
     Database["public"],
     Record<string, unknown>,
     T[]

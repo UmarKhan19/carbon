@@ -51,7 +51,6 @@ import {
   Hidden,
   InputControlled,
   Item,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Select,
@@ -136,7 +135,10 @@ function makeItem(
         <div className="flex items-center gap-2 group">
           <h3 className="font-semibold truncate">{itemReadableId ?? ""}</h3>
           {material.itemId && material.itemType && (
-            <Link to={getLinkToItemDetails(material.itemType, material.itemId)}>
+            <Link
+              to={getLinkToItemDetails(material.itemType, material.itemId)}
+              onClick={(e) => e.stopPropagation()}
+            >
               <LuExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100" />
             </Link>
           )}
@@ -204,7 +206,7 @@ const initialMethodMaterial: Omit<Material, "jobMakeMethodId" | "order"> & {
   itemId: "",
   // @ts-ignore
   itemType: "Item" as const,
-  methodType: "Buy" as const,
+  methodType: "Purchase to Order" as const,
   description: "",
   quantity: 1,
   unitCost: 0,
@@ -675,7 +677,7 @@ function MaterialForm({
     shelfId?: string;
   }>({
     itemId: item.data.itemId ?? "",
-    methodType: item.data.methodType ?? "Buy",
+    methodType: item.data.methodType ?? "Pull from Inventory",
     description: item.data.description ?? "",
     jobOperationId: item.data.jobOperationId ?? "",
     unitCost: item.data.unitCost ?? 0,
@@ -693,7 +695,7 @@ function MaterialForm({
 
     setItemData({
       itemId: "",
-      methodType: "" as "Buy",
+      methodType: "" as "Pull from Inventory",
       quantity: 1,
       unitCost: 0,
       description: "",
@@ -743,7 +745,7 @@ function MaterialForm({
       description: item.data?.name ?? "",
       unitCost: itemCost.data?.unitCost ?? 0,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Buy",
+      methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
       requiresBatchTracking: item.data?.itemTrackingType === "Batch",
       requiresSerialTracking: item.data?.itemTrackingType === "Serial",
       shelfId: pickMethod.data?.defaultShelfId ?? ""
@@ -795,7 +797,7 @@ function MaterialForm({
           name="requiresSerialTracking"
           value={itemData.requiresSerialTracking.toString()}
         />
-        {itemData.methodType === "Make" && (
+        {itemData.methodType === "Make to Order" && (
           <Hidden name="unitCost" value={itemData.unitCost} />
         )}
       </div>
@@ -835,7 +837,7 @@ function MaterialForm({
           }}
           className="col-span-2"
         />
-        {itemData.methodType !== "Make" && (
+        {itemData.methodType !== "Make to Order" && (
           <NumberControlled
             name="unitCost"
             label="Unit Cost"
@@ -855,7 +857,7 @@ function MaterialForm({
           onClick={sourceDisclosure.onToggle}
         >
           <HStack>
-            {itemData.methodType === "Make" ? (
+            {itemData.methodType === "Make to Order" ? (
               <>
                 <LuGitPullRequestCreate />
                 <Label>Finish To</Label>
@@ -873,13 +875,19 @@ function MaterialForm({
               {itemData.methodType}
             </Badge>
             <LuArrowLeft
-              className={cn(itemData.methodType !== "Pick" ? "rotate-180" : "")}
+              className={cn(
+                itemData.methodType !== "Pull from Inventory"
+                  ? "rotate-180"
+                  : ""
+              )}
             />
             <Badge variant="secondary">
               <LuGitPullRequest className="size-3 mr-1" />
               {shelves.options?.find((s) => s.value === itemData.shelfId)
                 ?.label ??
-                (itemData.methodType === "Make" ? "WIP" : "Default Shelf")}
+                (itemData.methodType === "Make to Order"
+                  ? "WIP"
+                  : "Default Shelf")}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -1005,11 +1013,13 @@ function MaterialForm({
           layout
           className="flex items-center justify-between gap-2 w-full"
         >
-          {itemData.methodType === "Make" ? (
+          {itemData.methodType === "Make to Order" ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  leftIcon={<MethodIcon type={"Make"} isKit={itemData.kit} />}
+                  leftIcon={
+                    <MethodIcon type={"Make to Order"} isKit={itemData.kit} />
+                  }
                   variant="secondary"
                   size="sm"
                   rightIcon={<LuChevronDown />}

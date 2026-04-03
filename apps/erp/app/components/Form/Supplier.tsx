@@ -2,7 +2,7 @@ import type { CreatableComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { useDisclosure } from "@carbon/react";
 import { useMemo, useRef, useState } from "react";
-import { useUser } from "~/hooks";
+import { useSettings, useUser } from "~/hooks";
 import { SupplierForm } from "~/modules/purchasing/ui/Supplier";
 import { useSuppliers } from "~/stores";
 import SupplierAvatar from "../SupplierAvatar";
@@ -13,16 +13,23 @@ type SupplierSelectProps = Omit<
 > & {
   inline?: boolean;
   allowedSuppliers?: string[];
+  onlyApproved?: boolean;
 };
 
 const SupplierPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   return <SupplierAvatar supplierId={value} />;
 };
 
-const Supplier = ({ allowedSuppliers, ...props }: SupplierSelectProps) => {
+const Supplier = ({
+  allowedSuppliers,
+  onlyApproved,
+  ...props
+}: SupplierSelectProps) => {
+  const settings = useSettings();
+  const supplierApprovalRequired = settings?.supplierApproval ?? false;
   const [suppliers] = useSuppliers();
   const newSuppliersModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
@@ -32,11 +39,12 @@ const Supplier = ({ allowedSuppliers, ...props }: SupplierSelectProps) => {
     () =>
       suppliers
         .filter((s) => !allowedSuppliers || allowedSuppliers.includes(s.id))
+        .filter((s) => !onlyApproved || s.supplierStatus === "Active")
         .map((c) => ({
           value: c.id,
           label: c.name
         })) ?? [],
-    [suppliers, allowedSuppliers]
+    [suppliers, allowedSuppliers, onlyApproved]
   );
 
   const { company } = useUser();
@@ -64,7 +72,8 @@ const Supplier = ({ allowedSuppliers, ...props }: SupplierSelectProps) => {
           }}
           initialValues={{
             name: created,
-            currencyCode: company.baseCurrencyCode
+            currencyCode: company.baseCurrencyCode,
+            supplierStatus: supplierApprovalRequired ? "Pending" : undefined
           }}
         />
       )}

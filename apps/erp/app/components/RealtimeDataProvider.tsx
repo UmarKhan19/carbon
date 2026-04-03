@@ -2,7 +2,7 @@
 
 import { useCarbon } from "@carbon/auth";
 import { fetchAllFromTable } from "@carbon/database";
-import { useRealtimeChannel } from "@carbon/react";
+import { useInterval, useRealtimeChannel } from "@carbon/react";
 import { useEffect } from "react";
 import { useUser } from "~/hooks";
 import { useCustomers, useItems, usePeople, useSuppliers } from "~/stores";
@@ -27,6 +27,46 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
   const [, setSuppliers] = useSuppliers();
   const [, setCustomers] = useCustomers();
   const [, setPeople] = usePeople();
+
+  const fetchQuantities = async () => {
+    if (!carbon || !companyId) return;
+
+    const { data, error } = await fetchAllFromTable<{
+      itemId: string;
+      locationId: string;
+      quantityOnHand: number;
+    }>(
+      carbon,
+      // @ts-ignore -- itemStockQuantities is a materialized view
+      "itemStockQuantities",
+      "itemId, locationId, quantityOnHand",
+      (query) => query.eq("companyId", companyId)
+    );
+
+    if (error || !data) return;
+
+    const totalMap = new Map<string, number>();
+    const locationMap = new Map<string, Record<string, number>>();
+
+    for (const row of data) {
+      if (!row.itemId) continue;
+      const qty = Number(row.quantityOnHand) || 0;
+      const locId = row.locationId || "";
+
+      totalMap.set(row.itemId, (totalMap.get(row.itemId) ?? 0) + qty);
+
+      if (!locationMap.has(row.itemId)) locationMap.set(row.itemId, {});
+      if (locId) locationMap.get(row.itemId)![locId] = qty;
+    }
+
+    setItems((currentItems) =>
+      currentItems.map((item) => ({
+        ...item,
+        quantityOnHand: totalMap.get(item.id) ?? 0,
+        quantityByLocation: locationMap.get(item.id) ?? {}
+      }))
+    );
+  };
 
   const hydrate = async () => {
     const idb = (await import("localforage")).default;
@@ -74,7 +114,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
         id: string;
         name: string;
         website: string;
-      }>(carbon, "supplier", "id, name, website", (query) =>
+        supplierStatus: string;
+      }>(carbon, "supplier", "id, name, website, supplierStatus", (query) =>
         query.eq("companyId", companyId).order("name")
       ),
       fetchAllFromTable<{
@@ -122,6 +163,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
     idb.setItem("suppliers", suppliers.data);
     idb.setItem("customers", customers.data);
     idb.setItem("people", people.data);
+
+    fetchQuantities();
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -129,6 +172,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
     if (!companyId) return;
     hydrate();
   }, [companyId]);
+
+  useInterval(fetchQuantities, companyId ? 10 * 60 * 1000 : null);
 
   useRealtimeChannel({
     topic: `realtime:core`,
@@ -288,7 +333,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                     {
                       id: inserted.id,
                       name: inserted.name,
-                      website: inserted.website
+                      website: inserted.website,
+                      supplierStatus: inserted.supplierStatus
                     }
                   ].sort((a, b) => a.name.localeCompare(b.name))
                 );
@@ -302,7 +348,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                         return {
                           ...p,
                           name: updated.name,
-                          website: updated.website
+                          website: updated.website,
+                          supplierStatus: updated.supplierStatus
                         };
                       }
                       return p;

@@ -12,7 +12,7 @@ type SalesOrderStatusProps = {
   }>;
   lines?: Array<{
     id: string;
-    methodType: "Buy" | "Make" | "Pick";
+    methodType: "Purchase to Order" | "Make to Order" | "Pull from Inventory";
     saleQuantity: number;
   }>;
 };

@@ -13,23 +13,27 @@ import {
 } from "@carbon/react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
+import { useParams } from "react-router";
 import type { z } from "zod";
 import {
   Currency,
   CustomFormFields,
   Hidden,
   Input,
+  Location,
   SequenceOrCustomId,
   Submit,
   Supplier,
   SupplierContact,
   SupplierLocation
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 import {
   purchaseOrderTypeType,
   purchaseOrderValidator
 } from "~/modules/purchasing";
+import { path } from "~/utils/path";
+import { isPurchaseOrderLocked } from "../../purchasing.models";
 
 type PurchaseOrderFormValues = z.infer<typeof purchaseOrderValidator>;
 
@@ -39,20 +43,28 @@ type PurchaseOrderFormProps = {
 
 const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
   const permissions = usePermissions();
+  const settings = useSettings();
   const { carbon } = useCarbon();
   const [supplier, setSupplier] = useState<{
     id: string | undefined;
     currencyCode: string | undefined;
+    supplierContactId: string | undefined;
   }>({
     id: initialValues.supplierId,
-    currencyCode: initialValues.currencyCode
+    currencyCode: initialValues.currencyCode,
+    supplierContactId: initialValues.supplierContactId
   });
   const isEditing = initialValues.id !== undefined;
+
+  const { orderId } = useParams();
+  const routeData = useRouteData<{ purchaseOrder: { status: string } }>(
+    orderId ? path.to.purchaseOrder(orderId) : ""
+  );
+  const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
   const onSupplierChange = async (
     newValue: {
       value: string | undefined;
-      label: string;
     } | null
   ) => {
     if (!carbon) {
@@ -65,13 +77,14 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
         // update the supplier immediately
         setSupplier({
           id: newValue?.value,
-          currencyCode: undefined
+          currencyCode: undefined,
+          supplierContactId: undefined
         });
       });
 
       const { data, error } = await carbon
         ?.from("supplier")
-        .select("currencyCode")
+        .select("currencyCode, purchasingContactId")
         .eq("id", newValue.value)
         .single();
       if (error) {
@@ -79,13 +92,15 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
       } else {
         setSupplier((prev) => ({
           ...prev,
-          currencyCode: data.currencyCode ?? undefined
+          currencyCode: data.currencyCode ?? undefined,
+          supplierContactId: data.purchasingContactId ?? undefined
         }));
       }
     } else {
       setSupplier({
         id: undefined,
-        currencyCode: undefined
+        currencyCode: undefined,
+        supplierContactId: undefined
       });
     }
   };
@@ -97,6 +112,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
         validator={purchaseOrderValidator}
         defaultValues={initialValues}
         className="w-full"
+        isDisabled={isEditing && isLocked}
       >
         <CardHeader>
           <CardTitle>
@@ -132,6 +148,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 name="supplierId"
                 label="Supplier"
                 onChange={onSupplierChange}
+                onlyApproved={settings?.supplierApproval ?? false}
               />
               <Input name="supplierReference" label="Supplier Order Number" />
               <SupplierLocation
@@ -143,8 +160,10 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 name="supplierContactId"
                 label="Supplier Contact"
                 supplier={supplier.id}
+                value={supplier.supplierContactId}
               />
 
+              <Location name="locationId" label="Location" />
               <Currency
                 name="currencyCode"
                 label="Currency"

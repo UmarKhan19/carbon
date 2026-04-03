@@ -12,6 +12,7 @@ import {
   LuMap,
   LuOctagonX,
   LuPencil,
+  LuShieldCheck,
   LuSquareStack,
   LuTrash,
   LuUser
@@ -151,6 +152,28 @@ const IssuesTable = memo(({ data, types, count }: IssuesTableProps) => {
               label: source,
               value: source
             }))
+          }
+        }
+      },
+      {
+        accessorKey: "containmentStatus",
+        header: "Containment",
+        cell: ({ row }) => {
+          const status = row.original.containmentStatus ?? "Uncontained";
+          return (
+            <Badge variant={status === "Contained" ? "green" : "orange"}>
+              {status}
+            </Badge>
+          );
+        },
+        meta: {
+          icon: <LuShieldCheck />,
+          filter: {
+            type: "static",
+            options: [
+              { label: "Contained", value: "Contained" },
+              { label: "Uncontained", value: "Uncontained" }
+            ]
           }
         }
       },

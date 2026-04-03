@@ -12,19 +12,19 @@ import { sendMagicLink, verifyAuthSession } from "@carbon/auth/auth.server";
 import { flash, getAuthSession } from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
 import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
-import { redis } from "@carbon/kv";
+import { Ratelimit, redis } from "@carbon/kv";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
   Button,
   Heading,
+  Separator,
   toast,
   VStack
 } from "@carbon/react";
 import { ItarLoginDisclaimer } from "@carbon/remix";
 import { Edition } from "@carbon/utils";
-import { Ratelimit } from "@upstash/ratelimit";
 import { LuCircleAlert } from "react-icons/lu";
 import type {
   ActionFunctionArgs,
@@ -185,18 +185,6 @@ export default function LoginRoute() {
                 </Alert>
               )}
 
-              <Input name="email" label="" placeholder="Email Address" />
-
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={fetcher.state === "submitting"}
-                size="lg"
-                className="w-full"
-                withBlocker={false}
-              >
-                Sign in with Email
-              </Submit>
-
               {hasGoogleAuth && (
                 <Button
                   type="button"
@@ -223,6 +211,25 @@ export default function LoginRoute() {
                   Sign in with Outlook
                 </Button>
               )}
+
+              {(hasGoogleAuth || hasOutlookAuth) && (
+                <div className="py-3 w-full">
+                  <Separator />
+                </div>
+              )}
+
+              <Input name="email" label="" placeholder="Email Address" />
+
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={fetcher.state === "submitting"}
+                size="lg"
+                className="w-full"
+                withBlocker={false}
+                variant="secondary"
+              >
+                Sign in with Email
+              </Submit>
             </VStack>
           </ValidatedForm>
         )}

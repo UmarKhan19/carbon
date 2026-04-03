@@ -12,7 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate, useParams } from "react-router";
 import type { z } from "zod";
 import {
@@ -20,14 +20,13 @@ import {
   Hidden,
   InputControlled,
   Item,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
-  Number,
   NumberControlled,
   Select,
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
 import { usePermissions, useUrlParams } from "~/hooks";
+import { lookupBuyPrice as lookupBuyPriceAsync } from "~/modules/items";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
@@ -68,7 +67,7 @@ const QuoteMaterialForm = ({
     quantity: number;
   }>({
     itemId: initialValues.itemId ?? "",
-    methodType: initialValues.methodType ?? "Buy",
+    methodType: initialValues.methodType ?? "Pull from Inventory",
     description: initialValues.description ?? "",
     unitCost: initialValues.unitCost ?? 0,
     unitOfMeasureCode: initialValues.unitOfMeasureCode ?? "EA",
@@ -80,13 +79,20 @@ const QuoteMaterialForm = ({
     setItemType(value as MethodItemType);
     setItemData({
       itemId: "",
-      methodType: "" as "Buy",
+      methodType: "" as "Pull from Inventory",
       quantity: 1,
       description: "",
       unitCost: 0,
       unitOfMeasureCode: "EA"
     });
   };
+
+  const lookupBuyPrice = useCallback(
+    async (itemId: string, qty: number, fallbackCost: number) => {
+      return lookupBuyPriceAsync(carbon, itemId, qty, fallbackCost);
+    },
+    [carbon]
+  );
 
   const onItemChange = async (itemId: string) => {
     if (!carbon) return;
@@ -107,15 +113,48 @@ const QuoteMaterialForm = ({
       return;
     }
 
+    let unitCost = itemCost.data?.unitCost ?? 0;
+    const isBuyPart = item.data?.defaultMethodType === "Purchase to Order";
+
+    if (isBuyPart) {
+      unitCost = await lookupBuyPrice(itemId, itemData.quantity ?? 1, unitCost);
+    }
+
     setItemData((d) => ({
       ...d,
       itemId,
       description: item.data?.name ?? "",
-      unitCost: itemCost.data?.unitCost ?? 0,
+      unitCost,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Buy"
+      methodType: item.data?.defaultMethodType ?? "Purchase to Order"
     }));
   };
+
+  const onQuantityChange = useCallback(
+    async (newQty: number) => {
+      setItemData((d) => ({ ...d, quantity: newQty }));
+
+      if (itemData.methodType !== "Purchase to Order" || !itemData.itemId)
+        return;
+      if (!carbon) return;
+
+      const itemCost = await carbon
+        .from("itemCost")
+        .select("unitCost")
+        .eq("itemId", itemData.itemId)
+        .single();
+
+      const fallbackCost = itemCost.data?.unitCost ?? 0;
+      const unitCost = await lookupBuyPrice(
+        itemData.itemId,
+        newQty,
+        fallbackCost
+      );
+
+      setItemData((d) => ({ ...d, unitCost }));
+    },
+    [carbon, itemData.methodType, itemData.itemId, lookupBuyPrice]
+  );
 
   const [, setSearchParams] = useUrlParams();
 
@@ -162,7 +201,7 @@ const QuoteMaterialForm = ({
         <CardContent>
           <Hidden name="quoteMakeMethodId" />
 
-          {itemData.methodType === "Make" && (
+          {itemData.methodType === "Make to Order" && (
             <Hidden name="unitCost" value={itemData.unitCost} />
           )}
           <Hidden name="order" />
@@ -202,7 +241,12 @@ const QuoteMaterialForm = ({
                 value={itemData.methodType}
                 replenishmentSystem="Buy and Make"
               />
-              <Number name="quantity" label="Quantity per Parent" />
+              <NumberControlled
+                name="quantity"
+                label="Quantity per Parent"
+                value={itemData.quantity}
+                onChange={onQuantityChange}
+              />
               <UnitOfMeasure
                 name="unitOfMeasureCode"
                 value={itemData.unitOfMeasureCode}
@@ -213,7 +257,7 @@ const QuoteMaterialForm = ({
                   }))
                 }
               />
-              {itemData.methodType !== "Make" && (
+              {itemData.methodType !== "Make to Order" && (
                 <NumberControlled
                   name="unitCost"
                   label="Unit Cost"

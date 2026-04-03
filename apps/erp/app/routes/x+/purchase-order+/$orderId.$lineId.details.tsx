@@ -15,10 +15,12 @@ import {
   useParams
 } from "react-router";
 import { CadModel } from "~/components";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
 import {
+  getPurchaseOrder,
   getPurchaseOrderLine,
   getSupplierInteractionLineDocuments,
+  isPurchaseOrderLocked,
   purchaseOrderLineValidator,
   upsertPurchaseOrderLine
 } from "~/modules/purchasing";
@@ -28,6 +30,7 @@ import {
   SupplierInteractionLineNotes
 } from "~/modules/purchasing/ui/SupplierInteraction";
 import { getCustomFields, setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -57,13 +60,52 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    create: "purchasing"
-  });
 
   const { orderId, lineId } = params;
   if (!orderId) throw new Error("Could not find orderId");
   if (!lineId) throw new Error("Could not find lineId");
+
+  // First check with view permission to get the PO status
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "purchasing"
+  });
+
+  // Get PO status and current line data
+  const [purchaseOrder, currentLine] = await Promise.all([
+    getPurchaseOrder(viewClient, orderId),
+    getPurchaseOrderLine(viewClient, lineId)
+  ]);
+
+  if (purchaseOrder.error) {
+    throw redirect(
+      path.to.purchaseOrderLine(orderId, lineId),
+      await flash(
+        request,
+        error(purchaseOrder.error, "Failed to load purchase order")
+      )
+    );
+  }
+
+  if (currentLine.error || !currentLine.data) {
+    throw redirect(
+      path.to.purchaseOrderLine(orderId, lineId),
+      await flash(
+        request,
+        error(currentLine.error, "Failed to load purchase order line")
+      )
+    );
+  }
+
+  await requireUnlocked({
+    request,
+    isLocked: isPurchaseOrderLocked(purchaseOrder.data?.status),
+    redirectTo: path.to.purchaseOrderLine(orderId, lineId),
+    message: "Cannot modify a confirmed purchase order."
+  });
+
+  const { client, userId } = await requirePermissions(request, {
+    update: "purchasing"
+  });
 
   const formData = await request.formData();
   const validation = await validator(purchaseOrderLineValidator).validate(
@@ -76,22 +118,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { id, ...d } = validation.data;
-
-  // if (d.purchaseOrderLineType === "G/L Account") {
-  //   d.assetId = undefined;
-  //   d.itemId = undefined;
-  // } else if (d.purchaseOrderLineType === "Fixed Asset") {
-  //   d.accountNumber = undefined;
-  //   d.itemId = undefined;
-  // } else
-  // if (d.purchaseOrderLineType === "Comment") {
-  //   d.accountNumber = undefined;
-  //   d.assetId = undefined;
-  //   d.itemId = undefined;
-  // } else {
-  //   d.accountNumber = undefined;
-  //   d.assetId = undefined;
-  // }
 
   const updatePurchaseOrderLine = await upsertPurchaseOrderLine(client, {
     id: lineId,
@@ -122,6 +148,10 @@ export default function EditPurchaseOrderLineRoute() {
   if (!lineId) throw new Error("lineId not found");
 
   const permissions = usePermissions();
+  const routeData = useRouteData<{
+    purchaseOrder: { status: string };
+  }>(path.to.purchaseOrder(orderId));
+  const isReadOnly = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
   const { line, files } = useLoaderData<typeof loader>();
 
@@ -132,19 +162,20 @@ export default function EditPurchaseOrderLineRoute() {
     itemId: line?.itemId ?? "",
     accountNumber: line?.accountNumber ?? "",
     assetId: line?.assetId ?? "",
+    conversionFactor: line?.conversionFactor ?? 1,
     description: line?.description ?? "",
-    purchaseQuantity: line?.purchaseQuantity ?? 1,
-    supplierUnitPrice: line?.supplierUnitPrice ?? 0,
-    supplierShippingCost: line?.supplierShippingCost ?? 0,
-    supplierTaxAmount: line?.supplierTaxAmount ?? 0,
     exchangeRate: line?.exchangeRate ?? 1,
-    locationId: line?.locationId ?? "",
-    purchaseUnitOfMeasureCode: line?.purchaseUnitOfMeasureCode ?? "",
     inventoryUnitOfMeasureCode: line?.inventoryUnitOfMeasureCode ?? "",
     jobId: line?.jobId ?? "",
     jobOperationId: line?.jobOperationId ?? "",
-    conversionFactor: line?.conversionFactor ?? 1,
+    locationId: line?.locationId ?? "",
+    purchaseQuantity: line?.purchaseQuantity ?? 1,
+    purchaseUnitOfMeasureCode: line?.purchaseUnitOfMeasureCode ?? "",
+    requestedDate: line?.requestedDate ?? undefined,
     shelfId: line?.shelfId ?? "",
+    supplierShippingCost: line?.supplierShippingCost ?? 0,
+    supplierTaxAmount: line?.supplierTaxAmount ?? 0,
+    supplierUnitPrice: line?.supplierUnitPrice ?? 0,
     taxPercent: line?.taxPercent ?? 0,
     ...getCustomFields(line?.customFields)
   };
@@ -178,12 +209,13 @@ export default function EditPurchaseOrderLineRoute() {
               id={orderId}
               lineId={lineId}
               type="Purchase Order"
+              isReadOnly={isReadOnly}
             />
           )}
         </Await>
       </Suspense>
       <CadModel
-        isReadOnly={!permissions.can("update", "purchasing")}
+        isReadOnly={isReadOnly || !permissions.can("update", "purchasing")}
         metadata={{
           itemId: line?.itemId ?? undefined
         }}

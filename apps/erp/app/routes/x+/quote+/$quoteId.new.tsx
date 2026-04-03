@@ -1,15 +1,22 @@
-import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
+import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { getSupplierPriceBreaksForItems } from "~/modules/items";
 import {
+  getQuote,
+  isQuoteLocked,
   quoteLineValidator,
   upsertQuoteLine,
-  upsertQuoteLineMethod
+  upsertQuoteLineMethod,
+  upsertQuoteLinePrices
 } from "~/modules/sales";
+import { lookupBuyPriceFromMap } from "~/modules/shared";
 import { setCustomFields } from "~/utils/form";
+import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -20,6 +27,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { quoteId } = params;
   if (!quoteId) throw new Error("Could not find quoteId");
+
+  const { client: viewClient } = await requirePermissions(request, {
+    view: "sales"
+  });
+  const quote = await getQuote(viewClient, quoteId);
+  await requireUnlocked({
+    request,
+    isLocked: isQuoteLocked(quote.data?.status),
+    redirectTo: path.to.quote(quoteId),
+    message: "Cannot modify a locked quote. Reopen it first."
+  });
 
   const formData = await request.formData();
   const validation = await validator(quoteLineValidator).validate(formData);
@@ -62,7 +80,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const quoteLineId = createQuotationLine.data.id;
-  if (d.methodType === "Make") {
+
+  if (d.methodType === "Purchase to Order") {
+    const quantities = d.quantity ?? [1];
+    const priceMap = await getSupplierPriceBreaksForItems(serviceRole, [
+      d.itemId
+    ]);
+    await upsertQuoteLinePrices(
+      serviceRole,
+      quoteId,
+      quoteLineId,
+      quantities.map((qty) => ({
+        quoteLineId,
+        quantity: qty,
+        unitPrice: lookupBuyPriceFromMap(d.itemId, qty, priceMap, 0),
+        leadTime: 0,
+        discountPercent: 0,
+        createdBy: userId
+      }))
+    );
+  }
+
+  if (d.methodType === "Make to Order") {
     const upsertMethod = await upsertQuoteLineMethod(serviceRole, {
       quoteId,
       quoteLineId,

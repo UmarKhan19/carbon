@@ -1,5 +1,5 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validator } from "@carbon/form";
 import type { notifyTask } from "@carbon/jobs/trigger/notify";
 import { NotificationEvent } from "@carbon/notifications";

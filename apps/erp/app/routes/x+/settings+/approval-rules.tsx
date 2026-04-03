@@ -1,5 +1,6 @@
-import { error, getCarbonServiceRole } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
@@ -59,18 +60,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
     (r) => r.documentType === "qualityDocument"
   );
 
+  const supplierRules = enrichedRules.filter(
+    (r) => r.documentType === "supplier"
+  );
+
   return {
     poRules,
-    qdRules
+    qdRules,
+    supplierRules
   };
 }
 
 export default function ApprovalSettingsRoute() {
-  const { poRules, qdRules } = useLoaderData<typeof loader>();
+  const { poRules, qdRules, supplierRules } = useLoaderData<typeof loader>();
 
   return (
     <>
-      <ApprovalRules poRules={poRules} qdRules={qdRules} />
+      <ApprovalRules
+        poRules={poRules}
+        qdRules={qdRules}
+        supplierRules={supplierRules}
+      />
       <Outlet />
     </>
   );

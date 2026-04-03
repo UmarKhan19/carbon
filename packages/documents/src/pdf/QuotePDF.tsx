@@ -1,13 +1,13 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { formatCityStatePostalCode } from "@carbon/utils";
+import { pluralize } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
-import type { PDF } from "../types";
+import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { getLineDescription, getLineDescriptionDetails } from "../utils/quote";
 import { getCurrencyFormatter } from "../utils/shared";
-import { Header, Note, Template } from "./components";
+import { Header, Note, PartyDetails, Template } from "./components";
 
 interface QuotePDFProps extends PDF {
   exchangeRate: number;
@@ -17,6 +17,10 @@ interface QuotePDFProps extends PDF {
   quoteLinePrices: Database["public"]["Tables"]["quoteLinePrice"]["Row"][];
   payment?: Database["public"]["Tables"]["quotePayment"]["Row"] | null;
   shipment?: Database["public"]["Tables"]["quoteShipment"]["Row"] | null;
+  accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
+  companySettings?:
+    | Database["public"]["Tables"]["companySettings"]["Row"]
+    | null;
   paymentTerms: { id: string; name: string }[];
   shippingMethods: { id: string; name: string }[];
   terms: JSONContent;
@@ -43,7 +47,9 @@ const tw = createTw({
 });
 
 const QuotePDF = ({
+  accountsReceivableBillingAddress,
   company,
+  companySettings,
   locale,
   meta,
   exchangeRate,
@@ -65,7 +71,7 @@ const QuotePDF = ({
     customerCity,
     customerStateProvince,
     customerPostalCode,
-    customerCountryName,
+    customerCountryCode,
     contactName,
     contactEmail
   } = quoteCustomerDetails;
@@ -73,7 +79,7 @@ const QuotePDF = ({
   const currencyCode = quote.currencyCode ?? company.baseCurrencyCode;
   const shouldConvertCurrency =
     !!currencyCode && currencyCode !== company.baseCurrencyCode;
-  const formatter = getCurrencyFormatter(currencyCode, locale);
+  const formatter = getCurrencyFormatter(currencyCode ?? "USD", locale);
 
   const pricesByLine = quoteLinePrices.reduce<
     Record<string, Database["public"]["Tables"]["quoteLinePrice"]["Row"][]>
@@ -81,7 +87,7 @@ const QuotePDF = ({
     if (!acc[price.quoteLineId]) {
       acc[price.quoteLineId] = [];
     }
-    acc[price.quoteLineId].push(price);
+    acc[price.quoteLineId]!.push(price);
     return acc;
   }, {});
 
@@ -90,14 +96,18 @@ const QuotePDF = ({
   );
 
   const hasSinglePricePerLine = quoteLines.every(
-    (line) => line.quantity.length === 1
+    (line) => (line.quantity ?? []).length === 1
   );
 
   // Check if any line has a lead time > 0
   const hasAnyLeadTime = quoteLines.some((line) => {
     if (line.status === "No Quote") return false;
-    const prices = pricesByLine[line.id] ?? [];
-    const price = prices.find((p) => p.quantity === line.quantity[0]);
+    const lineQuantity = line.quantity ?? [];
+    const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+    const price = prices.find(
+      (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+        p.quantity === lineQuantity[0]
+    );
     return price && price.leadTime > 0;
   });
 
@@ -109,24 +119,27 @@ const QuotePDF = ({
   const colWidth =
     columnCount === 3 ? "w-1/3" : columnCount === 4 ? "w-1/4" : "w-1/5";
 
-  // const getMaxLeadTime = () => {
-  //   let maxLeadTime = 0;
-  //   for (const line of quoteLines) {
-  //     if (line.status === "No Quote") continue;
-  //     const prices = pricesByLine[line.id] ?? [];
-  //     const price = prices.find((p) => p.quantity === line.quantity[0]);
-  //     if (price && price.leadTime > maxLeadTime) {
-  //       maxLeadTime = price.leadTime;
-  //     }
-  //   }
-  //   return maxLeadTime;
-  // };
+  const getMaxLeadTime = () => {
+    let maxLeadTime = 0;
+    for (const prices of Object.values(pricesByLine)) {
+      for (const price of prices) {
+        if (price && price.leadTime > maxLeadTime) {
+          maxLeadTime = price.leadTime;
+        }
+      }
+    }
+    return maxLeadTime;
+  };
 
   const getTotalSubtotal = () => {
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const lineQuantity = line.quantity ?? [];
+      const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+      const price = prices.find(
+        (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+          p.quantity === lineQuantity[0]
+      );
       return total + (price?.convertedNetExtendedPrice ?? 0);
     }, 0);
   };
@@ -134,8 +147,12 @@ const QuotePDF = ({
   const getTotalShipping = () => {
     const lineShipping = quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const lineQuantity = line.quantity ?? [];
+      const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+      const price = prices.find(
+        (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+          p.quantity === lineQuantity[0]
+      );
       return total + (price?.convertedShippingCost ?? 0);
     }, 0);
     const quoteShipping = (shipment?.shippingCost ?? 0) * (exchangeRate ?? 1);
@@ -146,9 +163,9 @@ const QuotePDF = ({
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
       const additionalCharges = line.additionalCharges ?? {};
-      const quantity = line.quantity[0];
+      const quantity = (line.quantity ?? [])[0];
       const charges = Object.values(additionalCharges).reduce((acc, charge) => {
-        let amount = charge.amounts?.[quantity] ?? 0;
+        let amount = quantity != null ? (charge.amounts?.[quantity] ?? 0) : 0;
         if (shouldConvertCurrency) {
           amount *= exchangeRate;
         }
@@ -161,20 +178,28 @@ const QuotePDF = ({
   const getTotalTaxes = () => {
     return quoteLines.reduce((total, line) => {
       if (line.status === "No Quote") return total;
-      const prices = pricesByLine[line.id] ?? [];
-      const price = prices.find((p) => p.quantity === line.quantity[0]);
+      const lineQuantity = line.quantity ?? [];
+      const prices = line.id != null ? (pricesByLine[line.id] ?? []) : [];
+      const price = prices.find(
+        (p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]) =>
+          p.quantity === lineQuantity[0]
+      );
       const netExtendedPrice = price?.convertedNetExtendedPrice ?? 0;
       const additionalCharges = line.additionalCharges ?? {};
-      const quantity = line.quantity[0];
-      const fees = Object.values(additionalCharges).reduce((acc, charge) => {
-        let amount = charge.amounts?.[quantity] ?? 0;
-        if (shouldConvertCurrency) {
-          amount *= exchangeRate;
-        }
-        return acc + amount;
-      }, 0);
+      const quantity = lineQuantity[0];
+      const taxableFees = Object.values(additionalCharges).reduce(
+        (acc, charge) => {
+          if (charge.taxable === false) return acc;
+          let amount = quantity != null ? (charge.amounts?.[quantity] ?? 0) : 0;
+          if (shouldConvertCurrency) {
+            amount *= exchangeRate;
+          }
+          return acc + amount;
+        },
+        0
+      );
       const lineShipping = price?.convertedShippingCost ?? 0;
-      const taxableAmount = netExtendedPrice + fees + lineShipping;
+      const taxableAmount = netExtendedPrice + taxableFees + lineShipping;
       return total + taxableAmount * (line.taxPercent ?? 0);
     }, 0);
   };
@@ -196,7 +221,7 @@ const QuotePDF = ({
     }
   };
 
-  // const maxLeadTime = getMaxLeadTime();
+  const maxLeadTime = getMaxLeadTime();
   let rowIndex = 0;
 
   return (
@@ -212,41 +237,44 @@ const QuotePDF = ({
         company={company}
         title="Quote"
         documentId={quote?.quoteId}
+        currencyCode={quote?.currencyCode}
       />
 
-      {/* Customer & Quote Details */}
+      <PartyDetails
+        company={company}
+        companyAddressOverride={
+          accountsReceivableBillingAddress
+            ? {
+                name: accountsReceivableBillingAddress.name,
+                addressLine1: accountsReceivableBillingAddress.addressLine1,
+                addressLine2: accountsReceivableBillingAddress.addressLine2,
+                city: accountsReceivableBillingAddress.city,
+                stateProvince: accountsReceivableBillingAddress.state,
+                postalCode: accountsReceivableBillingAddress.postalCode,
+                countryCode: accountsReceivableBillingAddress.countryCode
+              }
+            : undefined
+        }
+        companyLabel="Seller"
+        counterParty={{
+          name: customerName,
+          addressLine1: customerAddressLine1,
+          addressLine2: customerAddressLine2,
+          city: customerCity,
+          stateProvince: customerStateProvince,
+          postalCode: customerPostalCode,
+          countryCode: customerCountryCode,
+          contactName: contactName,
+          contactEmail: contactEmail
+        }}
+        counterPartyLabel="Buyer"
+        accountsReceivableEmail={companySettings?.accountsReceivableEmail}
+      />
+
+      {/* Quote Details & Notes */}
       <View style={tw("border border-gray-200 mb-4")}>
         <View style={tw("flex flex-row")}>
           <View style={tw("w-1/2 p-3 border-r border-gray-200")}>
-            <Text
-              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-            >
-              Customer
-            </Text>
-            <View style={tw("text-[10px] text-gray-800")}>
-              {customerName && (
-                <Text style={tw("font-bold")}>{customerName}</Text>
-              )}
-              {contactName && <Text>{contactName}</Text>}
-              {contactEmail && <Text>{contactEmail}</Text>}
-              {customerAddressLine1 && (
-                <Text style={tw("mt-1")}>{customerAddressLine1}</Text>
-              )}
-              {customerAddressLine2 && <Text>{customerAddressLine2}</Text>}
-              {(customerCity || customerStateProvince) && (
-                <Text>
-                  {formatCityStatePostalCode(
-                    customerCity,
-                    customerStateProvince,
-                    null
-                  )}
-                </Text>
-              )}
-              {customerPostalCode && <Text>{customerPostalCode}</Text>}
-              {customerCountryName && <Text>{customerCountryName}</Text>}
-            </View>
-          </View>
-          <View style={tw("w-1/2 p-3")}>
             <Text
               style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
             >
@@ -261,6 +289,26 @@ const QuotePDF = ({
               )}
               {quote.customerReference && (
                 <Text>Reference: {quote.customerReference}</Text>
+              )}
+              {maxLeadTime > 0 && (
+                <Text>
+                  Max Lead Time: {maxLeadTime} {pluralize(maxLeadTime, "day")}
+                </Text>
+              )}
+              {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+            </View>
+          </View>
+          <View style={tw("w-1/2 p-3")}>
+            <Text
+              style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
+            >
+              Notes
+            </Text>
+            <View style={tw("text-[10px] text-gray-800")}>
+              {Object.keys(quote?.externalNotes ?? {}).length > 0 ? (
+                <Note content={(quote.externalNotes ?? {}) as JSONContent} />
+              ) : (
+                <Text style={tw("text-gray-400")}>None</Text>
               )}
             </View>
           </View>
@@ -294,9 +342,9 @@ const QuotePDF = ({
         {/* Rows */}
         {quoteLines.map((line) => {
           const unitPriceFormatter = getCurrencyFormatter(
-            currencyCode,
+            currencyCode ?? "USD",
             locale,
-            line.unitPricePrecision
+            line.unitPricePrecision ?? 2
           );
 
           const additionalCharges = line.additionalCharges ?? {};
@@ -304,9 +352,14 @@ const QuotePDF = ({
           return (
             <View key={line.id} wrap={false}>
               {line.status !== "No Quote" ? (
-                line.quantity.map((quantity, index) => {
-                  const prices = pricesByLine[line.id] ?? [];
-                  const price = prices.find((p) => p.quantity === quantity);
+                (line.quantity ?? []).map((quantity, index) => {
+                  const prices =
+                    line.id != null ? (pricesByLine[line.id] ?? []) : [];
+                  const price = prices.find(
+                    (
+                      p: Database["public"]["Tables"]["quoteLinePrice"]["Row"]
+                    ) => p.quantity === quantity
+                  );
                   const unitPrice = price?.convertedUnitPrice ?? 0;
                   const netExtendedPrice =
                     price?.convertedNetExtendedPrice ?? 0;
@@ -325,11 +378,21 @@ const QuotePDF = ({
                     }
                     return acc + amount;
                   }, 0);
+                  const taxableAdditionalCharge = Object.values(
+                    additionalCharges
+                  ).reduce((acc, charge) => {
+                    if (charge.taxable === false) return acc;
+                    let amount = charge.amounts?.[quantity] ?? 0;
+                    if (shouldConvertCurrency) {
+                      amount *= exchangeRate;
+                    }
+                    return acc + amount;
+                  }, 0);
                   const shippingCost = price?.convertedShippingCost ?? 0;
                   const taxPercent = line.taxPercent ?? 0;
-                  const totalBeforeTax =
-                    netExtendedPrice + additionalCharge + shippingCost;
-                  const taxAmount = totalBeforeTax * taxPercent;
+                  const taxableBeforeTax =
+                    netExtendedPrice + taxableAdditionalCharge + shippingCost;
+                  const taxAmount = taxableBeforeTax * taxPercent;
                   const totalTaxAndFees =
                     additionalCharge + shippingCost + taxAmount;
                   const totalPrice = netExtendedPrice + totalTaxAndFees;
@@ -344,19 +407,72 @@ const QuotePDF = ({
                       )}
                     >
                       <View style={tw("w-1/3 pr-2")}>
-                        <Text style={tw("text-gray-800")}>
-                          {getLineDescription(line)}
-                        </Text>
-                        <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
-                          {getLineDescriptionDetails(line)}
-                        </Text>
-                        {thumbnails && line.id in thumbnails && (
-                          <View style={tw("mt-2")}>
-                            <Image
-                              src={thumbnails[line.id]!}
-                              style={{ width: 60, height: 60 }}
-                            />
-                          </View>
+                        {index === 0 && (
+                          <>
+                            <Text style={tw("text-gray-800")}>
+                              {getLineDescription(line)}
+                            </Text>
+                            <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
+                              {getLineDescriptionDetails(line)}
+                            </Text>
+                            {thumbnails &&
+                              line.id != null &&
+                              line.id in thumbnails && (
+                                <View style={tw("mt-2")}>
+                                  <Image
+                                    src={thumbnails[line.id]!}
+                                    style={{ width: 60, height: 60 }}
+                                  />
+                                </View>
+                              )}
+                            {Object.keys(line.externalNotes ?? {}).length >
+                              0 && (
+                              <View style={tw("mt-1")}>
+                                <Note
+                                  key={`${line.id}-notes`}
+                                  content={line.externalNotes as JSONContent}
+                                />
+                              </View>
+                            )}
+                            {totalTaxAndFees > 0 && (
+                              <View style={tw("mt-1")}>
+                                <Text
+                                  style={tw(
+                                    "text-[8px] text-gray-400 font-bold"
+                                  )}
+                                >
+                                  Tax & Fees
+                                </Text>
+                                {(price?.convertedShippingCost ?? 0) > 0 && (
+                                  <Text style={tw("text-[8px] text-gray-400")}>
+                                    - Shipping
+                                  </Text>
+                                )}
+                                {Object.values(additionalCharges)
+                                  .filter(
+                                    (charge) =>
+                                      charge.description &&
+                                      (charge.amounts?.[quantity] ?? 0) > 0
+                                  )
+                                  .sort((a, b) =>
+                                    a.description.localeCompare(b.description)
+                                  )
+                                  .map((charge) => (
+                                    <Text
+                                      key={charge.description}
+                                      style={tw("text-[8px] text-gray-400")}
+                                    >
+                                      - {charge.description}
+                                    </Text>
+                                  ))}
+                                {taxPercent > 0 && (
+                                  <Text style={tw("text-[8px] text-gray-400")}>
+                                    - Tax ({(taxPercent * 100).toFixed(0)}%)
+                                  </Text>
+                                )}
+                              </View>
+                            )}
+                          </>
                         )}
                       </View>
                       <View style={tw("w-2/3 flex flex-row")}>
@@ -393,7 +509,9 @@ const QuotePDF = ({
                               `${colWidth} text-right text-gray-600 pr-3`
                             )}
                           >
-                            {leadTime > 0 ? `${leadTime} days` : "-"}
+                            {leadTime > 0
+                              ? `${leadTime} ${pluralize(leadTime, "day")}`
+                              : "-"}
                           </Text>
                         )}
                         <Text
@@ -504,36 +622,7 @@ const QuotePDF = ({
         )}
       </View>
 
-      {/* Footer - Lead Time & Payment Terms */}
-      {(shipment?.leadTime || paymentTerm) && (
-        <View style={tw("flex flex-row gap-8 mb-4 text-[10px]")}>
-          {shipment?.leadTime ? (
-            <View style={tw("flex flex-row")}>
-              <Text style={tw("font-bold text-gray-800")}>Lead Time: </Text>
-              <Text style={tw("text-gray-600")}>
-                {shipment.leadTime} {shipment.leadTime === 1 ? "day" : "days"}
-              </Text>
-            </View>
-          ) : null}
-          {paymentTerm && (
-            <View style={tw("flex flex-row")}>
-              <Text style={tw("font-bold text-gray-800")}>Payment Terms: </Text>
-              <Text style={tw("text-gray-600")}>{paymentTerm.name}</Text>
-            </View>
-          )}
-        </View>
-      )}
-
-      {/* Notes & Terms */}
-      <View style={tw("flex flex-col gap-3 w-full")}>
-        {Object.keys(quote.externalNotes ?? {}).length > 0 && (
-          <Note
-            title="Notes"
-            content={(quote.externalNotes ?? {}) as JSONContent}
-          />
-        )}
-        <Note title="Standard Terms & Conditions" content={terms} />
-      </View>
+      <Note title="Standard Terms & Conditions" content={terms} />
     </Template>
   );
 };

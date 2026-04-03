@@ -1,16 +1,14 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   Badge,
   Button,
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   Combobox,
-  DateRangePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -27,7 +25,8 @@ import {
   Td,
   Th,
   Thead,
-  Tr
+  Tr,
+  VStack
 } from "@carbon/react";
 import type { ChartConfig } from "@carbon/react/Chart";
 import {
@@ -48,16 +47,18 @@ import { CSVLink } from "react-csv";
 import {
   LuArrowUpRight,
   LuChevronDown,
+  LuClock,
   LuCreditCard,
   LuEllipsisVertical,
   LuFile,
+  LuInbox,
   LuLayoutList,
   LuPackageSearch
 } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { Empty, Hyperlink, SupplierAvatar } from "~/components";
+import { DateSelect, Empty, Hyperlink, SupplierAvatar } from "~/components";
 import { useUser } from "~/hooks";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import type { PurchaseInvoice } from "~/modules/invoicing";
@@ -66,12 +67,13 @@ import type { PurchaseOrder, SupplierQuote } from "~/modules/purchasing";
 import { getPurchasingDocumentsAssignedToMe } from "~/modules/purchasing";
 import { KPIs } from "~/modules/purchasing/purchasing.models";
 import { PurchasingStatus } from "~/modules/purchasing/ui/PurchaseOrder";
+import { SupplierStatusIndicator } from "~/modules/purchasing/ui/Supplier/SupplierStatusIndicator";
 import { SupplierQuoteStatus } from "~/modules/purchasing/ui/SupplierQuote";
 import {
   type ApprovalRequest,
   getPendingApprovalsForApprover
 } from "~/modules/shared";
-import { chartIntervals } from "~/modules/shared/shared.models";
+
 import type { loader as kpiLoader } from "~/routes/api+/purchasing.kpi.$key";
 import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
@@ -93,7 +95,11 @@ const OPEN_PURCHASE_ORDER_STATUSES = [
   "To Invoice"
 ] as const;
 
-const chartConfig = {} satisfies ChartConfig;
+const chartConfig = {
+  value: {
+    color: "hsl(var(--primary))"
+  }
+} satisfies ChartConfig;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -119,11 +125,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
       .map((approval: ApprovalRequest) => approval.documentId!)
       .filter((id): id is string => !!id) ?? [];
 
+  // Extract supplier IDs that need approval and user can approve
+  const approvalSupplierIds =
+    pendingApprovals.data
+      ?.filter(
+        (approval: ApprovalRequest) =>
+          approval.documentType === "supplier" && approval.documentId
+      )
+      .map((approval: ApprovalRequest) => approval.documentId!)
+      .filter((id): id is string => !!id) ?? [];
+
   const [
     openPurchaseOrders,
     openPurchaseInvoices,
     openSupplierQuotes,
-    purchaseOrdersNeedingApproval
+    purchaseOrdersNeedingApproval,
+    suppliersNeedingApproval
   ] = await Promise.all([
     client
       .from("purchaseOrder")
@@ -158,6 +175,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
           .eq("status", "Needs Approval")
           .eq("companyId", companyId)
           .in("id", approvalPoIds)
+      : { data: [], error: null },
+    approvalSupplierIds.length > 0
+      ? client
+          .from("supplier")
+          .select("id, name, supplierStatus")
+          .eq("supplierStatus", "Pending")
+          .eq("companyId", companyId)
+          .in("id", approvalSupplierIds)
       : { data: [], error: null }
   ]);
 
@@ -172,6 +197,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     openSupplierQuotes: openSupplierQuotes,
     openPurchaseInvoices: openPurchaseInvoices,
     purchaseOrdersNeedingApproval: purchaseOrdersNeedingApproval,
+    suppliersNeedingApproval: suppliersNeedingApproval,
     assignedToMe: assignedToMePromise
   };
 }
@@ -182,6 +208,7 @@ export default function PurchaseDashboard() {
     openSupplierQuotes,
     openPurchaseInvoices,
     purchaseOrdersNeedingApproval,
+    suppliersNeedingApproval,
     assignedToMe
   } = useLoaderData<typeof loader>();
 
@@ -262,8 +289,6 @@ export default function PurchaseDashboard() {
     return { start, end };
   });
 
-  const selectedInterval =
-    chartIntervals.find((i) => i.key === interval) || chartIntervals[1];
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -296,19 +321,43 @@ export default function PurchaseDashboard() {
     setInterval(value);
   };
 
-  const total =
-    kpiFetcher.data?.data.reduce((acc, curr) => acc + curr.value, 0) ?? 0;
-  const previousTotal =
-    kpiFetcher.data?.previousPeriodData.reduce(
-      (acc, curr) => acc + curr.value,
-      0
-    ) ?? 0;
+  const totalData = useMemo(() => {
+    if (!kpiFetcher.data?.data) return null;
+    return {
+      value: kpiFetcher.data.data.reduce((acc, curr) => acc + curr.value, 0)
+    };
+  }, [kpiFetcher.data?.data]);
+
+  const previousTotalData = useMemo(() => {
+    if (!kpiFetcher.data?.previousPeriodData) return null;
+    return {
+      value: kpiFetcher.data.previousPeriodData.reduce(
+        (acc, curr) => acc + curr.value,
+        0
+      )
+    };
+  }, [kpiFetcher.data?.previousPeriodData]);
+
+  const total = totalData?.value ?? 0;
+  const previousTotal = previousTotalData?.value ?? 0;
+
   const percentageChange =
     previousTotal === 0
       ? total > 0
         ? 100
         : 0
       : ((total - previousTotal) / previousTotal) * 100;
+
+  const formatValue = (value: number) => {
+    if (
+      ["purchaseOrderAmount", "purchaseInvoiceAmount"].includes(
+        selectedKpiData.key
+      )
+    ) {
+      return currencyFormatter.format(value);
+    }
+    return numberFormatter.format(value);
+  };
 
   const csvData = useMemo(() => {
     if (!kpiFetcher.data?.data) return [];
@@ -330,99 +379,91 @@ export default function PurchaseDashboard() {
   return (
     <div className="flex flex-col gap-4 w-full p-4 h-[calc(100dvh-var(--header-height))] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-muted-foreground">
       <div className="grid w-full gap-4 grid-cols-1 lg:grid-cols-3">
-        <Card className="p-6 rounded-xl items-start justify-start gap-y-4">
-          <HStack className="justify-between w-full items-start mb-4">
-            <div className="bg-muted/80 border border-border rounded-xl p-2 text-foreground dark:shadow-md">
-              <LuPackageSearch className="size-5" />
-            </div>
-            <Button
-              size="sm"
-              rightIcon={<LuArrowUpRight />}
-              variant="secondary"
-              asChild
-            >
-              <Link
-                to={`${
-                  path.to.supplierQuotes
-                }?filter=status:in:${OPEN_SUPPLIER_QUOTE_STATUSES.join(",")}`}
+        <Card>
+          <CardHeader className="flex-row gap-2">
+            <LuPackageSearch className="text-muted-foreground" />
+            <CardTitle>Active Supplier Quotes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between w-full items-center">
+              <h3 className="text-5xl font-medium tracking-tighter">
+                {openSupplierQuotes.count ?? 0}
+              </h3>
+              <Button
+                rightIcon={<LuArrowUpRight />}
+                variant="secondary"
+                asChild
               >
-                View Active Quotes
-              </Link>
-            </Button>
-          </HStack>
-          <div className="flex flex-col gap-2">
-            <h3 className="text-3xl font-medium tracking-tight">
-              {openSupplierQuotes.count ?? 0}
-            </h3>
-            <p className="text-sm text-muted-foreground tracking-tight">
-              Active Supplier Quotes
-            </p>
-          </div>
+                <Link
+                  to={`${
+                    path.to.supplierQuotes
+                  }?filter=status:in:${OPEN_SUPPLIER_QUOTE_STATUSES.join(",")}`}
+                >
+                  View Active Quotes
+                </Link>
+              </Button>
+            </HStack>
+          </CardContent>
         </Card>
 
-        <Card className="p-6 items-start justify-start gap-y-4">
-          <HStack className="justify-between w-full items-start mb-4">
-            <div className="bg-muted/80 border border-border rounded-xl p-2 text-foreground dark:shadow-md">
-              <LuLayoutList className="size-5" />
-            </div>
-            <Button
-              size="sm"
-              rightIcon={<LuArrowUpRight />}
-              variant="secondary"
-            >
-              <Link
-                to={`${
-                  path.to.purchaseOrders
-                }?filter=status:in:${OPEN_PURCHASE_ORDER_STATUSES.join(",")}`}
+        <Card>
+          <CardHeader className="flex-row gap-2">
+            <LuLayoutList className="text-muted-foreground" />
+            <CardTitle>Open Purchase Orders</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between w-full items-center">
+              <h3 className="text-5xl font-medium tracking-tighter">
+                {openPurchaseOrders.count ?? 0}
+              </h3>
+              <Button
+                rightIcon={<LuArrowUpRight />}
+                variant="secondary"
+                asChild
               >
-                View Open POs
-              </Link>
-            </Button>
-          </HStack>
-          <div className="flex flex-col gap-2">
-            <h3 className="text-3xl font-medium tracking-tight">
-              {openPurchaseOrders.count ?? 0}
-            </h3>
-            <p className="text-sm text-muted-foreground tracking-tight">
-              Open Purchase Orders
-            </p>
-          </div>
+                <Link
+                  to={`${
+                    path.to.purchaseOrders
+                  }?filter=status:in:${OPEN_PURCHASE_ORDER_STATUSES.join(",")}`}
+                >
+                  View Open POs
+                </Link>
+              </Button>
+            </HStack>
+          </CardContent>
         </Card>
 
-        <Card className="p-6 items-start justify-start gap-y-4">
-          <HStack className="justify-between w-full items-start mb-4">
-            <div className="bg-muted/80 border border-border rounded-xl p-2 text-foreground dark:shadow-md">
-              <LuCreditCard className="size-5" />
-            </div>
-            <Button
-              size="sm"
-              rightIcon={<LuArrowUpRight />}
-              variant="secondary"
-              asChild
-            >
-              <Link
-                to={`${
-                  path.to.purchaseInvoices
-                }?filter=status:in:${OPEN_INVOICE_STATUSES.join(",")}`}
+        <Card>
+          <CardHeader className="flex-row gap-2">
+            <LuCreditCard className="text-muted-foreground" />
+            <CardTitle>Open Purchase Invoices</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between w-full items-center">
+              <h3 className="text-5xl font-medium tracking-tighter">
+                {openPurchaseInvoices.count ?? 0}
+              </h3>
+              <Button
+                rightIcon={<LuArrowUpRight />}
+                variant="secondary"
+                asChild
               >
-                View Open Invoices
-              </Link>
-            </Button>
-          </HStack>
-          <div className="flex flex-col gap-2">
-            <h3 className="text-3xl font-medium tracking-tight">
-              {openPurchaseInvoices.count ?? 0}
-            </h3>
-            <p className="text-sm text-muted-foreground tracking-tight">
-              Open Purchase Invoices
-            </p>
-          </div>
+                <Link
+                  to={`${
+                    path.to.purchaseInvoices
+                  }?filter=status:in:${OPEN_INVOICE_STATUSES.join(",")}`}
+                >
+                  View Open Invoices
+                </Link>
+              </Button>
+            </HStack>
+          </CardContent>
         </Card>
       </div>
 
-      <Card className="p-0">
-        <HStack className="justify-between items-start">
-          <CardHeader className="pb-0">
+      <Card>
+        <HStack className="justify-between items-center">
+          <CardHeader>
             <div className="flex w-full justify-start items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -448,40 +489,6 @@ export default function PurchaseDashboard() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    rightIcon={<LuChevronDown />}
-                    className="hover:bg-background/80"
-                  >
-                    <span>
-                      {selectedInterval.key === "custom"
-                        ? selectedInterval.label
-                        : `Last ${selectedInterval.label}`}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="bottom" align="start">
-                  <DropdownMenuRadioGroup
-                    value={interval}
-                    onValueChange={onIntervalChange}
-                  >
-                    {chartIntervals.map((i) => (
-                      <DropdownMenuRadioItem key={i.key} value={i.key}>
-                        {i.key === "custom" ? i.label : `Last ${i.label}`}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {interval === "custom" && (
-                <DateRangePicker
-                  size="sm"
-                  value={dateRange}
-                  onChange={setDateRange}
-                />
-              )}
               <Combobox
                 asButton
                 value={supplierId}
@@ -491,30 +498,14 @@ export default function PurchaseDashboard() {
                 className="font-medium text-sm min-w-[160px] gap-4"
               />
             </div>
-            <HStack className="pl-[3px] pt-1">
-              {isFetching ? (
-                <Skeleton className="h-8 w-1/2" />
-              ) : (
-                <>
-                  <p className="text-xl font-semibold tracking-tight">
-                    {["purchaseOrderAmount", "purchaseInvoiceAmount"].includes(
-                      selectedKpiData.key
-                    )
-                      ? currencyFormatter.format(total)
-                      : numberFormatter.format(total)}
-                  </p>
-                  {percentageChange >= 0 ? (
-                    <Badge variant="green">
-                      +{percentageChange.toFixed(0)}%
-                    </Badge>
-                  ) : (
-                    <Badge variant="red">{percentageChange.toFixed(0)}%</Badge>
-                  )}
-                </>
-              )}
-            </HStack>
           </CardHeader>
-          <CardAction className="py-6 px-6">
+          <CardAction className="flex-row items-center gap-2">
+            <DateSelect
+              value={interval}
+              onValueChange={onIntervalChange}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
@@ -538,7 +529,26 @@ export default function PurchaseDashboard() {
             </DropdownMenu>
           </CardAction>
         </HStack>
-        <CardContent className="p-6">
+        <CardContent className="flex-col gap-4">
+          <VStack className="pl-[3px]" spacing={0}>
+            {isFetching ? (
+              <div className="flex flex-col gap-0.5 w-full">
+                <Skeleton className="h-8 w-[120px]" />
+                <Skeleton className="h-4 w-[50px]" />
+              </div>
+            ) : (
+              <>
+                <p className="text-3xl font-medium tracking-tighter">
+                  {formatValue(total)}
+                </p>
+                {percentageChange >= 0 ? (
+                  <Badge variant="green">+{percentageChange.toFixed(0)}%</Badge>
+                ) : (
+                  <Badge variant="red">{percentageChange.toFixed(0)}%</Badge>
+                )}
+              </>
+            )}
+          </VStack>
           <Loading
             isLoading={isFetching}
             className="h-[30dvw] md:h-[23dvw] w-full"
@@ -603,7 +613,7 @@ export default function PurchaseDashboard() {
                     />
                   }
                 />
-                <Bar dataKey="value" className="fill-violet-600" radius={2} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={2} />
               </BarChart>
             </ChartContainer>
           </Loading>
@@ -611,11 +621,9 @@ export default function PurchaseDashboard() {
       </Card>
       <div className="grid w-full gap-4 grid-cols-1 lg:grid-cols-2">
         <Card>
-          <CardHeader className="px-6 pb-0">
+          <CardHeader className="flex-row gap-2">
+            <LuClock className="text-muted-foreground" />
             <CardTitle>Recently Created</CardTitle>
-            <CardDescription className="text-sm">
-              Recently created purchasing documents
-            </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <div className="min-h-[200px] max-h-[360px] w-full overflow-y-auto">
@@ -668,13 +676,11 @@ export default function PurchaseDashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="px-6 pb-0">
+          <CardHeader className="flex-row gap-2">
+            <LuInbox className="text-muted-foreground" />
             <CardTitle>Assigned to Me</CardTitle>
-            <CardDescription className="text-sm">
-              Purchasing documents assigned to me and pending approvals
-            </CardDescription>
           </CardHeader>
-          <CardContent className="p-6 min-h-[200px]">
+          <CardContent className="min-h-[200px]">
             <Suspense fallback={<Loading isLoading />}>
               <Await
                 resolve={assignedToMe}
@@ -685,6 +691,9 @@ export default function PurchaseDashboard() {
                     assignedDocs={assignedDocs}
                     purchaseOrdersNeedingApproval={
                       purchaseOrdersNeedingApproval.data ?? []
+                    }
+                    suppliersNeedingApproval={
+                      suppliersNeedingApproval.data ?? []
                     }
                   />
                 )}
@@ -699,13 +708,14 @@ export default function PurchaseDashboard() {
 
 type AssignedDocument = {
   id: string;
-  type: "purchaseOrder" | "supplierQuote" | "purchaseInvoice";
+  type: "purchaseOrder" | "supplierQuote" | "purchaseInvoice" | "supplier";
   [key: string]: unknown;
 };
 
 function AssignedDocumentsTable({
   assignedDocs,
-  purchaseOrdersNeedingApproval
+  purchaseOrdersNeedingApproval,
+  suppliersNeedingApproval
 }: {
   assignedDocs: Array<{ id: string; type: string; [key: string]: unknown }>;
   purchaseOrdersNeedingApproval: Array<{
@@ -715,6 +725,11 @@ function AssignedDocumentsTable({
     supplierId: string | null;
     assignee: string | null;
     createdAt: string | null;
+  }>;
+  suppliersNeedingApproval: Array<{
+    id: string;
+    name: string;
+    supplierStatus: string | null;
   }>;
 }) {
   // Merge assigned docs with purchase orders needing approval
@@ -732,7 +747,16 @@ function AssignedDocumentsTable({
       type: "purchaseOrder" as const
     }));
 
-  const allDocs = [...assignedDocs, ...approvalDocs] as AssignedDocument[];
+  const supplierDocs = suppliersNeedingApproval.map((doc) => ({
+    ...doc,
+    type: "supplier" as const
+  }));
+
+  const allDocs = [
+    ...assignedDocs,
+    ...approvalDocs,
+    ...supplierDocs
+  ] as AssignedDocument[];
 
   if (allDocs.length === 0) {
     return (
@@ -768,6 +792,18 @@ function DocumentRow({ doc }: { doc: AssignedDocument }) {
       return <SupplierQuoteRow doc={doc as unknown as SupplierQuote} />;
     case "purchaseInvoice":
       return <PurchaseInvoiceRow doc={doc as unknown as PurchaseInvoice} />;
+    case "supplier":
+      return (
+        <SupplierApprovalRow
+          doc={
+            doc as unknown as {
+              id: string;
+              name: string;
+              supplierStatus: string | null;
+            }
+          }
+        />
+      );
     default:
       return null;
   }
@@ -833,6 +869,26 @@ function PurchaseInvoiceRow({ doc }: { doc: PurchaseInvoice }) {
       <Td>
         <SupplierAvatar supplierId={doc.supplierId} />
       </Td>
+    </Tr>
+  );
+}
+
+function SupplierApprovalRow({
+  doc
+}: {
+  doc: { id: string; name: string; supplierStatus: string | null };
+}) {
+  return (
+    <Tr>
+      <Td>
+        <Hyperlink to={path.to.supplier(doc.id)}>
+          <SupplierAvatar supplierId={doc.id} />
+        </Hyperlink>
+      </Td>
+      <Td>
+        <SupplierStatusIndicator status={doc.supplierStatus as "Pending"} />
+      </Td>
+      <Td>-</Td>
     </Tr>
   );
 }

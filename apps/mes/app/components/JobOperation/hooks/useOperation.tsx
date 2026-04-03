@@ -47,6 +47,7 @@ export function useOperation({
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { carbon, accessToken } = useCarbon();
   const user = useUser();
+
   const revalidator = useRevalidator();
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -286,8 +287,8 @@ export function useOperation({
     finishModal,
     issueModal,
     serialModal,
-    isOverdue: operation.jobDueDate
-      ? new Date(operation.jobDueDate) < new Date()
+    isOverdue: operation.operationDueDate
+      ? new Date(operation.operationDueDate) < new Date()
       : false,
     selectedMaterial,
     setSelectedMaterial,

@@ -24,11 +24,12 @@ import {
   EmployeeAvatar,
   useOptimisticAssignment
 } from "~/components";
-import { Location, WorkCenter } from "~/components/Form";
+import { Location, Procedure, WorkCenter } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
 import {
+  isMaintenanceDispatchLocked,
   maintenanceDispatchEventValidator,
   maintenanceDispatchPriority,
   maintenanceSeverity,
@@ -67,7 +68,7 @@ const MaintenanceDispatchProperties = () => {
   const assignee =
     optimisticAssignment !== undefined
       ? optimisticAssignment
-      : routeData?.dispatch?.assignee;
+      : (routeData?.dispatch?.assignee?.id ?? null);
 
   const fetcher = useFetcher<{ error?: { message: string } }>();
   const eventFetcher = useFetcher<{ error?: { message: string } }>();
@@ -106,7 +107,7 @@ const MaintenanceDispatchProperties = () => {
     [dispatchId, fetcher]
   );
 
-  const isCompleted = routeData?.dispatch?.status === "Completed";
+  const isLocked = isMaintenanceDispatchLocked(routeData?.dispatch?.status);
 
   const [currentOeeImpact, setCurrentOeeImpact] = useState<string>(
     routeData?.dispatch?.oeeImpact ?? "No Impact"
@@ -216,7 +217,7 @@ const MaintenanceDispatchProperties = () => {
         className="w-full"
       >
         <Location
-          isReadOnly={!permissions.can("update", "resources")}
+          isReadOnly={isLocked || !permissions.can("update", "resources")}
           label="Location"
           name="locationId"
           inline
@@ -237,7 +238,7 @@ const MaintenanceDispatchProperties = () => {
         className="w-full"
       >
         <WorkCenter
-          isReadOnly={!permissions.can("update", "resources")}
+          isReadOnly={isLocked || !permissions.can("update", "resources")}
           label="Work Center"
           name="workCenterId"
           inline
@@ -266,7 +267,7 @@ const MaintenanceDispatchProperties = () => {
               </div>
             )
           }))}
-          isReadOnly={!permissions.can("update", "resources")}
+          isReadOnly={isLocked || !permissions.can("update", "resources")}
           label="Priority"
           name="priority"
           inline={(value) => {
@@ -298,7 +299,7 @@ const MaintenanceDispatchProperties = () => {
             value: severity,
             label: severity
           }))}
-          isReadOnly={!permissions.can("update", "resources")}
+          isReadOnly={isLocked || !permissions.can("update", "resources")}
           label="Severity"
           name="severity"
           inline={(value) => {
@@ -330,7 +331,7 @@ const MaintenanceDispatchProperties = () => {
             value: source,
             label: <MaintenanceSource source={source} />
           }))}
-          isReadOnly={!permissions.can("update", "resources")}
+          isReadOnly={isLocked || !permissions.can("update", "resources")}
           label="Source"
           name="source"
           inline={(value) => {
@@ -350,6 +351,30 @@ const MaintenanceDispatchProperties = () => {
 
       <ValidatedForm
         defaultValues={{
+          procedureId: (routeData?.dispatch as any)?.procedureId ?? ""
+        }}
+        validator={z.object({
+          procedureId: z.string().optional()
+        })}
+        className="w-full"
+      >
+        <Procedure
+          isReadOnly={isLocked || !permissions.can("update", "resources")}
+          label="Procedure"
+          name="procedureId"
+          inline={(value, options) => {
+            const procedure = options.find((o) => o.value === value);
+            return procedure?.label ?? null;
+          }}
+          isClearable
+          onChange={(value) => {
+            onUpdate("procedureId", value?.value ?? null);
+          }}
+        />
+      </ValidatedForm>
+
+      <ValidatedForm
+        defaultValues={{
           oeeImpact: routeData?.dispatch?.oeeImpact ?? "No Impact"
         }}
         validator={z.object({
@@ -362,7 +387,7 @@ const MaintenanceDispatchProperties = () => {
             value: impact,
             label: <MaintenanceOeeImpact oeeImpact={impact} />
           }))}
-          isReadOnly={!permissions.can("update", "resources")}
+          isReadOnly={isLocked || !permissions.can("update", "resources")}
           label="OEE Impact"
           name="oeeImpact"
           inline={(value) => {
@@ -394,7 +419,7 @@ const MaintenanceDispatchProperties = () => {
           name="plannedStartTime"
           label="Planned Start"
           inline
-          isDisabled={!permissions.can("update", "resources") || isCompleted}
+          isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
             onUpdate("plannedStartTime", date?.toString() ?? null);
           }}
@@ -414,7 +439,7 @@ const MaintenanceDispatchProperties = () => {
           name="plannedEndTime"
           label="Planned End"
           inline
-          isDisabled={!permissions.can("update", "resources") || isCompleted}
+          isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
             onUpdate("plannedEndTime", date?.toString() ?? null);
           }}
@@ -434,7 +459,7 @@ const MaintenanceDispatchProperties = () => {
           name="actualStartTime"
           label="Actual Start"
           inline
-          isDisabled={!permissions.can("update", "resources") || isCompleted}
+          isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
             onUpdate("actualStartTime", date?.toString() ?? null);
           }}
@@ -454,7 +479,7 @@ const MaintenanceDispatchProperties = () => {
           name="actualEndTime"
           label="Actual End"
           inline
-          isDisabled={!permissions.can("update", "resources") || isCompleted}
+          isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
             onUpdate("actualEndTime", date?.toString() ?? null);
           }}
@@ -478,7 +503,7 @@ const MaintenanceDispatchProperties = () => {
                 value: mode.id,
                 label: mode.name
               }))}
-              isReadOnly={!permissions.can("update", "resources")}
+              isReadOnly={isLocked || !permissions.can("update", "resources")}
               label="Suspected Failure Mode"
               name="suspectedFailureModeId"
               inline={(value) => {
@@ -511,7 +536,7 @@ const MaintenanceDispatchProperties = () => {
                 value: mode.id,
                 label: mode.name
               }))}
-              isReadOnly={!permissions.can("update", "resources")}
+              isReadOnly={isLocked || !permissions.can("update", "resources")}
               label="Actual Failure Mode"
               name="actualFailureModeId"
               inline={(value) => {

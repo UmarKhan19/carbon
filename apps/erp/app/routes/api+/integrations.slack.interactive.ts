@@ -1,4 +1,5 @@
-import { ERP_URL, getCarbonServiceRole } from "@carbon/auth";
+import { ERP_URL } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import {
   createIssueSlackThread,
@@ -420,7 +421,6 @@ async function handleViewSubmission(
       companyId,
       createdBy: employee.data?.id,
       description,
-      investigationTypeIds: [],
       locationId: employee.data?.locationId || "",
       name: title,
       nonConformanceTypeId: typeId,

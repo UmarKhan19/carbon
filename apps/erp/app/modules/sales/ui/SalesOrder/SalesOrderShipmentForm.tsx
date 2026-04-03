@@ -10,7 +10,6 @@ import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Customer,
   CustomerLocation,
@@ -19,7 +18,6 @@ import {
   Hidden,
   Input,
   Location,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   ShippingMethod,
   Submit
@@ -27,7 +25,10 @@ import {
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import type { action } from "~/routes/x+/sales-order+/$orderId.shipment";
 import { path } from "~/utils/path";
-import { salesOrderShipmentValidator } from "../../sales.models";
+import {
+  isSalesOrderLocked,
+  salesOrderShipmentValidator
+} from "../../sales.models";
 import type { SalesOrder } from "../../types";
 
 type SalesOrderShipmentFormProps = {
@@ -42,7 +43,7 @@ export type SalesOrderShipmentFormRef = {
 const SalesOrderShipmentForm = forwardRef<
   SalesOrderShipmentFormRef,
   SalesOrderShipmentFormProps
->(({ initialValues, defaultCollapsed = true }, ref) => {
+>(({ initialValues, defaultCollapsed = false }, ref) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<typeof action>();
   const [dropShip, setDropShip] = useState<boolean>(
@@ -73,6 +74,7 @@ const SalesOrderShipmentForm = forwardRef<
   }>(path.to.salesOrder(orderId));
 
   const { company } = useUser();
+  const isLocked = isSalesOrderLocked(routeData?.salesOrder?.status);
 
   const isCustomer = permissions.is("customer");
 
@@ -90,6 +92,7 @@ const SalesOrderShipmentForm = forwardRef<
         validator={salesOrderShipmentValidator}
         defaultValues={initialValues}
         fetcher={fetcher}
+        isDisabled={isLocked}
       >
         <CardHeader>
           <CardTitle>Shipping</CardTitle>

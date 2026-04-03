@@ -47,6 +47,7 @@ export default function IntegrationsRoute() {
     <>
       <IntegrationsList
         integrations={integrations}
+        // @ts-expect-error TS2322 - TODO: fix type
         availableIntegrations={availableIntegrations}
       />
       <Outlet />

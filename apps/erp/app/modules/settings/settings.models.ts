@@ -10,8 +10,8 @@ export const modulesType = [
   "Inventory",
   "Items",
   "Production",
-  // "Messaging",
   "Purchasing",
+  "Quality",
   "Resources",
   "Sales",
   "Users"
@@ -24,9 +24,30 @@ export const purchasePriceUpdateTimingTypes = [
   "Purchase Order Finalize"
 ] as const;
 
+/** All permission modules with their available CRUD actions */
+export const apiKeyPermissionModules = {
+  accounting: ["view", "create", "update"],
+  documents: ["view", "create", "update", "delete"],
+  inventory: ["view", "create", "update", "delete"],
+  invoicing: ["view", "create", "update", "delete"],
+  parts: ["view", "create", "update", "delete"],
+  people: ["view", "create", "update", "delete"],
+  production: ["view", "create", "update", "delete"],
+  purchasing: ["view", "create", "update", "delete"],
+  quality: ["view", "create", "update", "delete"],
+  resources: ["view", "create", "update", "delete"],
+  sales: ["view", "create", "update", "delete"],
+  settings: ["view", "create", "update", "delete"],
+  users: ["view", "create", "update", "delete"]
+} as const;
+
+export type ApiKeyPermissionModule = keyof typeof apiKeyPermissionModules;
+
 export const apiKeyValidator = z.object({
   id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" })
+  name: z.string().min(1, { message: "Name is required" }),
+  scopes: zfd.text(z.string().optional()),
+  expiresAt: zfd.text(z.string().optional())
 });
 
 const company = {
@@ -42,7 +63,8 @@ const company = {
   phone: zfd.text(z.string().optional()),
   fax: zfd.text(z.string().optional()),
   email: zfd.text(z.string().optional()),
-  website: zfd.text(z.string().optional())
+  website: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional())
 };
 
 export const companyValidator = z.object(company);
@@ -159,8 +181,16 @@ export const supplierQuoteNotificationValidator = z.object({
     .optional()
 });
 
+export const accountsPayableEmailValidator = z.object({
+  accountsPayableEmail: zfd.text(z.string().email().optional())
+});
+
 export const defaultSupplierCcValidator = z.object({
   defaultSupplierCc: z.array(z.string().email()).optional()
+});
+
+export const accountsReceivableEmailValidator = z.object({
+  accountsReceivableEmail: zfd.text(z.string().email().optional())
 });
 
 export const defaultCustomerCcValidator = z.object({
@@ -216,3 +246,47 @@ export const webhookValidator = z
       path: ["onDelete"]
     }
   );
+
+export const jobTravelerSettingsValidator = z.object({
+  jobTravelerIncludeWorkInstructions: zfd.checkbox()
+});
+
+export const consoleSettingsValidator = z.object({
+  consoleEnabled: zfd.checkbox()
+});
+
+export const quoteLineCategoryMarkupsSettingsValidator = z.object({
+  materialCost: zfd.numeric(z.number().min(0).default(0)),
+  partCost: zfd.numeric(z.number().min(0).default(0)),
+  toolCost: zfd.numeric(z.number().min(0).default(0)),
+  consumableCost: zfd.numeric(z.number().min(0).default(0)),
+  laborCost: zfd.numeric(z.number().min(0).default(0)),
+  machineCost: zfd.numeric(z.number().min(0).default(0)),
+  overheadCost: zfd.numeric(z.number().min(0).default(0)),
+  outsideCost: zfd.numeric(z.number().min(0).default(0))
+});
+
+const billingAddress = {
+  name: zfd.text(z.string().optional()),
+  addressLine1: zfd.text(z.string().optional()),
+  addressLine2: zfd.text(z.string().optional()),
+  city: zfd.text(z.string().optional()),
+  state: zfd.text(z.string().optional()),
+  postalCode: zfd.text(z.string().optional()),
+  countryCode: zfd.text(z.string().optional()),
+  phone: zfd.text(z.string().optional()),
+  fax: zfd.text(z.string().optional()),
+  email: zfd.text(z.string().email().optional())
+};
+
+export const supplierApprovalValidator = z.object({
+  supplierApproval: zfd.checkbox()
+});
+
+export const accountsPayableBillingAddressValidator = z.object(billingAddress);
+export const accountsReceivableBillingAddressValidator =
+  z.object(billingAddress);
+
+export const timeCardSettingsValidator = z.object({
+  timeCardEnabled: zfd.checkbox()
+});

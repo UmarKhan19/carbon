@@ -1,14 +1,7 @@
 import { error, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
-import {
-  Boolean,
-  Select,
-  Submit,
-  ValidatedForm,
-  validator
-} from "@carbon/form";
+import { Input, Select, Submit, ValidatedForm, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import {
   Badge,
@@ -24,29 +17,35 @@ import {
   HStack,
   Label,
   ScrollArea,
+  Switch,
   toast,
   useDebounce,
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { EmailRecipients, Users } from "~/components/Form";
+import Country from "~/components/Form/Country";
 import { usePermissions, useUser } from "~/hooks";
 import {
+  accountsPayableBillingAddressValidator,
   defaultSupplierCcValidator,
+  getAccountsPayableBillingAddress,
   getCompanySettings,
   getTerms,
-  includeThumbnailsOnPurchasingPdfsValidator,
   purchasePriceUpdateTimingTypes,
   purchasePriceUpdateTimingValidator,
   supplierQuoteNotificationValidator,
+  updateAccountsPayableAddressSetting,
+  updateAccountsPayableBillingAddress,
   updateDefaultSupplierCc,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
+  updateSupplierApprovalSetting,
   updateSupplierQuoteNotificationSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -62,9 +61,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [companySettings, terms] = await Promise.all([
+  const [companySettings, terms, apBillingAddress] = await Promise.all([
     getCompanySettings(client, companyId),
-    getTerms(client, companyId)
+    getTerms(client, companyId),
+    getAccountsPayableBillingAddress(client, companyId)
   ]);
 
   if (companySettings.error) {
@@ -86,12 +86,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     companySettings: companySettings.data,
-    terms: terms.data
+    terms: terms.data,
+    apBillingAddress: apBillingAddress.data
   };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "settings"
   });
 
@@ -99,6 +100,42 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
+    case "supplierApproval":
+      const supplierApprovalEnabled =
+        formData.get("supplierApproval") === "true";
+      const supplierApprovalResult = await updateSupplierApprovalSetting(
+        client,
+        companyId,
+        supplierApprovalEnabled
+      );
+
+      if (supplierApprovalResult.error) {
+        return {
+          success: false,
+          message: supplierApprovalResult.error.message
+        };
+      }
+
+      return {
+        success: true,
+        message: `Supplier approval ${supplierApprovalEnabled ? "enabled" : "disabled"}`
+      };
+
+    case "accountsPayableAddressToggle":
+      const apToggleEnabled = formData.get("enabled") === "true";
+      const apToggleResult = await updateAccountsPayableAddressSetting(
+        client,
+        companyId,
+        apToggleEnabled
+      );
+      if (apToggleResult.error) {
+        return { success: false, message: apToggleResult.error.message };
+      }
+      return {
+        success: true,
+        message: `Accounts payable billing address ${apToggleEnabled ? "enabled" : "disabled"}`
+      };
+
     case "purchasePriceUpdateTiming":
       const validation = await validator(
         purchasePriceUpdateTimingValidator
@@ -147,25 +184,44 @@ export async function action({ request }: ActionFunctionArgs) {
         message: "Supplier quote notification setting updated"
       };
 
-    case "pdfs":
-      const thumbnailsValidation = await validator(
-        includeThumbnailsOnPurchasingPdfsValidator
-      ).validate(formData);
-
-      if (thumbnailsValidation.error) {
-        return { success: false, message: "Invalid form data" };
-      }
-
+    case "pdfs": {
+      const pdfEnabled = formData.get("enabled") === "true";
       const thumbnailsResult = await updatePurchasingPdfThumbnails(
         client,
         companyId,
-        thumbnailsValidation.data.includeThumbnailsOnPurchasingPdfs
+        pdfEnabled
       );
 
       if (thumbnailsResult.error)
         return { success: false, message: thumbnailsResult.error.message };
 
       return { success: true, message: "PDF settings updated" };
+    }
+
+    case "accountsPayableBillingAddress":
+      const apBillingValidation = await validator(
+        accountsPayableBillingAddressValidator
+      ).validate(formData);
+
+      if (apBillingValidation.error) {
+        return { success: false, message: "Invalid form data" };
+      }
+
+      const apBillingResult = await updateAccountsPayableBillingAddress(
+        client,
+        companyId,
+        apBillingValidation.data,
+        userId
+      );
+
+      if (apBillingResult.error) {
+        return { success: false, message: apBillingResult.error.message };
+      }
+
+      return {
+        success: true,
+        message: "Accounts payable billing address updated"
+      };
 
     case "emails":
       const defaultSupplierCcValidation = await validator(
@@ -199,7 +255,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PurchasingSettingsRoute() {
-  const { companySettings, terms } = useLoaderData<typeof loader>();
+  const { companySettings, terms, apBillingAddress } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
@@ -217,6 +274,47 @@ export default function PurchasingSettingsRoute() {
       toast.error(fetcher.data.message);
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
+
+  const toggleFetcher = useFetcher<typeof action>();
+
+  const [supplierApprovalEnabled, setSupplierApprovalEnabled] = useState(
+    companySettings.supplierApproval ?? false
+  );
+
+  const handleSupplierApprovalToggle = useCallback(
+    (checked: boolean) => {
+      setSupplierApprovalEnabled(checked);
+      toggleFetcher.submit(
+        { intent: "supplierApproval", supplierApproval: checked.toString() },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
+
+  const [apAddressEnabled, setApAddressEnabled] = useState(
+    companySettings.accountsPayableAddress ?? false
+  );
+
+  const handleApAddressToggle = useCallback(
+    (checked: boolean) => {
+      setApAddressEnabled(checked);
+      toggleFetcher.submit(
+        { intent: "accountsPayableAddressToggle", enabled: checked.toString() },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
+
+  useEffect(() => {
+    if (toggleFetcher.data?.success === true && toggleFetcher?.data?.message) {
+      toast.success(toggleFetcher.data.message);
+    }
+    if (toggleFetcher.data?.success === false && toggleFetcher?.data?.message) {
+      toast.error(toggleFetcher.data.message);
+    }
+  }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
 
   const [purchasingTermsStatus, setPurchasingTermsStatus] = useState<
     "saved" | "draft"
@@ -257,6 +355,115 @@ export default function PurchasingSettingsRoute() {
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
         <Heading size="h3">Purchasing</Heading>
+
+        <Card>
+          <HStack className="justify-between items-start">
+            <CardHeader>
+              <CardTitle>Purchasing Terms &amp; Conditions</CardTitle>
+              <CardDescription>
+                Define the terms and conditions for purchase orders
+              </CardDescription>
+            </CardHeader>
+            <CardAction className="py-6">
+              {purchasingTermsStatus === "draft" ? (
+                <Badge variant="secondary">Draft</Badge>
+              ) : (
+                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
+              )}
+            </CardAction>
+          </HStack>
+          <CardContent>
+            {permissions.can("update", "settings") ? (
+              <Editor
+                initialValue={(terms.purchasingTerms ?? {}) as JSONContent}
+                onUpload={onUploadImage}
+                onChange={handleUpdatePurchasingTerms}
+              />
+            ) : (
+              <div
+                className="prose dark:prose-invert"
+                dangerouslySetInnerHTML={{
+                  __html: generateHTML(terms.purchasingTerms as JSONContent)
+                }}
+              />
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>Accounts Payable Billing Address</CardTitle>
+                <CardDescription>
+                  The billing address used on purchase orders and other
+                  purchasing documents.
+                </CardDescription>
+              </div>
+              <Switch
+                checked={apAddressEnabled}
+                onCheckedChange={handleApAddressToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
+        </Card>
+        {apAddressEnabled && (
+          <Card>
+            <ValidatedForm
+              method="post"
+              validator={accountsPayableBillingAddressValidator}
+              defaultValues={{
+                name: apBillingAddress?.name ?? "",
+                addressLine1: apBillingAddress?.addressLine1 ?? "",
+                addressLine2: apBillingAddress?.addressLine2 ?? "",
+                city: apBillingAddress?.city ?? "",
+                state: apBillingAddress?.state ?? "",
+                postalCode: apBillingAddress?.postalCode ?? "",
+                countryCode: apBillingAddress?.countryCode ?? "",
+                phone: apBillingAddress?.phone ?? "",
+                fax: apBillingAddress?.fax ?? "",
+                email: apBillingAddress?.email ?? ""
+              }}
+              fetcher={fetcher}
+            >
+              <input
+                type="hidden"
+                name="intent"
+                value="accountsPayableBillingAddress"
+              />
+              <CardHeader>
+                <CardTitle>Billing Address</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <Input name="name" label="Name" />
+                  <Input name="email" label="Email" />
+                  <Input name="addressLine1" label="Address Line 1" />
+                  <Input name="addressLine2" label="Address Line 2" />
+                  <Input name="city" label="City" />
+                  <Input name="state" label="State / Province" />
+                  <Input name="postalCode" label="Postal Code" />
+                  <Country name="countryCode" />
+                  <Input name="phone" label="Phone" />
+                  <Input name="fax" label="Fax" />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Submit
+                  isDisabled={fetcher.state !== "idle"}
+                  isLoading={
+                    fetcher.state !== "idle" &&
+                    fetcher.formData?.get("intent") ===
+                      "accountsPayableBillingAddress"
+                  }
+                >
+                  Save
+                </Submit>
+              </CardFooter>
+            </ValidatedForm>
+          </Card>
+        )}
+
         <Card>
           <ValidatedForm
             method="post"
@@ -305,6 +512,23 @@ export default function PurchasingSettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
+        </Card>
+        <Card>
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>Supplier Approval Required</CardTitle>
+                <CardDescription>
+                  Require approval before suppliers can be set to Active
+                </CardDescription>
+              </div>
+              <Switch
+                checked={supplierApprovalEnabled}
+                onCheckedChange={handleSupplierApprovalToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
         </Card>
         <Card>
           <ValidatedForm
@@ -393,75 +617,39 @@ export default function PurchasingSettingsRoute() {
           </ValidatedForm>
         </Card>
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={includeThumbnailsOnPurchasingPdfsValidator}
-            defaultValues={{
-              includeThumbnailsOnPurchasingPdfs:
-                companySettings.includeThumbnailsOnPurchasingPdfs ?? true
-            }}
-            fetcher={fetcher}
-          >
-            <input type="hidden" name="intent" value="pdfs" />
-            <CardHeader>
-              <CardTitle>PDFs</CardTitle>
-              <CardDescription>
-                Show part thumbnails on purchase orders.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-2 max-w-[400px]">
-                <Boolean
-                  name="includeThumbnailsOnPurchasingPdfs"
-                  description="Include Thumbnails in PDFs"
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") ===
-                    "includeThumbnailsOnPurchasingPdfs"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
-        </Card>
-        <Card>
-          <HStack className="justify-between items-start">
-            <CardHeader>
-              <CardTitle>Purchasing Terms &amp; Conditions</CardTitle>
-              <CardDescription>
-                Define the terms and conditions for purchase orders
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              {purchasingTermsStatus === "draft" ? (
-                <Badge variant="secondary">Draft</Badge>
-              ) : (
-                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
-              )}
-            </CardAction>
-          </HStack>
+          <CardHeader>
+            <CardTitle>PDFs</CardTitle>
+            <CardDescription>
+              Show part thumbnails on purchase orders.
+            </CardDescription>
+          </CardHeader>
           <CardContent>
-            {permissions.can("update", "settings") ? (
-              <Editor
-                initialValue={(terms.purchasingTerms ?? {}) as JSONContent}
-                onUpload={onUploadImage}
-                onChange={handleUpdatePurchasingTerms}
-              />
-            ) : (
-              <div
-                className="prose dark:prose-invert"
-                dangerouslySetInnerHTML={{
-                  __html: generateHTML(terms.purchasingTerms as JSONContent)
+            <HStack className="justify-between items-center">
+              <VStack className="items-start gap-1">
+                <span className="font-medium">
+                  {companySettings.includeThumbnailsOnPurchasingPdfs
+                    ? "Thumbnails are included"
+                    : "Thumbnails are not included"}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {companySettings.includeThumbnailsOnPurchasingPdfs
+                    ? "Part thumbnails are shown on purchase order PDFs."
+                    : "Enable to show part thumbnails on purchase order PDFs."}
+                </span>
+              </VStack>
+              <Switch
+                checked={
+                  companySettings.includeThumbnailsOnPurchasingPdfs ?? true
+                }
+                onCheckedChange={(checked) => {
+                  toggleFetcher.submit(
+                    { intent: "pdfs", enabled: String(checked) },
+                    { method: "POST" }
+                  );
                 }}
+                disabled={toggleFetcher.state !== "idle"}
               />
-            )}
+            </HStack>
           </CardContent>
         </Card>
       </VStack>

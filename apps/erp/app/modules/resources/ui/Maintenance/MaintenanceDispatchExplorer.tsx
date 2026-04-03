@@ -41,13 +41,17 @@ import { Link, useFetcher, useParams } from "react-router";
 import { Employee, TextArea, WorkCenter } from "~/components/Form";
 import { ConfirmDelete } from "~/components/Modals";
 import { LevelLine } from "~/components/TreeView";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import type { MethodItemType } from "~/modules/shared";
 import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
-import { maintenanceDispatchEventValidator } from "../../resources.models";
+import {
+  isMaintenanceDispatchLocked,
+  maintenanceDispatchEventValidator
+} from "../../resources.models";
 import type {
+  MaintenanceDispatchDetail,
   MaintenanceDispatchEvent,
   MaintenanceDispatchItem
 } from "../../types";
@@ -83,6 +87,11 @@ export function MaintenanceDispatchExplorer({
 }) {
   const { dispatchId } = useParams();
   if (!dispatchId) throw new Error("dispatchId not found");
+
+  const routeData = useRouteData<{
+    dispatch: MaintenanceDispatchDetail;
+  }>(path.to.maintenanceDispatch(dispatchId));
+  const isLocked = isMaintenanceDispatchLocked(routeData?.dispatch?.status);
 
   const [filterText, setFilterText] = useState("");
   const deleteDisclosure = useDisclosure();
@@ -172,6 +181,7 @@ export function MaintenanceDispatchExplorer({
               node={node}
               filterText={filterText}
               dispatchId={dispatchId}
+              isLocked={isLocked}
               onDelete={onDelete}
               onEdit={onEdit}
             />
@@ -182,7 +192,9 @@ export function MaintenanceDispatchExplorer({
         <ConfirmDelete
           action={getDeleteAction()}
           name={getDeleteName()}
-          text={`Are you sure you want to remove this ${selectedChild.type === "item" ? "item" : "timecard"}?`}
+          text={`Are you sure you want to remove this ${
+            selectedChild.type === "item" ? "item" : "timecard"
+          }?`}
           isOpen={deleteDisclosure.isOpen}
           onCancel={onDeleteCancel}
           onSubmit={onDeleteCancel}
@@ -206,12 +218,14 @@ function MaintenanceExplorerItem({
   node,
   filterText,
   dispatchId,
+  isLocked,
   onDelete,
   onEdit
 }: {
   node: MaintenanceExplorerNode;
   filterText: string;
   dispatchId: string;
+  isLocked: boolean;
   onDelete: (child: MaintenanceExplorerChild) => void;
   onEdit: (child: MaintenanceExplorerChild) => void;
 }) {
@@ -228,7 +242,7 @@ function MaintenanceExplorerItem({
 
   return (
     <>
-      <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-muted/90">
+      <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-accent">
         <button
           className="flex flex-grow cursor-pointer items-center overflow-hidden font-medium"
           onClick={(e) => {
@@ -248,7 +262,7 @@ function MaintenanceExplorerItem({
             )}
           </div>
         </button>
-        {permissions.can("update", "resources") && (
+        {permissions.can("update", "resources") && !isLocked && (
           <IconButton
             aria-label="Add"
             size="sm"
@@ -278,6 +292,7 @@ function MaintenanceExplorerItem({
                 child={child}
                 nodeKey={node.key}
                 dispatchId={dispatchId}
+                isLocked={isLocked}
                 onDelete={onDelete}
                 onEdit={onEdit}
               />
@@ -307,12 +322,14 @@ function MaintenanceExplorerChildItem({
   child,
   nodeKey,
   dispatchId,
+  isLocked,
   onDelete,
   onEdit
 }: {
   child: MaintenanceExplorerChild;
   nodeKey: MaintenanceExplorerNode["key"];
   dispatchId: string;
+  isLocked: boolean;
   onDelete: (child: MaintenanceExplorerChild) => void;
   onEdit: (child: MaintenanceExplorerChild) => void;
 }) {
@@ -323,7 +340,7 @@ function MaintenanceExplorerChildItem({
   const permissions = usePermissions();
 
   const content = (
-    <div className="flex pr-7 h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-muted/90 w-full font-medium whitespace-nowrap">
+    <div className="flex pr-7 h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-accent w-full font-medium whitespace-nowrap">
       <LevelLine isSelected={false} />
       <div className="flex flex-grow items-center gap-2">
         {icon}
@@ -342,7 +359,7 @@ function MaintenanceExplorerChildItem({
       ) : (
         <div className="flex w-full">{content}</div>
       )}
-      {permissions.can("update", "resources") && (
+      {permissions.can("update", "resources") && !isLocked && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <IconButton

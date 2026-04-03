@@ -46,6 +46,7 @@ import type { jobStatus } from "../../production.models";
 import {
   bulkJobValidator,
   deadlineTypes,
+  isJobLocked,
   jobValidator
 } from "../../production.models";
 import { getDeadlineIcon } from "./Deadline";
@@ -68,9 +69,8 @@ const JobForm = ({ initialValues }: JobFormProps) => {
     initialValues.itemType ?? "Item"
   );
 
-  const isDisabled = ["Completed", "Cancelled"].includes(
-    initialValues.status ?? ""
-  );
+  const isLocked = isJobLocked(initialValues.status);
+  const isDisabled = isLocked;
 
   const bulkInitialValues = {
     ...initialValues,
@@ -214,7 +214,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
       <Tabs defaultValue="job">
         <VStack className="w-full items-center relative">
           {!isEditing && (
-            <TabsList className="absolute top-10 right-8 z-50">
+            <TabsList className="absolute top-6 right-4 z-50">
               <TabsTrigger value="job">
                 <LuDiamond className="mr-1" />
                 Single Job
@@ -232,6 +232,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                 method="post"
                 validator={jobValidator}
                 defaultValues={initialValues}
+                isDisabled={isEditing && isLocked}
               >
                 <CardHeader>
                   <CardTitle>{isEditing ? "Job" : "New Job"}</CardTitle>

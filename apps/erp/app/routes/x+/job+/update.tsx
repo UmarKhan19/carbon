@@ -1,13 +1,15 @@
-import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { recalculateTask } from "@carbon/jobs/trigger/recalculate";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import {
   calculateJobPriority,
+  isJobLocked,
   recalculateJobRequirements,
   upsertJobMethod
 } from "~/modules/production";
+import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -19,11 +21,22 @@ export async function action({ request }: ActionFunctionArgs) {
   const field = formData.get("field");
   const value = formData.get("value");
 
-  console.log({ ids, field, value });
-
   if (typeof field !== "string") {
     return { error: { message: "Invalid form data" }, data: null };
   }
+
+  // Per-ID locked check
+  const jobs = await client
+    .from("job")
+    .select("id, status")
+    .in("id", ids as string[]);
+
+  const lockedError = requireUnlockedBulk({
+    statuses: (jobs.data ?? []).map((j) => j.status),
+    checkFn: isJobLocked,
+    message: "Cannot modify a locked job. Reopen it first."
+  });
+  if (lockedError) return lockedError;
 
   const serviceRole = await getCarbonServiceRole();
 

@@ -1,9 +1,5 @@
-import {
-  assertIsPost,
-  error,
-  getCarbonServiceRole,
-  success
-} from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
@@ -544,6 +540,7 @@ const Issue = ({
 };
 
 type IssueData = NonNullable<
+  // @ts-expect-error TS2339 - TODO: fix type
   Awaited<ReturnType<Awaited<ReturnType<typeof loader>>["json"]>>["data"]
 >;
 
@@ -553,7 +550,6 @@ export default function ExternalQuote() {
   switch (state) {
     case IssueState.Valid:
       if (data) {
-        // @ts-ignore
         return <Issue data={data as IssueData} strings={strings} />;
       }
       return (

@@ -44,6 +44,7 @@ import { Confirm } from "~/components/Modals";
 import { usePercentFormatter, usePermissions, useRouteData } from "~/hooks";
 import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
 import { getPrivateUrl, path } from "~/utils/path";
+import { isSalesOrderLocked } from "../../sales.models";
 import type {
   Customer,
   Quotation,
@@ -66,6 +67,11 @@ const SalesOrderSummary = ({
     lines: SalesOrderLine[];
     customer: Customer;
     quote: Quotation;
+    invoiceSummary: {
+      invoicedAmount: number;
+      paidAmount: number;
+      currencyMismatchCount: number;
+    };
   }>(path.to.salesOrder(orderId));
 
   const salesOrderToJobsModal = useDisclosure();
@@ -80,9 +86,7 @@ const SalesOrderSummary = ({
     [locale, routeData?.salesOrder?.currencyCode]
   );
 
-  const isEditable = ["Draft", "To Review"].includes(
-    routeData?.salesOrder?.status ?? ""
-  );
+  const isEditable = !isSalesOrderLocked(routeData?.salesOrder?.status);
 
   // Calculate totals
   const subtotal =
@@ -90,7 +94,9 @@ const SalesOrderSummary = ({
       const lineTotal =
         (line.convertedUnitPrice ?? 0) * (line.saleQuantity ?? 0);
       const addOns =
-        (line.convertedAddOnCost ?? 0) + (line.convertedShippingCost ?? 0);
+        (line.convertedAddOnCost ?? 0) +
+        (line.convertedNonTaxableAddOnCost ?? 0) +
+        (line.convertedShippingCost ?? 0);
       return acc + lineTotal + addOns;
     }, 0) ?? 0;
 
@@ -98,9 +104,9 @@ const SalesOrderSummary = ({
     routeData?.lines?.reduce((acc, line) => {
       const lineTotal =
         (line.convertedUnitPrice ?? 0) * (line.saleQuantity ?? 0);
-      const addOns =
+      const taxableAddOns =
         (line.convertedAddOnCost ?? 0) + (line.convertedShippingCost ?? 0);
-      return acc + (lineTotal + addOns) * (line.taxPercent ?? 0);
+      return acc + (lineTotal + taxableAddOns) * (line.taxPercent ?? 0);
     }, 0) ?? 0;
 
   const convertedShippingCost =
@@ -109,6 +115,11 @@ const SalesOrderSummary = ({
   const total = subtotal + tax + convertedShippingCost;
   const permissions = usePermissions();
 
+  // Check if there are any lines with "Make" method type that would require jobs
+  const hasMakeItems =
+    routeData?.lines?.some((line) => line.methodType === "Make to Order") ??
+    false;
+
   return (
     <>
       {["To Ship and Invoice", "To Ship"].includes(
@@ -116,7 +127,8 @@ const SalesOrderSummary = ({
       ) &&
         permissions.can("create", "production") &&
         permissions.is("employee") &&
-        !routeData?.salesOrder?.jobs && (
+        !routeData?.salesOrder?.jobs &&
+        hasMakeItems && (
           <Card>
             <CardHeader>
               <CardTitle className="flex flex-row gap-2">
@@ -257,6 +269,39 @@ const SalesOrderSummary = ({
                 locales={locale}
               />
             </HStack>
+            <div className="h-px bg-border my-2 w-full" />
+            <HStack className="justify-between text-base text-muted-foreground w-full">
+              <span>Invoiced Amount:</span>
+              <MotionNumber
+                value={routeData?.invoiceSummary?.invoicedAmount ?? 0}
+                format={{
+                  style: "currency",
+                  currency: routeData?.salesOrder?.currencyCode ?? "USD"
+                }}
+                locales={locale}
+              />
+            </HStack>
+            <HStack className="justify-between text-base text-muted-foreground w-full">
+              <span>Paid Amount:</span>
+              <MotionNumber
+                value={routeData?.invoiceSummary?.paidAmount ?? 0}
+                format={{
+                  style: "currency",
+                  currency: routeData?.salesOrder?.currencyCode ?? "USD"
+                }}
+                locales={locale}
+              />
+            </HStack>
+            {(routeData?.invoiceSummary?.currencyMismatchCount ?? 0) > 0 && (
+              <span className="text-xs text-muted-foreground">
+                Excludes {routeData?.invoiceSummary?.currencyMismatchCount}{" "}
+                invoice
+                {(routeData?.invoiceSummary?.currencyMismatchCount ?? 0) > 1
+                  ? "s"
+                  : ""}{" "}
+                in a different currency.
+              </span>
+            )}
           </VStack>
         </CardContent>
       </Card>
@@ -295,9 +340,10 @@ function LineItems({
       {lines.map((line) => {
         if (!line.id) return null;
 
-        const isMade = line.methodType === "Make";
+        const isMade = line.methodType === "Make to Order";
 
         const { jobLabel, jobVariant, jobs } = getSalesOrderJobStatus(
+          // @ts-expect-error TS2345 - TODO: fix type
           salesOrder?.jobs as SalesOrderJob[] | undefined,
           line as any
         );
@@ -367,7 +413,8 @@ function LineItems({
                               (line?.saleQuantity ?? 0) +
                               (line?.convertedAddOnCost ?? 0) +
                               (line?.convertedShippingCost ?? 0)) *
-                            (1 + (line?.taxPercent ?? 0))
+                              (1 + (line?.taxPercent ?? 0)) +
+                            (line?.convertedNonTaxableAddOnCost ?? 0)
                           }
                           format={{
                             style: "currency",
@@ -390,14 +437,12 @@ function LineItems({
                           className="flex items-center gap-2"
                         >
                           {line.saleQuantity}
-                          <MethodIcon type={line.methodType ?? "Pick"} />
+                          <MethodIcon
+                            type={line.methodType ?? "Pull from Inventory"}
+                          />
                         </Badge>
                         <Badge variant="green">
-                          {formatter.format(
-                            (line.unitPrice ?? 0) +
-                              (line.addOnCost ?? 0) +
-                              (line.shippingCost ?? 0)
-                          )}{" "}
+                          {formatter.format(line.unitPrice ?? 0)}{" "}
                           {line.unitOfMeasureCode}
                         </Badge>
                         {(line.taxPercent ?? 0) > 0 ? (
@@ -525,6 +570,22 @@ function LineItems({
                       </Tr>
                     )}
 
+                    {Number(line.nonTaxableAddOnCost ?? 0) > 0 && (
+                      <Tr>
+                        <Td>Non-Taxable Charges</Td>
+                        <Td className="text-right">
+                          <MotionNumber
+                            value={line.nonTaxableAddOnCost ?? 0}
+                            format={{
+                              style: "currency",
+                              currency: currencyCode
+                            }}
+                            locales={locale}
+                          />
+                        </Td>
+                      </Tr>
+                    )}
+
                     <Tr key="subtotal">
                       <Td>Subtotal</Td>
                       <Td className="text-right">
@@ -533,6 +594,7 @@ function LineItems({
                             (line.convertedUnitPrice ?? 0) *
                               (line.saleQuantity ?? 0) +
                             (line.convertedAddOnCost ?? 0) +
+                            (line.convertedNonTaxableAddOnCost ?? 0) +
                             (line.convertedShippingCost ?? 0)
                           }
                           format={{
@@ -575,7 +637,8 @@ function LineItems({
                               (line.saleQuantity ?? 0) +
                               (line.convertedAddOnCost ?? 0) +
                               (line.convertedShippingCost ?? 0)) *
-                            (1 + (line.taxPercent ?? 0))
+                              (1 + (line.taxPercent ?? 0)) +
+                            (line.convertedNonTaxableAddOnCost ?? 0)
                           }
                           format={{
                             style: "currency",
@@ -602,6 +665,7 @@ function LineItems({
                             index === jobs.length - 1 && "border-b-0"
                           )}
                         >
+                          {/* @ts-expect-error TS2739 */}
                           <SalesOrderJobItem job={job} />
                         </div>
                       ))}

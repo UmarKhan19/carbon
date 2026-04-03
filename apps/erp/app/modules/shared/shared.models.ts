@@ -12,7 +12,8 @@ export const approvalDecisionValidator = z.object({
 
 export const approvalDocumentType = [
   "purchaseOrder",
-  "qualityDocument"
+  "qualityDocument",
+  "supplier"
 ] as const;
 
 export type ApprovalDocumentType =
@@ -20,7 +21,8 @@ export type ApprovalDocumentType =
 
 export const approvalDocumentTypeLabel: Record<ApprovalDocumentType, string> = {
   purchaseOrder: "Purchase Order",
-  qualityDocument: "Quality Document"
+  qualityDocument: "Quality Document",
+  supplier: "Supplier"
 };
 
 export const approvalDocumentTypesWithAmounts: ApprovalDocumentType[] = [
@@ -129,7 +131,32 @@ export const months = [
   "December"
 ] as const;
 
-export const methodType = ["Buy", "Make", "Pick"] as const;
+export const methodType = [
+  "Purchase to Order",
+  "Pull from Inventory",
+  "Make to Order"
+] as const;
+
+export const sourcingType = [
+  "Specified",
+  "Drop Ship",
+  "Ship from Inventory"
+] as const;
+
+export const validMethodTypesByReplenishment: Record<
+  string,
+  readonly (typeof methodType)[number][]
+> = {
+  Buy: ["Pull from Inventory", "Purchase to Order"],
+  Make: ["Pull from Inventory", "Make to Order"],
+  "Buy and Make": ["Pull from Inventory", "Purchase to Order"]
+};
+
+export function getValidMethodTypes(
+  replenishmentSystem: string
+): readonly (typeof methodType)[number][] {
+  return validMethodTypesByReplenishment[replenishmentSystem] ?? [];
+}
 
 export const noteValidator = z.object({
   id: zfd.text(z.string().optional()),
@@ -290,3 +317,16 @@ export const standardFactorType = [
   "Total Hours",
   "Total Minutes"
 ] as const;
+
+export type PriceBreak = {
+  quantity: number;
+  unitPrice: number;
+};
+
+export type SupplierPriceMap = Record<
+  string,
+  {
+    priceBreaks: PriceBreak[];
+    fallbackUnitPrice: number | null;
+  }
+>;

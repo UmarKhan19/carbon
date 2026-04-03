@@ -341,7 +341,7 @@ serve(async (req: Request) => {
             .where("jobOperationId", "=", id)
             .where("quantityToIssue", ">", 0)
             .where("itemType", "in", ["Material", "Part", "Consumable"])
-            .where("methodType", "!=", "Make")
+            .where("methodType", "!=", "Make to Order")
             .where("estimatedQuantity", ">", 0)
             .where("requiresBatchTracking", "=", false)
             .where("requiresSerialTracking", "=", false)
@@ -352,7 +352,7 @@ serve(async (req: Request) => {
             .selectFrom("jobMaterialWithMakeMethodId")
             .where("jobOperationId", "=", id)
             .where("itemType", "in", ["Material", "Part", "Consumable"])
-            .where("methodType", "=", "Make")
+            .where("methodType", "=", "Make to Order")
             .where("kit", "=", true)
             .selectAll()
             .execute();
@@ -367,7 +367,7 @@ serve(async (req: Request) => {
               .where("jobMakeMethodId", "in", jobMakeMethodIdsOfKittedChildren)
               .where("quantityToIssue", ">", 0)
               .where("itemType", "in", ["Material", "Part", "Consumable"])
-              .where("methodType", "!=", "Make")
+              .where("methodType", "!=", "Make to Order")
               .where("estimatedQuantity", ">", 0)
               .where("requiresBatchTracking", "=", false)
               .where("requiresSerialTracking", "=", false)
@@ -848,7 +848,7 @@ serve(async (req: Request) => {
                 : Number(quantity) - Number(material?.quantityIssued); // set quantity
 
             if (
-              material?.methodType !== "Make" &&
+              material?.methodType !== "Make to Order" &&
               item?.itemTrackingType === "Inventory"
             ) {
               itemLedgerInserts.push({
@@ -950,7 +950,7 @@ serve(async (req: Request) => {
                 jobMakeMethodId: jobOperation?.jobMakeMethodId!,
                 jobOperationId: id,
                 shelfId: shelfId ?? undefined,
-                methodType: "Pick",
+                methodType: "Pull from Inventory",
                 quantity: 0,
                 quantityIssued: Number(quantity ?? 0),
                 unitCost: itemCost?.unitCost,
@@ -1095,7 +1095,7 @@ serve(async (req: Request) => {
             .execute();
 
           // Create item ledger adjustment (negative for scrap)
-          if (material.methodType !== "Make") {
+          if (material.methodType !== "Make to Order") {
             await trx
               .insertInto("itemLedger")
               .values({
@@ -1298,7 +1298,7 @@ serve(async (req: Request) => {
                 jobMakeMethodId: jobOperation.jobMakeMethodId,
                 jobOperationId: jobOperationId,
                 itemType: item.type ?? "Part",
-                methodType: item.defaultMethodType ?? "Pick",
+                methodType: item.defaultMethodType ?? "Pull from Inventory",
                 quantity: 0,
                 quantityIssued: totalChildQuantity,
                 requiresBatchTracking: item.itemTrackingType === "Batch",
@@ -1518,7 +1518,7 @@ serve(async (req: Request) => {
                 remainingQuantity,
               });
 
-              if (jobMaterial?.methodType !== "Make") {
+              if (jobMaterial?.methodType !== "Make to Order") {
                 itemLedgerInserts.push(
                   {
                     entryType: "Negative Adjmt.",
@@ -1586,7 +1586,7 @@ serve(async (req: Request) => {
               createdBy: userId,
             });
 
-            if (jobMaterial?.methodType !== "Make") {
+            if (jobMaterial?.methodType !== "Make to Order") {
               itemLedgerInserts.push({
                 entryType: "Consumption",
                 documentType: "Job Consumption",
@@ -1816,7 +1816,7 @@ serve(async (req: Request) => {
               createdBy: userId,
             });
 
-            if (jobMaterial?.methodType !== "Make") {
+            if (jobMaterial?.methodType !== "Make to Order") {
               itemLedgerInserts.push({
                 entryType: "Consumption",
                 documentType: "Job Consumption",

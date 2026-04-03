@@ -8,6 +8,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
   getSupplierContact,
+  getSupplierInteractionDocuments,
   getSupplierInteractionLineDocuments,
   getSupplierQuote,
   getSupplierQuoteLines,
@@ -88,7 +89,6 @@ export async function action(args: ActionFunctionArgs) {
   const {
     notification,
     supplierContact: supplierContactId,
-    sendAttachments,
     cc: ccSelections
   } = validation.data;
 
@@ -112,36 +112,62 @@ export async function action(args: ActionFunctionArgs) {
           throw new Error("Failed to get supplier quote");
         if (!user.data) throw new Error("Failed to get user");
 
-        // Fetch all line items and their attached documents if sendAttachments is enabled
         const attachments: Array<{ filename: string; content: string }> = [];
 
-        if (sendAttachments) {
-          const lines = await getSupplierQuoteLines(client, id);
+        // Fetch top-level supplier interaction documents
+        const interactionId = supplierQuote.data.supplierInteractionId;
+        if (interactionId) {
+          const topDocs = await getSupplierInteractionDocuments(
+            client,
+            companyId,
+            interactionId
+          );
 
-          if (lines.data) {
-            for (const line of lines.data) {
-              const docs = await getSupplierInteractionLineDocuments(
-                client,
-                companyId,
-                line.id ?? ""
+          for (const doc of topDocs) {
+            const { data: fileData } = await client.storage
+              .from("private")
+              .download(
+                `${companyId}/supplier-interaction/${interactionId}/${doc.name}`
               );
 
-              for (const doc of docs) {
-                const { data: fileData } = await client.storage
-                  .from("private")
-                  .download(
-                    `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
-                  );
+            if (fileData) {
+              const arrayBuffer = await fileData.arrayBuffer();
+              const base64 = Buffer.from(arrayBuffer).toString("base64");
 
-                if (fileData) {
-                  const arrayBuffer = await fileData.arrayBuffer();
-                  const base64 = Buffer.from(arrayBuffer).toString("base64");
+              attachments.push({
+                filename: doc.name,
+                content: base64
+              });
+            }
+          }
+        }
 
-                  attachments.push({
-                    filename: doc.name,
-                    content: base64
-                  });
-                }
+        // Fetch line-level supplier interaction documents
+        const lines = await getSupplierQuoteLines(client, id);
+
+        if (lines.data) {
+          for (const line of lines.data) {
+            const docs = await getSupplierInteractionLineDocuments(
+              client,
+              companyId,
+              line.id ?? ""
+            );
+
+            for (const doc of docs) {
+              const { data: fileData } = await client.storage
+                .from("private")
+                .download(
+                  `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
+                );
+
+              if (fileData) {
+                const arrayBuffer = await fileData.arrayBuffer();
+                const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+                attachments.push({
+                  filename: doc.name,
+                  content: base64
+                });
               }
             }
           }

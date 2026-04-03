@@ -20,7 +20,7 @@ import {
 } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
-import { quotePaymentValidator } from "../../sales.models";
+import { isQuoteLocked, quotePaymentValidator } from "../../sales.models";
 import type { Quotation } from "../../types";
 
 type QuotePaymentFormProps = {
@@ -40,19 +40,19 @@ const QuotePaymentForm = ({ initialValues }: QuotePaymentFormProps) => {
     quote: Quotation;
   }>(path.to.quote(quoteId));
 
-  const isEditable = ["Draft", "To Review"].includes(
-    routeData?.quote?.status ?? ""
-  );
+  const isLocked = isQuoteLocked(routeData?.quote?.status);
+  const isEditable = !isLocked;
   const isDisabled = !isEditable || !permissions.can("update", "sales");
 
   return (
-    <Card isCollapsible defaultCollapsed>
+    <Card>
       <ValidatedForm
         method="post"
         action={path.to.quotePayment(initialValues.id)}
         validator={quotePaymentValidator}
         defaultValues={initialValues}
         fetcher={fetcher}
+        isDisabled={isLocked}
       >
         <CardHeader>
           <CardTitle>Payment</CardTitle>

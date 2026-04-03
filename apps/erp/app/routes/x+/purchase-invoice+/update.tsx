@@ -2,6 +2,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { parseDate } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { getCurrencyByCode } from "~/modules/accounting";
+import { isPurchaseInvoiceLocked } from "~/modules/invoicing";
+import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -19,6 +21,19 @@ export async function action({ request }: ActionFunctionArgs) {
   ) {
     return { error: { message: "Invalid form data" }, data: null };
   }
+
+  // Check if any of the PIs are locked
+  const { data } = await client
+    .from("purchaseInvoice")
+    .select("id, status")
+    .in("id", ids as string[]);
+
+  const lockedError = requireUnlockedBulk({
+    statuses: (data ?? []).map((d) => d.status),
+    checkFn: isPurchaseInvoiceLocked,
+    message: "Cannot modify a confirmed purchase invoice."
+  });
+  if (lockedError) return lockedError;
 
   switch (field) {
     case "invoiceSupplierId":

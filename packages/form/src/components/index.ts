@@ -1,7 +1,5 @@
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import Array from "./Array";
 import ArrayNumeric from "./ArrayNumeric";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import Boolean from "./Boolean";
 import type { ComboboxProps } from "./Combobox";
 import Combobox from "./Combobox";
@@ -17,7 +15,6 @@ import InputControlled from "./InputControlled";
 import InputOTP from "./InputOTP";
 import type { MultiSelectProps } from "./MultiSelect";
 import MultiSelect from "./MultiSelect";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import Number from "./Number";
 import NumberControlled from "./NumberControlled";
 import Password from "./Password";

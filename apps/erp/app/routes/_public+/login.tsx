@@ -15,20 +15,20 @@ import { flash, getAuthSession } from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
 import { sendVerificationCode } from "@carbon/auth/verification.server";
 import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
-import { redis } from "@carbon/kv";
+import { Ratelimit, redis } from "@carbon/kv";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
   Button,
   Heading,
+  Separator,
   toast,
   VStack
 } from "@carbon/react";
 import { ItarLoginDisclaimer, useMode } from "@carbon/remix";
 import { Edition } from "@carbon/utils";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { Ratelimit } from "@upstash/ratelimit";
 import { useEffect, useState } from "react";
 import { LuCircleAlert } from "react-icons/lu";
 import type {
@@ -278,34 +278,6 @@ export default function LoginRoute() {
                 </Alert>
               )}
 
-              <Input name="email" label="" placeholder="Email Address" />
-
-              <Submit
-                isDisabled={
-                  fetcher.state !== "idle" ||
-                  (!!CLOUDFLARE_TURNSTILE_SITE_KEY && !turnstileToken)
-                }
-                isLoading={fetcher.state === "submitting"}
-                size="lg"
-                className="w-full"
-                withBlocker={false}
-              >
-                Sign in with Email
-              </Submit>
-              {!!CLOUDFLARE_TURNSTILE_SITE_KEY && (
-                <div className="w-full flex justify-center">
-                  <Turnstile
-                    siteKey={CLOUDFLARE_TURNSTILE_SITE_KEY}
-                    onSuccess={(token) => setTurnstileToken(token)}
-                    onError={() => setTurnstileToken("")}
-                    onExpire={() => setTurnstileToken("")}
-                    options={{
-                      theme: theme === "dark" ? "dark" : "light"
-                    }}
-                  />
-                </div>
-              )}
-
               {hasGoogleAuth && (
                 <Button
                   type="button"
@@ -331,6 +303,41 @@ export default function LoginRoute() {
                 >
                   Sign in with Outlook
                 </Button>
+              )}
+
+              {(hasGoogleAuth || hasOutlookAuth) && (
+                <div className="py-3 w-full">
+                  <Separator />
+                </div>
+              )}
+
+              <Input name="email" label="" placeholder="Email Address" />
+
+              <Submit
+                isDisabled={
+                  fetcher.state !== "idle" ||
+                  (!!CLOUDFLARE_TURNSTILE_SITE_KEY && !turnstileToken)
+                }
+                isLoading={fetcher.state === "submitting"}
+                size="lg"
+                className="w-full"
+                withBlocker={false}
+                variant="secondary"
+              >
+                Sign in with Email
+              </Submit>
+              {!!CLOUDFLARE_TURNSTILE_SITE_KEY && (
+                <div className="w-full flex justify-center">
+                  <Turnstile
+                    siteKey={CLOUDFLARE_TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onError={() => setTurnstileToken("")}
+                    onExpire={() => setTurnstileToken("")}
+                    options={{
+                      theme: theme === "dark" ? "dark" : "light"
+                    }}
+                  />
+                </div>
               )}
             </VStack>
           </ValidatedForm>
