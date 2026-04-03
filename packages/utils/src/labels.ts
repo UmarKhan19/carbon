@@ -5,6 +5,10 @@ export type ProductLabelItem = {
   number: string;
   trackedEntityId: string;
   trackingType: string;
+  /** Expiration date (ISO date string, e.g. "2026-10-15") */
+  expirationDate?: string | null;
+  /** Shelf life label type name (e.g. "Best Before", "Use By") */
+  shelfLifeLabelType?: string | null;
 };
 
 export type LabelSize = {

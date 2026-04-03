@@ -11,12 +11,17 @@ import { InventoryDetails } from "~/modules/inventory";
 import type { PartSummary, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
+  getItemShelfLife,
   getItemShelfQuantities,
   getPickMethod,
+  getShelfLifeLabelTypes,
+  getStorageTypes,
+  itemShelfLifeValidator,
   pickMethodValidator,
+  upsertItemShelfLife,
   upsertPickMethod
 } from "~/modules/items";
-import { PickMethodForm } from "~/modules/items/ui/Item";
+import { ItemShelfLifeForm, PickMethodForm } from "~/modules/items/ui/Item";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
 import { useItems } from "~/stores";
@@ -65,9 +70,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     locationId = locations.data?.[0].id as string;
   }
 
-  let [partInventory] = await Promise.all([
-    getPickMethod(client, itemId, companyId, locationId)
-  ]);
+  let [partInventory, shelfLifeResult, storageTypesResult, labelTypesResult] =
+    await Promise.all([
+      getPickMethod(client, itemId, companyId, locationId),
+      getItemShelfLife(client, itemId),
+      getStorageTypes(client, companyId),
+      getShelfLifeLabelTypes(client, companyId)
+    ]);
 
   if (partInventory.error || !partInventory.data) {
     const insertPickMethod = await upsertPickMethod(client, {
@@ -125,6 +134,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     partInventory: partInventory.data,
     itemShelfQuantities: itemShelfQuantities.data,
     quantities: quantities.data,
+    shelfLife: shelfLifeResult.data,
+    storageTypes: storageTypesResult.data ?? [],
+    shelfLifeLabelTypes: labelTypesResult.data ?? [],
     itemId,
     locationId
   };
@@ -132,7 +144,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, userId, companyId } = await requirePermissions(request, {
     update: "parts"
   });
 
@@ -140,12 +152,37 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
 
   const formData = await request.formData();
-  // validate with partsValidator
-  const validation = await validator(pickMethodValidator).validate(formData);
+  const intent = formData.get("intent");
 
-  if (validation.error) {
-    return validationError(validation.error);
+  if (intent === "shelfLife") {
+    const validation = await validator(itemShelfLifeValidator).validate(
+      formData
+    );
+    if (validation.error) return validationError(validation.error);
+
+    const existing = await getItemShelfLife(client, itemId);
+    const result = await upsertItemShelfLife(
+      client,
+      existing.data
+        ? { ...validation.data, updatedBy: userId }
+        : { ...validation.data, companyId, createdBy: userId }
+    );
+
+    if (result.error) {
+      throw redirect(
+        path.to.part(itemId),
+        await flash(request, error(result.error, "Failed to save shelf life"))
+      );
+    }
+
+    throw redirect(
+      path.to.partInventory(itemId),
+      await flash(request, success("Saved shelf life config"))
+    );
   }
+
+  const validation = await validator(pickMethodValidator).validate(formData);
+  if (validation.error) return validationError(validation.error);
 
   const { ...update } = validation.data;
 
@@ -177,8 +214,15 @@ export default function PartInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.partRoot);
 
-  const { partInventory, itemShelfQuantities, quantities, itemId } =
-    useLoaderData<typeof loader>();
+  const {
+    partInventory,
+    itemShelfQuantities,
+    quantities,
+    shelfLife,
+    storageTypes,
+    shelfLifeLabelTypes,
+    itemId
+  } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
@@ -197,6 +241,16 @@ export default function PartInventoryRoute() {
 
   const shelves = useShelves(partInventory?.locationId);
 
+  const shelfLifeInitialValues = {
+    itemId,
+    totalShelfLifeDays: shelfLife?.totalShelfLifeDays ?? undefined,
+    commercialShelfLifeDays: shelfLife?.commercialShelfLifeDays ?? undefined,
+    minRemainingShelfLifeDays:
+      shelfLife?.minRemainingShelfLifeDays ?? undefined,
+    storageTypeId: shelfLife?.storageTypeId ?? undefined,
+    shelfLifeLabelTypeId: shelfLife?.shelfLifeLabelTypeId ?? undefined
+  };
+
   return (
     <VStack spacing={2} className="p-2">
       <PickMethodForm
@@ -213,6 +267,14 @@ export default function PartInventoryRoute() {
         pickMethod={initialValues}
         quantities={quantities}
         shelves={shelves.options}
+        shelfLifeForm={
+          <ItemShelfLifeForm
+            key={`${itemId}-shelf-life`}
+            initialValues={shelfLifeInitialValues}
+            storageTypes={storageTypes}
+            shelfLifeLabelTypes={shelfLifeLabelTypes}
+          />
+        }
       />
     </VStack>
   );

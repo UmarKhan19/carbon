@@ -179,6 +179,25 @@ const ProductLabelPDF = ({ items, labelSize }: ProductLabelProps) => {
                             Batch: {item.number}
                           </Text>
                         )}
+
+                        {item.expirationDate && (
+                          <Text
+                            style={{
+                              ...tw("mb-1"),
+                              fontSize: `${descriptionFontSize}pt`
+                            }}
+                          >
+                            {item.shelfLifeLabelType
+                              ? `${item.shelfLifeLabelType}: `
+                              : "Exp: "}
+                            {new Intl.DateTimeFormat("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              timeZone: "UTC"
+                            }).format(new Date(item.expirationDate))}
+                          </Text>
+                        )}
                       </View>
 
                       <View style={tw("flex items-center justify-center")}>

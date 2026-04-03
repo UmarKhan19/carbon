@@ -6,6 +6,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useLocale } from "@react-aria/i18n";
+import type { ReactNode } from "react";
 import { LuMoveDown, LuMoveUp } from "react-icons/lu";
 import type { z } from "zod";
 import type {
@@ -23,6 +24,7 @@ type InventoryDetailsProps = {
   pickMethod: z.infer<typeof pickMethodValidator>;
   quantities: ItemQuantities | null;
   shelves: { value: string; label: string }[];
+  shelfLifeForm?: ReactNode;
 };
 
 const InventoryDetails = ({
@@ -31,7 +33,8 @@ const InventoryDetails = ({
   itemTrackingType,
   pickMethod,
   quantities,
-  shelves
+  shelves,
+  shelfLifeForm
 }: InventoryDetailsProps) => {
   const { locale } = useLocale();
   const formatter = Intl.NumberFormat(locale, {
@@ -130,6 +133,7 @@ const InventoryDetails = ({
         pickMethod={pickMethod}
         shelves={shelves}
       />
+      {shelfLifeForm}
     </VStack>
   );
 };

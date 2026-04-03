@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
   Heading,
+  Label,
   ScrollArea,
   toast,
   VStack
@@ -17,6 +18,8 @@ import {
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
+import { z } from "zod";
+import { Users } from "~/components/Form";
 import {
   getCompanySettings,
   kanbanOutputTypes,
@@ -51,6 +54,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { companySettings: companySettings.data };
 }
 
+const shelfLifeNotificationValidator = z.object({
+  intent: z.literal("shelfLifeNotification"),
+  shelfLifeExpiryNotificationGroup: z.array(z.string()).optional()
+});
+
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
     update: "settings"
@@ -60,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
-    case "kanbanOutput":
+    case "kanbanOutput": {
       const kanbanOutputValidation = await validator(
         kanbanOutputValidator
       ).validate(formData);
@@ -81,6 +89,34 @@ export async function action({ request }: ActionFunctionArgs) {
         };
 
       return { success: true, message: "Kanban output setting updated" };
+    }
+
+    case "shelfLifeNotification": {
+      const validation = await validator(
+        shelfLifeNotificationValidator
+      ).validate(formData);
+
+      if (validation.error) {
+        return { success: false, message: "Invalid form data" };
+      }
+
+      const update = await client
+        .from("companySettings")
+        // @ts-ignore - column added in shelf-life migration, types not yet regenerated
+        .update({
+          shelfLifeExpiryNotificationGroup:
+            validation.data.shelfLifeExpiryNotificationGroup ?? []
+        })
+        .eq("id", companyId);
+
+      if (update.error)
+        return { success: false, message: update.error.message };
+
+      return {
+        success: true,
+        message: "Shelf life notification settings updated"
+      };
+    }
   }
 
   return { success: false, message: "Invalid form data" };
@@ -147,6 +183,53 @@ export default function InventorySettingsRoute() {
             </CardContent>
             <CardFooter>
               <Submit>Save</Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={shelfLifeNotificationValidator}
+            defaultValues={{
+              intent: "shelfLifeNotification" as const,
+              // @ts-ignore - column added in shelf-life migration, types not yet regenerated
+              shelfLifeExpiryNotificationGroup:
+                // @ts-ignore
+                companySettings.shelfLifeExpiryNotificationGroup ?? []
+            }}
+            fetcher={fetcher}
+          >
+            <Hidden name="intent" />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Near-Expiry Notifications
+              </CardTitle>
+              <CardDescription>
+                Configure who receives alerts when batch/serial inventory is
+                approaching its expiration date. Notifications are sent at 14,
+                7, 3, and 1 day(s) before expiration.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-8 max-w-[400px]">
+                <div className="flex flex-col gap-2">
+                  <Label>Expiry Alert Recipients</Label>
+                  <Users
+                    name="shelfLifeExpiryNotificationGroup"
+                    label="Who should receive notifications when inventory is near expiry?"
+                    type="employee"
+                  />
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={fetcher.state !== "idle"}
+              >
+                Save
+              </Submit>
             </CardFooter>
           </ValidatedForm>
         </Card>

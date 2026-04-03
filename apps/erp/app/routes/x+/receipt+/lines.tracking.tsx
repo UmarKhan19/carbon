@@ -19,6 +19,11 @@ export async function action({ request, context }: ActionFunctionArgs) {
     const batchNumber = formData.get("batchNumber") as string;
     const quantity = Number(formData.get("quantity"));
     const properties = formData.get("properties") as string | null;
+    const manufacturingDate = formData.get("manufacturingDate") as
+      | string
+      | null;
+    const expirationDate = formData.get("expirationDate") as string | null;
+
     // First, get or create the batch number record
     const { data: trackedEntity, error: batchQueryError } = await client
       .from("trackedEntity")
@@ -57,6 +62,27 @@ export async function action({ request, context }: ActionFunctionArgs) {
     if (error) {
       console.error(error);
       return data({ error: "Failed to update tracking" }, { status: 500 });
+    }
+
+    // Set shelf life dates on the tracked entity if provided
+    if (manufacturingDate || expirationDate) {
+      const { data: entity } = await serviceRole
+        .from("trackedEntity")
+        .select("id")
+        .eq("attributes ->> Receipt", receiptId)
+        .eq("readableId", batchNumber)
+        .eq("companyId", companyId)
+        .maybeSingle();
+
+      if (entity?.id) {
+        const dateUpdate: Record<string, string> = {};
+        if (manufacturingDate) dateUpdate.manufacturingDate = manufacturingDate;
+        if (expirationDate) dateUpdate.expirationDate = expirationDate;
+        await serviceRole
+          .from("trackedEntity")
+          .update(dateUpdate)
+          .eq("id", entity.id);
+      }
     }
   } else if (trackingType === "serial") {
     const serialNumber = formData.get("serialNumber") as string;

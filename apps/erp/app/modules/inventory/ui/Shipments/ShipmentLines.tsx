@@ -37,7 +37,7 @@ import {
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { getItemReadableId, labelSizes } from "@carbon/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuCheck,
   LuCircleAlert,
@@ -606,6 +606,39 @@ function BatchForm({
   // @ts-expect-error TS2339 - TODO: fix type
   const isBatchNumberValid = resolvedBatch?.status === "Available";
 
+  // FEFO warning: check if there's an earlier-expiring available batch
+  const fefoWarning = useMemo(() => {
+    if (!resolvedBatch || !batchNumbers?.data) return null;
+    // @ts-expect-error TS2339 - TODO: fix type
+    const selectedExpiry = resolvedBatch.expirationDate as string | null;
+    if (!selectedExpiry) return null;
+
+    const earlier = batchNumbers.data
+      .filter((b) => {
+        // @ts-expect-error TS2339 - TODO: fix type
+        const expiry = b.expirationDate as string | null;
+        // @ts-expect-error TS2339 - TODO: fix type
+        const status = b.status as string;
+        return (
+          b.id !== resolvedBatch.id &&
+          status === "Available" &&
+          expiry &&
+          expiry < selectedExpiry
+        );
+      })
+      .sort((a, b) => {
+        // @ts-expect-error TS2339 - TODO: fix type
+        return (a.expirationDate as string) < (b.expirationDate as string)
+          ? -1
+          : 1;
+      })[0];
+
+    if (!earlier) return null;
+    // @ts-expect-error TS2339 - TODO: fix type
+    const earlierExpiry = earlier.expirationDate as string;
+    return `Batch ${earlier.readableId ?? ""} expires sooner (${earlierExpiry}). Select it first for FEFO.`;
+  }, [resolvedBatch, batchNumbers?.data]);
+
   // Verify batch quantity is sufficient for the shipped quantity
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -854,6 +887,12 @@ function BatchForm({
                 return null;
               })()}
             {error && <span className="text-xs text-destructive">{error}</span>}
+            {!error && fefoWarning && (
+              <div className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                <LuCircleAlert className="mt-0.5 shrink-0" />
+                <span>{fefoWarning}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

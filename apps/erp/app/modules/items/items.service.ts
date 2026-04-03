@@ -32,6 +32,7 @@ import type {
   itemPlanningValidator,
   itemPostingGroupValidator,
   itemPurchasingValidator,
+  itemShelfLifeValidator,
   itemUnitSalePriceValidator,
   itemValidator,
   makeMethodVersionValidator,
@@ -47,6 +48,8 @@ import type {
   partValidator,
   pickMethodValidator,
   serviceValidator,
+  shelfLifeLabelTypeValidator,
+  storageTypeValidator,
   supplierPartValidator,
   toolValidator,
   unitOfMeasureValidator
@@ -3372,4 +3375,187 @@ export async function getSupplierPartPriceBreaks(
     quantity: pb.quantity,
     unitPrice: pb.unitPrice
   }));
+}
+
+// ---------------------------------------------------------------------------
+// Shelf Life Management (NVENTORY-002)
+// ---------------------------------------------------------------------------
+
+// -- Storage Types -----------------------------------------------------------
+
+export async function getStorageTypes(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("storageType")
+    .select("id, name, description, active")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
+export async function getStorageType(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("storageType")
+    .select("id, name, description, active")
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .single();
+}
+
+export async function upsertStorageType(
+  client: SupabaseClient<Database>,
+  storageType:
+    | (z.infer<typeof storageTypeValidator> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (z.infer<typeof storageTypeValidator> & {
+        id: string;
+        updatedBy: string;
+      })
+) {
+  if ("createdBy" in storageType) {
+    return client.from("storageType").insert(storageType).select("id").single();
+  }
+  return client
+    .from("storageType")
+    .update(sanitize(storageType))
+    .eq("id", storageType.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteStorageType(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("storageType")
+    .delete()
+    .eq("id", id)
+    .eq("companyId", companyId);
+}
+
+// -- Shelf Life Label Types --------------------------------------------------
+
+export async function getShelfLifeLabelTypes(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("shelfLifeLabelType")
+    .select("id, name, active")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
+export async function getShelfLifeLabelType(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("shelfLifeLabelType")
+    .select("id, name, active")
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .single();
+}
+
+export async function upsertShelfLifeLabelType(
+  client: SupabaseClient<Database>,
+  labelType:
+    | (z.infer<typeof shelfLifeLabelTypeValidator> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (z.infer<typeof shelfLifeLabelTypeValidator> & {
+        id: string;
+        updatedBy: string;
+      })
+) {
+  if ("createdBy" in labelType) {
+    return client
+      .from("shelfLifeLabelType")
+      .insert(labelType)
+      .select("id")
+      .single();
+  }
+  return client
+    .from("shelfLifeLabelType")
+    .update(sanitize(labelType))
+    .eq("id", labelType.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteShelfLifeLabelType(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("shelfLifeLabelType")
+    .delete()
+    .eq("id", id)
+    .eq("companyId", companyId);
+}
+
+// -- Item Shelf Life Config --------------------------------------------------
+
+export async function getItemShelfLife(
+  client: SupabaseClient<Database>,
+  itemId: string
+) {
+  return client
+    .from("itemShelfLife")
+    .select(
+      "itemId, totalShelfLifeDays, commercialShelfLifeDays, minRemainingShelfLifeDays, storageTypeId, shelfLifeLabelTypeId, ...storageType(storageTypeName:name), ...shelfLifeLabelType(shelfLifeLabelTypeName:name)"
+    )
+    .eq("itemId", itemId)
+    .maybeSingle();
+}
+
+export async function upsertItemShelfLife(
+  client: SupabaseClient<Database>,
+  itemShelfLife:
+    | (z.infer<typeof itemShelfLifeValidator> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (z.infer<typeof itemShelfLifeValidator> & {
+        updatedBy: string;
+      })
+) {
+  if ("createdBy" in itemShelfLife) {
+    return client
+      .from("itemShelfLife")
+      .insert(itemShelfLife)
+      .select("itemId")
+      .single();
+  }
+  return client
+    .from("itemShelfLife")
+    .update(sanitize(itemShelfLife))
+    .eq("itemId", itemShelfLife.itemId)
+    .select("itemId")
+    .single();
+}
+
+export async function deleteItemShelfLife(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  return client
+    .from("itemShelfLife")
+    .delete()
+    .eq("itemId", itemId)
+    .eq("companyId", companyId);
 }

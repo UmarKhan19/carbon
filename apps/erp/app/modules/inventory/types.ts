@@ -1,5 +1,9 @@
 import type { Database } from "@carbon/database";
 import type {
+  getShelfLifeLabelTypes,
+  getStorageTypes
+} from "../items/items.service";
+import type {
   getBatchProperties,
   getInventoryItems,
   getItemLedgerPage,
@@ -68,8 +72,16 @@ export type ShipmentLineTracking = NonNullable<
 
 export type ShippingCarrier = Database["public"]["Enums"]["shippingCarrier"];
 
+export type ShelfLifeLabelType = NonNullable<
+  Awaited<ReturnType<typeof getShelfLifeLabelTypes>>["data"]
+>[number];
+
 export type ShippingMethod = NonNullable<
   Awaited<ReturnType<typeof getShippingMethods>>["data"]
+>[number];
+
+export type StorageType = NonNullable<
+  Awaited<ReturnType<typeof getStorageTypes>>["data"]
 >[number];
 
 export type ShipmentSourceDocument =

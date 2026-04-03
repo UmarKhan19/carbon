@@ -72,7 +72,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       number: tracking.readableId ?? "",
       trackedEntityId: tracking.id,
       quantity: tracking.quantity,
-      trackingType: tracking.quantity > 1 ? "Batch" : "Serial"
+      trackingType: tracking.quantity > 1 ? "Batch" : "Serial",
+      // @ts-ignore - columns added in shelf-life migration, types not yet regenerated
+      expirationDate: tracking.expirationDate ?? null,
+      shelfLifeLabelType:
+        (tracking.attributes as TrackedEntityAttributes)?.[
+          "Shelf Life Label Type"
+        ] ?? null
     }))
     .sort((a, b) => {
       if (a.itemId === b.itemId) {

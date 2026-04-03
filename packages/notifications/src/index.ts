@@ -40,6 +40,7 @@ export enum NotificationEvent {
   SalesOrderAssignment = "sales-order-assignment",
   SalesRfqAssignment = "sales-rfq-assignment",
   SalesRfqReady = "sales-rfq-ready",
+  ShelfLifeExpiring = "shelf-life-expiring",
   StockTransferAssignment = "stock-transfer-assignment",
   SuggestionResponse = "suggestion-response",
   SupplierQuoteAssignment = "supplier-quote-assignment",

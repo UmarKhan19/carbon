@@ -546,21 +546,57 @@ serve(async (req: Request) => {
           companyId
         );
 
-        const [jobOperation, productionQuantities] = await Promise.all([
-          client
-            .from("jobOperation")
-            .select("*")
-            .eq("id", row.jobOperationId)
-            .single(),
-          client
-            .from("productionQuantity")
-            .select("*")
-            .eq("jobOperationId", row.jobOperationId)
-            .eq("type", "Production"),
-        ]);
+        const [jobOperation, productionQuantities, entityPreview] =
+          await Promise.all([
+            client
+              .from("jobOperation")
+              .select("*")
+              .eq("id", row.jobOperationId)
+              .single(),
+            client
+              .from("productionQuantity")
+              .select("*")
+              .eq("jobOperationId", row.jobOperationId)
+              .eq("type", "Production"),
+            // Pre-fetch sourceDocumentId (item ID) for shelf life lookup
+            client
+              .from("trackedEntity")
+              .select("sourceDocumentId")
+              .eq("id", trackedEntityId)
+              .single(),
+          ]);
 
         if (!jobOperation.data || !jobOperation.data.jobMakeMethodId) {
           throw new Error("Job operation not found");
+        }
+
+        // Resolve shelf life dates for the output item (manufacturing date = today)
+        const todayStr = new Date().toISOString().split("T")[0];
+        let shelfLifeExpirationDate: string | null = null;
+        let shelfLifeStorageTypeName: string | null = null;
+        let shelfLifeLabelTypeName: string | null = null;
+
+        const outputItemId = entityPreview.data?.sourceDocumentId;
+        if (outputItemId) {
+          const { data: slConfig } = await client
+            .from("itemShelfLife")
+            .select(
+              "totalShelfLifeDays, storageType(name), shelfLifeLabelType(name)"
+            )
+            .eq("itemId", outputItemId)
+            .maybeSingle();
+
+          if (slConfig?.totalShelfLifeDays) {
+            const [ty, tm, td] = todayStr.split("-").map(Number);
+            const exp = new Date(
+              Date.UTC(ty, tm - 1, td + slConfig.totalShelfLifeDays)
+            );
+            shelfLifeExpirationDate = exp.toISOString().split("T")[0];
+            shelfLifeStorageTypeName =
+              (slConfig.storageType as any)?.name ?? null;
+            shelfLifeLabelTypeName =
+              (slConfig.shelfLifeLabelType as any)?.name ?? null;
+          }
         }
 
         await db.transaction().execute(async (trx) => {
@@ -620,12 +656,31 @@ serve(async (req: Request) => {
                 return acc + quantity;
               }, 0) ?? 0;
 
-            // Update the current trackedEntity to Complete
+            // Enrich attributes with shelf life metadata if configured
+            const enrichedAttributes: TrackedEntityAttributes = {
+              ...(trackedEntity.attributes as TrackedEntityAttributes),
+              ...(shelfLifeStorageTypeName
+                ? { "Storage Type": shelfLifeStorageTypeName }
+                : {}),
+              ...(shelfLifeLabelTypeName
+                ? { "Shelf Life Label Type": shelfLifeLabelTypeName }
+                : {}),
+            };
+
+            // Update the current trackedEntity to Available with shelf life dates
             await trx
               .updateTable("trackedEntity")
               .set({
                 status: "Available",
                 quantity: previousProductionQuantities + row.quantity,
+                attributes: enrichedAttributes,
+                // @ts-ignore - columns added in shelf-life migration
+                ...(shelfLifeExpirationDate
+                  ? {
+                      expirationDate: shelfLifeExpirationDate,
+                      manufacturingDate: todayStr,
+                    }
+                  : {}),
               })
               .where("id", "=", trackedEntityId)
               .execute();
@@ -650,11 +705,20 @@ serve(async (req: Request) => {
           companyId
         );
 
-        const jobOperation = await client
-          .from("jobOperation")
-          .select("*")
-          .eq("id", row.jobOperationId)
-          .single();
+        const [jobOperation, entityPreview] = await Promise.all([
+          client
+            .from("jobOperation")
+            .select("*")
+            .eq("id", row.jobOperationId)
+            .single(),
+          // Pre-fetch sourceDocumentId (item ID) for shelf life lookup — parallel with jobOperation
+          client
+            .from("trackedEntity")
+            .select("sourceDocumentId")
+            .eq("id", trackedEntityId)
+            .single(),
+        ]);
+
         if (!jobOperation.data || !jobOperation.data.jobMakeMethodId) {
           throw new Error("Job operation not found");
         }
@@ -674,6 +738,35 @@ serve(async (req: Request) => {
             `Operation ${row.jobOperationId}` in
             (trackedEntity.attributes as TrackedEntityAttributes)
         );
+
+        // Resolve shelf life dates for the output item (manufacturing date = today)
+        const todayStr = new Date().toISOString().split("T")[0];
+        let shelfLifeExpirationDate: string | null = null;
+        let shelfLifeStorageTypeName: string | null = null;
+        let shelfLifeLabelTypeName: string | null = null;
+
+        const outputItemId = entityPreview.data?.sourceDocumentId;
+        if (outputItemId) {
+          const { data: slConfig } = await client
+            .from("itemShelfLife")
+            .select(
+              "totalShelfLifeDays, storageType(name), shelfLifeLabelType(name)"
+            )
+            .eq("itemId", outputItemId)
+            .maybeSingle();
+
+          if (slConfig?.totalShelfLifeDays) {
+            const [ty, tm, td] = todayStr.split("-").map(Number);
+            const exp = new Date(
+              Date.UTC(ty, tm - 1, td + slConfig.totalShelfLifeDays)
+            );
+            shelfLifeExpirationDate = exp.toISOString().split("T")[0];
+            shelfLifeStorageTypeName =
+              (slConfig.storageType as any)?.name ?? null;
+            shelfLifeLabelTypeName =
+              (slConfig.shelfLifeLabelType as any)?.name ?? null;
+          }
+        }
 
         let newEntityId: string | undefined;
         await db.transaction().execute(async (trx) => {
@@ -725,17 +818,34 @@ serve(async (req: Request) => {
             //     createdBy: userId,
             //   })
             //   .execute();
-            // Update the current trackedEntity to Complete
+
+            // Enrich attributes with shelf life metadata if configured
+            const enrichedAttributes: TrackedEntityAttributes = {
+              ...(trackedEntity.attributes as TrackedEntityAttributes),
+              [`Operation ${row.jobOperationId}`]:
+                relatedTrackedEntities.length + 1,
+              ...(shelfLifeStorageTypeName
+                ? { "Storage Type": shelfLifeStorageTypeName }
+                : {}),
+              ...(shelfLifeLabelTypeName
+                ? { "Shelf Life Label Type": shelfLifeLabelTypeName }
+                : {}),
+            };
+
+            // Update the current trackedEntity to Available with shelf life dates
             await trx
               .updateTable("trackedEntity")
               .set({
                 status: "Available",
                 quantity: 1,
-                attributes: {
-                  ...(trackedEntity.attributes as TrackedEntityAttributes),
-                  [`Operation ${row.jobOperationId}`]:
-                    relatedTrackedEntities.length + 1,
-                },
+                attributes: enrichedAttributes,
+                // @ts-ignore - columns added in shelf-life migration
+                ...(shelfLifeExpirationDate
+                  ? {
+                      expirationDate: shelfLifeExpirationDate,
+                      manufacturingDate: todayStr,
+                    }
+                  : {}),
               })
               .where("id", "=", trackedEntityId)
               .execute();

@@ -483,6 +483,8 @@ export const path = {
     consumablePurchasing: (id: string) =>
       generatePath(`${x}/consumable/${id}/purchasing`),
     consumableRoot: `${x}/consumable`,
+    consumableShelfLife: (id: string) =>
+      generatePath(`${x}/consumable/${id}/shelf-life`),
     consumableSupplier: (itemId: string, id: string) =>
       generatePath(`${x}/consumable/${itemId}/purchasing/${id}`),
     consumableSuppliers: (id: string) =>
@@ -734,8 +736,12 @@ export const path = {
     deleteShipment: (id: string) => generatePath(`${x}/shipment/${id}/delete`),
     deleteShelf: (id: string) =>
       generatePath(`${x}/inventory/shelves/delete/${id}`),
+    deleteShelfLifeLabelType: (id: string) =>
+      generatePath(`${x}/inventory/storage-types/label-types/delete/${id}`),
     deleteShippingMethod: (id: string) =>
       generatePath(`${x}/inventory/shipping-methods/delete/${id}`),
+    deleteStorageType: (id: string) =>
+      generatePath(`${x}/inventory/storage-types/delete/${id}`),
     deleteSupplier: (id: string) => generatePath(`${x}/supplier/${id}/delete`),
     deleteSupplierContact: (supplierId: string, id: string) =>
       generatePath(`${x}/supplier/${supplierId}/contacts/delete/${id}`),
@@ -976,6 +982,8 @@ export const path = {
     materialPurchasing: (id: string) =>
       generatePath(`${x}/material/${id}/purchasing`),
     materialRoot: `${x}/material`,
+    materialShelfLife: (id: string) =>
+      generatePath(`${x}/material/${id}/shelf-life`),
     materialSupplier: (itemId: string, id: string) =>
       generatePath(`${x}/material/${itemId}/purchasing/${id}`),
     materialSuppliers: (id: string) =>
@@ -1139,6 +1147,8 @@ export const path = {
     newSalesRFQLine: (id: string) => generatePath(`${x}/sales-rfq/${id}/new`),
     newScrapReason: `${x}/production/scrap-reasons/new`,
     newShelf: `${x}/inventory/shelves/new`,
+    newShelfLifeLabelType: `${x}/inventory/storage-types/label-types/new`,
+    newStorageType: `${x}/inventory/storage-types/new`,
     newShipment: `${x}/shipment/new`,
     newShift: `${x}/people/shifts/new`,
     newShippingMethod: `${x}/inventory/shipping-methods/new`,
@@ -1190,6 +1200,7 @@ export const path = {
     partPurchasing: (id: string) => generatePath(`${x}/part/${id}/purchasing`),
     partRoot: `${x}/part`,
     partSales: (id: string) => generatePath(`${x}/part/${id}/sales`),
+    partShelfLife: (id: string) => generatePath(`${x}/part/${id}/shelf-life`),
     partSupplier: (itemId: string, id: string) =>
       generatePath(`${x}/part/${itemId}/purchasing/${id}`),
     parts: `${x}/items/parts`,
@@ -1502,8 +1513,14 @@ export const path = {
       generatePath(`${x}/shipment/lines/tracking`),
     shipmentPost: (id: string) => generatePath(`${x}/shipment/${id}/post`),
     shipmentVoid: (id: string) => generatePath(`${x}/shipment/${id}/void`),
+    shelfLifeLabelType: (id: string) =>
+      generatePath(`${x}/inventory/storage-types/label-types/${id}`),
+    shelfLifeLabelTypes: `${x}/inventory/storage-types`,
     shippingMethod: (id: string) =>
       generatePath(`${x}/inventory/shipping-methods/${id}`),
+    storageType: (id: string) =>
+      generatePath(`${x}/inventory/storage-types/${id}`),
+    storageTypes: `${x}/inventory/storage-types`,
     warehouseTransfers: `${x}/inventory/warehouse-transfers`,
     warehouseTransfer: (id: string) =>
       generatePath(`${x}/warehouse-transfer/${id}`),
@@ -1584,12 +1601,14 @@ export const path = {
     toolPricing: (id: string) => generatePath(`${x}/tool/${id}/pricing`),
     toolPurchasing: (id: string) => generatePath(`${x}/tool/${id}/purchasing`),
     toolRoot: `${x}/tool`,
+    toolShelfLife: (id: string) => generatePath(`${x}/tool/${id}/shelf-life`),
     toolSupplier: (itemId: string, id: string) =>
       generatePath(`${x}/tool/${itemId}/suppliers/${id}`),
     toolSuppliers: (id: string) => generatePath(`${x}/tool/${id}/suppliers`),
     tools: `${x}/items/tools`,
     traceability: `${x}/traceability`,
     traceabilityGraph: `${x}/traceability/graph`,
+    nearExpiryInventory: `${x}/inventory/near-expiry`,
     trackedEntities: `${x}/inventory/tracked-entities`,
     training: (id: string) => generatePath(`${x}/training/${id}`),
     trainings: `${x}/resources/training`,

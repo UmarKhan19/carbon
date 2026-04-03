@@ -14,6 +14,9 @@ export interface TrackedEntityAttributes {
   Shipment?: string;
   "Split Entity ID"?: string;
   Shelf?: string;
+  // Shelf life display fields (copied at receipt; no business logic)
+  "Storage Type"?: string;
+  "Shelf Life Label Type"?: string;
 }
 
 // used to generate sequences

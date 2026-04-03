@@ -13,36 +13,34 @@ import {
 } from "@carbon/react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
-import { Hidden, Input, Location, Submit } from "~/components/Form";
-import StorageType from "~/components/Form/StorageType";
+import { Boolean, Hidden, Input, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
-import { shelfValidator } from "~/modules/inventory";
 import { path } from "~/utils/path";
+import { storageTypeValidator } from "../../items.models";
 
-type ShelfFormProps = {
-  locationId: string;
-  initialValues: z.infer<typeof shelfValidator>;
-  storageTypes: { value: string; label: string }[];
+type StorageTypeFormProps = {
+  initialValues: Partial<z.infer<typeof storageTypeValidator>>;
   type?: "modal" | "drawer";
   open?: boolean;
   onClose: () => void;
 };
 
-const ShelfForm = ({
-  locationId,
+const StorageTypeForm = ({
   initialValues,
-  storageTypes,
   open = true,
   type = "drawer",
   onClose
-}: ShelfFormProps) => {
+}: StorageTypeFormProps) => {
   const fetcher = useFetcher<{}>();
-
   const permissions = usePermissions();
   const isEditing = !!initialValues?.id;
   const isDisabled = isEditing
-    ? !permissions.can("update", "sales")
-    : !permissions.can("create", "sales");
+    ? !permissions.can("update", "parts")
+    : !permissions.can("create", "parts");
+
+  const action = isEditing
+    ? path.to.storageType(initialValues.id!)
+    : path.to.newStorageType;
 
   return (
     <ModalDrawerProvider type={type}>
@@ -54,42 +52,27 @@ const ShelfForm = ({
       >
         <ModalDrawerContent>
           <ValidatedForm
-            validator={shelfValidator}
+            validator={storageTypeValidator}
             method="post"
-            action={
-              isEditing ? path.to.shelf(initialValues.id!) : path.to.newShelf
-            }
+            action={action}
             defaultValues={initialValues}
-            fetcher={fetcher}
+            fetcher={type === "modal" ? fetcher : undefined}
             onSubmit={() => {
-              if (type === "modal") {
-                onClose?.();
-              }
+              if (type === "modal") onClose?.();
             }}
             className="flex flex-col h-full"
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Shelf
+                {isEditing ? "Edit" : "New"} Storage Type
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
-              <Hidden name="id" />
-              <Hidden name="type" value={type} />
-
               <VStack spacing={4}>
+                <Hidden name="id" />
                 <Input name="name" label="Name" />
-                <Location
-                  isReadOnly={isEditing}
-                  name="locationId"
-                  label="Location"
-                />
-                <StorageType
-                  name="storageTypeId"
-                  label="Storage Type"
-                  options={storageTypes}
-                  isClearable
-                />
+                <Input name="description" label="Description" />
+                {isEditing && <Boolean name="active" label="Active" />}
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
@@ -107,4 +90,4 @@ const ShelfForm = ({
   );
 };
 
-export default ShelfForm;
+export default StorageTypeForm;

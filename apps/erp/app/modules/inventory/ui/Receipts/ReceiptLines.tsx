@@ -37,7 +37,14 @@ import {
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
 import type { PostgrestResponse } from "@supabase/supabase-js";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   LuCircleAlert,
   LuEllipsisVertical,
@@ -559,14 +566,25 @@ function BatchForm({
   tracking: ItemTracking | undefined;
 }) {
   const submit = useSubmit();
+
+  // @ts-ignore - item joined from itemShelfLife, not yet in generated types
+  const shelfLifeConfig = (line as any).item?.itemShelfLife as
+    | { totalShelfLifeDays: number; minRemainingShelfLifeDays: number | null }
+    | null
+    | undefined;
+
   const [values, setValues] = useState<{
     number: string;
     properties: any;
+    manufacturingDate: string;
+    expirationDate: string;
   }>(() => {
     if (tracking) {
       const attributes = tracking.attributes as TrackedEntityAttributes;
       return {
         number: tracking.readableId || "",
+        manufacturingDate: (tracking as any).manufacturingDate ?? "",
+        expirationDate: (tracking as any).expirationDate ?? "",
         properties: Object.entries(attributes)
           .filter(
             ([key]) =>
@@ -583,9 +601,37 @@ function BatchForm({
     }
     return {
       number: "",
+      manufacturingDate: "",
+      expirationDate: "",
       properties: {}
     };
   });
+
+  // Track whether expiration was manually entered (vs auto-calculated)
+  const isExpirationManual = useRef(!!(tracking as any)?.expirationDate);
+
+  const calcExpiration = useCallback(
+    (mfgDate: string): string => {
+      if (!mfgDate || !shelfLifeConfig?.totalShelfLifeDays) return "";
+      const d = new Date(mfgDate);
+      d.setDate(d.getDate() + shelfLifeConfig.totalShelfLifeDays);
+      return d.toISOString().split("T")[0];
+    },
+    [shelfLifeConfig?.totalShelfLifeDays]
+  );
+
+  const expiryWarning = useMemo(() => {
+    const minDays = shelfLifeConfig?.minRemainingShelfLifeDays;
+    if (!values.expirationDate || !minDays) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const exp = new Date(values.expirationDate);
+    const daysLeft = Math.floor((exp.getTime() - today.getTime()) / 86400000);
+    if (daysLeft < minDays) {
+      return `Only ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining — below the ${minDays}-day minimum. Receipt will be blocked at posting.`;
+    }
+    return null;
+  }, [values.expirationDate, shelfLifeConfig?.minRemainingShelfLifeDays]);
 
   const updateBatchNumber = async (newValues: typeof values, isNew = false) => {
     if (!receipt?.id || !newValues.number.trim()) return;
@@ -618,6 +664,12 @@ function BatchForm({
     formData.append("batchNumber", valuesToSubmit.number.trim());
     formData.append("properties", JSON.stringify(valuesToSubmit.properties));
     formData.append("quantity", (line.receivedQuantity ?? 0).toString());
+    if (valuesToSubmit.manufacturingDate) {
+      formData.append("manufacturingDate", valuesToSubmit.manufacturingDate);
+    }
+    if (valuesToSubmit.expirationDate) {
+      formData.append("expirationDate", valuesToSubmit.expirationDate);
+    }
 
     submit(formData, {
       method: "post",
@@ -706,6 +758,60 @@ function BatchForm({
               updateBatchNumber(values, true);
             }}
           />
+        </div>
+
+        <div className="flex flex-col gap-2 w-full">
+          <label className="text-xs text-muted-foreground">
+            Manufacturing Date
+          </label>
+          <Input
+            type="date"
+            isDisabled={isReadOnly}
+            value={values.manufacturingDate}
+            onChange={(e) => {
+              const mfgDate = e.target.value;
+              const autoExpiry = !isExpirationManual.current
+                ? calcExpiration(mfgDate)
+                : values.expirationDate;
+              setValues((prev) => ({
+                ...prev,
+                manufacturingDate: mfgDate,
+                expirationDate: autoExpiry
+              }));
+            }}
+            onBlur={() => updateBatchNumber(values)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 w-full">
+          <label className="text-xs text-muted-foreground flex items-center justify-between">
+            <span>Expiration Date</span>
+            {shelfLifeConfig?.totalShelfLifeDays &&
+              !isExpirationManual.current && (
+                <span className="text-muted-foreground/60 font-normal">
+                  Auto-calculated
+                </span>
+              )}
+          </label>
+          <Input
+            type="date"
+            isDisabled={isReadOnly}
+            value={values.expirationDate}
+            onChange={(e) => {
+              isExpirationManual.current = !!e.target.value;
+              setValues((prev) => ({
+                ...prev,
+                expirationDate: e.target.value
+              }));
+            }}
+            onBlur={() => updateBatchNumber(values)}
+          />
+          {expiryWarning && (
+            <div className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+              <LuCircleAlert className="mt-0.5 shrink-0" />
+              <span>{expiryWarning}</span>
+            </div>
+          )}
         </div>
 
         <Suspense fallback={null}>

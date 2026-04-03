@@ -66,7 +66,13 @@ serve(async (req: Request) => {
       }
       return acc;
     }, []);
-    const [items, itemCosts] = await Promise.all([
+    const shelfIds = receiptLines.data.reduce<string[]>((acc, receiptLine) => {
+      if (receiptLine.shelfId && !acc.includes(receiptLine.shelfId)) {
+        acc.push(receiptLine.shelfId);
+      }
+      return acc;
+    }, []);
+    const [items, itemCosts, itemShelfLifeResult, shelvesResult] = await Promise.all([
       client
         .from("item")
         .select("id, itemTrackingType")
@@ -76,6 +82,18 @@ serve(async (req: Request) => {
         .from("itemCost")
         .select("itemId, itemPostingGroupId")
         .in("itemId", itemIds),
+      client
+        .from("itemShelfLife")
+        .select(
+          "itemId, totalShelfLifeDays, minRemainingShelfLifeDays, storageTypeId, storageType(name), shelfLifeLabelType(name)"
+        )
+        .in("itemId", itemIds),
+      shelfIds.length > 0
+        ? client
+            .from("shelf")
+            .select("id, name, storageTypeId, storageType(name)")
+            .in("id", shelfIds)
+        : Promise.resolve({ data: [] as unknown[], error: null }),
     ]);
     if (items.error) {
       throw new Error("Failed to fetch items");
@@ -83,6 +101,35 @@ serve(async (req: Request) => {
     if (itemCosts.error) {
       throw new Error("Failed to fetch item costs");
     }
+
+    // Build a quick-lookup map: itemId → shelf life config (only for items that have shelf life configured)
+    type ShelfLifeEntry = {
+      itemId: string;
+      totalShelfLifeDays: number;
+      minRemainingShelfLifeDays: number | null;
+      storageTypeId: string | null;
+      storageType: { name: string } | null;
+      shelfLifeLabelType: { name: string } | null;
+    };
+    const shelfLifeByItemId = new Map<string, ShelfLifeEntry>(
+      ((itemShelfLifeResult.data ?? []) as ShelfLifeEntry[]).map((sl) => [
+        sl.itemId,
+        sl,
+      ])
+    );
+
+    type ShelfEntry = {
+      id: string;
+      name: string;
+      storageTypeId: string | null;
+      storageType: { name: string } | null;
+    };
+    const shelfById = new Map<string, ShelfEntry>(
+      ((shelvesResult.data ?? []) as ShelfEntry[]).map((s) => [s.id, s])
+    );
+
+    // Shared warnings array for non-blocking issues discovered during processing
+    const storageMismatchWarnings: string[] = [];
 
     switch (receipt.data?.sourceDocument) {
       case "Purchase Order": {
@@ -183,13 +230,99 @@ serve(async (req: Request) => {
               ? 1
               : safeReceivedQuantity || itemTracking.quantity;
 
+            // --- Shelf life processing ---
+            const shelfLifeConfig = receiptLine?.itemId
+              ? shelfLifeByItemId.get(receiptLine.itemId)
+              : undefined;
+
+            // Prefer already-stored dates (user entered during receipt tracking UI)
+            // @ts-ignore - columns added in shelf-life migration, types not yet regenerated
+            let resolvedExpirationDate: string | null = itemTracking.expirationDate ?? null;
+            // @ts-ignore
+            const resolvedManufacturingDate: string | null = itemTracking.manufacturingDate ?? null;
+
+            if (shelfLifeConfig) {
+              // Auto-calculate expiration if not manually entered but manufacturing date is known
+              if (!resolvedExpirationDate && resolvedManufacturingDate) {
+                const [y, m, d] = resolvedManufacturingDate.split("-").map(Number);
+                const exp = new Date(
+                  Date.UTC(y, m - 1, d + shelfLifeConfig.totalShelfLifeDays)
+                );
+                resolvedExpirationDate = exp.toISOString().split("T")[0];
+              }
+
+              // Validate minimum remaining shelf life (blocking — throw so posting is rejected)
+              if (
+                resolvedExpirationDate &&
+                shelfLifeConfig.minRemainingShelfLifeDays != null
+              ) {
+                const [ey, em, ed] = resolvedExpirationDate.split("-").map(Number);
+                const [ty, tm, td] = today.split("-").map(Number);
+                const expMs = Date.UTC(ey, em - 1, ed);
+                const todayMs = Date.UTC(ty, tm - 1, td);
+                const remainingDays = Math.floor(
+                  (expMs - todayMs) / (1000 * 60 * 60 * 24)
+                );
+                if (remainingDays < shelfLifeConfig.minRemainingShelfLifeDays) {
+                  throw new Error(
+                    `Cannot receive: batch expires on ${resolvedExpirationDate}, which is less than the minimum remaining shelf life of ${shelfLifeConfig.minRemainingShelfLifeDays} days required for this item`
+                  );
+                }
+              }
+            }
+
+            // Enrich attributes with display-only shelf life metadata
+            const existingAttributes =
+              (itemTracking.attributes as TrackedEntityAttributes) ?? {};
+            const enrichedAttributes: TrackedEntityAttributes = {
+              ...existingAttributes,
+            };
+            if (shelfLifeConfig?.storageType?.name) {
+              enrichedAttributes["Storage Type"] = shelfLifeConfig.storageType.name;
+            }
+            if (shelfLifeConfig?.shelfLifeLabelType?.name) {
+              enrichedAttributes["Shelf Life Label Type"] =
+                shelfLifeConfig.shelfLifeLabelType.name;
+            }
+            // --- End shelf life processing ---
+
             acc[itemTracking.id] = {
               status: "Available",
               quantity: quantity,
+              attributes: enrichedAttributes,
+              // @ts-ignore - columns added in shelf-life migration, types not yet regenerated
+              ...(resolvedExpirationDate
+                ? { expirationDate: resolvedExpirationDate }
+                : {}),
+              ...(resolvedManufacturingDate
+                ? { manufacturingDate: resolvedManufacturingDate }
+                : {}),
             };
 
             return acc;
           }, {}) ?? {};
+
+        // --- Storage condition mismatch check (non-blocking warning) ---
+        for (const receiptLine of receiptLines.data) {
+          if (!receiptLine.shelfId || !receiptLine.itemId) continue;
+          const shelf = shelfById.get(receiptLine.shelfId);
+          const shelfLifeConfig = shelfLifeByItemId.get(receiptLine.itemId);
+          if (!shelf || !shelfLifeConfig) continue;
+          if (
+            shelfLifeConfig.storageTypeId &&
+            shelf.storageTypeId &&
+            shelfLifeConfig.storageTypeId !== shelf.storageTypeId
+          ) {
+            const itemStorageName =
+              shelfLifeConfig.storageType?.name ?? shelfLifeConfig.storageTypeId;
+            const shelfStorageName =
+              shelf.storageType?.name ?? shelf.storageTypeId;
+            const warning = `Storage type mismatch: item requires "${itemStorageName}" but shelf "${shelf.name}" is configured as "${shelfStorageName}"`;
+            console.warn(warning);
+            storageMismatchWarnings.push(warning);
+          }
+        }
+        // --- End storage condition mismatch check ---
 
         const jobOperationUpdates = isOutsideProcessing
           ? purchaseOrderLines.data.reduce<
@@ -1197,6 +1330,7 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
+        warnings: storageMismatchWarnings,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

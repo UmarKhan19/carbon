@@ -404,7 +404,12 @@ export async function getReceiptLines(
   client: SupabaseClient<Database>,
   receiptId: string
 ) {
-  return client.from("receiptLines").select("*").eq("receiptId", receiptId);
+  return client
+    .from("receiptLines")
+    .select(
+      "*, item:itemId(itemShelfLife(totalShelfLifeDays, minRemainingShelfLifeDays))"
+    )
+    .eq("receiptId", receiptId);
 }
 
 export async function getReceiptTracking(
@@ -543,7 +548,7 @@ export async function getShelves(
 ) {
   let query = client
     .from("shelf")
-    .select("*", {
+    .select("*, storageType(id, name)", {
       count: "exact"
     })
     .eq("companyId", companyId)
@@ -792,6 +797,32 @@ export async function getTrackedEntities(
     { column: "sourceDocumentReadableId", ascending: true }
   ]);
   return query;
+}
+
+/**
+ * Returns available tracked entities whose expiration date falls within the
+ * next `thresholdDays` days (default 30). Used for the Near-Expiry report.
+ * Results are sorted by expirationDate ascending (FEFO order).
+ */
+export async function getNearExpiryTrackedEntities(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  thresholdDays = 30
+) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const maxDate = new Date(today);
+  maxDate.setDate(maxDate.getDate() + thresholdDays);
+
+  return client
+    .from("trackedEntity")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId)
+    .eq("status", "Available")
+    .not("expirationDate", "is", null)
+    .gte("expirationDate", today.toISOString().split("T")[0])
+    .lte("expirationDate", maxDate.toISOString().split("T")[0])
+    .order("expirationDate", { ascending: true });
 }
 
 export async function getTrackedEntitiesByMakeMethodId(

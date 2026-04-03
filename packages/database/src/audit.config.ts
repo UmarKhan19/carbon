@@ -105,6 +105,7 @@ export const auditConfig = {
         itemPlanning: { role: "extension" }, // PK = itemId
         itemReplenishment: { role: "extension" }, // PK = itemId
         itemUnitSalePrice: { role: "extension" }, // PK = itemId
+        itemShelfLife: { role: "extension" }, // PK = itemId
         supplierPart: { entityIdColumn: "itemId" },
         customerPartToItem: { entityIdColumn: "itemId" }
       }
@@ -281,6 +282,7 @@ export const auditConfig = {
     itemPlanning: "Planning",
     itemReplenishment: "Replenishment",
     itemUnitSalePrice: "Unit Sale Price",
+    itemShelfLife: "Shelf Life",
     customerPartToItem: "Customer Part Mapping",
     salesOrder: "Sales Order",
     salesOrderLine: "Line Item",

@@ -558,3 +558,56 @@ export const unitOfMeasureValidator = z.object({
   code: z.string().min(1, { message: "Code is required" }).max(10),
   name: z.string().min(1, { message: "Name is required" }).max(50)
 });
+
+// ---------------------------------------------------------------------------
+// Shelf Life Management (NVENTORY-002)
+// ---------------------------------------------------------------------------
+
+export const storageTypeValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }).max(50),
+  description: zfd.text(z.string().optional()),
+  active: zfd.checkbox()
+});
+
+export const shelfLifeLabelTypeValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }).max(50),
+  active: zfd.checkbox()
+});
+
+export const itemShelfLifeValidator = z
+  .object({
+    itemId: z.string().min(1, { message: "Item ID is required" }),
+    totalShelfLifeDays: zfd.numeric(
+      z
+        .number()
+        .int()
+        .min(1, { message: "Total shelf life must be at least 1 day" })
+        .optional()
+    ),
+    commercialShelfLifeDays: zfd.numeric(z.number().int().min(1).optional()),
+    minRemainingShelfLifeDays: zfd.numeric(z.number().int().min(1).optional()),
+    storageTypeId: zfd.text(z.string().optional()),
+    shelfLifeLabelTypeId: zfd.text(z.string().optional())
+  })
+  .refine(
+    (data) =>
+      data.commercialShelfLifeDays === undefined ||
+      data.totalShelfLifeDays === undefined ||
+      data.commercialShelfLifeDays <= data.totalShelfLifeDays,
+    {
+      message: "Commercial shelf life cannot exceed total shelf life",
+      path: ["commercialShelfLifeDays"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.minRemainingShelfLifeDays === undefined ||
+      data.totalShelfLifeDays === undefined ||
+      data.minRemainingShelfLifeDays <= data.totalShelfLifeDays,
+    {
+      message: "Minimum remaining shelf life cannot exceed total shelf life",
+      path: ["minRemainingShelfLifeDays"]
+    }
+  );

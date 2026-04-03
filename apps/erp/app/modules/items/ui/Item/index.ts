@@ -10,8 +10,11 @@ import ItemPlanningForm from "./ItemPlanningForm";
 import ItemPurchasingForm from "./ItemPurchasingForm";
 import ItemRiskRegister from "./ItemRiskRegister";
 import ItemSalePriceForm from "./ItemSalePriceForm";
+import ItemShelfLifeForm from "./ItemShelfLifeForm";
 import MakeMethodTools from "./MakeMethodTools";
 import PickMethodForm from "./PickMethodForm";
+import ShelfLifeLabelTypeForm from "./ShelfLifeLabelTypeForm";
+import StorageTypeForm from "./StorageTypeForm";
 import SupplierPartForm from "./SupplierPartForm";
 import SupplierParts from "./SupplierParts";
 
@@ -28,7 +31,10 @@ export {
   ItemPlanningForm,
   ItemPurchasingForm,
   ItemRiskRegister,
+  ItemShelfLifeForm,
   ItemSalePriceForm,
+  ShelfLifeLabelTypeForm,
+  StorageTypeForm,
   MakeMethodTools,
   PickMethodForm,
   SupplierPartForm,

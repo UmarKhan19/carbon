@@ -161,7 +161,8 @@ export const receiptValidator = z.object({
 export const shelfValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
-  locationId: z.string().min(1, { message: "Location ID is required" })
+  locationId: z.string().min(1, { message: "Location ID is required" }),
+  storageTypeId: zfd.text(z.string().optional())
 });
 
 export const shipmentStatusType = [

@@ -1,4 +1,4 @@
-import { error } from "@carbon/auth";
+import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
@@ -32,6 +32,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  let receiptWarnings: string[] = [];
+
   try {
     const serviceRole = await getCarbonServiceRole();
     const postReceipt = await serviceRole.functions.invoke("post-receipt", {
@@ -56,14 +58,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
         await flash(request, error(postReceipt.error, "Failed to post receipt"))
       );
     }
-    // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  } catch (error) {
+
+    receiptWarnings =
+      (postReceipt.data?.warnings as string[] | undefined) ?? [];
+  } catch (err) {
+    // Re-throw Response objects (redirects) so they reach React Router unchanged
+    if (err instanceof Response) throw err;
+
     await client
       .from("receipt")
       .update({
         status: "Draft"
       })
       .eq("id", receiptId);
+  }
+
+  if (receiptWarnings.length > 0) {
+    throw redirect(
+      path.to.receipt(receiptId),
+      await flash(
+        request,
+        success(`Receipt posted. Warning: ${receiptWarnings.join(". ")}`)
+      )
+    );
   }
 
   throw redirect(path.to.receipt(receiptId));

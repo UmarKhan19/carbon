@@ -295,6 +295,142 @@ export const cleanup = schedules.task({
         console.log("No gauges going out of calibration found");
       }
 
+      // Check for near-expiry batch/serial inventory
+      // Alert at 14, 7, 3, and 1 day(s) before expiration to avoid repeated daily spam
+      console.log("Checking for near-expiry tracked entities...");
+      try {
+        const todayMs = new Date().setHours(0, 0, 0, 0);
+        const alertThresholds = [14, 7, 3, 1];
+
+        // Build date range: entities expiring within the next 14 days (furthest threshold)
+        const maxThreshold = Math.max(...alertThresholds);
+        const maxDate = new Date(todayMs + maxThreshold * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
+        const todayStr = new Date(todayMs).toISOString().split("T")[0];
+
+        const nearExpiryEntities = await serviceRole
+          .from("trackedEntity")
+          .select("id, readableId, sourceDocumentReadableId, expirationDate, companyId")
+          .eq("status", "Available")
+          .not("expirationDate", "is", null)
+          .gte("expirationDate", todayStr)
+          .lte("expirationDate", maxDate);
+
+        if (nearExpiryEntities.error) {
+          console.error(
+            `Error fetching near-expiry entities: ${JSON.stringify(nearExpiryEntities.error)}`
+          );
+        } else if (nearExpiryEntities.data.length > 0) {
+          console.log(
+            `Found ${nearExpiryEntities.data.length} entities with expiration dates in the next ${maxThreshold} days`
+          );
+
+          // Get unique company IDs from the near-expiry entities
+          const companyIds = [
+            ...new Set(
+              nearExpiryEntities.data
+                .map((e) => e.companyId)
+                .filter((id): id is string => id !== null)
+            ),
+          ];
+
+          const companySettingsResult = await serviceRole
+            .from("companySettings")
+            .select("id, shelfLifeExpiryNotificationGroup")
+            .in("id", companyIds);
+
+          if (companySettingsResult.error) {
+            console.error(
+              `Error fetching company settings for shelf life alerts: ${JSON.stringify(companySettingsResult.error)}`
+            );
+          } else {
+            const notificationGroupByCompany = new Map(
+              companySettingsResult.data.map((s) => [
+                s.id,
+                // @ts-ignore - column added in shelf-life migration
+                (s.shelfLifeExpiryNotificationGroup as string[]) ?? [],
+              ])
+            );
+
+            const shelfLifeNotificationPayloads: TriggerPayload[] = [];
+
+            for (const entity of nearExpiryEntities.data) {
+              if (!entity.companyId || !entity.expirationDate) continue;
+
+              const [ey, em, ed] = (entity.expirationDate as string)
+                .split("-")
+                .map(Number);
+              const expMs = Date.UTC(ey, em - 1, ed);
+              const remainingDays = Math.floor(
+                (expMs - todayMs) / (1000 * 60 * 60 * 24)
+              );
+
+              // Only alert on specific threshold days to avoid daily repetition
+              if (!alertThresholds.includes(remainingDays)) continue;
+
+              const notificationGroup =
+                notificationGroupByCompany.get(entity.companyId) ?? [];
+
+              if (notificationGroup.length === 0) {
+                console.log(
+                  `No shelf life expiry notification group configured for company ${entity.companyId}, skipping entity ${entity.id}`
+                );
+                continue;
+              }
+
+              const description = `Batch "${entity.readableId ?? entity.id}" of ${entity.sourceDocumentReadableId ?? "item"} expires on ${entity.expirationDate} (${remainingDays} day${remainingDays === 1 ? "" : "s"} remaining)`;
+
+              for (const userId of notificationGroup) {
+                shelfLifeNotificationPayloads.push({
+                  workflow: NotificationWorkflow.Expiration,
+                  payload: {
+                    event: NotificationEvent.ShelfLifeExpiring,
+                    recordId: entity.id,
+                    description,
+                  },
+                  user: {
+                    subscriberId: getSubscriberId({
+                      companyId: entity.companyId,
+                      userId,
+                    }),
+                  },
+                });
+              }
+            }
+
+            if (shelfLifeNotificationPayloads.length > 0) {
+              console.log(
+                `Triggering ${shelfLifeNotificationPayloads.length} near-expiry shelf life notifications`
+              );
+              try {
+                await triggerBulk(novu, shelfLifeNotificationPayloads);
+                console.log(
+                  `Successfully triggered ${shelfLifeNotificationPayloads.length} shelf life expiry notifications`
+                );
+              } catch (error) {
+                console.error("Error triggering shelf life expiry notifications");
+                console.error(error);
+              }
+            } else {
+              console.log(
+                "No shelf life expiry notifications to trigger (no entities at threshold days or no groups configured)"
+              );
+            }
+          }
+        } else {
+          console.log("No near-expiry entities found");
+        }
+      } catch (shelfLifeError) {
+        console.error(
+          "Error in shelf life expiry check:",
+          shelfLifeError instanceof Error
+            ? shelfLifeError.message
+            : String(shelfLifeError)
+        );
+        // Non-fatal: continue cleanup
+      }
+
       console.log(`🧹 Cleanup tasks completed: ${new Date().toISOString()}`);
     } catch (error) {
       console.error(

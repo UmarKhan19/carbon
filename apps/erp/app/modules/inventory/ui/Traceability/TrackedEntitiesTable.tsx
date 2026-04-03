@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
+  LuCalendarClock,
   LuCheck,
   LuFile,
   LuHash,
@@ -86,6 +87,56 @@ const TrackedEntitiesTable = memo(
           meta: {
             icon: <LuHash />,
             renderTotal: true
+          }
+        },
+        {
+          // @ts-ignore - column added in shelf-life migration, types not yet regenerated
+          accessorKey: "expirationDate",
+          header: "Expiration Date",
+          cell: ({ row }) => {
+            // @ts-ignore
+            const expDate: string | null = row.original.expirationDate ?? null;
+            if (!expDate) return null;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const exp = new Date(expDate + "T00:00:00");
+            const msPerDay = 1000 * 60 * 60 * 24;
+            const daysRemaining = Math.floor(
+              (exp.getTime() - today.getTime()) / msPerDay
+            );
+
+            const label = new Intl.DateTimeFormat(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric"
+            }).format(exp);
+
+            if (daysRemaining < 0) {
+              return (
+                <Badge variant="destructive" className="items-center gap-1">
+                  <LuCalendarClock />
+                  {label}
+                </Badge>
+              );
+            }
+            if (daysRemaining <= 7) {
+              return (
+                <Badge variant="yellow" className="items-center gap-1">
+                  <LuCalendarClock />
+                  {label}
+                </Badge>
+              );
+            }
+            return (
+              <Badge variant="secondary" className="items-center gap-1">
+                <LuCalendarClock />
+                {label}
+              </Badge>
+            );
+          },
+          meta: {
+            icon: <LuCalendarClock />
           }
         },
         {

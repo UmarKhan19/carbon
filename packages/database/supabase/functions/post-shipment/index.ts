@@ -75,7 +75,7 @@ serve(async (req: Request) => {
       return acc;
     }, []);
 
-    const [items, itemCosts, jobs] = await Promise.all([
+    const [items, itemCosts, jobs, itemShelfLifeResult] = await Promise.all([
       client
         .from("item")
         .select("id, itemTrackingType")
@@ -89,6 +89,10 @@ serve(async (req: Request) => {
         .from("job")
         .select("id, quantity, quantityComplete, quantityShipped, status")
         .in("id", jobIds),
+      client
+        .from("itemShelfLife")
+        .select("itemId, commercialShelfLifeDays")
+        .in("itemId", itemIds),
     ]);
     if (items.error) {
       throw new Error("Failed to fetch items");
@@ -98,6 +102,49 @@ serve(async (req: Request) => {
     }
     if (jobs.error) {
       throw new Error("Failed to fetch jobs");
+    }
+
+    // Build lookup map for commercial shelf life validation
+    const commercialShelfLifeByItemId = new Map<string, number>(
+      (itemShelfLifeResult.data ?? [])
+        .filter((sl) => sl.commercialShelfLifeDays != null)
+        .map((sl) => [sl.itemId, sl.commercialShelfLifeDays as number])
+    );
+
+    // Validate commercial shelf life for all tracked entities being shipped
+    // Only applies to "post" operations (not void)
+    if (type === "post" && shipmentLineTracking.data) {
+      const [ty, tm, td] = today.split("-").map(Number);
+      const todayMs = Date.UTC(ty, tm - 1, td);
+
+      for (const entity of shipmentLineTracking.data) {
+        // @ts-ignore - column added in shelf-life migration, types not yet regenerated
+        const expirationDate: string | null = entity.expirationDate ?? null;
+        if (!expirationDate) continue;
+
+        // Find the shipment line to get the itemId
+        const attrs = entity.attributes as TrackedEntityAttributes | undefined;
+        const shipmentLineId = attrs?.["Shipment Line"]?.toString();
+        const shipmentLine = shipmentLines.data.find(
+          (sl) => sl.id === shipmentLineId
+        );
+        if (!shipmentLine?.itemId) continue;
+
+        const commercialDays = commercialShelfLifeByItemId.get(shipmentLine.itemId);
+        if (commercialDays == null) continue;
+
+        const [ey, em, ed] = expirationDate.split("-").map(Number);
+        const expMs = Date.UTC(ey, em - 1, ed);
+        const remainingDays = Math.floor((expMs - todayMs) / (1000 * 60 * 60 * 24));
+
+        if (remainingDays < commercialDays) {
+          const readableId =
+            (entity as any).readableId ?? entity.id;
+          throw new Error(
+            `Cannot ship: batch "${readableId}" expires on ${expirationDate}, which is less than the commercial shelf life of ${commercialDays} days required for this item`
+          );
+        }
+      }
     }
 
     switch (type) {

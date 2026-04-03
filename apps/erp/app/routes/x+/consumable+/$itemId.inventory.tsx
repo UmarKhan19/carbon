@@ -8,16 +8,20 @@ import { redirect, useLoaderData } from "react-router";
 import { useShelves } from "~/components/Form/Shelf";
 import { useRouteData } from "~/hooks";
 import { InventoryDetails } from "~/modules/inventory";
-
 import type { Consumable, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
+  getItemShelfLife,
   getItemShelfQuantities,
   getPickMethod,
+  getShelfLifeLabelTypes,
+  getStorageTypes,
+  itemShelfLifeValidator,
   pickMethodValidator,
+  upsertItemShelfLife,
   upsertPickMethod
 } from "~/modules/items";
-import { PickMethodForm } from "~/modules/items/ui/Item";
+import { ItemShelfLifeForm, PickMethodForm } from "~/modules/items/ui/Item";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
 import { useItems } from "~/stores/items";
@@ -66,8 +70,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     locationId = locations.data?.[0].id as string;
   }
 
-  let [consumableInventory] = await Promise.all([
-    getPickMethod(client, itemId, companyId, locationId)
+  let [
+    consumableInventory,
+    shelfLifeResult,
+    storageTypesResult,
+    labelTypesResult
+  ] = await Promise.all([
+    getPickMethod(client, itemId, companyId, locationId),
+    getItemShelfLife(client, itemId),
+    getStorageTypes(client, companyId),
+    getShelfLifeLabelTypes(client, companyId)
   ]);
 
   if (consumableInventory.error || !consumableInventory.data) {
@@ -145,6 +157,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     consumableInventory: consumableInventory.data,
     itemShelfQuantities: itemShelfQuantities.data,
     quantities: quantities.data,
+    shelfLife: shelfLifeResult.data,
+    storageTypes: storageTypesResult.data ?? [],
+    shelfLifeLabelTypes: labelTypesResult.data ?? [],
     itemId,
     locationId
   };
@@ -152,7 +167,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, userId, companyId } = await requirePermissions(request, {
     update: "parts"
   });
 
@@ -160,12 +175,37 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
 
   const formData = await request.formData();
-  // validate with consumablesValidator
-  const validation = await validator(pickMethodValidator).validate(formData);
+  const intent = formData.get("intent");
 
-  if (validation.error) {
-    return validationError(validation.error);
+  if (intent === "shelfLife") {
+    const validation = await validator(itemShelfLifeValidator).validate(
+      formData
+    );
+    if (validation.error) return validationError(validation.error);
+
+    const existing = await getItemShelfLife(client, itemId);
+    const result = await upsertItemShelfLife(
+      client,
+      existing.data
+        ? { ...validation.data, updatedBy: userId }
+        : { ...validation.data, companyId, createdBy: userId }
+    );
+
+    if (result.error) {
+      throw redirect(
+        path.to.consumable(itemId),
+        await flash(request, error(result.error, "Failed to save shelf life"))
+      );
+    }
+
+    throw redirect(
+      path.to.consumableInventory(itemId),
+      await flash(request, success("Saved shelf life config"))
+    );
   }
+
+  const validation = await validator(pickMethodValidator).validate(formData);
+  if (validation.error) return validationError(validation.error);
 
   const { ...update } = validation.data;
 
@@ -197,8 +237,15 @@ export default function ConsumableInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.consumableRoot);
 
-  const { consumableInventory, itemShelfQuantities, quantities, itemId } =
-    useLoaderData<typeof loader>();
+  const {
+    consumableInventory,
+    itemShelfQuantities,
+    quantities,
+    shelfLife,
+    storageTypes,
+    shelfLifeLabelTypes,
+    itemId
+  } = useLoaderData<typeof loader>();
 
   const consumableData = useRouteData<{
     consumableSummary: Consumable;
@@ -218,6 +265,16 @@ export default function ConsumableInventoryRoute() {
   const [items] = useItems();
   const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
 
+  const shelfLifeInitialValues = {
+    itemId,
+    totalShelfLifeDays: shelfLife?.totalShelfLifeDays ?? undefined,
+    commercialShelfLifeDays: shelfLife?.commercialShelfLifeDays ?? undefined,
+    minRemainingShelfLifeDays:
+      shelfLife?.minRemainingShelfLifeDays ?? undefined,
+    storageTypeId: shelfLife?.storageTypeId ?? undefined,
+    shelfLifeLabelTypeId: shelfLife?.shelfLifeLabelTypeId ?? undefined
+  };
+
   return (
     <VStack spacing={2} className="p-2">
       <PickMethodForm
@@ -234,6 +291,14 @@ export default function ConsumableInventoryRoute() {
         pickMethod={initialValues}
         quantities={quantities}
         shelves={shelves.options}
+        shelfLifeForm={
+          <ItemShelfLifeForm
+            key={`${itemId}-shelf-life`}
+            initialValues={shelfLifeInitialValues}
+            storageTypes={storageTypes}
+            shelfLifeLabelTypes={shelfLifeLabelTypes}
+          />
+        }
       />
     </VStack>
   );

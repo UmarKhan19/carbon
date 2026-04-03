@@ -1,10 +1,12 @@
 import {
   LuArrowRightLeft,
+  LuCalendarClock,
   LuHandCoins,
   LuListChecks,
   LuNetwork,
   LuQrCode,
   LuTally5,
+  LuThermometer,
   LuTruck,
   LuWarehouse
 } from "react-icons/lu";
@@ -66,6 +68,12 @@ const inventoryRoutes: AuthenticatedRouteGroup[] = [
         icon: <LuQrCode />
       },
       {
+        name: "Near-Expiry",
+        to: path.to.nearExpiryInventory,
+        role: "employee",
+        icon: <LuCalendarClock />
+      },
+      {
         name: "Traceability",
         to: path.to.traceability,
         role: "employee",
@@ -88,6 +96,12 @@ const inventoryRoutes: AuthenticatedRouteGroup[] = [
         to: path.to.shippingMethods,
         role: "employee",
         icon: <LuTruck />
+      },
+      {
+        name: "Shelf Life Types",
+        to: path.to.storageTypes,
+        role: "employee",
+        icon: <LuThermometer />
       }
     ]
   }

@@ -1,5 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { ProductLabelPDF } from "@carbon/documents/pdf";
+import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
@@ -57,7 +58,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       number: trackedEntity.data?.readableId ?? "",
       trackedEntityId: id,
       quantity: trackedEntity.data?.quantity ?? 1,
-      trackingType: "Batch"
+      trackingType: "Batch",
+      // @ts-ignore - columns added in shelf-life migration, types not yet regenerated
+      expirationDate: trackedEntity.data?.expirationDate ?? null,
+      shelfLifeLabelType:
+        (trackedEntity.data?.attributes as TrackedEntityAttributes)?.[
+          "Shelf Life Label Type"
+        ] ?? null
     }
   ];
 

@@ -7,19 +7,30 @@ import type {
   ClientActionFunctionArgs,
   LoaderFunctionArgs
 } from "react-router";
-import { data, redirect, useNavigate, useSearchParams } from "react-router";
+import {
+  data,
+  redirect,
+  useLoaderData,
+  useNavigate,
+  useSearchParams
+} from "react-router";
 import { useUser } from "~/hooks";
 import { ShelfForm, shelfValidator, upsertShelf } from "~/modules/inventory";
+import { getStorageTypes } from "~/modules/items";
 import { setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
 import { getCompanyId, shelvesQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     create: "inventory"
   });
 
-  return null;
+  const storageTypes = await getStorageTypes(client, companyId);
+
+  return {
+    storageTypes: storageTypes.data ?? []
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -84,11 +95,17 @@ export async function clientAction({
 }
 
 export default function NewShelfRoute() {
+  const { storageTypes } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { defaults } = useUser();
   const locationId =
     (searchParams.get("location") || defaults.locationId) ?? "";
+
+  const storageTypeOptions = storageTypes.map((st) => ({
+    label: st.name,
+    value: st.id
+  }));
 
   const initialValues = {
     name: "",
@@ -99,6 +116,7 @@ export default function NewShelfRoute() {
     <ShelfForm
       initialValues={initialValues}
       locationId={locationId}
+      storageTypes={storageTypeOptions}
       onClose={() => navigate(-1)}
     />
   );

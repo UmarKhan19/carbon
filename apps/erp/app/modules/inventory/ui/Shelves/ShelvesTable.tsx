@@ -16,6 +16,7 @@ import {
   LuMapPin,
   LuPencil,
   LuPlus,
+  LuThermometer,
   LuTrash
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
@@ -33,6 +34,7 @@ type Shelf = {
   active: boolean;
   createdAt: string;
   updatedAt: string | null;
+  storageType: { id: string; name: string } | null;
 };
 
 type ShelvesTableProps = {
@@ -79,6 +81,16 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
         },
         meta: {
           icon: <LuMapPin />
+        }
+      },
+      {
+        accessorKey: "storageType",
+        header: "Storage Type",
+        cell: ({ row }) => (
+          <Enumerable value={row.original.storageType?.name ?? ""} />
+        ),
+        meta: {
+          icon: <LuThermometer />
         }
       },
       {

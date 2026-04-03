@@ -14,12 +14,13 @@ import {
   shelfValidator,
   upsertShelf
 } from "~/modules/inventory";
+import { getStorageTypes } from "~/modules/items";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
 import { getCompanyId, shelvesQuery } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     view: "inventory",
     role: "employee"
   });
@@ -27,10 +28,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { shelfId } = params;
   if (!shelfId) throw notFound("shelfId not found");
 
-  const shelf = await getShelf(client, shelfId);
+  const [shelf, storageTypes] = await Promise.all([
+    getShelf(client, shelfId),
+    getStorageTypes(client, companyId)
+  ]);
 
   return {
-    shelf: shelf?.data ?? null
+    shelf: shelf?.data ?? null,
+    storageTypes: storageTypes.data ?? []
   };
 }
 
@@ -93,13 +98,20 @@ export async function clientAction({
 }
 
 export default function EditShelfRoute() {
-  const { shelf } = useLoaderData<typeof loader>();
+  const { shelf, storageTypes } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+
+  const storageTypeOptions = storageTypes.map((st) => ({
+    label: st.name,
+    value: st.id
+  }));
 
   const initialValues = {
     id: shelf?.id ?? undefined,
     name: shelf?.name ?? "",
     locationId: shelf?.locationId ?? "",
+    // @ts-ignore - storageTypeId added via migration, not yet in generated types
+    storageTypeId: shelf?.storageTypeId ?? undefined,
     ...getCustomFields(shelf?.customFields)
   };
 
@@ -108,6 +120,7 @@ export default function EditShelfRoute() {
       key={initialValues.id}
       initialValues={initialValues}
       locationId={initialValues.locationId}
+      storageTypes={storageTypeOptions}
       onClose={() => navigate(-1)}
     />
   );
