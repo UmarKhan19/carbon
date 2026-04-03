@@ -2,6 +2,7 @@ import { useCarbon } from "@carbon/auth";
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
+  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -16,6 +17,8 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
+  ToggleGroup,
+  ToggleGroupItem,
   VStack
 } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -47,14 +50,27 @@ type PriceBreakRow = {
   unitPrice: number;
 };
 
+const toggleGroupClass =
+  "inline-flex w-full gap-0 rounded-lg border border-border bg-muted p-0.5";
+
+const toggleItemClass = cn(
+  "h-8 flex-1 basis-0 rounded-md px-3 text-sm font-medium",
+  "bg-transparent text-muted-foreground",
+  "hover:bg-active hover:text-active-foreground",
+  "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
+  "transition-all duration-150"
+);
+
 type PriceListItemFormProps = {
   initialValues: z.infer<typeof priceListItemValidator>;
+  initialBreaks?: PriceBreakRow[];
   priceListType?: string;
   onClose: () => void;
 };
 
 const PriceListItemForm = ({
   initialValues,
+  initialBreaks,
   priceListType,
   onClose
 }: PriceListItemFormProps) => {
@@ -71,7 +87,12 @@ const PriceListItemForm = ({
     initialValues.formulaBase ?? ""
   );
   const [replenishmentSystem, setReplenishmentSystem] = useState<string>("");
-  const [priceBreaks, setPriceBreaks] = useState<PriceBreakRow[]>([]);
+  const [priceBreaks, setPriceBreaks] = useState<PriceBreakRow[]>(
+    initialBreaks ?? []
+  );
+  const [itemScope, setItemScope] = useState<"item" | "category">(
+    initialValues.itemPostingGroupId ? "category" : "item"
+  );
 
   const isEditing = initialValues.id !== undefined;
   const permissionModule =
@@ -144,21 +165,41 @@ const PriceListItemForm = ({
                 value={JSON.stringify(priceBreaks)}
               />
               <VStack spacing={4}>
-                <p className="text-sm text-muted-foreground">
-                  Choose a specific item or an item category:
-                </p>
-                <Item
-                  name="itemId"
-                  label="Item"
-                  type="Item"
-                  placeholder="Specific item"
-                  onChange={onItemChange}
-                />
-                <ItemPostingGroup
-                  name="itemPostingGroupId"
-                  label="Item Category"
-                  placeholder="Or select a category"
-                />
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Applies To</label>
+                  <ToggleGroup
+                    type="single"
+                    value={itemScope}
+                    onValueChange={(v) => {
+                      if (v) setItemScope(v as "item" | "category");
+                    }}
+                    className={toggleGroupClass}
+                  >
+                    <ToggleGroupItem value="item" className={toggleItemClass}>
+                      Specific Item
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="category"
+                      className={toggleItemClass}
+                    >
+                      Item Category
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                {itemScope === "item" ? (
+                  <Item
+                    name="itemId"
+                    label="Item"
+                    type="Item"
+                    onChange={onItemChange}
+                  />
+                ) : (
+                  <ItemPostingGroup
+                    name="itemPostingGroupId"
+                    label="Item Posting Group"
+                  />
+                )}
 
                 <UnitOfMeasure
                   name="unitOfMeasureCode"
@@ -213,14 +254,6 @@ const PriceListItemForm = ({
                         style: "currency",
                         currency: company?.baseCurrencyCode ?? "USD"
                       }}
-                    />
-
-                    {/* Price Breaks */}
-                    <PriceBreaks
-                      priceBreaks={priceBreaks}
-                      onChange={setPriceBreaks}
-                      baseCurrency={company?.baseCurrencyCode ?? "USD"}
-                      isDisabled={isDisabled}
                     />
                   </>
                 )}
@@ -301,6 +334,14 @@ const PriceListItemForm = ({
                     />
                   </>
                 )}
+
+                {/* Price Breaks — available for both Fixed and Formula */}
+                <PriceBreaks
+                  priceBreaks={priceBreaks}
+                  onChange={setPriceBreaks}
+                  baseCurrency={company?.baseCurrencyCode ?? "USD"}
+                  isDisabled={isDisabled}
+                />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

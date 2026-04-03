@@ -1,6 +1,7 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
+  cn,
   HStack,
   ModalDrawer,
   ModalDrawerBody,
@@ -9,6 +10,8 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
+  ToggleGroup,
+  ToggleGroupItem,
   VStack
 } from "@carbon/react";
 import { useState } from "react";
@@ -33,6 +36,14 @@ import {
   priceListRuleValidator
 } from "../../pricing.models";
 
+const toggleItemClass = cn(
+  "h-8 flex-1 basis-0 rounded-md px-3 text-sm font-medium",
+  "bg-transparent text-muted-foreground",
+  "hover:bg-active hover:text-active-foreground",
+  "data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm",
+  "transition-all duration-150"
+);
+
 type PriceListRuleFormProps = {
   initialValues: z.infer<typeof priceListRuleValidator>;
   priceListType?: string;
@@ -48,6 +59,9 @@ const PriceListRuleForm = ({
   const { company } = useUser();
   const [amountType, setAmountType] = useState(
     initialValues.amountType ?? "Percentage"
+  );
+  const [itemScope, setItemScope] = useState<"item" | "category">(
+    initialValues.itemPostingGroupId ? "category" : "item"
   );
 
   const isEditing = initialValues.id !== undefined;
@@ -153,17 +167,42 @@ const PriceListRuleForm = ({
                   />
                 )}
 
-                <Item
-                  name="itemId"
-                  label="Item"
-                  type="Item"
-                  placeholder="All items"
-                />
-                <ItemPostingGroup
-                  name="itemPostingGroupId"
-                  label="Item Category"
-                  placeholder="All categories"
-                />
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Item Scope</label>
+                  <ToggleGroup
+                    type="single"
+                    value={itemScope}
+                    onValueChange={(v) => {
+                      if (v) setItemScope(v as "item" | "category");
+                    }}
+                    className="inline-flex w-full gap-0 rounded-lg border border-border bg-muted p-0.5"
+                  >
+                    <ToggleGroupItem value="item" className={toggleItemClass}>
+                      Specific Item
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="category"
+                      className={toggleItemClass}
+                    >
+                      Item Category
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </div>
+
+                {itemScope === "item" ? (
+                  <Item
+                    name="itemId"
+                    label="Item"
+                    type="Item"
+                    placeholder="All items"
+                  />
+                ) : (
+                  <ItemPostingGroup
+                    name="itemPostingGroupId"
+                    label="Item Category"
+                    placeholder="All categories"
+                  />
+                )}
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

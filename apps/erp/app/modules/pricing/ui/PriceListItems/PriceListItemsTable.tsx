@@ -1,4 +1,3 @@
-import { useCarbon } from "@carbon/auth";
 import {
   Card,
   CardAction,
@@ -14,22 +13,20 @@ import {
   IconButton
 } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { type ReactNode, useCallback, useMemo } from "react";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
-import { Link, useNavigate, useParams } from "react-router";
+import { useMemo } from "react";
+import { LuEllipsisVertical, LuPencil, LuTrash } from "react-icons/lu";
+import { useNavigate, useParams } from "react-router";
 import { New } from "~/components";
-import { EditableNumber } from "~/components/Editable";
 import Grid from "~/components/Grid";
+import Hyperlink from "~/components/Hyperlink";
 import {
   useCurrencyFormatter,
   usePermissions,
   useRouteData,
-  useUrlParams,
-  useUser
+  useUrlParams
 } from "~/hooks";
 import { path } from "~/utils/path";
 import type { PriceListDetail, PriceListItem } from "../../types";
-import PriceListItemBreaks from "./PriceListItemBreaks";
 
 type PriceListItemsTableProps = {
   data: PriceListItem[];
@@ -41,8 +38,6 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
   const permissions = usePermissions();
   const [params] = useUrlParams();
   const formatter = useCurrencyFormatter();
-  const { carbon } = useCarbon();
-  const { id: userId, company } = useUser();
 
   if (!id) throw new Error("Price list ID not found");
 
@@ -52,34 +47,7 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
   const permissionModule =
     routeData?.priceList?.type === "Purchase" ? "purchasing" : "sales";
   const canCreate = permissions.can("create", permissionModule);
-  const canUpdate = permissions.can("update", permissionModule);
   const canDelete = permissions.can("delete", permissionModule);
-
-  const onCellEdit = useCallback(
-    async (accessorKey: string, value: unknown, row: PriceListItem) => {
-      if (!carbon) throw new Error("Carbon client not found");
-      return await carbon
-        .from("priceListItem")
-        .update({
-          [accessorKey]: value,
-          updatedBy: userId
-        })
-        .eq("id", row.id!);
-    },
-    [carbon, userId]
-  );
-
-  const editableComponents = useMemo(
-    () => ({
-      unitPrice: EditableNumber<PriceListItem>(onCellEdit, {
-        formatOptions: {
-          style: "currency",
-          currency: company?.baseCurrencyCode ?? "USD"
-        }
-      })
-    }),
-    [onCellEdit, company?.baseCurrencyCode]
-  );
 
   const columns = useMemo<ColumnDef<PriceListItem>[]>(
     () => [
@@ -87,32 +55,23 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
         accessorKey: "itemId",
         header: "Target",
         cell: ({ row }) => {
+          const r = row.original as any;
           let label: string;
-          let link: string | null = null;
-          if (row.original.itemId) {
-            const item = (row.original as any).item;
-            label = item
-              ? `${item.readableId} — ${item.name}`
-              : row.original.itemId;
-            link = path.to.part(row.original.itemId);
+          if (r.itemId) {
+            const item = r.item;
+            label = item ? `${item.readableId} — ${item.name}` : r.itemId;
           } else {
-            const group = (row.original as any).itemPostingGroup;
+            const group = r.itemPostingGroup;
             label = group ? `Category: ${group.name}` : "—";
           }
 
           return (
             <HStack className="justify-between min-w-[100px]">
-              {link ? (
-                <Link
-                  to={link}
-                  className="text-primary hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {label}
-                </Link>
-              ) : (
-                <span>{label}</span>
-              )}
+              <Hyperlink
+                to={`${path.to.priceListItems(id)}/${row.original.id}?${params.toString()}`}
+              >
+                {label}
+              </Hyperlink>
               <div className="relative w-6 h-5">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -126,6 +85,16 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
                     />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        navigate(
+                          `${path.to.priceListItems(id)}/${row.original.id}?${params.toString()}`
+                        )
+                      }
+                    >
+                      <DropdownMenuIcon icon={<LuPencil />} />
+                      Edit Item
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       destructive
                       disabled={!canDelete}
@@ -159,7 +128,6 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
               ? `, round ${formatter.format(r.roundingPrecision)}`
               : "";
 
-            // Live preview: compute result if we have cost data
             const item = r.item;
             const baseCost = item?.itemCost?.[0]?.unitCost;
             let preview = "";
@@ -228,16 +196,6 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
     [formatter, canDelete, navigate, id, params]
   );
 
-  const renderExpandedRow = useCallback((row: PriceListItem): ReactNode => {
-    const r = row as any;
-    return (
-      <PriceListItemBreaks
-        priceListItemId={row.id!}
-        initialBreaks={r.priceListItemBreak ?? []}
-      />
-    );
-  }, []);
-
   return (
     <>
       <Card className="w-full">
@@ -258,9 +216,7 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
           <Grid<PriceListItem>
             data={data}
             columns={columns}
-            canEdit={canUpdate}
-            editableComponents={editableComponents}
-            renderExpandedRow={renderExpandedRow}
+            canEdit={false}
             onNewRow={
               canCreate
                 ? () =>
