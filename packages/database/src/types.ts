@@ -4344,6 +4344,7 @@ export type Database = {
           logo: string | null
           name: string
           phone: string | null
+          priceListId: string | null
           salesContactId: string | null
           tags: string[] | null
           taxId: string | null
@@ -4370,6 +4371,7 @@ export type Database = {
           logo?: string | null
           name: string
           phone?: string | null
+          priceListId?: string | null
           salesContactId?: string | null
           tags?: string[] | null
           taxId?: string | null
@@ -4396,6 +4398,7 @@ export type Database = {
           logo?: string | null
           name?: string
           phone?: string | null
+          priceListId?: string | null
           salesContactId?: string | null
           tags?: string[] | null
           taxId?: string | null
@@ -4558,6 +4561,13 @@ export type Database = {
             columns: ["customerTypeId"]
             isOneToOne: false
             referencedRelation: "customerType"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_priceListId_fkey"
+            columns: ["priceListId"]
+            isOneToOne: false
+            referencedRelation: "priceList"
             referencedColumns: ["id"]
           },
           {
@@ -22541,6 +22551,995 @@ export type Database = {
           },
         ]
       }
+      priceList: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          currencyCode: string
+          customFields: Json | null
+          description: string | null
+          id: string
+          name: string
+          notes: Json | null
+          priceType: Database["public"]["Enums"]["priceListPriceType"]
+          sequence: number
+          status: Database["public"]["Enums"]["priceListStatus"]
+          type: Database["public"]["Enums"]["priceListType"]
+          updatedAt: string | null
+          updatedBy: string | null
+          validFrom: string | null
+          validTo: string | null
+          version: number
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          currencyCode?: string
+          customFields?: Json | null
+          description?: string | null
+          id?: string
+          name: string
+          notes?: Json | null
+          priceType?: Database["public"]["Enums"]["priceListPriceType"]
+          sequence?: number
+          status?: Database["public"]["Enums"]["priceListStatus"]
+          type?: Database["public"]["Enums"]["priceListType"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+          validFrom?: string | null
+          validTo?: string | null
+          version?: number
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          currencyCode?: string
+          customFields?: Json | null
+          description?: string | null
+          id?: string
+          name?: string
+          notes?: Json | null
+          priceType?: Database["public"]["Enums"]["priceListPriceType"]
+          sequence?: number
+          status?: Database["public"]["Enums"]["priceListStatus"]
+          type?: Database["public"]["Enums"]["priceListType"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+          validFrom?: string | null
+          validTo?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priceList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "priceList_currencyCode_companyId_fkey"
+            columns: ["currencyCode", "companyId"]
+            isOneToOne: false
+            referencedRelation: "currencies"
+            referencedColumns: ["code", "companyId"]
+          },
+          {
+            foreignKeyName: "priceList_currencyCode_companyId_fkey"
+            columns: ["currencyCode", "companyId"]
+            isOneToOne: false
+            referencedRelation: "currency"
+            referencedColumns: ["code", "companyId"]
+          },
+          {
+            foreignKeyName: "priceList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      priceListAssignment: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          customerId: string | null
+          customerTypeId: string | null
+          id: string
+          priceListId: string
+          supplierId: string | null
+          supplierTypeId: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          customerId?: string | null
+          customerTypeId?: string | null
+          id?: string
+          priceListId: string
+          supplierId?: string | null
+          supplierTypeId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          customerId?: string | null
+          customerTypeId?: string | null
+          id?: string
+          priceListId?: string
+          supplierId?: string | null
+          supplierTypeId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priceListAssignment_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_customerId_fkey"
+            columns: ["customerId"]
+            isOneToOne: false
+            referencedRelation: "customer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_customerId_fkey"
+            columns: ["customerId"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_customerId_fkey"
+            columns: ["customerId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderCustomers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_customerTypeId_fkey"
+            columns: ["customerTypeId"]
+            isOneToOne: false
+            referencedRelation: "customerType"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_priceListId_fkey"
+            columns: ["priceListId"]
+            isOneToOne: false
+            referencedRelation: "priceList"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_supplierId_fkey"
+            columns: ["supplierId"]
+            isOneToOne: false
+            referencedRelation: "contractors"
+            referencedColumns: ["supplierId"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_supplierId_fkey"
+            columns: ["supplierId"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["supplierId"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_supplierId_fkey"
+            columns: ["supplierId"]
+            isOneToOne: false
+            referencedRelation: "purchaseOrderSuppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_supplierId_fkey"
+            columns: ["supplierId"]
+            isOneToOne: false
+            referencedRelation: "supplier"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_supplierId_fkey"
+            columns: ["supplierId"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_supplierTypeId_fkey"
+            columns: ["supplierTypeId"]
+            isOneToOne: false
+            referencedRelation: "supplierType"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      priceListItem: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          discountPercent: number | null
+          formulaBase: string | null
+          id: string
+          itemId: string | null
+          itemPostingGroupId: string | null
+          markupPercent: number | null
+          minMarginPercent: number | null
+          priceListId: string
+          pricingMethod: string
+          roundingPrecision: number | null
+          surchargeAmount: number | null
+          unitOfMeasureCode: string | null
+          unitPrice: number
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          discountPercent?: number | null
+          formulaBase?: string | null
+          id?: string
+          itemId?: string | null
+          itemPostingGroupId?: string | null
+          markupPercent?: number | null
+          minMarginPercent?: number | null
+          priceListId: string
+          pricingMethod?: string
+          roundingPrecision?: number | null
+          surchargeAmount?: number | null
+          unitOfMeasureCode?: string | null
+          unitPrice: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          discountPercent?: number | null
+          formulaBase?: string | null
+          id?: string
+          itemId?: string | null
+          itemPostingGroupId?: string | null
+          markupPercent?: number | null
+          minMarginPercent?: number | null
+          priceListId?: string
+          pricingMethod?: string
+          roundingPrecision?: number | null
+          surchargeAmount?: number | null
+          unitOfMeasureCode?: string | null
+          unitPrice?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priceListItem_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListItem_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListItem_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "priceListItem_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_itemPostingGroupId_fkey"
+            columns: ["itemPostingGroupId"]
+            isOneToOne: false
+            referencedRelation: "itemPostingGroup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_priceListId_fkey"
+            columns: ["priceListId"]
+            isOneToOne: false
+            referencedRelation: "priceList"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItem_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      priceListItemBreak: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          discountPercent: number | null
+          minQuantity: number
+          priceListItemId: string
+          unitPrice: number
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          discountPercent?: number | null
+          minQuantity?: number
+          priceListItemId: string
+          unitPrice: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          discountPercent?: number | null
+          minQuantity?: number
+          priceListItemId?: string
+          unitPrice?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priceListItemBreak_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_priceListItemId_fkey"
+            columns: ["priceListItemId"]
+            isOneToOne: false
+            referencedRelation: "priceListItem"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListItemBreak_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      priceListRule: {
+        Row: {
+          active: boolean
+          amount: number
+          amountType: Database["public"]["Enums"]["priceListRuleAmountType"]
+          companyId: string
+          createdAt: string
+          createdBy: string
+          customerTypeId: string | null
+          id: string
+          itemId: string | null
+          itemPostingGroupId: string | null
+          maxQuantity: number | null
+          minQuantity: number | null
+          name: string
+          priceListId: string
+          priority: number
+          ruleType: Database["public"]["Enums"]["priceListRuleType"]
+          supplierTypeId: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          amountType?: Database["public"]["Enums"]["priceListRuleAmountType"]
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          customerTypeId?: string | null
+          id?: string
+          itemId?: string | null
+          itemPostingGroupId?: string | null
+          maxQuantity?: number | null
+          minQuantity?: number | null
+          name: string
+          priceListId: string
+          priority?: number
+          ruleType: Database["public"]["Enums"]["priceListRuleType"]
+          supplierTypeId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          amountType?: Database["public"]["Enums"]["priceListRuleAmountType"]
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          customerTypeId?: string | null
+          id?: string
+          itemId?: string | null
+          itemPostingGroupId?: string | null
+          maxQuantity?: number | null
+          minQuantity?: number | null
+          name?: string
+          priceListId?: string
+          priority?: number
+          ruleType?: Database["public"]["Enums"]["priceListRuleType"]
+          supplierTypeId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priceListRule_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListRule_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "priceListRule_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "priceListRule_customerTypeId_fkey"
+            columns: ["customerTypeId"]
+            isOneToOne: false
+            referencedRelation: "customerType"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_itemPostingGroupId_fkey"
+            columns: ["itemPostingGroupId"]
+            isOneToOne: false
+            referencedRelation: "itemPostingGroup"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_priceListId_fkey"
+            columns: ["priceListId"]
+            isOneToOne: false
+            referencedRelation: "priceList"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_supplierTypeId_fkey"
+            columns: ["supplierTypeId"]
+            isOneToOne: false
+            referencedRelation: "supplierType"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "priceListRule_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       procedure: {
         Row: {
           assignee: string | null
@@ -25227,6 +26226,7 @@ export type Database = {
           jobOperationId: string | null
           locationId: string | null
           modelUploadId: string | null
+          priceListId: string | null
           promisedDate: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -25276,6 +26276,7 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
+          priceListId?: string | null
           promisedDate?: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -25325,6 +26326,7 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
+          priceListId?: string | null
           promisedDate?: string | null
           purchaseOrderId?: string
           purchaseOrderLineType?: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -25514,6 +26516,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_priceListId_fkey"
+            columns: ["priceListId"]
+            isOneToOne: false
+            referencedRelation: "priceList"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "purchaseOrderLine_purchaseOrderId_fkey"
@@ -30832,6 +31841,7 @@ export type Database = {
           companyId: string
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
+          convertedNonTaxableAddOnCost: number | null
           convertedSetupPrice: number | null
           convertedShippingCost: number | null
           convertedUnitPrice: number | null
@@ -30849,6 +31859,7 @@ export type Database = {
           locationId: string | null
           methodType: Database["public"]["Enums"]["methodType"]
           modelUploadId: string | null
+          nonTaxableAddOnCost: number
           nonTaxableAddOnCost: number
           opportunityId: string | null
           quantity: number
@@ -30870,6 +31881,7 @@ export type Database = {
           companyId: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
+          convertedNonTaxableAddOnCost?: number | null
           convertedSetupPrice?: number | null
           convertedShippingCost?: number | null
           convertedUnitPrice?: number | null
@@ -30887,6 +31899,7 @@ export type Database = {
           locationId?: string | null
           methodType?: Database["public"]["Enums"]["methodType"]
           modelUploadId?: string | null
+          nonTaxableAddOnCost?: number
           nonTaxableAddOnCost?: number
           opportunityId?: string | null
           quantity?: number
@@ -30908,6 +31921,7 @@ export type Database = {
           companyId?: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
+          convertedNonTaxableAddOnCost?: number | null
           convertedSetupPrice?: number | null
           convertedShippingCost?: number | null
           convertedUnitPrice?: number | null
@@ -30925,6 +31939,7 @@ export type Database = {
           locationId?: string | null
           methodType?: Database["public"]["Enums"]["methodType"]
           modelUploadId?: string | null
+          nonTaxableAddOnCost?: number
           nonTaxableAddOnCost?: number
           opportunityId?: string | null
           quantity?: number
@@ -31771,6 +32786,7 @@ export type Database = {
           companyId: string
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
+          convertedNonTaxableAddOnCost: number | null
           convertedShippingCost: number | null
           convertedUnitPrice: number | null
           createdAt: string
@@ -31787,6 +32803,7 @@ export type Database = {
           methodType: Database["public"]["Enums"]["methodType"]
           modelUploadId: string | null
           nonTaxableAddOnCost: number
+          priceListId: string | null
           promisedDate: string | null
           quantityInvoiced: number | null
           quantitySent: number | null
@@ -31815,6 +32832,7 @@ export type Database = {
           companyId: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
+          convertedNonTaxableAddOnCost?: number | null
           convertedShippingCost?: number | null
           convertedUnitPrice?: number | null
           createdAt?: string
@@ -31831,6 +32849,7 @@ export type Database = {
           methodType?: Database["public"]["Enums"]["methodType"]
           modelUploadId?: string | null
           nonTaxableAddOnCost?: number
+          priceListId?: string | null
           promisedDate?: string | null
           quantityInvoiced?: number | null
           quantitySent?: number | null
@@ -31859,6 +32878,7 @@ export type Database = {
           companyId?: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
+          convertedNonTaxableAddOnCost?: number | null
           convertedShippingCost?: number | null
           convertedUnitPrice?: number | null
           createdAt?: string
@@ -31875,6 +32895,7 @@ export type Database = {
           methodType?: Database["public"]["Enums"]["methodType"]
           modelUploadId?: string | null
           nonTaxableAddOnCost?: number
+          priceListId?: string | null
           promisedDate?: string | null
           quantityInvoiced?: number | null
           quantitySent?: number | null
@@ -31986,6 +33007,13 @@ export type Database = {
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderLine_priceListId_fkey"
+            columns: ["priceListId"]
+            isOneToOne: false
+            referencedRelation: "priceList"
             referencedColumns: ["id"]
           },
           {
@@ -35644,6 +36672,7 @@ export type Database = {
           logo: string | null
           name: string
           phone: string | null
+          priceListId: string | null
           purchasingContactId: string | null
           supplierStatus:
             | Database["public"]["Enums"]["supplierStatusType"]
@@ -35672,6 +36701,7 @@ export type Database = {
           logo?: string | null
           name: string
           phone?: string | null
+          priceListId?: string | null
           purchasingContactId?: string | null
           supplierStatus?:
             | Database["public"]["Enums"]["supplierStatusType"]
@@ -35700,6 +36730,7 @@ export type Database = {
           logo?: string | null
           name?: string
           phone?: string | null
+          priceListId?: string | null
           purchasingContactId?: string | null
           supplierStatus?:
             | Database["public"]["Enums"]["supplierStatusType"]
@@ -35853,6 +36884,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "currencyCode"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "supplier_priceListId_fkey"
+            columns: ["priceListId"]
+            isOneToOne: false
+            referencedRelation: "priceList"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "supplier_purchasingContactId_fkey"
@@ -52156,6 +53194,7 @@ export type Database = {
           companyId: string | null
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
+          convertedNonTaxableAddOnCost: number | null
           convertedSetupPrice: number | null
           convertedShippingCost: number | null
           convertedUnitPrice: number | null
@@ -52179,6 +53218,7 @@ export type Database = {
           locationId: string | null
           methodType: Database["public"]["Enums"]["methodType"] | null
           modelUploadId: string | null
+          nonTaxableAddOnCost: number | null
           nonTaxableAddOnCost: number | null
           opportunityId: string | null
           quantity: number | null
@@ -52488,7 +53528,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52496,13 +53536,14 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -52788,6 +53829,7 @@ export type Database = {
           companyId: string | null
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
+          convertedNonTaxableAddOnCost: number | null
           convertedShippingCost: number | null
           convertedUnitPrice: number | null
           createdAt: string | null
@@ -52811,6 +53853,7 @@ export type Database = {
           modelPath: string | null
           modelSize: number | null
           modelUploadId: string | null
+          nonTaxableAddOnCost: number | null
           nonTaxableAddOnCost: number | null
           orderDate: string | null
           promisedDate: string | null
@@ -53048,12 +54091,14 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["paymentCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
+            columns: ["customerCountryCode"]
             columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -56768,6 +57813,19 @@ export type Database = {
           unitOfMeasureCode: string
         }[]
       }
+      get_inventory_value_by_location: {
+        Args: { company_id: string }
+        Returns: {
+          itemName: string
+          itemReadableId: string
+          locationName: string
+          quantityOnHand: number
+          replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
+          totalValue: number
+          unitCost: number
+          unitOfMeasureCode: string
+        }[]
+      }
       get_item_quantities_by_tracking_id: {
         Args: { company_id: string; item_id: string; location_id: string }
         Returns: {
@@ -58286,6 +59344,11 @@ export type Database = {
         | "Fixture"
       paymentTermCalculationMethod: "Net" | "End of Month" | "Day of Month"
       periodType: "Week" | "Day" | "Month"
+      priceListPriceType: "Gross" | "Net" | "Discounted"
+      priceListRuleAmountType: "Percentage" | "Fixed"
+      priceListRuleType: "Discount" | "Surcharge"
+      priceListStatus: "Draft" | "Active" | "Expired" | "Archived"
+      priceListType: "Sales" | "Purchase"
       procedureStatus: "Draft" | "Active" | "Archived"
       procedureStepType:
         | "Value"
@@ -59459,6 +60522,11 @@ export const Constants = {
       ],
       paymentTermCalculationMethod: ["Net", "End of Month", "Day of Month"],
       periodType: ["Week", "Day", "Month"],
+      priceListPriceType: ["Gross", "Net", "Discounted"],
+      priceListRuleAmountType: ["Percentage", "Fixed"],
+      priceListRuleType: ["Discount", "Surcharge"],
+      priceListStatus: ["Draft", "Active", "Expired", "Archived"],
+      priceListType: ["Sales", "Purchase"],
       procedureStatus: ["Draft", "Active", "Archived"],
       procedureStepType: [
         "Value",
@@ -59674,4 +60742,3 @@ export const Constants = {
     },
   },
 } as const
-
