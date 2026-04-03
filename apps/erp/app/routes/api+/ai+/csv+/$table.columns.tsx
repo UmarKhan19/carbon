@@ -49,7 +49,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       continue;
     }
     // Match by label (e.g., "Process Type" === "process type")
-    const label = mappings?.[field as keyof typeof mappings]?.label;
+    const label = (mappings as Record<string, { label: string }>)?.[
+      field as keyof typeof mappings
+    ]?.label;
     if (label) {
       const labelIdx = fileColumnsLower.indexOf(label.toLowerCase());
       if (labelIdx !== -1) {
