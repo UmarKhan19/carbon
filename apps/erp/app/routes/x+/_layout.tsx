@@ -89,16 +89,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const client = getCarbon(accessToken);
 
-  // Start non-critical queries (streamed via turbo-stream, not blocking initial paint)
-  const customFieldsPromise = getCustomFieldsSchemas(client, { companyId });
-  const integrationsPromise = getCompanyIntegrations(client, companyId);
-  const savedViewsPromise = getSavedViews(client, userId, companyId);
-
-  // Await only critical data needed for initial render and loader logic
+  // Parallelize all requests
   const [
     companies,
     stripeCustomer,
+    customFields,
+    integrations,
     companySettings,
+    savedViews,
     user,
     claims,
     groups,
@@ -107,7 +105,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ] = await Promise.all([
     getCompanies(client, userId),
     getStripeCustomerByCompanyId(companyId, userId),
+    getCustomFieldsSchemas(client, { companyId }),
+    getCompanyIntegrations(client, companyId),
     getCompanySettings(client, companyId),
+    getSavedViews(client, userId, companyId),
     getUser(client, userId),
     getUserClaims(userId, companyId),
     getUserGroups(client, userId),
@@ -149,15 +150,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     company,
     companies: companies.data ?? [],
     companySettings: companySettings.data,
-    customFields: customFieldsPromise.then((r) => r.data ?? []),
+    customFields: customFields.data ?? [],
     defaults: defaults.data,
-    integrations: integrationsPromise.then((r) => r.data ?? []),
+    integrations: integrations.data ?? [],
     groups: groups.data,
     permissions: claims?.permissions,
     plan: stripeCustomer?.planId,
     role: claims?.role,
     user: user.data,
-    savedViews: savedViewsPromise.then((r) => r.data ?? []),
+    savedViews: savedViews.data ?? [],
     openClockEntry: companySettings.data?.timeCardEnabled
       ? getOpenClockEntry(client, userId, companyId)
       : null
