@@ -52,6 +52,7 @@ import Location from "./Location";
 import MaterialType from "./MaterialType";
 import Part from "./Part";
 import PaymentTerm from "./PaymentTerm";
+import PriceList from "./PriceList";
 import Procedure from "./Procedure";
 import Process from "./Process";
 import Processes from "./Processes";
@@ -122,6 +123,7 @@ export {
   NumberControlled,
   Part,
   Password,
+  PriceList,
   PaymentTerm,
   PhoneInput,
   Procedure,

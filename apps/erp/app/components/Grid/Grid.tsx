@@ -18,8 +18,16 @@ import {
   getCoreRowModel,
   useReactTable
 } from "@tanstack/react-table";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { LuCirclePlus } from "react-icons/lu";
+import type { ReactNode } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
+import { LuChevronDown, LuChevronRight, LuCirclePlus } from "react-icons/lu";
 import type {
   EditableTableCellComponent,
   Position
@@ -35,6 +43,7 @@ interface GridProps<T extends object> {
   defaultColumnOrder?: string[];
   defaultColumnVisibility?: Record<string, boolean>;
   editableComponents?: Record<string, EditableTableCellComponent<T>>;
+  renderExpandedRow?: (row: T) => ReactNode;
 
   withNewRow?: boolean;
   withSimpleSorting?: boolean;
@@ -51,6 +60,7 @@ const Grid = <T extends object>({
   editableComponents,
   defaultColumnOrder,
   defaultColumnVisibility,
+  renderExpandedRow,
   withSimpleSorting = true,
   onDataChange,
   onEditRow,
@@ -74,9 +84,54 @@ const Grid = <T extends object>({
     defaultColumnOrder ?? []
   );
 
+  /* Expandable Rows */
+  const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
+
+  const toggleRowExpanded = useCallback((rowIndex: number) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [rowIndex]: !prev[rowIndex]
+    }));
+  }, []);
+
+  const expandColumn = useMemo<ColumnDef<T>>(
+    () => ({
+      id: "_expand",
+      size: 40,
+      enableSorting: false,
+      header: () => null,
+      cell: ({ row }) => {
+        const isExpanded = expandedRows[row.index] ?? false;
+        return (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleRowExpanded(row.index);
+            }}
+            className="p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
+            aria-label={isExpanded ? "Collapse row" : "Expand row"}
+          >
+            {isExpanded ? (
+              <LuChevronDown className="size-4" />
+            ) : (
+              <LuChevronRight className="size-4" />
+            )}
+          </button>
+        );
+      }
+    }),
+    [expandedRows, toggleRowExpanded]
+  );
+
+  const allColumns = useMemo(
+    () => (renderExpandedRow ? [expandColumn, ...columns] : columns),
+    [renderExpandedRow, expandColumn, columns]
+  );
+
   const table = useReactTable({
     data: internalData,
-    columns: columns,
+    columns: allColumns,
     state: {
       columnVisibility,
       columnOrder
@@ -320,6 +375,7 @@ const Grid = <T extends object>({
   });
 
   const rows = table.getRowModel().rows;
+  const visibleColumnCount = table.getVisibleLeafColumns().length;
 
   return (
     <VStack spacing={0} className="h-full w-full">
@@ -372,18 +428,32 @@ const Grid = <T extends object>({
           </Thead>
           <Tbody>
             {rows.map((row) => {
+              const isRowExpanded =
+                renderExpandedRow && expandedRows[row.index];
+
               return (
-                <Row
-                  key={row.id}
-                  editableComponents={canEdit ? editableComponents : {}}
-                  isEditing={isEditing}
-                  selectedCell={selectedCell}
-                  row={row}
-                  rowIsSelected={selectedCell?.row === row.index}
-                  onCellClick={onCellClick}
-                  onCellUpdate={onCellUpdate}
-                  onEditRow={onEditRow}
-                />
+                <Fragment key={row.id}>
+                  <Row
+                    editableComponents={canEdit ? editableComponents : {}}
+                    isEditing={isEditing}
+                    selectedCell={selectedCell}
+                    row={row}
+                    rowIsSelected={selectedCell?.row === row.index}
+                    onCellClick={onCellClick}
+                    onCellUpdate={onCellUpdate}
+                    onEditRow={onEditRow}
+                  />
+                  {isRowExpanded && (
+                    <Tr>
+                      <Td
+                        colSpan={visibleColumnCount}
+                        className="p-0 bg-muted/20 border-b border-border"
+                      >
+                        {renderExpandedRow(row.original)}
+                      </Td>
+                    </Tr>
+                  )}
+                </Fragment>
               );
             })}
             {rows.length === 0 && !onNewRow && (

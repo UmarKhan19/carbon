@@ -13,6 +13,8 @@ import {
 } from "~/modules/items";
 import { ItemSalePriceForm } from "~/modules/items/ui/Item";
 import CustomerParts from "~/modules/items/ui/Item/CustomerParts";
+import { getPriceListsForItem } from "~/modules/pricing";
+import ItemPriceLists from "~/modules/pricing/ui/ItemPriceLists";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 
@@ -25,9 +27,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  const [partUnitSalePrice, customerParts] = await Promise.all([
+  const [partUnitSalePrice, customerParts, priceLists] = await Promise.all([
     getItemUnitSalePrice(client, itemId, companyId),
-    getItemCustomerParts(client, itemId, companyId)
+    getItemCustomerParts(client, itemId, companyId),
+    getPriceListsForItem(client, itemId)
   ]);
 
   if (partUnitSalePrice.error) {
@@ -43,6 +46,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     partUnitSalePrice: partUnitSalePrice.data,
     customerParts: customerParts.data,
+    priceLists: priceLists.data ?? [],
     itemId
   };
 }
@@ -88,7 +92,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function PartSalesRoute() {
-  const { customerParts, partUnitSalePrice, itemId } =
+  const { customerParts, partUnitSalePrice, priceLists, itemId } =
     useLoaderData<typeof loader>();
 
   const initialValues = {
@@ -107,6 +111,7 @@ export default function PartSalesRoute() {
       {customerParts ? (
         <CustomerParts customerParts={customerParts} itemId={itemId} />
       ) : null}
+      <ItemPriceLists data={priceLists as any} />
     </VStack>
   );
 }

@@ -1,0 +1,432 @@
+import { useCarbon } from "@carbon/auth";
+import { ValidatedForm } from "@carbon/form";
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  HStack,
+  IconButton,
+  ModalDrawer,
+  ModalDrawerBody,
+  ModalDrawerContent,
+  ModalDrawerFooter,
+  ModalDrawerHeader,
+  ModalDrawerProvider,
+  ModalDrawerTitle,
+  VStack
+} from "@carbon/react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useCallback, useMemo, useState } from "react";
+import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import type { z } from "zod";
+import { EditableNumber } from "~/components/Editable";
+import {
+  Hidden,
+  Item,
+  ItemPostingGroup,
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: consistent with codebase
+  Number,
+  NumberControlled,
+  Select,
+  Submit,
+  UnitOfMeasure
+} from "~/components/Form";
+import Grid from "~/components/Grid";
+import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
+import {
+  formulaBases,
+  priceListItemValidator,
+  pricingMethods
+} from "../../pricing.models";
+
+type PriceBreakRow = {
+  quantity: number;
+  unitPrice: number;
+};
+
+type PriceListItemFormProps = {
+  initialValues: z.infer<typeof priceListItemValidator>;
+  priceListType?: string;
+  onClose: () => void;
+};
+
+const PriceListItemForm = ({
+  initialValues,
+  priceListType,
+  onClose
+}: PriceListItemFormProps) => {
+  const permissions = usePermissions();
+  const { carbon } = useCarbon();
+  const { company } = useUser();
+
+  const [unitPrice, setUnitPrice] = useState(initialValues.unitPrice ?? 0);
+  const [uom, setUom] = useState(initialValues.unitOfMeasureCode ?? "");
+  const [pricingMethod, setPricingMethod] = useState(
+    initialValues.pricingMethod ?? "Fixed"
+  );
+  const [formulaBase, setFormulaBase] = useState(
+    initialValues.formulaBase ?? ""
+  );
+  const [replenishmentSystem, setReplenishmentSystem] = useState<string>("");
+  const [priceBreaks, setPriceBreaks] = useState<PriceBreakRow[]>([]);
+
+  const isEditing = initialValues.id !== undefined;
+  const permissionModule =
+    priceListType === "Purchase" ? "purchasing" : "sales";
+  const isDisabled = isEditing
+    ? !permissions.can("update", permissionModule)
+    : !permissions.can("create", permissionModule);
+
+  const onItemChange = async (value: { value: string } | null) => {
+    const itemId = value?.value;
+    if (!itemId || !carbon || !company?.id) {
+      setReplenishmentSystem("");
+      return;
+    }
+
+    const [itemResult, priceResult] = await Promise.all([
+      carbon
+        .from("item")
+        .select("unitOfMeasureCode, replenishmentSystem")
+        .eq("id", itemId)
+        .eq("companyId", company.id)
+        .single(),
+      carbon
+        .from("itemUnitSalePrice")
+        .select("unitSalePrice")
+        .eq("itemId", itemId)
+        .eq("companyId", company.id)
+        .maybeSingle()
+    ]);
+
+    if (itemResult.data?.unitOfMeasureCode) {
+      setUom(itemResult.data.unitOfMeasureCode);
+    }
+    if (itemResult.data?.replenishmentSystem) {
+      setReplenishmentSystem(itemResult.data.replenishmentSystem);
+    } else {
+      setReplenishmentSystem("");
+    }
+    if (priceResult.data?.unitSalePrice) {
+      setUnitPrice(priceResult.data.unitSalePrice);
+    }
+  };
+
+  return (
+    <ModalDrawerProvider type="drawer">
+      <ModalDrawer
+        open
+        onOpenChange={(open) => {
+          if (!open) onClose();
+        }}
+      >
+        <ModalDrawerContent>
+          <ValidatedForm
+            validator={priceListItemValidator}
+            method="post"
+            defaultValues={initialValues}
+            className="flex flex-col h-full"
+          >
+            <ModalDrawerHeader>
+              <ModalDrawerTitle>
+                {isEditing ? "Edit" : "Add"} Price List Item
+              </ModalDrawerTitle>
+            </ModalDrawerHeader>
+            <ModalDrawerBody>
+              <Hidden name="id" />
+              <Hidden name="priceListId" />
+              <input
+                type="hidden"
+                name="priceBreaks"
+                value={JSON.stringify(priceBreaks)}
+              />
+              <VStack spacing={4}>
+                <p className="text-sm text-muted-foreground">
+                  Choose a specific item or an item category:
+                </p>
+                <Item
+                  name="itemId"
+                  label="Item"
+                  type="Item"
+                  placeholder="Specific item"
+                  onChange={onItemChange}
+                />
+                <ItemPostingGroup
+                  name="itemPostingGroupId"
+                  label="Item Category"
+                  placeholder="Or select a category"
+                />
+
+                <UnitOfMeasure
+                  name="unitOfMeasureCode"
+                  label="Unit of Measure"
+                  value={uom}
+                  onChange={(v) => setUom(v?.value ?? "")}
+                />
+
+                <Select
+                  name="pricingMethod"
+                  label="Pricing Method"
+                  options={pricingMethods.map((m) => ({
+                    label:
+                      m === "Fixed" ? "Fixed Price" : "Formula (Cost-Based)",
+                    value: m
+                  }))}
+                  onChange={(v) =>
+                    setPricingMethod((v?.value as string) ?? "Fixed")
+                  }
+                />
+
+                {pricingMethod === "Fixed" && (
+                  <>
+                    <NumberControlled
+                      name="unitPrice"
+                      label="Unit Price"
+                      value={unitPrice}
+                      onChange={setUnitPrice}
+                      formatOptions={{
+                        style: "currency",
+                        currency: company?.baseCurrencyCode ?? "USD"
+                      }}
+                    />
+                    <Number
+                      name="discountPercent"
+                      label="Discount %"
+                      minValue={0}
+                      maxValue={1}
+                      step={0.01}
+                      formatOptions={{
+                        style: "percent",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                      }}
+                    />
+                    <Number
+                      name="surchargeAmount"
+                      label="Surcharge"
+                      helperText="Added on top of unit price"
+                      minValue={0}
+                      formatOptions={{
+                        style: "currency",
+                        currency: company?.baseCurrencyCode ?? "USD"
+                      }}
+                    />
+
+                    {/* Price Breaks */}
+                    <PriceBreaks
+                      priceBreaks={priceBreaks}
+                      onChange={setPriceBreaks}
+                      baseCurrency={company?.baseCurrencyCode ?? "USD"}
+                      isDisabled={isDisabled}
+                    />
+                  </>
+                )}
+
+                {pricingMethod === "Formula" && (
+                  <>
+                    <Select
+                      name="formulaBase"
+                      label="Base Price From"
+                      options={formulaBases.map((b) => ({
+                        label:
+                          b === "cost"
+                            ? "Item Cost (Unit Cost)"
+                            : "Item Sale Price",
+                        value: b
+                      }))}
+                      onChange={(v) =>
+                        setFormulaBase((v?.value as string) ?? "")
+                      }
+                    />
+                    {formulaBase === "cost" &&
+                      (replenishmentSystem === "Make" ||
+                        replenishmentSystem === "Buy and Make") && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 -mt-2">
+                          This item is manufactured in-house. Cost-based pricing
+                          uses the stored unit cost, which may be stale if a
+                          cost rollup hasn't been run since the last BOM change.
+                        </p>
+                      )}
+                    <Select
+                      name="markupPercent"
+                      label="Markup %"
+                      options={[
+                        { label: "0%", value: "0" },
+                        { label: "5%", value: "0.05" },
+                        { label: "10%", value: "0.1" },
+                        { label: "15%", value: "0.15" },
+                        { label: "20%", value: "0.2" },
+                        { label: "25%", value: "0.25" },
+                        { label: "30%", value: "0.3" },
+                        { label: "35%", value: "0.35" },
+                        { label: "40%", value: "0.4" },
+                        { label: "50%", value: "0.5" },
+                        { label: "60%", value: "0.6" },
+                        { label: "70%", value: "0.7" },
+                        { label: "80%", value: "0.8" },
+                        { label: "90%", value: "0.9" },
+                        { label: "100%", value: "1" }
+                      ]}
+                    />
+                    <Select
+                      name="roundingPrecision"
+                      label="Round To Nearest"
+                      options={[
+                        { label: "No rounding", value: "0" },
+                        { label: "$0.01 (cent)", value: "0.01" },
+                        { label: "$0.05", value: "0.05" },
+                        { label: "$0.10", value: "0.1" },
+                        { label: "$0.25", value: "0.25" },
+                        { label: "$0.50", value: "0.5" },
+                        { label: "$1.00 (dollar)", value: "1" },
+                        { label: "$5.00", value: "5" },
+                        { label: "$10.00", value: "10" }
+                      ]}
+                    />
+                    <Number
+                      name="minMarginPercent"
+                      label="Min Margin %"
+                      helperText="Floor: never price below cost + this margin"
+                      minValue={0}
+                      maxValue={1}
+                      step={0.01}
+                      formatOptions={{
+                        style: "percent",
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                      }}
+                    />
+                  </>
+                )}
+              </VStack>
+            </ModalDrawerBody>
+            <ModalDrawerFooter>
+              <HStack>
+                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Button size="md" variant="solid" onClick={onClose}>
+                  Cancel
+                </Button>
+              </HStack>
+            </ModalDrawerFooter>
+          </ValidatedForm>
+        </ModalDrawerContent>
+      </ModalDrawer>
+    </ModalDrawerProvider>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// PriceBreaks — inline editable grid (matches SupplierPartForm pattern)
+// ---------------------------------------------------------------------------
+
+function PriceBreaks({
+  priceBreaks,
+  onChange,
+  baseCurrency,
+  isDisabled
+}: {
+  priceBreaks: PriceBreakRow[];
+  onChange: React.Dispatch<React.SetStateAction<PriceBreakRow[]>>;
+  baseCurrency: string;
+  isDisabled: boolean;
+}) {
+  const formatter = useCurrencyFormatter();
+
+  const removeRow = useCallback(
+    (index: number) => {
+      onChange((prev) => prev.filter((_, i) => i !== index));
+    },
+    [onChange]
+  );
+
+  const addRow = useCallback(() => {
+    onChange((prev) => [...prev, { quantity: 0, unitPrice: 0 }]);
+  }, [onChange]);
+
+  const noOpMutation = useCallback(
+    async (_accessorKey: string, _newValue: unknown, _row: PriceBreakRow) =>
+      ({
+        data: null,
+        error: null,
+        count: null,
+        status: 200,
+        statusText: "OK"
+      }) as const,
+    []
+  );
+
+  const editableComponents = useMemo(
+    () => ({
+      quantity: EditableNumber<PriceBreakRow>(noOpMutation),
+      unitPrice: EditableNumber<PriceBreakRow>(noOpMutation, {
+        formatOptions: { style: "currency", currency: baseCurrency }
+      })
+    }),
+    [noOpMutation, baseCurrency]
+  );
+
+  const columns = useMemo<ColumnDef<PriceBreakRow>[]>(
+    () => [
+      {
+        accessorKey: "quantity",
+        header: "Min Quantity",
+        cell: ({ row }) => (
+          <HStack className="justify-between min-w-[80px]">
+            <span>{row.original.quantity}</span>
+            {!isDisabled && (
+              <div className="relative w-6 h-5">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <IconButton
+                      aria-label="Price break actions"
+                      icon={<LuEllipsisVertical />}
+                      size="md"
+                      className="absolute right-[-1px] top-[-6px]"
+                      variant="ghost"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => removeRow(row.index)}
+                      destructive
+                    >
+                      <DropdownMenuIcon icon={<LuTrash />} />
+                      Delete Price Break
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+          </HStack>
+        )
+      },
+      {
+        accessorKey: "unitPrice",
+        header: "Unit Price",
+        cell: ({ row }) => formatter.format(row.original.unitPrice)
+      }
+    ],
+    [isDisabled, removeRow, formatter]
+  );
+
+  return (
+    <div className="space-y-3 w-full">
+      <span className="font-medium text-sm">Price Breaks</span>
+      <Grid<PriceBreakRow>
+        data={priceBreaks}
+        columns={columns}
+        canEdit={!isDisabled}
+        editableComponents={editableComponents}
+        onDataChange={onChange}
+        onNewRow={!isDisabled ? addRow : undefined}
+        contained={false}
+      />
+    </div>
+  );
+}
+
+export default PriceListItemForm;

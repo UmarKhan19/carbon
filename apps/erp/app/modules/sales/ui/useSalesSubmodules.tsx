@@ -4,7 +4,8 @@ import {
   LuGlobe,
   LuShapes,
   LuSquareUser,
-  LuStar
+  LuStar,
+  LuTag
 } from "react-icons/lu";
 import {
   RiProgress2Line,
@@ -63,12 +64,17 @@ const salesRoutes: AuthenticatedRouteGroup[] = [
     name: "Configure",
     routes: [
       {
+        name: "Price Lists",
+        to: path.to.salesPriceLists,
+        role: "employee",
+        icon: <LuTag />
+      },
+      {
         name: "No Quotes",
         to: path.to.noQuoteReasons,
         role: "employee",
         icon: <LuBan />
       },
-
       {
         name: "Statuses",
         to: path.to.customerStatuses,

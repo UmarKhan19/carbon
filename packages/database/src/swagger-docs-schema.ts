@@ -678,6 +678,258 @@ export default {
         tags: ["noQuoteReason"],
       },
     },
+    "/priceList": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceList.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.type",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.priceType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.validTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.sequence",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.version",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.customFields",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/priceList",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["priceList"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.priceList",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["priceList"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceList.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.type",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.priceType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.validTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.sequence",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.version",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.customFields",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceList"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceList.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.type",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.priceType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.currencyCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.validTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.sequence",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.version",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceList.customFields",
+          },
+          {
+            $ref: "#/parameters/body.priceList",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceList"],
+      },
+    },
     "/service": {
       get: {
         parameters: [
@@ -26563,6 +26815,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -26763,6 +27018,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -26915,6 +27173,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
           },
           {
             $ref: "#/parameters/body.purchaseOrderLine",
@@ -34857,6 +35118,177 @@ export default {
         tags: ["groups_recursive"],
       },
     },
+    "/priceListItemBreak": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.priceListItemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/priceListItemBreak",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["priceListItemBreak"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.priceListItemBreak",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["priceListItemBreak"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.priceListItemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListItemBreak"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.priceListItemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItemBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.priceListItemBreak",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListItemBreak"],
+      },
+    },
     "/feedback": {
       get: {
         parameters: [
@@ -39928,6 +40360,9 @@ export default {
             $ref: "#/parameters/rowFilter.customer.vatNumber",
           },
           {
+            $ref: "#/parameters/rowFilter.customer.priceListId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -40059,6 +40494,9 @@ export default {
             $ref: "#/parameters/rowFilter.customer.vatNumber",
           },
           {
+            $ref: "#/parameters/rowFilter.customer.priceListId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -40142,6 +40580,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.customer.vatNumber",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customer.priceListId",
           },
           {
             $ref: "#/parameters/body.customer",
@@ -49267,6 +49708,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceListId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -49452,6 +49896,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceListId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -49589,6 +50036,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceListId",
           },
           {
             $ref: "#/parameters/body.salesOrderLine",
@@ -50922,6 +51372,258 @@ export default {
         tags: ["supplierLocation"],
       },
     },
+    "/priceListItem": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.unitOfMeasureCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.pricingMethod",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.formulaBase",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.markupPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.roundingPrecision",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.surchargeAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/priceListItem",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["priceListItem"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.priceListItem",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["priceListItem"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.unitOfMeasureCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.pricingMethod",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.formulaBase",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.markupPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.roundingPrecision",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.surchargeAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListItem"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.unitOfMeasureCode",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.pricingMethod",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.formulaBase",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.markupPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.roundingPrecision",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.surchargeAmount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListItem.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.priceListItem",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListItem"],
+      },
+    },
     "/documents": {
       get: {
         parameters: [
@@ -51265,6 +51967,195 @@ export default {
           },
         },
         tags: ["methodOperationStep"],
+      },
+    },
+    "/priceListAssignment": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.customerId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.supplierId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.supplierTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/priceListAssignment",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["priceListAssignment"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.priceListAssignment",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["priceListAssignment"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.customerId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.supplierId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.supplierTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListAssignment"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.customerId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.supplierId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.supplierTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListAssignment.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.priceListAssignment",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListAssignment"],
       },
     },
     "/tag": {
@@ -56251,6 +57142,9 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
           },
           {
+            $ref: "#/parameters/rowFilter.supplier.priceListId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -56382,6 +57276,9 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
           },
           {
+            $ref: "#/parameters/rowFilter.supplier.priceListId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -56465,6 +57362,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplier.priceListId",
           },
           {
             $ref: "#/parameters/body.supplier",
@@ -60388,6 +61288,267 @@ export default {
           },
         },
         tags: ["trainingQuestion"],
+      },
+    },
+    "/priceListRule": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.ruleType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.amountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.priority",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.maxQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.supplierTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/priceListRule",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["priceListRule"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.priceListRule",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["priceListRule"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.ruleType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.amountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.priority",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.maxQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.supplierTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListRule"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.ruleType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.amountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.priority",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.maxQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.supplierTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.priceListRule",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["priceListRule"],
       },
     },
     "/demandProjection": {
@@ -70316,6 +71477,112 @@ export default {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        customFields: {
+          format: "jsonb",
+        },
+      },
+      type: "object",
+    },
+    priceList: {
+      required: [
+        "id",
+        "name",
+        "type",
+        "status",
+        "priceType",
+        "currencyCode",
+        "sequence",
+        "version",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('pl'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        description: {
+          format: "text",
+          type: "string",
+        },
+        notes: {
+          format: "jsonb",
+        },
+        type: {
+          default: "Sales",
+          enum: ["Sales", "Purchase"],
+          format: 'public."priceListType"',
+          type: "string",
+        },
+        status: {
+          default: "Draft",
+          enum: ["Draft", "Active", "Expired", "Archived"],
+          format: 'public."priceListStatus"',
+          type: "string",
+        },
+        priceType: {
+          default: "Net",
+          enum: ["Gross", "Net", "Discounted"],
+          format: 'public."priceListPriceType"',
+          type: "string",
+        },
+        currencyCode: {
+          default: "USD",
+          format: "text",
+          type: "string",
+        },
+        validFrom: {
+          format: "date",
+          type: "string",
+        },
+        validTo: {
+          format: "date",
+          type: "string",
+        },
+        sequence: {
+          default: 0,
+          format: "integer",
+          type: "integer",
+        },
+        version: {
+          default: 1,
+          format: "integer",
+          type: "integer",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
           type: "string",
         },
         updatedBy: {
@@ -82517,6 +83784,12 @@ export default {
           format: "date",
           type: "string",
         },
+        priceListId: {
+          description:
+            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -86310,6 +87583,67 @@ export default {
       },
       type: "object",
     },
+    priceListItemBreak: {
+      required: [
+        "priceListItemId",
+        "minQuantity",
+        "unitPrice",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        priceListItemId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `priceListItem.id`.<fk table='priceListItem' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        minQuantity: {
+          default: 1,
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "numeric",
+          type: "number",
+        },
+        unitPrice: {
+          format: "numeric",
+          type: "number",
+        },
+        discountPercent: {
+          default: 0,
+          format: "numeric",
+          type: "number",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     feedback: {
       required: ["id", "location", "feedback"],
       properties: {
@@ -88583,6 +89917,12 @@ export default {
           type: "array",
         },
         vatNumber: {
+          format: "text",
+          type: "string",
+        },
+        priceListId: {
+          description:
+            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -93449,6 +94789,12 @@ export default {
           format: "numeric",
           type: "number",
         },
+        priceListId: {
+          description:
+            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -93949,6 +95295,110 @@ export default {
       },
       type: "object",
     },
+    priceListItem: {
+      required: [
+        "id",
+        "priceListId",
+        "unitPrice",
+        "pricingMethod",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('pli'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        priceListId: {
+          description:
+            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        itemId: {
+          description:
+            "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        itemPostingGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `itemPostingGroup.id`.<fk table='itemPostingGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        unitPrice: {
+          format: "numeric",
+          type: "number",
+        },
+        unitOfMeasureCode: {
+          format: "text",
+          type: "string",
+        },
+        pricingMethod: {
+          default: "Fixed",
+          format: "text",
+          type: "string",
+        },
+        formulaBase: {
+          format: "text",
+          type: "string",
+        },
+        markupPercent: {
+          format: "numeric",
+          type: "number",
+        },
+        roundingPrecision: {
+          format: "numeric",
+          type: "number",
+        },
+        minMarginPercent: {
+          format: "numeric",
+          type: "number",
+        },
+        discountPercent: {
+          default: 0,
+          format: "numeric",
+          type: "number",
+        },
+        surchargeAmount: {
+          default: 0,
+          format: "numeric",
+          type: "number",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     documents: {
       properties: {
         id: {
@@ -94190,6 +95640,75 @@ export default {
         },
         description: {
           format: "json",
+        },
+      },
+      type: "object",
+    },
+    priceListAssignment: {
+      required: ["id", "priceListId", "companyId", "createdBy", "createdAt"],
+      properties: {
+        id: {
+          default: "public.id('pla'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        priceListId: {
+          description:
+            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        customerId: {
+          description:
+            "Note:\nThis is a Foreign Key to `customer.id`.<fk table='customer' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        customerTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `customerType.id`.<fk table='customerType' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        supplierId: {
+          description:
+            "Note:\nThis is a Foreign Key to `supplier.id`.<fk table='supplier' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        supplierTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `supplierType.id`.<fk table='supplierType' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
         },
       },
       type: "object",
@@ -96743,6 +98262,12 @@ export default {
           format: 'public."supplierStatusType"',
           type: "string",
         },
+        priceListId: {
+          description:
+            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -98876,6 +100401,124 @@ export default {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    priceListRule: {
+      required: [
+        "id",
+        "priceListId",
+        "name",
+        "ruleType",
+        "amountType",
+        "amount",
+        "priority",
+        "active",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('plr'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        priceListId: {
+          description:
+            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        ruleType: {
+          enum: ["Discount", "Surcharge"],
+          format: 'public."priceListRuleType"',
+          type: "string",
+        },
+        amountType: {
+          default: "Percentage",
+          enum: ["Percentage", "Fixed"],
+          format: 'public."priceListRuleAmountType"',
+          type: "string",
+        },
+        amount: {
+          format: "numeric",
+          type: "number",
+        },
+        priority: {
+          default: 0,
+          format: "integer",
+          type: "integer",
+        },
+        minQuantity: {
+          format: "numeric",
+          type: "number",
+        },
+        maxQuantity: {
+          format: "numeric",
+          type: "number",
+        },
+        customerTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `customerType.id`.<fk table='customerType' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        supplierTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `supplierType.id`.<fk table='supplierType' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        itemId: {
+          description:
+            "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        itemPostingGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `itemPostingGroup.id`.<fk table='itemPostingGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        active: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
           type: "string",
         },
       },
@@ -101028,6 +102671,123 @@ export default {
       type: "string",
     },
     "rowFilter.noQuoteReason.customFields": {
+      name: "customFields",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.priceList": {
+      name: "priceList",
+      description: "priceList",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/priceList",
+      },
+    },
+    "rowFilter.priceList.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.notes": {
+      name: "notes",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.type": {
+      name: "type",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.priceType": {
+      name: "priceType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.currencyCode": {
+      name: "currencyCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.validFrom": {
+      name: "validFrom",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.validTo": {
+      name: "validTo",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.sequence": {
+      name: "sequence",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.version": {
+      name: "version",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceList.customFields": {
       name: "customFields",
       required: false,
       in: "query",
@@ -114929,6 +116689,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.purchaseOrderLine.priceListId": {
+      name: "priceListId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.stockTransferLines": {
       name: "stockTransferLines",
       description: "stockTransferLines",
@@ -119185,6 +120951,69 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.priceListItemBreak": {
+      name: "priceListItemBreak",
+      description: "priceListItemBreak",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/priceListItemBreak",
+      },
+    },
+    "rowFilter.priceListItemBreak.priceListItemId": {
+      name: "priceListItemId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.minQuantity": {
+      name: "minQuantity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.unitPrice": {
+      name: "unitPrice",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.discountPercent": {
+      name: "discountPercent",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItemBreak.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.feedback": {
       name: "feedback",
       description: "feedback",
@@ -121702,6 +123531,12 @@ export default {
     },
     "rowFilter.customer.vatNumber": {
       name: "vatNumber",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customer.priceListId": {
+      name: "priceListId",
       required: false,
       in: "query",
       type: "string",
@@ -127231,6 +129066,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.salesOrderLine.priceListId": {
+      name: "priceListId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.purchaseOrderFavorite": {
       name: "purchaseOrderFavorite",
       description: "purchaseOrderFavorite",
@@ -127861,6 +129702,123 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.priceListItem": {
+      name: "priceListItem",
+      description: "priceListItem",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/priceListItem",
+      },
+    },
+    "rowFilter.priceListItem.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.priceListId": {
+      name: "priceListId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.itemId": {
+      name: "itemId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.itemPostingGroupId": {
+      name: "itemPostingGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.unitPrice": {
+      name: "unitPrice",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.unitOfMeasureCode": {
+      name: "unitOfMeasureCode",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.pricingMethod": {
+      name: "pricingMethod",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.formulaBase": {
+      name: "formulaBase",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.markupPercent": {
+      name: "markupPercent",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.roundingPrecision": {
+      name: "roundingPrecision",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.minMarginPercent": {
+      name: "minMarginPercent",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.discountPercent": {
+      name: "discountPercent",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.surchargeAmount": {
+      name: "surchargeAmount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListItem.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.documents": {
       name: "documents",
       description: "documents",
@@ -128097,6 +130055,81 @@ export default {
     },
     "rowFilter.methodOperationStep.description": {
       name: "description",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.priceListAssignment": {
+      name: "priceListAssignment",
+      description: "priceListAssignment",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/priceListAssignment",
+      },
+    },
+    "rowFilter.priceListAssignment.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.priceListId": {
+      name: "priceListId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.customerId": {
+      name: "customerId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.customerTypeId": {
+      name: "customerTypeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.supplierId": {
+      name: "supplierId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.supplierTypeId": {
+      name: "supplierTypeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListAssignment.updatedAt": {
+      name: "updatedAt",
       required: false,
       in: "query",
       type: "string",
@@ -131002,6 +133035,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.supplier.priceListId": {
+      name: "priceListId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.timeCardEntry": {
       name: "timeCardEntry",
       description: "timeCardEntry",
@@ -133380,6 +135419,129 @@ export default {
     },
     "rowFilter.trainingQuestion.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.priceListRule": {
+      name: "priceListRule",
+      description: "priceListRule",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/priceListRule",
+      },
+    },
+    "rowFilter.priceListRule.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.priceListId": {
+      name: "priceListId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.ruleType": {
+      name: "ruleType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.amountType": {
+      name: "amountType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.amount": {
+      name: "amount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.priority": {
+      name: "priority",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.minQuantity": {
+      name: "minQuantity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.maxQuantity": {
+      name: "maxQuantity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.customerTypeId": {
+      name: "customerTypeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.supplierTypeId": {
+      name: "supplierTypeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.itemId": {
+      name: "itemId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.itemPostingGroupId": {
+      name: "itemPostingGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.updatedAt": {
+      name: "updatedAt",
       required: false,
       in: "query",
       type: "string",

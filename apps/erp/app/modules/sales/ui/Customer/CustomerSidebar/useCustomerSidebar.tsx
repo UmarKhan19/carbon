@@ -4,6 +4,7 @@ import {
   LuCreditCard,
   LuMapPin,
   LuShieldAlert,
+  LuTag,
   LuTruck
 } from "react-icons/lu";
 import {
@@ -85,6 +86,12 @@ export function useCustomerSidebar({ contacts, locations }: Props) {
       to: `${path.to.salesOrders}?filter=customerId:eq:${customerId}`,
       role: ["employee"],
       icon: <RiProgress8Line />
+    },
+    {
+      name: "Price Lists",
+      to: `${path.to.salesPriceLists}?filter=customerId:eq:${customerId}`,
+      role: ["employee"],
+      icon: <LuTag />
     },
     {
       name: "Invoices",

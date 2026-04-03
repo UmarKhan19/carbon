@@ -94,6 +94,7 @@ const PurchaseOrderLineForm = ({
     inventoryUom: string;
     minimumOrderQuantity?: number;
     priceBreaks: Array<{ quantity: number; unitPrice: number }>;
+    priceListId: string | null;
     purchaseQuantity: number;
     purchaseUom: string;
     requestedDate: string | null;
@@ -112,6 +113,7 @@ const PurchaseOrderLineForm = ({
     purchaseQuantity: initialValues.purchaseQuantity ?? 1,
     purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
     priceBreaks: [],
+    priceListId: null,
     requestedDate: initialValues?.requestedDate ?? null,
     shelfId: initialValues.shelfId ?? "",
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
@@ -193,6 +195,7 @@ const PurchaseOrderLineForm = ({
       inventoryUom: "",
       minimumOrderQuantity: undefined,
       priceBreaks: [],
+      priceListId: null,
       purchaseQuantity: 1,
       purchaseUom: "",
       requestedDate: null,
@@ -257,11 +260,40 @@ const PurchaseOrderLineForm = ({
           exchangeRate
         );
 
+        // Try purchase price list resolution (layered on top of supplier price)
+        let finalPrice = resolvedPrice;
+        let priceListId: string | null = null;
+        const supplierId = routeData?.purchaseOrder?.supplierId;
+        if (supplierId) {
+          try {
+            const response = await fetch(path.to.api.resolvePurchasePrice, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                supplierId,
+                itemId,
+                quantity: initialQty,
+                existingBasePrice: resolvedPrice,
+                exchangeRate
+              })
+            });
+            if (response.ok) {
+              const result = await response.json();
+              if (result.priceListId) {
+                finalPrice = result.finalPrice;
+                priceListId = result.priceListId;
+              }
+            }
+          } catch {
+            // Fall back to supplier price on any error
+          }
+        }
+
         setItemData({
           itemId: itemId,
           description: item.data?.name ?? "",
           purchaseQuantity: initialQty,
-          supplierUnitPrice: resolvedPrice,
+          supplierUnitPrice: finalPrice,
           supplierShippingCost: 0,
           purchaseUom:
             supplierPart?.data?.supplierUnitOfMeasureCode ??
@@ -281,6 +313,7 @@ const PurchaseOrderLineForm = ({
           supplierTaxAmount: 0,
           taxPercent: 0,
           priceBreaks: breaks,
+          priceListId,
           fallbackUnitPrice: baseFallback
         });
 
@@ -390,6 +423,10 @@ const PurchaseOrderLineForm = ({
 
                 <Hidden name="purchaseOrderLineType" value={itemType} />
                 <Hidden name="description" value={itemData.description} />
+                <Hidden
+                  name="priceListId"
+                  value={itemData.priceListId ?? undefined}
+                />
                 <Hidden
                   name="exchangeRate"
                   value={routeData?.purchaseOrder?.exchangeRate ?? 1}

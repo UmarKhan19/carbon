@@ -6,7 +6,8 @@ import {
   LuLayoutList,
   LuMapPin,
   LuPackageSearch,
-  LuShieldAlert
+  LuShieldAlert,
+  LuTag
 } from "react-icons/lu";
 import { useParams } from "react-router";
 import { usePermissions } from "~/hooks";
@@ -76,6 +77,12 @@ export function useSupplierSidebar({ contacts, locations }: Props) {
       name: "Orders",
       to: `${path.to.purchaseOrders}?filter=supplierId:eq:${supplierId}`,
       icon: <LuLayoutList />
+    },
+    {
+      name: "Price Lists",
+      to: `${path.to.purchasePriceLists}?filter=supplierId:eq:${supplierId}`,
+      role: ["employee"],
+      icon: <LuTag />
     },
     {
       name: "Invoices",

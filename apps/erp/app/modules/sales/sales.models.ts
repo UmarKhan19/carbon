@@ -76,6 +76,7 @@ export const customerValidator = z.object({
   ),
   vatNumber: zfd.text(z.string().optional()),
   salesContactId: zfd.text(z.string().optional()),
+  priceListId: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
@@ -665,7 +666,8 @@ export const salesOrderLineValidator = z
     ),
     unitOfMeasureCode: zfd.text(z.string().optional()),
     unitPrice: zfd.numeric(z.number().optional()),
-    exchangeRate: zfd.numeric(z.number().optional())
+    exchangeRate: zfd.numeric(z.number().optional()),
+    priceListId: zfd.text(z.string().optional())
   })
   .refine((data) => (data.salesOrderLineType === "Part" ? data.itemId : true), {
     message: "Part is required",

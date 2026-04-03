@@ -154,6 +154,10 @@ export const path = {
         generatePath(`${api}/resources/kpi/${key}`),
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
       salesOrders: `${api}/sales/orders`,
+      salesPriceLists: `${api}/sales/price-lists`,
+      purchasePriceLists: `${api}/purchasing/price-lists`,
+      resolvePrice: `${api}/sales/resolve-price`,
+      resolvePurchasePrice: `${api}/purchasing/resolve-price`,
       scrapReasons: `${api}/production/scrap-reasons`,
       search: `${api}/search`,
       seedQualityDocuments: `${api}/quality/documents/seed`,
@@ -1282,6 +1286,7 @@ export const path = {
     purchaseOrderStatus: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/status`),
     purchaseOrders: `${x}/purchasing/orders`,
+    purchasePriceLists: `${x}/purchasing/price-lists`,
     purchasing: `${x}/purchasing`,
     purchasingPlanning: `${x}/purchasing/planning`,
     purchasingSettings: `${x}/settings/purchasing`,
@@ -1416,6 +1421,17 @@ export const path = {
     salesOrderStatus: (id: string) =>
       generatePath(`${x}/sales-order/${id}/status`),
     salesOrders: `${x}/sales/orders`,
+    salesPriceLists: `${x}/sales/price-lists`,
+    priceList: (id: string) => generatePath(`${x}/price-list/${id}`),
+    priceListDetails: (id: string) =>
+      generatePath(`${x}/price-list/${id}/details`),
+    priceListItems: (id: string) => generatePath(`${x}/price-list/${id}/items`),
+    priceListRules: (id: string) => generatePath(`${x}/price-list/${id}/rules`),
+    priceListAssignments: (id: string) =>
+      generatePath(`${x}/price-list/${id}/assignments`),
+    priceListVersions: (id: string) =>
+      generatePath(`${x}/price-list/${id}/versions`),
+    updatePriceList: `${x}/price-list/update`,
     salesRfq: (id: string) => generatePath(`${x}/sales-rfq/${id}`),
     salesRfqConvert: (id: string) =>
       generatePath(`${x}/sales-rfq/${id}/convert`),

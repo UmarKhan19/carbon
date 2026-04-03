@@ -70,6 +70,7 @@ export default function SupplierEditRoute() {
     currencyCode: routeData?.supplier?.currencyCode ?? undefined,
     website: routeData?.supplier?.website ?? "",
     purchasingContactId: routeData?.supplier?.purchasingContactId ?? undefined,
+    priceListId: (routeData?.supplier as any)?.priceListId ?? undefined,
     defaultCc: routeData?.supplier?.defaultCc ?? [],
     ...getCustomFields(routeData?.supplier?.customFields)
   };

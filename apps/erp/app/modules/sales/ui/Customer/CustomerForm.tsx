@@ -26,6 +26,7 @@ import {
   Hidden,
   Input,
   Number,
+  PriceList,
   Submit
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
@@ -123,6 +124,11 @@ const CustomerForm = ({
                     </>
                   )}
                   <Currency name="currencyCode" label="Currency" />
+                  <PriceList
+                    name="priceListId"
+                    label="Price List"
+                    type="Sales"
+                  />
 
                   <Number
                     name="taxPercent"

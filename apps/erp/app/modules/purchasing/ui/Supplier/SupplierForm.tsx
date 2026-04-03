@@ -22,6 +22,7 @@ import {
   Employee,
   Hidden,
   Input,
+  PriceList,
   Submit,
   SupplierContact,
   SupplierStatus,
@@ -132,6 +133,11 @@ const SupplierForm = ({
                     </>
                   )}
                   <Currency name="currencyCode" label="Currency" />
+                  <PriceList
+                    name="priceListId"
+                    label="Price List"
+                    type="Purchase"
+                  />
                   <Input name="taxId" label="Tax ID" />
                   <Input name="vatNumber" label="VAT Number" />
                   <Input name="website" label="Website" />

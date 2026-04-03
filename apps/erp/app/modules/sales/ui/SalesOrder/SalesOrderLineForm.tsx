@@ -104,6 +104,7 @@ const SalesOrderLineForm = ({
     uom: string;
     shelfId: string;
     modelUploadId: string | null;
+    priceListId: string | null;
   }>({
     itemId: initialValues.itemId ?? "",
     description: initialValues.description ?? "",
@@ -111,7 +112,8 @@ const SalesOrderLineForm = ({
     unitPrice: initialValues.unitPrice ?? 0,
     uom: initialValues.unitOfMeasureCode ?? "",
     shelfId: initialValues.shelfId ?? "",
-    modelUploadId: initialValues.modelUploadId ?? null
+    modelUploadId: initialValues.modelUploadId ?? null,
+    priceListId: null
   });
 
   const isEditing = initialValues.id !== undefined;
@@ -126,7 +128,8 @@ const SalesOrderLineForm = ({
       methodType: "",
       uom: "EA",
       shelfId: "",
-      modelUploadId: null
+      modelUploadId: null,
+      priceListId: null
     });
   };
 
@@ -158,14 +161,43 @@ const SalesOrderLineForm = ({
       ? await getDefaultShelfForJob(carbon, itemId, locationId, company.id)
       : null;
 
+    // Try price list resolution if we have a customer
+    let resolvedPrice = price.data?.unitSalePrice ?? 0;
+    let priceListId: string | null = null;
+
+    const customerId = routeData?.salesOrder?.customerId;
+    if (customerId) {
+      try {
+        const response = await fetch(path.to.api.resolvePrice, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerId,
+            itemId,
+            quantity: initialValues.saleQuantity ?? 1
+          })
+        });
+        if (response.ok) {
+          const result = await response.json();
+          if (result.priceListId) {
+            resolvedPrice = result.finalPrice;
+            priceListId = result.priceListId;
+          }
+        }
+      } catch {
+        // Fall back to itemUnitSalePrice on any error
+      }
+    }
+
     setItemData({
       itemId,
       description: item.data?.name ?? "",
       methodType: item.data?.defaultMethodType ?? "",
-      unitPrice: price.data?.unitSalePrice ?? 0,
+      unitPrice: resolvedPrice,
       uom: item.data?.unitOfMeasureCode ?? "EA",
       shelfId: defaultShelfId ?? "",
-      modelUploadId: item.data?.modelUploadId ?? null
+      modelUploadId: item.data?.modelUploadId ?? null,
+      priceListId
     });
   };
 
@@ -301,6 +333,10 @@ const SalesOrderLineForm = ({
                 <Hidden
                   name="modelUploadId"
                   value={itemData?.modelUploadId ?? undefined}
+                />
+                <Hidden
+                  name="priceListId"
+                  value={itemData?.priceListId ?? undefined}
                 />
                 <VStack>
                   <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">

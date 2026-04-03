@@ -209,7 +209,8 @@ export const purchaseOrderLineValidator = z
     shelfId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
-    supplierUnitPrice: zfd.numeric(z.number().optional())
+    supplierUnitPrice: zfd.numeric(z.number().optional()),
+    priceListId: zfd.text(z.string().optional())
   })
   .refine(
     (data) =>
@@ -312,6 +313,7 @@ export const supplierValidator = z.object({
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
+  priceListId: zfd.text(z.string().optional()),
   taxId: zfd.text(z.string().optional()),
   vatNumber: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())

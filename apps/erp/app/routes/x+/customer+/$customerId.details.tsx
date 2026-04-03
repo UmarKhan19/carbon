@@ -71,6 +71,7 @@ export default function CustomerEditRoute() {
     taxPercent: routeData?.customer?.taxPercent ?? 0,
     website: routeData?.customer?.website ?? "",
     salesContactId: routeData?.customer?.salesContactId ?? undefined,
+    priceListId: (routeData?.customer as any)?.priceListId ?? undefined,
     defaultCc: routeData?.customer?.defaultCc ?? [],
     ...getCustomFields(routeData?.customer?.customFields)
   };

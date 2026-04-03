@@ -1,0 +1,154 @@
+import { error } from "@carbon/auth";
+import { requirePermissions } from "@carbon/auth/auth.server";
+import { flash } from "@carbon/auth/session.server";
+import { VStack } from "@carbon/react";
+import { Suspense } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
+import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
+import {
+  getCustomersByDefaultPriceList,
+  getPriceList,
+  getPriceListAssignments,
+  getPriceListItems,
+  getPriceListRules,
+  getPriceListVersions,
+  getPurchaseOrdersByPriceList,
+  getSalesOrdersByPriceList,
+  getSuppliersByDefaultPriceList
+} from "~/modules/pricing";
+import { PriceListAssignmentsTable } from "~/modules/pricing/ui/PriceListAssignments";
+import { PriceListDescription } from "~/modules/pricing/ui/PriceListDescription";
+import {
+  PriceListExplorer,
+  PriceListExplorerSkeleton
+} from "~/modules/pricing/ui/PriceListExplorer";
+import PriceListHeader from "~/modules/pricing/ui/PriceListHeader";
+import { PriceListItemsTable } from "~/modules/pricing/ui/PriceListItems";
+import PriceListProperties from "~/modules/pricing/ui/PriceListProperties";
+import { PriceListRulesTable } from "~/modules/pricing/ui/PriceListRules";
+import type { Handle } from "~/utils/handle";
+import { path } from "~/utils/path";
+
+export const handle: Handle = {
+  breadcrumb: "Price List",
+  to: path.to.salesPriceLists
+};
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { client } = await requirePermissions(request, {
+    role: "employee"
+  });
+
+  const { id } = params;
+  if (!id) throw new Error("Price list ID not found");
+
+  const priceList = await getPriceList(client, id);
+  if (priceList.error) {
+    throw redirect(
+      path.to.salesPriceLists,
+      await flash(request, error(priceList.error, "Failed to load price list"))
+    );
+  }
+
+  // Await table data (needed for content rendering)
+  const [items, rules, assignments] = await Promise.all([
+    getPriceListItems(client, id),
+    getPriceListRules(client, id),
+    getPriceListAssignments(client, id)
+  ]);
+
+  // Defer explorer-only data (versions, orders, defaults)
+  const explorerData = Promise.all([
+    getPriceListVersions(client, id),
+    getSalesOrdersByPriceList(client, id),
+    getPurchaseOrdersByPriceList(client, id),
+    getCustomersByDefaultPriceList(client, id),
+    getSuppliersByDefaultPriceList(client, id)
+  ]).then(
+    ([
+      versions,
+      salesOrders,
+      purchaseOrders,
+      defaultCustomers,
+      defaultSuppliers
+    ]) => ({
+      versions: versions.data ?? [],
+      salesOrders: salesOrders.data ?? [],
+      purchaseOrders: purchaseOrders.data ?? [],
+      defaultCustomers: defaultCustomers.data ?? [],
+      defaultSuppliers: defaultSuppliers.data ?? []
+    })
+  );
+
+  return {
+    priceList: priceList.data,
+    items: items.data ?? [],
+    rules: rules.data ?? [],
+    assignments: assignments.data ?? [],
+    explorerData
+  };
+}
+
+export default function PriceListRoute() {
+  const { priceList, items, rules, assignments, explorerData } =
+    useLoaderData<typeof loader>();
+  const { id } = useParams();
+  if (!id) throw new Error("Could not find id");
+  const priceListType = priceList?.type ?? "Sales";
+
+  return (
+    <PanelProvider>
+      <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
+        <PriceListHeader />
+        <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
+          <div className="flex flex-grow overflow-hidden">
+            <ResizablePanels
+              explorer={
+                <Suspense fallback={<PriceListExplorerSkeleton />}>
+                  <Await resolve={explorerData}>
+                    {(deferred) => (
+                      <PriceListExplorer
+                        items={items}
+                        assignments={assignments}
+                        versions={deferred.versions}
+                        salesOrders={deferred.salesOrders}
+                        purchaseOrders={deferred.purchaseOrders}
+                        defaultCustomers={deferred.defaultCustomers}
+                        defaultSuppliers={deferred.defaultSuppliers}
+                        priceListId={id}
+                      />
+                    )}
+                  </Await>
+                </Suspense>
+              }
+              content={
+                <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
+                  <VStack spacing={2} className="p-2">
+                    <PriceListDescription />
+                    <PriceListItemsTable data={items} />
+                    <PriceListRulesTable data={rules} />
+                    <PriceListAssignmentsTable
+                      data={assignments}
+                      priceListId={id}
+                      priceListType={priceListType}
+                    />
+                  </VStack>
+                </div>
+              }
+              properties={<PriceListProperties />}
+            />
+          </div>
+        </div>
+      </div>
+      {/* Tab routes pass through modals via nested Outlets */}
+      <Outlet />
+    </PanelProvider>
+  );
+}
