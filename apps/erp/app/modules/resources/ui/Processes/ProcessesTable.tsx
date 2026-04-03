@@ -299,6 +299,12 @@ const ProcessesTable = memo(({ data, count }: ProcessesTableProps) => {
       count={count}
       columns={columns}
       defaultColumnVisibility={defaultColumnVisibility}
+      importCSV={[
+        {
+          table: "process" as const,
+          label: "Processes"
+        }
+      ]}
       primaryAction={
         permissions.can("create", "resources") && (
           <New label="Process" to={`new?${params.toString()}`} />

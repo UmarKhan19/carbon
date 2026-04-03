@@ -143,7 +143,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                         <Badge
                           key={item}
                           variant="secondary"
-                          className="border border-card shadow-sm"
+                          className="border border-card"
                         >
                           {
                             options.find((option) => option.value === item)

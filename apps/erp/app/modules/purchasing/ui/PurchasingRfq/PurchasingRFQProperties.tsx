@@ -82,7 +82,7 @@ const PurchasingRFQProperties = () => {
       formData.append("value", value ?? "");
       fetcher.submit(formData, {
         method: "post",
-        action: path.to.purchasingRfqDetails(rfqId)
+        action: path.to.bulkUpdatePurchasingRfq
       });
     },
 
@@ -112,14 +112,15 @@ const PurchasingRFQProperties = () => {
     (supplierIds: string[]) => {
       const formData = new FormData();
 
-      formData.append("purchasingRfqId", rfqId);
+      formData.append("ids", rfqId);
+      formData.append("field", "supplierIds");
       for (const id of supplierIds) {
-        formData.append("supplierIds", id);
+        formData.append("value", id);
       }
 
       fetcher.submit(formData, {
         method: "post",
-        action: path.to.purchasingRfqSuppliers(rfqId)
+        action: path.to.bulkUpdatePurchasingRfq
       });
     },
 

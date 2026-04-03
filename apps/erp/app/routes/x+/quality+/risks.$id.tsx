@@ -1,15 +1,16 @@
-import { error } from "@carbon/auth";
+import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { NotificationEvent } from "@carbon/notifications";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, useLoaderData, useNavigate } from "react-router";
+import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import invariant from "tiny-invariant";
 import { riskRegisterValidator } from "~/modules/quality/quality.models";
 import { getRisk, upsertRisk } from "~/modules/quality/quality.service";
 import RiskRegisterForm from "~/modules/quality/ui/RiskRegister/RiskRegisterForm";
+import { getParams, path } from "~/utils/path";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { client } = await requirePermissions(request, {
@@ -60,12 +61,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (result.error) {
-    return data(
-      {
-        data: null,
-        error: result.error,
-        success: false
-      },
+    throw redirect(
+      path.to.risks,
       await flash(request, error(result.error, "Failed to update risk"))
     );
   }
@@ -89,11 +86,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
   }
 
-  return data({
-    data: result.data,
-    success: true,
-    error: null
-  });
+  throw redirect(
+    `${path.to.risks}?${getParams(request)}`,
+    await flash(request, success("Risk updated successfully"))
+  );
 };
 
 export default function EditRiskRoute() {

@@ -309,6 +309,12 @@ const WorkCentersTable = memo(
           defaultColumnVisibility={defaultColumnVisibility}
           columns={columns}
           count={count ?? 0}
+          importCSV={[
+            {
+              table: "workCenter" as const,
+              label: "Work Centers"
+            }
+          ]}
           primaryAction={
             permissions.can("update", "resources") && (
               <New label="Work Center" to={`new?${params.toString()}`} />

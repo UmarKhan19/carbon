@@ -10,7 +10,7 @@ import { getValidChildren } from "./utils/react";
 const InputGroupContext = createContext<boolean>(false);
 
 const inputGroupVariants = cva(
-  "flex relative w-full bg-transparent text-foreground shadow-sm focus-within:outline-none border border-input",
+  "flex relative w-full bg-transparent text-foreground focus-within:outline-none border border-input",
   {
     variants: {
       size: {
@@ -113,7 +113,7 @@ export const inputVariants = cva(
       isInputGroup: {
         true: "h-auto outline-none focus-within:outline-none",
         false:
-          "border border-input ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed shadow-sm file:border-0 file:bg-transparent file:text-sm file:font-medium"
+          "border border-input ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed file:border-0 file:bg-transparent file:text-sm file:font-medium"
       },
       isFirstChild: {
         true: "",
