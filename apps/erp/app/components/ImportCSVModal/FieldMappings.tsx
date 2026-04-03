@@ -5,6 +5,7 @@ import type { Database } from "@carbon/database";
 import { Combobox, useFormContext } from "@carbon/form";
 import {
   Button,
+  ModalBody,
   ModalDescription,
   ModalHeader,
   ModalTitle,
@@ -77,7 +78,34 @@ export function FieldMapping({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    if (!fileColumns || !firstRows) return;
+    if (!fileColumns || !firstRows || initialized.current) return;
+
+    // Try exact matching by label and field name before calling the LLM
+    const fileColumnsLower = fileColumns.map((c) => c.toLowerCase().trim());
+    const exactMatches: Record<string, string> = {};
+
+    for (const [fieldName, fieldDef] of Object.entries(mappableFields)) {
+      // Match by label (e.g., "Process Type" === "Process Type")
+      const labelIdx = fileColumnsLower.indexOf(fieldDef.label.toLowerCase());
+      if (labelIdx !== -1) {
+        exactMatches[fieldName] = fileColumns[labelIdx];
+        continue;
+      }
+      // Match by field name (e.g., "processType" === "processtype")
+      const nameIdx = fileColumnsLower.indexOf(fieldName.toLowerCase());
+      if (nameIdx !== -1) {
+        exactMatches[fieldName] = fileColumns[nameIdx];
+      }
+    }
+
+    // If all fields matched exactly, skip the LLM call
+    if (
+      Object.keys(exactMatches).length === Object.keys(mappableFields).length
+    ) {
+      initialized.current = true;
+      setColumnMappings(exactMatches);
+      return;
+    }
 
     fetcher.submit(
       {
@@ -171,93 +199,96 @@ export function FieldMapping({
             : enumFields[currentStep - 1][1].enumData.description}
         </ModalDescription>
       </ModalHeader>
-      <div className="mt-6">
-        {currentStep === 0 ? (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-            <div className="text-sm">CSV column</div>
-            <div className="text-sm">Carbon column</div>
-            {Object.entries(mappableFields).map(
-              ([name, { label, required, type }]) => (
-                <FieldRow
+      <ModalBody>
+        <div className="mt-6">
+          {currentStep === 0 ? (
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div className="text-sm">CSV column</div>
+              <div className="text-sm">Carbon column</div>
+              {Object.entries(mappableFields).map(
+                ([name, { label, required, type }]) => (
+                  <FieldRow
+                    key={name}
+                    label={label}
+                    type={type}
+                    required={required}
+                    name={name}
+                    mappedColumn={columnMappings[name]}
+                    isLoading={fetcher.state !== "idle"}
+                    onColumnMappingChange={onColumnMappingChange}
+                  />
+                )
+              )}
+            </div>
+          ) : (
+            <>
+              {Object.entries(columnMappings).map(([name, value]) => (
+                <input type="hidden" key={name} name={name} value={value} />
+              ))}
+              <input
+                type="hidden"
+                name="enumMappings"
+                value={JSON.stringify(enumMappings)}
+              />
+            </>
+          )}
+          {enumFields.map(
+            ([name, { enumData }], index) =>
+              currentStep === index + 1 && (
+                <EnumMappingStep
                   key={name}
-                  label={label}
-                  type={type}
-                  required={required}
                   name={name}
+                  enumData={enumData}
                   mappedColumn={columnMappings[name]}
-                  isLoading={fetcher.state !== "idle"}
-                  onColumnMappingChange={onColumnMappingChange}
+                  firstRows={firstRows}
+                  mappings={enumMappings[name]}
+                  onEnumMappingChange={onEnumMappingChange}
                 />
               )
-            )}
-          </div>
-        ) : (
-          <>
-            {Object.entries(columnMappings).map(([name, value]) => (
-              <input type="hidden" key={name} name={name} value={value} />
-            ))}
-            <input
-              type="hidden"
-              name="enumMappings"
-              value={JSON.stringify(enumMappings)}
-            />
-          </>
-        )}
-        {enumFields.map(
-          ([name, { enumData }], index) =>
-            currentStep === index + 1 && (
-              <EnumMappingStep
-                key={name}
-                name={name}
-                enumData={enumData}
-                mappedColumn={columnMappings[name]}
-                firstRows={firstRows}
-                mappings={enumMappings[name]}
-                onEnumMappingChange={onEnumMappingChange}
-              />
-            )
-        )}
-      </div>
-      <div className="flex flex-col w-full gap-2 pb-4">
-        {currentStep === steps - 1 && (
-          <Submit
-            isDisabled={!filePath || fetcher.state !== "idle"}
-            type="submit"
-          >
-            Confirm Import
-          </Submit>
-        )}
-        {currentStep < steps - 1 && (
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={async () => {
-              if (currentStep === 0) {
-                const result = await validate();
+          )}
+        </div>
 
-                if (!result.error) {
+        <div className="flex flex-col w-full gap-2 mt-4">
+          {currentStep === steps - 1 && (
+            <Submit
+              isDisabled={!filePath || fetcher.state !== "idle"}
+              type="submit"
+            >
+              Confirm Import
+            </Submit>
+          )}
+          {currentStep < steps - 1 && (
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={async () => {
+                if (currentStep === 0) {
+                  const result = await validate();
+
+                  if (!result.error) {
+                    onNext();
+                  }
+                } else {
                   onNext();
                 }
-              } else {
-                onNext();
-              }
-            }}
-          >
-            Next
-          </Button>
-        )}
-        {currentStep === 0 && (
-          <Button variant="link" type="button" onClick={onReset}>
-            Choose another file
-          </Button>
-        )}
+              }}
+            >
+              Next
+            </Button>
+          )}
+          {currentStep === 0 && (
+            <Button variant="link" type="button" onClick={onReset}>
+              Choose another file
+            </Button>
+          )}
 
-        {currentStep > 0 && (
-          <Button variant="link" type="button" onClick={onPrevious}>
-            Previous
-          </Button>
-        )}
-      </div>
+          {currentStep > 0 && (
+            <Button variant="link" type="button" onClick={onPrevious}>
+              Previous
+            </Button>
+          )}
+        </div>
+      </ModalBody>
     </>
   );
 }

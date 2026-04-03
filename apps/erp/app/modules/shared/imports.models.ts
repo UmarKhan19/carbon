@@ -828,12 +828,24 @@ export const fieldMappings = {
     },
     defaultStandardFactor: {
       label: "Standard Factor",
-      required: true,
+      required: false,
       type: "enum",
       enumData: {
         description: "The standard factor unit for time tracking",
-        options: ["Hours", "Minutes", "Seconds"],
-        default: "Hours"
+        options: [
+          "Hours/Piece",
+          "Hours/100 Pieces",
+          "Hours/1000 Pieces",
+          "Minutes/Piece",
+          "Minutes/100 Pieces",
+          "Minutes/1000 Pieces",
+          "Pieces/Hour",
+          "Pieces/Minute",
+          "Seconds/Piece",
+          "Total Hours",
+          "Total Minutes"
+        ],
+        default: "Hours/Piece"
       }
     },
     laborRate: {
@@ -883,12 +895,12 @@ export const fieldMappings = {
     },
     processType: {
       label: "Process Type",
-      required: true,
+      required: false,
       type: "enum",
       enumData: {
         description:
-          "Whether the process is Inside (in-house) or Outside (outsourced)",
-        options: ["Inside", "Outside"],
+          "Whether the process is Inside (in-house), Outside (outsourced), or both",
+        options: ["Inside", "Outside", "Inside and Outside"],
         default: "Inside"
       }
     },
@@ -899,14 +911,32 @@ export const fieldMappings = {
       enumData: {
         description:
           "The standard factor unit for time tracking (required for Inside processes)",
-        options: ["Hours", "Minutes", "Seconds"],
-        default: "Hours"
+        options: [
+          "Hours/Piece",
+          "Hours/100 Pieces",
+          "Hours/1000 Pieces",
+          "Minutes/Piece",
+          "Minutes/100 Pieces",
+          "Minutes/1000 Pieces",
+          "Pieces/Hour",
+          "Pieces/Minute",
+          "Seconds/Piece",
+          "Total Hours",
+          "Total Minutes"
+        ],
+        default: "Hours/Piece"
       }
     },
     completeAllOnScan: {
       label: "Complete All On Scan",
       required: false,
-      type: "boolean"
+      type: "enum",
+      enumData: {
+        description:
+          "Whether scanning a barcode should complete all operations for this process",
+        options: ["true", "false"],
+        default: "false"
+      }
     }
   }
 } as const;
@@ -1311,9 +1341,8 @@ export const importSchemas: Record<
       .min(1, { message: "Description is required" })
       .describe("The description of the work center"),
     defaultStandardFactor: z
-      .enum(["Hours", "Minutes", "Seconds"], {
-        errorMap: () => ({ message: "Standard factor is required" })
-      })
+      .string()
+      .optional()
       .describe("The standard factor unit for time tracking"),
     laborRate: z.string().describe("The labor rate for the work center"),
     machineRate: z.string().describe("The machine rate for the work center"),
@@ -1333,14 +1362,13 @@ export const importSchemas: Record<
       .min(1, { message: "Name is required" })
       .describe("The name of the process"),
     processType: z
-      .enum(["Inside", "Outside"], {
-        errorMap: () => ({ message: "Process type is required" })
-      })
+      .string()
+      .optional()
       .describe(
-        "Whether the process is Inside (in-house) or Outside (outsourced)"
+        "Whether the process is Inside (in-house), Outside (outsourced), or both"
       ),
     defaultStandardFactor: z
-      .enum(["Hours", "Minutes", "Seconds"])
+      .string()
       .optional()
       .describe(
         "The standard factor unit for time tracking (required for Inside processes)"
@@ -1348,6 +1376,8 @@ export const importSchemas: Record<
     completeAllOnScan: z
       .string()
       .optional()
-      .describe("Whether to complete all on scan")
+      .describe(
+        "Whether scanning a barcode should complete all operations for this process"
+      )
   })
 } as const;
