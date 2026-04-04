@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   Button,
@@ -49,6 +50,7 @@ type CustomersTableProps = {
 
 const CustomersTable = memo(
   ({ data, count, customerStatuses, tags }: CustomersTableProps) => {
+    const { t } = useTranslation("sales");
     const navigate = useNavigate();
     const permissions = usePermissions();
     const [people] = usePeople();
@@ -64,7 +66,7 @@ const CustomersTable = memo(
       const defaultColumns: ColumnDef<Customer>[] = [
         {
           accessorKey: "name",
-          header: "Name",
+          header: t("Name"),
           cell: ({ row }) => (
             <div className="max-w-[320px] truncate">
               <Hyperlink to={path.to.customerDetails(row.original.id!)}>
@@ -78,7 +80,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "status",
-          header: "Status",
+          header: t("Status"),
           cell: (item) => <Enumerable value={item.getValue<string>()} />,
           meta: {
             filter: {
@@ -94,7 +96,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "customerTypeId",
-          header: "Type",
+          header: t("Type"),
           cell: (item) => {
             if (!item.getValue<string>()) return null;
             const customerType = customerTypes?.find(
@@ -115,7 +117,7 @@ const CustomersTable = memo(
         },
         {
           id: "accountManagerId",
-          header: "Account Manager",
+          header: t("Account Manager"),
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.accountManagerId} />
           ),
@@ -132,7 +134,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "tags",
-          header: "Tags",
+          header: t("Tags"),
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
               {row.original.tags?.map((tag) => (
@@ -156,7 +158,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "currencyCode",
-          header: "Currency",
+          header: t("Currency"),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuEuro />
@@ -164,7 +166,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "phone",
-          header: "Phone",
+          header: t("Phone"),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuPhone />
@@ -172,7 +174,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "fax",
-          header: "Fax",
+          header: t("Fax"),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuPrinter />
@@ -180,7 +182,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "website",
-          header: "Website",
+          header: t("Website"),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuGlobe />
@@ -188,7 +190,7 @@ const CustomersTable = memo(
         },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t("Created By"),
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -205,7 +207,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t("Created At"),
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -213,7 +215,7 @@ const CustomersTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t("Updated By"),
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -230,7 +232,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t("Updated At"),
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -239,14 +241,14 @@ const CustomersTable = memo(
       ];
 
       return [...defaultColumns, ...customColumns];
-    }, [customerStatuses, customerTypes, people, customColumns, tags]);
+    }, [customerStatuses, customerTypes, people, customColumns, tags, t]);
 
     const renderContextMenu = useMemo(
       () => (row: Customer) => (
         <>
           <MenuItem onClick={() => navigate(path.to.customer(row.id!))}>
             <MenuIcon icon={<LuPencil />} />
-            Edit
+            {t("Edit")}
           </MenuItem>
           <MenuItem
             destructive
@@ -257,11 +259,11 @@ const CustomersTable = memo(
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Customer
+            {t("Delete Customer")}
           </MenuItem>
         </>
       ),
-      [navigate, deleteModal, permissions]
+      [navigate, deleteModal, permissions, t]
     );
 
     return (
@@ -286,11 +288,11 @@ const CustomersTable = memo(
           importCSV={[
             {
               table: "customer",
-              label: "Customers"
+              label: t("Customers")
             },
             {
               table: "customerContact",
-              label: "Contacts"
+              label: t("Contacts")
             }
           ]}
           primaryAction={
@@ -302,15 +304,15 @@ const CustomersTable = memo(
                   leftIcon={<LuShapes />}
                   asChild
                 >
-                  <Link to={path.to.customerTypes}>Customer Types</Link>
+                  <Link to={path.to.customerTypes}>{t("Customer Types")}</Link>
                 </Button>
-                <New label="Customer" to={path.to.newCustomer} />
+                <New label={t("Customer")} to={path.to.newCustomer} />
               </div>
             )
           }
           renderContextMenu={renderContextMenu}
           table="customer"
-          title="Customers"
+          title={t("Customers")}
           withSavedView
         />
         {selectedCustomer && selectedCustomer.id && (
@@ -318,7 +320,12 @@ const CustomersTable = memo(
             action={path.to.deleteCustomer(selectedCustomer.id)}
             isOpen={deleteModal.isOpen}
             name={selectedCustomer.name!}
-            text={`Are you sure you want to delete ${selectedCustomer.name!}? This cannot be undone.`}
+            text={t(
+              "Are you sure you want to delete {{name}}? This cannot be undone.",
+              {
+                name: selectedCustomer.name!
+              }
+            )}
             onCancel={() => {
               deleteModal.onClose();
               setSelectedCustomer(null);

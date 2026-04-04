@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import { MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
@@ -17,6 +18,7 @@ type NoQuoteReasonsTableProps = {
 
 const NoQuoteReasonsTable = memo(
   ({ data, count }: NoQuoteReasonsTableProps) => {
+    const { t } = useTranslation("sales");
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -26,7 +28,7 @@ const NoQuoteReasonsTable = memo(
       const defaultColumns: ColumnDef<NoQuoteReason>[] = [
         {
           accessorKey: "name",
-          header: "Reason",
+          header: t("Reason"),
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               <Enumerable value={row.original.name} />
@@ -38,7 +40,7 @@ const NoQuoteReasonsTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [customColumns]);
+    }, [customColumns, t]);
 
     const renderContextMenu = useCallback(
       (row: NoQuoteReason) => {
@@ -52,7 +54,7 @@ const NoQuoteReasonsTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Reason
+              {t("Edit Reason")}
             </MenuItem>
             <MenuItem
               destructive
@@ -64,12 +66,12 @@ const NoQuoteReasonsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Reason
+              {t("Delete Reason")}
             </MenuItem>
           </>
         );
       },
-      [navigate, params, permissions]
+      [navigate, params, permissions, t]
     );
 
     return (
@@ -80,13 +82,13 @@ const NoQuoteReasonsTable = memo(
         primaryAction={
           permissions.can("create", "sales") && (
             <New
-              label="Reason"
+              label={t("Reason")}
               to={`${path.to.newNoQuoteReason}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Reasons"
+        title={t("Reasons")}
       />
     );
   }

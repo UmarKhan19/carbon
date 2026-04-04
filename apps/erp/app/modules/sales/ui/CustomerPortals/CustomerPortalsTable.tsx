@@ -1,4 +1,5 @@
 import type { Database } from "@carbon/database";
+import { useTranslation } from "@carbon/locale";
 import { Copy, MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
@@ -23,6 +24,7 @@ type CustomerPortalsTableProps = {
 
 const CustomerPortalsTable = memo(
   ({ appUrl, data, count }: CustomerPortalsTableProps) => {
+    const { t } = useTranslation("sales");
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -31,7 +33,7 @@ const CustomerPortalsTable = memo(
       const defaultColumns: ColumnDef<CustomerPortal>[] = [
         {
           accessorKey: "customer.name",
-          header: "Customer",
+          header: t("Customer"),
           cell: ({ row }) => (
             <Hyperlink
               to={path.to.customer(
@@ -51,7 +53,7 @@ const CustomerPortalsTable = memo(
         },
         {
           accessorKey: "portalLink",
-          header: "Portal Link",
+          header: t("Portal Link"),
           cell: ({ row }) => {
             const portalUrl = `${appUrl}/share/customer/${row.original.id}`;
             return (
@@ -74,7 +76,7 @@ const CustomerPortalsTable = memo(
         }
       ];
       return defaultColumns;
-    }, [appUrl]);
+    }, [appUrl, t]);
 
     const renderContextMenu = useCallback(
       (row: CustomerPortal) => {
@@ -88,7 +90,7 @@ const CustomerPortalsTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Portal
+              {t("Edit Portal")}
             </MenuItem>
             <MenuItem
               destructive
@@ -100,12 +102,12 @@ const CustomerPortalsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Portal
+              {t("Delete Portal")}
             </MenuItem>
           </>
         );
       },
-      [navigate, params, permissions]
+      [navigate, params, permissions, t]
     );
 
     return (
@@ -116,13 +118,13 @@ const CustomerPortalsTable = memo(
         primaryAction={
           permissions.can("create", "sales") && (
             <New
-              label="Customer Portal"
+              label={t("Customer Portal")}
               to={`${path.to.newCustomerPortal}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Customer Portals"
+        title={t("Customer Portals")}
       />
     );
   }

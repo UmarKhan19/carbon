@@ -1,4 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   Button,
@@ -127,6 +128,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function SalesDashboard() {
+  const { t } = useTranslation("sales");
   const { openSalesOrders, openQuotes, openRFQs, assignedToMe } =
     useLoaderData<typeof loader>();
 
@@ -150,19 +152,19 @@ export default function SalesDashboard() {
     const defaultSteps = [
       {
         id: "rfqs",
-        label: "RFQs",
+        label: t("RFQs"),
         value: 0,
         colorClassName: "text-violet-600"
       },
       {
         id: "quotes",
-        label: "Quotes",
+        label: t("Quotes"),
         value: 0,
         colorClassName: "text-blue-600"
       },
       {
         id: "salesOrders",
-        label: "Sales Orders",
+        label: t("Sales Orders"),
         value: 0,
         additionalValue: 0,
         colorClassName: "text-teal-500"
@@ -193,7 +195,7 @@ export default function SalesDashboard() {
         additionalValue: getKpiValue("Revenue")
       }
     ];
-  }, [kpiFetcher.data?.data]);
+  }, [kpiFetcher.data?.data, t]);
 
   const dateFormatter = useDateFormatter({
     month: "short",
@@ -215,13 +217,13 @@ export default function SalesDashboard() {
   const [customers] = useCustomers();
   const customerOptions = useMemo(() => {
     return [
-      { label: "All Customers", value: "all" },
+      { label: t("All Customers"), value: "all" },
       ...customers.map((customer) => ({
         label: customer.name,
         value: customer.id
       }))
     ];
-  }, [customers]);
+  }, [customers, t]);
 
   const [interval, setInterval] = useState("month");
   const [selectedKpi, setSelectedKpi] = useState("salesOrderRevenue");
@@ -367,7 +369,7 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress2Line className="text-muted-foreground" />
-            <CardTitle>Open RFQs</CardTitle>
+            <CardTitle>{t("Open RFQs")}</CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -384,7 +386,7 @@ export default function SalesDashboard() {
                     path.to.salesRfqs
                   }?filter=status:in:${OPEN_RFQ_STATUSES.join(",")}`}
                 >
-                  View Open RFQs
+                  {t("View Open RFQs")}
                 </Link>
               </Button>
             </HStack>
@@ -394,7 +396,7 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress4Line className="text-muted-foreground" />
-            <CardTitle>Open Quotes</CardTitle>
+            <CardTitle>{t("Open Quotes")}</CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -411,7 +413,7 @@ export default function SalesDashboard() {
                     path.to.quotes
                   }?filter=status:in:${OPEN_QUOTE_STATUSES.join(",")}`}
                 >
-                  View Open Quotes
+                  {t("View Open Quotes")}
                 </Link>
               </Button>
             </HStack>
@@ -421,7 +423,7 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress8Line className="text-muted-foreground" />
-            <CardTitle>Open Sales Orders</CardTitle>
+            <CardTitle>{t("Open Sales Orders")}</CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -438,7 +440,7 @@ export default function SalesDashboard() {
                     path.to.salesOrders
                   }?filter=status:in:${OPEN_SALES_ORDER_STATUSES.join(",")}`}
                 >
-                  View Open Orders
+                  {t("View Open Orders")}
                 </Link>
               </Button>
             </HStack>
@@ -496,7 +498,7 @@ export default function SalesDashboard() {
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label="More"
+                  aria-label={t("More")}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -507,7 +509,7 @@ export default function SalesDashboard() {
                     className="flex flex-row items-center gap-2"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    Export CSV
+                    {t("Export CSV")}
                   </CSVLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -610,7 +612,7 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuClock className="text-muted-foreground" />
-            <CardTitle>Recently Created</CardTitle>
+            <CardTitle>{t("Recently Created")}</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="min-h-[200px] max-h-[360px] w-full overflow-y-auto">
@@ -618,9 +620,9 @@ export default function SalesDashboard() {
                 <Table>
                   <Thead>
                     <Tr>
-                      <Th>Document</Th>
-                      <Th>Status</Th>
-                      <Th>Customer</Th>
+                      <Th>{t("Document")}</Th>
+                      <Th>{t("Status")}</Th>
+                      <Th>{t("Customer")}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -665,22 +667,24 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuInbox className="text-muted-foreground" />
-            <CardTitle>Assigned to Me</CardTitle>
+            <CardTitle>{t("Assigned to Me")}</CardTitle>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <Suspense fallback={<Loading isLoading />}>
               <Await
                 resolve={assignedToMe}
-                errorElement={<div>Error loading assigned documents</div>}
+                errorElement={
+                  <div>{t("Error loading assigned documents")}</div>
+                }
               >
                 {(assignedDocs) =>
                   assignedDocs.length > 0 ? (
                     <Table>
                       <Thead>
                         <Tr>
-                          <Th>Document</Th>
-                          <Th>Status</Th>
-                          <Th>Customer</Th>
+                          <Th>{t("Document")}</Th>
+                          <Th>{t("Status")}</Th>
+                          <Th>{t("Customer")}</Th>
                         </Tr>
                       </Thead>
                       <Tbody>

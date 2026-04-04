@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import { MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
@@ -18,6 +19,7 @@ type CustomerStatusesTableProps = {
 
 const CustomerStatusesTable = memo(
   ({ data, count }: CustomerStatusesTableProps) => {
+    const { t } = useTranslation("sales");
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -27,7 +29,7 @@ const CustomerStatusesTable = memo(
       const defaultColumns: ColumnDef<CustomerStatus>[] = [
         {
           accessorKey: "name",
-          header: "Customer Status",
+          header: t("Customer Status"),
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               <Enumerable value={row.original.name} />
@@ -39,7 +41,7 @@ const CustomerStatusesTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [customColumns]);
+    }, [customColumns, t]);
 
     const renderContextMenu = useCallback(
       (row: CustomerStatus) => {
@@ -51,7 +53,7 @@ const CustomerStatusesTable = memo(
               }}
             >
               <MenuIcon icon={<BsPeopleFill />} />
-              View Customers
+              {t("View Customers")}
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -61,7 +63,7 @@ const CustomerStatusesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Customer Status
+              {t("Edit Customer Status")}
             </MenuItem>
             <MenuItem
               destructive
@@ -73,12 +75,12 @@ const CustomerStatusesTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Customer Status
+              {t("Delete Customer Status")}
             </MenuItem>
           </>
         );
       },
-      [navigate, params, permissions]
+      [navigate, params, permissions, t]
     );
 
     return (
@@ -89,13 +91,13 @@ const CustomerStatusesTable = memo(
         primaryAction={
           permissions.can("create", "sales") && (
             <New
-              label="Customer Status"
+              label={t("Customer Status")}
               to={`${path.to.newCustomerStatus}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Customer Statuses"
+        title={t("Customer Statuses")}
       />
     );
   }
