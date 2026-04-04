@@ -98,9 +98,7 @@ const CustomersTable = memo(
               type: "static",
               options: customerStatuses?.map((status) => ({
                 value: status.name,
-                label: (
-                  <Enumerable value={translateStatus(status.name ?? "")} />
-                )
+                label: <Enumerable value={translateStatus(status.name ?? "")} />
               }))
             },
             pluralHeader: "Statuses",

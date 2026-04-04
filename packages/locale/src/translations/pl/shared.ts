@@ -4,7 +4,8 @@ const shared = {
   "Account Settings": "Ustawienia konta",
   Actions: "Akcje",
   Add: "Dodaj",
-  "Add a column below to sort the view": "Dodaj kolumne ponizej, aby sortowac widok",
+  "Add a column below to sort the view":
+    "Dodaj kolumne ponizej, aby sortowac widok",
   "Add Company": "Dodaj firme",
   "API Documentation": "Dokumentacja API",
   Archive: "Archiwum",
@@ -15,7 +16,8 @@ const shared = {
   "Bulk Import": "Import zbiorczy",
   "by {{name}}": "przez {{name}}",
   Cancel: "Anuluj",
-  "Choose your preferred language for the interface.": "Wybierz preferowany jezyk interfejsu.",
+  "Choose your preferred language for the interface.":
+    "Wybierz preferowany jezyk interfejsu.",
   Clear: "Wyczysc",
   "Clear Filters": "Wyczysc filtry",
   Close: "Zamknij",
@@ -66,7 +68,8 @@ const shared = {
   Next: "Nastepna",
   "No available filters": "Brak dostepnych filtrow",
   "No data exists": "Brak danych",
-  "No matches for \"{{query}}\". Try a different search term.": "Brak dopasowan dla \"{{query}}\". Sprobuj innej frazy.",
+  'No matches for "{{query}}". Try a different search term.':
+    'Brak dopasowan dla "{{query}}". Sprobuj innej frazy.',
   "No new notifications": "Brak nowych powiadomien",
   "No options found.": "Nie znaleziono opcji.",
   "No outstanding trainings": "Brak zaleglych szkolen",
@@ -117,14 +120,16 @@ const shared = {
   "Table actions": "Akcje tabeli",
   "Terms and Privacy": "Regulamin i prywatnosc",
   "Terms of Service": "Warunki korzystania",
-  "This information will be visible to all users, so be careful what you share.": "Te informacje beda widoczne dla wszystkich uzytkownikow, wiec uwazaj, co udostepniasz.",
+  "This information will be visible to all users, so be careful what you share.":
+    "Te informacje beda widoczne dla wszystkich uzytkownikow, wiec uwazaj, co udostepniasz.",
   "Toggle column": "Przelacz kolumne",
   Trainings: "Szkolenia",
-  "Type to search across your workspace": "Wpisz, aby szukac w calym obszarze roboczym",
+  "Type to search across your workspace":
+    "Wpisz, aby szukac w calym obszarze roboczym",
   Update: "Aktualizuj",
   "Uploading {{fileName}}": "Przesylanie {{fileName}}",
   Users: "Uzytkownicy",
-  yourself: "siebie",
+  yourself: "siebie"
 } as const;
 
 export default shared;

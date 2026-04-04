@@ -1,5 +1,5 @@
-import type { ShortcutDefinition } from "@carbon/react";
 import { useTranslation } from "@carbon/locale";
+import type { ShortcutDefinition } from "@carbon/react";
 import {
   Button,
   Command,

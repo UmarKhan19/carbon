@@ -1,21 +1,30 @@
 const sales = {
-  "A customer is a business or person who buys your parts or services.": "Klient to firma lub osoba, ktora kupuje twoje czesci lub uslugi.",
-  "A quote is a set of prices for specific parts and quantities.": "Oferta to zestaw cen dla okreslonych czesci i ilosci.",
-  "A quote line contains pricing and lead times for a particular part": "Pozycja oferty zawiera wycene i czasy realizacji dla konkretnej czesci",
-  "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost.": "Faktura sprzedazy to dokument okreslajacy produkty lub uslugi sprzedane klientowi oraz odpowiadajacy im koszt.",
-  "A sales invoice line contains invoice details for a particular item": "Pozycja faktury sprzedazy zawiera szczegoly faktury dla konkretnego produktu",
-  "A sales order line contains order details for a particular item": "Pozycja zamowienia sprzedazy zawiera szczegoly zamowienia dla konkretnego produktu",
-  "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.": "Zapytanie ofertowe RFQ to zapytanie klienta o wycene zestawu czesci i ilosci. Moze zakonczyc sie utworzeniem oferty.",
+  "A customer is a business or person who buys your parts or services.":
+    "Klient to firma lub osoba, ktora kupuje twoje czesci lub uslugi.",
+  "A quote is a set of prices for specific parts and quantities.":
+    "Oferta to zestaw cen dla okreslonych czesci i ilosci.",
+  "A quote line contains pricing and lead times for a particular part":
+    "Pozycja oferty zawiera wycene i czasy realizacji dla konkretnej czesci",
+  "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost.":
+    "Faktura sprzedazy to dokument okreslajacy produkty lub uslugi sprzedane klientowi oraz odpowiadajacy im koszt.",
+  "A sales invoice line contains invoice details for a particular item":
+    "Pozycja faktury sprzedazy zawiera szczegoly faktury dla konkretnego produktu",
+  "A sales order line contains order details for a particular item":
+    "Pozycja zamowienia sprzedazy zawiera szczegoly zamowienia dla konkretnego produktu",
+  "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.":
+    "Zapytanie ofertowe RFQ to zapytanie klienta o wycene zestawu czesci i ilosci. Moze zakonczyc sie utworzeniem oferty.",
   "Account Manager": "Opiekun klienta",
   Active: "Aktywny",
   ACTIVE: "AKTYWNY",
   "Add-On": "Doplata",
   "Add-On Cost": "Koszt doplaty",
   "All Customers": "Wszyscy klienci",
-  "Are you sure you want to delete {{name}}? This cannot be undone.": "Czy na pewno chcesz usunac {{name}}? Tej operacji nie mozna cofnac.",
+  "Are you sure you want to delete {{name}}? This cannot be undone.":
+    "Czy na pewno chcesz usunac {{name}}? Tej operacji nie mozna cofnac.",
   "Assigned to Me": "Przypisane do mnie",
   Assignee: "Przypisany",
-  "Batch items require a sales order": "Produkty partiowane wymagaja zamowienia sprzedazy",
+  "Batch items require a sales order":
+    "Produkty partiowane wymagaja zamowienia sprzedazy",
   Cancelled: "Anulowany",
   CANCELLED: "ANULOWANY",
   "Carbon client not found": "Nie znaleziono klienta Carbon",
@@ -73,13 +82,20 @@ const sales = {
   "Expand Costs": "Rozwin koszty",
   "Expiration Date": "Data wygasniecia",
   "Export CSV": "Eksportuj CSV",
-  "Failed to create customer portal: {{message}}": "Nie udalo sie utworzyc portalu klienta: {{message}}",
-  "Failed to create customer status: {{message}}": "Nie udalo sie utworzyc statusu klienta: {{message}}",
-  "Failed to create customer type: {{message}}": "Nie udalo sie utworzyc typu klienta: {{message}}",
-  "Failed to create customer: {{message}}": "Nie udalo sie utworzyc klienta: {{message}}",
-  "Failed to create no quote reason: {{message}}": "Nie udalo sie utworzyc powodu braku oferty: {{message}}",
-  "Failed to load configuration parameters": "Nie udalo sie zaladowac parametrow konfiguracji",
-  "Failed to load customer part details": "Nie udalo sie zaladowac szczegolow czesci klienta",
+  "Failed to create customer portal: {{message}}":
+    "Nie udalo sie utworzyc portalu klienta: {{message}}",
+  "Failed to create customer status: {{message}}":
+    "Nie udalo sie utworzyc statusu klienta: {{message}}",
+  "Failed to create customer type: {{message}}":
+    "Nie udalo sie utworzyc typu klienta: {{message}}",
+  "Failed to create customer: {{message}}":
+    "Nie udalo sie utworzyc klienta: {{message}}",
+  "Failed to create no quote reason: {{message}}":
+    "Nie udalo sie utworzyc powodu braku oferty: {{message}}",
+  "Failed to load configuration parameters":
+    "Nie udalo sie zaladowac parametrow konfiguracji",
+  "Failed to load customer part details":
+    "Nie udalo sie zaladowac szczegolow czesci klienta",
   "Failed to load item details": "Nie udalo sie zaladowac szczegolow produktu",
   Fax: "Faks",
   "Home Phone": "Telefon domowy",
@@ -101,7 +117,8 @@ const sales = {
   LEAD: "LEAD",
   "Line Status": "Status pozycji",
   Location: "Lokalizacja",
-  "Make items cannot be invoiced directly. Change method to Pick to continue.": "Pozycji typu Make nie mozna fakturowac bezposrednio. Zmien metode na Pick, aby kontynuowac.",
+  "Make items cannot be invoiced directly. Change method to Pick to continue.":
+    "Pozycji typu Make nie mozna fakturowac bezposrednio. Zmien metode na Pick, aby kontynuowac.",
   Manage: "Zarzadzaj",
   Method: "Metoda",
   "Mobile Phone": "Telefon komorkowy",
@@ -177,7 +194,8 @@ const sales = {
   "Select Customer Status": "Wybierz status klienta",
   "Select Customer Type": "Wybierz typ klienta",
   "Select Employee": "Wybierz pracownika",
-  "Serial items require a sales order": "Produkty seryjne wymagaja zamowienia sprzedazy",
+  "Serial items require a sales order":
+    "Produkty seryjne wymagaja zamowienia sprzedazy",
   Shelf: "Polka",
   "Shipment Date": "Data wysylki",
   "Shipment Location": "Lokalizacja wysylki",
@@ -198,7 +216,8 @@ const sales = {
   "Tax Amount": "Kwota podatku",
   "Tax ID": "NIP",
   "Tax Percent": "Stawka podatku",
-  "The date the customer expects to receive the goods": "Data, kiedy klient oczekuje otrzymania towaru",
+  "The date the customer expects to receive the goods":
+    "Data, kiedy klient oczekuje otrzymania towaru",
   Title: "Stanowisko",
   "Tracking Number": "Numer sledzenia",
   Type: "Typ",
@@ -214,7 +233,7 @@ const sales = {
   "View Open Quotes": "Zobacz otwarte oferty",
   "View Open RFQs": "Zobacz otwarte RFQ",
   Website: "Strona",
-  "Work Phone": "Telefon sluzbowy",
+  "Work Phone": "Telefon sluzbowy"
 } as const;
 
 export default sales;

@@ -1227,7 +1227,9 @@ function getActionColumn<T>(
   return [
     {
       id: "Actions",
-      header: () => <span className="sr-only">{translateLabel("Actions")}</span>,
+      header: () => (
+        <span className="sr-only">{translateLabel("Actions")}</span>
+      ),
       cell: (item) => (
         <div className="flex justify-end">
           <ActionMenu>{renderContextMenu(item.row.original)}</ActionMenu>

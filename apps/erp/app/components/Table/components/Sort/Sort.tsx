@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import {
   Button,
   cn,
@@ -18,7 +19,6 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@carbon/react";
-import { useTranslation } from "@carbon/locale";
 import { Reorder } from "framer-motion";
 import { BsChevronDown, BsSortUp } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";

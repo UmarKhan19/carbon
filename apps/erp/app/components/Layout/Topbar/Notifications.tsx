@@ -1,7 +1,7 @@
 "use client";
 
-import { NotificationEvent } from "@carbon/notifications";
 import { useTranslation } from "@carbon/locale";
+import { NotificationEvent } from "@carbon/notifications";
 import {
   Badge,
   Button,
@@ -153,7 +153,8 @@ function Notification({
         </div>
         <div>
           <p className="text-sm">
-            {description} {byUser && <span>{t("by {{name}}", { name: byUser })}</span>}
+            {description}{" "}
+            {byUser && <span>{t("by {{name}}", { name: byUser })}</span>}
           </p>
           <span className="text-xs text-muted-foreground">
             {formatTimeAgo(createdAt)}

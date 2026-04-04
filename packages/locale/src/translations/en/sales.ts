@@ -1,18 +1,26 @@
 const sales = {
-  "A customer is a business or person who buys your parts or services.": "A customer is a business or person who buys your parts or services.",
-  "A quote is a set of prices for specific parts and quantities.": "A quote is a set of prices for specific parts and quantities.",
-  "A quote line contains pricing and lead times for a particular part": "A quote line contains pricing and lead times for a particular part",
-  "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost.": "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost.",
-  "A sales invoice line contains invoice details for a particular item": "A sales invoice line contains invoice details for a particular item",
-  "A sales order line contains order details for a particular item": "A sales order line contains order details for a particular item",
-  "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.": "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.",
+  "A customer is a business or person who buys your parts or services.":
+    "A customer is a business or person who buys your parts or services.",
+  "A quote is a set of prices for specific parts and quantities.":
+    "A quote is a set of prices for specific parts and quantities.",
+  "A quote line contains pricing and lead times for a particular part":
+    "A quote line contains pricing and lead times for a particular part",
+  "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost.":
+    "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost.",
+  "A sales invoice line contains invoice details for a particular item":
+    "A sales invoice line contains invoice details for a particular item",
+  "A sales order line contains order details for a particular item":
+    "A sales order line contains order details for a particular item",
+  "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.":
+    "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.",
   "Account Manager": "Account Manager",
   Active: "Active",
   ACTIVE: "ACTIVE",
   "Add-On": "Add-On",
   "Add-On Cost": "Add-On Cost",
   "All Customers": "All Customers",
-  "Are you sure you want to delete {{name}}? This cannot be undone.": "Are you sure you want to delete {{name}}? This cannot be undone.",
+  "Are you sure you want to delete {{name}}? This cannot be undone.":
+    "Are you sure you want to delete {{name}}? This cannot be undone.",
   "Assigned to Me": "Assigned to Me",
   Assignee: "Assignee",
   "Batch items require a sales order": "Batch items require a sales order",
@@ -73,13 +81,20 @@ const sales = {
   "Expand Costs": "Expand Costs",
   "Expiration Date": "Expiration Date",
   "Export CSV": "Export CSV",
-  "Failed to create customer portal: {{message}}": "Failed to create customer portal: {{message}}",
-  "Failed to create customer status: {{message}}": "Failed to create customer status: {{message}}",
-  "Failed to create customer type: {{message}}": "Failed to create customer type: {{message}}",
-  "Failed to create customer: {{message}}": "Failed to create customer: {{message}}",
-  "Failed to create no quote reason: {{message}}": "Failed to create no quote reason: {{message}}",
-  "Failed to load configuration parameters": "Failed to load configuration parameters",
-  "Failed to load customer part details": "Failed to load customer part details",
+  "Failed to create customer portal: {{message}}":
+    "Failed to create customer portal: {{message}}",
+  "Failed to create customer status: {{message}}":
+    "Failed to create customer status: {{message}}",
+  "Failed to create customer type: {{message}}":
+    "Failed to create customer type: {{message}}",
+  "Failed to create customer: {{message}}":
+    "Failed to create customer: {{message}}",
+  "Failed to create no quote reason: {{message}}":
+    "Failed to create no quote reason: {{message}}",
+  "Failed to load configuration parameters":
+    "Failed to load configuration parameters",
+  "Failed to load customer part details":
+    "Failed to load customer part details",
   "Failed to load item details": "Failed to load item details",
   Fax: "Fax",
   "Home Phone": "Home Phone",
@@ -101,7 +116,8 @@ const sales = {
   LEAD: "LEAD",
   "Line Status": "Line Status",
   Location: "Location",
-  "Make items cannot be invoiced directly. Change method to Pick to continue.": "Make items cannot be invoiced directly. Change method to Pick to continue.",
+  "Make items cannot be invoiced directly. Change method to Pick to continue.":
+    "Make items cannot be invoiced directly. Change method to Pick to continue.",
   Manage: "Manage",
   Method: "Method",
   "Mobile Phone": "Mobile Phone",
@@ -198,7 +214,8 @@ const sales = {
   "Tax Amount": "Tax Amount",
   "Tax ID": "Tax ID",
   "Tax Percent": "Tax Percent",
-  "The date the customer expects to receive the goods": "The date the customer expects to receive the goods",
+  "The date the customer expects to receive the goods":
+    "The date the customer expects to receive the goods",
   Title: "Title",
   "Tracking Number": "Tracking Number",
   Type: "Type",
@@ -214,7 +231,7 @@ const sales = {
   "View Open Quotes": "View Open Quotes",
   "View Open RFQs": "View Open RFQs",
   Website: "Website",
-  "Work Phone": "Work Phone",
+  "Work Phone": "Work Phone"
 } as const;
 
 export default sales;

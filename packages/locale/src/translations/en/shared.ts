@@ -15,7 +15,8 @@ const shared = {
   "Bulk Import": "Bulk Import",
   "by {{name}}": "by {{name}}",
   Cancel: "Cancel",
-  "Choose your preferred language for the interface.": "Choose your preferred language for the interface.",
+  "Choose your preferred language for the interface.":
+    "Choose your preferred language for the interface.",
   Clear: "Clear",
   "Clear Filters": "Clear Filters",
   Close: "Close",
@@ -66,7 +67,8 @@ const shared = {
   Next: "Next",
   "No available filters": "No available filters",
   "No data exists": "No data exists",
-  "No matches for \"{{query}}\". Try a different search term.": "No matches for \"{{query}}\". Try a different search term.",
+  'No matches for "{{query}}". Try a different search term.':
+    'No matches for "{{query}}". Try a different search term.',
   "No new notifications": "No new notifications",
   "No options found.": "No options found.",
   "No outstanding trainings": "No outstanding trainings",
@@ -117,14 +119,16 @@ const shared = {
   "Table actions": "Table actions",
   "Terms and Privacy": "Terms and Privacy",
   "Terms of Service": "Terms of Service",
-  "This information will be visible to all users, so be careful what you share.": "This information will be visible to all users, so be careful what you share.",
+  "This information will be visible to all users, so be careful what you share.":
+    "This information will be visible to all users, so be careful what you share.",
   "Toggle column": "Toggle column",
   Trainings: "Trainings",
-  "Type to search across your workspace": "Type to search across your workspace",
+  "Type to search across your workspace":
+    "Type to search across your workspace",
   Update: "Update",
   "Uploading {{fileName}}": "Uploading {{fileName}}",
   Users: "Users",
-  yourself: "yourself",
+  yourself: "yourself"
 } as const;
 
 export default shared;
