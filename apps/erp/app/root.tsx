@@ -1,7 +1,11 @@
 import { CONTROLLED_ENVIRONMENT, error, getBrowserEnv } from "@carbon/auth";
 import { getSessionFlash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import { LocaleProvider, resolveLanguage } from "@carbon/locale";
+import {
+  LocaleProvider,
+  loadLocaleResources,
+  resolveLanguage
+} from "@carbon/locale";
 import {
   Button,
   Heading,
@@ -84,6 +88,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   } = getBrowserEnv();
 
   const sessionFlash = await getSessionFlash(request);
+  const preferences = getPreferenceHeaders(request);
+  const localeResources = await loadLocaleResources(preferences.locale);
 
   return data(
     {
@@ -110,7 +116,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       },
       mode: getMode(request),
       theme: getTheme(request),
-      preferences: getPreferenceHeaders(request),
+      preferences,
+      localeResources,
       result: sessionFlash?.result
     },
     {
@@ -213,6 +220,7 @@ export default function App() {
   const result = loaderData?.result;
   const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
+  const localeResources = loaderData?.localeResources;
   const appLanguage = resolveLanguage(prefs.locale);
   const mode = useMode();
 
@@ -241,7 +249,7 @@ export default function App() {
 
   return (
     <OperatingSystemContextProvider platform={prefs.platform}>
-      <LocaleProvider locale={appLanguage}>
+      <LocaleProvider locale={appLanguage} resources={localeResources}>
         <I18nProvider locale={prefs.locale}>
           <Document mode={mode} theme={theme} lang={appLanguage}>
             <Outlet />
