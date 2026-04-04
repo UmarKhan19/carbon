@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,12 +31,13 @@ import { path } from "~/utils/path";
 
 function useCreate(): Route[] {
   const permissions = usePermissions();
+  const { t } = useTranslation("shared");
 
   const result = useMemo(() => {
     let links: Route[] = [];
     if (permissions.can("create", "parts")) {
       links.push({
-        name: "Part",
+        name: t("Part"),
         to: path.to.newPart,
         icon: <LuSquareStack />
       });
@@ -43,7 +45,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "quality")) {
       links.push({
-        name: "Issue",
+        name: t("Issue"),
         to: path.to.newIssue,
         icon: <LuShieldX />
       });
@@ -51,7 +53,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "production")) {
       links.push({
-        name: "Job",
+        name: t("Job"),
         to: path.to.newJob,
         icon: <LuCirclePlay />
       });
@@ -59,7 +61,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "production")) {
       links.push({
-        name: "Maintenance",
+        name: t("Maintenance"),
         to: path.to.newMaintenanceDispatch,
         icon: <LuWrench />
       });
@@ -67,7 +69,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "purchasing")) {
       links.push({
-        name: "Purchase Order",
+        name: t("Purchase Order"),
         to: path.to.newPurchaseOrder,
         icon: <LuShoppingCart />
       });
@@ -75,7 +77,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "purchasing")) {
       links.push({
-        name: "Supplier",
+        name: t("Supplier"),
         to: path.to.newSupplier,
         icon: <LuContainer />
       });
@@ -83,22 +85,22 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "sales")) {
       links.push({
-        name: "Customer",
+        name: t("Customer"),
         to: path.to.newCustomer,
         icon: <LuSquareUser />
       });
       links.push({
-        name: "RFQ",
+        name: t("RFQ"),
         to: path.to.newSalesRFQ,
         icon: <RiProgress2Line />
       });
       links.push({
-        name: "Quote",
+        name: t("Quote"),
         to: path.to.newQuote,
         icon: <RiProgress4Line />
       });
       links.push({
-        name: "Sales Order",
+        name: t("Sales Order"),
         to: path.to.newSalesOrder,
         icon: <RiProgress8Line />
       });
@@ -106,14 +108,14 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "users")) {
       links.push({
-        name: "Employee",
+        name: t("Employee"),
         to: path.to.newEmployee,
         icon: <LuUsers />
       });
     }
 
     return links;
-  }, [permissions]);
+  }, [permissions, t]);
 
   return result.sort((a, b) => a.name.localeCompare(b.name));
 }

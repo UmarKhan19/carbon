@@ -69,6 +69,8 @@
     "prepare": "npx husky install",
     "setup": "turbo run setup",
     "test": "turbo run test",
+    "translations:check": "tsx scripts/check-translation-keys.ts",
+    "translations:sort": "tsx scripts/check-translation-keys.ts --write",
     "tool:new": "tsx scripts/create-tool.ts",
     "agent:new": "tsx scripts/create-agent.ts",
     "types": "turbo run types",

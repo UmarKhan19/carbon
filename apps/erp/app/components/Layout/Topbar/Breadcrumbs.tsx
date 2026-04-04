@@ -125,6 +125,7 @@ const Breadcrumbs = () => {
 };
 
 function CompanyBreadcrumb() {
+  const { t: tShared } = useTranslation("shared");
   const routeData = useRouteData<{ company: Company; companies: Company[] }>(
     path.to.authenticatedRoot
   );
@@ -156,7 +157,7 @@ function CompanyBreadcrumb() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[240px]">
-              <DropdownMenuLabel>Companies</DropdownMenuLabel>
+              <DropdownMenuLabel>{tShared("Companies")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {routeData?.companies.map((c) => {
@@ -197,7 +198,7 @@ function CompanyBreadcrumb() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={companyForm.onOpen}>
                       <DropdownMenuIcon icon={<IoMdAdd />} />
-                      Add Company
+                      {tShared("Add Company")}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </>
@@ -222,13 +223,22 @@ function CompanyBreadcrumb() {
                 }}
               >
                 <ModalHeader>
-                  <ModalTitle>Let's set up your new company</ModalTitle>
+                  <ModalTitle>
+                    {tShared("Let's set up your new company")}
+                  </ModalTitle>
                 </ModalHeader>
                 <ModalBody>
                   <VStack spacing={4}>
-                    <Input autoFocus name="name" label="Company Name" />
+                    <Input
+                      autoFocus
+                      name="name"
+                      label={tShared("Company Name")}
+                    />
                     <AddressAutocomplete variant="grid" />
-                    <Currency name="baseCurrencyCode" label="Base Currency" />
+                    <Currency
+                      name="baseCurrencyCode"
+                      label={tShared("Base Currency")}
+                    />
                   </VStack>
                 </ModalBody>
                 <ModalFooter>
