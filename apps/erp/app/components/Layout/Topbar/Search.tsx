@@ -1,4 +1,5 @@
 import type { ShortcutDefinition } from "@carbon/react";
+import { useTranslation } from "@carbon/locale";
 import {
   Button,
   Command,
@@ -74,6 +75,7 @@ const shortcut: ShortcutDefinition = {
 };
 
 const SearchModal = () => {
+  const { t } = useTranslation("shared");
   const navigate = useNavigate();
   const fetcher = useFetcher<SearchResponse>();
   const { isSearchModalOpen, closeSearchModal } = useUIStore();
@@ -197,7 +199,7 @@ const SearchModal = () => {
           {/* Search Input */}
 
           <CommandInput
-            placeholder="Search across your workspace..."
+            placeholder={t("Search across your workspace...")}
             value={input}
             onValueChange={onInputChange}
             className="h-14 text-base"
@@ -218,7 +220,7 @@ const SearchModal = () => {
                       heading={
                         <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                           <LuClock className="w-3 h-3" />
-                          Recent
+                          {t("Recent")}
                         </span>
                       }
                       key="recent"
@@ -280,7 +282,7 @@ const SearchModal = () => {
                   <CommandGroup
                     heading={
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Results
+                        {t("Results")}
                       </span>
                     }
                     key="search"
@@ -376,21 +378,21 @@ const SearchModal = () => {
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">
-                  ↑↓
+                  Up/Down
                 </kbd>
-                Navigate
+                {t("Navigate")}
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">
-                  ↵
+                  Enter
                 </kbd>
-                Select
+                {t("Select")}
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">
-                  esc
+                  Esc
                 </kbd>
-                Close
+                {t("Close")}
               </span>
             </div>
           </div>
@@ -437,6 +439,7 @@ function ResultIcon({ entityType }: { entityType: string }) {
 }
 
 const SearchButton = () => {
+  const { t } = useTranslation("shared");
   const { openSearchModal } = useUIStore();
 
   useShortcutKeys({
@@ -453,7 +456,7 @@ const SearchButton = () => {
         onClick={openSearchModal}
       >
         <HStack className="w-full">
-          <div className="flex flex-grow">Search</div>
+          <div className="flex flex-grow">{t("Search")}</div>
           <ShortcutKey
             variant="small"
             shortcut={shortcut}
