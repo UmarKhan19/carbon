@@ -2,6 +2,7 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -10,15 +11,22 @@ import {
   CardTitle,
   VStack
 } from "@carbon/react";
+import { getPreferenceHeaders } from "@carbon/remix";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
 import {
+  accountLanguageValidator,
   accountProfileValidator,
   getAccount,
   updateAvatar,
   updatePublicAccount
 } from "~/modules/account";
-import { ProfileForm, ProfilePhotoForm } from "~/modules/account/ui/Profile";
+import {
+  ProfileForm,
+  ProfileLanguageForm,
+  ProfilePhotoForm
+} from "~/modules/account/ui/Profile";
+import { setLocale } from "~/services/locale.server";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -39,7 +47,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return { user: user.data };
+  return { user: user.data, locale: getPreferenceHeaders(request).locale };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -76,6 +84,29 @@ export async function action({ request }: ActionFunctionArgs) {
     return data({}, await flash(request, success("Updated profile")));
   }
 
+  if (formData.get("intent") === "locale") {
+    const validation = await validator(accountLanguageValidator).validate(
+      formData
+    );
+
+    if (validation.error) {
+      return validationError(validation.error);
+    }
+
+    const localeCookie = setLocale(validation.data.locale);
+    const flashHeaders = await flash(request, success("Updated language"));
+
+    return data(
+      {},
+      {
+        headers: [
+          ["Set-Cookie", localeCookie],
+          ["Set-Cookie", flashHeaders.headers["Set-Cookie"]]
+        ]
+      }
+    );
+  }
+
   if (formData.get("intent") === "photo") {
     const photoPath = formData.get("path");
     if (photoPath === null || typeof photoPath === "string") {
@@ -109,24 +140,28 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AccountProfile() {
-  const { user } = useLoaderData<typeof loader>();
+  const { user, locale } = useLoaderData<typeof loader>();
+  const { t } = useTranslation("shared");
 
   return (
     <VStack spacing={2}>
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
+          <CardTitle>{t("Profile")}</CardTitle>
           <CardDescription>
-            This information will be visible to all users, so be careful what
-            you share.
+            {t(
+              "This information will be visible to all users, so be careful what you share."
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 w-full mb-8">
             {/* @ts-expect-error TS2322 */}
             <ProfileForm user={user} />
             <ProfilePhotoForm user={user} />
           </div>
+
+          <ProfileLanguageForm locale={locale} />
         </CardContent>
       </Card>
     </VStack>

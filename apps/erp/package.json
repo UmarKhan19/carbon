@@ -18,6 +18,7 @@
     "@carbon/jobs": "*",
     "@carbon/kv": "*",
     "@carbon/lib": "*",
+    "@carbon/locale": "*",
     "@carbon/notifications": "*",
     "@carbon/react": "*",
     "@carbon/remix": "*",

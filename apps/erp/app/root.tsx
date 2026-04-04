@@ -1,6 +1,7 @@
 import { CONTROLLED_ENVIRONMENT, error, getBrowserEnv } from "@carbon/auth";
 import { getSessionFlash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
+import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
   Button,
   Heading,
@@ -140,11 +141,13 @@ export async function action({ request }: ActionFunctionArgs) {
 export function Document({
   children,
   title = "Carbon",
+  lang = "en",
   mode = "light",
   theme = "zinc"
 }: {
   children: React.ReactNode;
   title?: string;
+  lang?: string;
   mode?: "light" | "dark";
   theme?: string;
 }) {
@@ -178,7 +181,7 @@ export function Document({
 
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${mode} h-full overflow-x-hidden`}
       style={themeStyle}
     >
@@ -210,6 +213,7 @@ export default function App() {
   const result = loaderData?.result;
   const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
+  const appLanguage = resolveLanguage(prefs.locale);
   const mode = useMode();
 
   useMount(() => {
@@ -237,16 +241,18 @@ export default function App() {
 
   return (
     <OperatingSystemContextProvider platform={prefs.platform}>
-      <I18nProvider locale={prefs.locale}>
-        <Document mode={mode} theme={theme}>
-          <Outlet />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.env = ${JSON.stringify(env)};`
-            }}
-          />
-        </Document>
-      </I18nProvider>
+      <LocaleProvider locale={appLanguage}>
+        <I18nProvider locale={prefs.locale}>
+          <Document mode={mode} theme={theme} lang={appLanguage}>
+            <Outlet />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.env = ${JSON.stringify(env)};`
+              }}
+            />
+          </Document>
+        </I18nProvider>
+      </LocaleProvider>
     </OperatingSystemContextProvider>
   );
 }

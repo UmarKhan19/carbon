@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import { Heading, VStack } from "@carbon/react";
 import type { MetaFunction } from "react-router";
 import { Outlet } from "react-router";
@@ -15,6 +16,7 @@ export const handle: Handle = {
 };
 
 export default function AccountRoute() {
+  const { t } = useTranslation("shared");
   // const { links } = useAccountSubmodules();
 
   return (
@@ -24,7 +26,7 @@ export default function AccountRoute() {
     >
       <div className="flex bg-card border-b border-border py-8 px-2 w-full justify-center">
         <div className="w-full max-w-[60rem]">
-          <Heading size="h3">Account Settings</Heading>
+          <Heading size="h3">{t("Account Settings")}</Heading>
         </div>
       </div>
 
