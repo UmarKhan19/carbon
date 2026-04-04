@@ -1,8 +1,10 @@
 import {
   Badge,
   BadgeCloseButton,
+  cn,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuIcon,
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuRadioGroup,
@@ -16,6 +18,7 @@ import {
 import { useCallback } from "react";
 import { LuPlus } from "react-icons/lu";
 import { useFetcher } from "react-router";
+import { DimensionEntityTypeIcon } from "~/components/Icons";
 import { path } from "~/utils/path";
 import type { DimensionWithValues, JournalLineDimensionValue } from "./types";
 
@@ -117,7 +120,10 @@ const DimensionSelector = ({
       {availableDimensions.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Badge variant="secondary" className="cursor-pointer gap-1">
+            <Badge
+              variant="secondary"
+              className="inline-flex items-center cursor-pointer gap-1"
+            >
               <span>Dimension</span>
               <LuPlus />
             </Badge>
@@ -128,6 +134,13 @@ const DimensionSelector = ({
             {availableDimensions.map((dim) => (
               <DropdownMenuSub key={dim.dimensionId}>
                 <DropdownMenuSubTrigger>
+                  <DropdownMenuIcon
+                    icon={
+                      <DimensionEntityTypeIcon
+                        entityType={dim.entityType as any}
+                      />
+                    }
+                  />
                   {dim.dimensionName}
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
@@ -154,16 +167,21 @@ const DimensionSelector = ({
       {currentDimensions.map((dim) => (
         <Badge
           key={dim.dimensionId}
+          role="group"
+          tabIndex={0}
           variant="outline"
-          className={getColor(
-            dimensionEntityTypeMap.get(dim.dimensionId) ?? ""
+          className={cn(
+            getColor(dimensionEntityTypeMap.get(dim.dimensionId) ?? ""),
+            "inline-flex items-center gap-1"
           )}
         >
-          <span className="text-[10px] font-normal opacity-70">
-            {dim.dimensionName}:
-          </span>
-          <span className="ml-1">{dim.valueName}</span>
+          <DimensionEntityTypeIcon
+            entityType={dimensionEntityTypeMap.get(dim.dimensionId) as any}
+            className="size-3"
+          />
+          <span>{dim.valueName}</span>
           <BadgeCloseButton
+            tabIndex={0}
             onClick={() => handleRemove(dim.dimensionId)}
             aria-label={`Remove ${dim.valueName}`}
           />

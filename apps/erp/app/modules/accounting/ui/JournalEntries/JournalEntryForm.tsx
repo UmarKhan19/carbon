@@ -266,7 +266,7 @@ const JournalEntryForm = ({
               {/* Entry Details */}
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
                 <div className="col-span-3">
-                  <Input name="description" label="Description" />
+                  <Input autoFocus name="description" label="Description" />
                 </div>
                 <Input
                   name="company"
@@ -348,13 +348,13 @@ const JournalEntryForm = ({
                 <div className="mt-4 flex items-center justify-between border-t pt-4">
                   <div className="flex items-center gap-2">
                     {isBalanced && totalDebits > 0 ? (
-                      <Status variant="green">Entry is balanced</Status>
+                      <Status color="green">Entry is balanced</Status>
                     ) : totalDebits === 0 && totalCredits === 0 ? (
-                      <Status variant="yellow">
+                      <Status color="yellow">
                         Enter at least one debit and credit
                       </Status>
                     ) : (
-                      <Status variant="yellow">Entry is not balanced</Status>
+                      <Status color="yellow">Entry is not balanced</Status>
                     )}
                   </div>
                   {!isBalanced && totalDebits > 0 && (

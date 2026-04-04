@@ -20,13 +20,16 @@ import {
   LuBarcode,
   LuBookOpen,
   LuBox,
+  LuBuilding,
   LuCircle,
   LuCircleCheck,
   LuCircleDashed,
+  LuCircleDollarSign,
   LuCircleX,
   LuClipboardCheck,
   LuClock,
   LuClock3,
+  LuContainer,
   LuExternalLink,
   LuEye,
   LuFactory,
@@ -38,6 +41,7 @@ import {
   LuHeadphones,
   LuImage,
   LuList,
+  LuMapPin,
   LuPackage,
   LuPizza,
   LuQrCode,
@@ -45,11 +49,13 @@ import {
   LuRotateCcw,
   LuShoppingCart,
   LuSquare,
+  LuTags,
   LuTarget,
   LuTimer,
   LuToggleLeft,
   LuTruck,
-  LuUser
+  LuUser,
+  LuUsers
 } from "react-icons/lu";
 import { RxCodesandboxLogo } from "react-icons/rx";
 import { TbTargetOff } from "react-icons/tb";
@@ -57,7 +63,10 @@ import { Link } from "react-router";
 import { AlmostDoneIcon } from "~/assets/icons/AlmostDoneIcon";
 import { InProgressStatusIcon } from "~/assets/icons/InProgressStatusIcon";
 import { TodoStatusIcon } from "~/assets/icons/TodoStatusIcon";
-import type { journalEntrySourceTypes } from "~/modules/accounting";
+import type {
+  dimensionEntityTypes,
+  journalEntrySourceTypes
+} from "~/modules/accounting";
 import type { JobOperation } from "~/modules/production/types";
 import type { nonConformanceTaskStatus } from "~/modules/quality";
 import type { MethodType } from "~/modules/shared";
@@ -574,6 +583,33 @@ export const JournalEntrySourceTypeIcon = ({
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
+};
+
+export const DimensionEntityTypeIcon = ({
+  entityType,
+  className
+}: {
+  entityType: (typeof dimensionEntityTypes)[number];
+  className?: string;
+}) => {
+  switch (entityType) {
+    case "Custom":
+      return <LuTags className={className} />;
+    case "Location":
+      return <LuMapPin className={className} />;
+    case "ItemPostingGroup":
+      return <LuGroup className={className} />;
+    case "SupplierType":
+      return <LuContainer className={className} />;
+    case "CustomerType":
+      return <LuUsers className={className} />;
+    case "Department":
+      return <LuBuilding className={className} />;
+    case "Employee":
+      return <LuUser className={className} />;
+    case "CostCenter":
+      return <LuCircleDollarSign className={className} />;
+  }
 };
 
 export const JiraIssueStatusBadge = (props: {

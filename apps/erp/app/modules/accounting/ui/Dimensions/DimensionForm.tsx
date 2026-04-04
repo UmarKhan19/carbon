@@ -10,18 +10,9 @@ import {
   VStack
 } from "@carbon/react";
 import { useState } from "react";
-import {
-  LuBoxes,
-  LuBuilding,
-  LuCircleDollarSign,
-  LuContainer,
-  LuMapPin,
-  LuTags,
-  LuUser,
-  LuUsers
-} from "react-icons/lu";
 import type { z } from "zod";
 import { Array, Boolean, Hidden, Input, Submit } from "~/components/Form";
+import { DimensionEntityTypeIcon } from "~/components/Icons";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 import {
@@ -34,21 +25,10 @@ type DimensionFormProps = {
   onClose: () => void;
 };
 
-const entityTypeIcons: Record<string, React.ReactNode> = {
-  Custom: <LuTags className="w-4 h-4 text-purple-600 mr-2" />,
-  Location: <LuMapPin className="w-4 h-4 text-blue-600 mr-2" />,
-  ItemPostingGroup: <LuBoxes className="w-4 h-4 text-orange-600 mr-2" />,
-  SupplierType: <LuContainer className="w-4 h-4 text-emerald-600 mr-2" />,
-  CustomerType: <LuUsers className="w-4 h-4 text-yellow-600 mr-2" />,
-  Department: <LuBuilding className="w-4 h-4 text-red-600 mr-2" />,
-  Employee: <LuUser className="w-4 h-4 text-indigo-600 mr-2" />,
-  CostCenter: <LuCircleDollarSign className="w-4 h-4 text-teal-600 mr-2" />
-};
-
 const entityTypeLabels: Record<string, string> = {
   Custom: "Custom",
   Location: "Location",
-  ItemPostingGroup: "Item Posting Group",
+  ItemPostingGroup: "Item Group",
   SupplierType: "Supplier Type",
   CustomerType: "Customer Type",
   Department: "Department",
@@ -73,7 +53,7 @@ const DimensionForm = ({ initialValues, onClose }: DimensionFormProps) => {
     value: et,
     label: (
       <HStack className="w-full">
-        {entityTypeIcons[et]}
+        <DimensionEntityTypeIcon entityType={et} className="w-4 h-4 mr-2" />
         {entityTypeLabels[et]}
       </HStack>
     )
