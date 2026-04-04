@@ -1,5 +1,6 @@
 import { useCarbon } from "@carbon/auth";
 import { TextArea, ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   Button,
@@ -77,6 +78,8 @@ const QuoteLineForm = ({
   type,
   onClose
 }: QuoteLineFormProps) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const fetcher = useFetcher<typeof action>();
   const permissions = usePermissions();
   const { company } = useUser();
@@ -139,7 +142,7 @@ const QuoteLineForm = ({
       .maybeSingle();
 
     if (customerPart.error) {
-      toast.error("Failed to load customer part details");
+      toast.error(t("Failed to load customer part details"));
       return;
     }
 
@@ -161,7 +164,7 @@ const QuoteLineForm = ({
       .maybeSingle();
 
     if (customerPart.error) {
-      toast.error("Failed to load customer part details");
+      toast.error(t("Failed to load customer part details"));
       return;
     }
 
@@ -196,7 +199,7 @@ const QuoteLineForm = ({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t("Failed to load item details"));
       return;
     }
 
@@ -232,7 +235,7 @@ const QuoteLineForm = ({
       ]);
 
       if (parameters.error || groups.error) {
-        toast.error("Failed to load configuration parameters");
+        toast.error(t("Failed to load configuration parameters"));
         return;
       }
 
@@ -278,8 +281,8 @@ const QuoteLineForm = ({
                   <ModalCardTitle>
                     {isEditing
                       ? (getItemReadableId(items, itemData?.itemId) ??
-                        "Quote Line")
-                      : "New Quote Line"}
+                        t("Quote Line"))
+                      : t("New Quote Line")}
                   </ModalCardTitle>
                   <ModalCardDescription>
                     {isEditing ? (
@@ -298,13 +301,15 @@ const QuoteLineForm = ({
                               {percentFormatter.format(
                                 initialValues?.taxPercent
                               )}{" "}
-                              Tax
+                              {t("Tax")}
                             </Badge>
                           ) : null}
                         </div>
                       </div>
                     ) : (
-                      "A quote line contains pricing and lead times for a particular part"
+                      t(
+                        "A quote line contains pricing and lead times for a particular part"
+                      )
                     )}
                   </ModalCardDescription>
                 </ModalCardHeader>
@@ -314,7 +319,7 @@ const QuoteLineForm = ({
                       <DropdownMenuTrigger asChild>
                         <IconButton
                           icon={<BsThreeDotsVertical />}
-                          aria-label="More"
+                          aria-label={t("More")}
                           variant="ghost"
                         />
                       </DropdownMenuTrigger>
@@ -325,7 +330,7 @@ const QuoteLineForm = ({
                             onClick={deleteDisclosure.onOpen}
                           >
                             <DropdownMenuIcon icon={<LuTrash />} />
-                            Delete Line
+                            {t("Delete Line")}
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem asChild>
@@ -335,7 +340,7 @@ const QuoteLineForm = ({
                             <DropdownMenuIcon
                               icon={<MethodItemTypeIcon type="Part" />}
                             />
-                            View Item Master
+                            {t("View Item Master")}
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -363,7 +368,7 @@ const QuoteLineForm = ({
                       <Item
                         autoFocus
                         name="itemId"
-                        label="Part"
+                        label={t("Part")}
                         type="Part"
                         value={itemData.itemId}
                         includeInactive
@@ -374,13 +379,13 @@ const QuoteLineForm = ({
 
                       <InputControlled
                         name="description"
-                        label="Short Description"
+                        label={t("Short Description")}
                         value={itemData.description}
                       />
 
                       <SelectControlled
                         name="methodType"
-                        label="Method"
+                        label={t("Method")}
                         options={
                           methodType.map((m) => ({
                             label: (
@@ -404,7 +409,7 @@ const QuoteLineForm = ({
 
                       <Select
                         name="status"
-                        label="Line Status"
+                        label={t("Line Status")}
                         options={quoteLineStatusType.map((s) => ({
                           label: (
                             <span className="flex items-center gap-2">
@@ -418,7 +423,7 @@ const QuoteLineForm = ({
 
                       <InputControlled
                         name="customerPartId"
-                        label="Customer Part Number"
+                        label={t("Customer Part Number")}
                         value={itemData.customerPartId}
                         onChange={(newValue) => {
                           setItemData((d) => ({
@@ -430,7 +435,7 @@ const QuoteLineForm = ({
                       />
                       <InputControlled
                         name="customerPartRevision"
-                        label="Customer Part Revision"
+                        label={t("Customer Part Revision")}
                         value={itemData.customerPartRevision}
                         onChange={(newValue) => {
                           setItemData((d) => ({
@@ -444,7 +449,7 @@ const QuoteLineForm = ({
                       />
                       <Number
                         name="taxPercent"
-                        label="Tax Percent"
+                        label={t("Tax Percent")}
                         minValue={0}
                         maxValue={1}
                         step={0.0001}
@@ -459,14 +464,14 @@ const QuoteLineForm = ({
                       {initialValues.status === "No Quote" && (
                         <TextArea
                           name="noQuoteReason"
-                          label="No Quote Reason"
+                          label={t("No Quote Reason")}
                         />
                       )}
                     </div>
                     <div className="flex gap-y-4">
                       <ArrayNumeric
                         name="quantity"
-                        label="Quantity"
+                        label={t("Quantity")}
                         defaults={[1, 25, 50, 100]}
                         isDisabled={!isEditable}
                       />
@@ -477,7 +482,7 @@ const QuoteLineForm = ({
               <ModalCardFooter>
                 {!isEditing && (
                   <Button variant="secondary" onClick={onClose}>
-                    Cancel
+                    {tShared("Cancel")}
                   </Button>
                 )}
                 {!isEditing && requiresConfiguration && (
@@ -495,7 +500,7 @@ const QuoteLineForm = ({
                       configurationDisclosure.onOpen();
                     }}
                   >
-                    Configure
+                    {t("Configure")}
                   </Button>
                 )}
 
@@ -509,7 +514,7 @@ const QuoteLineForm = ({
                       : !permissions.can("create", "sales"))
                   }
                 >
-                  Save
+                  {tShared("Save")}
                 </Submit>
               </ModalCardFooter>
             </ValidatedForm>

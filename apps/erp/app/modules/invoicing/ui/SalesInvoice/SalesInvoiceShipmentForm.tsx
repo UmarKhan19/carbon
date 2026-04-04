@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -38,6 +39,8 @@ const SalesInvoiceShipmentForm = forwardRef<
   SalesInvoiceShipmentFormRef,
   SalesInvoiceShipmentFormProps
 >(({ initialValues, currencyCode, defaultCollapsed = false }, ref) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const { invoiceId } = useParams();
   if (!invoiceId) {
     throw new Error("invoiceId not found");
@@ -86,14 +89,14 @@ const SalesInvoiceShipmentForm = forwardRef<
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>Shipping</CardTitle>
+          <CardTitle>{t("Shipping")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="shippingCost"
-              label="Shipping Cost"
+              label={t("Shipping Cost")}
               minValue={0}
               formatOptions={{
                 style: "currency",
@@ -103,11 +106,11 @@ const SalesInvoiceShipmentForm = forwardRef<
             />
             <Location
               name="locationId"
-              label="Shipment Location"
+              label={t("Shipment Location")}
               isReadOnly={isCustomer}
               isClearable
             />
-            <ShippingMethod name="shippingMethodId" label="Shipping Method" />
+            <ShippingMethod name="shippingMethodId" label={t("Shipping Method")} />
             <CustomFormFields table="salesInvoiceShipment" />
           </div>
         </CardContent>
@@ -115,7 +118,7 @@ const SalesInvoiceShipmentForm = forwardRef<
           <Submit
             isDisabled={!permissions.can("update", "invoicing") || !isEditable}
           >
-            Save
+            {tShared("Save")}
           </Submit>
         </CardFooter>
       </ValidatedForm>
