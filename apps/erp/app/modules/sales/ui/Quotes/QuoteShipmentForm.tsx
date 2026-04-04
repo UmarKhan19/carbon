@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -35,6 +36,8 @@ const QuoteShipmentForm = forwardRef<
   QuoteShipmentFormRef,
   QuoteShipmentFormProps
 >(({ initialValues, defaultCollapsed = false }, ref) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const permissions = usePermissions();
   const fetcher = useFetcher<{}>();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
@@ -82,14 +85,14 @@ const QuoteShipmentForm = forwardRef<
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>Shipping</CardTitle>
+          <CardTitle>{t("Shipping")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="shippingCost"
-              label="Shipping Cost"
+              label={t("Shipping Cost")}
               formatOptions={{
                 style: "currency",
                 currency: company?.baseCurrencyCode
@@ -99,20 +102,20 @@ const QuoteShipmentForm = forwardRef<
             />
             <Location
               name="locationId"
-              label="Shipment Location"
+              label={t("Shipment Location")}
               isReadOnly={isCustomer}
               isClearable
             />
-            <ShippingMethod name="shippingMethodId" label="Shipping Method" />
+            <ShippingMethod name="shippingMethodId" label={t("Shipping Method")} />
 
-            <DatePicker name="receiptRequestedDate" label="Requested Date" />
+            <DatePicker name="receiptRequestedDate" label={t("Requested Date")} />
           </div>
         </CardContent>
         <CardFooter>
           <Submit
             isDisabled={!permissions.can("update", "sales") || !isEditable}
           >
-            Save
+            {tShared("Save")}
           </Submit>
         </CardFooter>
       </ValidatedForm>

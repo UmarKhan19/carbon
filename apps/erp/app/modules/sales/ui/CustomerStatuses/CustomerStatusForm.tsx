@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Button,
   HStack,
@@ -34,6 +35,8 @@ const CustomerStatusForm = ({
   type = "drawer",
   onClose
 }: CustomerStatusFormProps) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -42,13 +45,15 @@ const CustomerStatusForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created customer status`);
+      toast.success(t("Created customer status"));
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create customer status: ${fetcher.data.error.message}`
+        t("Failed to create customer status: {{message}}", {
+          message: fetcher.data.error.message
+        })
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -78,22 +83,23 @@ const CustomerStatusForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Customer Status
+                {isEditing ? tShared("Edit") : tShared("New")}{" "}
+                {t("Customer Status")}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Customer Status" />
+                <Input name="name" label={t("Customer Status")} />
                 <CustomFormFields table="customerStatus" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  {tShared("Cancel")}
                 </Button>
               </HStack>
             </ModalDrawerFooter>

@@ -1,5 +1,6 @@
 import { useCarbon } from "@carbon/auth";
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -45,6 +46,8 @@ type SalesOrderFormProps = {
 };
 
 const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -76,7 +79,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t("Carbon client not found"));
       return;
     }
 
@@ -99,7 +102,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
         .eq("id", newValue.value)
         .single();
       if (error) {
-        toast.error("Error fetching customer data");
+        toast.error(t("Error fetching customer data"));
       } else {
         setCustomer((prev) => ({
           ...prev,
@@ -128,11 +131,12 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
         isDisabled={isEditing && isLocked}
       >
         <CardHeader>
-          <CardTitle>{isEditing ? "Sales Order" : "New Sales Order"}</CardTitle>
+          <CardTitle>{isEditing ? t("Sales Order") : t("New Sales Order")}</CardTitle>
           {!isEditing && (
             <CardDescription>
-              A sales order contains information about the agreement between the
-              company and a specific customer for parts and services.
+              {t(
+                "A sales order contains information about the agreement between the company and a specific customer for parts and services."
+              )}
             </CardDescription>
           )}
         </CardHeader>
@@ -151,32 +155,32 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="salesOrderId"
-                  label="Sales Order ID"
+                  label={t("Sales Order ID")}
                   table="salesOrder"
                 />
               )}
               <Customer
                 autoFocus={!isEditing}
                 name="customerId"
-                label="Customer"
+                label={t("Customer")}
                 onChange={onCustomerChange}
               />
-              <Input name="customerReference" label="Customer PO Number" />
+              <Input name="customerReference" label={t("Customer PO Number")} />
 
               <CustomerContact
                 name="customerContactId"
-                label="Purchasing Contact"
+                label={t("Purchasing Contact")}
                 customer={customer.id}
                 value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
-                label="Engineering Contact"
+                label={t("Engineering Contact")}
                 customer={customer.id}
               />
               <CustomerLocation
                 name="customerLocationId"
-                label="Customer Location"
+                label={t("Customer Location")}
                 customer={customer.id}
                 value={customer.customerLocationId}
               />
@@ -187,12 +191,12 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
                   <>
                     <Input
                       name="digitalQuoteAcceptedBy"
-                      label="Quote Accepted By"
+                      label={t("Quote Accepted By")}
                       isDisabled
                     />
                     <Input
                       name="digitalQuoteAcceptedByEmail"
-                      label="Quote Accepted By Email"
+                      label={t("Quote Accepted By Email")}
                       isDisabled
                     />
                   </>
@@ -200,25 +204,25 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
 
               <DatePicker
                 name="requestedDate"
-                label="Requested Date"
-                helperText="The date the customer expects to receive the goods"
+                label={t("Requested Date")}
+                helperText={t("The date the customer expects to receive the goods")}
                 isDisabled={isCustomer}
               />
 
               <DatePicker
                 name="promisedDate"
-                label="Promised Date"
-                helperText="The date the customer expects to receive the goods"
+                label={t("Promised Date")}
+                helperText={t("The date the customer expects to receive the goods")}
                 isDisabled={isCustomer}
               />
 
-              <Location name="locationId" label="Sales Location" />
+              <Location name="locationId" label={t("Sales Location")} />
 
-              <Employee name="salesPersonId" label="Sales Person" />
+              <Employee name="salesPersonId" label={t("Sales Person")} />
 
               <Currency
                 name="currencyCode"
-                label="Currency"
+                label={t("Currency")}
                 value={customer.currencyCode}
                 onChange={(newValue) => {
                   if (newValue?.value) {
@@ -271,7 +275,7 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
                 : !permissions.can("create", "sales")
             }
           >
-            Save
+            {tShared("Save")}
           </Submit>
         </CardFooter>
       </ValidatedForm>

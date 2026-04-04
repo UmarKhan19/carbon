@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   cn,
   HStack,
@@ -44,6 +45,8 @@ const CustomerForm = ({
   type = "card",
   onClose
 }: CustomerFormProps) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<Customer>>();
 
@@ -52,12 +55,22 @@ const CustomerForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      // @ts-ignore
-      toast.success(`Created customer: ${fetcher.data.data.name}`);
+      const createdCustomer = Array.isArray(fetcher.data.data)
+        ? fetcher.data.data[0]
+        : fetcher.data.data;
+      toast.success(
+        t("Created customer: {{name}}", {
+          name: createdCustomer?.name ?? t("Customer")
+        })
+      );
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(`Failed to create customer: ${fetcher.data.error.message}`);
+      toast.error(
+        t("Failed to create customer: {{message}}", {
+          message: fetcher.data.error.message
+        })
+      );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -78,12 +91,13 @@ const CustomerForm = ({
             >
               <ModalCardHeader>
                 <ModalCardTitle>
-                  {isEditing ? "Customer Overview" : "New Customer"}
+                  {isEditing ? t("Customer Overview") : t("New Customer")}
                 </ModalCardTitle>
                 {!isEditing && (
                   <ModalCardDescription>
-                    A customer is a business or person who buys your parts or
-                    services.
+                    {t(
+                      "A customer is a business or person who buys your parts or services."
+                    )}
                   </ModalCardDescription>
                 )}
               </ModalCardHeader>
@@ -100,33 +114,33 @@ const CustomerForm = ({
                         : "grid-cols-1 md:grid-cols-2"
                   )}
                 >
-                  <Input name="name" label="Name" autoFocus={!isEditing} />
+                  <Input name="name" label={t("Name")} autoFocus={!isEditing} />
 
                   <CustomerStatus
                     name="customerStatusId"
-                    label="Customer Status"
-                    placeholder="Select Customer Status"
+                    label={t("Customer Status")}
+                    placeholder={t("Select Customer Status")}
                   />
                   <CustomerType
                     name="customerTypeId"
-                    label="Customer Type"
-                    placeholder="Select Customer Type"
+                    label={t("Customer Type")}
+                    placeholder={t("Select Customer Type")}
                   />
-                  <Employee name="accountManagerId" label="Account Manager" />
+                  <Employee name="accountManagerId" label={t("Account Manager")} />
                   {isEditing && (
                     <>
                       <CustomerContact
                         customer={initialValues.id}
                         name="salesContactId"
-                        label="Sales Contact"
+                        label={t("Sales Contact")}
                       />
                     </>
                   )}
-                  <Currency name="currencyCode" label="Currency" />
+                  <Currency name="currencyCode" label={t("Currency")} />
 
                   <Number
                     name="taxPercent"
-                    label="Tax Percent"
+                    label={t("Tax Percent")}
                     minValue={0}
                     maxValue={1}
                     step={0.0001}
@@ -137,9 +151,9 @@ const CustomerForm = ({
                     }}
                   />
 
-                  <Input name="taxId" label="Tax ID" />
-                  <Input name="vatNumber" label="VAT Number" />
-                  <Input name="website" label="Website" />
+                  <Input name="taxId" label={t("Tax ID")} />
+                  <Input name="vatNumber" label={t("VAT Number")} />
+                  <Input name="website" label={t("Website")} />
 
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}
                   <CustomFormFields table="customer" />
@@ -147,7 +161,7 @@ const CustomerForm = ({
               </ModalCardBody>
               <ModalCardFooter>
                 <HStack>
-                  <Submit isDisabled={isDisabled}>Save</Submit>
+                  <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
                 </HStack>
               </ModalCardFooter>
             </ValidatedForm>

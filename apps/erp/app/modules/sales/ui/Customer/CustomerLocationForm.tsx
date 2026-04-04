@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Button,
   HStack,
@@ -39,6 +40,8 @@ const CustomerLocationForm = ({
   type = "drawer",
   onClose
 }: CustomerLocationFormProps) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const fetcher = useFetcher<{}>();
 
   const permissions = usePermissions();
@@ -75,7 +78,7 @@ const CustomerLocationForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Location
+                {isEditing ? tShared("Edit") : tShared("New")} {t("Location")}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -83,16 +86,16 @@ const CustomerLocationForm = ({
               <Hidden name="type" value={type} />
               <Hidden name="addressId" />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t("Name")} />
                 <AddressAutocomplete />
                 <CustomFormFields table="customerLocation" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
                 <Button size="md" variant="solid" onClick={onClose}>
-                  Cancel
+                  {tShared("Cancel")}
                 </Button>
               </HStack>
             </ModalDrawerFooter>

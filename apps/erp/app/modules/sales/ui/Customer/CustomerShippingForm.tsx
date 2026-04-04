@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -26,6 +27,8 @@ type CustomerShippingFormProps = {
 };
 
 const CustomerShippingForm = ({ initialValues }: CustomerShippingFormProps) => {
+  const { t } = useTranslation("sales");
+  const { t: tShared } = useTranslation("shared");
   const permissions = usePermissions();
   const [customer, setCustomer] = useState<string | undefined>(
     initialValues.shippingCustomerId
@@ -47,28 +50,28 @@ const CustomerShippingForm = ({ initialValues }: CustomerShippingFormProps) => {
     >
       <Card>
         <CardHeader>
-          <CardTitle>Shipping</CardTitle>
+          <CardTitle>{t("Shipping")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="customerId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Customer
               name="shippingCustomerId"
-              label="Shipping Customer"
+              label={t("Shipping Customer")}
               onChange={(value) => setCustomer(value?.value as string)}
             />
             <CustomerLocation
               name="shippingCustomerLocationId"
-              label="Shipping Location"
+              label={t("Shipping Location")}
               customer={customer}
             />
             <CustomerContact
               name="shippingCustomerContactId"
-              label="Shipping Contact"
+              label={t("Shipping Contact")}
               customer={customer}
             />
 
-            <ShippingMethod name="shippingMethodId" label="Shipping Method" />
+            <ShippingMethod name="shippingMethodId" label={t("Shipping Method")} />
             {/* <Select
               name="shippingTermId"
               label="Shipping Term"
@@ -79,7 +82,7 @@ const CustomerShippingForm = ({ initialValues }: CustomerShippingFormProps) => {
         </CardContent>
         <CardFooter>
           <HStack>
-            <Submit isDisabled={isDisabled}>Save</Submit>
+            <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
           </HStack>
         </CardFooter>
       </Card>

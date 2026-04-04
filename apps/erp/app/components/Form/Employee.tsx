@@ -1,5 +1,6 @@
 import type { ComboboxProps } from "@carbon/form";
 import { Combobox } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import { useMemo } from "react";
 import { usePeople } from "~/stores";
 import Avatar from "../Avatar";
@@ -21,6 +22,7 @@ const EmployeePreview = (
 };
 
 const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
+  const { t } = useTranslation("sales");
   const [people] = usePeople();
 
   const options = useMemo(() => {
@@ -36,11 +38,11 @@ const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
       })) ?? [];
 
     if (type === "assignee") {
-      return [{ value: "", label: "Unassigned" }, ...base];
+      return [{ value: "", label: t("Unassigned") }, ...base];
     }
 
     return base;
-  }, [type, people]);
+  }, [type, people, t]);
 
   return (
     <>
@@ -48,8 +50,8 @@ const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
         options={options}
         {...props}
         inline={inline ? EmployeePreview : undefined}
-        label={props?.label ?? "Employee"}
-        placeholder={props?.placeholder ?? "Select Employee"}
+        label={props?.label ?? t("Employee")}
+        placeholder={props?.placeholder ?? t("Select Employee")}
       />
     </>
   );
