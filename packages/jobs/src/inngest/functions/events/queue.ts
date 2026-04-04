@@ -1,10 +1,10 @@
 import {
   getPostgresClient,
   getPostgresConnectionPool,
-  KyselyDatabase
+  type KyselyDatabase
 } from "@carbon/database/client";
-import { HandlerType, QueueMessage } from "@carbon/database/event";
-import { Kysely, PostgresDriver, sql } from "kysely";
+import type { HandlerType, QueueMessage } from "@carbon/database/event";
+import { type Kysely, PostgresDriver, sql } from "kysely";
 import { inngest } from "../../client";
 
 const QUEUE_NAME = "event_system"; // Name of the PGMQ queue
