@@ -39,6 +39,7 @@ import {
   useLoaderData
 } from "react-router";
 import SonnerStyle from "sonner/dist/styles.css?url";
+import { getRouteNamespaces } from "~/services/locale-namespaces.server";
 import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
@@ -89,7 +90,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
   const sessionFlash = await getSessionFlash(request);
   const preferences = getPreferenceHeaders(request);
-  const localeResources = await loadLocaleResources(preferences.locale);
+  const routeNamespaces = getRouteNamespaces(new URL(request.url).pathname);
+  const localeResources = await loadLocaleResources(
+    preferences.locale,
+    routeNamespaces
+  );
 
   return data(
     {
