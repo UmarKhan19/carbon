@@ -639,13 +639,25 @@ serve(async (req: Request) => {
               .execute();
           }
 
+          const journalEntryId = await getNextSequence(
+            trx,
+            "journalEntry",
+            companyId
+          );
+
           const journalResult = await trx
             .insertInto("journal")
             .values({
+              journalEntryId,
               accountingPeriodId,
               description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
               postingDate: today,
               companyId,
+              sourceType: "Sales Invoice",
+              status: "Posted",
+              postedAt: new Date().toISOString(),
+              postedBy: userId,
+              createdBy: userId,
             })
             .returning(["id"])
             .executeTakeFirstOrThrow();
@@ -909,13 +921,25 @@ serve(async (req: Request) => {
               .execute();
           }
 
+          const voidJournalEntryId = await getNextSequence(
+            trx,
+            "journalEntry",
+            companyId
+          );
+
           const voidJournalResult = await trx
             .insertInto("journal")
             .values({
+              journalEntryId: voidJournalEntryId,
               accountingPeriodId,
               description: `VOID Sales Invoice ${salesInvoice.data?.invoiceId}`,
               postingDate: today,
               companyId,
+              sourceType: "Sales Invoice",
+              status: "Posted",
+              postedAt: new Date().toISOString(),
+              postedBy: userId,
+              createdBy: userId,
             })
             .returning(["id"])
             .executeTakeFirstOrThrow();

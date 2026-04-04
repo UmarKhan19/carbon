@@ -1,57 +1,117 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { validationError, validator } from "@carbon/form";
+import { toDisplayCredit, toDisplayDebit } from "@carbon/utils";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { JournalEntry } from "~/modules/accounting";
 import {
-  journalEntryValidator,
-  updateJournalEntry
+  postJournalEntry,
+  saveJournalEntryWithLines
 } from "~/modules/accounting";
-import {
-  JournalEntryForm,
-  JournalEntryLines,
-  JournalEntrySummary
-} from "~/modules/accounting/ui/JournalEntries";
-import { getCustomFields } from "~/utils/form";
+import { JournalEntryForm } from "~/modules/accounting/ui/JournalEntries";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    update: "accounting"
-  });
+  const { client, userId, companyId, companyGroupId } =
+    await requirePermissions(request, {
+      update: "accounting"
+    });
 
   const { journalEntryId } = params;
   if (!journalEntryId) throw new Error("Could not find journalEntryId");
 
   const formData = await request.formData();
-  const validation = await validator(journalEntryValidator).validate(formData);
+  const intent = formData.get("intent") as string;
+  const postingDate = formData.get("postingDate") as string;
+  const description = formData.get("description") as string;
+  const linesJson = formData.get("lines") as string;
 
-  if (validation.error) {
-    return validationError(validation.error);
+  if (!postingDate) {
+    return data(
+      {},
+      await flash(request, error(null, "Posting date is required"))
+    );
   }
 
-  const result = await updateJournalEntry(client, journalEntryId, {
-    ...validation.data,
-    updatedBy: userId
+  let lines: Array<{
+    accountNumber: string;
+    description?: string;
+    debit: number;
+    credit: number;
+  }>;
+
+  try {
+    lines = JSON.parse(linesJson);
+  } catch {
+    return data({}, await flash(request, error(null, "Invalid lines data")));
+  }
+
+  // Validate lines
+  for (const line of lines) {
+    if (!line.accountNumber) {
+      return data(
+        {},
+        await flash(request, error(null, "Each line must have an account"))
+      );
+    }
+    if (
+      (line.debit <= 0 && line.credit <= 0) ||
+      (line.debit > 0 && line.credit > 0)
+    ) {
+      return data(
+        {},
+        await flash(
+          request,
+          error(null, "Each line must have either a debit or credit amount")
+        )
+      );
+    }
+  }
+
+  const saveResult = await saveJournalEntryWithLines(client, {
+    journalEntryId,
+    postingDate,
+    description,
+    updatedBy: userId,
+    lines,
+    companyId,
+    companyGroupId
   });
 
-  if (result.error) {
+  if (saveResult.error) {
     return data(
       {},
       await flash(
         request,
-        error(result.error, "Failed to update journal entry")
+        error(saveResult.error, "Failed to save journal entry")
       )
+    );
+  }
+
+  if (intent === "post") {
+    const postResult = await postJournalEntry(client, journalEntryId, userId);
+    if (postResult.error) {
+      return data(
+        {},
+        await flash(
+          request,
+          error(postResult.error, "Failed to post journal entry")
+        )
+      );
+    }
+
+    throw redirect(
+      path.to.journalEntryDetails(journalEntryId),
+      await flash(request, success("Journal entry posted"))
     );
   }
 
   throw redirect(
     path.to.journalEntryDetails(journalEntryId),
-    await flash(request, success("Journal entry updated"))
+    await flash(request, success("Journal entry saved"))
   );
 }
 
@@ -61,26 +121,46 @@ export default function JournalEntryDetailsRoute() {
 
   const routeData = useRouteData<{
     journalEntry: JournalEntry;
+    companies: { id: string; name: string }[];
   }>(path.to.journalEntry(journalEntryId));
 
   if (!routeData?.journalEntry)
     throw new Error("Could not find journal entry in routeData");
 
-  const isPosted = routeData.journalEntry.status === "Posted";
+  const isPosted = routeData.journalEntry.status !== "Draft";
 
-  const initialValues = {
-    id: routeData.journalEntry.id,
-    postingDate: routeData.journalEntry.postingDate,
-    description: routeData.journalEntry.description ?? "",
-    entryType: routeData.journalEntry.entryType ?? undefined,
-    ...getCustomFields(routeData.journalEntry.customFields)
-  };
+  const initialLines = (routeData.journalEntry.journalLine ?? []).map(
+    (line) => {
+      const amount = Number(line.amount);
+      const accountClass = line.account?.class ?? "Asset";
+      return {
+        id: line.id,
+        accountNumber: line.accountNumber,
+        description: line.description ?? "",
+        debit: toDisplayDebit(amount, accountClass) || null,
+        credit: toDisplayCredit(amount, accountClass) || null
+      };
+    }
+  );
 
   return (
-    <div className="flex flex-col gap-2 pb-16 w-full">
-      <JournalEntryForm initialValues={initialValues} isDisabled={isPosted} />
-      <JournalEntryLines />
-      <JournalEntrySummary />
-    </div>
+    <JournalEntryForm
+      key={routeData.journalEntry.id}
+      journalEntryId={journalEntryId}
+      displayId={routeData.journalEntry.journalEntryId}
+      status={routeData.journalEntry.status}
+      sourceType={routeData.journalEntry.sourceType ?? "Manual"}
+      reversedById={routeData.journalEntry.reversedById}
+      initialValues={{
+        id: routeData.journalEntry.id,
+        companyId: routeData.journalEntry.companyId,
+        sourceType: routeData.journalEntry.sourceType ?? "Manual",
+        postingDate: routeData.journalEntry.postingDate,
+        description: routeData.journalEntry.description ?? ""
+      }}
+      initialLines={initialLines}
+      companies={routeData.companies ?? []}
+      isDisabled={isPosted}
+    />
   );
 }

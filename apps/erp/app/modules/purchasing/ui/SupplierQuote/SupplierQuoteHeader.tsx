@@ -9,6 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Heading,
   HStack,
@@ -152,6 +153,26 @@ const SupplierQuoteHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                <DropdownMenuItem
+                  disabled={
+                    routeData?.quote?.status === "Draft" ||
+                    statusFetcher.state !== "idle" ||
+                    !permissions.can("update", "purchasing")
+                  }
+                  onClick={() => {
+                    statusFetcher.submit(
+                      { status: "Draft" },
+                      {
+                        method: "post",
+                        action: path.to.supplierQuoteStatus(id)
+                      }
+                    );
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                  Reopen
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
                     isLocked ||
@@ -300,30 +321,6 @@ const SupplierQuoteHeader = () => {
                   variant="secondary"
                 >
                   Cancel
-                </Button>
-              </statusFetcher.Form>
-            )}
-
-            {routeData?.quote?.status !== "Draft" && (
-              <statusFetcher.Form
-                method="post"
-                action={path.to.supplierQuoteStatus(id)}
-              >
-                <input type="hidden" name="status" value="Draft" />
-                <Button
-                  isDisabled={
-                    statusFetcher.state !== "idle" ||
-                    !permissions.can("update", "purchasing")
-                  }
-                  isLoading={
-                    statusFetcher.state !== "idle" &&
-                    statusFetcher.formData?.get("status") === "Draft"
-                  }
-                  leftIcon={<LuLoaderCircle />}
-                  type="submit"
-                  variant="secondary"
-                >
-                  Reopen
                 </Button>
               </statusFetcher.Form>
             )}

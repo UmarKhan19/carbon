@@ -70,6 +70,22 @@ const IssueHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem
+                  disabled={
+                    !["In Progress", "Closed"].includes(status ?? "") ||
+                    statusFetcher.state !== "idle" ||
+                    !permissions.can("update", "quality")
+                  }
+                  onClick={() => {
+                    statusFetcher.submit(
+                      { status: "Registered" },
+                      { method: "post", action: path.to.issueStatus(id) }
+                    );
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                  Reopen
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   destructive
                   disabled={
                     !permissions.can("delete", "quality") ||
@@ -161,22 +177,6 @@ const IssueHeader = () => {
               }
             >
               Complete
-            </Button>
-          </statusFetcher.Form>
-
-          <statusFetcher.Form method="post" action={path.to.issueStatus(id)}>
-            <input type="hidden" name="status" value="Registered" />
-            <Button
-              type="submit"
-              leftIcon={<LuLoaderCircle />}
-              variant={status === "Closed" ? "primary" : "secondary"}
-              isDisabled={
-                !["In Progress", "Closed"].includes(status ?? "") ||
-                statusFetcher.state !== "idle" ||
-                !permissions.can("update", "quality")
-              }
-            >
-              Reopen
             </Button>
           </statusFetcher.Form>
         </HStack>

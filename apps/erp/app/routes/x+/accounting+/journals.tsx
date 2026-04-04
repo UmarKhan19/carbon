@@ -1,9 +1,9 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { VStack } from "@carbon/react";
+import { Button, VStack } from "@carbon/react";
+import { LuCirclePlus } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
-import { Outlet, useLoaderData } from "react-router";
-import { New } from "~/components";
-import { usePermissions, useUrlParams } from "~/hooks";
+import { Outlet, useFetcher, useLoaderData } from "react-router";
+import { usePermissions } from "~/hooks";
 import { getJournalEntries } from "~/modules/accounting";
 import { JournalEntriesTable } from "~/modules/accounting/ui/JournalEntries";
 import type { Handle } from "~/utils/handle";
@@ -43,9 +43,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
+function NewJournalEntry() {
+  const fetcher = useFetcher();
+  return (
+    <fetcher.Form method="post" action="new">
+      <Button
+        type="submit"
+        leftIcon={<LuCirclePlus />}
+        variant="primary"
+        isLoading={fetcher.state !== "idle"}
+      >
+        Add Journal Entry
+      </Button>
+    </fetcher.Form>
+  );
+}
+
 export default function JournalEntriesRoute() {
   const { data, count } = useLoaderData<typeof loader>();
-  const [params] = useUrlParams();
   const permissions = usePermissions();
 
   return (
@@ -54,9 +69,7 @@ export default function JournalEntriesRoute() {
         data={data}
         count={count}
         primaryAction={
-          permissions.can("create", "accounting") && (
-            <New label="Journal Entry" to={`new?${params.toString()}`} />
-          )
+          permissions.can("create", "accounting") && <NewJournalEntry />
         }
       />
       <Outlet />

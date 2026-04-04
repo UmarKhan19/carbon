@@ -175,6 +175,15 @@ export const nonConformanceRequiredActions = [
 
 export const sequences = [
   {
+    table: "journalEntry",
+    name: "Journal Entry",
+    prefix: "JE-%{yyyy}-%{mm}-",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
     table: "job",
     name: "Job",
     prefix: "J",

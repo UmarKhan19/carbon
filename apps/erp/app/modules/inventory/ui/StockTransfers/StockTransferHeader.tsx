@@ -107,6 +107,28 @@ const StockTransferHeader = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
+                    ["Draft"].includes(
+                      routeData?.stockTransfer?.status ?? ""
+                    ) ||
+                    statusFetcher.state !== "idle" ||
+                    !permissions.can("update", "purchasing")
+                  }
+                  onClick={() => {
+                    statusFetcher.submit(
+                      { status: "Draft" },
+                      {
+                        method: "post",
+                        action: path.to.stockTransferStatus(id)
+                      }
+                    );
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                  Reopen
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={
                     !permissions.can("delete", "inventory") ||
                     !permissions.is("employee") ||
                     !["Released", "Draft"].includes(status) ||
@@ -185,28 +207,6 @@ const StockTransferHeader = () => {
                 }
               >
                 Complete
-              </Button>
-            </statusFetcher.Form>
-            <statusFetcher.Form
-              method="post"
-              action={path.to.stockTransferStatus(id)}
-            >
-              <input type="hidden" name="status" value="Draft" />
-              <Button
-                type="submit"
-                variant="secondary"
-                leftIcon={<LuLoaderCircle />}
-                isDisabled={
-                  ["Draft"].includes(routeData?.stockTransfer?.status ?? "") ||
-                  statusFetcher.state !== "idle" ||
-                  !permissions.can("update", "purchasing")
-                }
-                isLoading={
-                  statusFetcher.state !== "idle" &&
-                  statusFetcher.formData?.get("status") === "Draft"
-                }
-              >
-                Reopen
               </Button>
             </statusFetcher.Form>
           </HStack>

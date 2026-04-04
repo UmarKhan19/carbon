@@ -1,4 +1,4 @@
-import { Badge, Checkbox, MenuIcon, MenuItem } from "@carbon/react";
+import { Badge, MenuIcon, MenuItem } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -79,11 +79,6 @@ const DimensionsTable = memo(({ data, count }: DimensionsTableProps) => {
         meta: {
           icon: <LuShapes />
         }
-      },
-      {
-        accessorKey: "required",
-        header: "Required",
-        cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />
       }
     ];
     return defaultColumns;

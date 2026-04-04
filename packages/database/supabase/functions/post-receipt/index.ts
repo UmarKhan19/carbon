@@ -13,6 +13,7 @@ import {
   TrackedEntityAttributes,
 } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
+import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
 
 const pool = getConnectionPool(1);
@@ -878,13 +879,25 @@ serve(async (req: Request) => {
             .where("id", "=", receipt.data.sourceDocumentId)
             .execute();
 
+          const journalEntryId = await getNextSequence(
+            trx,
+            "journalEntry",
+            companyId
+          );
+
           const journalResult = await trx
             .insertInto("journal")
             .values({
+              journalEntryId,
               accountingPeriodId,
               description: `Purchase Receipt ${receipt.data.receiptId}`,
               postingDate: today,
               companyId,
+              sourceType: "Purchase Receipt",
+              status: "Posted",
+              postedAt: new Date().toISOString(),
+              postedBy: userId,
+              createdBy: userId,
             })
             .returning(["id"])
             .executeTakeFirstOrThrow();
@@ -1161,13 +1174,25 @@ serve(async (req: Request) => {
 
           // Create journal entries if there are any
           if (journalLineInserts.length > 0) {
+            const transferJournalEntryId = await getNextSequence(
+              trx,
+              "journalEntry",
+              companyId
+            );
+
             const transferJournalResult = await trx
               .insertInto("journal")
               .values({
+                journalEntryId: transferJournalEntryId,
                 accountingPeriodId,
                 description: `Transfer Receipt ${receipt.data.receiptId}`,
                 postingDate: today,
                 companyId,
+                sourceType: "Transfer Receipt",
+                status: "Posted",
+                postedAt: new Date().toISOString(),
+                postedBy: userId,
+                createdBy: userId,
               })
               .returning(["id"])
               .executeTakeFirstOrThrow();

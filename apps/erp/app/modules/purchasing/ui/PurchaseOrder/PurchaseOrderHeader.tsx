@@ -160,6 +160,29 @@ const PurchaseOrderHeader = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={
+                    ["Draft"].includes(
+                      routeData?.purchaseOrder?.status ?? ""
+                    ) ||
+                    statusFetcher.state !== "idle" ||
+                    !permissions.can("update", "purchasing") ||
+                    (isNeedsApproval && !routeData?.canReopen)
+                  }
+                  onClick={() => {
+                    statusFetcher.submit(
+                      { status: "Draft" },
+                      {
+                        method: "post",
+                        action: path.to.purchaseOrderStatus(orderId)
+                      }
+                    );
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                  Reopen
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={
                     isLocked ||
                     !permissions.can("delete", "purchasing") ||
                     !permissions.is("employee") ||
@@ -505,30 +528,6 @@ const PurchaseOrderHeader = () => {
                 Cancel
               </Button>
             </statusFetcher.Form>
-            <statusFetcher.Form
-              method="post"
-              action={path.to.purchaseOrderStatus(orderId)}
-            >
-              <input type="hidden" name="status" value="Draft" />
-              <Button
-                type="submit"
-                variant="secondary"
-                leftIcon={<LuLoaderCircle />}
-                isDisabled={
-                  ["Draft"].includes(routeData?.purchaseOrder?.status ?? "") ||
-                  statusFetcher.state !== "idle" ||
-                  !permissions.can("update", "purchasing") ||
-                  (isNeedsApproval && !routeData?.canReopen)
-                }
-                isLoading={
-                  statusFetcher.state !== "idle" &&
-                  statusFetcher.formData?.get("status") === "Draft"
-                }
-              >
-                Reopen
-              </Button>
-            </statusFetcher.Form>
-
             <IconButton
               aria-label="Toggle Properties"
               icon={<LuPanelRight />}

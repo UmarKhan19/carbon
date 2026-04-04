@@ -388,8 +388,6 @@ export const path = {
     journalEntryDetails: (id: string) =>
       generatePath(`${x}/journal-entry/${id}/details`),
     newJournalEntry: `${x}/accounting/journals/new`,
-    newJournalEntryLine: (id: string) =>
-      generatePath(`${x}/journal-entry/${id}/lines/new`),
     postJournalEntry: (id: string) =>
       generatePath(`${x}/journal-entry/${id}/post`),
     reverseJournalEntry: (id: string) =>
@@ -629,8 +627,6 @@ export const path = {
       generatePath(`${x}/items/groups/delete/${id}`),
     deleteJournalEntry: (id: string) =>
       generatePath(`${x}/journal-entry/${id}/delete`),
-    deleteJournalEntryLine: (lineId: string) =>
-      generatePath(`${x}/journal-entry/lines/${lineId}/delete`),
     deleteJob: (id: string) => generatePath(`${x}/job/${id}/delete`),
     deleteJobMaterial: (jobId: string, id: string) =>
       generatePath(`${x}/job/methods/${jobId}/material/delete/${id}`),

@@ -113,6 +113,25 @@ const PurchasingRFQHeader = () => {
             <DropdownMenuContent>
               <DropdownMenuItem
                 disabled={
+                  status !== "Closed" ||
+                  statusFetcher.state !== "idle" ||
+                  !permissions.can("update", "purchasing")
+                }
+                onClick={() => {
+                  statusFetcher.submit(
+                    { status: "Draft" },
+                    {
+                      method: "post",
+                      action: path.to.purchasingRfqStatus(rfqId)
+                    }
+                  );
+                }}
+              >
+                <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                Reopen
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={
                   isLocked ||
                   !permissions.can("delete", "purchasing") ||
                   !permissions.is("employee")
@@ -272,29 +291,6 @@ const PurchasingRFQHeader = () => {
               Compare Quotes
             </Button>
           )}
-
-          <statusFetcher.Form
-            method="post"
-            action={path.to.purchasingRfqStatus(rfqId)}
-          >
-            <input type="hidden" name="status" value="Draft" />
-            <Button
-              isDisabled={
-                status !== "Closed" ||
-                statusFetcher.state !== "idle" ||
-                !permissions.can("update", "purchasing")
-              }
-              isLoading={
-                statusFetcher.state !== "idle" &&
-                statusFetcher.formData?.get("status") === "Draft"
-              }
-              leftIcon={<LuLoaderCircle />}
-              type="submit"
-              variant="secondary"
-            >
-              Reopen
-            </Button>
-          </statusFetcher.Form>
 
           <IconButton
             aria-label="Toggle Properties"

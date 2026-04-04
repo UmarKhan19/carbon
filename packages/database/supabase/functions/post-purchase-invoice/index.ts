@@ -1092,13 +1092,25 @@ serve(async (req: Request) => {
           .execute();
       }
 
+      const journalEntryId = await getNextSequence(
+        trx,
+        "journalEntry",
+        companyId
+      );
+
       const journalResult = await trx
         .insertInto("journal")
         .values({
+          journalEntryId,
           accountingPeriodId,
           description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
           postingDate: today,
           companyId,
+          sourceType: "Purchase Invoice",
+          status: "Posted",
+          postedAt: new Date().toISOString(),
+          postedBy: userId,
+          createdBy: userId,
         })
         .returning(["id"])
         .executeTakeFirstOrThrow();

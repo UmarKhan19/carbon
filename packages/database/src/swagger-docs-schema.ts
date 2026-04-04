@@ -5797,6 +5797,36 @@ export default {
             $ref: "#/parameters/rowFilter.journal.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.journal.journalEntryId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.sourceType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.reversalOfId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.reversedById",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.postedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.postedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.updatedBy",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -5880,6 +5910,36 @@ export default {
             $ref: "#/parameters/rowFilter.journal.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.journal.journalEntryId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.sourceType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.reversalOfId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.reversedById",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.postedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.postedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.updatedBy",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -5915,6 +5975,36 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.journal.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.journalEntryId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.sourceType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.reversalOfId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.reversedById",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.postedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.postedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journal.updatedBy",
           },
           {
             $ref: "#/parameters/body.journal",
@@ -23754,6 +23844,111 @@ export default {
         tags: ["contact"],
       },
     },
+    "/journalEntries": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.accountingPeriodId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.postingDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.customFields",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.journalEntryId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.sourceType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.reversalOfId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.reversedById",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.postedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.postedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.totalDebits",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.totalCredits",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalEntries.lineCount",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/journalEntries",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["journalEntries"],
+      },
+    },
     "/shifts": {
       get: {
         parameters: [
@@ -35074,6 +35269,9 @@ export default {
             $ref: "#/parameters/rowFilter.riskRegister.type",
           },
           {
+            $ref: "#/parameters/rowFilter.riskRegister.updatedBy",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -35181,6 +35379,9 @@ export default {
             $ref: "#/parameters/rowFilter.riskRegister.type",
           },
           {
+            $ref: "#/parameters/rowFilter.riskRegister.updatedBy",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -35240,6 +35441,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.riskRegister.type",
+          },
+          {
+            $ref: "#/parameters/rowFilter.riskRegister.updatedBy",
           },
           {
             $ref: "#/parameters/body.riskRegister",
@@ -43003,6 +43207,12 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.journalLine.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLine.updatedBy",
+          },
+          {
             $ref: "#/parameters/rowFilter.journalLine.intercompanyPartnerId",
           },
           {
@@ -43116,6 +43326,12 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.journalLine.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLine.updatedBy",
+          },
+          {
             $ref: "#/parameters/rowFilter.journalLine.intercompanyPartnerId",
           },
           {
@@ -43181,6 +43397,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.journalLine.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLine.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.journalLine.updatedBy",
           },
           {
             $ref: "#/parameters/rowFilter.journalLine.intercompanyPartnerId",
@@ -73613,12 +73835,20 @@ export default {
       type: "object",
     },
     journal: {
-      required: ["id", "companyId", "postingDate", "createdAt"],
+      required: [
+        "id",
+        "companyId",
+        "postingDate",
+        "createdAt",
+        "journalEntryId",
+        "status",
+      ],
       properties: {
         id: {
+          default: "public.id('je'::text)",
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
-          type: "integer",
+          format: "text",
+          type: "string",
         },
         description: {
           format: "text",
@@ -73655,6 +73885,70 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        journalEntryId: {
+          format: "text",
+          type: "string",
+        },
+        status: {
+          default: "Posted",
+          enum: ["Draft", "Posted", "Reversed"],
+          format: 'public."journalEntryStatus"',
+          type: "string",
+        },
+        sourceType: {
+          enum: [
+            "Manual",
+            "Purchase Receipt",
+            "Purchase Invoice",
+            "Purchase Return",
+            "Sales Invoice",
+            "Sales Shipment",
+            "Sales Return",
+            "Transfer Receipt",
+            "Inventory Adjustment",
+            "Production Order",
+          ],
+          format: 'public."journalEntrySourceType"',
+          type: "string",
+        },
+        reversalOfId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        reversedById: {
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        postedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        postedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -81809,8 +82103,8 @@ export default {
         eliminationJournalId: {
           description:
             "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
-          format: "integer",
-          type: "integer",
+          format: "text",
+          type: "string",
         },
         createdAt: {
           default: "now()",
@@ -82175,6 +82469,125 @@ export default {
           default: true,
           format: "boolean",
           type: "boolean",
+        },
+      },
+      type: "object",
+    },
+    journalEntries: {
+      properties: {
+        id: {
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        description: {
+          format: "text",
+          type: "string",
+        },
+        accountingPeriodId: {
+          description:
+            "Note:\nThis is a Foreign Key to `accountingPeriod.id`.<fk table='accountingPeriod' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        postingDate: {
+          format: "date",
+          type: "string",
+        },
+        createdAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        customFields: {
+          format: "jsonb",
+        },
+        tags: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        journalEntryId: {
+          format: "text",
+          type: "string",
+        },
+        status: {
+          enum: ["Draft", "Posted", "Reversed"],
+          format: 'public."journalEntryStatus"',
+          type: "string",
+        },
+        sourceType: {
+          enum: [
+            "Manual",
+            "Purchase Receipt",
+            "Purchase Invoice",
+            "Purchase Return",
+            "Sales Invoice",
+            "Sales Shipment",
+            "Sales Return",
+            "Transfer Receipt",
+            "Inventory Adjustment",
+            "Production Order",
+          ],
+          format: 'public."journalEntrySourceType"',
+          type: "string",
+        },
+        reversalOfId: {
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        reversedById: {
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        postedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        postedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        totalDebits: {
+          format: "numeric",
+          type: "number",
+        },
+        totalCredits: {
+          format: "numeric",
+          type: "number",
+        },
+        lineCount: {
+          format: "integer",
+          type: "integer",
         },
       },
       type: "object",
@@ -87701,6 +88114,12 @@ export default {
           format: 'public."riskRegisterType"',
           type: "string",
         },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -91276,8 +91695,10 @@ export default {
           type: "string",
         },
         journalId: {
-          format: "integer",
-          type: "integer",
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string",
         },
         accountNumber: {
           format: "text",
@@ -91350,6 +91771,16 @@ export default {
           type: "array",
         },
         companyGroupId: {
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -105067,6 +105498,66 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.journal.journalEntryId": {
+      name: "journalEntryId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.sourceType": {
+      name: "sourceType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.reversalOfId": {
+      name: "reversalOfId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.reversedById": {
+      name: "reversedById",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.postedAt": {
+      name: "postedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.postedBy": {
+      name: "postedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journal.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.tableView": {
       name: "tableView",
       description: "tableView",
@@ -114672,6 +115163,141 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.journalEntries": {
+      name: "journalEntries",
+      description: "journalEntries",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/journalEntries",
+      },
+    },
+    "rowFilter.journalEntries.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.accountingPeriodId": {
+      name: "accountingPeriodId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.postingDate": {
+      name: "postingDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.customFields": {
+      name: "customFields",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.tags": {
+      name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.journalEntryId": {
+      name: "journalEntryId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.sourceType": {
+      name: "sourceType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.reversalOfId": {
+      name: "reversalOfId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.reversedById": {
+      name: "reversedById",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.postedAt": {
+      name: "postedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.postedBy": {
+      name: "postedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.totalDebits": {
+      name: "totalDebits",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.totalCredits": {
+      name: "totalCredits",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalEntries.lineCount": {
+      name: "lineCount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.shifts": {
       name: "shifts",
       description: "shifts",
@@ -120882,6 +121508,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.riskRegister.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.shipment": {
       name: "shipment",
       description: "shipment",
@@ -125007,6 +125639,18 @@ export default {
     },
     "rowFilter.journalLine.companyGroupId": {
       name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLine.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.journalLine.updatedBy": {
+      name: "updatedBy",
       required: false,
       in: "query",
       type: "string",

@@ -1,17 +1,32 @@
+import { HStack, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
+  LuBookmark,
   LuCalendar,
   LuCircleDollarSign,
   LuFileText,
-  LuHash,
+  LuPencil,
   LuStar,
-  LuTag
+  LuTag,
+  LuTrash,
+  LuUser
 } from "react-icons/lu";
-import { Hyperlink, Table } from "~/components";
+import { useNavigate } from "react-router";
+import { EmployeeAvatar, Hyperlink, Table } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import { JournalEntrySourceTypeIcon } from "~/components/Icons";
+import { ConfirmDelete } from "~/components/Modals";
+import { usePermissions, useUser } from "~/hooks";
+import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
+import { usePeople } from "~/stores/people";
 import { path } from "~/utils/path";
-import { journalEntryStatuses } from "../../accounting.models";
+import {
+  journalEntrySourceTypes,
+  journalEntryStatuses
+} from "../../accounting.models";
 import type { JournalEntryListItem } from "../../types";
 import JournalEntryStatus from "./JournalEntryStatus";
 
@@ -21,27 +36,47 @@ type JournalEntriesTableProps = {
   primaryAction?: ReactNode;
 };
 
+const defaultColumnVisibility = {
+  sourceType: false,
+  createdBy: false,
+  createdAt: false,
+  updatedBy: false,
+  updatedAt: false
+};
+
 const JournalEntriesTable = memo(
   ({ data, count, primaryAction }: JournalEntriesTableProps) => {
+    const navigate = useNavigate();
+    const permissions = usePermissions();
+    const { company } = useUser();
+    const [people] = usePeople();
+    const currencyFormatter = useCurrencyFormatter({
+      currency: company.baseCurrencyCode
+    });
+    const [selectedEntry, setSelectedEntry] =
+      useState<JournalEntryListItem | null>(null);
+    const deleteModal = useDisclosure();
+
     const columns = useMemo<ColumnDef<JournalEntryListItem>[]>(() => {
       const defaultColumns: ColumnDef<JournalEntryListItem>[] = [
         {
           accessorKey: "journalEntryId",
-          header: "ID",
+          header: "Journal Entry",
           cell: ({ row }) => (
-            <Hyperlink to={path.to.journalEntryDetails(row.original.id)}>
+            <Hyperlink
+              to={path.to.journalEntryDetails(row.original.id?.toString()!)}
+            >
               {row.original.journalEntryId}
             </Hyperlink>
           ),
           meta: {
-            icon: <LuHash />
+            icon: <LuBookmark />
           }
         },
         {
           accessorKey: "postingDate",
           header: "Date",
-          cell: ({ row }) =>
-            new Date(row.original.postingDate).toLocaleDateString(),
+          cell: ({ row }) => formatDate(row.original.postingDate),
           meta: {
             icon: <LuCalendar />
           }
@@ -50,33 +85,58 @@ const JournalEntriesTable = memo(
           accessorKey: "description",
           header: "Description",
           cell: ({ row }) => (
-            <div className="max-w-[300px] truncate">
-              {row.original.description || "—"}
-            </div>
+            <HStack className="py-1" spacing={2}>
+              <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+                <JournalEntrySourceTypeIcon
+                  sourceType={row.original.sourceType ?? "Manual"}
+                  className="w-4 h-4 text-[#AAAAAA] dark:text-[#444]"
+                />
+              </div>
+
+              <div className="flex flex-col max-w-[300px] truncate">
+                <div className="text-sm line-clamp-1">
+                  {row.original.description || "—"}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {row.original.sourceType || "—"}
+                </div>
+              </div>
+            </HStack>
           ),
           meta: {
             icon: <LuFileText />
           }
         },
         {
-          accessorKey: "entryType",
-          header: "Type",
-          cell: ({ row }) => row.original.entryType || "—",
+          accessorKey: "sourceType",
+          header: "Source",
+          cell: ({ row }) => <Enumerable value={row.original.sourceType} />,
           meta: {
-            icon: <LuTag />
+            icon: <LuTag />,
+            filter: {
+              type: "static",
+              options: journalEntrySourceTypes.map((v) => ({
+                label: <Enumerable value={v} />,
+                value: v
+              }))
+            }
           }
         },
         {
           accessorKey: "status",
           header: "Status",
           cell: ({ row }) => (
-            <JournalEntryStatus status={row.original.status} />
+            <JournalEntryStatus
+              status={
+                row.original.status as (typeof journalEntryStatuses)[number]
+              }
+            />
           ),
           meta: {
             filter: {
               type: "static",
               options: journalEntryStatuses.map((v) => ({
-                label: v,
+                label: <JournalEntryStatus status={v} />,
                 value: v
               }))
             },
@@ -87,11 +147,7 @@ const JournalEntriesTable = memo(
           accessorKey: "totalDebits",
           header: "Debits",
           cell: ({ row }) =>
-            new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            }).format(Number(row.original.totalDebits)),
+            currencyFormatter.format(Number(row.original.totalDebits)),
           meta: {
             icon: <LuCircleDollarSign />
           }
@@ -100,27 +156,124 @@ const JournalEntriesTable = memo(
           accessorKey: "totalCredits",
           header: "Credits",
           cell: ({ row }) =>
-            new Intl.NumberFormat("en-US", {
-              style: "decimal",
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            }).format(Number(row.original.totalCredits)),
+            currencyFormatter.format(Number(row.original.totalCredits)),
           meta: {
             icon: <LuCircleDollarSign />
+          }
+        },
+        {
+          accessorKey: "createdBy",
+          header: "Created By",
+          cell: ({ row }) => (
+            <EmployeeAvatar employeeId={row.original.createdBy} />
+          ),
+          meta: {
+            filter: {
+              type: "static",
+              options: people.map((employee) => ({
+                value: employee.id,
+                label: <Enumerable value={employee.name} />
+              }))
+            },
+            icon: <LuUser />
+          }
+        },
+        {
+          accessorKey: "createdAt",
+          header: "Created At",
+          cell: ({ row }) => formatDate(row.original.createdAt),
+          meta: {
+            icon: <LuCalendar />
+          }
+        },
+        {
+          accessorKey: "updatedBy",
+          header: "Updated By",
+          cell: ({ row }) => (
+            <EmployeeAvatar employeeId={row.original.updatedBy} />
+          ),
+          meta: {
+            filter: {
+              type: "static",
+              options: people.map((employee) => ({
+                value: employee.id,
+                label: <Enumerable value={employee.name} />
+              }))
+            },
+            icon: <LuUser />
+          }
+        },
+        {
+          accessorKey: "updatedAt",
+          header: "Updated At",
+          cell: ({ row }) => formatDate(row.original.updatedAt),
+          meta: {
+            icon: <LuCalendar />
           }
         }
       ];
       return defaultColumns;
-    }, []);
+    }, [currencyFormatter]);
+
+    const renderContextMenu = useCallback(
+      (row: JournalEntryListItem) => {
+        const isDraft = row.status === "Draft";
+        return (
+          <>
+            <MenuItem
+              disabled={!permissions.can("view", "accounting")}
+              onClick={() => {
+                navigate(path.to.journalEntryDetails(row.id?.toString()!));
+              }}
+            >
+              <MenuIcon icon={<LuPencil />} />
+              {isDraft ? "Edit Journal Entry" : "View Journal Entry"}
+            </MenuItem>
+            <MenuItem
+              disabled={!isDraft || !permissions.can("delete", "accounting")}
+              destructive
+              onClick={() => {
+                setSelectedEntry(row);
+                deleteModal.onOpen();
+              }}
+            >
+              <MenuIcon icon={<LuTrash />} />
+              Delete Journal Entry
+            </MenuItem>
+          </>
+        );
+      },
+      [deleteModal, navigate, permissions]
+    );
 
     return (
-      <Table<JournalEntryListItem>
-        data={data}
-        columns={columns}
-        count={count}
-        primaryAction={primaryAction}
-        title="Journal Entries"
-      />
+      <>
+        <Table<JournalEntryListItem>
+          data={data}
+          columns={columns}
+          count={count}
+          defaultColumnVisibility={defaultColumnVisibility}
+          primaryAction={primaryAction}
+          renderContextMenu={renderContextMenu}
+          title="Journal Entries"
+        />
+        {selectedEntry && selectedEntry.id && (
+          <ConfirmDelete
+            action={path.to.deleteJournalEntry(selectedEntry.id.toString())}
+            isOpen={deleteModal.isOpen}
+            name={selectedEntry.journalEntryId ?? ""}
+            text={`Are you sure you want to delete ${selectedEntry.journalEntryId}?`}
+            onCancel={() => {
+              deleteModal.onClose();
+              setSelectedEntry(null);
+            }}
+            onSubmit={() => {
+              deleteModal.onClose();
+              setSelectedEntry(null);
+            }}
+          />
+        )}
+      </>
     );
   }
 );

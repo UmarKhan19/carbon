@@ -196,7 +196,7 @@ export default function ShipmentDetailsRoute() {
   };
 
   return (
-    <div className="flex flex-col gap-2 pb-16 w-full">
+    <>
       <ShipmentForm
         key={initialValues.sourceDocumentId}
         // @ts-ignore
@@ -213,6 +213,6 @@ export default function ShipmentDetailsRoute() {
         internalNotes={routeData.shipment.internalNotes as JSONContent}
         externalNotes={routeData.shipment.externalNotes as JSONContent}
       />
-    </div>
+    </>
   );
 }

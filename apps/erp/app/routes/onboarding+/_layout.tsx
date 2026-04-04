@@ -1,8 +1,9 @@
 import { CarbonEdition } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { VStack } from "@carbon/react";
+import { useMode } from "@carbon/remix";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
+import { MeshGradient } from "@paper-design/shaders-react";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction
@@ -62,12 +63,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function OnboardingLayout() {
+  const mode = useMode();
+
+  const meshGradientColors =
+    mode === "light"
+      ? ["#bdcdff", "#f7f5ff", "#ffffff", "#e6f3ff"]
+      : ["#023225", "#000000", "#0D0D0D", "#050505"];
+
   return (
-    <VStack
-      spacing={4}
-      className="h-screen w-screen justify-center items-center p-4"
-    >
-      <Outlet />
-    </VStack>
+    <div className="relative h-screen w-screen">
+      <div className="absolute inset-0 bg-[linear-gradient(to_bottom_right,#f7f5ff_35.67%,#bdcdff_88.95%)] dark:bg-[linear-gradient(to_bottom_right,#0D0D0D_35.67%,#050505_88.95%)]">
+        <MeshGradient
+          speed={1}
+          colors={meshGradientColors}
+          distortion={0.8}
+          swirl={0.1}
+          grainMixer={0}
+          grainOverlay={0}
+          className="absolute inset-0 w-full h-full"
+          style={{ height: "100%", width: "100%" }}
+        />
+      </div>
+      <div className="relative z-10 flex h-full w-full items-center justify-center p-4">
+        <Outlet />
+      </div>
+    </div>
   );
 }

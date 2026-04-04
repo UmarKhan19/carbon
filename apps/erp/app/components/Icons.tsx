@@ -15,8 +15,10 @@ import type { ReactNode } from "react";
 import { AiOutlinePartition } from "react-icons/ai";
 import { FaCodePullRequest } from "react-icons/fa6";
 import {
+  LuArrowLeftRight,
   LuAtom,
   LuBarcode,
+  LuBookOpen,
   LuBox,
   LuCircle,
   LuCircleCheck,
@@ -27,6 +29,8 @@ import {
   LuClock3,
   LuExternalLink,
   LuEye,
+  LuFactory,
+  LuFileText,
   LuFlaskConical,
   LuGroup,
   LuHammer,
@@ -34,8 +38,11 @@ import {
   LuHeadphones,
   LuImage,
   LuList,
+  LuPackage,
   LuPizza,
   LuQrCode,
+  LuReceipt,
+  LuRotateCcw,
   LuShoppingCart,
   LuSquare,
   LuTarget,
@@ -50,6 +57,7 @@ import { Link } from "react-router";
 import { AlmostDoneIcon } from "~/assets/icons/AlmostDoneIcon";
 import { InProgressStatusIcon } from "~/assets/icons/InProgressStatusIcon";
 import { TodoStatusIcon } from "~/assets/icons/TodoStatusIcon";
+import type { journalEntrySourceTypes } from "~/modules/accounting";
 import type { JobOperation } from "~/modules/production/types";
 import type { nonConformanceTaskStatus } from "~/modules/quality";
 import type { MethodType } from "~/modules/shared";
@@ -533,6 +541,39 @@ export const JiraIcon = (props: React.SVGProps<SVGSVGElement>) => {
       />
     </svg>
   );
+};
+
+export const JournalEntrySourceTypeIcon = ({
+  sourceType,
+  className
+}: {
+  sourceType: (typeof journalEntrySourceTypes)[number];
+  className?: string;
+}) => {
+  switch (sourceType) {
+    case "Manual":
+      return <LuBookOpen className={className} />;
+    case "Purchase Receipt":
+      return <LuReceipt className={className} />;
+    case "Purchase Invoice":
+      return <LuFileText className={className} />;
+    case "Purchase Return":
+      return <LuRotateCcw className={className} />;
+    case "Sales Invoice":
+      return <LuFileText className={className} />;
+    case "Sales Shipment":
+      return <LuTruck className={className} />;
+    case "Sales Return":
+      return <LuRotateCcw className={className} />;
+    case "Transfer Receipt":
+      return <LuArrowLeftRight className={className} />;
+    case "Inventory Adjustment":
+      return <LuPackage className={className} />;
+    case "Production Order":
+      return <LuFactory className={className} />;
+  }
+
+  return <LuSquare className={cn("text-muted-foreground", className)} />;
 };
 
 export const JiraIssueStatusBadge = (props: {

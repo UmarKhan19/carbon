@@ -44,7 +44,7 @@ CREATE TABLE "intercompanyTransaction" (
   "documentType" "journalLineDocumentType",
   "documentId" TEXT,
   "status" TEXT NOT NULL DEFAULT 'Unmatched',
-  "eliminationJournalId" INTEGER,
+  "eliminationJournalId" TEXT,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE,
 

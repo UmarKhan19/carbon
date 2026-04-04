@@ -27,7 +27,7 @@ import {
 
 import Abilities from "./Abilities";
 import Ability from "./Ability";
-import Account from "./Account";
+import Account, { AccountControlled } from "./Account";
 import AddressAutocomplete from "./AddressAutocomplete";
 import Color from "./Color";
 import ConversionFactor from "./ConversionFactor";
@@ -81,6 +81,7 @@ export {
   Abilities,
   Ability,
   Account,
+  AccountControlled,
   AddressAutocomplete,
   Array,
   ArrayNumeric,

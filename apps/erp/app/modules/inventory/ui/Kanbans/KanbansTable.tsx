@@ -21,6 +21,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -491,10 +492,7 @@ const KanbansTable = memo(
         {
           accessorKey: "createdAt",
           header: "Created At",
-          cell: ({ row }) =>
-            row.original.createdAt
-              ? new Date(row.original.createdAt).toLocaleDateString()
-              : "",
+          cell: ({ row }) => formatDate(row.original.createdAt),
           meta: {
             icon: <LuCalendar />
           }
@@ -519,10 +517,7 @@ const KanbansTable = memo(
         {
           accessorKey: "updatedAt",
           header: "Updated At",
-          cell: ({ row }) =>
-            row.original.updatedAt
-              ? new Date(row.original.updatedAt).toLocaleDateString()
-              : "",
+          cell: ({ row }) => formatDate(row.original.updatedAt),
           meta: {
             icon: <LuCalendar />
           }

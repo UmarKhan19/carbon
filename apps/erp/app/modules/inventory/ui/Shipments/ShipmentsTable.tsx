@@ -1,4 +1,10 @@
-import { Checkbox, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import {
+  Button,
+  Checkbox,
+  MenuIcon,
+  MenuItem,
+  useDisclosure
+} from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -6,6 +12,7 @@ import {
   LuBookMarked,
   LuCalendar,
   LuCheck,
+  LuCirclePlus,
   LuClock,
   LuFileText,
   LuHash,
@@ -13,14 +20,8 @@ import {
   LuTrash,
   LuUser
 } from "react-icons/lu";
-import { useNavigate } from "react-router";
-import {
-  CustomerAvatar,
-  EmployeeAvatar,
-  Hyperlink,
-  New,
-  Table
-} from "~/components";
+import { useFetcher, useNavigate } from "react-router";
+import { CustomerAvatar, EmployeeAvatar, Hyperlink, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useRealtime, useUrlParams } from "~/hooks";
@@ -33,6 +34,22 @@ import {
 } from "../../inventory.models";
 import type { Shipment } from "../../types";
 import ShipmentStatus from "./ShipmentStatus";
+
+function NewShipment() {
+  const fetcher = useFetcher();
+  return (
+    <fetcher.Form method="post" action={path.to.newShipment}>
+      <Button
+        type="submit"
+        leftIcon={<LuCirclePlus />}
+        variant="primary"
+        isLoading={fetcher.state !== "idle"}
+      >
+        Add Shipment
+      </Button>
+    </fetcher.Form>
+  );
+}
 
 type ShipmentsTableProps = {
   data: Shipment[];
@@ -351,9 +368,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
           updatedBy: false
         }}
         primaryAction={
-          permissions.can("create", "inventory") && (
-            <New label="Shipment" to={path.to.newShipment} />
-          )
+          permissions.can("create", "inventory") && <NewShipment />
         }
         renderContextMenu={renderContextMenu}
         title="Shipments"

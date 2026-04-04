@@ -440,25 +440,25 @@ export const intercompanyTransactionValidator = z
     }
   );
 
-export const journalEntryTypes = [
-  "Accrual",
-  "Correction",
-  "Reclassification",
-  "Depreciation",
-  "Other"
+export const journalEntrySourceTypes = [
+  "Manual",
+  "Purchase Receipt",
+  "Purchase Invoice",
+  "Purchase Return",
+  "Sales Invoice",
+  "Sales Shipment",
+  "Sales Return",
+  "Transfer Receipt",
+  "Inventory Adjustment",
+  "Production Order"
 ] as const;
 
-export const journalEntryStatuses = ["Draft", "Posted"] as const;
+export const journalEntryStatuses = ["Draft", "Posted", "Reversed"] as const;
 
 export const journalEntryValidator = z.object({
   id: zfd.text(z.string().optional()),
   description: z.string().optional(),
-  postingDate: z.string().min(1, { message: "Posting date is required" }),
-  entryType: z
-    .enum(journalEntryTypes, {
-      errorMap: () => ({ message: "Entry type is required" })
-    })
-    .optional()
+  postingDate: z.string().min(1, { message: "Posting date is required" })
 });
 
 export const journalEntryLineValidator = z

@@ -1,5 +1,5 @@
 import type { Database, Json } from "@carbon/database";
-import { getDateNYearsAgo } from "@carbon/utils";
+import { getDateNYearsAgo, toStoredAmount } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
@@ -166,7 +166,7 @@ export async function getAccountsList(
 ) {
   let query = client
     .from("account")
-    .select("number, name, incomeBalance")
+    .select("number, name, incomeBalance, class")
     .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
@@ -1132,8 +1132,8 @@ export async function getJournalEntry(
 ) {
   return client
     .from("journal")
-    .select("*, journalLine(*)")
-    .eq("id", Number(id))
+    .select("*, journalLine(*, account!journalLine_accountNumber_fkey(class))")
+    .eq("id", id)
     .single();
 }
 
@@ -1141,6 +1141,7 @@ export async function createJournalEntry(
   client: SupabaseClient<Database>,
   data: z.infer<typeof journalEntryValidator> & {
     journalEntryId: string;
+    sourceType: Database["public"]["Enums"]["journalEntrySourceType"];
     companyId: string;
     createdBy: string;
   }
@@ -1167,7 +1168,7 @@ export async function updateJournalEntry(
   return client
     .from("journal")
     .update(sanitize(rest))
-    .eq("id", Number(id))
+    .eq("id", id)
     .eq("status", "Draft");
 }
 
@@ -1175,27 +1176,39 @@ export async function deleteJournalEntry(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client
-    .from("journal")
-    .delete()
-    .eq("id", Number(id))
-    .eq("status", "Draft");
+  return client.from("journal").delete().eq("id", id).eq("status", "Draft");
 }
 
 export async function upsertJournalEntryLine(
   client: SupabaseClient<Database>,
   data:
     | (z.infer<typeof journalEntryLineValidator> & {
-        journalId: number;
+        journalId: string;
         companyId: string;
         companyGroupId: string;
       })
     | (z.infer<typeof journalEntryLineValidator> & {
         id: string;
         updatedBy: string;
+        companyGroupId: string;
       })
 ) {
-  const amount = (data.debit ?? 0) > 0 ? data.debit : -(data.credit ?? 0);
+  const account = await client
+    .from("account")
+    .select("class")
+    .eq("number", data.accountNumber)
+    .eq("companyGroupId", data.companyGroupId)
+    .single();
+
+  if (account.error || !account.data?.class) {
+    return { data: null, error: { message: "Account not found" } };
+  }
+
+  const amount = toStoredAmount(
+    data.debit ?? 0,
+    data.credit ?? 0,
+    account.data.class
+  );
 
   if ("companyId" in data) {
     return client
@@ -1233,6 +1246,83 @@ export async function deleteJournalEntryLine(
   id: string
 ) {
   return client.from("journalLine").delete().eq("id", id);
+}
+
+export async function saveJournalEntryWithLines(
+  client: SupabaseClient<Database>,
+  data: {
+    journalEntryId: string;
+    postingDate: string;
+    description?: string;
+    updatedBy: string;
+    lines: Array<{
+      accountNumber: string;
+      description?: string;
+      debit: number;
+      credit: number;
+    }>;
+    companyId: string;
+    companyGroupId: string;
+  }
+) {
+  // 1. Update journal header
+  const headerUpdate = await client
+    .from("journal")
+    .update(
+      sanitize({
+        postingDate: data.postingDate,
+        description: data.description,
+        updatedBy: data.updatedBy
+      })
+    )
+    .eq("id", data.journalEntryId)
+    .eq("status", "Draft");
+
+  if (headerUpdate.error) return headerUpdate;
+
+  // 2. Delete existing lines
+  const deleteResult = await client
+    .from("journalLine")
+    .delete()
+    .eq("journalId", data.journalEntryId);
+
+  if (deleteResult.error) return deleteResult;
+
+  if (data.lines.length === 0) return { data: null, error: null };
+
+  // 3. Look up account classes for all distinct account numbers
+  const accountNumbers = [...new Set(data.lines.map((l) => l.accountNumber))];
+  const accounts = await client
+    .from("account")
+    .select("number, class")
+    .eq("companyGroupId", data.companyGroupId)
+    .in("number", accountNumbers);
+
+  if (accounts.error) return accounts;
+
+  const accountClassMap = new Map(
+    accounts.data.map((a) => [a.number, a.class])
+  );
+
+  // 4. Build insert payloads
+  const inserts = data.lines.map((line) => {
+    const accountClass = accountClassMap.get(line.accountNumber);
+    if (!accountClass) {
+      throw new Error(`Account not found: ${line.accountNumber}`);
+    }
+    return {
+      journalId: data.journalEntryId,
+      accountNumber: line.accountNumber,
+      companyGroupId: data.companyGroupId,
+      description: line.description,
+      amount: toStoredAmount(line.debit, line.credit, accountClass),
+      journalLineReference: crypto.randomUUID(),
+      companyId: data.companyId
+    };
+  });
+
+  // 5. Insert all lines
+  return client.from("journalLine").insert(inserts);
 }
 
 export async function postJournalEntry(
@@ -1274,7 +1364,7 @@ export async function postJournalEntry(
       postedBy: userId,
       updatedBy: userId
     })
-    .eq("id", Number(id))
+    .eq("id", id)
     .select("id")
     .single();
 }
@@ -1298,7 +1388,7 @@ export async function reverseJournalEntry(
     };
   }
 
-  // 2. Create reversed header as Draft
+  // 2. Create reversing entry as Posted
   const reversed = await client
     .from("journal")
     .insert({
@@ -1307,8 +1397,11 @@ export async function reverseJournalEntry(
       description: `Reversal of ${original.data.journalEntryId}`,
       postingDate: new Date().toISOString().split("T")[0],
       entryType: original.data.entryType,
-      reversalOfId: Number(id),
-      status: "Draft" as const,
+      sourceType: "Manual" as const,
+      reversalOfId: id,
+      status: "Posted" as const,
+      postedAt: new Date().toISOString(),
+      postedBy: data.userId,
       createdBy: data.userId
     })
     .select("id")
@@ -1331,6 +1424,18 @@ export async function reverseJournalEntry(
     const linesResult = await client.from("journalLine").insert(lines);
     if (linesResult.error) return linesResult;
   }
+
+  // 4. Mark original as Reversed and store back-reference
+  const updateResult = await client
+    .from("journal")
+    .update({
+      status: "Reversed" as const,
+      reversedById: reversed.data.id,
+      updatedBy: data.userId
+    })
+    .eq("id", id);
+
+  if (updateResult.error) return updateResult;
 
   return reversed;
 }

@@ -3,28 +3,21 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { FunctionRegion } from "@supabase/supabase-js";
-import type { LoaderFunctionArgs } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import type { ReceiptSourceDocument } from "~/modules/inventory";
 import { getUserDefaults } from "~/modules/users/users.server";
-import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
-export const handle: Handle = {
-  breadcrumb: "Receipts",
-  to: path.to.receipts
-};
-
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
     create: "inventory"
   });
 
-  const url = new URL(request.url);
+  const formData = await request.formData();
   const sourceDocument =
-    (url.searchParams.get("sourceDocument") as ReceiptSourceDocument) ??
-    undefined;
-  const sourceDocumentId = url.searchParams.get("sourceDocumentId") ?? "";
+    (formData.get("sourceDocument") as ReceiptSourceDocument) ?? undefined;
+  const sourceDocumentId = (formData.get("sourceDocumentId") as string) ?? "";
 
   const defaults = await getUserDefaults(client, userId, companyId);
   const serviceRole = getCarbonServiceRole();

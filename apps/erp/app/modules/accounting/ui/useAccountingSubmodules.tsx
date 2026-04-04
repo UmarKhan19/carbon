@@ -44,12 +44,6 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
     name: "Manage",
     routes: [
       {
-        name: "Chart of Accounts",
-        to: path.to.chartOfAccounts,
-        role: "employee",
-        icon: <LuSheet />
-      },
-      {
         name: "Intercompany",
         to: path.to.intercompany,
         role: "employee",
@@ -67,6 +61,12 @@ const accountingRoutes: AuthenticatedRouteGroup[] = [
   {
     name: "Configure",
     routes: [
+      {
+        name: "Chart of Accounts",
+        to: path.to.chartOfAccounts,
+        role: "employee",
+        icon: <LuSheet />
+      },
       {
         name: "Cost Centers",
         to: path.to.costCenters,

@@ -1,12 +1,9 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { VStack } from "@carbon/react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
-import { PanelProvider } from "~/components/Layout";
-import { getJournalEntry } from "~/modules/accounting";
-import { JournalEntryHeader } from "~/modules/accounting/ui/JournalEntries";
+import { getCompaniesInGroup, getJournalEntry } from "~/modules/accounting";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -16,14 +13,20 @@ export const handle: Handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "accounting"
-  });
+  const { client, companyId, companyGroupId } = await requirePermissions(
+    request,
+    {
+      view: "accounting"
+    }
+  );
 
   const { journalEntryId } = params;
   if (!journalEntryId) throw new Error("Could not find journalEntryId");
 
-  const journalEntry = await getJournalEntry(client, journalEntryId);
+  const [journalEntry, companies] = await Promise.all([
+    getJournalEntry(client, journalEntryId),
+    getCompaniesInGroup(client, companyGroupId)
+  ]);
 
   if (journalEntry.error) {
     throw redirect(
@@ -40,7 +43,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
-    journalEntry: journalEntry.data
+    journalEntry: journalEntry.data,
+    companies: companies.data ?? []
   };
 }
 
@@ -49,15 +53,10 @@ export default function JournalEntryRoute() {
   if (!journalEntryId) throw new Error("Could not find journalEntryId");
 
   return (
-    <PanelProvider>
-      <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
-        <JournalEntryHeader />
-        <div className="flex h-[calc(100dvh-99px)] overflow-y-auto scrollbar-hide w-full">
-          <VStack spacing={4} className="h-full p-2 w-full max-w-5xl mx-auto">
-            <Outlet />
-          </VStack>
-        </div>
+    <div className="flex h-[calc(100dvh-49px)] overflow-y-auto scrollbar-hide w-full">
+      <div className="h-full p-4 w-full max-w-5xl mx-auto">
+        <Outlet />
       </div>
-    </PanelProvider>
+    </div>
   );
 }

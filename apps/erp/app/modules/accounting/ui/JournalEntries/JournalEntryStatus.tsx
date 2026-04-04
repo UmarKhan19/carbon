@@ -8,9 +8,11 @@ type JournalEntryStatusProps = {
 const JournalEntryStatus = ({ status }: JournalEntryStatusProps) => {
   switch (status) {
     case "Draft":
-      return <Status color="orange">{status}</Status>;
+      return <Status color="gray">{status}</Status>;
     case "Posted":
       return <Status color="green">{status}</Status>;
+    case "Reversed":
+      return <Status color="red">{status}</Status>;
     default:
       return null;
   }

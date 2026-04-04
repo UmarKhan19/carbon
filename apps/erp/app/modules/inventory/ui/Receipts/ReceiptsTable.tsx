@@ -1,4 +1,10 @@
-import { Checkbox, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import {
+  Button,
+  Checkbox,
+  MenuIcon,
+  MenuItem,
+  useDisclosure
+} from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -6,6 +12,7 @@ import {
   LuBookMarked,
   LuCalendar,
   LuCheck,
+  LuCirclePlus,
   LuClock,
   LuFileText,
   LuHash,
@@ -13,14 +20,8 @@ import {
   LuTrash,
   LuUser
 } from "react-icons/lu";
-import { useNavigate } from "react-router";
-import {
-  EmployeeAvatar,
-  Hyperlink,
-  New,
-  SupplierAvatar,
-  Table
-} from "~/components";
+import { useFetcher, useNavigate } from "react-router";
+import { EmployeeAvatar, Hyperlink, SupplierAvatar, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useRealtime, useUrlParams } from "~/hooks";
@@ -33,6 +34,22 @@ import {
 } from "~/modules/inventory";
 import { usePeople, useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
+
+function NewReceipt() {
+  const fetcher = useFetcher();
+  return (
+    <fetcher.Form method="post" action={path.to.newReceipt}>
+      <Button
+        type="submit"
+        leftIcon={<LuCirclePlus />}
+        variant="primary"
+        isLoading={fetcher.state !== "idle"}
+      >
+        Add Receipt
+      </Button>
+    </fetcher.Form>
+  );
+}
 
 type ReceiptsTableProps = {
   data: Receipt[];
@@ -335,11 +352,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
           updatedAt: false,
           updatedBy: false
         }}
-        primaryAction={
-          permissions.can("create", "inventory") && (
-            <New label="Receipt" to={path.to.newReceipt} />
-          )
-        }
+        primaryAction={permissions.can("create", "inventory") && <NewReceipt />}
         renderContextMenu={renderContextMenu}
         title="Receipts"
         table="receipt"

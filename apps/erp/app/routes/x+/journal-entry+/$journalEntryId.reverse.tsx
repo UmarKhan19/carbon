@@ -45,7 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   throw redirect(
-    path.to.journalEntryDetails(String(result.data!.id)),
-    await flash(request, success("Reversing journal entry created"))
+    path.to.journalEntryDetails(journalEntryId),
+    await flash(request, success("Journal entry reversed"))
   );
 }
