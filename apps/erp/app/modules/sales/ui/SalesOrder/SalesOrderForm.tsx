@@ -131,7 +131,9 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
         isDisabled={isEditing && isLocked}
       >
         <CardHeader>
-          <CardTitle>{isEditing ? t("Sales Order") : t("New Sales Order")}</CardTitle>
+          <CardTitle>
+            {isEditing ? t("Sales Order") : t("New Sales Order")}
+          </CardTitle>
           {!isEditing && (
             <CardDescription>
               {t(
@@ -205,14 +207,18 @@ const SalesOrderForm = ({ initialValues }: SalesOrderFormProps) => {
               <DatePicker
                 name="requestedDate"
                 label={t("Requested Date")}
-                helperText={t("The date the customer expects to receive the goods")}
+                helperText={t(
+                  "The date the customer expects to receive the goods"
+                )}
                 isDisabled={isCustomer}
               />
 
               <DatePicker
                 name="promisedDate"
                 label={t("Promised Date")}
-                helperText={t("The date the customer expects to receive the goods")}
+                helperText={t(
+                  "The date the customer expects to receive the goods"
+                )}
                 isDisabled={isCustomer}
               />
 

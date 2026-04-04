@@ -188,7 +188,11 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 customer={customer.id}
                 value={customer.customerLocationId}
               />
-              <Employee name="salesPersonId" label={t("Sales Person")} isOptional />
+              <Employee
+                name="salesPersonId"
+                label={t("Sales Person")}
+                isOptional
+              />
               <Employee name="estimatorId" label={t("Estimator")} isOptional />
               <Location name="locationId" label={t("Quote Location")} />
               <DatePicker

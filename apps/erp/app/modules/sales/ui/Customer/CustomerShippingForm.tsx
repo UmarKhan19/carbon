@@ -71,7 +71,10 @@ const CustomerShippingForm = ({ initialValues }: CustomerShippingFormProps) => {
               customer={customer}
             />
 
-            <ShippingMethod name="shippingMethodId" label={t("Shipping Method")} />
+            <ShippingMethod
+              name="shippingMethodId"
+              label={t("Shipping Method")}
+            />
             {/* <Select
               name="shippingTermId"
               label="Shipping Term"

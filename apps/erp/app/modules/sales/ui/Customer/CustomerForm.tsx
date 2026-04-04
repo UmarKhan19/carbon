@@ -126,7 +126,10 @@ const CustomerForm = ({
                     label={t("Customer Type")}
                     placeholder={t("Select Customer Type")}
                   />
-                  <Employee name="accountManagerId" label={t("Account Manager")} />
+                  <Employee
+                    name="accountManagerId"
+                    label={t("Account Manager")}
+                  />
                   {isEditing && (
                     <>
                       <CustomerContact

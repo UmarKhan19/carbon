@@ -121,9 +121,15 @@ const SalesOrderShipmentForm = forwardRef<
               isReadOnly={isCustomer}
               isClearable
             />
-            <ShippingMethod name="shippingMethodId" label={t("Shipping Method")} />
+            <ShippingMethod
+              name="shippingMethodId"
+              label={t("Shipping Method")}
+            />
 
-            <DatePicker name="receiptRequestedDate" label={t("Requested Date")} />
+            <DatePicker
+              name="receiptRequestedDate"
+              label={t("Requested Date")}
+            />
             <DatePicker name="receiptPromisedDate" label={t("Promised Date")} />
             <DatePicker name="shipmentDate" label={t("Shipment Date")} />
 

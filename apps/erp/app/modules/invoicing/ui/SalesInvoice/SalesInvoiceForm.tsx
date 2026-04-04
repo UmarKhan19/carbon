@@ -194,7 +194,10 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
                 label={t("Customer")}
                 onChange={onCustomerChange}
               />
-              <Input name="customerReference" label={t("Customer Invoice Number")} />
+              <Input
+                name="customerReference"
+                label={t("Customer Invoice Number")}
+              />
 
               <Customer
                 name="invoiceCustomerId"

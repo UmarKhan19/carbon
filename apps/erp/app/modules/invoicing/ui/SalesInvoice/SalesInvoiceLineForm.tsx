@@ -351,15 +351,15 @@ const SalesInvoiceLineForm = ({
 
               <VStack>
                 {hasInvalidMethodType && (
-                    <Alert variant="destructive" className="mb-4">
-                      <LuCircleAlert className="w-4 h-4" />
-                      <AlertTitle>
-                        {t(
-                          "Make items cannot be invoiced directly. Change method to Pick to continue."
-                        )}
-                      </AlertTitle>
-                    </Alert>
-                  )}
+                  <Alert variant="destructive" className="mb-4">
+                    <LuCircleAlert className="w-4 h-4" />
+                    <AlertTitle>
+                      {t(
+                        "Make items cannot be invoiced directly. Change method to Pick to continue."
+                      )}
+                    </AlertTitle>
+                  </Alert>
+                )}
                 <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                   <Item
                     name="itemId"
@@ -520,11 +520,11 @@ const SalesInvoiceLineForm = ({
 
                           <IconButton
                             icon={<LuChevronRight />}
-                              aria-label={
-                                costsDisclosure.isOpen
-                                  ? t("Collapse Costs")
-                                  : t("Expand Costs")
-                              }
+                            aria-label={
+                              costsDisclosure.isOpen
+                                ? t("Collapse Costs")
+                                : t("Expand Costs")
+                            }
                             variant="ghost"
                             size="md"
                             onClick={(e) => {

@@ -106,9 +106,15 @@ const QuoteShipmentForm = forwardRef<
               isReadOnly={isCustomer}
               isClearable
             />
-            <ShippingMethod name="shippingMethodId" label={t("Shipping Method")} />
+            <ShippingMethod
+              name="shippingMethodId"
+              label={t("Shipping Method")}
+            />
 
-            <DatePicker name="receiptRequestedDate" label={t("Requested Date")} />
+            <DatePicker
+              name="receiptRequestedDate"
+              label={t("Requested Date")}
+            />
           </div>
         </CardContent>
         <CardFooter>

@@ -23,8 +23,8 @@ import {
   useIsMobile,
   VStack
 } from "@carbon/react";
-import type { ReactNode } from "react";
 import { useMode } from "@carbon/remix";
+import type { ReactNode } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
 import { IoMdAdd } from "react-icons/io";
 import { LuChevronsUpDown } from "react-icons/lu";

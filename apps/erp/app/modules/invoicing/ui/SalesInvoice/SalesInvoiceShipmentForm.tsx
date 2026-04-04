@@ -110,7 +110,10 @@ const SalesInvoiceShipmentForm = forwardRef<
               isReadOnly={isCustomer}
               isClearable
             />
-            <ShippingMethod name="shippingMethodId" label={t("Shipping Method")} />
+            <ShippingMethod
+              name="shippingMethodId"
+              label={t("Shipping Method")}
+            />
             <CustomFormFields table="salesInvoiceShipment" />
           </div>
         </CardContent>
