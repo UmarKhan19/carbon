@@ -75,7 +75,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     line: line?.data ?? null,
     itemReplenishment:
-      itemId && line.data.methodType === "Make"
+      itemId && line.data.methodType === "Make to Order"
         ? getItemReplenishment(serviceRole, itemId, companyId)
         : Promise.resolve({ data: null }),
     files: getOpportunityLineDocuments(serviceRole, companyId, lineId, itemId),
@@ -179,7 +179,7 @@ export default function EditSalesOrderLineRoute() {
     assetId: line?.assetId ?? "",
     description: line?.description ?? "",
     locationId: line?.locationId ?? "",
-    methodType: line?.methodType ?? "Make",
+    methodType: line?.methodType ?? "Make to Order",
     nonTaxableAddOnCost: line?.nonTaxableAddOnCost ?? 0,
     promisedDate: line?.promisedDate ?? undefined,
     saleQuantity: line?.saleQuantity ?? 1,
@@ -209,7 +209,7 @@ export default function EditSalesOrderLineRoute() {
         externalNotes={line.externalNotes as JSONContent}
       />
 
-      {line.methodType === "Make" && (
+      {line.methodType === "Make to Order" && (
         <Suspense
           fallback={
             <Card className="min-h-[264px]">

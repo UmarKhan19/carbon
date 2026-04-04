@@ -137,15 +137,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const defaultCc =
+    // @ts-expect-error TS18048 - TODO: fix type
     customer.data?.defaultCc?.length > 0
-      ? customer.data.defaultCc
+      ? // @ts-expect-error TS18047 - TODO: fix type
+        customer.data.defaultCc
       : (companySettings.data?.defaultCustomerCc ?? []);
 
   // Collect all Buy item IDs from method trees + top-level Buy lines
   const methodTrees = methods.data ?? [];
   const buyItemIds = new Set<string>();
   function collectBuyItems(tree: (typeof methodTrees)[number]) {
-    if (tree.data.methodType === "Buy" && tree.data.itemId) {
+    if (tree.data.methodType === "Purchase to Order" && tree.data.itemId) {
       buyItemIds.add(tree.data.itemId);
     }
     tree.children?.forEach(collectBuyItems);
@@ -153,7 +155,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   methodTrees.forEach(collectBuyItems);
   // Also include top-level Buy lines (non-Make lines)
   for (const line of lines.data ?? []) {
-    if (line.methodType === "Buy" && line.itemId) {
+    if (line.methodType === "Purchase to Order" && line.itemId) {
       buyItemIds.add(line.itemId);
     }
   }

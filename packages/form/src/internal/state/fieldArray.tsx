@@ -131,7 +131,7 @@ const useInternalFieldArray = (
     const result: { defaultValue: any; key: string }[] = [];
     arrayValue.forEach((item, index) => {
       result[index] = {
-        key: keyRef.current[index],
+        key: keyRef.current[index]!,
         defaultValue: item
       };
     });

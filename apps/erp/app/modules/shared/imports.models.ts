@@ -3,7 +3,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 // to avoid a circular dependency
-const methodType = ["Buy", "Make", "Pick"] as const;
+const methodType = [
+  "Purchase to Order",
+  "Pull from Inventory",
+  "Make to Order"
+] as const;
 const itemReplenishmentSystems = ["Buy", "Make", "Buy and Make"] as const;
 const itemTrackingTypes = [
   "Inventory",
@@ -685,8 +689,8 @@ export const fieldMappings = {
       enumData: {
         description:
           "How a part should be produced when it is required in production",
-        options: ["Buy", "Pick"],
-        default: "Buy"
+        options: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
+        default: "Purchase to Order"
       }
     },
     itemTrackingType: {
@@ -768,7 +772,7 @@ export const fieldMappings = {
         description:
           "The method type of the part, which describes whether it is bought or made",
         options: methodType,
-        default: "Pick"
+        default: "Pull from Inventory"
       }
     },
     quantity: {
@@ -805,6 +809,135 @@ export const fieldMappings = {
         default: "EA"
       }
     }
+  },
+  workCenter: {
+    id: {
+      label: "Unique ID",
+      required: true,
+      type: "string"
+    },
+    name: {
+      label: "Name",
+      required: true,
+      type: "string"
+    },
+    description: {
+      label: "Description",
+      required: true,
+      type: "string"
+    },
+    defaultStandardFactor: {
+      label: "Standard Factor",
+      required: false,
+      type: "enum",
+      enumData: {
+        description: "The standard factor unit for time tracking",
+        options: [
+          "Hours/Piece",
+          "Hours/100 Pieces",
+          "Hours/1000 Pieces",
+          "Minutes/Piece",
+          "Minutes/100 Pieces",
+          "Minutes/1000 Pieces",
+          "Pieces/Hour",
+          "Pieces/Minute",
+          "Seconds/Piece",
+          "Total Hours",
+          "Total Minutes"
+        ],
+        default: "Hours/Piece"
+      }
+    },
+    laborRate: {
+      label: "Labor Rate",
+      required: true,
+      type: "number"
+    },
+    machineRate: {
+      label: "Machine Rate",
+      required: true,
+      type: "number"
+    },
+    overheadRate: {
+      label: "Overhead Rate",
+      required: true,
+      type: "number"
+    },
+    locationId: {
+      label: "Location",
+      required: true,
+      type: "enum",
+      enumData: {
+        description: "The location of the work center",
+        fetcher: async (
+          client: SupabaseClient<Database>,
+          companyId: string
+        ) => {
+          return client
+            .from("location")
+            .select("id, name")
+            .eq("companyId", companyId)
+            .order("name");
+        }
+      }
+    }
+  },
+  process: {
+    id: {
+      label: "Unique ID",
+      required: true,
+      type: "string"
+    },
+    name: {
+      label: "Name",
+      required: true,
+      type: "string"
+    },
+    processType: {
+      label: "Process Type",
+      required: false,
+      type: "enum",
+      enumData: {
+        description:
+          "Whether the process is Inside (in-house), Outside (outsourced), or both",
+        options: ["Inside", "Outside", "Inside and Outside"],
+        default: "Inside"
+      }
+    },
+    defaultStandardFactor: {
+      label: "Standard Factor",
+      required: false,
+      type: "enum",
+      enumData: {
+        description:
+          "The standard factor unit for time tracking (required for Inside processes)",
+        options: [
+          "Hours/Piece",
+          "Hours/100 Pieces",
+          "Hours/1000 Pieces",
+          "Minutes/Piece",
+          "Minutes/100 Pieces",
+          "Minutes/1000 Pieces",
+          "Pieces/Hour",
+          "Pieces/Minute",
+          "Seconds/Piece",
+          "Total Hours",
+          "Total Minutes"
+        ],
+        default: "Hours/Piece"
+      }
+    },
+    completeAllOnScan: {
+      label: "Complete All On Scan",
+      required: false,
+      type: "enum",
+      enumData: {
+        description:
+          "Whether scanning a barcode should complete all operations for this process",
+        options: ["true", "false"],
+        default: "false"
+      }
+    }
   }
 } as const;
 
@@ -818,7 +951,9 @@ export const importPermissions: Record<keyof typeof fieldMappings, string> = {
   methodMaterial: "parts",
   tool: "parts",
   fixture: "parts",
-  consumable: "parts"
+  consumable: "parts",
+  workCenter: "production",
+  process: "production"
 };
 
 export const importSchemas: Record<
@@ -1191,5 +1326,58 @@ export const importSchemas: Record<
       .string()
       .optional()
       .describe("The unit of measure of the part")
+  }),
+  workCenter: z.object({
+    id: z
+      .string()
+      .min(1, { message: "ID is required" })
+      .describe("The unique ID of the work center"),
+    name: z
+      .string()
+      .min(1, { message: "Name is required" })
+      .describe("The name of the work center"),
+    description: z
+      .string()
+      .min(1, { message: "Description is required" })
+      .describe("The description of the work center"),
+    defaultStandardFactor: z
+      .string()
+      .optional()
+      .describe("The standard factor unit for time tracking"),
+    laborRate: z.string().describe("The labor rate for the work center"),
+    machineRate: z.string().describe("The machine rate for the work center"),
+    overheadRate: z.string().describe("The overhead rate for the work center"),
+    locationId: z
+      .string()
+      .min(1, { message: "Location is required" })
+      .describe("The location ID of the work center")
+  }),
+  process: z.object({
+    id: z
+      .string()
+      .min(1, { message: "ID is required" })
+      .describe("The unique ID of the process"),
+    name: z
+      .string()
+      .min(1, { message: "Name is required" })
+      .describe("The name of the process"),
+    processType: z
+      .string()
+      .optional()
+      .describe(
+        "Whether the process is Inside (in-house), Outside (outsourced), or both"
+      ),
+    defaultStandardFactor: z
+      .string()
+      .optional()
+      .describe(
+        "The standard factor unit for time tracking (required for Inside processes)"
+      ),
+    completeAllOnScan: z
+      .string()
+      .optional()
+      .describe(
+        "Whether scanning a barcode should complete all operations for this process"
+      )
   })
 } as const;

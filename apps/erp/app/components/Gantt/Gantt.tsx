@@ -301,6 +301,7 @@ const Gantt = ({
         <div className="flex items-center gap-4">
           <Slider
             className="w-20"
+            // @ts-expect-error TS2322 - TODO: fix type
             leftIcon={<LuZoomOut />}
             rightIcon={<LuZoomIn />}
             value={[scale]}

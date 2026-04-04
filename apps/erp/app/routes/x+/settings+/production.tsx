@@ -1,7 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Boolean, Submit, ValidatedForm, validator } from "@carbon/form";
+import { Submit, ValidatedForm, validator } from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -10,19 +10,20 @@ import {
   CardHeader,
   CardTitle,
   Heading,
+  HStack,
   Label,
   ScrollArea,
+  Switch,
   toast,
   VStack
 } from "@carbon/react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { Users } from "~/components/Form";
 import {
   getCompanySettings,
   jobCompletedValidator,
-  jobTravelerSettingsValidator,
   updateJobTravelerWorkInstructions
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -84,18 +85,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "jobTraveler") {
-    const validation = await validator(jobTravelerSettingsValidator).validate(
-      formData
-    );
-
-    if (validation.error) {
-      return { success: false, message: "Invalid form data" };
-    }
-
+    const enabled = formData.get("enabled") === "true";
     const update = await updateJobTravelerWorkInstructions(
       client,
       companyId,
-      validation.data.jobTravelerIncludeWorkInstructions
+      enabled
     );
 
     if (update.error) return { success: false, message: update.error.message };
@@ -109,6 +103,7 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function ProductionSettingsRoute() {
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const toggleFetcher = useFetcher<typeof action>();
 
   useEffect(() => {
     if (fetcher.data?.success === true && fetcher?.data?.message) {
@@ -119,6 +114,25 @@ export default function ProductionSettingsRoute() {
       toast.error(fetcher.data.message);
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
+
+  useEffect(() => {
+    if (toggleFetcher.data?.success === true && toggleFetcher?.data?.message) {
+      toast.success(toggleFetcher.data.message);
+    }
+    if (toggleFetcher.data?.success === false && toggleFetcher?.data?.message) {
+      toast.error(toggleFetcher.data.message);
+    }
+  }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
+
+  const handleJobTravelerToggle = useCallback(
+    (checked: boolean) => {
+      toggleFetcher.submit(
+        { intent: "jobTraveler", enabled: String(checked) },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
@@ -181,44 +195,35 @@ export default function ProductionSettingsRoute() {
         </Card>
 
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={jobTravelerSettingsValidator}
-            defaultValues={{
-              jobTravelerIncludeWorkInstructions:
-                companySettings.jobTravelerIncludeWorkInstructions ?? false
-            }}
-            fetcher={fetcher}
-          >
-            <input type="hidden" name="intent" value="jobTraveler" />
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                Job Traveler
-              </CardTitle>
-              <CardDescription>
-                Configure the content displayed on job traveler PDFs.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-2 max-w-[400px]">
-                <Boolean
-                  name="jobTravelerIncludeWorkInstructions"
-                  description="Include Work Instructions"
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") === "jobTraveler"
+          <CardHeader>
+            <CardTitle>Job Traveler</CardTitle>
+            <CardDescription>
+              Configure the content displayed on job traveler PDFs.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between items-center">
+              <VStack className="items-start gap-1">
+                <span className="font-medium">
+                  {companySettings.jobTravelerIncludeWorkInstructions
+                    ? "Work instructions are included"
+                    : "Work instructions are not included"}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {companySettings.jobTravelerIncludeWorkInstructions
+                    ? "Job traveler PDFs include work instructions."
+                    : "Enable to include work instructions on job traveler PDFs."}
+                </span>
+              </VStack>
+              <Switch
+                checked={
+                  companySettings.jobTravelerIncludeWorkInstructions ?? false
                 }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
+                onCheckedChange={handleJobTravelerToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardContent>
         </Card>
       </VStack>
     </ScrollArea>

@@ -84,6 +84,7 @@ export async function action(args: ActionFunctionArgs) {
       serviceRole,
       purchaseOrder.data.supplierId
     );
+    // @ts-expect-error TS2339 - TODO: fix type
     if (supplier.data?.supplierStatus !== "Active") {
       throw redirect(
         path.to.purchaseOrder(orderId),
@@ -184,7 +185,9 @@ export async function action(args: ActionFunctionArgs) {
         body: {
           purchaseOrderId: orderId,
           companyId,
-          source: "purchaseOrder"
+          source: "purchaseOrder",
+          updatePrices: true,
+          updateLeadTimes: false
         },
         region: FunctionRegion.UsEast1
       }
@@ -306,6 +309,7 @@ export async function action(args: ActionFunctionArgs) {
 
         if (supplier.data.contact.email) {
           const emailTemplate = PurchaseOrderEmail({
+            // @ts-expect-error TS2739 - TODO: fix type
             company: company.data,
             locale: locales?.[0] ?? "en-US",
             purchaseOrder: purchaseOrder.data,

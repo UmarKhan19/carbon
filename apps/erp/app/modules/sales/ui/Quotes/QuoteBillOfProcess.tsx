@@ -71,7 +71,6 @@ import { DirectionAwareTabs, EmployeeAvatar, TimeTypeIcon } from "~/components";
 import {
   Hidden,
   InputControlled,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Process,

@@ -65,7 +65,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
         props.options.length === 1 &&
         !value // Only auto-select if no value is already set
       ) {
-        setValue(props.options[0].value);
+        setValue(props.options[0]!.value);
       }
     }, [autoSelectSingleOption, props.options, setValue, value]);
 

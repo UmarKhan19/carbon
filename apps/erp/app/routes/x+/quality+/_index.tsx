@@ -46,7 +46,6 @@ import {
   LuEllipsisVertical,
   LuFile,
   LuInbox,
-  LuShieldAlert,
   LuShieldCheck,
   LuShieldX
 } from "react-icons/lu";
@@ -271,7 +270,6 @@ function getPriorityVariant(priority: string | null) {
 export default function QualityDashboard() {
   const {
     openIssuesCount,
-    uncontainedCount,
     containedCount,
     openActionsCount,
     issueTypes,
@@ -353,7 +351,7 @@ export default function QualityDashboard() {
   return (
     <div className="flex flex-col gap-4 w-full p-4 h-[calc(100dvh-var(--header-height))] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-muted-foreground">
       {/* KPI Cards */}
-      <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuCircleAlert className="text-muted-foreground" />
@@ -371,31 +369,6 @@ export default function QualityDashboard() {
               >
                 <Link
                   to={`${path.to.issues}?filter=status:in:${OPEN_ISSUE_STATUSES.join(",")}`}
-                >
-                  View
-                </Link>
-              </Button>
-            </HStack>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex-row gap-2">
-            <LuShieldAlert className="text-muted-foreground" />
-            <CardTitle>Uncontained</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <HStack className="justify-between w-full items-center">
-              <h3 className="text-5xl font-medium tracking-tighter">
-                {uncontainedCount}
-              </h3>
-              <Button
-                rightIcon={<LuArrowUpRight />}
-                variant="secondary"
-                asChild
-              >
-                <Link
-                  to={`${path.to.issues}?filter=containmentStatus:eq:Uncontained`}
                 >
                   View
                 </Link>

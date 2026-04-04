@@ -16,7 +16,6 @@ import type { z } from "zod";
 import {
   Employee,
   Hidden,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select,
   Submit,

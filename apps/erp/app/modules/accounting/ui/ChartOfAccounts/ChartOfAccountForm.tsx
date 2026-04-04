@@ -16,7 +16,6 @@ import type { z } from "zod";
 import {
   AccountCategory,
   AccountSubcategory,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   Combobox,
   CustomFormFields,

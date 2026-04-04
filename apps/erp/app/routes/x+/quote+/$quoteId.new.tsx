@@ -81,7 +81,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const quoteLineId = createQuotationLine.data.id;
 
-  if (d.methodType === "Buy") {
+  if (d.methodType === "Purchase to Order") {
     const quantities = d.quantity ?? [1];
     const priceMap = await getSupplierPriceBreaksForItems(serviceRole, [
       d.itemId
@@ -101,7 +101,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  if (d.methodType === "Make") {
+  if (d.methodType === "Make to Order") {
     const upsertMethod = await upsertQuoteLineMethod(serviceRole, {
       quoteId,
       quoteLineId,

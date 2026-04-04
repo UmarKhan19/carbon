@@ -26,6 +26,7 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
 import {
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
   Boolean,
   ItemPostingGroup,
   Tags,
@@ -454,7 +455,7 @@ const MaterialProperties = () => {
               </Badge>
             )}
             options={methodType
-              .filter((type) => type !== "Make")
+              .filter((type) => type !== "Make to Order")
               .map((type) => ({
                 value: type,
                 label: (
@@ -625,7 +626,7 @@ const MaterialProperties = () => {
             supplierParts.map((method) => (
               <MethodBadge
                 key={method.id}
-                type="Buy"
+                type="Purchase to Order"
                 text={
                   suppliers.find((s) => s.id === method.supplierId)?.name ?? ""
                 }
@@ -635,7 +636,7 @@ const MaterialProperties = () => {
           {pickMethods.map((method) => (
             <MethodBadge
               key={method.locationId}
-              type="Pick"
+              type="Pull from Inventory"
               text={
                 locations.find((l) => l.id === method.locationId)?.name ?? ""
               }

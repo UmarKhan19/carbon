@@ -31,7 +31,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");
   const labelSizeId =
-    labelParam || companySettings.data?.productLabelSize || "avery5160";
+    labelParam || companySettings?.data?.productLabelSize || "avery5160";
 
   const labelSize = labelSizes.find((size) => size.id === labelSizeId);
 
@@ -46,7 +46,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const stream = await renderToStream(
-    <ProductLabelPDF items={[labelItem]} labelSize={labelSize} />
+    <ProductLabelPDF items={[labelItem!]} labelSize={labelSize} />
   );
 
   const body: Buffer = await new Promise((resolve, reject) => {
@@ -64,5 +64,5 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "Content-Type": "application/pdf",
     "Content-Disposition": `inline; filename="${company.data.name} - Entity Labels.pdf"`
   });
-  return new Response(body, { status: 200, headers });
+  return new Response(new Uint8Array(body), { status: 200, headers });
 }

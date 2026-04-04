@@ -15,7 +15,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       body: request.body,
       headers,
       duplex: "half" // Add duplex option when sending body
-    });
+    } as RequestInit);
 
     return response;
   } catch (error) {

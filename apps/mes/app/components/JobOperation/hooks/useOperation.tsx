@@ -47,6 +47,7 @@ export function useOperation({
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { carbon, accessToken } = useCarbon();
   const user = useUser();
+
   const revalidator = useRevalidator();
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const channelRef = useRef<RealtimeChannel | null>(null);

@@ -2359,7 +2359,7 @@ async function buildCostEffects(
     .from("quoteMaterial")
     .select("id, itemId, unitCost")
     .eq("quoteLineId", quoteLineId)
-    .eq("methodType", "Buy");
+    .eq("methodType", "Purchase to Order");
 
   const buyItemIds = [
     ...new Set((buyMaterials.data ?? []).map((m) => m.itemId))
@@ -2511,9 +2511,9 @@ async function buildCostEffects(
     const d = node.data;
     const qty = d.quantity * parentQuantity;
 
-    if (d.methodType === "Buy") {
+    if (d.methodType === "Purchase to Order") {
       pushBuyCostEffect(d.itemId, d.itemType, qty, d.unitCost);
-    } else if (d.methodType === "Pick") {
+    } else if (d.methodType === "Pull from Inventory") {
       const costFn = (outerQty: number) => d.unitCost * qty * outerQty;
       const key =
         d.itemType === "Material"

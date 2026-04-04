@@ -1,6 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
 import { Badge, Button, HStack } from "@carbon/react";
-import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
 import { Combobox, Hidden, Submit } from "~/components/Form";
@@ -28,7 +27,10 @@ type CategoryGroup = {
   fields: AccountDefaultField[];
 };
 
-const badgeColors: Record<BadgeType, string> = {
+const badgeColors: Record<
+  BadgeType,
+  "green" | "red" | "blue" | "yellow" | "orange"
+> = {
   Asset: "green",
   Liability: "red",
   Equity: "blue",
@@ -413,7 +415,7 @@ const AccountDefaultsForm = ({
 
   const accountOptions: Record<
     AccountType,
-    { value: string; label: ReactNode }[]
+    { value: string; label: string | JSX.Element }[]
   > = useMemo(
     () => ({
       income: incomeStatementAccounts.map((c) => ({

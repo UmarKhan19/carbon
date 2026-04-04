@@ -387,7 +387,7 @@ function NodePreview({ node }: { node: FlatTreeItem<QuoteMethod> }) {
           <span>{node.data.itemType}</span>
         </HStack>
       </VStack>
-      {node.data.methodType === "Make" && (
+      {node.data.methodType === "Make to Order" && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
             Make Method Version
@@ -415,7 +415,7 @@ function NodePreview({ node }: { node: FlatTreeItem<QuoteMethod> }) {
 function getNodePath(node: FlatTreeItem<QuoteMethod>) {
   return node.data.isRoot
     ? path.to.quoteLine(node.data.quoteId, node.data.quoteLineId)
-    : node.data.methodType === "Make"
+    : node.data.methodType === "Make to Order"
       ? path.to.quoteLineMakeMethod(
           node.data.quoteId,
           node.data.quoteLineId,

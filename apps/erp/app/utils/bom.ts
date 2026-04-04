@@ -119,7 +119,7 @@ export function calculateMadePartCosts<
   for (let i = nodes.length - 1; i >= 0; i--) {
     const node = nodes[i];
 
-    if (node.data.methodType !== "Make" && !node.hasChildren) {
+    if (node.data.methodType !== "Make to Order" && !node.hasChildren) {
       costMap.set(node.id, node.data.unitCost ?? 0);
       continue;
     }

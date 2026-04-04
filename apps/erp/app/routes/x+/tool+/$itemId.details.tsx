@@ -223,21 +223,28 @@ export default function ToolDetailsRoute() {
             subTitle={toolData.toolSummary?.readableIdWithRevision ?? ""}
             notes={toolData.toolSummary?.notes as JSONContent}
           />
-          <BillOfMaterial
-            key={`bom:${itemId}`}
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            materials={methodData.methodMaterials ?? []}
-            // @ts-ignore
-            operations={methodData.methodOperations}
-          />
-          <BillOfProcess
-            key={`bop:${itemId}`}
-            makeMethod={methodData.makeMethod}
-            // @ts-ignore
-            operations={methodData.methodOperations ?? []}
-            tags={tags}
-          />
+          {["Make", "Buy and Make"].includes(
+            toolData.toolSummary?.replenishmentSystem ?? ""
+          ) && (
+            <>
+              <BillOfMaterial
+                key={`bom:${itemId}`}
+                makeMethod={methodData.makeMethod}
+                // @ts-ignore
+                materials={methodData.methodMaterials ?? []}
+                // @ts-ignore
+                operations={methodData.methodOperations}
+                replenishmentSystem={toolData.toolSummary?.replenishmentSystem}
+              />
+              <BillOfProcess
+                key={`bop:${itemId}`}
+                makeMethod={methodData.makeMethod}
+                // @ts-ignore
+                operations={methodData.methodOperations ?? []}
+                tags={tags}
+              />
+            </>
+          )}
         </>
       )}
       {permissions.is("employee") && (

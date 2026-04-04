@@ -506,7 +506,7 @@ serve(async (req: Request) => {
             // For Make: estimatedQuantity is the good quantity (without scrap)
             // For Buy/Pick: estimatedQuantity includes scrap since that's what we procure
             const estimatedQuantity =
-              node.data.methodType === "Make" ? targetQuantity : totalWithScrap;
+              node.data.methodType === "Make to Order" ? targetQuantity : totalWithScrap;
             // operationQuantity should be the total (including scrap) since that's what we need to make
             const operationQuantity = totalWithScrap;
             // Pass total (including scrap) to children so cascade works correctly
@@ -877,7 +877,7 @@ serve(async (req: Request) => {
               // For Make: estimatedQuantity is the good quantity (without scrap)
               // For Buy/Pick: estimatedQuantity includes scrap since that's what we procure
               const childEstimatedQuantity =
-                methodType === "Make" ? childTargetQuantity : childTotalWithScrap;
+                methodType === "Make to Order" ? childTargetQuantity : childTotalWithScrap;
 
               return {
                 jobId,
@@ -945,16 +945,16 @@ serve(async (req: Request) => {
             }
 
             const madeMaterials = materialsWithConfiguredFields.filter(
-              (material) => material.methodType === "Make"
+              (material) => material.methodType === "Make to Order"
             );
 
             const pickedOrBoughtMaterials =
               materialsWithConfiguredFields.filter(
-                (material) => material.methodType !== "Make"
+                (material) => material.methodType !== "Make to Order"
               );
 
             const madeChildren = node.children.filter(
-              (child) => child.data.methodType === "Make"
+              (child) => child.data.methodType === "Make to Order"
             );
 
             console.log("[traverseMethod] materials", {
@@ -1204,7 +1204,7 @@ serve(async (req: Request) => {
             const nodeScrapQuantity = targetQuantity * nodeScrapPercentage;
             const totalWithScrap = Math.ceil(targetQuantity + nodeScrapQuantity);
             const estimatedQuantity =
-              node.data.methodType === "Make" ? targetQuantity : totalWithScrap;
+              node.data.methodType === "Make to Order" ? targetQuantity : totalWithScrap;
             const operationQuantity = totalWithScrap;
             const totalQuantityForChildren = totalWithScrap;
 
@@ -1379,7 +1379,7 @@ serve(async (req: Request) => {
               // For Make: estimatedQuantity is the good quantity (without scrap)
               // For Buy/Pick: estimatedQuantity includes scrap since that's what we procure
               const childEstimatedQuantity =
-                child.data.methodType === "Make"
+                child.data.methodType === "Make to Order"
                   ? childTargetQuantity
                   : childTotalWithScrap;
 
@@ -1423,7 +1423,7 @@ serve(async (req: Request) => {
 
             for await (const child of node.children) {
               const material = await mapMethodMaterialToJobMaterial(child);
-              if (child.data.methodType === "Make") {
+              if (child.data.methodType === "Make to Order") {
                 madeMaterials.push(material);
               } else {
                 pickedOrBoughtMaterials.push(material);
@@ -1442,7 +1442,7 @@ serve(async (req: Request) => {
                 .execute();
 
               const madeChildren = node.children.filter(
-                (child) => child.data.methodType === "Make"
+                (child) => child.data.methodType === "Make to Order"
               );
 
               for (const [index, child] of madeChildren.entries()) {
@@ -2072,16 +2072,16 @@ serve(async (req: Request) => {
             }
 
             const madeMaterials = materialsWithConfiguredFields.filter(
-              (material) => material.methodType === "Make"
+              (material) => material.methodType === "Make to Order"
             );
 
             const pickedOrBoughtMaterials =
               materialsWithConfiguredFields.filter(
-                (material) => material.methodType !== "Make"
+                (material) => material.methodType !== "Make to Order"
               );
 
             const madeChildren = node.children.filter(
-              (child) => child.data.methodType === "Make"
+              (child) => child.data.methodType === "Make to Order"
             );
 
             console.log("[traverseMethod] materials", {
@@ -2462,10 +2462,10 @@ serve(async (req: Request) => {
             });
 
             const madeChildren = node.children.filter(
-              (child) => child.data.methodType === "Make"
+              (child) => child.data.methodType === "Make to Order"
             );
             const unmadeChildren = node.children.filter(
-              (child) => child.data.methodType !== "Make"
+              (child) => child.data.methodType !== "Make to Order"
             );
 
             const madeMaterials = madeChildren.map(
@@ -2600,7 +2600,7 @@ serve(async (req: Request) => {
         const madeItemIds: string[] = [];
 
         traverseJobMethod(jobMethodTree, (node: JobMethodTreeItem) => {
-          if (node.data.itemId && node.data.methodType === "Make") {
+          if (node.data.itemId && node.data.methodType === "Make to Order") {
             madeItemIds.push(node.data.itemId);
           }
         });
@@ -2626,7 +2626,7 @@ serve(async (req: Request) => {
             [];
 
           traverseJobMethod(jobMethodTree!, (node: JobMethodTreeItem) => {
-            if (node.data.itemId && node.data.methodType === "Make") {
+            if (node.data.itemId && node.data.methodType === "Make to Order") {
               makeMethodsToDelete.push(makeMethodByItemId[node.data.itemId]);
             }
 
@@ -2896,7 +2896,7 @@ serve(async (req: Request) => {
         const madeItemIds: string[] = [];
 
         traverseJobMethod(jobMethodTree, (node: JobMethodTreeItem) => {
-          if (node.data.itemId && node.data.methodType === "Make") {
+          if (node.data.itemId && node.data.methodType === "Make to Order") {
             madeItemIds.push(node.data.itemId);
           }
         });
@@ -2926,7 +2926,7 @@ serve(async (req: Request) => {
             [];
 
           traverseJobMethod(jobMethodTree, (node: JobMethodTreeItem) => {
-            if (node.data.itemId && node.data.methodType === "Make") {
+            if (node.data.itemId && node.data.methodType === "Make to Order") {
               makeMethodsToDelete.push(makeMethodByItemId[node.data.itemId]);
             }
 
@@ -3498,7 +3498,7 @@ serve(async (req: Request) => {
         await traverseQuoteMethod(
           quoteMethodTree,
           (node: QuoteMethodTreeItem) => {
-            if (node.data.itemId && node.data.methodType === "Make") {
+            if (node.data.itemId && node.data.methodType === "Make to Order") {
               madeItemIds.push(node.data.itemId);
             }
           }
@@ -3531,7 +3531,7 @@ serve(async (req: Request) => {
           await traverseQuoteMethod(
             quoteMethodTree,
             (node: QuoteMethodTreeItem) => {
-              if (node.data.itemId && node.data.methodType === "Make") {
+              if (node.data.itemId && node.data.methodType === "Make to Order") {
                 makeMethodsToDelete.push(makeMethodByItemId[node.data.itemId]);
               }
 
@@ -3802,7 +3802,7 @@ serve(async (req: Request) => {
         const madeItemIds: string[] = [];
 
         traverseQuoteMethod(quoteMethodTree, (node: QuoteMethodTreeItem) => {
-          if (node.data.itemId && node.data.methodType === "Make") {
+          if (node.data.itemId && node.data.methodType === "Make to Order") {
             madeItemIds.push(node.data.itemId);
           }
         });
@@ -3834,7 +3834,7 @@ serve(async (req: Request) => {
           await traverseQuoteMethod(
             quoteMethodTree!,
             (node: QuoteMethodTreeItem) => {
-              if (node.data.itemId && node.data.methodType === "Make") {
+              if (node.data.itemId && node.data.methodType === "Make to Order") {
                 makeMethodsToDelete.push(makeMethodByItemId[node.data.itemId]);
               }
 
@@ -4171,7 +4171,7 @@ serve(async (req: Request) => {
                 );
                 const rootTarget = job.data?.quantity ?? 1;
                 const rootScrapQuantity =
-                  node.data.methodType === "Make"
+                  node.data.methodType === "Make to Order"
                     ? rootTarget * rootScrapPercentage
                     : 0;
                 const rootTotalWithScrap = Math.ceil(
@@ -4180,7 +4180,7 @@ serve(async (req: Request) => {
                 // For Make: estimatedQuantity is good quantity (without scrap)
                 // For Buy/Pick: estimatedQuantity = total (but scrap is 0, so same as target)
                 const rootEstimatedQuantity =
-                  node.data.methodType === "Make"
+                  node.data.methodType === "Make to Order"
                     ? rootTarget
                     : rootTotalWithScrap;
 
@@ -4220,7 +4220,7 @@ serve(async (req: Request) => {
                 const childTargetQuantity =
                   nodeTotalForChildren * (child.data.quantity ?? 1);
                 const childScrapQuantity =
-                  child.data.methodType === "Make"
+                  child.data.methodType === "Make to Order"
                     ? childTargetQuantity * itemScrapPercentage
                     : 0;
                 const childTotalWithScrap = Math.ceil(
@@ -4229,7 +4229,7 @@ serve(async (req: Request) => {
                 // For Make: estimatedQuantity is good quantity (without scrap)
                 // For Buy/Pick: estimatedQuantity = total (but scrap is 0, so same as target)
                 const childEstimatedQuantity =
-                  child.data.methodType === "Make"
+                  child.data.methodType === "Make to Order"
                     ? childTargetQuantity
                     : childTotalWithScrap;
 
@@ -4936,7 +4936,7 @@ serve(async (req: Request) => {
               throw new Error("Failed to insert quote line");
             }
 
-            if (line.methodType === "Make") {
+            if (line.methodType === "Make to Order") {
               // we only need further processing on make lines
               oldLineToNewLineMap[id] = newLine.id;
             }

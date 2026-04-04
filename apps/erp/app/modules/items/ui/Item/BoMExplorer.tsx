@@ -298,7 +298,7 @@ const BoMExplorer = ({
                               itemType,
                               itemId,
                               methodId,
-                              node.data.methodType === "Make"
+                              node.data.methodType === "Make to Order"
                                 ? node.data.materialMakeMethodId
                                 : node.data.makeMethodId,
                               node
@@ -586,7 +586,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
           <span>{node.data.itemType}</span>
         </HStack>
       </VStack>
-      {node.data.methodType === "Make" && node.data.version && (
+      {node.data.methodType === "Make to Order" && node.data.version && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
             Make Method Version

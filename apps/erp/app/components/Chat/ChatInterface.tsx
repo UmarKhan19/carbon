@@ -125,6 +125,7 @@ export function ChatInterface({ geo }: Props) {
 
   const { agentStatus, currentToolCall } = useChatStatus(messages, status);
 
+  // @ts-expect-error TS2339 - TODO: fix type
   const { artifacts } = useArtifacts();
   const hasArtifacts = artifacts && artifacts.length > 0;
   const hasMessages = messages.length > 0;

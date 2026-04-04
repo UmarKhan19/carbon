@@ -115,7 +115,7 @@ export function useLineCosts({
     function walkTree(tree: EnhancedTree) {
       const { data } = tree;
 
-      if (data.methodType === "Buy") {
+      if (data.methodType === "Purchase to Order") {
         pushBuyCostEffect(
           data.itemId,
           data.itemType,
@@ -123,7 +123,7 @@ export function useLineCosts({
           data.unitCost,
           supplierPriceMap
         );
-      } else if (data.methodType === "Pick") {
+      } else if (data.methodType === "Pull from Inventory") {
         // Pick items use static average cost
         const costFn = (quantity: number) =>
           data.unitCost * data.quantity * quantity;
@@ -373,9 +373,9 @@ export function useLineCosts({
       }
     }
 
-    if (methodTree && line.methodType === "Make") {
+    if (methodTree && line.methodType === "Make to Order") {
       walkTree(methodTree);
-    } else if (line.methodType === "Buy") {
+    } else if (line.methodType === "Purchase to Order") {
       pushBuyCostEffect(
         line.itemId ?? "",
         "Material",

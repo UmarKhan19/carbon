@@ -98,7 +98,7 @@ export const jiraSyncFunction = inngest.createFunction(
       const employees = await getCompanyEmployees(carbon, payload.companyId, [
         fullIssue.fields.assignee.emailAddress
       ]);
-      assignee = employees.length > 0 ? employees[0].userId : null;
+      assignee = employees.length > 0 ? employees[0]!.userId : null;
     }
 
     // Update the linked action task

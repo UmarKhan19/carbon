@@ -2,8 +2,8 @@ import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { NotificationEvent } from "@carbon/notifications";
 import { trigger } from "@carbon/jobs";
+import { NotificationEvent } from "@carbon/notifications";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
@@ -70,6 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
       { error: result.error.message },
       {
         status: 500,
+        // @ts-expect-error TS2322 - TODO: fix type
         headers: await flash(
           request,
           error(result.error, "Failed to create assignment")

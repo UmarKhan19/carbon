@@ -1,10 +1,11 @@
 import { error, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import {
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
   Boolean,
   Input,
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: Number is a component name
   Number,
   Submit,
   ValidatedForm,
@@ -47,7 +48,6 @@ import {
   getAccountsReceivableBillingAddress,
   getCompanySettings,
   getTerms,
-  includeThumbnailsOnSalesPdfsValidator,
   quoteLineCategoryMarkupsSettingsValidator,
   rfqReadyValidator,
   updateAccountsReceivableAddressSetting,
@@ -136,25 +136,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
       return { success: true, message: "Digital quote setting updated" };
 
-    case "pdfs":
-      const thumbnailsValidation = await validator(
-        includeThumbnailsOnSalesPdfsValidator
-      ).validate(formData);
-
-      if (thumbnailsValidation.error) {
-        return { success: false, message: "Invalid form data" };
-      }
-
+    case "pdfs": {
+      const pdfEnabled = formData.get("enabled") === "true";
       const thumbnailsResult = await updateSalesPdfThumbnails(
         client,
         companyId,
-        thumbnailsValidation.data.includeThumbnailsOnSalesPdfs
+        pdfEnabled
       );
 
       if (thumbnailsResult.error)
         return { success: false, message: thumbnailsResult.error.message };
 
       return { success: true, message: "PDF settings updated" };
+    }
 
     case "rfq":
       const rfqValidation =
@@ -604,44 +598,39 @@ export default function SalesSettingsRoute() {
         </Card>
 
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={includeThumbnailsOnSalesPdfsValidator}
-            defaultValues={{
-              includeThumbnailsOnSalesPdfs:
-                companySettings.includeThumbnailsOnSalesPdfs ?? true
-            }}
-            fetcher={fetcher}
-          >
-            <input type="hidden" name="intent" value="pdfs" />
-            <CardHeader>
-              <CardTitle>PDFs</CardTitle>
-              <CardDescription>
-                Show part thumbnails on quotes, sales orders, sales invoices,
-                and shipments.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-2 max-w-[400px]">
-                <Boolean
-                  name="includeThumbnailsOnSalesPdfs"
-                  description="Include Thumbnails in PDFs"
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") ===
-                    "includeThumbnailsOnSalesPdfs"
-                }
-              >
-                Save
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
+          <CardHeader>
+            <CardTitle>PDFs</CardTitle>
+            <CardDescription>
+              Show part thumbnails on quotes, sales orders, sales invoices, and
+              shipments.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between items-center">
+              <VStack className="items-start gap-1">
+                <span className="font-medium">
+                  {companySettings.includeThumbnailsOnSalesPdfs
+                    ? "Thumbnails are included"
+                    : "Thumbnails are not included"}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {companySettings.includeThumbnailsOnSalesPdfs
+                    ? "Part thumbnails are shown on sales PDFs."
+                    : "Enable to show part thumbnails on sales PDFs."}
+                </span>
+              </VStack>
+              <Switch
+                checked={companySettings.includeThumbnailsOnSalesPdfs ?? true}
+                onCheckedChange={(checked) => {
+                  toggleFetcher.submit(
+                    { intent: "pdfs", enabled: String(checked) },
+                    { method: "POST" }
+                  );
+                }}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardContent>
         </Card>
         <CategoryMarkupsCard
           companySettings={companySettings}

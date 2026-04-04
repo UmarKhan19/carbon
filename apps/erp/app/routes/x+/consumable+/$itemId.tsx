@@ -141,7 +141,7 @@ export default function ConsumableRoute() {
                         module: "purchasing",
                         children: purchaseOrderLines.map((po) => ({
                           ...po,
-                          methodType: "Buy"
+                          methodType: "Purchase to Order"
                         }))
                       },
                       {
@@ -150,7 +150,7 @@ export default function ConsumableRoute() {
                         module: "inventory",
                         children: receiptLines.map((receipt) => ({
                           ...receipt,
-                          methodType: "Pick"
+                          methodType: "Pull from Inventory"
                         }))
                       },
 

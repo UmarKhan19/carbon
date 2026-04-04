@@ -36,7 +36,6 @@ import {
   Input,
   InputControlled,
   ItemPostingGroup,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select,
   Submit,
@@ -178,7 +177,7 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
     initialValues.replenishmentSystem ?? "Buy"
   );
   const [defaultMethodType, setDefaultMethodType] = useState<string>(
-    initialValues.defaultMethodType ?? "Pick"
+    initialValues.defaultMethodType ?? "Pull from Inventory"
   );
   const itemReplenishmentSystemOptions =
     itemReplenishmentSystems.map((itemReplenishmentSystem) => ({
@@ -268,9 +267,9 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                   onChange={(newValue) => {
                     setReplenishmentSystem(newValue?.value ?? "Buy");
                     if (newValue?.value === "Buy") {
-                      setDefaultMethodType("Pick");
+                      setDefaultMethodType("Pull from Inventory");
                     } else {
-                      setDefaultMethodType("Make");
+                      setDefaultMethodType("Make to Order");
                     }
                   }}
                 />
@@ -280,7 +279,9 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                   replenishmentSystem={replenishmentSystem}
                   value={defaultMethodType}
                   onChange={(newValue) =>
-                    setDefaultMethodType(newValue?.value ?? "Buy")
+                    setDefaultMethodType(
+                      newValue?.value ?? "Pull from Inventory"
+                    )
                   }
                 />
                 <UnitOfMeasure

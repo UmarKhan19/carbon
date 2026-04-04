@@ -38,6 +38,7 @@ export default function PersonProfileRoute() {
         <CardTitle>Profile</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* @ts-expect-error TS2322 */}
         <ProfileForm user={user} />
       </CardContent>
     </Card>

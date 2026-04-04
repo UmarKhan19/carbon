@@ -59,7 +59,10 @@ const SalesOrderEmail = ({
     // paymentCountryName,
   } = salesOrderLocations;
 
-  const formatter = getCurrencyFormatter(company.baseCurrencyCode, locale);
+  const formatter = getCurrencyFormatter(
+    company.baseCurrencyCode ?? "USD",
+    locale
+  );
   const preview = (
     <Preview>{`${salesOrder.salesOrderId} from ${company.name}`}</Preview>
   );

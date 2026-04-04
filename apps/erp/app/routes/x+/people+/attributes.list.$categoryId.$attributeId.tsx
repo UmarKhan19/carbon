@@ -50,12 +50,13 @@ export default function EditAttributeRoute() {
       initialValues={{
         id: attribute?.id,
         name: attribute?.name,
-        // @ts-ignore
+        // @ts-expect-error
         attributeDataTypeId: attribute?.attributeDataTypeId.toString(),
         userAttributeCategoryId: attribute?.userAttributeCategoryId,
         canSelfManage: attribute.canSelfManage ?? true,
         listOptions: attribute?.listOptions ?? []
       }}
+      // @ts-expect-error TS2322 - TODO: fix type
       dataTypes={attributesRouteData?.dataTypes ?? []}
       onClose={onClose}
     />

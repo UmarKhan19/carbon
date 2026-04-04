@@ -3,7 +3,6 @@ import {
   Hidden,
   Input,
   MultiSelect,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   Select,
   SelectControlled,

@@ -55,7 +55,7 @@ const SalesInvoiceEmail = ({
   } = salesInvoiceLocations;
 
   const currencyCode = salesInvoice.currencyCode ?? company.baseCurrencyCode;
-  const formatter = getCurrencyFormatter(currencyCode, locale);
+  const formatter = getCurrencyFormatter(currencyCode ?? "USD", locale);
   const preview = (
     <Preview>{`${salesInvoice.invoiceId} from ${company.name}`}</Preview>
   );

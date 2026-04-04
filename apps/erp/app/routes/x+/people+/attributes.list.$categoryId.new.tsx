@@ -20,11 +20,12 @@ export default function NewAttributeRoute() {
     <AttributeForm
       initialValues={{
         name: "",
-        // @ts-ignore
+        // @ts-expect-error
         attributeDataTypeId: DataType.Text.toString(),
         userAttributeCategoryId: categoryId,
         canSelfManage: false
       }}
+      // @ts-expect-error TS2322 - TODO: fix type
       dataTypes={attributesRouteData?.dataTypes ?? []}
       onClose={onClose}
     />

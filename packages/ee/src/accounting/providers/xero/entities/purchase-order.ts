@@ -20,6 +20,7 @@ type PurchaseOrderRow = {
   supplierId: string;
   status:
     | "Draft"
+    | "Needs Approval"
     | "To Review"
     | "Rejected"
     | "To Receive"
@@ -58,6 +59,7 @@ const CARBON_TO_XERO_STATUS: Record<
   Xero.PurchaseOrder["Status"]
 > = {
   Draft: "DRAFT",
+  "Needs Approval": "SUBMITTED",
   "To Review": "SUBMITTED",
   Rejected: "DRAFT",
   Planned: "DRAFT",

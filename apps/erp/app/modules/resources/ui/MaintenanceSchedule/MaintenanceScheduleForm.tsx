@@ -1,5 +1,7 @@
 import {
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
   Boolean,
+  // biome-ignore lint/suspicious/noShadowRestrictedNames: Number is a component name
   Number,
   Select,
   useControlField,

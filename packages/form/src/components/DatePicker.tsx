@@ -55,7 +55,8 @@ const DatePicker = ({
     }
   }, [value]);
 
-  const handleChange = async (newDate: CalendarDate) => {
+  const handleChange = async (newDate: CalendarDate | null) => {
+    if (!newDate) return;
     const formattedDate = newDate ? newDate.toString() : null;
     flushSync(() => {
       setDate(newDate);
@@ -90,7 +91,7 @@ const DatePicker = ({
         isDisabled={isDisabled}
         minValue={minValue}
         maxValue={maxValue}
-        onChange={handleChange}
+        onChange={handleChange as any}
         inline={inline ? DatePickerPreview : undefined}
         helperText={helperText}
         label={label}

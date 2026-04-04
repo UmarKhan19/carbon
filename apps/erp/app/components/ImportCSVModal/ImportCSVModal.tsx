@@ -135,11 +135,13 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
             </ImportCsvContext.Provider>
           </AnimatedSizeContainer>
         </div>
-        <ModalFooter>
-          <Button variant="secondary" onClick={downloadTemplate}>
-            Download Template
-          </Button>
-        </ModalFooter>
+        {page === ImportCSVPage.UploadCSV && (
+          <ModalFooter>
+            <Button variant="secondary" onClick={downloadTemplate}>
+              Download Template
+            </Button>
+          </ModalFooter>
+        )}
       </ModalContent>
     </Modal>
   );

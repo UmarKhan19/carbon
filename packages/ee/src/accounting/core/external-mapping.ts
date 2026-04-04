@@ -73,14 +73,14 @@ export class ExternalIntegrationMappingService {
         createdBy: options?.createdBy ?? null,
         createdAt: now,
         updatedAt: now
-      })
+      } as any)
       .onConflict((oc) =>
         oc
           .columns(["entityType", "entityId", "integration", "companyId"])
           .doUpdateSet({
             externalId,
             allowDuplicateExternalId,
-            metadata: options?.metadata ?? null,
+            metadata: (options?.metadata ?? null) as any,
             lastSyncedAt: now,
             remoteUpdatedAt,
             updatedAt: now
@@ -259,22 +259,22 @@ export class ExternalIntegrationMappingService {
     integration: string,
     limit: number
   ): Promise<string[]> {
-    const result = await this.db
-      .selectFrom(tableName as keyof KyselyDatabase)
-      .leftJoin("externalIntegrationMapping as m", (join) =>
+    const result = await (this.db as any)
+      .selectFrom(tableName)
+      .leftJoin("externalIntegrationMapping as m", (join: any) =>
         join
-          .onRef("m.entityId", "=", `${tableName}.id` as any)
+          .onRef("m.entityId", "=", `${tableName}.id`)
           .on("m.entityType", "=", entityType)
           .on("m.integration", "=", integration)
           .on("m.companyId", "=", this.companyId)
       )
-      .select([`${tableName}.id` as any])
-      .where(`${tableName}.companyId` as any, "=", this.companyId)
+      .select([`${tableName}.id`])
+      .where(`${tableName}.companyId`, "=", this.companyId)
       .where("m.id", "is", null)
       .limit(limit)
       .execute();
 
-    return result.map((r: { id: string }) => r.id);
+    return (result as Array<{ id: string }>).map((r) => r.id);
   }
 
   /**
@@ -336,7 +336,7 @@ export class ExternalIntegrationMappingService {
 
     await this.db
       .insertInto("externalIntegrationMapping")
-      .values(values)
+      .values(values as any)
       .onConflict((oc) =>
         oc
           .columns(["entityType", "entityId", "integration", "companyId"])

@@ -294,7 +294,7 @@ function VirtualizedCommand({
           }}
         >
           {items.map((virtualRow) => {
-            const item = filteredOptions[virtualRow.index];
+            const item = filteredOptions[virtualRow.index]!;
             const isSelected = selected.includes(item.value);
             const isCreateOption = item.value === "create";
 
@@ -379,11 +379,7 @@ function SelectedOption({
   onUnselect: (item: string) => void;
 }) {
   return (
-    <Badge
-      key={item}
-      variant="secondary"
-      className="border border-card shadow-sm"
-    >
+    <Badge key={item} variant="secondary" className="border border-card">
       {options.find((option) => option.value === item)?.label}
       <BadgeCloseButton
         disabled={isReadOnly}

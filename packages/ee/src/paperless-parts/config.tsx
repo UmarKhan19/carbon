@@ -36,9 +36,9 @@ export const PaperlessParts = defineIntegration({
       name: "methodType",
       label: "Material Method Type",
       type: "options",
-      listOptions: ["Buy", "Pick"],
+      listOptions: ["Purchase to Order", "Pull from Inventory"],
       required: false,
-      value: "Pick"
+      value: "Pull from Inventory"
     },
     {
       name: "trackingType",
@@ -68,7 +68,7 @@ export const PaperlessParts = defineIntegration({
     secretKey: z
       .string()
       .min(1, { message: "Webhook Signing Secret is required" }),
-    methodType: z.enum(["Buy", "Pick"]),
+    methodType: z.enum(["Purchase to Order", "Pull from Inventory"]),
     trackingType: z.enum(["Inventory", "Non-Inventory", "Batch"]),
     billOfProcessBlackList: z.array(z.string()).optional(),
     usePaperlessOrderNumber: zfd.checkbox()

@@ -11,6 +11,7 @@ import type {
   operationParameterValidator,
   operationStepValidator,
   operationToolValidator,
+  sourcingType,
   standardFactorType
 } from "./shared.models";
 import type {
@@ -92,6 +93,7 @@ export enum DataType {
 
 export type MethodItemType = (typeof methodItemType)[number];
 export type MethodType = (typeof methodType)[number];
+export type SourcingType = (typeof sourcingType)[number];
 
 export type Note = NonNullable<
   Awaited<ReturnType<typeof getNotes>>["data"]

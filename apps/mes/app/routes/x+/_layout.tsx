@@ -6,7 +6,7 @@ import {
   getCompanies,
   getUser
 } from "@carbon/auth";
-
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   destroyAuthSession,
   requireAuthSession
@@ -16,12 +16,14 @@ import { ItarPopup, useKeyboardWedge, useNProgress } from "@carbon/remix";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import posthog from "posthog-js";
+import { Suspense } from "react";
 import type {
   LoaderFunctionArgs,
   MiddlewareFunction,
   ShouldRevalidateFunction
 } from "react-router";
 import {
+  Await,
   data,
   Outlet,
   redirect,
@@ -29,10 +31,13 @@ import {
   useNavigate
 } from "react-router";
 import { AppSidebar } from "~/components";
+import { ConsolePill } from "~/components/ConsolePill";
+import { PinInOverlay } from "~/components/PinInOverlay";
 import RealtimeDataProvider from "~/components/RealtimeDataProvider";
 import { TimeCardWarning } from "~/components/TimeCardWarning";
 import { userContext } from "~/context";
 import { userMiddleware } from "~/middleware/user";
+import { refreshConsolePinIn } from "~/services/console.server";
 import { getActiveMaintenanceEventsCount } from "~/services/maintenance.service";
 import {
   getActiveJobCount,
@@ -79,24 +84,50 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     throw redirect(path.to.accountSettings);
   }
 
-  // Get the location from middleware context
-  const locationId = context.get(userContext)?.locationId;
+  // Get the location and console state from middleware context
+  const ctx = context.get(userContext);
+  const locationId = ctx?.locationId;
+  const consoleMode = ctx?.consoleMode ?? false;
+  const pinnedInUser = ctx?.pinnedInUser ?? null;
+  const effectiveUserId = ctx?.effectiveUserId ?? userId;
 
-  let [companyPlan, locations, activeEvents, companySettings, openClockEntry] =
-    await Promise.all([
-      getStripeCustomerByCompanyId(companyId, userId),
-      getLocationsByCompany(client, companyId),
-      getActiveJobCount(client, {
-        employeeId: userId,
-        companyId
-      }),
-      client
-        .from("companySettings")
-        .select("timeCardEnabled")
-        .eq("id", companyId)
-        .single(),
-      getOpenClockEntry(client, userId, companyId)
-    ]);
+  const serviceRole = getCarbonServiceRole();
+
+  let [
+    companyPlan,
+    locations,
+    activeEvents,
+    companySettings,
+    openClockEntry,
+    locationEmployees
+  ] = await Promise.all([
+    getStripeCustomerByCompanyId(companyId, userId),
+    getLocationsByCompany(client, companyId),
+    getActiveJobCount(client, {
+      employeeId: effectiveUserId,
+      companyId
+    }),
+    client
+      .from("companySettings")
+      .select("timeCardEnabled, consoleEnabled")
+      .eq("id", companyId)
+      .single(),
+    getOpenClockEntry(client, effectiveUserId, companyId),
+    // Get employees at current location for console mode pin-in filtering
+    consoleMode && locationId
+      ? serviceRole
+          .from("employeeJob")
+          .select("id")
+          .eq("locationId", locationId)
+          .eq("companyId", companyId)
+      : Promise.resolve({ data: [] as { id: string }[] })
+  ]);
+
+  const locationEmployeeIds =
+    locationEmployees.data?.map((e: { id: string }) => e.id) ?? [];
+  const timeCardEnabled =
+    (companySettings.data as any)?.timeCardEnabled ?? false;
+  const consoleEnabled = (companySettings.data as any)?.consoleEnabled ?? false;
 
   // Get active maintenance count after we have the location
   const activeMaintenanceCount = await getActiveMaintenanceEventsCount(
@@ -112,25 +143,47 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     throw new Error(`No locations found for ${company.name}`);
   }
 
-  return data({
-    session: {
-      accessToken,
-      expiresIn,
-      expiresAt
+  // Sliding window: refresh pin-in cookie on every page load
+  const headers = new Headers();
+  if (pinnedInUser && ctx) {
+    headers.append(
+      "Set-Cookie",
+      refreshConsolePinIn(companyId, {
+        userId: pinnedInUser.userId,
+        name: pinnedInUser.name,
+        avatarUrl: pinnedInUser.avatarUrl,
+        pinnedAt: Date.now()
+      })
+    );
+  }
+
+  return data(
+    {
+      session: {
+        accessToken,
+        expiresIn,
+        expiresAt
+      },
+      activeEvents: activeEvents.data ?? 0,
+      activeMaintenanceCount: activeMaintenanceCount.count ?? 0,
+      company,
+      companies: companies.data ?? [],
+      consoleEnabled,
+      consoleMode: consoleEnabled && consoleMode,
+      location: locationId,
+      locationEmployeeIds,
+      locations: locations.data ?? [],
+      openClockEntry: openClockEntry?.data
+        ? getOpenClockEntry(client, userId, companyId)
+        : null,
+      effectiveUserId,
+      pinnedInUser,
+      plan: companyPlan?.planId,
+      timeCardEnabled,
+      user: user.data
     },
-    activeEvents: activeEvents.data ?? 0,
-    activeMaintenanceCount: activeMaintenanceCount.count ?? 0,
-    company,
-    companies: companies.data ?? [],
-    location: locationId,
-    locations: locations.data ?? [],
-    plan: companyPlan?.planId,
-    user: user.data,
-    timeCardEnabled: companySettings.data?.timeCardEnabled ?? false,
-    openClockEntry: openClockEntry.data
-      ? { id: openClockEntry.data.id, clockIn: openClockEntry.data.clockIn }
-      : null
-  });
+    headers.has("Set-Cookie") ? { headers } : undefined
+  );
 }
 
 export default function AuthenticatedRoute() {
@@ -140,11 +193,15 @@ export default function AuthenticatedRoute() {
     activeMaintenanceCount,
     company,
     companies,
+    consoleEnabled,
+    consoleMode,
     location,
+    locationEmployeeIds,
     locations,
-    user,
+    openClockEntry,
+    pinnedInUser,
     timeCardEnabled,
-    openClockEntry
+    user
   } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
@@ -188,14 +245,48 @@ export default function AuthenticatedRoute() {
                   activeMaintenanceCount={activeMaintenanceCount}
                   company={company}
                   companies={companies}
+                  consoleEnabled={consoleEnabled}
+                  consoleMode={consoleMode}
                   location={location}
                   locations={locations}
-                  timeCardEnabled={timeCardEnabled}
                   openClockEntry={openClockEntry}
+                  pinnedInUser={pinnedInUser}
+                  timeCardEnabled={timeCardEnabled}
                 />
                 <Outlet />
                 {timeCardEnabled && (
-                  <TimeCardWarning openClockEntry={openClockEntry} />
+                  <Suspense fallback={null}>
+                    <Await resolve={openClockEntry}>
+                      {(resolved) => (
+                        <TimeCardWarning
+                          openClockEntry={
+                            resolved?.data
+                              ? {
+                                  id: resolved.data.id,
+                                  clockIn: resolved.data.clockIn
+                                }
+                              : null
+                          }
+                        />
+                      )}
+                    </Await>
+                  </Suspense>
+                )}
+                {consoleMode && !pinnedInUser && (
+                  <PinInOverlay
+                    companyId={company.companyId!}
+                    locationEmployeeIds={locationEmployeeIds}
+                    sessionUserId={user?.id ?? ""}
+                    hasPinnedUser={false}
+                  />
+                )}
+                {consoleMode && pinnedInUser && (
+                  <ConsolePill
+                    user={pinnedInUser}
+                    companyId={company.companyId!}
+                    locationEmployeeIds={locationEmployeeIds}
+                    sessionUserId={user?.id ?? ""}
+                  />
                 )}
               </TooltipProvider>
             </SidebarProvider>

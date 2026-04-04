@@ -150,15 +150,15 @@ export const MethodIcon = ({
       return (
         <AiOutlinePartition className={cn(className, "text-foreground")} />
       );
-    case "Buy":
+    case "Purchase to Order":
       return <LuShoppingCart className={cn("text-blue-500", className)} />;
-    case "Make":
+    case "Make to Order":
       return isKit ? (
         <LuHexagon className={cn("text-emerald-500", className)} />
       ) : (
         <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
       );
-    case "Pick":
+    case "Pull from Inventory":
       return <FaCodePullRequest className={cn("text-yellow-500", className)} />;
   }
 

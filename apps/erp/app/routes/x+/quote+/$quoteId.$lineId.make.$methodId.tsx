@@ -110,6 +110,7 @@ export default function QuoteMakeMethodRoute() {
       <QuoteBillOfMaterial
         key={`bom:${methodId}`}
         quoteMakeMethodId={methodId}
+        // @ts-expect-error TS2322 - TODO: fix type
         materials={materials}
         operations={operations}
       />
@@ -117,7 +118,7 @@ export default function QuoteMakeMethodRoute() {
         key={`bop:${methodId}`}
         quoteMakeMethodId={methodId}
         materials={materials}
-        // @ts-ignore
+        // @ts-expect-error
         operations={operations}
         tags={tags}
       />

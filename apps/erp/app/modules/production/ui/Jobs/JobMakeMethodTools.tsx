@@ -555,10 +555,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           }}
         >
           <ModalContent>
-            <ValidatedForm
-              validator={getJobMethodValidator}
-              onSubmit={() => {}}
-            >
+            <ValidatedForm validator={getJobMethodValidator}>
               <ModalHeader>
                 <ModalTitle>Configure Item</ModalTitle>
                 <ModalDescription>Select an item to configure</ModalDescription>

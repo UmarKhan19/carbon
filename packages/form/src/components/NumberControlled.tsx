@@ -38,7 +38,6 @@ type FormNumberProps = NumberFieldProps & {
   onConfigure?: () => void;
 };
 
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 const Number = forwardRef<HTMLInputElement, FormNumberProps>(
   (
     {

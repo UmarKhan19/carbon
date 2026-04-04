@@ -13,7 +13,6 @@ import {
 import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
 import { useFetcher, useLoaderData } from "react-router";
 import type { z } from "zod";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
 import { Hidden, Item, Location, Number, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";

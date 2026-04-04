@@ -55,7 +55,7 @@ export type FieldProps = {
   /**
    * Validates the field.
    */
-  validate: () => void;
+  validate: () => void | Promise<any>;
   /**
    * The default value of the field, if there is one.
    */
@@ -120,7 +120,7 @@ export const useField = (
       clearError: () => clearError(name),
       validate: () => smartValidate({ alwaysIncludeErrorsFromFields: [name] }),
       defaultValue,
-      touched,
+      touched: !!touched,
       setTouched
     };
     const getInputProps = createGetInputProps({

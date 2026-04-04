@@ -3,7 +3,6 @@ import {
   Array as ArrayInput,
   Hidden,
   Input,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   SelectControlled,
   Submit,

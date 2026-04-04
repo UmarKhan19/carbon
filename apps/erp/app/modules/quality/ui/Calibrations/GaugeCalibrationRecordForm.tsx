@@ -1,11 +1,9 @@
 import { useCarbon } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Boolean,
   DatePicker,
   Input,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   ValidatedForm
 } from "@carbon/form";

@@ -1,6 +1,7 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type z from "zod";
 import { markdownToTiptap } from "./richtext";
 import { LinearIssueSchema } from "./types";
 import { mapLinearStatusToCarbonStatus } from "./utils";

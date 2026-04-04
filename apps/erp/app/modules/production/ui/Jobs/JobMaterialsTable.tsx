@@ -90,7 +90,7 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
     data.forEach((material) => {
       if (
         material.itemTrackingType === "Non-Inventory" ||
-        material.methodType === "Make" ||
+        material.methodType === "Make to Order" ||
         !material.id
       ) {
         return;
@@ -218,7 +218,9 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
                 className="size-3 mr-1"
               />
               {row.original.shelfName ??
-                (row.original.methodType === "Make" ? "WIP" : "Default Shelf")}
+                (row.original.methodType === "Make to Order"
+                  ? "WIP"
+                  : "Default Shelf")}
             </Badge>
           </HStack>
         )
@@ -243,7 +245,7 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
             : row.original.quantityFromProductionOrderInShelf +
               row.original.estimatedQuantity;
 
-          if (row.original.methodType === "Make") {
+          if (row.original.methodType === "Make to Order") {
             return null;
           }
 
@@ -279,7 +281,7 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
         cell: ({ row }) => {
           if (
             row.original.itemTrackingType === "Non-Inventory" ||
-            row.original.methodType === "Make"
+            row.original.methodType === "Make to Order"
           ) {
             return null;
           }
@@ -359,7 +361,7 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
       // Skip non-inventory items and make items
       if (
         row.itemTrackingType === "Non-Inventory" ||
-        row.methodType === "Make" ||
+        row.methodType === "Make to Order" ||
         !row.id
       ) {
         return null;

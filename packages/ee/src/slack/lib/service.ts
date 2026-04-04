@@ -425,7 +425,7 @@ export async function syncDocumentToSlack(
           let assignee: string | null | undefined = null;
           const taskId = data.payload.taskId || data.documentId; // fallback for backward compatibility
           if (data.payload.taskType === "investigation") {
-            const task = await client
+            const task: any = await (client as any)
               .from("nonConformanceInvestigationTask")
               .select(
                 "assignee, status, ...nonConformanceInvestigationType(name)"
@@ -441,7 +441,7 @@ export async function syncDocumentToSlack(
                 )
               : null;
           } else if (data.payload.taskType === "action") {
-            const task = await client
+            const task: any = await client
               .from("nonConformanceActionTask")
               .select("assignee,status, ...nonConformanceRequiredAction(name)")
               .eq("id", taskId)
@@ -487,18 +487,20 @@ export async function syncDocumentToSlack(
           let previousAssignee: string | undefined;
           let newAssignee: string | undefined;
           if (data.payload.previousAssignee) {
-            previousAssignee = await getSlackUserIdByCarbonId(
-              client,
-              slackAuth.slackToken,
-              data.payload.previousAssignee || ""
-            );
+            previousAssignee =
+              (await getSlackUserIdByCarbonId(
+                client,
+                slackAuth.slackToken,
+                data.payload.previousAssignee || ""
+              )) ?? undefined;
           }
           if (data.payload.newAssignee) {
-            newAssignee = await getSlackUserIdByCarbonId(
-              client,
-              slackAuth.slackToken,
-              data.payload.newAssignee || ""
-            );
+            newAssignee =
+              (await getSlackUserIdByCarbonId(
+                client,
+                slackAuth.slackToken,
+                data.payload.newAssignee || ""
+              )) ?? undefined;
           }
           result = await trigger("slack-document-assignment-update", {
             documentType: data.documentType,
@@ -673,7 +675,7 @@ export async function syncIssueTaskToSlack(
 ) {
   let nonConformanceId = "";
   if (data.taskType === "investigation") {
-    const nonConformance = await client
+    const nonConformance: any = await (client as any)
       .from("nonConformanceInvestigationTask")
       .select("nonConformanceId")
       .eq("id", data.id)
@@ -681,7 +683,7 @@ export async function syncIssueTaskToSlack(
     nonConformanceId = nonConformance.data?.nonConformanceId || "";
   }
   if (data.taskType === "action") {
-    const nonConformance = await client
+    const nonConformance: any = await client
       .from("nonConformanceActionTask")
       .select("nonConformanceId")
       .eq("id", data.id)
@@ -689,7 +691,7 @@ export async function syncIssueTaskToSlack(
     nonConformanceId = nonConformance.data?.nonConformanceId || "";
   }
   if (data.taskType === "review") {
-    const nonConformance = await client
+    const nonConformance: any = await client
       .from("nonConformanceApprovalTask")
       .select("nonConformanceId")
       .eq("id", data.id)

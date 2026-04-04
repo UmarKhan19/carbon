@@ -151,7 +151,8 @@ export default function EditSalesInvoiceLineRoute() {
     id: salesInvoiceLine?.id ?? undefined,
     invoiceId: salesInvoiceLine?.invoiceId ?? "",
     invoiceLineType: (salesInvoiceLine?.invoiceLineType ?? "Part") as "Part",
-    methodType: (salesInvoiceLine?.methodType ?? "Pick") as "Pick",
+    methodType: (salesInvoiceLine?.methodType ??
+      "Pull from Inventory") as "Pull from Inventory",
     itemId: salesInvoiceLine?.itemId ?? "",
     accountNumber: salesInvoiceLine?.accountNumber ?? "",
     addOnCost: salesInvoiceLine?.addOnCost ?? 0,

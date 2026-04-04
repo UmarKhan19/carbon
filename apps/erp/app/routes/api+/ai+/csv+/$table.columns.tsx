@@ -5,7 +5,7 @@ import { generateObject } from "ai";
 import type { ActionFunctionArgs } from "react-router";
 import type { ZodSchema } from "zod";
 import { z } from "zod";
-import { importSchemas } from "~/modules/shared";
+import { fieldMappings, importSchemas } from "~/modules/shared";
 
 const inputSchema = z.object({
   fileColumns: z.array(z.string())
@@ -35,18 +35,31 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const dbFields = Object.keys(getZodSchemaFieldsShallow(schema));
   const fileColumnsLower = fileColumns.map((c) => c.toLowerCase().trim());
+  const mappings = fieldMappings[table as keyof typeof fieldMappings];
 
-  // Deterministic exact match pass
+  // Deterministic exact match pass — check both field name and label
   const matched: Record<string, string> = {};
   const unmatchedFields: string[] = [];
 
   for (const field of dbFields) {
-    const idx = fileColumnsLower.indexOf(field.toLowerCase());
-    if (idx !== -1) {
-      matched[field] = fileColumns[idx];
-    } else {
-      unmatchedFields.push(field);
+    // Match by field name (e.g., "processType" === "processtype")
+    const nameIdx = fileColumnsLower.indexOf(field.toLowerCase());
+    if (nameIdx !== -1) {
+      matched[field] = fileColumns[nameIdx];
+      continue;
     }
+    // Match by label (e.g., "Process Type" === "process type")
+    const label = (mappings as Record<string, { label: string }>)?.[
+      field as keyof typeof mappings
+    ]?.label;
+    if (label) {
+      const labelIdx = fileColumnsLower.indexOf(label.toLowerCase());
+      if (labelIdx !== -1) {
+        matched[field] = fileColumns[labelIdx];
+        continue;
+      }
+    }
+    unmatchedFields.push(field);
   }
 
   // If all fields matched, skip AI entirely

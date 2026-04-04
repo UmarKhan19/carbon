@@ -81,7 +81,6 @@ import type { Configuration } from "~/components/Configurator/types";
 import {
   Hidden,
   InputControlled,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: suppressed due to migration
   Number,
   NumberControlled,
   Process,

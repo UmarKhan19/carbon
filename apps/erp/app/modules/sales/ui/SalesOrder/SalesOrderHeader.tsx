@@ -200,7 +200,8 @@ const SalesOrderHeader = () => {
 
   // Check if there are any lines with "Make" method type that would require jobs
   const hasMakeItems =
-    routeData?.lines?.some((line) => line.methodType === "Make") ?? false;
+    routeData?.lines?.some((line) => line.methodType === "Make to Order") ??
+    false;
 
   const salesOrderToJobsModal = useDisclosure();
   const confirmDisclosure = useDisclosure();
@@ -326,7 +327,10 @@ const SalesOrderHeader = () => {
               lines={
                 routeData?.salesOrder?.lines as Array<{
                   id: string;
-                  methodType: "Buy" | "Make" | "Pick";
+                  methodType:
+                    | "Purchase to Order"
+                    | "Make to Order"
+                    | "Pull from Inventory";
                   saleQuantity: number;
                 }>
               }

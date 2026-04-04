@@ -609,7 +609,7 @@ export function JobStartModal({
         ?.filter(
           (m) =>
             m.jobMaterialMakeMethodId &&
-            m.methodType === "Make" &&
+            m.methodType === "Make to Order" &&
             !kittedMakeMethodIds.has(m.jobMaterialMakeMethodId)
         )
         .map((m) => m.jobMaterialMakeMethodId) ?? []

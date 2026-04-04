@@ -5,6 +5,7 @@ import {
   methodOperationOrders,
   methodType,
   operationTypes,
+  sourcingType,
   standardFactorType
 } from "../shared";
 
@@ -214,6 +215,11 @@ export const methodMaterialValidator = z.object({
   methodType: z.enum(methodType, {
     errorMap: (issue, ctx) => ({
       message: "Method type is required"
+    })
+  }),
+  sourcingType: z.enum(sourcingType, {
+    errorMap: (issue, ctx) => ({
+      message: "Sourcing type is required"
     })
   }),
   itemId: z.string().optional(),

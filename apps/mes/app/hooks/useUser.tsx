@@ -26,6 +26,7 @@ export function useUser(): User {
   const data = useRouteData<{
     company: unknown;
     user: unknown;
+    effectiveUserId?: string;
   }>(path.to.authenticatedRoot);
 
   if (
@@ -36,6 +37,7 @@ export function useUser(): User {
   ) {
     return {
       ...data.user,
+      id: data.effectiveUserId ?? data.user.id,
       company: data.company
     };
   }

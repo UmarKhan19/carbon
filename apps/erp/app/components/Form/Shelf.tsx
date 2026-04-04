@@ -20,7 +20,7 @@ type ShelfSelectProps = Omit<
 
 const ShelfPreview = (
   value: string,
-  options: { value: string; label: string }[]
+  options: { value: string; label: string | JSX.Element }[]
 ) => {
   const shelf = options.find((o) => o.value === value);
   if (!shelf) return "Inventory";
@@ -34,7 +34,9 @@ const Shelf = (props: ShelfSelectProps) => {
 
   const { options, data } = useShelves(props.locationId, props.itemId);
 
-  const onChange = (newValue: { label: string; value: string } | null) => {
+  const onChange = (
+    newValue: { label: string | JSX.Element; value: string } | null
+  ) => {
     const shelf =
       data?.data?.find((shelf) => shelf.id === newValue?.value) ?? null;
     props.onChange?.(shelf as ListItem | null);
@@ -130,7 +132,7 @@ export function useShelves(locationId?: string, itemId?: string) {
         value: c.id,
         label: c.name,
         // Add quantity as helper text if available
-        // @ts-ignore
+        // @ts-expect-error
         ...(c.quantity !== undefined && { helper: `Qty: ${c.quantity}` })
       })) ?? []
     );

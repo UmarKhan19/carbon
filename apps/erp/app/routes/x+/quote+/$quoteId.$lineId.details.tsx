@@ -194,7 +194,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  if (d.methodType === "Make" && d.quantity?.length) {
+  if (d.methodType === "Make to Order" && d.quantity?.length) {
     const serviceRole = getCarbonServiceRole();
     const existingPrices = await serviceRole
       .from("quoteLinePrice")
@@ -273,7 +273,7 @@ export default function QuoteLine() {
     description: line.description ?? "",
     estimatorId: line.estimatorId ?? "",
     itemId: line.itemId ?? "",
-    methodType: line.methodType ?? "Make",
+    methodType: line.methodType ?? "Make to Order",
     modelUploadId: line.modelUploadId ?? undefined,
     noQuoteReason: line.noQuoteReason ?? undefined,
     status: line.status ?? "Not Started",
@@ -316,7 +316,7 @@ export default function QuoteLine() {
         </VStack>
       )}
 
-      {line.methodType === "Make" &&
+      {line.methodType === "Make to Order" &&
         line.status !== "No Quote" &&
         permissions.is("employee") && (
           <QuoteLineCosting

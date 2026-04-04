@@ -73,7 +73,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     .single();
   const isReleased = !["Draft", "Planned"].includes(job.data?.status ?? "");
 
-  if (validation.data.methodType === "Make") {
+  if (validation.data.methodType === "Make to Order") {
     const materialMakeMethod = await serviceRole
       .from("jobMaterialWithMakeMethodId")
       .select("*")

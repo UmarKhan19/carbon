@@ -318,7 +318,12 @@ describe("Ratelimit", () => {
   describe("timeout handling", () => {
     it("should return success on timeout", async () => {
       // Create a promise that never resolves
-      mockRedis.eval = vi.fn().mockImplementation(() => new Promise(() => {}));
+      mockRedis.eval = vi.fn().mockImplementation(
+        () =>
+          new Promise(() => {
+            /* intentionally never resolves */
+          })
+      );
 
       const ratelimit = new Ratelimit({
         redis: mockRedis,
@@ -507,7 +512,7 @@ describe("Ratelimit", () => {
       expect(mockRedis.eval).toHaveBeenCalledWith(
         expect.any(String),
         1,
-        "@upstash/ratelimit:user:123", // Default prefix
+        "@carbon/ratelimit:user:123", // Default prefix
         expect.anything(),
         expect.anything(),
         expect.anything()

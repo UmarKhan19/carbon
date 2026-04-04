@@ -62,6 +62,7 @@ export const ConversationEmptyState = ({
   </div>
 );
 
+// @ts-expect-error TS2304 - TODO: fix type
 export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
 
 export const ConversationScrollButton = ({

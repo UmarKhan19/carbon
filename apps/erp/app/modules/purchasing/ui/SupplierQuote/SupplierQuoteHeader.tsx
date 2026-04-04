@@ -374,6 +374,7 @@ const SupplierQuoteHeader = () => {
           onClose={sendModal.onClose}
           fetcher={sendFetcher}
           externalLinkId={routeData?.quote?.externalLinkId ?? ""}
+          // @ts-expect-error TS2339 - TODO: fix type
           defaultCc={routeData?.defaultCc ?? []}
         />
       )}

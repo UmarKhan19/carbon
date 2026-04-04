@@ -706,6 +706,129 @@ export async function updateTimeCardSetting(
     .eq("id", companyId);
 }
 
+export async function updateConsoleSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  consoleEnabled: boolean,
+  userId?: string
+) {
+  const update = await client
+    .from("companySettings")
+    .update(sanitize({ consoleEnabled }) as any)
+    .eq("id", companyId);
+
+  // When enabling, create "Console Operator" employee type if it doesn't exist
+  if (consoleEnabled) {
+    const existing = await client
+      .from("employeeType")
+      .select("id")
+      .eq("companyId", companyId)
+      .eq("systemType", "Console Operator")
+      .maybeSingle();
+
+    if (!existing.data) {
+      const newType = await client
+        .from("employeeType")
+        .insert({
+          name: "Console Operator",
+          companyId,
+          protected: true,
+          systemType: "Console Operator"
+        })
+        .select("id")
+        .single();
+
+      // Create default permissions for the Console Operator type.
+      // Only grant what's needed for MES operations — not ERP modules.
+      if (newType.data) {
+        const mesModules = [
+          // Production: start/end operations, complete, scrap, rework
+          {
+            module: "Production",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // Inventory: issue materials, adjustments
+          {
+            module: "Inventory",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // Resources: view work centers, locations
+          {
+            module: "Resources",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          },
+          // Items/Parts: view items for operations
+          {
+            module: "Items",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          },
+          // Quality: record defects, non-conformances
+          {
+            module: "Quality",
+            create: true,
+            update: true,
+            delete: false,
+            view: true
+          },
+          // People: view employees (for console operator list)
+          {
+            module: "People",
+            create: false,
+            update: false,
+            delete: false,
+            view: true
+          }
+        ];
+
+        const permissions = mesModules.map((m) => ({
+          employeeTypeId: newType.data.id,
+          module: m.module as "Accounting",
+          create: m.create ? [companyId] : [],
+          update: m.update ? [companyId] : [],
+          delete: m.delete ? [companyId] : [],
+          view: m.view ? [companyId] : []
+        }));
+
+        await client.from("employeeTypePermission").insert(permissions);
+      }
+    }
+
+    // Auto-generate a PIN for the enabling user if they don't have one
+    let generatedPin: string | null = null;
+    if (userId) {
+      const userEmployee = await client
+        .from("employee")
+        .select("id, pin" as any)
+        .eq("id", userId)
+        .eq("companyId", companyId)
+        .maybeSingle();
+
+      if (userEmployee.data && !(userEmployee.data as any).pin) {
+        generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
+        await client
+          .from("employee")
+          .update({ pin: generatedPin } as any)
+          .eq("id", userId)
+          .eq("companyId", companyId);
+      }
+    }
+  }
+
+  return update;
+}
+
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -763,6 +886,16 @@ export async function updatePurchasePriceUpdateTimingSetting(
   return client
     .from("companySettings")
     .update(sanitize({ purchasePriceUpdateTiming }))
+    .eq("id", companyId);
+}
+
+export async function updateLeadTimesOnReceiptSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  updateLeadTimesOnReceipt: boolean
+) {
+  return (client.from("companySettings") as any)
+    .update(sanitize({ updateLeadTimesOnReceipt }))
     .eq("id", companyId);
 }
 

@@ -50,8 +50,8 @@ import {
   Table,
   TrackingTypeIcon
 } from "~/components";
-import { Enumerable } from "~/components/Enumerable";
 import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
+import { ReplenishmentSystemIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
@@ -128,14 +128,15 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
           const itemPostingGroup = itemPostingGroups.find(
             (group) => group.value === itemPostingGroupId
           );
-          return <Enumerable value={itemPostingGroup?.label ?? null} />;
+          const label = itemPostingGroup?.label;
+          return label ? <Badge variant="secondary">{label}</Badge> : null;
         },
         meta: {
           filter: {
             type: "static",
             options: itemPostingGroups.map((group) => ({
               value: group.value,
-              label: <Enumerable value={group.label} />
+              label: <Badge variant="secondary">{group.label}</Badge>
             }))
           },
           icon: <LuGroup />
@@ -195,13 +196,26 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
       {
         accessorKey: "replenishmentSystem",
         header: "Replenishment",
-        cell: (item) => <Enumerable value={item.getValue<string>()} />,
+        cell: (item) => (
+          <Badge variant="secondary">
+            <ReplenishmentSystemIcon
+              type={item.getValue<string>()}
+              className="mr-2"
+            />
+            <span>{item.getValue<string>()}</span>
+          </Badge>
+        ),
         meta: {
           filter: {
             type: "static",
             options: itemReplenishmentSystems.map((type) => ({
               value: type,
-              label: <Enumerable value={type} />
+              label: (
+                <Badge variant="secondary">
+                  <ReplenishmentSystemIcon type={type} className="mr-2" />
+                  <span>{type}</span>
+                </Badge>
+              )
             }))
           },
           icon: <LuLoaderCircle />
@@ -357,7 +371,7 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
                         )
                       }
                     >
-                      <Enumerable value={group.label} />
+                      <span>{group.label}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>
@@ -378,7 +392,10 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
                         )
                       }
                     >
-                      <Enumerable value={system} />
+                      <DropdownMenuIcon
+                        icon={<ReplenishmentSystemIcon type={system} />}
+                      />
+                      <span>{system}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>

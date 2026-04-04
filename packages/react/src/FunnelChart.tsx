@@ -8,8 +8,6 @@ import { Fragment, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "./hooks";
 import { cn } from "./utils/cn";
 
-const verticalPadding = 30;
-
 interface FunnelStep {
   id: string;
   label: string;
@@ -49,6 +47,24 @@ interface FunnelChartContentProps extends FunnelChartProps {
   height: number;
 }
 
+const layers = [
+  {
+    opacity: 1,
+    padding: 0
+  },
+  {
+    opacity: 0.3,
+    padding: 8
+  },
+  {
+    opacity: 0.15,
+    padding: 16
+  }
+];
+
+const maxLayerPadding = 12;
+const chartPadding = 40;
+
 function FunnelChartContent({
   width,
   height,
@@ -70,7 +86,7 @@ function FunnelChartContent({
         id,
         generateCurvePoints(
           value,
-          steps[idx + 1]?.value ?? steps[steps.length - 1].value
+          steps[idx + 1]?.value ?? steps[steps.length - 1]!.value
         )
       ])
     );
@@ -90,7 +106,10 @@ function FunnelChartContent({
 
   const yScale = scaleLinear({
     domain: [highestValue, -highestValue],
-    range: [height - verticalPadding, verticalPadding]
+    range: [
+      height - maxLayerPadding - chartPadding,
+      maxLayerPadding + chartPadding
+    ]
   });
 
   return (
@@ -123,24 +142,28 @@ function FunnelChartContent({
                 className="stroke-black/5 sm:stroke-black/10"
               />
 
-              <Area
-                data={funnelData[id]}
-                curve={curveBasis}
-                x={(d) => xScale(idx + d.x)}
-                y0={(d) => yScale(-d.y)}
-                y1={(d) => yScale(d.y)}
-              >
-                {({ path }) => {
-                  return (
-                    <motion.path
-                      initial={{ d: path(emptyData) || "", opacity: 0 }}
-                      animate={{ d: path(funnelData[id]) || "", opacity: 1 }}
-                      className={cn(colorClassName, "pointer-events-none")}
-                      fill="currentColor"
-                    />
-                  );
-                }}
-              </Area>
+              {/* Funnel */}
+              {layers.map(({ opacity, padding }) => (
+                <Area
+                  key={`${id}-${opacity}-${padding}`}
+                  data={funnelData[id]}
+                  curve={curveBasis}
+                  x={(d) => xScale(idx + d.x)}
+                  y0={(d) => yScale(-d.y) - padding}
+                  y1={(d) => yScale(d.y) + padding}
+                >
+                  {({ path }) => {
+                    return (
+                      <motion.path
+                        initial={{ d: path(emptyData) || "", opacity: 0 }}
+                        animate={{ d: path(funnelData[id]!) || "", opacity }}
+                        className={cn(colorClassName, "pointer-events-none")}
+                        fill="currentColor"
+                      />
+                    );
+                  }}
+                </Area>
+              ))}
 
               <Percentage
                 x={stepCenterX}
@@ -169,9 +192,7 @@ function FunnelChartContent({
           }}
         >
           <div
-            className={cn(
-              "rounded-lg border border-border bg-card text-base shadow-sm"
-            )}
+            className={cn("rounded-lg border border-border bg-card text-base")}
           >
             <p className="border-b border-border p-3 text-sm text-foreground">
               {activeStep.label}

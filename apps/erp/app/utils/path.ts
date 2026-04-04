@@ -433,6 +433,7 @@ export const path = {
     issueActionTasksOrder: `${x}/issue/action-tasks/order`,
     bulkUpdateIssueWorkflow: `${x}/issue-workflow/update`,
     bulkUpdatePurchaseOrder: `${x}/purchase-order/update`,
+    bulkUpdatePurchasingRfq: `${x}/purchasing-rfq/update`,
     bulkUpdatePurchaseInvoice: `${x}/purchase-invoice/update`,
     bulkUpdateQuote: `${x}/quote/update`,
     bulkUpdateQualityDocument: `${x}/quality-document/update`,
@@ -787,6 +788,10 @@ export const path = {
     employeeType: (id: string) =>
       generatePath(`${x}/users/employee-types/${id}`),
     employeeTypes: `${x}/users/employee-types`,
+    operators: `${x}/users/operators`,
+    operator: (id: string) => generatePath(`${x}/users/operators/${id}`),
+    operatorResetPin: (id: string) =>
+      generatePath(`${x}/users/operators/reset-pin/${id}`),
     externalCustomer: (id: string) => generatePath(`/share/customer/${id}`),
     externalCustomerFile: (id: string, path: string) =>
       generatePath(`/share/customer/${id}/${path}`),
@@ -1031,6 +1036,7 @@ export const path = {
     newDepartment: `${x}/people/departments/new`,
     newDocument: `${x}/documents/new`,
     newEmployee: `${x}/users/employees/new`,
+    newOperator: `${x}/users/operators/new`,
     newEmployeeAbility: (id: string) =>
       generatePath(`${x}/resources/ability/${id}/employee/new`),
     newEmployeeType: `${x}/users/employee-types/new`,

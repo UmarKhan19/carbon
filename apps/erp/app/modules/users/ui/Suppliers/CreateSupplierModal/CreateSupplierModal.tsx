@@ -58,7 +58,6 @@ const CreateSupplierModal = () => {
             id: params.get("id") ?? "",
             supplier: params.get("supplier") ?? ""
           }}
-          // @ts-ignore
           fetcher={formFetcher}
           className="flex flex-col h-full"
         >
@@ -169,6 +168,7 @@ const SupplierContact = ({
         (c) => c.id === newValue
       );
 
+      // @ts-expect-error TS2322 - TODO: fix type
       onChange({ id: newValue, contact: contact?.contact ?? null });
     }
   };

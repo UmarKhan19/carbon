@@ -87,7 +87,7 @@ const QuoteLinePricing = ({
 }) => {
   const permissions = usePermissions();
 
-  const hasCalculatedCost = line.methodType !== "Pick";
+  const hasCalculatedCost = line.methodType !== "Pull from Inventory";
   const quantities = line.quantity ?? [1];
 
   const { quoteId, lineId } = useParams();
@@ -311,20 +311,25 @@ const QuoteLinePricing = ({
     };
   });
 
-  const unitCostsByQuantity = costsByQuantity.map((costs) =>
-    Object.values(costs).reduce((sum, v) => sum + v, 0)
-  );
+  const unitCostsByQuantity = hasCalculatedCost
+    ? costsByQuantity.map((costs) =>
+        Object.values(costs).reduce((sum, v) => sum + v, 0)
+      )
+    : quantities.map(() => editableFields.unitCost);
 
-  const computeUnitPriceFromMarkups = (
-    categoryCosts: Record<CostCategoryKey, number>,
-    markups: Record<string, number>
-  ): number => {
-    return costCategoryKeys.reduce((sum, key) => {
-      const cost = categoryCosts[key] ?? 0;
-      const markup = markups[key] ?? 0;
-      return sum + cost * (1 + markup / 100);
-    }, 0);
-  };
+  const computeUnitPriceFromMarkups = useCallback(
+    (
+      categoryCosts: Record<CostCategoryKey, number>,
+      markups: Record<string, number>
+    ): number => {
+      return costCategoryKeys.reduce((sum, key) => {
+        const cost = categoryCosts[key] ?? 0;
+        const markup = markups[key] ?? 0;
+        return sum + cost * (1 + markup / 100);
+      }, 0);
+    },
+    []
+  );
 
   const visibleCategories = costCategoryKeys.filter((key: CostCategoryKey) =>
     costsByQuantity.some((costs) => costs[key] > 0)
@@ -407,6 +412,7 @@ const QuoteLinePricing = ({
     [carbon, line.itemId]
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const onUpdateCategoryMarkup = useCallback(
     async (category: CostCategoryKey, quantity: number, value: number) => {
       const existingMarkups = categoryMarkupsByQuantity[quantity] ?? {};
@@ -451,7 +457,7 @@ const QuoteLinePricing = ({
       lineId,
       costsByQuantity,
       quantities,
-      quoteId
+      computeUnitPriceFromMarkups
     ]
   );
 

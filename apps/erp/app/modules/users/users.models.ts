@@ -28,6 +28,21 @@ export const createEmployeeValidator = z.object({
   locationId: z.string().min(1, { message: "Location is required" })
 });
 
+export const createOperatorValidator = z.object({
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  locationId: z.string().min(1, { message: "Location is required" }),
+  pin: z.string().regex(/^\d{4}$/, "PIN must be 4 digits")
+});
+
+export const convertOperatorValidator = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email("Must be a valid email"),
+  employeeType: z.string().min(1, { message: "Employee type is required" })
+});
+
 export const createSupplierAccountValidator = z.object({
   id: z.string().min(1, "Supplier contact is required"),
   supplier: z.string().min(1, { message: "Supplier is required" })

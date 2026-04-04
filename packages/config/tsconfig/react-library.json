@@ -6,9 +6,10 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["ES2015"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "types": ["node"],
+    "allowImportingTsExtensions": true,
     "preserveWatchOutput": true,
     "noEmit": true,
     "skipLibCheck": true

@@ -100,7 +100,11 @@ const DateTimePicker = (
           <TimeField
             label="Time"
             value={state.timeValue}
-            onChange={state.setTimeValue}
+            onChange={
+              state.setTimeValue as (
+                value: import("@react-types/datepicker").TimeValue | null
+              ) => void
+            }
           />
           {props.inline && (
             <PopoverFooter>
