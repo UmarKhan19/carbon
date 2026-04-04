@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
   Copy,
   DropdownMenu,
   DropdownMenuContent,
@@ -15,14 +14,14 @@ import {
   Heading,
   HStack,
   IconButton,
+  Separator,
+  Status,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { useCallback, useMemo, useState } from "react";
 import {
   LuCheckCheck,
-  LuCircleAlert,
-  LuCircleCheck,
   LuEllipsisVertical,
   LuPlus,
   LuRotateCcw,
@@ -30,7 +29,6 @@ import {
   LuTrash
 } from "react-icons/lu";
 import { Link, useFetcher, useNavigate } from "react-router";
-import { Enumerable } from "~/components/Enumerable";
 import { DatePicker, Hidden, Input, Select } from "~/components/Form";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useUser } from "~/hooks";
@@ -112,7 +110,7 @@ const JournalEntryForm = ({
   );
 
   const sourceTypeOptions = journalEntrySourceTypes.map((type) => ({
-    label: <Enumerable value={type} />,
+    label: type,
     value: type
   }));
 
@@ -245,7 +243,6 @@ const JournalEntryForm = ({
             <Hidden name="id" />
             <input type="hidden" name="lines" value={linesJson} />
             <VStack spacing={4} className="w-full">
-              <CardTitle>Journal Entry</CardTitle>
               {/* Entry Details */}
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
                 <Input
@@ -272,10 +269,10 @@ const JournalEntryForm = ({
                 </div>
               </div>
 
-              <CardTitle>Lines</CardTitle>
+              <Separator />
 
               {/* Column Headers */}
-              <div className="grid grid-cols-[auto_1fr_140px_140px_40px] items-center gap-3 px-4 text-xs font-medium text-muted-foreground -mb-4 w-full">
+              <div className="grid grid-cols-[auto_1fr_140px_140px_40px] items-center gap-3 px-4 text-xxs text-foreground/70 uppercase font-light tracking-wide  w-full">
                 <div className="w-6" />
                 <div className="pl-3">Account & Details</div>
                 <div className="text-right pr-3">Debit</div>
@@ -314,7 +311,7 @@ const JournalEntryForm = ({
               )}
 
               {/* Totals */}
-              <div className="rounded-lg border bg-muted/50 p-4 w-full">
+              <div className="rounded-lg border p-4 w-full">
                 <div className="grid grid-cols-[1fr_140px_140px_40px] items-center gap-3">
                   <div className="text-sm font-medium">Totals</div>
                   <div className="text-right font-mono text-sm tabular-nums">
@@ -330,26 +327,13 @@ const JournalEntryForm = ({
                 <div className="mt-4 flex items-center justify-between border-t pt-4">
                   <div className="flex items-center gap-2">
                     {isBalanced && totalDebits > 0 ? (
-                      <>
-                        <LuCircleCheck className="size-5 text-green-600 dark:text-green-400" />
-                        <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                          Entry is balanced
-                        </span>
-                      </>
+                      <Status variant="green">Entry is balanced</Status>
                     ) : totalDebits === 0 && totalCredits === 0 ? (
-                      <>
-                        <LuCircleAlert className="size-5 text-yellow-600 dark:text-yellow-400" />
-                        <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                          Enter at least one debit and credit
-                        </span>
-                      </>
+                      <Status variant="yellow">
+                        Enter at least one debit and credit
+                      </Status>
                     ) : (
-                      <>
-                        <LuCircleAlert className="size-5 text-yellow-600 dark:text-yellow-400" />
-                        <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                          Entry is not balanced
-                        </span>
-                      </>
+                      <Status variant="yellow">Entry is not balanced</Status>
                     )}
                   </div>
                   {!isBalanced && totalDebits > 0 && (

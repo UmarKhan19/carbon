@@ -128,11 +128,11 @@ export const inputVariants = cva(
         false: ""
       },
       isReadOnly: {
-        true: "opacity-50 text-muted-foreground cursor-not-allowed",
+        true: "opacity-50 cursor-not-allowed",
         false: ""
       },
       isDisabled: {
-        true: "opacity-50 text-muted-foreground cursor-not-allowed",
+        true: "opacity-50 cursor-not-allowed",
         false: ""
       },
       borderless: {

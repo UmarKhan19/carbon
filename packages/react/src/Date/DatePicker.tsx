@@ -93,6 +93,7 @@ const DatePicker = (
                 {...groupProps}
                 ref={ref}
                 className="w-full inline-flex"
+                isDisabled={props.isDisabled || props.isReadOnly}
               >
                 <div className="flex w-full px-4 py-2">
                   <DateField {...fieldProps} />
