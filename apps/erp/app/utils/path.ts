@@ -392,6 +392,8 @@ export const path = {
       generatePath(`${x}/journal-entry/${id}/post`),
     reverseJournalEntry: (id: string) =>
       generatePath(`${x}/journal-entry/${id}/reverse`),
+    journalLineDimensions: (lineId: string) =>
+      `/api/accounting/journal-line-dimensions/${lineId}`,
     accountingGroupsBankAccounts: `${x}/accounting/groups/bank-accounts`,
     accountingGroupsFixedAssets: `${x}/accounting/groups/fixed-assets`,
     accountingGroupsInventory: `${x}/accounting/groups/inventory`,

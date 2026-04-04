@@ -1,7 +1,12 @@
 import { IconButton, Input, NumberField, NumberInput } from "@carbon/react";
 import { LuTrash } from "react-icons/lu";
 import { AccountControlled } from "~/components/Form";
-import type { ClientJournalLine } from "./types";
+import DimensionSelector from "./DimensionSelector";
+import type {
+  ClientJournalLine,
+  DimensionWithValues,
+  JournalLineDimensionValue
+} from "./types";
 
 type JournalLineRowProps = {
   line: ClientJournalLine;
@@ -11,6 +16,8 @@ type JournalLineRowProps = {
   onDelete: () => void;
   canDelete: boolean;
   isDisabled: boolean;
+  availableDimensions: DimensionWithValues[];
+  autoSaveDimensions?: boolean;
 };
 
 const JournalLineRow = ({
@@ -20,7 +27,9 @@ const JournalLineRow = ({
   onChange,
   onDelete,
   canDelete,
-  isDisabled
+  isDisabled,
+  availableDimensions,
+  autoSaveDimensions = false
 }: JournalLineRowProps) => {
   const handleAccountChange = (accountNumber: string) => {
     onChange({ ...line, accountNumber });
@@ -42,6 +51,10 @@ const JournalLineRow = ({
       credit: numValue,
       debit: numValue !== null && numValue > 0 ? null : line.debit
     });
+  };
+
+  const handleDimensionsChange = (dimensions: JournalLineDimensionValue[]) => {
+    onChange({ ...line, dimensions });
   };
 
   return (
@@ -68,6 +81,16 @@ const JournalLineRow = ({
             isReadOnly={isDisabled}
             size="sm"
           />
+
+          {availableDimensions.length > 0 && (
+            <DimensionSelector
+              journalLineId={line.id}
+              availableDimensions={availableDimensions}
+              currentDimensions={line.dimensions}
+              onChange={handleDimensionsChange}
+              autoSave={autoSaveDimensions}
+            />
+          )}
         </div>
 
         {/* Debit */}

@@ -742,6 +742,281 @@ export async function deleteDimension(
     .eq("id", dimensionId);
 }
 
+export async function getActiveDimensionsWithValues(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  companyId: string
+) {
+  const dimensionsResult = await client
+    .from("dimension")
+    .select("id, name, entityType, required")
+    .eq("companyGroupId", companyGroupId)
+    .eq("active", true)
+    .order("name");
+
+  if (dimensionsResult.error) return dimensionsResult;
+
+  const dimensions = dimensionsResult.data ?? [];
+
+  const customDimensionIds = dimensions
+    .filter((d) => d.entityType === "Custom")
+    .map((d) => d.id);
+
+  const entityTypes = [
+    ...new Set(
+      dimensions
+        .filter((d) => d.entityType !== "Custom")
+        .map((d) => d.entityType)
+    )
+  ];
+
+  const [customValues, ...entityResults] = await Promise.all([
+    customDimensionIds.length > 0
+      ? client
+          .from("dimensionValue")
+          .select("id, name, dimensionId")
+          .in("dimensionId", customDimensionIds)
+      : Promise.resolve({
+          data: [] as { id: string; name: string; dimensionId: string }[],
+          error: null
+        }),
+    ...entityTypes.map((et) => getEntityDimensionValues(client, et, companyId))
+  ]);
+
+  if (customValues.error) return customValues;
+
+  const entityValuesByType = new Map<string, { id: string; name: string }[]>();
+  entityTypes.forEach((et, i) => {
+    const result = entityResults[i];
+    if (result && !result.error && result.data) {
+      entityValuesByType.set(et, result.data as { id: string; name: string }[]);
+    }
+  });
+
+  const customValuesByDimension = new Map<
+    string,
+    { id: string; name: string }[]
+  >();
+  for (const v of customValues.data ?? []) {
+    const existing = customValuesByDimension.get(v.dimensionId) ?? [];
+    existing.push({ id: v.id, name: v.name });
+    customValuesByDimension.set(v.dimensionId, existing);
+  }
+
+  return {
+    data: dimensions.map((d) => ({
+      dimensionId: d.id,
+      dimensionName: d.name,
+      entityType: d.entityType,
+      required: d.required,
+      values:
+        d.entityType === "Custom"
+          ? (customValuesByDimension.get(d.id) ?? [])
+          : (entityValuesByType.get(d.entityType) ?? [])
+    })),
+    error: null
+  };
+}
+
+function getEntityDimensionValues(
+  client: SupabaseClient<Database>,
+  entityType: string,
+  companyId: string
+) {
+  switch (entityType) {
+    case "Location":
+      return client
+        .from("location")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
+    case "Department":
+      return client
+        .from("department")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
+    case "Employee":
+      return client
+        .from("employeeSummary")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
+    case "CustomerType":
+      return client
+        .from("customerType")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
+    case "SupplierType":
+      return client
+        .from("supplierType")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
+    case "ItemPostingGroup":
+      return client
+        .from("itemPostingGroup")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
+    case "CostCenter":
+      return client
+        .from("costCenter")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
+    default:
+      return Promise.resolve({
+        data: [] as { id: string; name: string }[],
+        error: null
+      });
+  }
+}
+
+export async function getJournalLineDimensions(
+  client: SupabaseClient<Database>,
+  journalLineIds: string[]
+) {
+  if (journalLineIds.length === 0) {
+    return {
+      data: {} as Record<
+        string,
+        {
+          dimensionId: string;
+          dimensionName: string;
+          valueId: string;
+          valueName: string;
+        }[]
+      >,
+      error: null
+    };
+  }
+
+  const result = await client
+    .from("journalLineDimension")
+    .select(
+      "journalLineId, dimensionId, valueId, dimension:dimensionId(name, entityType)"
+    )
+    .in("journalLineId", journalLineIds);
+
+  if (result.error) return { data: null, error: result.error };
+
+  const rows = result.data as unknown as Array<{
+    journalLineId: string;
+    dimensionId: string;
+    valueId: string;
+    dimension: { name: string; entityType: string };
+  }>;
+
+  // Collect all valueIds grouped by entityType for batch resolution
+  const valueIdsByType = new Map<string, Set<string>>();
+  for (const row of rows) {
+    const et = row.dimension.entityType;
+    if (!valueIdsByType.has(et)) valueIdsByType.set(et, new Set());
+    valueIdsByType.get(et)!.add(row.valueId);
+  }
+
+  // Resolve value names in parallel
+  const valueNameMap = new Map<string, string>();
+
+  const resolutions = await Promise.all(
+    Array.from(valueIdsByType.entries()).map(async ([entityType, valueIds]) => {
+      const ids = [...valueIds];
+      if (entityType === "Custom") {
+        const res = await client
+          .from("dimensionValue")
+          .select("id, name")
+          .in("id", ids);
+        return res.data ?? [];
+      }
+      const res = await getEntityValuesByIds(client, entityType, ids);
+      return res.data ?? [];
+    })
+  );
+
+  for (const batch of resolutions) {
+    for (const item of batch as { id: string; name: string }[]) {
+      valueNameMap.set(item.id, item.name);
+    }
+  }
+
+  // Group by journalLineId
+  const grouped: Record<
+    string,
+    {
+      dimensionId: string;
+      dimensionName: string;
+      valueId: string;
+      valueName: string;
+    }[]
+  > = {};
+  for (const row of rows) {
+    if (!grouped[row.journalLineId]) grouped[row.journalLineId] = [];
+    grouped[row.journalLineId].push({
+      dimensionId: row.dimensionId,
+      dimensionName: row.dimension.name,
+      valueId: row.valueId,
+      valueName: valueNameMap.get(row.valueId) ?? row.valueId
+    });
+  }
+
+  return { data: grouped, error: null };
+}
+
+function getEntityValuesByIds(
+  client: SupabaseClient<Database>,
+  entityType: string,
+  ids: string[]
+) {
+  switch (entityType) {
+    case "Location":
+      return client.from("location").select("id, name").in("id", ids);
+    case "Department":
+      return client.from("department").select("id, name").in("id", ids);
+    case "Employee":
+      return client.from("employeeSummary").select("id, name").in("id", ids);
+    case "CustomerType":
+      return client.from("customerType").select("id, name").in("id", ids);
+    case "SupplierType":
+      return client.from("supplierType").select("id, name").in("id", ids);
+    case "ItemPostingGroup":
+      return client.from("itemPostingGroup").select("id, name").in("id", ids);
+    case "CostCenter":
+      return client.from("costCenter").select("id, name").in("id", ids);
+    default:
+      return Promise.resolve({
+        data: [] as { id: string; name: string }[],
+        error: null
+      });
+  }
+}
+
+export async function saveJournalLineDimensions(
+  client: SupabaseClient<Database>,
+  journalLineId: string,
+  companyId: string,
+  dimensions: Array<{ dimensionId: string; valueId: string }>
+) {
+  const deleteResult = await client
+    .from("journalLineDimension")
+    .delete()
+    .eq("journalLineId", journalLineId);
+
+  if (deleteResult.error) return deleteResult;
+
+  if (dimensions.length === 0) return { data: null, error: null };
+
+  return client.from("journalLineDimension").insert(
+    dimensions.map((d) => ({
+      journalLineId,
+      dimensionId: d.dimensionId,
+      valueId: d.valueId,
+      companyId
+    }))
+  );
+}
+
 export async function translateCompanyBalances(
   client: SupabaseClient<Database>,
   companyGroupId: string,
@@ -1260,6 +1535,7 @@ export async function saveJournalEntryWithLines(
       description?: string;
       debit: number;
       credit: number;
+      dimensions?: Array<{ dimensionId: string; valueId: string }>;
     }>;
     companyId: string;
     companyGroupId: string;
@@ -1280,7 +1556,7 @@ export async function saveJournalEntryWithLines(
 
   if (headerUpdate.error) return headerUpdate;
 
-  // 2. Delete existing lines
+  // 2. Delete existing lines (cascades journalLineDimension via FK)
   const deleteResult = await client
     .from("journalLine")
     .delete()
@@ -1321,8 +1597,45 @@ export async function saveJournalEntryWithLines(
     };
   });
 
-  // 5. Insert all lines
-  return client.from("journalLine").insert(inserts);
+  // 5. Insert all lines and get new IDs
+  const insertResult = await client
+    .from("journalLine")
+    .insert(inserts)
+    .select("id");
+
+  if (insertResult.error) return insertResult;
+
+  // 6. Insert dimensions from client state
+  const newLineIds = (insertResult.data ?? []).map((l) => l.id);
+  const dimensionInserts: Array<{
+    journalLineId: string;
+    dimensionId: string;
+    valueId: string;
+    companyId: string;
+  }> = [];
+
+  for (let i = 0; i < newLineIds.length; i++) {
+    const lineDims = data.lines[i]?.dimensions;
+    if (lineDims) {
+      for (const d of lineDims) {
+        dimensionInserts.push({
+          journalLineId: newLineIds[i],
+          dimensionId: d.dimensionId,
+          valueId: d.valueId,
+          companyId: data.companyId
+        });
+      }
+    }
+  }
+
+  if (dimensionInserts.length > 0) {
+    const dimInsertResult = await client
+      .from("journalLineDimension")
+      .insert(dimensionInserts);
+    if (dimInsertResult.error) return dimInsertResult;
+  }
+
+  return insertResult;
 }
 
 export async function postJournalEntry(

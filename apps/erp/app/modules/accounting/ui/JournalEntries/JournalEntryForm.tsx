@@ -28,7 +28,7 @@ import {
   LuSave,
   LuTrash
 } from "react-icons/lu";
-import { Link, useFetcher, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { DatePicker, Hidden, Input, Select } from "~/components/Form";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useUser } from "~/hooks";
@@ -40,7 +40,11 @@ import {
 } from "../../accounting.models";
 import JournalEntryStatus from "./JournalEntryStatus";
 import JournalLineRow from "./JournalLineRow";
-import type { ClientJournalLine } from "./types";
+import type {
+  ClientJournalLine,
+  DimensionWithValues,
+  JournalLineDimensionValue
+} from "./types";
 
 type JournalEntryFormProps = {
   journalEntryId: string;
@@ -57,6 +61,8 @@ type JournalEntryFormProps = {
   };
   initialLines: ClientJournalLine[];
   companies: { id: string; name: string }[];
+  dimensions: DimensionWithValues[];
+  lineDimensions: Record<string, JournalLineDimensionValue[]>;
   isDisabled?: boolean;
 };
 
@@ -70,7 +76,8 @@ function createEmptyLine(): ClientJournalLine {
     accountNumber: "",
     description: "",
     debit: null,
-    credit: null
+    credit: null,
+    dimensions: []
   };
 }
 
@@ -83,9 +90,10 @@ const JournalEntryForm = ({
   initialValues,
   initialLines,
   companies,
+  dimensions,
+  lineDimensions,
   isDisabled = false
 }: JournalEntryFormProps) => {
-  const reverseFetcher = useFetcher();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const deleteModal = useDisclosure();
@@ -95,11 +103,15 @@ const JournalEntryForm = ({
     currency: company.baseCurrencyCode
   });
 
-  const [lines, setLines] = useState<ClientJournalLine[]>(
-    initialLines.length > 0
-      ? initialLines
-      : [createEmptyLine(), createEmptyLine()]
-  );
+  const [lines, setLines] = useState<ClientJournalLine[]>(() => {
+    if (initialLines.length === 0) {
+      return [createEmptyLine(), createEmptyLine()];
+    }
+    return initialLines.map((line) => ({
+      ...line,
+      dimensions: lineDimensions[line.id] ?? line.dimensions ?? []
+    }));
+  });
   const isDraft = status === "Draft";
   const isPosted = status === "Posted";
   const isReversed = status === "Reversed";
@@ -146,7 +158,11 @@ const JournalEntryForm = ({
       accountNumber: l.accountNumber,
       description: l.description,
       debit: l.debit ?? 0,
-      credit: l.credit ?? 0
+      credit: l.credit ?? 0,
+      dimensions: (l.dimensions ?? []).map((d) => ({
+        dimensionId: d.dimensionId,
+        valueId: d.valueId
+      }))
     }))
   );
 
@@ -167,10 +183,11 @@ const JournalEntryForm = ({
               </Heading>
               <Copy text={displayId} />
 
-              {isDraft && (
+              {(isDraft || isPosted) && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
+                      type="button"
                       aria-label="More options"
                       icon={<LuEllipsisVertical />}
                       variant="secondary"
@@ -178,18 +195,31 @@ const JournalEntryForm = ({
                     />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      disabled={
-                        !permissions.can("delete", "accounting") ||
-                        !permissions.is("employee")
-                      }
-                      destructive
-                      onClick={deleteModal.onOpen}
-                    >
-                      <DropdownMenuIcon icon={<LuTrash />} />
-                      Delete Journal Entry
-                    </DropdownMenuItem>
+                    {isPosted && permissions.can("create", "accounting") && (
+                      <DropdownMenuItem
+                        destructive
+                        onClick={reverseModal.onOpen}
+                      >
+                        <DropdownMenuIcon icon={<LuRotateCcw />} />
+                        Reverse Entry
+                      </DropdownMenuItem>
+                    )}
+                    {isDraft && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          disabled={
+                            !permissions.can("delete", "accounting") ||
+                            !permissions.is("employee")
+                          }
+                          destructive
+                          onClick={deleteModal.onOpen}
+                        >
+                          <DropdownMenuIcon icon={<LuTrash />} />
+                          Delete Journal Entry
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
@@ -226,16 +256,6 @@ const JournalEntryForm = ({
                   </Button>
                 </>
               )}
-              {isPosted && permissions.can("create", "accounting") && (
-                <Button
-                  leftIcon={<LuRotateCcw />}
-                  variant="destructive"
-                  onClick={reverseModal.onOpen}
-                  isLoading={reverseFetcher.state !== "idle"}
-                >
-                  Reverse
-                </Button>
-              )}
             </HStack>
           </CardHeader>
 
@@ -245,6 +265,9 @@ const JournalEntryForm = ({
             <VStack spacing={4} className="w-full">
               {/* Entry Details */}
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full">
+                <div className="col-span-3">
+                  <Input name="description" label="Description" />
+                </div>
                 <Input
                   name="company"
                   label="Company"
@@ -263,10 +286,6 @@ const JournalEntryForm = ({
                   label="Posting Date"
                   isDisabled={isDisabled}
                 />
-
-                <div className="col-span-3">
-                  <Input name="description" label="Description" />
-                </div>
               </div>
 
               <Separator />
@@ -294,6 +313,8 @@ const JournalEntryForm = ({
                     onDelete={() => handleDeleteLine(index)}
                     canDelete={lines.length > 2}
                     isDisabled={isDisabled}
+                    availableDimensions={dimensions}
+                    autoSaveDimensions={isPosted || isReversed}
                   />
                 ))}
               </div>
@@ -363,18 +384,13 @@ const JournalEntryForm = ({
         }}
       />
       <ConfirmDelete
+        action={path.to.reverseJournalEntry(journalEntryId)}
         isOpen={reverseModal.isOpen}
         name={displayId}
         deleteText="Reverse Entry"
         text="Are you sure you want to reverse this journal entry? This will create a new posted entry with negated amounts and mark this entry as Reversed."
         onCancel={reverseModal.onClose}
-        onSubmit={() => {
-          reverseModal.onClose();
-          reverseFetcher.submit(null, {
-            method: "post",
-            action: path.to.reverseJournalEntry(journalEntryId)
-          });
-        }}
+        onSubmit={reverseModal.onClose}
       />
     </>
   );

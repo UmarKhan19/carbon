@@ -11,6 +11,10 @@ import {
   saveJournalEntryWithLines
 } from "~/modules/accounting";
 import { JournalEntryForm } from "~/modules/accounting/ui/JournalEntries";
+import type {
+  DimensionWithValues,
+  JournalLineDimensionValue
+} from "~/modules/accounting/ui/JournalEntries/types";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -41,6 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     description?: string;
     debit: number;
     credit: number;
+    dimensions?: Array<{ dimensionId: string; valueId: string }>;
   }>;
 
   try {
@@ -122,6 +127,8 @@ export default function JournalEntryDetailsRoute() {
   const routeData = useRouteData<{
     journalEntry: JournalEntry;
     companies: { id: string; name: string }[];
+    dimensions: DimensionWithValues[];
+    lineDimensions: Record<string, JournalLineDimensionValue[]>;
   }>(path.to.journalEntry(journalEntryId));
 
   if (!routeData?.journalEntry)
@@ -138,7 +145,8 @@ export default function JournalEntryDetailsRoute() {
         accountNumber: line.accountNumber,
         description: line.description ?? "",
         debit: toDisplayDebit(amount, accountClass) || null,
-        credit: toDisplayCredit(amount, accountClass) || null
+        credit: toDisplayCredit(amount, accountClass) || null,
+        dimensions: [] as JournalLineDimensionValue[]
       };
     }
   );
@@ -160,6 +168,8 @@ export default function JournalEntryDetailsRoute() {
       }}
       initialLines={initialLines}
       companies={routeData.companies ?? []}
+      dimensions={routeData.dimensions ?? []}
+      lineDimensions={routeData.lineDimensions ?? {}}
       isDisabled={isPosted}
     />
   );

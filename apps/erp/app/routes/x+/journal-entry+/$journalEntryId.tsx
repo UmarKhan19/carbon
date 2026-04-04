@@ -3,7 +3,12 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
-import { getCompaniesInGroup, getJournalEntry } from "~/modules/accounting";
+import {
+  getActiveDimensionsWithValues,
+  getCompaniesInGroup,
+  getJournalEntry,
+  getJournalLineDimensions
+} from "~/modules/accounting";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -23,9 +28,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { journalEntryId } = params;
   if (!journalEntryId) throw new Error("Could not find journalEntryId");
 
-  const [journalEntry, companies] = await Promise.all([
+  const [journalEntry, companies, dimensions] = await Promise.all([
     getJournalEntry(client, journalEntryId),
-    getCompaniesInGroup(client, companyGroupId)
+    getCompaniesInGroup(client, companyGroupId),
+    getActiveDimensionsWithValues(client, companyGroupId, companyId)
   ]);
 
   if (journalEntry.error) {
@@ -42,9 +48,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw redirect(path.to.accountingJournals);
   }
 
+  const journalLineIds = (journalEntry.data.journalLine ?? []).map((l) => l.id);
+  const lineDimensions = await getJournalLineDimensions(client, journalLineIds);
+
   return {
     journalEntry: journalEntry.data,
-    companies: companies.data ?? []
+    companies: companies.data ?? [],
+    dimensions: dimensions.data ?? [],
+    lineDimensions: lineDimensions.data ?? {}
   };
 }
 
