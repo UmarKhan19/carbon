@@ -58,8 +58,7 @@ type ActiveFilterProps = {
 };
 
 const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
-  const { t } = useTranslation("shared");
-  const { t: tSales } = useTranslation("sales");
+  const { t, i18n } = useTranslation("shared");
   const { hasFilter, removeKey, toggleFilter } = useFilters();
 
   const [open, setOpen] = useState(false);
@@ -126,7 +125,7 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
   };
 
   const translate = (text: string) => {
-    const fromSales = tSales(text);
+    const fromSales = i18n.t(text, { ns: "sales", defaultValue: text });
     if (fromSales !== text) return fromSales;
     return t(text);
   };

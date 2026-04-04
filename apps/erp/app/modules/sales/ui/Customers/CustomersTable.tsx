@@ -9,7 +9,7 @@ import {
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   LuBookMarked,
   LuCalendar,
@@ -50,13 +50,22 @@ type CustomersTableProps = {
 
 const CustomersTable = memo(
   ({ data, count, customerStatuses, tags }: CustomersTableProps) => {
-    const { t } = useTranslation("sales");
+    const { t, i18n } = useTranslation("sales");
     const navigate = useNavigate();
     const permissions = usePermissions();
     const [people] = usePeople();
     const deleteModal = useDisclosure();
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
       null
+    );
+
+    const translateStatus = useCallback(
+      (value: string) =>
+        i18n.t(value, {
+          ns: "sales",
+          defaultValue: value
+        }),
+      [i18n]
     );
 
     const customerTypes = useCustomerTypes();
@@ -81,13 +90,17 @@ const CustomersTable = memo(
         {
           accessorKey: "status",
           header: t("Status"),
-          cell: (item) => <Enumerable value={item.getValue<string>()} />,
+          cell: (item) => (
+            <Enumerable value={translateStatus(item.getValue<string>())} />
+          ),
           meta: {
             filter: {
               type: "static",
               options: customerStatuses?.map((status) => ({
                 value: status.name,
-                label: <Enumerable value={status.name ?? ""} />
+                label: (
+                  <Enumerable value={translateStatus(status.name ?? "")} />
+                )
               }))
             },
             pluralHeader: "Statuses",
@@ -241,7 +254,15 @@ const CustomersTable = memo(
       ];
 
       return [...defaultColumns, ...customColumns];
-    }, [customerStatuses, customerTypes, people, customColumns, tags, t]);
+    }, [
+      customerStatuses,
+      customerTypes,
+      people,
+      customColumns,
+      tags,
+      t,
+      translateStatus
+    ]);
 
     const renderContextMenu = useMemo(
       () => (row: Customer) => (

@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardAttribute,
@@ -35,6 +36,7 @@ import { path } from "~/utils/path";
 import type { CustomerDetail, CustomerStatus } from "../../types";
 
 const CustomerHeader = () => {
+  const { i18n } = useTranslation("sales");
   const { customerId } = useParams();
 
   if (!customerId) throw new Error("Could not find customerId");
@@ -126,7 +128,12 @@ const CustomerHeader = () => {
                 <CardAttributeLabel>Status</CardAttributeLabel>
                 <CardAttributeValue>
                   {customerStatus ? (
-                    <Enumerable value={customerStatus!} />
+                    <Enumerable
+                      value={i18n.t(customerStatus, {
+                        ns: "sales",
+                        defaultValue: customerStatus
+                      })}
+                    />
                   ) : (
                     "-"
                   )}

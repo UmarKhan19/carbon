@@ -1,6 +1,7 @@
 "use client";
 
 import { NotificationEvent } from "@carbon/notifications";
+import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   Button,
@@ -128,11 +129,12 @@ function Notification({
   onClose: () => void;
 }) {
   const { id: userId } = useUser();
+  const { t } = useTranslation("shared");
   const [people] = usePeople();
   let byUser = "";
   if (from) {
     if (from === userId) {
-      byUser = "yourself";
+      byUser = t("yourself");
     } else {
       byUser = people.find((p) => p.id === from)?.name ?? "";
     }
@@ -151,7 +153,7 @@ function Notification({
         </div>
         <div>
           <p className="text-sm">
-            {description} {byUser && <span>by {byUser}</span>}
+            {description} {byUser && <span>{t("by {{name}}", { name: byUser })}</span>}
           </p>
           <span className="text-xs text-muted-foreground">
             {formatTimeAgo(createdAt)}
@@ -161,7 +163,7 @@ function Notification({
       {markMessageAsRead && (
         <div>
           <IconButton
-            aria-label="Mark as read"
+            aria-label={t("Mark as read")}
             icon={<LuMailCheck />}
             variant="secondary"
             className="rounded-full before:rounded-full"
@@ -372,6 +374,7 @@ function GenericNotification({
 }
 
 const Notifications = () => {
+  const { t } = useTranslation("shared");
   const {
     id: userId,
     company: { id: companyId }
@@ -451,13 +454,13 @@ const Notifications = () => {
         >
           <TabsList className="w-full border-b-[1px] py-6 rounded-none bg-muted/[0.5]">
             <TabsTrigger value="inbox" className="font-normal">
-              Inbox
+              {t("Inbox")}
             </TabsTrigger>
             <TabsTrigger value="trainings" className="font-normal">
-              Trainings
+              {t("Trainings")}
             </TabsTrigger>
             <TabsTrigger value="archive" className="font-normal">
-              Archive
+              {t("Archive")}
             </TabsTrigger>
           </TabsList>
 
@@ -477,7 +480,7 @@ const Notifications = () => {
 
           <TabsContent value="inbox" className="relative mt-0">
             {!unreadNotifications.length && (
-              <EmptyState description="No new notifications" />
+              <EmptyState description={t("No new notifications")} />
             )}
 
             {unreadNotifications.length > 0 && (
@@ -515,7 +518,7 @@ const Notifications = () => {
                   className="bg-transparent"
                   onClick={markAllMessagesAsRead}
                 >
-                  Archive all
+                  {t("Archive all")}
                 </Button>
               </div>
             )}
@@ -529,7 +532,7 @@ const Notifications = () => {
             )}
 
             {!isLoadingTrainings && outstandingTrainings.length === 0 && (
-              <EmptyState description="No outstanding trainings" />
+              <EmptyState description={t("No outstanding trainings")} />
             )}
 
             {!isLoadingTrainings && outstandingTrainings.length > 0 && (
@@ -549,7 +552,7 @@ const Notifications = () => {
 
           <TabsContent value="archive" className="mt-0">
             {!archivedNotifications.length && (
-              <EmptyState description="Nothing in the archive" />
+              <EmptyState description={t("Nothing in the archive")} />
             )}
 
             {archivedNotifications.length > 0 && (

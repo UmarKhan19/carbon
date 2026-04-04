@@ -111,8 +111,7 @@ const TableHeader = <T extends object>({
   withSearch,
   withSelectableRows
 }: HeaderProps<T>) => {
-  const { t } = useTranslation("shared");
-  const { t: tSales } = useTranslation("sales");
+  const { t, i18n } = useTranslation("shared");
   const [params, setParams] = useUrlParams();
   const currentFilters = params.getAll("filter").filter(Boolean);
   const currentSorts = params.getAll("sort").filter(Boolean);
@@ -139,7 +138,7 @@ const TableHeader = <T extends object>({
   const { currentView, hasView } = useSavedViews();
   const translateText = (value: string | undefined) => {
     if (!value) return value;
-    const fromSales = tSales(value);
+    const fromSales = i18n.t(value, { ns: "sales", defaultValue: value });
     if (fromSales !== value) return fromSales;
     const fromShared = t(value);
     return fromShared;

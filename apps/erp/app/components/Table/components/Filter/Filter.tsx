@@ -33,8 +33,7 @@ export type FilterProps = Omit<
 
 const Filter = forwardRef<HTMLButtonElement, FilterProps>(
   ({ filters, trigger = "button", ...props }, ref) => {
-    const { t } = useTranslation("shared");
-    const { t: tSales } = useTranslation("sales");
+    const { t, i18n } = useTranslation("shared");
     const { clearFilters, hasFilter, hasFilters, hasFilterKey, toggleFilter } =
       useFilters();
 
@@ -78,11 +77,11 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
 
     const translate = useCallback(
       (value: string) => {
-        const fromSales = tSales(value);
+        const fromSales = i18n.t(value, { ns: "sales", defaultValue: value });
         if (fromSales !== value) return fromSales;
         return t(value);
       },
-      [t, tSales]
+      [i18n, t]
     );
 
     const columnFilters = useMemo(
