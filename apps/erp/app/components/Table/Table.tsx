@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import {
   ActionMenu,
   Button,
@@ -241,6 +242,7 @@ const Table = <T extends object>({
   renderContextMenu,
   renderExpandedRow
 }: TableProps<T>) => {
+  const { t } = useTranslation("shared");
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const { currentView, view } = useSavedViews();
@@ -915,10 +917,10 @@ const Table = <T extends object>({
                   <LuTriangleAlert className="h-6 w-6 flex-shrink-0" />
                 </div>
                 <span className="text-xs font-mono font-light text-foreground uppercase">
-                  No results found
+                  {t("No results found")}
                 </span>
                 <Button variant="secondary" onClick={clearFilters}>
-                  Remove Filters
+                  {t("Remove Filters")}
                 </Button>
               </div>
             ) : (
@@ -927,7 +929,7 @@ const Table = <T extends object>({
                   <LuTriangleAlert className="h-6 w-6 flex-shrink-0" />
                 </div>
                 <span className="text-xs font-mono font-light text-foreground uppercase">
-                  No data exists
+                  {t("No data exists")}
                 </span>
                 {primaryAction}
               </div>

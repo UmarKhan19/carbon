@@ -1,4 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Avatar,
   Badge,
@@ -22,6 +23,7 @@ import {
   useIsMobile,
   VStack
 } from "@carbon/react";
+import type { ReactNode } from "react";
 import { useMode } from "@carbon/remix";
 import { BsFillHexagonFill } from "react-icons/bs";
 import { IoMdAdd } from "react-icons/io";
@@ -55,7 +57,18 @@ const BreadcrumbHandleMatch = z.object({
 });
 
 const Breadcrumbs = () => {
+  const { t: tShared } = useTranslation("shared");
+  const { t: tSales } = useTranslation("sales");
   const matches = useMatches();
+
+  const translateBreadcrumb = (value: unknown): ReactNode => {
+    if (typeof value !== "string") return value as ReactNode;
+
+    const fromSales = tSales(value);
+    if (fromSales !== value) return fromSales;
+
+    return tShared(value);
+  };
 
   const breadcrumbs = matches
     .map((m) => {
@@ -63,10 +76,11 @@ const Breadcrumbs = () => {
       if (!result.success || !result.data.handle.breadcrumb) return null;
 
       return {
-        breadcrumb:
+        breadcrumb: translateBreadcrumb(
           typeof result.data.handle.breadcrumb === "function"
             ? result.data.handle.breadcrumb(m.params)
-            : result.data.handle.breadcrumb,
+            : result.data.handle.breadcrumb
+        ),
         to: result.data.handle?.to ?? m.pathname
       };
     })

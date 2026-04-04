@@ -1,4 +1,5 @@
 import { Hidden, Input, Submit, ValidatedForm } from "@carbon/form";
+import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   Button,
@@ -109,6 +110,8 @@ const TableHeader = <T extends object>({
   withSearch,
   withSelectableRows
 }: HeaderProps<T>) => {
+  const { t } = useTranslation("shared");
+  const { t: tSales } = useTranslation("sales");
   const [params, setParams] = useUrlParams();
   const currentFilters = params.getAll("filter").filter(Boolean);
   const currentSorts = params.getAll("sort").filter(Boolean);
@@ -133,7 +136,14 @@ const TableHeader = <T extends object>({
   }, [fetcher.state, fetcher.data?.success]);
 
   const { currentView, hasView } = useSavedViews();
-  const viewTitle = currentView?.name ?? title;
+  const translateTitle = (value: string | undefined) => {
+    if (!value) return value;
+    const fromSales = tSales(value);
+    if (fromSales !== value) return fromSales;
+    const fromShared = t(value);
+    return fromShared;
+  };
+  const viewTitle = translateTitle(currentView?.name ?? title);
   // const viewDescription = currentView?.description ?? "";
 
   const hideTitleBar = !viewTitle && !primaryAction && !canSaveView;
@@ -267,7 +277,7 @@ const TableHeader = <T extends object>({
               </DropdownMenu>
             )}
           {withSearch && (
-            <SearchFilter param="search" size="sm" placeholder="Search" />
+            <SearchFilter param="search" size="sm" placeholder={t("Search")} />
           )}
           {!!filters?.length && <Filter filters={filters} />}
         </HStack>

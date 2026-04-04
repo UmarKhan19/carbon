@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import {
   Button,
   Checkbox,
@@ -32,6 +33,7 @@ export type FilterProps = Omit<
 
 const Filter = forwardRef<HTMLButtonElement, FilterProps>(
   ({ filters, trigger = "button", ...props }, ref) => {
+    const { t } = useTranslation("shared");
     const { clearFilters, hasFilter, hasFilters, hasFilterKey, toggleFilter } =
       useFilters();
 
@@ -119,7 +121,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
           className={"!border-dashed border-border"}
           {...props}
         >
-          Clear Filters
+          {t("Clear Filters")}
         </Button>
       </HStack>
     ) : (
@@ -149,7 +151,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
               className={"!border-dashed border-border"}
               {...props}
             >
-              Filter
+              {t("Filter")}
             </Button>
           )}
         </PopoverTrigger>
@@ -161,11 +163,11 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder="Search..."
+              placeholder={t("Search...")}
               className="h-9"
             />
             <CommandEmpty>
-              {loading ? "Loading..." : "No available filters"}
+              {loading ? t("Loading...") : t("No available filters")}
             </CommandEmpty>
             {activeFilter === null ? (
               <CommandGroup>
