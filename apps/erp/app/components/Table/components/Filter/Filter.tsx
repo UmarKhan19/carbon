@@ -34,6 +34,7 @@ export type FilterProps = Omit<
 const Filter = forwardRef<HTMLButtonElement, FilterProps>(
   ({ filters, trigger = "button", ...props }, ref) => {
     const { t } = useTranslation("shared");
+    const { t: tSales } = useTranslation("sales");
     const { clearFilters, hasFilter, hasFilters, hasFilterKey, toggleFilter } =
       useFilters();
 
@@ -75,14 +76,23 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
       }
     }, [fetcher.data, activeFilter]);
 
+    const translate = useCallback(
+      (value: string) => {
+        const fromSales = tSales(value);
+        if (fromSales !== value) return fromSales;
+        return t(value);
+      },
+      [t, tSales]
+    );
+
     const columnFilters = useMemo(
       () =>
         filters.map((f) => ({
           value: f.accessorKey,
-          label: f.header,
+          label: translate(f.header),
           icon: f.icon
         })),
-      [filters]
+      [filters, translate]
     );
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -129,7 +139,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
         <PopoverTrigger asChild>
           {trigger === "icon" ? (
             <Button
-              aria-label="Remove filter"
+              aria-label={t("Remove filter")}
               className="px-1 w-6"
               variant="secondary"
               size="sm"
@@ -223,7 +233,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
                               <span>{option.label}</span>
                               {option.helperText && (
                                 <p className="text-xs text-muted-foreground truncate">
-                                  {option.helperText}
+                                  {translate(option.helperText)}
                                 </p>
                               )}
                             </VStack>

@@ -35,9 +35,15 @@ const translationFiles = [
 const sortedKeys = (translations: TranslationMap) =>
   [...Object.keys(translations)].sort((a, b) => a.localeCompare(b));
 
+const isValidIdentifier = (key: string) =>
+  /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key);
+
+const formatKey = (key: string) =>
+  isValidIdentifier(key) ? key : JSON.stringify(key);
+
 const renderFile = (objectName: string, translations: TranslationMap) => {
   const body = sortedKeys(translations)
-    .map((key) => `  ${JSON.stringify(key)}: ${JSON.stringify(translations[key])},`)
+    .map((key) => `  ${formatKey(key)}: ${JSON.stringify(translations[key])},`)
     .join("\n");
 
   return `const ${objectName} = {\n${body}\n} as const;\n\nexport default ${objectName};\n`;

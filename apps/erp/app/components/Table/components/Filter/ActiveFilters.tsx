@@ -1,3 +1,4 @@
+import { useTranslation } from "@carbon/locale";
 import {
   Button,
   Checkbox,
@@ -57,6 +58,8 @@ type ActiveFilterProps = {
 };
 
 const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
+  const { t } = useTranslation("shared");
+  const { t: tSales } = useTranslation("sales");
   const { hasFilter, removeKey, toggleFilter } = useFilters();
 
   const [open, setOpen] = useState(false);
@@ -110,12 +113,22 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
     const [, ...others] = v.split(",");
     if (others && others.length > 0) {
       return `${1 + others.length} ${
-        filter.pluralHeader ? filter.pluralHeader : filter.header + "s"
+        filter.pluralHeader
+          ? translate(filter.pluralHeader)
+          : `${translate(filter.header)}s`
       }`;
     } else {
       const node = options.find((o) => o.value === v)?.label ?? "";
-      return typeof node === "string" ? node : reactNodeToString(node);
+      return typeof node === "string"
+        ? translate(node)
+        : reactNodeToString(node);
     }
+  };
+
+  const translate = (text: string) => {
+    const fromSales = tSales(text);
+    if (fromSales !== text) return fromSales;
+    return t(text);
   };
 
   return (
@@ -126,10 +139,14 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         size="sm"
         variant="secondary"
       >
-        {filter.header}
+        {translate(filter.header)}
       </Button>
       <Button className="rounded-none border-l-0" size="sm" variant="secondary">
-        {operator === "eq" ? "is" : operator === "in" ? "is any of" : "matches"}
+        {operator === "eq"
+          ? t("is")
+          : operator === "in"
+            ? t("is any of")
+            : t("matches")}
       </Button>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -153,11 +170,11 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder="Search..."
+              placeholder={t("Search...")}
               className="h-9"
             />
             <CommandEmpty>
-              {loading ? "Loading..." : "No options found."}
+              {loading ? t("Loading...") : t("No options found.")}
             </CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
@@ -177,7 +194,11 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
                   >
                     <HStack spacing={2}>
                       <Checkbox id={option.value} isChecked={isChecked} />
-                      <label htmlFor={option.value}>{option.label}</label>
+                      <label htmlFor={option.value}>
+                        {typeof option.label === "string"
+                          ? translate(option.label)
+                          : option.label}
+                      </label>
                     </HStack>
                   </CommandItem>
                 );
@@ -187,7 +208,7 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         </PopoverContent>
       </Popover>
       <Button
-        aria-label="Remove filter"
+        aria-label={t("Remove filter")}
         className="rounded-l-none border-l-0 px-1 w-6"
         size="sm"
         variant="secondary"
