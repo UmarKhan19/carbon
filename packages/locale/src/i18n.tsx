@@ -1,24 +1,40 @@
-import type { Resource } from "i18next";
-import { createInstance } from "i18next";
-import type { ReactNode } from "react";
-import { useEffect, useMemo } from "react";
+import { type I18n as LinguiI18n, setupI18n } from "@lingui/core";
+import { I18nProvider as LinguiProvider } from "@lingui/react";
 import {
-  I18nextProvider,
-  useTranslation as useReactI18nextTranslation
-} from "react-i18next";
-import { initReactI18next } from "react-i18next/initReactI18next";
-import {
-  defaultLanguage,
-  resolveLanguage,
-  type SupportedLanguage,
-  supportedLanguages
-} from "./config";
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useMemo
+} from "react";
+import { resolveLanguage, type SupportedLanguage } from "./config";
 
 export const namespaces = ["shared", "sales"] as const;
 export type Namespace = (typeof namespaces)[number];
 
 type TranslationModule = {
   default: Record<string, string>;
+};
+
+type NamespaceResources = Partial<Record<Namespace, Record<string, string>>>;
+export type LocaleResources = Partial<
+  Record<SupportedLanguage, NamespaceResources>
+>;
+
+type TranslationOptions = Record<string, unknown> & {
+  defaultValue?: string;
+  ns?: Namespace;
+};
+
+type TranslationApi = {
+  language: SupportedLanguage;
+  resolvedLanguage: SupportedLanguage;
+  t: (key: string, options?: TranslationOptions) => string;
+};
+
+type TranslationResult = {
+  t: (key: string, options?: TranslationOptions) => string;
+  i18n: TranslationApi;
 };
 
 const translationLoaders: Record<
@@ -40,6 +56,44 @@ const namespaceResourceCache = new Map<
   Promise<Record<string, string>>
 >();
 
+const MESSAGE_ID_SEPARATOR = "::";
+
+const getMessageId = (namespace: Namespace, key: string) =>
+  `${namespace}${MESSAGE_ID_SEPARATOR}${key}`;
+
+const normalizeInterpolation = (value: string) => {
+  return value.replace(/\{\{\s*([^{}\s]+)\s*\}\}/g, "{$1}");
+};
+
+const interpolateFallback = (
+  template: string,
+  values: Record<string, unknown>
+) => {
+  if (Object.keys(values).length === 0) return template;
+
+  return template.replace(
+    /\{\{\s*([^{}\s]+)\s*\}\}|\{([^{}\s]+)\}/g,
+    (match, legacyToken, linguiToken) => {
+      const token = (legacyToken ?? linguiToken) as string;
+      const replacement = values[token];
+      if (replacement === null || replacement === undefined) return match;
+      return String(replacement);
+    }
+  );
+};
+
+const toMessageCatalog = (
+  namespace: Namespace,
+  resource: Record<string, string>
+) => {
+  return Object.fromEntries(
+    Object.entries(resource).map(([key, value]) => [
+      getMessageId(namespace, key),
+      normalizeInterpolation(value)
+    ])
+  ) as Record<string, string>;
+};
+
 function loadNamespaceResource(
   language: SupportedLanguage,
   namespace: Namespace
@@ -54,6 +108,49 @@ function loadNamespaceResource(
   namespaceResourceCache.set(cacheKey, resourcePromise);
   return resourcePromise;
 }
+
+type LocaleRuntime = {
+  catalogs: Record<string, string>;
+  i18n: LinguiI18n;
+  language: SupportedLanguage;
+  loadedNamespaces: Set<Namespace>;
+};
+
+type LocaleRuntimeContextValue = {
+  ensureNamespace: (namespace: Namespace) => Promise<void>;
+  runtime: LocaleRuntime;
+};
+
+const LocaleRuntimeContext = createContext<LocaleRuntimeContextValue | null>(
+  null
+);
+
+const getInitialRuntime = (
+  language: SupportedLanguage,
+  resources: LocaleResources | undefined
+): LocaleRuntime => {
+  const i18n = setupI18n();
+  const loadedNamespaces = new Set<Namespace>();
+  const catalogs: Record<string, string> = {};
+  const languageResources = resources?.[language];
+
+  for (const namespace of namespaces) {
+    const resource = languageResources?.[namespace];
+    if (!resource) continue;
+    loadedNamespaces.add(namespace);
+    Object.assign(catalogs, toMessageCatalog(namespace, resource));
+  }
+
+  i18n.load(language, catalogs);
+  i18n.activate(language);
+
+  return {
+    catalogs,
+    i18n,
+    language,
+    loadedNamespaces
+  };
+};
 
 export async function loadLocaleResources(
   locale: string | null | undefined,
@@ -70,7 +167,7 @@ export async function loadLocaleResources(
 
   return {
     [language]: Object.fromEntries(loadedNamespaces)
-  } as Resource;
+  } as LocaleResources;
 }
 
 export function LocaleProvider({
@@ -79,60 +176,75 @@ export function LocaleProvider({
   children
 }: {
   locale?: string | null;
-  resources?: Resource;
+  resources?: LocaleResources;
   children: ReactNode;
 }) {
   const language = resolveLanguage(locale);
-
-  const i18n = useMemo(() => {
-    const instance = createInstance();
-    instance.use(initReactI18next).init({
-      lng: language,
-      fallbackLng: defaultLanguage,
-      supportedLngs: supportedLanguages,
-      resources: resources ?? {},
-      ns: namespaces as unknown as string[],
-      defaultNS: "shared",
-      fallbackNS: "shared",
-      interpolation: {
-        escapeValue: false
-      },
-      keySeparator: false,
-      nsSeparator: false,
-      returnEmptyString: false,
-      react: {
-        useSuspense: false
-      }
-    });
-
-    return instance;
+  const runtime = useMemo(() => {
+    return getInitialRuntime(language, resources);
   }, [language, resources]);
 
-  return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
+  const ensureNamespace = useMemo(() => {
+    return async (namespace: Namespace) => {
+      if (runtime.loadedNamespaces.has(namespace)) return;
+
+      const resource = await loadNamespaceResource(language, namespace);
+      if (runtime.loadedNamespaces.has(namespace)) return;
+
+      runtime.loadedNamespaces.add(namespace);
+      Object.assign(runtime.catalogs, toMessageCatalog(namespace, resource));
+      runtime.i18n.load(language, runtime.catalogs);
+      runtime.i18n.activate(language);
+    };
+  }, [language, runtime]);
+
+  return (
+    <LocaleRuntimeContext.Provider value={{ ensureNamespace, runtime }}>
+      <LinguiProvider i18n={runtime.i18n}>{children}</LinguiProvider>
+    </LocaleRuntimeContext.Provider>
+  );
 }
 
-export const useTranslation = (namespace: Namespace = "shared") => {
-  const translation = useReactI18nextTranslation(namespace);
-  const { i18n } = translation;
+const useLocaleRuntime = () => {
+  const localeRuntime = useContext(LocaleRuntimeContext);
+  if (!localeRuntime) {
+    throw new Error("useTranslation must be used within LocaleProvider");
+  }
+  return localeRuntime;
+};
+
+export const useTranslation = (
+  namespace: Namespace = "shared"
+): TranslationResult => {
+  const { ensureNamespace, runtime } = useLocaleRuntime();
 
   useEffect(() => {
-    let isActive = true;
-    const language = resolveLanguage(i18n.resolvedLanguage ?? i18n.language);
+    void ensureNamespace(namespace);
+  }, [ensureNamespace, namespace]);
 
-    if (i18n.hasResourceBundle(language, namespace)) return;
-
-    loadNamespaceResource(language, namespace).then((resource) => {
-      if (!isActive) return;
-      if (!i18n.hasResourceBundle(language, namespace)) {
-        i18n.addResourceBundle(language, namespace, resource, true, true);
+  const translate = useMemo(() => {
+    return (key: string, options?: TranslationOptions) => {
+      const { defaultValue, ns, ...values } = options ?? {};
+      const targetNamespace = ns ?? namespace;
+      const messageId = getMessageId(targetNamespace, key);
+      const translated = runtime.i18n._(messageId, values);
+      if (!translated || translated === messageId) {
+        return interpolateFallback(defaultValue ?? key, values);
       }
-      void i18n.loadNamespaces(namespace);
-    });
-
-    return () => {
-      isActive = false;
+      return translated;
     };
-  }, [i18n, i18n.language, i18n.resolvedLanguage, namespace]);
+  }, [namespace, runtime.i18n]);
 
-  return translation;
+  const i18n = useMemo<TranslationApi>(() => {
+    return {
+      language: runtime.language,
+      resolvedLanguage: runtime.language,
+      t: (key: string, options?: TranslationOptions) => translate(key, options)
+    };
+  }, [runtime.language, translate]);
+
+  return {
+    t: translate,
+    i18n
+  };
 };
