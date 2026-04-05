@@ -1,5 +1,10 @@
 import { CONTROLLED_ENVIRONMENT, error, getBrowserEnv } from "@carbon/auth";
-import { getSessionFlash } from "@carbon/auth/session.server";
+import { flashClientMiddleware } from "@carbon/auth/middleware/flash.client";
+import {
+  flashHeadersContext,
+  flashMiddleware,
+  flashResultContext
+} from "@carbon/auth/middleware/flash.server";
 import { validator } from "@carbon/form";
 import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
@@ -7,7 +12,6 @@ import {
   Heading,
   OperatingSystemContextProvider,
   Toaster,
-  toast,
   useMount
 } from "@carbon/react";
 import { getPreferenceHeaders, useMode } from "@carbon/remix";
@@ -17,7 +21,6 @@ import { I18nProvider } from "@react-aria/i18n";
 import { QueryClient } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import type React from "react";
-import { useEffect } from "react";
 import type {
   ActionFunctionArgs,
   LinksFunction,
@@ -44,6 +47,9 @@ import { messages as appMessagesEn } from "./locales/en/messages.mjs";
 import { messages as appMessagesPl } from "./locales/pl/messages.mjs";
 import "./polyfill";
 import { getTheme } from "./services/theme.server";
+
+export const middleware = [flashMiddleware];
+export const clientMiddleware = [flashClientMiddleware];
 
 export const links: LinksFunction = () => {
   return [
@@ -85,7 +91,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     XERO_CLIENT_ID
   } = getBrowserEnv();
 
-  const sessionFlash = await getSessionFlash(request);
   const preferences = getPreferenceHeaders(request);
   const appLanguage = resolveLanguage(preferences.locale);
   const linguiCatalog = appLanguage === "pl" ? appMessagesPl : appMessagesEn;
@@ -115,12 +120,12 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       },
       mode: getMode(request),
       theme: getTheme(request),
-      preferences,
+      preferences: getPreferenceHeaders(request),
       linguiCatalog,
-      result: sessionFlash?.result
+      result: context.get(flashResultContext)
     },
     {
-      headers: sessionFlash?.headers
+      headers: context.get(flashHeadersContext) ?? undefined
     }
   );
 }
@@ -216,7 +221,6 @@ export function Document({
 export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const env = loaderData?.env ?? {};
-  const result = loaderData?.result;
   const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
   const linguiCatalog = loaderData?.linguiCatalog;
@@ -236,15 +240,6 @@ export default function App() {
       });
     }
   });
-
-  /* Toast Messages */
-  useEffect(() => {
-    if (result?.success === true) {
-      toast.success(result.message);
-    } else if (result?.message) {
-      toast.error(result.message);
-    }
-  }, [result]);
 
   return (
     <OperatingSystemContextProvider platform={prefs.platform}>
