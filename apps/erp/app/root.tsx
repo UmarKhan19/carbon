@@ -1,10 +1,7 @@
 import { CONTROLLED_ENVIRONMENT, error, getBrowserEnv } from "@carbon/auth";
 import { getSessionFlash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import {
-  LocaleProvider,
-  resolveLanguage
-} from "@carbon/locale";
+import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
   Button,
   Heading,
@@ -251,10 +248,7 @@ export default function App() {
 
   return (
     <OperatingSystemContextProvider platform={prefs.platform}>
-      <LocaleProvider
-        locale={appLanguage}
-        catalog={linguiCatalog}
-      >
+      <LocaleProvider locale={appLanguage} catalog={linguiCatalog}>
         <I18nProvider locale={prefs.locale}>
           <Document mode={mode} theme={theme} lang={appLanguage}>
             <Outlet />
