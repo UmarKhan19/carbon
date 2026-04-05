@@ -10,6 +10,7 @@ const shared = {
   Archive: "Archive",
   "Archive all": "Archive all",
   Ascending: "Ascending",
+  "Ask anything": "Ask anything",
   "Attach File": "Attach File",
   "Base Currency": "Base Currency",
   "Bulk Import": "Bulk Import",
@@ -25,6 +26,7 @@ const shared = {
   Columns: "Columns",
   Companies: "Companies",
   "Company Name": "Company Name",
+  Create: "Create",
   Customer: "Customer",
   "Dark Mode": "Dark Mode",
   Dashboard: "Dashboard",
@@ -44,6 +46,9 @@ const shared = {
   Filter: "Filter",
   Finance: "Finance",
   "First Name": "First Name",
+  "Good afternoon": "Good afternoon",
+  "Good evening": "Good evening",
+  "Good morning": "Good morning",
   "Hide, pin and reorder columns": "Hide, pin and reorder columns",
   "Ideas, suggestions or problems?": "Ideas, suggestions or problems?",
   "Import {{label}} CSV": "Import {{label}} CSV",
@@ -105,6 +110,7 @@ const shared = {
   "Save View": "Save View",
   Search: "Search",
   "Search across your workspace...": "Search across your workspace...",
+  "Search the web": "Search the web",
   "Search...": "Search...",
   Select: "Select",
   Send: "Send",
@@ -132,6 +138,7 @@ const shared = {
   Update: "Update",
   "Uploading {{fileName}}": "Uploading {{fileName}}",
   Users: "Users",
+  Voice: "Voice",
   yourself: "yourself"
 } as const;
 

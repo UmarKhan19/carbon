@@ -141,6 +141,11 @@ msgid "Ascending"
 msgstr "Ascending"
 
 #. js-lingui-explicit-id
+#: app/components/Chat/ChatInput.tsx:193
+msgid "Ask anything"
+msgstr "Ask anything"
+
+#. js-lingui-explicit-id
 #: app/routes/x+/sales+/_index.tsx:688
 msgid "Assigned to Me"
 msgstr "Assigned to Me"
@@ -253,6 +258,11 @@ msgstr "Contact"
 #: app/modules/sales/ui/Customers/CustomersTable.tsx:311
 msgid "Contacts"
 msgstr "Contacts"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:46
+msgid "Create"
+msgstr "Create"
 
 #. js-lingui-explicit-id
 #: app/modules/sales/ui/Customers/CustomersTable.tsx:218
@@ -665,6 +675,21 @@ msgstr "Finance"
 #: app/modules/sales/ui/Customer/CustomerContactForm.tsx:108
 msgid "First Name"
 msgstr "First Name"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:25
+msgid "Good afternoon"
+msgstr "Good afternoon"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:27
+msgid "Good evening"
+msgstr "Good evening"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:23
+msgid "Good morning"
+msgstr "Good morning"
 
 #. js-lingui-explicit-id
 #: app/components/Table/components/Columns.tsx:85
@@ -1338,6 +1363,7 @@ msgid "Save View"
 msgstr "Save View"
 
 #. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:35
 #: app/components/Table/components/TableHeader.tsx:325
 msgid "Search"
 msgstr "Search"
@@ -1349,6 +1375,11 @@ msgstr "Search"
 #: app/components/Layout/Topbar/Search.tsx:203
 msgid "Search across your workspace..."
 msgstr "Search across your workspace..."
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatInput.tsx:187
+msgid "Search the web"
+msgstr "Search the web"
 
 #. js-lingui-explicit-id
 #: app/components/Table/components/Filter/ActiveFilters.tsx:173
@@ -1695,6 +1726,11 @@ msgstr "View Open Quotes"
 #: app/routes/x+/sales+/_index.tsx:394
 msgid "View Open RFQs"
 msgstr "View Open RFQs"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:57
+msgid "Voice"
+msgstr "Voice"
 
 #. js-lingui-explicit-id
 #: app/modules/sales/ui/Customer/CustomerForm.tsx:215

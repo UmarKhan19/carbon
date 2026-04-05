@@ -141,6 +141,11 @@ msgid "Ascending"
 msgstr "Rosnaco"
 
 #. js-lingui-explicit-id
+#: app/components/Chat/ChatInput.tsx:193
+msgid "Ask anything"
+msgstr "Zapytaj o cokolwiek"
+
+#. js-lingui-explicit-id
 #: app/routes/x+/sales+/_index.tsx:688
 msgid "Assigned to Me"
 msgstr "Przypisane do mnie"
@@ -253,6 +258,11 @@ msgstr "Kontakt"
 #: app/modules/sales/ui/Customers/CustomersTable.tsx:311
 msgid "Contacts"
 msgstr "Kontakty"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:46
+msgid "Create"
+msgstr "Utworz"
 
 #. js-lingui-explicit-id
 #: app/modules/sales/ui/Customers/CustomersTable.tsx:218
@@ -665,6 +675,21 @@ msgstr "Finanse"
 #: app/modules/sales/ui/Customer/CustomerContactForm.tsx:108
 msgid "First Name"
 msgstr "Imie"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:25
+msgid "Good afternoon"
+msgstr "Dobre popoludnie"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:27
+msgid "Good evening"
+msgstr "Dobry wieczor"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:23
+msgid "Good morning"
+msgstr "Dzien dobry"
 
 #. js-lingui-explicit-id
 #: app/components/Table/components/Columns.tsx:85
@@ -1338,6 +1363,7 @@ msgid "Save View"
 msgstr "Zapisz widok"
 
 #. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:35
 #: app/components/Table/components/TableHeader.tsx:325
 msgid "Search"
 msgstr "Szukaj"
@@ -1349,6 +1375,11 @@ msgstr "Szukaj"
 #: app/components/Layout/Topbar/Search.tsx:203
 msgid "Search across your workspace..."
 msgstr "Szukaj w calym obszarze roboczym..."
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatInput.tsx:187
+msgid "Search the web"
+msgstr "Przeszukaj internet"
 
 #. js-lingui-explicit-id
 #: app/components/Table/components/Filter/ActiveFilters.tsx:173
@@ -1695,6 +1726,11 @@ msgstr "Zobacz otwarte oferty"
 #: app/routes/x+/sales+/_index.tsx:394
 msgid "View Open RFQs"
 msgstr "Zobacz otwarte RFQ"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:57
+msgid "Voice"
+msgstr "Glos"
 
 #. js-lingui-explicit-id
 #: app/modules/sales/ui/Customer/CustomerForm.tsx:215

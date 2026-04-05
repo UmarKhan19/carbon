@@ -5,6 +5,8 @@ import {
   useDataPart
 } from "@ai-sdk-tools/store";
 import { cn } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { forwardRef, useRef } from "react";
 import { CommandMenu } from "./CommandMenu";
 import { useChatStore } from "./lib/store";
@@ -39,6 +41,7 @@ interface ChatInputProps {
 
 export const ChatInput = forwardRef<RecordButtonRef, ChatInputProps>(
   function ChatInput({ hasMessages }, ref) {
+    const { _: t } = useLingui();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const status = useChatStatus();
@@ -178,7 +181,21 @@ export const ChatInput = forwardRef<RecordButtonRef, ChatInputProps>(
                     handleKeyDown(e);
                   }}
                   value={input}
-                  placeholder={isWebSearch ? "Search the web" : "Ask anything"}
+                  placeholder={
+                    isWebSearch
+                      ? t(
+                          msg({
+                            id: "Search the web",
+                            message: "Search the web"
+                          })
+                        )
+                      : t(
+                          msg({
+                            id: "Ask anything",
+                            message: "Ask anything"
+                          })
+                        )
+                  }
                 />
               </PromptInputBody>
               <PromptInputToolbar>

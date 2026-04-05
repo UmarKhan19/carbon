@@ -11,6 +11,7 @@ const shared = {
   Archive: "Archiwum",
   "Archive all": "Archiwizuj wszystko",
   Ascending: "Rosnaco",
+  "Ask anything": "Zapytaj o cokolwiek",
   "Attach File": "Dolacz plik",
   "Base Currency": "Waluta bazowa",
   "Bulk Import": "Import zbiorczy",
@@ -26,6 +27,7 @@ const shared = {
   Columns: "Kolumny",
   Companies: "Firmy",
   "Company Name": "Nazwa firmy",
+  Create: "Utworz",
   Customer: "Klient",
   "Dark Mode": "Tryb ciemny",
   Dashboard: "Panel glowny",
@@ -45,6 +47,9 @@ const shared = {
   Filter: "Filtr",
   Finance: "Finanse",
   "First Name": "Imie",
+  "Good afternoon": "Dobre popoludnie",
+  "Good evening": "Dobry wieczor",
+  "Good morning": "Dzien dobry",
   "Hide, pin and reorder columns": "Ukryj, przypnij i zmien kolejnosc kolumn",
   "Ideas, suggestions or problems?": "Pomysly, sugestie lub problemy?",
   "Import {{label}} CSV": "Importuj CSV {{label}}",
@@ -106,6 +111,7 @@ const shared = {
   "Save View": "Zapisz widok",
   Search: "Szukaj",
   "Search across your workspace...": "Szukaj w calym obszarze roboczym...",
+  "Search the web": "Przeszukaj internet",
   "Search...": "Szukaj...",
   Select: "Wybierz",
   Send: "Wyslij",
@@ -133,6 +139,7 @@ const shared = {
   Update: "Aktualizuj",
   "Uploading {{fileName}}": "Przesylanie {{fileName}}",
   Users: "Uzytkownicy",
+  Voice: "Glos",
   yourself: "siebie"
 } as const;
 
