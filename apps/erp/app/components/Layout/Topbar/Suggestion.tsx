@@ -5,7 +5,6 @@ import {
   TextAreaControlled,
   ValidatedForm
 } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   BadgeCloseButton,
@@ -20,6 +19,8 @@ import {
   VStack
 } from "@carbon/react";
 import data from "@emoji-mart/data";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
 import React, { Suspense, useEffect, useRef, useState } from "react";
@@ -42,7 +43,7 @@ type EmojiData = {
 };
 
 const Suggestion = () => {
-  const { t } = useTranslation("shared");
+  const { _ } = useLingui();
   const fetcher = useFetcher<typeof action>();
   const location = useLocation();
   const popoverTriggerRef = useRef<HTMLButtonElement>(null);
@@ -74,25 +75,26 @@ const Suggestion = () => {
   const uploadImage = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && carbon) {
       const file = e.target.files[0];
-      toast.info(t("Uploading {{fileName}}", { fileName: file.name }));
+      const fileName = file.name;
+      toast.info(_(msg`Uploading ${fileName}`));
       const fileExtension = file.name.substring(file.name.lastIndexOf(".") + 1);
 
       if (file.size > MAX_FILE_SIZE) {
-        toast.error(t("File size exceeds 10MB limit"));
+        toast.error(_(msg`File size exceeds 10MB limit`));
         return;
       }
 
-      const fileName = `${companyId}/suggestions/${nanoid()}.${fileExtension}`;
+      const storagePath = `${companyId}/suggestions/${nanoid()}.${fileExtension}`;
       const imageUpload = await carbon.storage
         .from("private")
-        .upload(fileName, file, {
+        .upload(storagePath, file, {
           cacheControl: `${12 * 60 * 60}`,
           upsert: true
         });
 
       if (imageUpload.error) {
         console.error(imageUpload.error);
-        toast.error(t("Failed to upload image"));
+        toast.error(_(msg`Failed to upload image`));
       }
 
       if (imageUpload.data?.path) {
@@ -113,7 +115,7 @@ const Suggestion = () => {
     <Popover>
       <PopoverTrigger ref={popoverTriggerRef} asChild>
         <Button variant="secondary" className="hover:scale-100">
-          {t("Suggestion")}
+          {_(msg`Suggestion`)}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[380px] ">
@@ -134,7 +136,7 @@ const Suggestion = () => {
                 label=""
                 value={suggestion}
                 onChange={(value) => setSuggestion(value)}
-                placeholder={t("Ideas, suggestions or problems?")}
+                placeholder={_(msg`Ideas, suggestions or problems?`)}
               />
               {attachment && (
                 <Badge className="-mt-2 truncate" variant="secondary">
@@ -154,7 +156,7 @@ const Suggestion = () => {
                   isChecked={anonymous}
                   onCheckedChange={(checked) => setAnonymous(checked === true)}
                 />
-                <span className="text-sm">{t("Submit anonymously")}</span>
+                <span className="text-sm">{_(msg`Submit anonymously`)}</span>
               </HStack>
               <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
                 <PopoverTrigger asChild>
@@ -194,7 +196,7 @@ const Suggestion = () => {
                   popoverTriggerRef.current?.click();
                 }}
               >
-                {t("Cancel")}
+                {_(msg`Cancel`)}
               </Button>
               <HStack spacing={1}>
                 <Button
@@ -202,11 +204,11 @@ const Suggestion = () => {
                   variant="secondary"
                   onClick={() => setSuggestion("")}
                 >
-                  {t("Clear")}
+                  {_(msg`Clear`)}
                 </Button>
                 <File
                   accept="image/*"
-                  aria-label={t("Attach File")}
+                  aria-label={_(msg`Attach File`)}
                   className="px-2"
                   isDisabled={!!attachment}
                   variant="secondary"
@@ -214,7 +216,9 @@ const Suggestion = () => {
                 >
                   <LuImage />
                 </File>
-                <Submit isDisabled={suggestion.length < 3}>{t("Send")}</Submit>
+                <Submit isDisabled={suggestion.length < 3}>
+                  {_(msg`Send`)}
+                </Submit>
               </HStack>
             </HStack>
           </VStack>

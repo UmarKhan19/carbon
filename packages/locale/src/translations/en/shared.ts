@@ -26,6 +26,7 @@ const shared = {
   Companies: "Companies",
   "Company Name": "Company Name",
   Customer: "Customer",
+  "Dark Mode": "Dark Mode",
   Dashboard: "Dashboard",
   "Description (optional)": "Description (optional)",
   Documents: "Documents",
@@ -108,6 +109,7 @@ const shared = {
   Send: "Send",
   Settings: "Settings",
   "Shop Floor": "Shop Floor",
+  "Sign Out": "Sign Out",
   "Signed in as {{name}}": "Signed in as {{name}}",
   Sort: "Sort",
   "Sort Ascending": "Sort Ascending",
@@ -119,6 +121,7 @@ const shared = {
   "Table actions": "Table actions",
   "Terms and Privacy": "Terms and Privacy",
   "Terms of Service": "Terms of Service",
+  "Theme Color": "Theme Color",
   "This information will be visible to all users, so be careful what you share.":
     "This information will be visible to all users, so be careful what you share.",
   "Toggle column": "Toggle column",

@@ -86,12 +86,26 @@ const toMessageCatalog = (
   namespace: Namespace,
   resource: Record<string, string>
 ) => {
-  return Object.fromEntries(
-    Object.entries(resource).map(([key, value]) => [
-      getMessageId(namespace, key),
-      normalizeInterpolation(value)
-    ])
-  ) as Record<string, string>;
+  const entries = Object.entries(resource).flatMap(([key, value]) => {
+    const normalizedKey = normalizeInterpolation(key);
+    const normalizedValue = normalizeInterpolation(value);
+    const keyEntries = [
+      [getMessageId(namespace, key), normalizedValue],
+      [key, normalizedValue]
+    ] as Array<readonly [string, string]>;
+
+    if (normalizedKey !== key) {
+      keyEntries.push([
+        getMessageId(namespace, normalizedKey),
+        normalizedValue
+      ]);
+      keyEntries.push([normalizedKey, normalizedValue]);
+    }
+
+    return keyEntries;
+  });
+
+  return Object.fromEntries(entries) as Record<string, string>;
 };
 
 function loadNamespaceResource(
@@ -127,11 +141,14 @@ const LocaleRuntimeContext = createContext<LocaleRuntimeContextValue | null>(
 
 const getInitialRuntime = (
   language: SupportedLanguage,
-  resources: LocaleResources | undefined
+  resources: LocaleResources | undefined,
+  catalog: Record<string, string> | undefined
 ): LocaleRuntime => {
   const i18n = setupI18n();
   const loadedNamespaces = new Set<Namespace>();
-  const catalogs: Record<string, string> = {};
+  const catalogs: Record<string, string> = {
+    ...(catalog ?? {})
+  };
   const languageResources = resources?.[language];
 
   for (const namespace of namespaces) {
@@ -173,16 +190,18 @@ export async function loadLocaleResources(
 export function LocaleProvider({
   locale,
   resources,
+  catalog,
   children
 }: {
   locale?: string | null;
   resources?: LocaleResources;
+  catalog?: Record<string, string>;
   children: ReactNode;
 }) {
   const language = resolveLanguage(locale);
   const runtime = useMemo(() => {
-    return getInitialRuntime(language, resources);
-  }, [language, resources]);
+    return getInitialRuntime(language, resources, catalog);
+  }, [catalog, language, resources]);
 
   const ensureNamespace = useMemo(() => {
     return async (namespace: Namespace) => {

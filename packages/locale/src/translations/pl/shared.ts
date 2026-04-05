@@ -27,6 +27,7 @@ const shared = {
   Companies: "Firmy",
   "Company Name": "Nazwa firmy",
   Customer: "Klient",
+  "Dark Mode": "Tryb ciemny",
   Dashboard: "Panel glowny",
   "Description (optional)": "Opis (opcjonalnie)",
   Documents: "Dokumenty",
@@ -109,6 +110,7 @@ const shared = {
   Send: "Wyslij",
   Settings: "Ustawienia",
   "Shop Floor": "Hala produkcyjna",
+  "Sign Out": "Wyloguj sie",
   "Signed in as {{name}}": "Zalogowano jako {{name}}",
   Sort: "Sortuj",
   "Sort Ascending": "Sortuj rosnaco",
@@ -120,6 +122,7 @@ const shared = {
   "Table actions": "Akcje tabeli",
   "Terms and Privacy": "Regulamin i prywatnosc",
   "Terms of Service": "Warunki korzystania",
+  "Theme Color": "Kolor motywu",
   "This information will be visible to all users, so be careful what you share.":
     "Te informacje beda widoczne dla wszystkich uzytkownikow, wiec uwazaj, co udostepniasz.",
   "Toggle column": "Przelacz kolumne",

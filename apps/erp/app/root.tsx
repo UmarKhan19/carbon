@@ -45,6 +45,8 @@ import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
 import type { Route } from "./+types/root";
+import { messages as appMessagesEn } from "./locales/en/messages.mjs";
+import { messages as appMessagesPl } from "./locales/pl/messages.mjs";
 import "./polyfill";
 import { getTheme } from "./services/theme.server";
 
@@ -95,6 +97,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     preferences.locale,
     routeNamespaces
   );
+  const appLanguage = resolveLanguage(preferences.locale);
+  const linguiCatalog = appLanguage === "pl" ? appMessagesPl : appMessagesEn;
 
   return data(
     {
@@ -123,6 +127,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       theme: getTheme(request),
       preferences,
       localeResources,
+      linguiCatalog,
       result: sessionFlash?.result
     },
     {
@@ -226,6 +231,7 @@ export default function App() {
   const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
   const localeResources = loaderData?.localeResources;
+  const linguiCatalog = loaderData?.linguiCatalog;
   const appLanguage = resolveLanguage(prefs.locale);
   const mode = useMode();
 
@@ -254,7 +260,11 @@ export default function App() {
 
   return (
     <OperatingSystemContextProvider platform={prefs.platform}>
-      <LocaleProvider locale={appLanguage} resources={localeResources}>
+      <LocaleProvider
+        locale={appLanguage}
+        resources={localeResources}
+        catalog={linguiCatalog}
+      >
         <I18nProvider locale={prefs.locale}>
           <Document mode={mode} theme={theme} lang={appLanguage}>
             <Outlet />

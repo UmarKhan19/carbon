@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-05 19:21+0530\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: app/components/AvatarMenu.tsx:209
+msgid "About"
+msgstr "About"
+
+#: app/components/AvatarMenu.tsx:171
+msgid "Account Settings"
+msgstr "Account Settings"
+
+#: app/components/AvatarMenu.tsx:99
+msgid "API Documentation"
+msgstr "API Documentation"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:211
+msgid "Attach File"
+msgstr "Attach File"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:199
+msgid "Cancel"
+msgstr "Cancel"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:207
+msgid "Clear"
+msgstr "Clear"
+
+#: app/components/Layout/Topbar/Search.tsx:396
+msgid "Close"
+msgstr "Close"
+
+#: app/components/AvatarMenu.tsx:109
+msgid "Dark Mode"
+msgstr "Dark Mode"
+
+#: app/components/AvatarMenu.tsx:91
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:97
+msgid "Failed to upload image"
+msgstr "Failed to upload image"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:83
+msgid "File size exceeds 10MB limit"
+msgstr "File size exceeds 10MB limit"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:139
+msgid "Ideas, suggestions or problems?"
+msgstr "Ideas, suggestions or problems?"
+
+#: app/components/AvatarMenu.tsx:179
+msgid "Manage Subscription"
+msgstr "Manage Subscription"
+
+#: app/components/Layout/Topbar/Search.tsx:384
+msgid "Navigate"
+msgstr "Navigate"
+
+#: app/components/AvatarMenu.tsx:199
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
+#: app/components/Layout/Topbar/Search.tsx:224
+msgid "Recent"
+msgstr "Recent"
+
+#: app/components/Layout/Topbar/Search.tsx:286
+msgid "Results"
+msgstr "Results"
+
+#: app/components/Layout/Topbar/Search.tsx:460
+msgid "Search"
+msgstr "Search"
+
+#: app/components/Layout/Topbar/Search.tsx:203
+msgid "Search across your workspace..."
+msgstr "Search across your workspace..."
+
+#: app/components/Layout/Topbar/Search.tsx:390
+msgid "Select"
+msgstr "Select"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:220
+msgid "Send"
+msgstr "Send"
+
+#: app/components/AvatarMenu.tsx:216
+msgid "Sign Out"
+msgstr "Sign Out"
+
+#: app/components/AvatarMenu.tsx:86
+msgid "Signed in as {name}"
+msgstr "Signed in as {name}"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:159
+msgid "Submit anonymously"
+msgstr "Submit anonymously"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:118
+msgid "Suggestion"
+msgstr "Suggestion"
+
+#: app/components/AvatarMenu.tsx:187
+msgid "Terms and Privacy"
+msgstr "Terms and Privacy"
+
+#: app/components/AvatarMenu.tsx:193
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
+#: app/components/AvatarMenu.tsx:137
+msgid "Theme Color"
+msgstr "Theme Color"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:79
+msgid "Uploading {fileName}"
+msgstr "Uploading {fileName}"
