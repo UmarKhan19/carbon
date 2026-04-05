@@ -19,7 +19,7 @@ msgid "A customer is a business or person who buys your parts or services."
 msgstr "A customer is a business or person who buys your parts or services."
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:158
+#: app/components/Table/components/TableHeader.tsx:156
 msgid "A name is required to save a view"
 msgstr "A name is required to save a view"
 
@@ -160,7 +160,7 @@ msgid "Batch items require a sales order"
 msgstr "Batch items require a sales order"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:271
+#: app/components/Table/components/TableHeader.tsx:269
 msgid "Bulk Import"
 msgstr "Bulk Import"
 
@@ -170,7 +170,7 @@ msgid "by {{name}}"
 msgstr "by {name}"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:227
+#: app/components/Table/components/TableHeader.tsx:225
 #: app/modules/sales/ui/Customer/CustomerContactForm.tsx:153
 #: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:107
 #: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:120
@@ -457,7 +457,7 @@ msgid "Description"
 msgstr "Description"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:216
+#: app/components/Table/components/TableHeader.tsx:214
 msgid "Description (optional)"
 msgstr "Description (optional)"
 
@@ -490,7 +490,7 @@ msgid "Due Date"
 msgstr "Due Date"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:390
+#: app/components/Table/components/TableHeader.tsx:388
 #: app/modules/sales/ui/Customer/CustomerContactForm.tsx:91
 #: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:83
 #: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:98
@@ -527,8 +527,8 @@ msgid "Edit Reason"
 msgstr "Edit Reason"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:348
-#: app/components/Table/components/TableHeader.tsx:361
+#: app/components/Table/components/TableHeader.tsx:346
+#: app/components/Table/components/TableHeader.tsx:359
 msgid "Edit View"
 msgstr "Edit View"
 
@@ -681,7 +681,7 @@ msgid "Ideas, suggestions or problems?"
 msgstr "Ideas, suggestions or problems?"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:283
+#: app/components/Table/components/TableHeader.tsx:281
 msgid "Import {{label}} CSV"
 msgstr "Import {label} CSV"
 
@@ -800,7 +800,7 @@ msgid "Location"
 msgstr "Location"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:382
+#: app/components/Table/components/TableHeader.tsx:380
 msgid "Lock"
 msgstr "Lock"
 
@@ -853,7 +853,7 @@ msgid "More"
 msgstr "More"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:206
+#: app/components/Table/components/TableHeader.tsx:204
 msgid "My Saved View"
 msgstr "My Saved View"
 
@@ -1304,7 +1304,7 @@ msgid "Sales Person"
 msgstr "Sales Person"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:232
+#: app/components/Table/components/TableHeader.tsx:230
 #: app/modules/account/ui/Profile/ProfileForm.tsx:53
 #: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:44
 #: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:330
@@ -1332,13 +1332,13 @@ msgid "Save"
 msgstr "Save"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:349
-#: app/components/Table/components/TableHeader.tsx:362
+#: app/components/Table/components/TableHeader.tsx:347
+#: app/components/Table/components/TableHeader.tsx:360
 msgid "Save View"
 msgstr "Save View"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:327
+#: app/components/Table/components/TableHeader.tsx:325
 msgid "Search"
 msgstr "Search"
 
@@ -1524,7 +1524,7 @@ msgid "Supplier"
 msgstr "Supplier"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:263
+#: app/components/Table/components/TableHeader.tsx:261
 msgid "Table actions"
 msgstr "Table actions"
 
@@ -1642,7 +1642,7 @@ msgid "Unit Price"
 msgstr "Unit Price"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:231
+#: app/components/Table/components/TableHeader.tsx:229
 msgid "Update"
 msgstr "Update"
 

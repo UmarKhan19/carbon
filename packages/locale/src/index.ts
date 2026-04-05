@@ -5,10 +5,4 @@ export {
   resolveLanguage,
   supportedLanguages
 } from "./config";
-export type { LocaleResources, Namespace } from "./i18n";
-export {
-  LocaleProvider,
-  loadLocaleResources,
-  namespaces,
-  useTranslation
-} from "./i18n";
+export { LocaleProvider } from "./i18n";
