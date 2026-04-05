@@ -151,16 +151,14 @@ const TableHeader = <T extends object>({
       z.object({
         id: zfd.text(z.string().optional()),
         table: z.string(),
-        name: z
-          .string()
-          .min(1, {
-            message: t(
-              msg({
-                id: "A name is required to save a view",
-                message: "A name is required to save a view"
-              })
-            )
-          }),
+        name: z.string().min(1, {
+          message: t(
+            msg({
+              id: "A name is required to save a view",
+              message: "A name is required to save a view"
+            })
+          )
+        }),
         description: z.string().optional(),
         filter: z.string().optional(),
         sort: z.string().optional(),
