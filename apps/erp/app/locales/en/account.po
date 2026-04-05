@@ -1,0 +1,60 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-06 02:39+0530\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileForm.tsx:48
+msgid "About"
+msgstr "About"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:37
+msgid "Choose your preferred language for the interface."
+msgstr "Choose your preferred language for the interface."
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileForm.tsx:33
+msgid "Email"
+msgstr "Email"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:29
+msgid "English"
+msgstr "English"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileForm.tsx:39
+msgid "First Name"
+msgstr "First Name"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:26
+msgid "Language"
+msgstr "Language"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileForm.tsx:43
+msgid "Last Name"
+msgstr "Last Name"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:32
+msgid "Polish"
+msgstr "Polish"
+
+#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfileForm.tsx:53
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:44
+msgid "Save"
+msgstr "Save"

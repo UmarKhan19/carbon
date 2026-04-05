@@ -5,10 +5,7 @@ import sales from "../packages/locale/src/translations/pl/sales";
 import shared from "../packages/locale/src/translations/pl/shared";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
-const plCatalogPath = path.resolve(
-  currentDir,
-  "../apps/erp/app/locales/pl/messages.po"
-);
+const plCatalogDir = path.resolve(currentDir, "../apps/erp/app/locales/pl");
 
 const dictionary = {
   ...shared,
@@ -31,30 +28,41 @@ const unescapePoString = (value: string) => {
   return value.replace(/\\"/g, '"').replace(/\\\\/g, "\\");
 };
 
-const poContent = fs.readFileSync(plCatalogPath, "utf8");
-const lines = poContent.split(/\r?\n/);
+const syncCatalogFile = (catalogPath: string) => {
+  const poContent = fs.readFileSync(catalogPath, "utf8");
+  const lines = poContent.split(/\r?\n/);
 
-let currentMsgId: string | null = null;
+  let currentMsgId: string | null = null;
 
-for (let index = 0; index < lines.length; index += 1) {
-  const line = lines[index];
-  const msgIdMatch = line.match(/^msgid "(.*)"$/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const msgIdMatch = line.match(/^msgid "(.*)"$/);
 
-  if (msgIdMatch) {
-    currentMsgId = unescapePoString(msgIdMatch[1]);
-    continue;
+    if (msgIdMatch) {
+      currentMsgId = unescapePoString(msgIdMatch[1]);
+      continue;
+    }
+
+    if (!line.startsWith('msgstr "') || !currentMsgId || currentMsgId === "") {
+      continue;
+    }
+
+    const translation =
+      dictionary[currentMsgId] ?? dictionary[toLegacyKey(currentMsgId)];
+    if (!translation) continue;
+
+    lines[index] = `msgstr "${escapePoString(normalizeInterpolation(translation))}"`;
   }
 
-  if (!line.startsWith('msgstr "') || !currentMsgId || currentMsgId === "") {
-    continue;
-  }
+  fs.writeFileSync(catalogPath, `${lines.join("\n")}\n`, "utf8");
+  console.log(`Synced Polish catalog translations: ${catalogPath}`);
+};
 
-  const translation =
-    dictionary[currentMsgId] ?? dictionary[toLegacyKey(currentMsgId)];
-  if (!translation) continue;
+const poFiles = fs
+  .readdirSync(plCatalogDir)
+  .filter((fileName) => fileName.endsWith(".po"))
+  .map((fileName) => path.resolve(plCatalogDir, fileName));
 
-  lines[index] = `msgstr "${escapePoString(normalizeInterpolation(translation))}"`;
+for (const poFile of poFiles) {
+  syncCatalogFile(poFile);
 }
-
-fs.writeFileSync(plCatalogPath, `${lines.join("\n")}\n`, "utf8");
-console.log(`Synced Polish catalog translations: ${plCatalogPath}`);

@@ -1,0 +1,219 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-06 02:39+0530\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:187
+msgid "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost."
+msgstr "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost."
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:349
+msgid "A sales invoice line contains invoice details for a particular item"
+msgstr "A sales invoice line contains invoice details for a particular item"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:551
+msgid "Add-On"
+msgstr "Add-On"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:664
+msgid "Add-On Cost"
+msgstr "Add-On Cost"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:205
+msgid "Batch items require a sales order"
+msgstr "Batch items require a sales order"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:96
+msgid "Carbon client not found"
+msgstr "Carbon client not found"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:561
+msgid "Collapse Costs"
+msgstr "Collapse Costs"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:303
+msgid "Currency"
+msgstr "Currency"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:217
+msgid "Customer"
+msgstr "Customer"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:223
+msgid "Customer Invoice Number"
+msgstr "Customer Invoice Number"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:283
+msgid "Date Issued"
+msgstr "Date Issued"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:401
+msgid "Description"
+msgstr "Description"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:279
+msgid "Due Date"
+msgstr "Due Date"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:135
+msgid "Error fetching customer data"
+msgstr "Error fetching customer data"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:567
+msgid "Expand Costs"
+msgstr "Expand Costs"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:233
+msgid "Invoice Customer"
+msgstr "Invoice Customer"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:260
+msgid "Invoice Customer Contact"
+msgstr "Invoice Customer Contact"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:241
+msgid "Invoice Customer Location"
+msgstr "Invoice Customer Location"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:211
+msgid "Invoice ID"
+msgstr "Invoice ID"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:316
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:477
+msgid "Location"
+msgstr "Location"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:378
+msgid "Make items cannot be invoiced directly. Change method to Pick to continue."
+msgstr "Make items cannot be invoiced directly. Change method to Pick to continue."
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:421
+msgid "Method"
+msgstr "Method"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:181
+msgid "New Sales Invoice"
+msgstr "New Sales Invoice"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:315
+msgid "New Sales Invoice Line"
+msgstr "New Sales Invoice Line"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:676
+msgid "Non-Taxable Add-On Cost"
+msgstr "Non-Taxable Add-On Cost"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:289
+msgid "Payment Terms"
+msgstr "Payment Terms"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:446
+msgid "Quantity"
+msgstr "Quantity"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:179
+msgid "Sales Invoice"
+msgstr "Sales Invoice"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:330
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:696
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:131
+msgid "Save"
+msgstr "Save"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:211
+msgid "Serial items require a sales order"
+msgstr "Serial items require a sales order"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:483
+msgid "Shelf"
+msgstr "Shelf"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:113
+msgid "Shipment Location"
+msgstr "Shipment Location"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:94
+msgid "Shipping"
+msgstr "Shipping"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:641
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:102
+msgid "Shipping Cost"
+msgstr "Shipping Cost"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:121
+msgid "Shipping Method"
+msgstr "Shipping Method"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:342
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:523
+msgid "Tax"
+msgstr "Tax"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:511
+msgid "Tax & Additional Costs"
+msgstr "Tax & Additional Costs"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:618
+msgid "Tax Amount"
+msgstr "Tax Amount"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:593
+msgid "Tax Percent"
+msgstr "Tax Percent"
+
+#. js-lingui-explicit-id
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:459
+msgid "Unit Price"
+msgstr "Unit Price"

@@ -38,13 +38,12 @@ import {
   useLoaderData
 } from "react-router";
 import SonnerStyle from "sonner/dist/styles.css?url";
+import { loadLinguiCatalogForRequest } from "~/services/lingui.server";
 import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
 import type { Route } from "./+types/root";
-import { messages as appMessagesEn } from "./locales/en/messages.mjs";
-import { messages as appMessagesPl } from "./locales/pl/messages.mjs";
 import "./polyfill";
 import { getTheme } from "./services/theme.server";
 
@@ -93,7 +92,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
   const preferences = getPreferenceHeaders(request);
   const appLanguage = resolveLanguage(preferences.locale);
-  const linguiCatalog = appLanguage === "pl" ? appMessagesPl : appMessagesEn;
+  const linguiCatalog = await loadLinguiCatalogForRequest(request, appLanguage);
 
   return data(
     {

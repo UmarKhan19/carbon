@@ -1,0 +1,695 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-06 02:39+0530\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:156
+msgid "A name is required to save a view"
+msgstr "A name is required to save a view"
+
+#: app/components/AvatarMenu.tsx:209
+msgid "About"
+msgstr "About"
+
+#: app/components/AvatarMenu.tsx:171
+msgid "Account Settings"
+msgstr "Account Settings"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/account+/_layout.tsx:31
+msgid "Account Settings"
+msgstr "Account Settings"
+
+#. js-lingui-explicit-id
+#: app/components/New.tsx:52
+#: app/components/New.tsx:53
+msgid "Add"
+msgstr "Add"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Sort/Sort.tsx:75
+msgid "Add a column below to sort the view"
+msgstr "Add a column below to sort the view"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:205
+msgid "Add Company"
+msgstr "Add Company"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:221
+msgid "All Customers"
+msgstr "All Customers"
+
+#: app/components/AvatarMenu.tsx:99
+msgid "API Documentation"
+msgstr "API Documentation"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:468
+msgid "Archive"
+msgstr "Archive"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:533
+msgid "Archive all"
+msgstr "Archive all"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Sort/Sort.tsx:109
+msgid "Ascending"
+msgstr "Ascending"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatInput.tsx:193
+msgid "Ask anything"
+msgstr "Ask anything"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:688
+msgid "Assigned to Me"
+msgstr "Assigned to Me"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:211
+msgid "Attach File"
+msgstr "Attach File"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:253
+msgid "Base Currency"
+msgstr "Base Currency"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:269
+msgid "Bulk Import"
+msgstr "Bulk Import"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:159
+msgid "by {{name}}"
+msgstr "by {byUser}"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:225
+msgid "Cancel"
+msgstr "Cancel"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:199
+msgid "Cancel"
+msgstr "Cancel"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:207
+msgid "Clear"
+msgstr "Clear"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/Filter.tsx:134
+msgid "Clear Filters"
+msgstr "Clear Filters"
+
+#: app/components/Layout/Topbar/Search.tsx:396
+msgid "Close"
+msgstr "Close"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Columns.tsx:64
+msgid "Column visibility and order"
+msgstr "Column visibility and order"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Columns.tsx:55
+#: app/components/Table/components/Columns.tsx:56
+msgid "Columns"
+msgstr "Columns"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:162
+msgid "Companies"
+msgstr "Companies"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:246
+msgid "Company Name"
+msgstr "Company Name"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:46
+msgid "Create"
+msgstr "Create"
+
+#. js-lingui-explicit-id
+#: app/components/Form/Customer.tsx:50
+#: app/components/Layout/Topbar/CreateMenu.tsx:87
+#: app/routes/x+/sales+/_index.tsx:642
+#: app/routes/x+/sales+/_index.tsx:716
+msgid "Customer"
+msgstr "Customer"
+
+#. js-lingui-explicit-id
+#: app/components/Form/CustomerContact.tsx:75
+msgid "Customer Contact"
+msgstr "Customer Contact"
+
+#. js-lingui-explicit-id
+#: app/components/Form/CustomerLocation.tsx:87
+msgid "Customer Location"
+msgstr "Customer Location"
+
+#: app/components/AvatarMenu.tsx:109
+msgid "Dark Mode"
+msgstr "Dark Mode"
+
+#: app/components/AvatarMenu.tsx:91
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:214
+msgid "Description (optional)"
+msgstr "Description (optional)"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:640
+#: app/routes/x+/sales+/_index.tsx:712
+msgid "Document"
+msgstr "Document"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Columns.tsx:141
+msgid "Drag handle"
+msgstr "Drag handle"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:388
+msgid "Edit"
+msgstr "Edit"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Columns.tsx:77
+msgid "Edit column visibility"
+msgstr "Edit column visibility"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:346
+#: app/components/Table/components/TableHeader.tsx:359
+msgid "Edit View"
+msgstr "Edit View"
+
+#. js-lingui-explicit-id
+#: app/components/Form/Employee.tsx:60
+#: app/components/Layout/Topbar/CreateMenu.tsx:110
+msgid "Employee"
+msgstr "Employee"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:698
+msgid "Error loading assigned documents"
+msgstr "Error loading assigned documents"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:527
+msgid "Export CSV"
+msgstr "Export CSV"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:97
+msgid "Failed to upload image"
+msgstr "Failed to upload image"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:83
+msgid "File size exceeds 10MB limit"
+msgstr "File size exceeds 10MB limit"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/Filter.tsx:166
+msgid "Filter"
+msgstr "Filter"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:25
+msgid "Good afternoon"
+msgstr "Good afternoon"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:27
+msgid "Good evening"
+msgstr "Good evening"
+
+#. js-lingui-explicit-id
+#: app/components/Greeting.tsx:23
+msgid "Good morning"
+msgstr "Good morning"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Columns.tsx:85
+msgid "Hide, pin and reorder columns"
+msgstr "Hide, pin and reorder columns"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:139
+msgid "Ideas, suggestions or problems?"
+msgstr "Ideas, suggestions or problems?"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:281
+msgid "Import {{label}} CSV"
+msgstr "Import {label} CSV"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:462
+msgid "Inbox"
+msgstr "Inbox"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/ActiveFilters.tsx:146
+msgid "is"
+msgstr "is"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/ActiveFilters.tsx:148
+msgid "is any of"
+msgstr "is any of"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:47
+msgid "Issue"
+msgstr "Issue"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:55
+msgid "Job"
+msgstr "Job"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:233
+msgid "Let's set up your new company"
+msgstr "Let's set up your new company"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/ActiveFilters.tsx:178
+#: app/components/Table/components/Filter/Filter.tsx:183
+msgid "Loading..."
+msgstr "Loading..."
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:380
+msgid "Lock"
+msgstr "Lock"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:63
+msgid "Maintenance"
+msgstr "Maintenance"
+
+#: app/components/AvatarMenu.tsx:179
+msgid "Manage Subscription"
+msgstr "Manage Subscription"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:171
+msgid "Mark as read"
+msgstr "Mark as read"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/ActiveFilters.tsx:149
+msgid "matches"
+msgstr "matches"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:516
+msgid "More"
+msgstr "More"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:204
+msgid "My Saved View"
+msgstr "My Saved View"
+
+#: app/components/Layout/Topbar/Search.tsx:384
+msgid "Navigate"
+msgstr "Navigate"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Pagination/Pagination.tsx:152
+#: app/components/Table/components/Pagination/Pagination.tsx:195
+msgid "Next"
+msgstr "Next"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/Filter.tsx:185
+msgid "No available filters"
+msgstr "No available filters"
+
+#. js-lingui-explicit-id
+#: app/components/Table/Table.tsx:947
+msgid "No data exists"
+msgstr "No data exists"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Search/SearchEmptyState.tsx:48
+msgid "No matches for \"{{query}}\". Try a different search term."
+msgstr "No matches for \"{query}\". Try a different search term."
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:490
+msgid "No new notifications"
+msgstr "No new notifications"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/ActiveFilters.tsx:180
+msgid "No options found."
+msgstr "No options found."
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:549
+msgid "No outstanding trainings"
+msgstr "No outstanding trainings"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Search/SearchEmptyState.tsx:44
+#: app/components/Table/Table.tsx:934
+msgid "No results found"
+msgstr "No results found"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Sort/Sort.tsx:67
+msgid "No sorts applied to this view"
+msgstr "No sorts applied to this view"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:576
+msgid "Nothing in the archive"
+msgstr "Nothing in the archive"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Pagination/Pagination.tsx:168
+msgid "of"
+msgstr "of"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:405
+msgid "Open Quotes"
+msgstr "Open Quotes"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:376
+msgid "Open RFQs"
+msgstr "Open RFQs"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:437
+msgid "Open Sales Orders"
+msgstr "Open Sales Orders"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:39
+msgid "Part"
+msgstr "Part"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Sort/Sort.tsx:134
+msgid "Pick a column to sort by"
+msgstr "Pick a column to sort by"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Pagination/Pagination.tsx:138
+#: app/components/Table/components/Pagination/Pagination.tsx:179
+msgid "Previous"
+msgstr "Previous"
+
+#: app/components/AvatarMenu.tsx:199
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/account+/profile.tsx:151
+msgid "Profile"
+msgstr "Profile"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:71
+msgid "Purchase Order"
+msgstr "Purchase Order"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:97
+msgid "Quote"
+msgstr "Quote"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:161
+msgid "Quotes"
+msgstr "Quotes"
+
+#: app/components/Layout/Topbar/Search.tsx:224
+msgid "Recent"
+msgstr "Recent"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:631
+msgid "Recently Created"
+msgstr "Recently Created"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/ActiveFilters.tsx:218
+#: app/components/Table/components/Filter/Filter.tsx:143
+msgid "Remove filter"
+msgstr "Remove filter"
+
+#. js-lingui-explicit-id
+#: app/components/Table/Table.tsx:938
+msgid "Remove Filters"
+msgstr "Remove Filters"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Sort/Sort.tsx:113
+msgid "Remove sort by column"
+msgstr "Remove sort by column"
+
+#: app/components/Layout/Topbar/Search.tsx:286
+msgid "Results"
+msgstr "Results"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Pagination/Pagination.tsx:63
+msgid "Results per page"
+msgstr "Results per page"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:92
+msgid "RFQ"
+msgstr "RFQ"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:155
+msgid "RFQs"
+msgstr "RFQs"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Pagination/Pagination.tsx:58
+msgid "rows"
+msgstr "rows"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:102
+msgid "Sales Order"
+msgstr "Sales Order"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:167
+msgid "Sales Orders"
+msgstr "Sales Orders"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:230
+msgid "Save"
+msgstr "Save"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:347
+#: app/components/Table/components/TableHeader.tsx:360
+msgid "Save View"
+msgstr "Save View"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:35
+#: app/components/Table/components/TableHeader.tsx:325
+msgid "Search"
+msgstr "Search"
+
+#: app/components/Layout/Topbar/Search.tsx:460
+msgid "Search"
+msgstr "Search"
+
+#: app/components/Layout/Topbar/Search.tsx:203
+msgid "Search across your workspace..."
+msgstr "Search across your workspace..."
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatInput.tsx:187
+msgid "Search the web"
+msgstr "Search the web"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Filter/ActiveFilters.tsx:173
+#: app/components/Table/components/Filter/Filter.tsx:178
+msgid "Search..."
+msgstr "Search..."
+
+#: app/components/Layout/Topbar/Search.tsx:390
+msgid "Select"
+msgstr "Select"
+
+#. js-lingui-explicit-id
+#: app/components/Form/Customer.tsx:52
+#: app/components/Form/CustomerLocation.tsx:90
+msgid "Select"
+msgstr "Select"
+
+#. js-lingui-explicit-id
+#: app/components/Form/CustomerContact.tsx:70
+msgid "Select Contact"
+msgstr "Select Contact"
+
+#. js-lingui-explicit-id
+#: app/components/Form/Employee.tsx:63
+msgid "Select Employee"
+msgstr "Select Employee"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:220
+msgid "Send"
+msgstr "Send"
+
+#: app/components/AvatarMenu.tsx:216
+msgid "Sign Out"
+msgstr "Sign Out"
+
+#: app/components/AvatarMenu.tsx:86
+msgid "Signed in as {name}"
+msgstr "Signed in as {name}"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Sort/Sort.tsx:50
+#: app/components/Table/components/Sort/Sort.tsx:51
+msgid "Sort"
+msgstr "Sort"
+
+#. js-lingui-explicit-id
+#: app/components/Table/Table.tsx:1032
+msgid "Sort Ascending"
+msgstr "Sort Ascending"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Sort/Sort.tsx:58
+msgid "Sort by"
+msgstr "Sort by"
+
+#. js-lingui-explicit-id
+#: app/components/Table/Table.tsx:1048
+msgid "Sort Descending"
+msgstr "Sort Descending"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:641
+#: app/routes/x+/sales+/_index.tsx:714
+msgid "Status"
+msgstr "Status"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:159
+msgid "Submit anonymously"
+msgstr "Submit anonymously"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:118
+msgid "Suggestion"
+msgstr "Suggestion"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/CreateMenu.tsx:79
+msgid "Supplier"
+msgstr "Supplier"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:261
+msgid "Table actions"
+msgstr "Table actions"
+
+#: app/components/AvatarMenu.tsx:187
+msgid "Terms and Privacy"
+msgstr "Terms and Privacy"
+
+#: app/components/AvatarMenu.tsx:193
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
+#: app/components/AvatarMenu.tsx:137
+msgid "Theme Color"
+msgstr "Theme Color"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/account+/profile.tsx:154
+msgid "This information will be visible to all users, so be careful what you share."
+msgstr "This information will be visible to all users, so be careful what you share."
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/Columns.tsx:152
+#: app/components/Table/components/Columns.tsx:198
+msgid "Toggle column"
+msgstr "Toggle column"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:465
+msgid "Trainings"
+msgstr "Trainings"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Search/SearchEmptyState.tsx:67
+msgid "Type to search across your workspace"
+msgstr "Type to search across your workspace"
+
+#. js-lingui-explicit-id
+#: app/components/Form/Employee.tsx:45
+msgid "Unassigned"
+msgstr "Unassigned"
+
+#. js-lingui-explicit-id
+#: app/components/Table/components/TableHeader.tsx:229
+msgid "Update"
+msgstr "Update"
+
+#: app/components/Layout/Topbar/Suggestion.tsx:79
+msgid "Uploading {fileName}"
+msgstr "Uploading {fileName}"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:457
+msgid "View Open Orders"
+msgstr "View Open Orders"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:424
+msgid "View Open Quotes"
+msgstr "View Open Quotes"
+
+#. js-lingui-explicit-id
+#: app/routes/x+/sales+/_index.tsx:394
+msgid "View Open RFQs"
+msgstr "View Open RFQs"
+
+#. js-lingui-explicit-id
+#: app/components/Chat/ChatWidgets.tsx:57
+msgid "Voice"
+msgstr "Voice"
+
+#. js-lingui-explicit-id
+#: app/components/Layout/Topbar/Notifications.tsx:137
+msgid "yourself"
+msgstr "yourself"
