@@ -3,7 +3,6 @@ import { getSessionFlash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
 import {
   LocaleProvider,
-  loadLocaleResources,
   resolveLanguage
 } from "@carbon/locale";
 import {
@@ -39,7 +38,6 @@ import {
   useLoaderData
 } from "react-router";
 import SonnerStyle from "sonner/dist/styles.css?url";
-import { getRouteNamespaces } from "~/services/locale-namespaces.server";
 import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
@@ -92,11 +90,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
   const sessionFlash = await getSessionFlash(request);
   const preferences = getPreferenceHeaders(request);
-  const routeNamespaces = getRouteNamespaces(new URL(request.url).pathname);
-  const localeResources = await loadLocaleResources(
-    preferences.locale,
-    routeNamespaces
-  );
   const appLanguage = resolveLanguage(preferences.locale);
   const linguiCatalog = appLanguage === "pl" ? appMessagesPl : appMessagesEn;
 
@@ -126,7 +119,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       mode: getMode(request),
       theme: getTheme(request),
       preferences,
-      localeResources,
       linguiCatalog,
       result: sessionFlash?.result
     },
@@ -230,7 +222,6 @@ export default function App() {
   const result = loaderData?.result;
   const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
-  const localeResources = loaderData?.localeResources;
   const linguiCatalog = loaderData?.linguiCatalog;
   const appLanguage = resolveLanguage(prefs.locale);
   const mode = useMode();
@@ -262,7 +253,6 @@ export default function App() {
     <OperatingSystemContextProvider platform={prefs.platform}>
       <LocaleProvider
         locale={appLanguage}
-        resources={localeResources}
         catalog={linguiCatalog}
       >
         <I18nProvider locale={prefs.locale}>

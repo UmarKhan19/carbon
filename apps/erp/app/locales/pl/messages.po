@@ -14,52 +14,52 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:108
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:116
 msgid "A customer is a business or person who buys your parts or services."
 msgstr "Klient to firma lub osoba, ktora kupuje twoje czesci lub uslugi."
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:156
+#: app/components/Table/components/TableHeader.tsx:158
 msgid "A name is required to save a view"
 msgstr "Nazwa widoku jest wymagana"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:137
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:156
 msgid "A quote is a set of prices for specific parts and quantities."
 msgstr "Oferta to zestaw cen dla okreslonych czesci i ilosci."
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:311
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:345
 msgid "A quote line contains pricing and lead times for a particular part"
 msgstr "Pozycja oferty zawiera wycene i czasy realizacji dla konkretnej czesci"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:168
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:187
 msgid "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost."
 msgstr "Faktura sprzedazy to dokument okreslajacy produkty lub uslugi sprzedane klientowi oraz odpowiadajacy im koszt."
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:333
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:349
 msgid "A sales invoice line contains invoice details for a particular item"
 msgstr "Pozycja faktury sprzedazy zawiera szczegoly faktury dla konkretnego produktu"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:140
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:157
 msgid "A sales order contains information about the agreement between the company and a specific customer for parts and services."
 msgstr "Zamowienie sprzedazy zawiera informacje o umowie miedzy firma a konkretnym klientem dotyczacej czesci i uslug."
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:266
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:272
 msgid "A sales order line contains order details for a particular item"
 msgstr "Pozycja zamowienia sprzedazy zawiera szczegoly zamowienia dla konkretnego produktu"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:125
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:144
 msgid "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote."
 msgstr "Zapytanie ofertowe RFQ to zapytanie klienta o wycene zestawu czesci i ilosci. Moze zakonczyc sie utworzeniem oferty."
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:38
+#: app/modules/account/ui/Profile/ProfileForm.tsx:48
 msgid "About"
 msgstr "O mnie"
 
@@ -68,13 +68,13 @@ msgid "About"
 msgstr "O mnie"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:139
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:129
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:171
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:128
 msgid "Account Manager"
 msgstr "Opiekun klienta"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/account+/_layout.tsx:30
+#: app/routes/x+/account+/_layout.tsx:31
 msgid "Account Settings"
 msgstr "Ustawienia konta"
 
@@ -83,30 +83,30 @@ msgid "Account Settings"
 msgstr "Ustawienia konta"
 
 #. js-lingui-explicit-id
-#: app/components/New.tsx:51
-#: app/components/New.tsx:51
+#: app/components/New.tsx:52
+#: app/components/New.tsx:53
 msgid "Add"
 msgstr "Dodaj"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Sort/Sort.tsx:67
+#: app/components/Table/components/Sort/Sort.tsx:75
 msgid "Add a column below to sort the view"
 msgstr "Dodaj kolumne ponizej, aby sortowac widok"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Breadcrumbs.tsx:202
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:205
 msgid "Add Company"
 msgstr "Dodaj firme"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:513
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:472
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:551
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:517
 msgid "Add-On"
 msgstr "Doplata"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:606
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:524
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:664
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:588
 msgid "Add-On Cost"
 msgstr "Koszt doplaty"
 
@@ -120,28 +120,28 @@ msgid "API Documentation"
 msgstr "Dokumentacja API"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:466
+#: app/components/Layout/Topbar/Notifications.tsx:468
 msgid "Archive"
 msgstr "Archiwum"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:524
+#: app/components/Layout/Topbar/Notifications.tsx:533
 msgid "Archive all"
 msgstr "Archiwizuj wszystko"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: selectedCustomer.name!
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:341
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:347
 msgid "Are you sure you want to delete {{name}}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunac {name}? Tej operacji nie mozna cofnac."
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Sort/Sort.tsx:97
+#: app/components/Table/components/Sort/Sort.tsx:109
 msgid "Ascending"
 msgstr "Rosnaco"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:671
+#: app/routes/x+/sales+/_index.tsx:688
 msgid "Assigned to Me"
 msgstr "Przypisane do mnie"
 
@@ -150,34 +150,34 @@ msgid "Attach File"
 msgstr "Dolacz plik"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Breadcrumbs.tsx:241
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:253
 msgid "Base Currency"
 msgstr "Waluta bazowa"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:204
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:205
 msgid "Batch items require a sales order"
 msgstr "Produkty partiowane wymagaja zamowienia sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:250
+#: app/components/Table/components/TableHeader.tsx:271
 msgid "Bulk Import"
 msgstr "Import zbiorczy"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:158
+#: app/components/Layout/Topbar/Notifications.tsx:159
 msgid "by {{name}}"
 msgstr "przez {name}"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:213
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:119
-#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:99
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:106
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:106
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:106
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:106
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:484
+#: app/components/Table/components/TableHeader.tsx:227
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:153
+#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:107
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:120
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:122
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:119
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:122
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:554
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -186,15 +186,15 @@ msgid "Cancel"
 msgstr "Anuluj"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:94
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:82
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:83
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:74
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:96
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:84
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:85
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:76
 msgid "Carbon client not found"
 msgstr "Nie znaleziono klienta Carbon"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:33
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:37
 msgid "Choose your preferred language for the interface."
 msgstr "Wybierz preferowany jezyk interfejsu."
 
@@ -212,13 +212,13 @@ msgid "Close"
 msgstr "Zamknij"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:522
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:481
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:561
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:528
 msgid "Collapse Costs"
 msgstr "Zwin koszty"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Columns.tsx:62
+#: app/components/Table/components/Columns.tsx:64
 msgid "Column visibility and order"
 msgstr "Widocznosc i kolejnosc kolumn"
 
@@ -229,53 +229,53 @@ msgid "Columns"
 msgstr "Kolumny"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Breadcrumbs.tsx:161
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:162
 msgid "Companies"
 msgstr "Firmy"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Breadcrumbs.tsx:236
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:246
 msgid "Company Name"
 msgstr "Nazwa firmy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:502
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:572
 #: app/modules/sales/ui/useSalesSubmodules.tsx:69
 msgid "Configure"
 msgstr "Konfiguracja"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:90
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:93
 msgid "Contact"
 msgstr "Kontakt"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:312
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:311
 msgid "Contacts"
 msgstr "Kontakty"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:219
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:218
 msgid "Created At"
 msgstr "Utworzono"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:202
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:201
 msgid "Created By"
 msgstr "Utworzone przez"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:49
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:51
 msgid "Created customer portal"
 msgstr "Utworzono portal klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:49
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:51
 msgid "Created customer status"
 msgstr "Utworzono status klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:49
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:51
 msgid "Created customer type"
 msgstr "Utworzono typ klienta"
 
@@ -286,123 +286,123 @@ msgid "Created customer: {{name}}"
 msgstr "Utworzono klienta: {name}"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:49
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:51
 msgid "Created no quote reason"
 msgstr "Utworzono powod braku oferty"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:254
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:150
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:170
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:209
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:226
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:303
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:187
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:169
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:259
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:304
 msgid "Currency"
 msgstr "Waluta"
 
 #. js-lingui-explicit-id
 #: app/components/Form/Customer.tsx:50
-#: app/components/Layout/Topbar/CreateMenu.tsx:89
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:193
+#: app/components/Layout/Topbar/CreateMenu.tsx:87
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:217
 #: app/modules/sales/ui/Customer/CustomerForm.tsx:68
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:98
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:109
 #: app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:37
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:326
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:162
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:166
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:147
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:151
-#: app/routes/x+/sales+/_index.tsx:626
-#: app/routes/x+/sales+/_index.tsx:688
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:330
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:186
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:190
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:166
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:177
+#: app/routes/x+/sales+/_index.tsx:642
+#: app/routes/x+/sales+/_index.tsx:716
 msgid "Customer"
 msgstr "Klient"
 
 #. js-lingui-explicit-id
-#: app/components/Form/CustomerContact.tsx:70
+#: app/components/Form/CustomerContact.tsx:75
 msgid "Customer Contact"
 msgstr "Kontakt klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:223
 msgid "Customer Invoice Number"
 msgstr "Numer faktury klienta"
 
 #. js-lingui-explicit-id
-#: app/components/Form/CustomerLocation.tsx:85
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:185
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:184
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:168
+#: app/components/Form/CustomerLocation.tsx:87
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:223
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:227
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:208
 msgid "Customer Location"
 msgstr "Lokalizacja klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:104
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:106
 msgid "Customer Overview"
 msgstr "Przeglad klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:425
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:479
 msgid "Customer Part Number"
 msgstr "Numer czesci klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:437
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:496
 msgid "Customer Part Revision"
 msgstr "Rewizja czesci klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:169
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:196
 msgid "Customer PO Number"
 msgstr "Numer PO klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:91
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:122
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:100
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:123
 msgid "Customer Portal"
 msgstr "Portal klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:128
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:130
 msgid "Customer Portals"
 msgstr "Portale klientow"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:169
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:154
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:195
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:182
 msgid "Customer RFQ"
 msgstr "RFQ klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:129
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:39
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:101
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:91
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:98
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:147
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:38
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:111
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:100
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:110
 msgid "Customer Status"
 msgstr "Status klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:107
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:119
 msgid "Customer Statuses"
 msgstr "Statusy klientow"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:134
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:91
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:98
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:159
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:97
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:107
 #: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:32
 msgid "Customer Type"
 msgstr "Typ klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:324
-#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:95
-#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:101
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:325
+#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:102
+#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:108
 msgid "Customer Types"
 msgstr "Typy klientow"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:308
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:332
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:307
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:338
 #: app/modules/sales/ui/useSalesSubmodules.tsx:30
 msgid "Customers"
 msgstr "Klienci"
@@ -416,28 +416,28 @@ msgid "Dashboard"
 msgstr "Panel glowny"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:237
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:283
 msgid "Date Issued"
 msgstr "Data wystawienia"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:279
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:278
 msgid "Delete Customer"
 msgstr "Usun klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:85
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:90
 msgid "Delete Customer Status"
 msgstr "Usun status klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:79
+#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:82
 msgid "Delete Customer Type"
 msgstr "Usun typ klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:332
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:288
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:372
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:300
 msgid "Delete Line"
 msgstr "Usun pozycje"
 
@@ -452,18 +452,18 @@ msgid "Delete Reason"
 msgstr "Usun powod"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:373
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:401
 msgid "Description"
 msgstr "Opis"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:206
+#: app/components/Table/components/TableHeader.tsx:216
 msgid "Description (optional)"
 msgstr "Opis (opcjonalnie)"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:624
-#: app/routes/x+/sales+/_index.tsx:686
+#: app/routes/x+/sales+/_index.tsx:640
+#: app/routes/x+/sales+/_index.tsx:712
 msgid "Document"
 msgstr "Dokument"
 
@@ -473,36 +473,36 @@ msgid "Documents"
 msgstr "Dokumenty"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Columns.tsx:121
+#: app/components/Table/components/Columns.tsx:141
 msgid "Drag handle"
 msgstr "Uchwyt przeciagnij"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:140
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:159
 msgid "Drop Shipment"
 msgstr "Wysylka bezposrednia"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:236
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:199
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:179
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:279
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:247
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:220
 msgid "Due Date"
 msgstr "Termin"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:356
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:90
-#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:82
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:90
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:268
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:90
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:90
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:90
+#: app/components/Table/components/TableHeader.tsx:390
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:91
+#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:83
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:98
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:267
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:98
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:95
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:98
 msgid "Edit"
 msgstr "Edytuj"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Columns.tsx:68
+#: app/components/Table/components/Columns.tsx:77
 msgid "Edit column visibility"
 msgstr "Edytuj widocznosc kolumn"
 
@@ -512,7 +512,7 @@ msgid "Edit Customer Status"
 msgstr "Edytuj status klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:67
+#: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:68
 msgid "Edit Customer Type"
 msgstr "Edytuj typ klienta"
 
@@ -527,84 +527,84 @@ msgid "Edit Reason"
 msgstr "Edytuj powod"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:320
-#: app/components/Table/components/TableHeader.tsx:329
+#: app/components/Table/components/TableHeader.tsx:348
+#: app/components/Table/components/TableHeader.tsx:361
 msgid "Edit View"
 msgstr "Edytuj widok"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:31
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:98
+#: app/modules/account/ui/Profile/ProfileForm.tsx:33
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:103
 msgid "Email"
 msgstr "Email"
 
 #. js-lingui-explicit-id
-#: app/components/Form/Employee.tsx:54
-#: app/components/Layout/Topbar/CreateMenu.tsx:112
+#: app/components/Form/Employee.tsx:60
+#: app/components/Layout/Topbar/CreateMenu.tsx:110
 msgid "Employee"
 msgstr "Pracownik"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:179
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:179
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:163
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:212
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:217
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:198
 msgid "Engineering Contact"
 msgstr "Kontakt inzynieryjny"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:29
 msgid "English"
 msgstr "Angielski"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:126
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:105
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:106
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:95
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:135
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:114
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:115
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:104
 msgid "Error fetching customer data"
 msgstr "Blad pobierania danych klienta"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:678
+#: app/routes/x+/sales+/_index.tsx:698
 msgid "Error loading assigned documents"
 msgstr "Blad ladowania przypisanych dokumentow"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:195
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:236
 msgid "Estimator"
 msgstr "Kalkulator"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:523
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:482
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:567
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:534
 msgid "Expand Costs"
 msgstr "Rozwin koszty"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:204
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:253
 msgid "Expiration Date"
 msgstr "Data wygasniecia"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:513
+#: app/routes/x+/sales+/_index.tsx:527
 msgid "Export CSV"
 msgstr "Eksportuj CSV"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: fetcher.data.error.message
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:53
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:60
 msgid "Failed to create customer portal: {{message}}"
 msgstr "Nie udalo sie utworzyc portalu klienta: {message}"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: fetcher.data.error.message
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:53
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:60
 msgid "Failed to create customer status: {{message}}"
 msgstr "Nie udalo sie utworzyc statusu klienta: {message}"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: fetcher.data.error.message
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:53
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:57
 msgid "Failed to create customer type: {{message}}"
 msgstr "Nie udalo sie utworzyc typu klienta: {message}"
 
@@ -616,23 +616,23 @@ msgstr "Nie udalo sie utworzyc klienta: {message}"
 
 #. js-lingui-explicit-id
 #. placeholder {0}: fetcher.data.error.message
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:53
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:60
 msgid "Failed to create no quote reason: {{message}}"
 msgstr "Nie udalo sie utworzyc powodu braku oferty: {message}"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:239
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:262
 msgid "Failed to load configuration parameters"
 msgstr "Nie udalo sie zaladowac parametrow konfiguracji"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:146
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:168
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:148
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:177
 msgid "Failed to load customer part details"
 msgstr "Nie udalo sie zaladowac szczegolow czesci klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:203
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:219
 msgid "Failed to load item details"
 msgstr "Nie udalo sie zaladowac szczegolow produktu"
 
@@ -641,8 +641,8 @@ msgid "Failed to upload image"
 msgstr "Nie udalo sie przeslac obrazu"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:105
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:186
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:133
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:185
 msgid "Fax"
 msgstr "Faks"
 
@@ -651,7 +651,7 @@ msgid "File size exceeds 10MB limit"
 msgstr "Rozmiar pliku przekracza limit 10MB"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Filter/Filter.tsx:164
+#: app/components/Table/components/Filter/Filter.tsx:166
 msgid "Filter"
 msgstr "Filtr"
 
@@ -661,18 +661,18 @@ msgid "Finance"
 msgstr "Finanse"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:33
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:99
+#: app/modules/account/ui/Profile/ProfileForm.tsx:39
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:108
 msgid "First Name"
 msgstr "Imie"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Columns.tsx:70
+#: app/components/Table/components/Columns.tsx:85
 msgid "Hide, pin and reorder columns"
 msgstr "Ukryj, przypnij i zmien kolejnosc kolumn"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:103
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:125
 msgid "Home Phone"
 msgstr "Telefon domowy"
 
@@ -681,12 +681,12 @@ msgid "Ideas, suggestions or problems?"
 msgstr "Pomysly, sugestie lub problemy?"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:261
+#: app/components/Table/components/TableHeader.tsx:283
 msgid "Import {{label}} CSV"
 msgstr "Importuj CSV {label}"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:460
+#: app/components/Layout/Topbar/Notifications.tsx:462
 msgid "Inbox"
 msgstr "Skrzynka odbiorcza"
 
@@ -696,39 +696,39 @@ msgid "Inventory"
 msgstr "Magazyn"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:65
-#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:79
-#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:81
+#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:72
+#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:84
+#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:86
 msgid "Invoice Contact"
 msgstr "Kontakt faktury"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:203
-#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:55
-#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:69
-#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:71
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:233
+#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:58
+#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:70
+#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:72
 msgid "Invoice Customer"
 msgstr "Klient faktury"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:223
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:260
 msgid "Invoice Customer Contact"
 msgstr "Kontakt klienta faktury"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:209
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:241
 msgid "Invoice Customer Location"
 msgstr "Lokalizacja klienta faktury"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:187
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:211
 msgid "Invoice ID"
 msgstr "ID faktury"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:60
-#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:74
-#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:76
+#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:65
+#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:77
+#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:79
 msgid "Invoice Location"
 msgstr "Lokalizacja faktury"
 
@@ -748,7 +748,7 @@ msgid "is any of"
 msgstr "jest dowolnym z"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:49
+#: app/components/Layout/Topbar/CreateMenu.tsx:47
 msgid "Issue"
 msgstr "Niezgodnosc"
 
@@ -758,7 +758,7 @@ msgid "Items"
 msgstr "Pozycje"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:57
+#: app/components/Layout/Topbar/CreateMenu.tsx:55
 msgid "Job"
 msgstr "Zlecenie"
 
@@ -768,49 +768,49 @@ msgid "Language"
 msgstr "Jezyk"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:34
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:100
+#: app/modules/account/ui/Profile/ProfileForm.tsx:43
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:113
 msgid "Last Name"
 msgstr "Nazwisko"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Breadcrumbs.tsx:228
+#: app/components/Layout/Topbar/Breadcrumbs.tsx:233
 msgid "Let's set up your new company"
 msgstr "Skonfigurujmy twoja nowa firme"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:411
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:463
 msgid "Line Status"
 msgstr "Status pozycji"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Filter/ActiveFilters.tsx:177
-#: app/components/Table/components/Filter/Filter.tsx:180
+#: app/components/Table/components/Filter/ActiveFilters.tsx:178
+#: app/components/Table/components/Filter/Filter.tsx:183
 msgid "Loading..."
 msgstr "Ladowanie..."
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:265
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:446
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:108
-#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:82
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:396
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:152
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:316
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:477
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:137
+#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:85
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:432
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:171
 msgid "Location"
 msgstr "Lokalizacja"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:348
+#: app/components/Table/components/TableHeader.tsx:382
 msgid "Lock"
 msgstr "Zablokuj"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:65
+#: app/components/Layout/Topbar/CreateMenu.tsx:63
 msgid "Maintenance"
 msgstr "Utrzymanie"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:356
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:378
 msgid "Make items cannot be invoiced directly. Change method to Pick to continue."
 msgstr "Pozycji typu Make nie mozna fakturowac bezposrednio. Zmien metode na Pick, aby kontynuowac."
 
@@ -824,7 +824,7 @@ msgid "Manage Subscription"
 msgstr "Zarzadzaj subskrypcja"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:169
+#: app/components/Layout/Topbar/Notifications.tsx:171
 msgid "Mark as read"
 msgstr "Oznacz jako przeczytane"
 
@@ -834,33 +834,33 @@ msgid "matches"
 msgstr "pasuje do"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:392
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:387
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:341
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:421
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:438
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:359
 msgid "Method"
 msgstr "Metoda"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:102
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:121
 msgid "Mobile Phone"
 msgstr "Telefon komorkowy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:321
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:278
-#: app/routes/x+/sales+/_index.tsx:502
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:360
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:289
+#: app/routes/x+/sales+/_index.tsx:516
 msgid "More"
 msgstr "Wiecej"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:198
+#: app/components/Table/components/TableHeader.tsx:206
 msgid "My Saved View"
 msgstr "Moj zapisany widok"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:125
-#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:90
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:76
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:140
+#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:95
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:75
 msgid "Name"
 msgstr "Nazwa"
 
@@ -869,73 +869,73 @@ msgid "Navigate"
 msgstr "Nawiguj"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:90
-#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:82
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:90
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:90
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:90
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:90
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:92
+#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:84
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:99
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:99
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:96
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:99
 msgid "New"
 msgstr "Nowy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:104
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:111
 msgid "New Customer"
 msgstr "Nowy klient"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:134
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:151
 msgid "New Quote"
 msgstr "Nowa oferta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:286
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:315
 msgid "New Quote Line"
 msgstr "Nowa pozycja oferty"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:122
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:139
 msgid "New RFQ"
 msgstr "Nowe RFQ"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:164
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:181
 msgid "New Sales Invoice"
 msgstr "Nowa faktura sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:304
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:315
 msgid "New Sales Invoice Line"
 msgstr "Nowa pozycja faktury sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:136
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:152
 msgid "New Sales Order"
 msgstr "Nowe zamowienie sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:235
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:236
 msgid "New Sales Order Line"
 msgstr "Nowa pozycja zamowienia sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Pagination/Pagination.tsx:150
-#: app/components/Table/components/Pagination/Pagination.tsx:193
+#: app/components/Table/components/Pagination/Pagination.tsx:152
+#: app/components/Table/components/Pagination/Pagination.tsx:195
 msgid "Next"
 msgstr "Nastepna"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:144
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:169
 msgid "Next Sequence"
 msgstr "Nastepny numer"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Filter/Filter.tsx:180
+#: app/components/Table/components/Filter/Filter.tsx:185
 msgid "No available filters"
 msgstr "Brak dostepnych filtrow"
 
 #. js-lingui-explicit-id
-#: app/components/Table/Table.tsx:945
+#: app/components/Table/Table.tsx:947
 msgid "No data exists"
 msgstr "Brak danych"
 
@@ -945,24 +945,24 @@ msgid "No matches for \"{{query}}\". Try a different search term."
 msgstr "Brak dopasowan dla \"{query}\". Sprobuj innej frazy."
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:486
+#: app/components/Layout/Topbar/Notifications.tsx:490
 msgid "No new notifications"
 msgstr "Brak nowych powiadomien"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Filter/ActiveFilters.tsx:177
+#: app/components/Table/components/Filter/ActiveFilters.tsx:180
 msgid "No options found."
 msgstr "Nie znaleziono opcji."
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:538
+#: app/components/Layout/Topbar/Notifications.tsx:549
 msgid "No outstanding trainings"
 msgstr "Brak zaleglych szkolen"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:91
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:98
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:466
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:100
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:110
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:532
 msgid "No Quote Reason"
 msgstr "Powod braku oferty"
 
@@ -973,48 +973,48 @@ msgstr "Powody braku oferty"
 
 #. js-lingui-explicit-id
 #: app/components/Layout/Topbar/Search/SearchEmptyState.tsx:44
-#: app/components/Table/Table.tsx:933
+#: app/components/Table/Table.tsx:934
 msgid "No results found"
 msgstr "Nie znaleziono wynikow"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Sort/Sort.tsx:65
+#: app/components/Table/components/Sort/Sort.tsx:67
 msgid "No sorts applied to this view"
 msgstr "Brak sortowania w tym widoku"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:616
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:532
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:676
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:598
 msgid "Non-Taxable Add-On Cost"
 msgstr "Koszt doplaty niepodlegajacy opodatkowaniu"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:111
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:142
 msgid "Notes"
 msgstr "Notatki"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:558
+#: app/components/Layout/Topbar/Notifications.tsx:576
 msgid "Nothing in the archive"
 msgstr "Brak elementow w archiwum"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Pagination/Pagination.tsx:166
+#: app/components/Table/components/Pagination/Pagination.tsx:168
 msgid "of"
 msgstr "z"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:400
+#: app/routes/x+/sales+/_index.tsx:405
 msgid "Open Quotes"
 msgstr "Otwarte oferty"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:373
+#: app/routes/x+/sales+/_index.tsx:376
 msgid "Open RFQs"
 msgstr "Otwarte RFQ"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:427
+#: app/routes/x+/sales+/_index.tsx:437
 msgid "Open Sales Orders"
 msgstr "Otwarte zamowienia sprzedazy"
 
@@ -1024,8 +1024,8 @@ msgid "Orders"
 msgstr "Zamowienia"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:41
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:370
+#: app/components/Layout/Topbar/CreateMenu.tsx:39
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:416
 msgid "Part"
 msgstr "Czesc"
 
@@ -1036,15 +1036,15 @@ msgid "Payment"
 msgstr "Platnosc"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:69
-#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:83
-#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:85
+#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:79
+#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:91
+#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:93
 msgid "Payment Term"
 msgstr "Termin platnosci"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:241
-#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:48
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:289
+#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:49
 msgid "Payment Terms"
 msgstr "Warunki platnosci"
 
@@ -1054,17 +1054,17 @@ msgid "People"
 msgstr "Kadry"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:178
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:177
 msgid "Phone"
 msgstr "Telefon"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Sort/Sort.tsx:116
+#: app/components/Table/components/Sort/Sort.tsx:134
 msgid "Pick a column to sort by"
 msgstr "Wybierz kolumne do sortowania"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:29
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:32
 msgid "Polish"
 msgstr "Polski"
 
@@ -1079,8 +1079,8 @@ msgid "Portals"
 msgstr "Portale"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Pagination/Pagination.tsx:136
-#: app/components/Table/components/Pagination/Pagination.tsx:177
+#: app/components/Table/components/Pagination/Pagination.tsx:138
+#: app/components/Table/components/Pagination/Pagination.tsx:179
 msgid "Previous"
 msgstr "Poprzednia"
 
@@ -1099,14 +1099,14 @@ msgid "Profile"
 msgstr "Profil"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:215
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:385
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:134
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:278
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:416
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:144
 msgid "Promised Date"
 msgstr "Data obiecana"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:73
+#: app/components/Layout/Topbar/CreateMenu.tsx:71
 msgid "Purchase Order"
 msgstr "Zamowienie zakupu"
 
@@ -1116,9 +1116,9 @@ msgid "Purchasing"
 msgstr "Zakupy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:172
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:173
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:157
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:200
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:206
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:187
 msgid "Purchasing Contact"
 msgstr "Kontakt zakupowy"
 
@@ -1128,46 +1128,46 @@ msgid "Quality"
 msgstr "Jakosc"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:417
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:473
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:362
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:446
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:543
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:383
 msgid "Quantity"
 msgstr "Ilosc"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:99
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:134
+#: app/components/Layout/Topbar/CreateMenu.tsx:97
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:150
 msgid "Quote"
 msgstr "Oferta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:195
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:240
 msgid "Quote Accepted By"
 msgstr "Oferta zaakceptowana przez"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:200
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:250
 msgid "Quote Accepted By Email"
 msgstr "Email akceptujacego oferte"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:155
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:179
 msgid "Quote ID"
 msgstr "ID oferty"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:285
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:313
 msgid "Quote Line"
 msgstr "Pozycja oferty"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:196
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:242
 msgid "Quote Location"
 msgstr "Lokalizacja oferty"
 
 #. js-lingui-explicit-id
 #: app/modules/sales/ui/useSalesSubmodules.tsx:42
-#: app/routes/x+/sales+/_index.tsx:162
+#: app/routes/x+/sales+/_index.tsx:161
 msgid "Quotes"
 msgstr "Oferty"
 
@@ -1187,30 +1187,30 @@ msgid "Recent"
 msgstr "Ostatnie"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:616
+#: app/routes/x+/sales+/_index.tsx:631
 msgid "Recently Created"
 msgstr "Ostatnio utworzone"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Filter/ActiveFilters.tsx:211
-#: app/components/Table/components/Filter/Filter.tsx:142
+#: app/components/Table/components/Filter/ActiveFilters.tsx:218
+#: app/components/Table/components/Filter/Filter.tsx:143
 msgid "Remove filter"
 msgstr "Usun filtr"
 
 #. js-lingui-explicit-id
-#: app/components/Table/Table.tsx:936
+#: app/components/Table/Table.tsx:938
 msgid "Remove Filters"
 msgstr "Usun filtry"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Sort/Sort.tsx:100
+#: app/components/Table/components/Sort/Sort.tsx:113
 msgid "Remove sort by column"
 msgstr "Usun sortowanie kolumny"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:117
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:208
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:132
+#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:124
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:263
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:139
 msgid "Requested Date"
 msgstr "Data wymagana"
 
@@ -1224,34 +1224,34 @@ msgid "Results"
 msgstr "Wyniki"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Pagination/Pagination.tsx:62
+#: app/components/Table/components/Pagination/Pagination.tsx:63
 msgid "Results per page"
 msgstr "Wynikow na strone"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:94
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:122
+#: app/components/Layout/Topbar/CreateMenu.tsx:92
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:138
 msgid "RFQ"
 msgstr "RFQ"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:174
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:215
 msgid "RFQ Date"
 msgstr "Data RFQ"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:143
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:167
 msgid "RFQ ID"
 msgstr "RFQ ID"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:182
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:225
 msgid "RFQ Location"
 msgstr "Lokalizacja RFQ"
 
 #. js-lingui-explicit-id
 #: app/modules/sales/ui/useSalesSubmodules.tsx:36
-#: app/routes/x+/sales+/_index.tsx:156
+#: app/routes/x+/sales+/_index.tsx:155
 msgid "RFQs"
 msgstr "RFQ"
 
@@ -1266,79 +1266,79 @@ msgid "Sales"
 msgstr "Sprzedaz"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:146
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:180
 msgid "Sales Contact"
 msgstr "Kontakt sprzedazowy"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:164
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:179
 msgid "Sales Invoice"
 msgstr "Faktura sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:220
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:293
 msgid "Sales Location"
 msgstr "Lokalizacja sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:104
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:136
+#: app/components/Layout/Topbar/CreateMenu.tsx:102
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:151
 msgid "Sales Order"
 msgstr "Zamowienie sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:159
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:182
 msgid "Sales Order ID"
 msgstr "ID zamowienia sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:168
+#: app/routes/x+/sales+/_index.tsx:167
 msgid "Sales Orders"
 msgstr "Zamowienia sprzedazy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:192
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:222
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:183
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:231
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:299
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:229
 msgid "Sales Person"
 msgstr "Handlowiec"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:215
-#: app/modules/account/ui/Profile/ProfileForm.tsx:43
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:36
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:278
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:632
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:125
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:117
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:175
-#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:97
-#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:75
-#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:89
-#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:104
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:104
-#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:104
-#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:104
-#: app/modules/sales/ui/Quotes/QuoteForm.tsx:261
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:516
-#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:88
-#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:125
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:279
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:553
-#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:90
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:162
-#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:197
+#: app/components/Table/components/TableHeader.tsx:232
+#: app/modules/account/ui/Profile/ProfileForm.tsx:53
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:44
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:330
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:696
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:131
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:150
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:225
+#: app/modules/sales/ui/Customer/CustomerLocationForm.tsx:104
+#: app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:87
+#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:100
+#: app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:117
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:119
+#: app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:116
+#: app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:119
+#: app/modules/sales/ui/Quotes/QuoteForm.tsx:311
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:586
+#: app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:98
+#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:133
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:357
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:623
+#: app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:100
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:181
+#: app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:244
 msgid "Save"
 msgstr "Zapisz"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:320
-#: app/components/Table/components/TableHeader.tsx:329
+#: app/components/Table/components/TableHeader.tsx:349
+#: app/components/Table/components/TableHeader.tsx:362
 msgid "Save View"
 msgstr "Zapisz widok"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:302
+#: app/components/Table/components/TableHeader.tsx:327
 msgid "Search"
 msgstr "Szukaj"
 
@@ -1352,7 +1352,7 @@ msgstr "Szukaj w calym obszarze roboczym..."
 
 #. js-lingui-explicit-id
 #: app/components/Table/components/Filter/ActiveFilters.tsx:173
-#: app/components/Table/components/Filter/Filter.tsx:176
+#: app/components/Table/components/Filter/Filter.tsx:178
 msgid "Search..."
 msgstr "Szukaj..."
 
@@ -1361,28 +1361,28 @@ msgid "Select"
 msgstr "Wybierz"
 
 #. js-lingui-explicit-id
-#: app/components/Form/Customer.tsx:51
-#: app/components/Form/CustomerLocation.tsx:86
+#: app/components/Form/Customer.tsx:52
+#: app/components/Form/CustomerLocation.tsx:90
 msgid "Select"
 msgstr "Wybierz"
 
 #. js-lingui-explicit-id
-#: app/components/Form/CustomerContact.tsx:68
+#: app/components/Form/CustomerContact.tsx:70
 msgid "Select Contact"
 msgstr "Wybierz kontakt"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:130
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:150
 msgid "Select Customer Status"
 msgstr "Wybierz status klienta"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:135
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:162
 msgid "Select Customer Type"
 msgstr "Wybierz typ klienta"
 
 #. js-lingui-explicit-id
-#: app/components/Form/Employee.tsx:55
+#: app/components/Form/Employee.tsx:63
 msgid "Select Employee"
 msgstr "Wybierz pracownika"
 
@@ -1391,7 +1391,7 @@ msgid "Send"
 msgstr "Wyslij"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:205
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:211
 msgid "Serial items require a sales order"
 msgstr "Produkty seryjne wymagaja zamowienia sprzedazy"
 
@@ -1401,60 +1401,60 @@ msgid "Settings"
 msgstr "Ustawienia"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:452
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:409
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:483
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:446
 msgid "Shelf"
 msgstr "Polka"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:135
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:148
 msgid "Shipment Date"
 msgstr "Data wysylki"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:110
-#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:106
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:121
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:113
+#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:109
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:124
 msgid "Shipment Location"
 msgstr "Lokalizacja wysylki"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:93
-#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:54
-#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:89
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:102
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:94
+#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:55
+#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:90
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:103
 msgid "Shipping"
 msgstr "Wysylka"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:71
+#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:78
 msgid "Shipping Contact"
 msgstr "Kontakt wysylki"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:588
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:100
-#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:96
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:515
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:109
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:641
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:102
+#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:98
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:574
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:111
 msgid "Shipping Cost"
 msgstr "Koszt wysylki"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:61
+#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:64
 msgid "Shipping Customer"
 msgstr "Klient wysylki"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:66
+#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:71
 msgid "Shipping Location"
 msgstr "Lokalizacja wysylki"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:116
-#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:77
-#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:112
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:127
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:121
+#: app/modules/sales/ui/Customer/CustomerShippingForm.tsx:86
+#: app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:117
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:132
 msgid "Shipping Method"
 msgstr "Metoda wysylki"
 
@@ -1464,8 +1464,8 @@ msgid "Shop Floor"
 msgstr "Hala produkcyjna"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:381
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:326
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:428
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:340
 msgid "Short Description"
 msgstr "Krotki opis"
 
@@ -1484,7 +1484,7 @@ msgid "Sort"
 msgstr "Sortuj"
 
 #. js-lingui-explicit-id
-#: app/components/Table/Table.tsx:1029
+#: app/components/Table/Table.tsx:1032
 msgid "Sort Ascending"
 msgstr "Sortuj rosnaco"
 
@@ -1494,14 +1494,14 @@ msgid "Sort by"
 msgstr "Sortuj wedlug"
 
 #. js-lingui-explicit-id
-#: app/components/Table/Table.tsx:1040
+#: app/components/Table/Table.tsx:1048
 msgid "Sort Descending"
 msgstr "Sortuj malejaco"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:90
-#: app/routes/x+/sales+/_index.tsx:625
-#: app/routes/x+/sales+/_index.tsx:687
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:89
+#: app/routes/x+/sales+/_index.tsx:641
+#: app/routes/x+/sales+/_index.tsx:714
 msgid "Status"
 msgstr "Stan"
 
@@ -1519,50 +1519,50 @@ msgid "Suggestion"
 msgstr "Sugestia"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/CreateMenu.tsx:81
+#: app/components/Layout/Topbar/CreateMenu.tsx:79
 msgid "Supplier"
 msgstr "Dostawca"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:244
+#: app/components/Table/components/TableHeader.tsx:263
 msgid "Table actions"
 msgstr "Akcje tabeli"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:146
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:145
 msgid "Tags"
 msgstr "Tagi"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:327
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:485
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:305
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:260
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:442
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:342
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:523
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:338
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:265
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:486
 msgid "Tax"
 msgstr "Podatek"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:478
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:435
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:511
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:474
 msgid "Tax & Additional Costs"
 msgstr "Podatek i koszty dodatkowe"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:567
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:618
 msgid "Tax Amount"
 msgstr "Kwota podatku"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:165
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:207
 msgid "Tax ID"
 msgstr "NIP"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:544
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:154
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:451
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:503
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:593
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:193
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:515
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:560
 msgid "Tax Percent"
 msgstr "Stawka podatku"
 
@@ -1575,8 +1575,8 @@ msgid "Terms of Service"
 msgstr "Warunki korzystania"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:209
-#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:216
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:266
+#: app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:281
 msgid "The date the customer expects to receive the goods"
 msgstr "Data, kiedy klient oczekuje otrzymania towaru"
 
@@ -1585,38 +1585,38 @@ msgid "Theme Color"
 msgstr "Kolor motywu"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/account+/profile.tsx:153
+#: app/routes/x+/account+/profile.tsx:154
 msgid "This information will be visible to all users, so be careful what you share."
 msgstr "Te informacje beda widoczne dla wszystkich uzytkownikow, wiec uwazaj, co udostepniasz."
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:101
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:117
 msgid "Title"
 msgstr "Stanowisko"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/Columns.tsx:130
-#: app/components/Table/components/Columns.tsx:174
+#: app/components/Table/components/Columns.tsx:152
+#: app/components/Table/components/Columns.tsx:198
 msgid "Toggle column"
 msgstr "Przelacz kolumne"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:137
+#: app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:154
 msgid "Tracking Number"
 msgstr "Numer sledzenia"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Notifications.tsx:463
+#: app/components/Layout/Topbar/Notifications.tsx:465
 msgid "Trainings"
 msgstr "Szkolenia"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:108
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:107
 msgid "Type"
 msgstr "Typ"
 
 #. js-lingui-explicit-id
-#: app/components/Layout/Topbar/Search/SearchEmptyState.tsx:66
+#: app/components/Layout/Topbar/Search/SearchEmptyState.tsx:67
 msgid "Type to search across your workspace"
 msgstr "Wpisz, aby szukac w calym obszarze roboczym"
 
@@ -1626,33 +1626,33 @@ msgid "Types"
 msgstr "Typy"
 
 #. js-lingui-explicit-id
-#: app/components/Form/Employee.tsx:42
+#: app/components/Form/Employee.tsx:45
 msgid "Unassigned"
 msgstr "Nieprzypisany"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:365
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:389
 msgid "Unit of Measure"
 msgstr "Jednostka miary"
 
 #. js-lingui-explicit-id
-#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:429
-#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:370
+#: app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:459
+#: app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:399
 msgid "Unit Price"
 msgstr "Cena jednostkowa"
 
 #. js-lingui-explicit-id
-#: app/components/Table/components/TableHeader.tsx:215
+#: app/components/Table/components/TableHeader.tsx:231
 msgid "Update"
 msgstr "Aktualizuj"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:244
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:243
 msgid "Updated At"
 msgstr "Zaktualizowano"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:227
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:226
 msgid "Updated By"
 msgstr "Zaktualizowane przez"
 
@@ -1666,44 +1666,44 @@ msgid "Users"
 msgstr "Uzytkownicy"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:166
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:211
 msgid "VAT Number"
 msgstr "Numer VAT"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:63
+#: app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:62
 #: app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:58
 msgid "View Customers"
 msgstr "Zobacz klientow"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:342
+#: app/modules/sales/ui/Quotes/QuoteLineForm.tsx:384
 msgid "View Item Master"
 msgstr "Zobacz kartoteke produktu"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:444
+#: app/routes/x+/sales+/_index.tsx:457
 msgid "View Open Orders"
 msgstr "Zobacz otwarte zamowienia"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:417
+#: app/routes/x+/sales+/_index.tsx:424
 msgid "View Open Quotes"
 msgstr "Zobacz otwarte oferty"
 
 #. js-lingui-explicit-id
-#: app/routes/x+/sales+/_index.tsx:390
+#: app/routes/x+/sales+/_index.tsx:394
 msgid "View Open RFQs"
 msgstr "Zobacz otwarte RFQ"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerForm.tsx:167
-#: app/modules/sales/ui/Customers/CustomersTable.tsx:194
+#: app/modules/sales/ui/Customer/CustomerForm.tsx:215
+#: app/modules/sales/ui/Customers/CustomersTable.tsx:193
 msgid "Website"
 msgstr "Strona"
 
 #. js-lingui-explicit-id
-#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:104
+#: app/modules/sales/ui/Customer/CustomerContactForm.tsx:129
 msgid "Work Phone"
 msgstr "Telefon sluzbowy"
 
