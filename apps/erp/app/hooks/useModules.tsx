@@ -1,4 +1,5 @@
-import { useTranslation } from "@carbon/locale";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import {
   LuBox,
   LuCrown,
@@ -20,54 +21,54 @@ import { usePermissions } from "./usePermissions";
 
 export function useModules() {
   const permissions = usePermissions();
-  const { t } = useTranslation("shared");
+  const { _: t } = useLingui();
 
   const modules: Authenticated<NavItem>[] = [
     {
-      name: t("Shop Floor"),
+      name: t(msg({ id: "Shop Floor", message: "Shop Floor" })),
       to: path.to.external.mes,
       icon: LuTvMinimalPlay,
       role: "employee"
     },
     {
       permission: "sales",
-      name: t("Sales"),
+      name: t(msg({ id: "Sales", message: "Sales" })),
       to: path.to.sales,
       icon: LuCrown
     },
     {
       permission: "production",
-      name: t("Production"),
+      name: t(msg({ id: "Production", message: "Production" })),
       to: path.to.production,
       icon: LuFactory
     },
     {
       permission: "parts",
-      name: t("Items"),
+      name: t(msg({ id: "Items", message: "Items" })),
       to: path.to.parts,
       icon: LuSquareStack
     },
     {
       permission: "inventory",
-      name: t("Inventory"),
+      name: t(msg({ id: "Inventory", message: "Inventory" })),
       to: path.to.inventory,
       icon: LuBox
     },
     {
       permission: "purchasing",
-      name: t("Purchasing"),
+      name: t(msg({ id: "Purchasing", message: "Purchasing" })),
       to: path.to.purchasing,
       icon: LuShoppingCart
     },
     {
       permission: "quality",
-      name: t("Quality"),
+      name: t(msg({ id: "Quality", message: "Quality" })),
       to: path.to.quality,
       icon: LuFolderCheck
     },
     {
       permission: "accounting",
-      name: t("Finance"),
+      name: t(msg({ id: "Finance", message: "Finance" })),
       to: path.to.currencies,
       icon: LuLandmark
     },
@@ -79,31 +80,31 @@ export function useModules() {
     // },
     {
       permission: "people",
-      name: t("People"),
+      name: t(msg({ id: "People", message: "People" })),
       to: path.to.people,
       icon: LuUsers
     },
     {
       permission: "resources",
-      name: t("Resources"),
+      name: t(msg({ id: "Resources", message: "Resources" })),
       to: path.to.resources,
       icon: LuWrench
     },
     {
       permission: "documents",
-      name: t("Documents"),
+      name: t(msg({ id: "Documents", message: "Documents" })),
       to: path.to.documents,
       icon: LuFiles
     },
     {
       permission: "users",
-      name: t("Users"),
+      name: t(msg({ id: "Users", message: "Users" })),
       to: path.to.employeeAccounts,
       icon: LuShield
     },
     {
       permission: "settings",
-      name: t("Settings"),
+      name: t(msg({ id: "Settings", message: "Settings" })),
       to: path.to.company,
       icon: LuSettings
     }

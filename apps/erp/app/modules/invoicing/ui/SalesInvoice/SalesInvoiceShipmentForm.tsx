@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -7,6 +6,8 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -39,8 +40,8 @@ const SalesInvoiceShipmentForm = forwardRef<
   SalesInvoiceShipmentFormRef,
   SalesInvoiceShipmentFormProps
 >(({ initialValues, currencyCode, defaultCollapsed = false }, ref) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const { invoiceId } = useParams();
   if (!invoiceId) {
     throw new Error("invoiceId not found");
@@ -89,14 +90,16 @@ const SalesInvoiceShipmentForm = forwardRef<
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>{t("Shipping")}</CardTitle>
+          <CardTitle>
+            {t(msg({ id: "Shipping", message: "Shipping" }))}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="shippingCost"
-              label={t("Shipping Cost")}
+              label={t(msg({ id: "Shipping Cost", message: "Shipping Cost" }))}
               minValue={0}
               formatOptions={{
                 style: "currency",
@@ -106,13 +109,17 @@ const SalesInvoiceShipmentForm = forwardRef<
             />
             <Location
               name="locationId"
-              label={t("Shipment Location")}
+              label={t(
+                msg({ id: "Shipment Location", message: "Shipment Location" })
+              )}
               isReadOnly={isCustomer}
               isClearable
             />
             <ShippingMethod
               name="shippingMethodId"
-              label={t("Shipping Method")}
+              label={t(
+                msg({ id: "Shipping Method", message: "Shipping Method" })
+              )}
             />
             <CustomFormFields table="salesInvoiceShipment" />
           </div>
@@ -121,7 +128,7 @@ const SalesInvoiceShipmentForm = forwardRef<
           <Submit
             isDisabled={!permissions.can("update", "invoicing") || !isEditable}
           >
-            {tShared("Save")}
+            {tShared(msg({ id: "Save", message: "Save" }))}
           </Submit>
         </CardFooter>
       </ValidatedForm>

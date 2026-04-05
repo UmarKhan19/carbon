@@ -1,5 +1,4 @@
 import { Hidden, Input, Submit, ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   Button,
@@ -23,6 +22,8 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type {
   Column,
   ColumnOrderState,
@@ -111,7 +112,7 @@ const TableHeader = <T extends object>({
   withSearch,
   withSelectableRows
 }: HeaderProps<T>) => {
-  const { t, i18n } = useTranslation("shared");
+  const { _: t, i18n } = useLingui();
   const [params, setParams] = useUrlParams();
   const currentFilters = params.getAll("filter").filter(Boolean);
   const currentSorts = params.getAll("sort").filter(Boolean);
@@ -138,7 +139,7 @@ const TableHeader = <T extends object>({
   const { currentView, hasView } = useSavedViews();
   const translateText = (value: string | undefined) => {
     if (!value) return value;
-    const fromSales = i18n.t(value, { ns: "sales", defaultValue: value });
+    const fromSales = i18n._(value);
     if (fromSales !== value) return fromSales;
     const fromShared = t(value);
     return fromShared;
@@ -152,7 +153,14 @@ const TableHeader = <T extends object>({
         table: z.string(),
         name: z
           .string()
-          .min(1, { message: t("A name is required to save a view") }),
+          .min(1, {
+            message: t(
+              msg({
+                id: "A name is required to save a view",
+                message: "A name is required to save a view"
+              })
+            )
+          }),
         description: z.string().optional(),
         filter: z.string().optional(),
         sort: z.string().optional(),
@@ -194,7 +202,9 @@ const TableHeader = <T extends object>({
               <Input
                 autoFocus
                 name="name"
-                placeholder={t("My Saved View")}
+                placeholder={t(
+                  msg({ id: "My Saved View", message: "My Saved View" })
+                )}
                 label=""
                 className="font-medium text-base"
                 borderless
@@ -202,16 +212,25 @@ const TableHeader = <T extends object>({
               <Input
                 name="description"
                 label=""
-                placeholder={t("Description (optional)")}
+                placeholder={t(
+                  msg({
+                    id: "Description (optional)",
+                    message: "Description (optional)"
+                  })
+                )}
                 className="text-sm"
                 borderless
               />
             </CardContent>
             <CardFooter>
               <Button variant="secondary" onClick={savedViewDisclosure.onClose}>
-                {t("Cancel")}
+                {t(msg({ id: "Cancel", message: "Cancel" }))}
               </Button>
-              <Submit>{hasView ? t("Update") : t("Save")}</Submit>
+              <Submit>
+                {hasView
+                  ? t(msg({ id: "Update", message: "Update" }))
+                  : t(msg({ id: "Save", message: "Save" }))}
+              </Submit>
             </CardFooter>
           </Card>
         </ValidatedForm>
@@ -240,13 +259,17 @@ const TableHeader = <T extends object>({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
-                      aria-label={t("Table actions")}
+                      aria-label={t(
+                        msg({ id: "Table actions", message: "Table actions" })
+                      )}
                       variant="secondary"
                       icon={<BsThreeDotsVertical />}
                     />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>{t("Bulk Import")}</DropdownMenuLabel>
+                    <DropdownMenuLabel>
+                      {t(msg({ id: "Bulk Import", message: "Bulk Import" }))}
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {importCSV.map(({ table, label }) => (
                       <DropdownMenuItem
@@ -256,7 +279,12 @@ const TableHeader = <T extends object>({
                         }}
                       >
                         <DropdownMenuIcon icon={<LuDownload />} />
-                        {t("Import {{label}} CSV", { label })}
+                        {t(
+                          msg({
+                            id: "Import {{label}} CSV",
+                            message: `Import ${label} CSV`
+                          })
+                        )}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -293,7 +321,11 @@ const TableHeader = <T extends object>({
               </DropdownMenu>
             )}
           {withSearch && (
-            <SearchFilter param="search" size="sm" placeholder={t("Search")} />
+            <SearchFilter
+              param="search"
+              size="sm"
+              placeholder={t(msg({ id: "Search", message: "Search" }))}
+            />
           )}
           {!!filters?.length && <Filter filters={filters} />}
         </HStack>
@@ -311,7 +343,11 @@ const TableHeader = <T extends object>({
             <Tooltip>
               <TooltipTrigger asChild>
                 <IconButton
-                  aria-label={hasView ? t("Edit View") : t("Save View")}
+                  aria-label={
+                    hasView
+                      ? t(msg({ id: "Edit View", message: "Edit View" }))
+                      : t(msg({ id: "Save View", message: "Save View" }))
+                  }
                   variant={
                     savedViewDisclosure.isOpen || hasView ? "active" : "ghost"
                   }
@@ -320,7 +356,11 @@ const TableHeader = <T extends object>({
                 />
               </TooltipTrigger>
               <TooltipContent>
-                <p>{hasView ? t("Edit View") : t("Save View")}</p>
+                <p>
+                  {hasView
+                    ? t(msg({ id: "Edit View", message: "Edit View" }))
+                    : t(msg({ id: "Save View", message: "Save View" }))}
+                </p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -339,7 +379,7 @@ const TableHeader = <T extends object>({
                 variant="secondary"
                 onClick={() => setEditMode(false)}
               >
-                {t("Lock")}
+                {t(msg({ id: "Lock", message: "Lock" }))}
               </Button>
             ) : (
               <Button
@@ -347,7 +387,7 @@ const TableHeader = <T extends object>({
                 variant="secondary"
                 onClick={() => setEditMode(true)}
               >
-                {t("Edit")}
+                {t(msg({ id: "Edit", message: "Edit" }))}
               </Button>
             ))}
         </HStack>

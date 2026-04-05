@@ -1,6 +1,5 @@
 import { useCarbon } from "@carbon/auth";
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -12,6 +11,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
@@ -44,8 +45,8 @@ type QuoteFormProps = {
 };
 
 const QuoteForm = ({ initialValues }: QuoteFormProps) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -78,7 +79,14 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error(t("Carbon client not found"));
+      toast.error(
+        t(
+          msg({
+            id: "Carbon client not found",
+            message: "Carbon client not found"
+          })
+        )
+      );
       return;
     }
 
@@ -101,7 +109,14 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         .eq("id", newValue.value)
         .single();
       if (error) {
-        toast.error(t("Error fetching customer data"));
+        toast.error(
+          t(
+            msg({
+              id: "Error fetching customer data",
+              message: "Error fetching customer data"
+            })
+          )
+        );
       } else {
         setCustomer((prev) => ({
           ...prev,
@@ -130,11 +145,19 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         isDisabled={isDisabled}
       >
         <CardHeader>
-          <CardTitle>{isEditing ? t("Quote") : t("New Quote")}</CardTitle>
+          <CardTitle>
+            {isEditing
+              ? t(msg({ id: "Quote", message: "Quote" }))
+              : t(msg({ id: "New Quote", message: "New Quote" }))}
+          </CardTitle>
           {!isEditing && (
             <CardDescription>
               {t(
-                "A quote is a set of prices for specific parts and quantities."
+                msg({
+                  id: "A quote is a set of prices for specific parts and quantities.",
+                  message:
+                    "A quote is a set of prices for specific parts and quantities."
+                })
               )}
             </CardDescription>
           )}
@@ -153,61 +176,87 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="quoteId"
-                  label={t("Quote ID")}
+                  label={t(msg({ id: "Quote ID", message: "Quote ID" }))}
                   table="quote"
                 />
               )}
               <Customer
                 autoFocus={!isEditing}
                 name="customerId"
-                label={t("Customer")}
+                label={t(msg({ id: "Customer", message: "Customer" }))}
                 onChange={(newValue) => {
                   if (newValue?.value) {
                     onCustomerChange(newValue);
                   }
                 }}
               />
-              <Input name="customerReference" label={t("Customer RFQ")} />
+              <Input
+                name="customerReference"
+                label={t(msg({ id: "Customer RFQ", message: "Customer RFQ" }))}
+              />
               <CustomerContact
                 name="customerContactId"
-                label={t("Purchasing Contact")}
+                label={t(
+                  msg({
+                    id: "Purchasing Contact",
+                    message: "Purchasing Contact"
+                  })
+                )}
                 isOptional
                 customer={customer.id}
                 value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
-                label={t("Engineering Contact")}
+                label={t(
+                  msg({
+                    id: "Engineering Contact",
+                    message: "Engineering Contact"
+                  })
+                )}
                 isOptional
                 customer={customer.id}
               />
               <CustomerLocation
                 name="customerLocationId"
-                label={t("Customer Location")}
+                label={t(
+                  msg({ id: "Customer Location", message: "Customer Location" })
+                )}
                 isOptional
                 customer={customer.id}
                 value={customer.customerLocationId}
               />
               <Employee
                 name="salesPersonId"
-                label={t("Sales Person")}
+                label={t(msg({ id: "Sales Person", message: "Sales Person" }))}
                 isOptional
               />
-              <Employee name="estimatorId" label={t("Estimator")} isOptional />
-              <Location name="locationId" label={t("Quote Location")} />
+              <Employee
+                name="estimatorId"
+                label={t(msg({ id: "Estimator", message: "Estimator" }))}
+                isOptional
+              />
+              <Location
+                name="locationId"
+                label={t(
+                  msg({ id: "Quote Location", message: "Quote Location" })
+                )}
+              />
               <DatePicker
                 name="dueDate"
-                label={t("Due Date")}
+                label={t(msg({ id: "Due Date", message: "Due Date" }))}
                 isDisabled={isCustomer}
               />
               <DatePicker
                 name="expirationDate"
-                label={t("Expiration Date")}
+                label={t(
+                  msg({ id: "Expiration Date", message: "Expiration Date" })
+                )}
                 isDisabled={isCustomer}
               />
               <Currency
                 name="currencyCode"
-                label={t("Currency")}
+                label={t(msg({ id: "Currency", message: "Currency" }))}
                 value={customer.currencyCode}
                 onChange={(
                   newValue: {
@@ -259,7 +308,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 : !permissions.can("create", "sales"))
             }
           >
-            {tShared("Save")}
+            {tShared(msg({ id: "Save", message: "Save" }))}
           </Submit>
         </CardFooter>
       </ValidatedForm>

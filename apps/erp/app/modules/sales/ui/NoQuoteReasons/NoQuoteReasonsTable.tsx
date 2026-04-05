@@ -1,5 +1,6 @@
-import { useTranslation } from "@carbon/locale";
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuBookMarked, LuPencil, LuTrash } from "react-icons/lu";
@@ -18,7 +19,7 @@ type NoQuoteReasonsTableProps = {
 
 const NoQuoteReasonsTable = memo(
   ({ data, count }: NoQuoteReasonsTableProps) => {
-    const { t } = useTranslation("sales");
+    const { _: t } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -28,7 +29,7 @@ const NoQuoteReasonsTable = memo(
       const defaultColumns: ColumnDef<NoQuoteReason>[] = [
         {
           accessorKey: "name",
-          header: t("Reason"),
+          header: t(msg({ id: "Reason", message: "Reason" })),
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               <Enumerable value={row.original.name} />
@@ -54,7 +55,7 @@ const NoQuoteReasonsTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              {t("Edit Reason")}
+              {t(msg({ id: "Edit Reason", message: "Edit Reason" }))}
             </MenuItem>
             <MenuItem
               destructive
@@ -66,7 +67,7 @@ const NoQuoteReasonsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              {t("Delete Reason")}
+              {t(msg({ id: "Delete Reason", message: "Delete Reason" }))}
             </MenuItem>
           </>
         );
@@ -82,13 +83,13 @@ const NoQuoteReasonsTable = memo(
         primaryAction={
           permissions.can("create", "sales") && (
             <New
-              label={t("Reason")}
+              label={t(msg({ id: "Reason", message: "Reason" }))}
               to={`${path.to.newNoQuoteReason}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title={t("Reasons")}
+        title={t(msg({ id: "Reasons", message: "Reasons" }))}
       />
     );
   }

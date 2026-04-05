@@ -1,6 +1,4 @@
 "use client";
-
-import { useTranslation } from "@carbon/locale";
 import { NotificationEvent } from "@carbon/notifications";
 import {
   Badge,
@@ -17,6 +15,8 @@ import {
   TabsTrigger
 } from "@carbon/react";
 import { formatTimeAgo } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useEffect, useState } from "react";
 import {
   LuBell,
@@ -129,12 +129,12 @@ function Notification({
   onClose: () => void;
 }) {
   const { id: userId } = useUser();
-  const { t } = useTranslation("shared");
+  const { _: t } = useLingui();
   const [people] = usePeople();
   let byUser = "";
   if (from) {
     if (from === userId) {
-      byUser = t("yourself");
+      byUser = t(msg({ id: "yourself", message: "yourself" }));
     } else {
       byUser = people.find((p) => p.id === from)?.name ?? "";
     }
@@ -154,7 +154,11 @@ function Notification({
         <div>
           <p className="text-sm">
             {description}{" "}
-            {byUser && <span>{t("by {{name}}", { name: byUser })}</span>}
+            {byUser && (
+              <span>
+                {t(msg({ id: "by {{name}}", message: `by ${byUser}` }))}
+              </span>
+            )}
           </p>
           <span className="text-xs text-muted-foreground">
             {formatTimeAgo(createdAt)}
@@ -164,7 +168,7 @@ function Notification({
       {markMessageAsRead && (
         <div>
           <IconButton
-            aria-label={t("Mark as read")}
+            aria-label={t(msg({ id: "Mark as read", message: "Mark as read" }))}
             icon={<LuMailCheck />}
             variant="secondary"
             className="rounded-full before:rounded-full"
@@ -375,7 +379,7 @@ function GenericNotification({
 }
 
 const Notifications = () => {
-  const { t } = useTranslation("shared");
+  const { _: t } = useLingui();
   const {
     id: userId,
     company: { id: companyId }
@@ -455,13 +459,13 @@ const Notifications = () => {
         >
           <TabsList className="w-full border-b-[1px] py-6 rounded-none bg-muted/[0.5]">
             <TabsTrigger value="inbox" className="font-normal">
-              {t("Inbox")}
+              {t(msg({ id: "Inbox", message: "Inbox" }))}
             </TabsTrigger>
             <TabsTrigger value="trainings" className="font-normal">
-              {t("Trainings")}
+              {t(msg({ id: "Trainings", message: "Trainings" }))}
             </TabsTrigger>
             <TabsTrigger value="archive" className="font-normal">
-              {t("Archive")}
+              {t(msg({ id: "Archive", message: "Archive" }))}
             </TabsTrigger>
           </TabsList>
 
@@ -481,7 +485,14 @@ const Notifications = () => {
 
           <TabsContent value="inbox" className="relative mt-0">
             {!unreadNotifications.length && (
-              <EmptyState description={t("No new notifications")} />
+              <EmptyState
+                description={t(
+                  msg({
+                    id: "No new notifications",
+                    message: "No new notifications"
+                  })
+                )}
+              />
             )}
 
             {unreadNotifications.length > 0 && (
@@ -519,7 +530,7 @@ const Notifications = () => {
                   className="bg-transparent"
                   onClick={markAllMessagesAsRead}
                 >
-                  {t("Archive all")}
+                  {t(msg({ id: "Archive all", message: "Archive all" }))}
                 </Button>
               </div>
             )}
@@ -533,7 +544,14 @@ const Notifications = () => {
             )}
 
             {!isLoadingTrainings && outstandingTrainings.length === 0 && (
-              <EmptyState description={t("No outstanding trainings")} />
+              <EmptyState
+                description={t(
+                  msg({
+                    id: "No outstanding trainings",
+                    message: "No outstanding trainings"
+                  })
+                )}
+              />
             )}
 
             {!isLoadingTrainings && outstandingTrainings.length > 0 && (
@@ -553,7 +571,14 @@ const Notifications = () => {
 
           <TabsContent value="archive" className="mt-0">
             {!archivedNotifications.length && (
-              <EmptyState description={t("Nothing in the archive")} />
+              <EmptyState
+                description={t(
+                  msg({
+                    id: "Nothing in the archive",
+                    message: "Nothing in the archive"
+                  })
+                )}
+              />
             )}
 
             {archivedNotifications.length > 0 && (

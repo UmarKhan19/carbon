@@ -1,7 +1,7 @@
 import type { ComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import { useDisclosure, useMount } from "@carbon/react";
+import { useLingui } from "@lingui/react";
 import { useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Enumerable } from "~/components/Enumerable";
@@ -11,13 +11,12 @@ import type {
   getCustomerStatusesList
 } from "~/modules/sales";
 import CustomerStatusForm from "~/modules/sales/ui/CustomerStatuses/CustomerStatusForm";
-
 import { path } from "~/utils/path";
 
 type CustomerStatusSelectProps = Omit<ComboboxProps, "options">;
 
 const CustomerStatus = (props: CustomerStatusSelectProps) => {
-  const { i18n } = useTranslation("sales");
+  const { i18n } = useLingui();
   const newCustomerStatusModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -31,11 +30,7 @@ const CustomerStatus = (props: CustomerStatusSelectProps) => {
         options={
           options.map((o) => ({
             value: o.value,
-            label: (
-              <Enumerable
-                value={i18n.t(o.label, { ns: "sales", defaultValue: o.label })}
-              />
-            )
+            label: <Enumerable value={i18n._(o.label)} />
           })) ?? []
         }
         {...props}

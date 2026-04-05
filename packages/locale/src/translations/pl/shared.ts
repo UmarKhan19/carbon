@@ -48,6 +48,7 @@ const shared = {
   "Hide, pin and reorder columns": "Ukryj, przypnij i zmien kolejnosc kolumn",
   "Ideas, suggestions or problems?": "Pomysly, sugestie lub problemy?",
   "Import {{label}} CSV": "Importuj CSV {{label}}",
+  Inbox: "Skrzynka odbiorcza",
   Inventory: "Magazyn",
   is: "jest",
   "is any of": "jest dowolnym z",

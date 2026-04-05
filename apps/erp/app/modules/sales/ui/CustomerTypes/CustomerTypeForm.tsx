@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Button,
   HStack,
@@ -13,6 +12,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -35,8 +36,8 @@ const CustomerTypeForm = ({
   type = "drawer",
   onClose
 }: CustomerTypeFormProps) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -45,12 +46,19 @@ const CustomerTypeForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(t("Created customer type"));
+      toast.success(
+        t(
+          msg({ id: "Created customer type", message: "Created customer type" })
+        )
+      );
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        t("Failed to create customer type: {{message}}", {
-          message: fetcher.data.error.message
-        })
+        t(
+          msg({
+            id: "Failed to create customer type: {{message}}",
+            message: `Failed to create customer type: ${fetcher.data.error.message}`
+          })
+        )
       );
     }
   }, [fetcher.data, fetcher.state, onClose, t, type]);
@@ -83,23 +91,32 @@ const CustomerTypeForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? tShared("Edit") : tShared("New")}{" "}
-                {t("Customer Type")}
+                {isEditing
+                  ? tShared(msg({ id: "Edit", message: "Edit" }))
+                  : tShared(msg({ id: "New", message: "New" }))}{" "}
+                {t(msg({ id: "Customer Type", message: "Customer Type" }))}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label={t("Customer Type")} />
+                <Input
+                  name="name"
+                  label={t(
+                    msg({ id: "Customer Type", message: "Customer Type" })
+                  )}
+                />
                 <CustomFormFields table="customerType" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
+                <Submit isDisabled={isDisabled}>
+                  {tShared(msg({ id: "Save", message: "Save" }))}
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  {tShared("Cancel")}
+                  {tShared(msg({ id: "Cancel", message: "Cancel" }))}
                 </Button>
               </HStack>
             </ModalDrawerFooter>

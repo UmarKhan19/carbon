@@ -1,8 +1,9 @@
 import type { ComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import { useDisclosure } from "@carbon/react";
 import { formatAddress } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type {
@@ -31,7 +32,7 @@ const CustomerLocationPreview = (
 };
 
 const CustomerLocation = (props: CustomerLocationSelectProps) => {
-  const { t } = useTranslation("sales");
+  const { _: t } = useLingui();
   const customerLocationsFetcher =
     useFetcher<Awaited<ReturnType<typeof getCustomerLocations>>>();
 
@@ -81,8 +82,13 @@ const CustomerLocation = (props: CustomerLocationSelectProps) => {
         options={options}
         {...props}
         inline={props?.inline ? CustomerLocationPreview : undefined}
-        label={props?.label ?? t("Customer Location")}
-        placeholder={props?.placeholder ?? t("Select")}
+        label={
+          props?.label ??
+          t(msg({ id: "Customer Location", message: "Customer Location" }))
+        }
+        placeholder={
+          props?.placeholder ?? t(msg({ id: "Select", message: "Select" }))
+        }
         onChange={onChange}
         onCreateOption={(option) => {
           newLocationModal.onOpen();

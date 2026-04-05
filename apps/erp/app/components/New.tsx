@@ -1,4 +1,3 @@
-import { useTranslation } from "@carbon/locale";
 import type { ButtonProps } from "@carbon/react";
 import {
   Button,
@@ -9,6 +8,8 @@ import {
   TooltipTrigger,
   useKeyboardShortcuts
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useRef } from "react";
 import { LuCirclePlus } from "react-icons/lu";
 import { Link } from "react-router";
@@ -20,8 +21,8 @@ type NewProps = {
 };
 
 const New = ({ label, to, variant = "primary" }: NewProps) => {
-  const { t } = useTranslation("shared");
-  const { t: tSales } = useTranslation("sales");
+  const { _: t } = useLingui();
+  const { _: tSales } = useLingui();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const translatedLabel = label
     ? (() => {
@@ -47,7 +48,9 @@ const New = ({ label, to, variant = "primary" }: NewProps) => {
           ref={buttonRef}
         >
           <Link to={to} prefetch="intent">
-            {translatedLabel ? `${t("Add")} ${translatedLabel}` : t("Add")}
+            {translatedLabel
+              ? `${t(msg({ id: "Add", message: "Add" }))} ${translatedLabel}`
+              : t(msg({ id: "Add", message: "Add" }))}
           </Link>
         </Button>
       </TooltipTrigger>

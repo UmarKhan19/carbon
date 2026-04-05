@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Avatar,
   Badge,
@@ -24,6 +23,8 @@ import {
   VStack
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { ReactNode } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
 import { IoMdAdd } from "react-icons/io";
@@ -57,8 +58,8 @@ const BreadcrumbHandleMatch = z.object({
 });
 
 const Breadcrumbs = () => {
-  const { t: tShared } = useTranslation("shared");
-  const { t: tSales } = useTranslation("sales");
+  const { _: tShared } = useLingui();
+  const { _: tSales } = useLingui();
   const matches = useMatches();
 
   const translateBreadcrumb = (value: unknown): ReactNode => {
@@ -125,7 +126,7 @@ const Breadcrumbs = () => {
 };
 
 function CompanyBreadcrumb() {
-  const { t: tShared } = useTranslation("shared");
+  const { _: tShared } = useLingui();
   const routeData = useRouteData<{ company: Company; companies: Company[] }>(
     path.to.authenticatedRoot
   );
@@ -157,7 +158,9 @@ function CompanyBreadcrumb() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[240px]">
-              <DropdownMenuLabel>{tShared("Companies")}</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                {tShared(msg({ id: "Companies", message: "Companies" }))}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {routeData?.companies.map((c) => {
@@ -198,7 +201,9 @@ function CompanyBreadcrumb() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={companyForm.onOpen}>
                       <DropdownMenuIcon icon={<IoMdAdd />} />
-                      {tShared("Add Company")}
+                      {tShared(
+                        msg({ id: "Add Company", message: "Add Company" })
+                      )}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </>
@@ -224,7 +229,12 @@ function CompanyBreadcrumb() {
               >
                 <ModalHeader>
                   <ModalTitle>
-                    {tShared("Let's set up your new company")}
+                    {tShared(
+                      msg({
+                        id: "Let's set up your new company",
+                        message: "Let's set up your new company"
+                      })
+                    )}
                   </ModalTitle>
                 </ModalHeader>
                 <ModalBody>
@@ -232,12 +242,16 @@ function CompanyBreadcrumb() {
                     <Input
                       autoFocus
                       name="name"
-                      label={tShared("Company Name")}
+                      label={tShared(
+                        msg({ id: "Company Name", message: "Company Name" })
+                      )}
                     />
                     <AddressAutocomplete variant="grid" />
                     <Currency
                       name="baseCurrencyCode"
-                      label={tShared("Base Currency")}
+                      label={tShared(
+                        msg({ id: "Base Currency", message: "Base Currency" })
+                      )}
                     />
                   </VStack>
                 </ModalBody>

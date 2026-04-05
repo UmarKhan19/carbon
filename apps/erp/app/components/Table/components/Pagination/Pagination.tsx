@@ -1,4 +1,3 @@
-import { useTranslation } from "@carbon/locale";
 import {
   Button,
   DropdownMenu,
@@ -16,6 +15,8 @@ import {
   useKeyboardShortcuts,
   usePrettifyShortcut
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useCallback, useRef } from "react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
@@ -35,7 +36,7 @@ export type PaginationProps = {
 };
 
 const Pagination = (props: PaginationProps) => {
-  const { t } = useTranslation("shared");
+  const { _: t } = useLingui();
   const { pageSize, setPageSize } = props;
 
   const pageSizes = [20, 100, 500, 1000];
@@ -54,11 +55,13 @@ const Pagination = (props: PaginationProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary">
-              {pageSize} {t("rows")}
+              {pageSize} {t(msg({ id: "rows", message: "rows" }))}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-48">
-            <DropdownMenuLabel>{t("Results per page")}</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              {t(msg({ id: "Results per page", message: "Results per page" }))}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup value={`${pageSize}`}>
               {pageSizes.map((size) => (
@@ -93,7 +96,7 @@ export const PaginationButtons = ({
   pageSize,
   previousPage
 }: PaginationProps & { condensed?: boolean }) => {
-  const { t } = useTranslation("shared");
+  const { _: t } = useLingui();
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const previousButtonRef = useRef<HTMLButtonElement>(null);
   const prettifyShortcut = usePrettifyShortcut();
@@ -132,7 +135,7 @@ export const PaginationButtons = ({
           <Tooltip>
             <TooltipTrigger>
               <IconButton
-                aria-label={t("Previous")}
+                aria-label={t(msg({ id: "Previous", message: "Previous" }))}
                 icon={<BsChevronLeft />}
                 isDisabled={!canPreviousPage}
                 onClick={handlePreviousPage}
@@ -146,7 +149,7 @@ export const PaginationButtons = ({
           <Tooltip>
             <TooltipTrigger>
               <IconButton
-                aria-label={t("Next")}
+                aria-label={t(msg({ id: "Next", message: "Next" }))}
                 icon={<BsChevronRight />}
                 isDisabled={!canNextPage}
                 onClick={handleNextPage}
@@ -162,7 +165,7 @@ export const PaginationButtons = ({
         <>
           <div className="text-foreground text-sm font-medium align-center hidden lg:flex">
             {count > 0 ? offset + 1 : 0} - {Math.min(offset + pageSize, count)}{" "}
-            {t("of")} {count}
+            {t(msg({ id: "of", message: "of" }))} {count}
           </div>
           <Tooltip>
             <TooltipTrigger>
@@ -173,7 +176,7 @@ export const PaginationButtons = ({
                 onClick={handlePreviousPage}
                 leftIcon={<BsChevronLeft />}
               >
-                {t("Previous")}
+                {t(msg({ id: "Previous", message: "Previous" }))}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -189,7 +192,7 @@ export const PaginationButtons = ({
                 onClick={handleNextPage}
                 rightIcon={<BsChevronRight />}
               >
-                {t("Next")}
+                {t(msg({ id: "Next", message: "Next" }))}
               </Button>
             </TooltipTrigger>
             <TooltipContent>

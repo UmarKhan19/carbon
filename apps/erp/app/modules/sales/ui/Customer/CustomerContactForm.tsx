@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Button,
   Drawer,
@@ -12,6 +11,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { z } from "zod";
 import {
   CustomerLocation,
@@ -42,8 +43,8 @@ const CustomerContactForm = ({
   type = "drawer",
   onClose
 }: CustomerContactFormProps) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const fetcher = useAsyncFetcher<{ success?: boolean; message: string }>({
     onStateChange(state) {
       if (state === "idle" && fetcher.data && !fetcher.data.success) {
@@ -86,7 +87,10 @@ const CustomerContactForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? tShared("Edit") : tShared("New")} {t("Contact")}
+              {isEditing
+                ? tShared(msg({ id: "Edit", message: "Edit" }))
+                : tShared(msg({ id: "New", message: "New" }))}{" "}
+              {t(msg({ id: "Contact", message: "Contact" }))}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -94,28 +98,59 @@ const CustomerContactForm = ({
             <Hidden name="type" value={type} />
             <Hidden name="contactId" />
             <VStack spacing={4}>
-              <Input name="email" label={tShared("Email")} />
-              <Input name="firstName" label={tShared("First Name")} />
-              <Input name="lastName" label={tShared("Last Name")} />
-              <Input name="title" label={t("Title")} />
-              <PhoneInput name="mobilePhone" label={t("Mobile Phone")} />
-              <PhoneInput name="homePhone" label={t("Home Phone")} />
-              <PhoneInput name="workPhone" label={t("Work Phone")} />
-              <PhoneInput name="fax" label={t("Fax")} />
+              <Input
+                name="email"
+                label={tShared(msg({ id: "Email", message: "Email" }))}
+              />
+              <Input
+                name="firstName"
+                label={tShared(
+                  msg({ id: "First Name", message: "First Name" })
+                )}
+              />
+              <Input
+                name="lastName"
+                label={tShared(msg({ id: "Last Name", message: "Last Name" }))}
+              />
+              <Input
+                name="title"
+                label={t(msg({ id: "Title", message: "Title" }))}
+              />
+              <PhoneInput
+                name="mobilePhone"
+                label={t(msg({ id: "Mobile Phone", message: "Mobile Phone" }))}
+              />
+              <PhoneInput
+                name="homePhone"
+                label={t(msg({ id: "Home Phone", message: "Home Phone" }))}
+              />
+              <PhoneInput
+                name="workPhone"
+                label={t(msg({ id: "Work Phone", message: "Work Phone" }))}
+              />
+              <PhoneInput
+                name="fax"
+                label={t(msg({ id: "Fax", message: "Fax" }))}
+              />
               <CustomerLocation
                 name="customerLocationId"
-                label={t("Location")}
+                label={t(msg({ id: "Location", message: "Location" }))}
                 customer={customerId}
               />
-              <TextArea name="notes" label={t("Notes")} />
+              <TextArea
+                name="notes"
+                label={t(msg({ id: "Notes", message: "Notes" }))}
+              />
               <CustomFormFields table="customerContact" />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
+              <Submit isDisabled={isDisabled}>
+                {tShared(msg({ id: "Save", message: "Save" }))}
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                {tShared("Cancel")}
+                {tShared(msg({ id: "Cancel", message: "Cancel" }))}
               </Button>
             </HStack>
           </DrawerFooter>

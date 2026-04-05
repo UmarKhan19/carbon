@@ -9,6 +9,8 @@ const sales = {
     "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost.",
   "A sales invoice line contains invoice details for a particular item":
     "A sales invoice line contains invoice details for a particular item",
+  "A sales order contains information about the agreement between the company and a specific customer for parts and services.":
+    "A sales order contains information about the agreement between the company and a specific customer for parts and services.",
   "A sales order line contains order details for a particular item":
     "A sales order line contains order details for a particular item",
   "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.":
@@ -222,6 +224,7 @@ const sales = {
   Types: "Types",
   Unassigned: "Unassigned",
   "Unit of Measure": "Unit of Measure",
+  "Unit Price": "Unit Price",
   "Updated At": "Updated At",
   "Updated By": "Updated By",
   "VAT Number": "VAT Number",

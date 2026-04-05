@@ -1,4 +1,3 @@
-import { useTranslation } from "@carbon/locale";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,8 +5,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useMemo } from "react";
-
 import {
   LuCirclePlay,
   LuContainer,
@@ -25,19 +25,18 @@ import {
 } from "react-icons/ri";
 import { Link } from "react-router";
 import { usePermissions } from "~/hooks";
-
 import type { Route } from "~/types";
 import { path } from "~/utils/path";
 
 function useCreate(): Route[] {
   const permissions = usePermissions();
-  const { t } = useTranslation("shared");
+  const { _: t } = useLingui();
 
   const result = useMemo(() => {
     let links: Route[] = [];
     if (permissions.can("create", "parts")) {
       links.push({
-        name: t("Part"),
+        name: t(msg({ id: "Part", message: "Part" })),
         to: path.to.newPart,
         icon: <LuSquareStack />
       });
@@ -45,7 +44,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "quality")) {
       links.push({
-        name: t("Issue"),
+        name: t(msg({ id: "Issue", message: "Issue" })),
         to: path.to.newIssue,
         icon: <LuShieldX />
       });
@@ -53,7 +52,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "production")) {
       links.push({
-        name: t("Job"),
+        name: t(msg({ id: "Job", message: "Job" })),
         to: path.to.newJob,
         icon: <LuCirclePlay />
       });
@@ -61,7 +60,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "production")) {
       links.push({
-        name: t("Maintenance"),
+        name: t(msg({ id: "Maintenance", message: "Maintenance" })),
         to: path.to.newMaintenanceDispatch,
         icon: <LuWrench />
       });
@@ -69,7 +68,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "purchasing")) {
       links.push({
-        name: t("Purchase Order"),
+        name: t(msg({ id: "Purchase Order", message: "Purchase Order" })),
         to: path.to.newPurchaseOrder,
         icon: <LuShoppingCart />
       });
@@ -77,7 +76,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "purchasing")) {
       links.push({
-        name: t("Supplier"),
+        name: t(msg({ id: "Supplier", message: "Supplier" })),
         to: path.to.newSupplier,
         icon: <LuContainer />
       });
@@ -85,22 +84,22 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "sales")) {
       links.push({
-        name: t("Customer"),
+        name: t(msg({ id: "Customer", message: "Customer" })),
         to: path.to.newCustomer,
         icon: <LuSquareUser />
       });
       links.push({
-        name: t("RFQ"),
+        name: t(msg({ id: "RFQ", message: "RFQ" })),
         to: path.to.newSalesRFQ,
         icon: <RiProgress2Line />
       });
       links.push({
-        name: t("Quote"),
+        name: t(msg({ id: "Quote", message: "Quote" })),
         to: path.to.newQuote,
         icon: <RiProgress4Line />
       });
       links.push({
-        name: t("Sales Order"),
+        name: t(msg({ id: "Sales Order", message: "Sales Order" })),
         to: path.to.newSalesOrder,
         icon: <RiProgress8Line />
       });
@@ -108,7 +107,7 @@ function useCreate(): Route[] {
 
     if (permissions.can("create", "users")) {
       links.push({
-        name: t("Employee"),
+        name: t(msg({ id: "Employee", message: "Employee" })),
         to: path.to.newEmployee,
         icon: <LuUsers />
       });

@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -7,6 +6,8 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -36,8 +37,8 @@ const QuoteShipmentForm = forwardRef<
   QuoteShipmentFormRef,
   QuoteShipmentFormProps
 >(({ initialValues, defaultCollapsed = false }, ref) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<{}>();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
@@ -85,14 +86,16 @@ const QuoteShipmentForm = forwardRef<
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>{t("Shipping")}</CardTitle>
+          <CardTitle>
+            {t(msg({ id: "Shipping", message: "Shipping" }))}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="shippingCost"
-              label={t("Shipping Cost")}
+              label={t(msg({ id: "Shipping Cost", message: "Shipping Cost" }))}
               formatOptions={{
                 style: "currency",
                 currency: company?.baseCurrencyCode
@@ -102,18 +105,24 @@ const QuoteShipmentForm = forwardRef<
             />
             <Location
               name="locationId"
-              label={t("Shipment Location")}
+              label={t(
+                msg({ id: "Shipment Location", message: "Shipment Location" })
+              )}
               isReadOnly={isCustomer}
               isClearable
             />
             <ShippingMethod
               name="shippingMethodId"
-              label={t("Shipping Method")}
+              label={t(
+                msg({ id: "Shipping Method", message: "Shipping Method" })
+              )}
             />
 
             <DatePicker
               name="receiptRequestedDate"
-              label={t("Requested Date")}
+              label={t(
+                msg({ id: "Requested Date", message: "Requested Date" })
+              )}
             />
           </div>
         </CardContent>
@@ -121,7 +130,7 @@ const QuoteShipmentForm = forwardRef<
           <Submit
             isDisabled={!permissions.can("update", "sales") || !isEditable}
           >
-            {tShared("Save")}
+            {tShared(msg({ id: "Save", message: "Save" }))}
           </Submit>
         </CardFooter>
       </ValidatedForm>

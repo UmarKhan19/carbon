@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Button,
   HStack,
@@ -12,6 +11,8 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
@@ -40,8 +41,8 @@ const CustomerLocationForm = ({
   type = "drawer",
   onClose
 }: CustomerLocationFormProps) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const fetcher = useFetcher<{}>();
 
   const permissions = usePermissions();
@@ -78,7 +79,10 @@ const CustomerLocationForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? tShared("Edit") : tShared("New")} {t("Location")}
+                {isEditing
+                  ? tShared(msg({ id: "Edit", message: "Edit" }))
+                  : tShared(msg({ id: "New", message: "New" }))}{" "}
+                {t(msg({ id: "Location", message: "Location" }))}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -86,16 +90,21 @@ const CustomerLocationForm = ({
               <Hidden name="type" value={type} />
               <Hidden name="addressId" />
               <VStack spacing={4}>
-                <Input name="name" label={t("Name")} />
+                <Input
+                  name="name"
+                  label={t(msg({ id: "Name", message: "Name" }))}
+                />
                 <AddressAutocomplete />
                 <CustomFormFields table="customerLocation" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
+                <Submit isDisabled={isDisabled}>
+                  {tShared(msg({ id: "Save", message: "Save" }))}
+                </Submit>
                 <Button size="md" variant="solid" onClick={onClose}>
-                  {tShared("Cancel")}
+                  {tShared(msg({ id: "Cancel", message: "Cancel" }))}
                 </Button>
               </HStack>
             </ModalDrawerFooter>

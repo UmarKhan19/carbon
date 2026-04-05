@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardAttribute,
@@ -20,6 +19,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react";
 import { useCallback } from "react";
 import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -36,7 +36,7 @@ import { path } from "~/utils/path";
 import type { CustomerDetail, CustomerStatus } from "../../types";
 
 const CustomerHeader = () => {
-  const { i18n } = useTranslation("sales");
+  const { i18n } = useLingui();
   const { customerId } = useParams();
 
   if (!customerId) throw new Error("Could not find customerId");
@@ -128,12 +128,7 @@ const CustomerHeader = () => {
                 <CardAttributeLabel>Status</CardAttributeLabel>
                 <CardAttributeValue>
                   {customerStatus ? (
-                    <Enumerable
-                      value={i18n.t(customerStatus, {
-                        ns: "sales",
-                        defaultValue: customerStatus
-                      })}
-                    />
+                    <Enumerable value={i18n._(customerStatus)} />
                   ) : (
                     "-"
                   )}

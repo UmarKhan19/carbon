@@ -1,5 +1,4 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { useTranslation } from "@carbon/locale";
 import {
   Badge,
   Button,
@@ -36,6 +35,8 @@ import {
 } from "@carbon/react/Chart";
 import { FunnelChart } from "@carbon/react/FunnelChart";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -64,7 +65,6 @@ import type { Quotation, SalesOrder, SalesRFQ } from "~/modules/sales/types";
 import QuoteStatus from "~/modules/sales/ui/Quotes/QuoteStatus";
 import { SalesStatus } from "~/modules/sales/ui/SalesOrder";
 import { SalesRFQStatus } from "~/modules/sales/ui/SalesRFQ";
-
 import type { loader as kpiLoader } from "~/routes/api+/sales.kpi.$key";
 import { useCustomers } from "~/stores";
 import { path } from "~/utils/path";
@@ -128,7 +128,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function SalesDashboard() {
-  const { t } = useTranslation("sales");
+  const { _: t } = useLingui();
   const { openSalesOrders, openQuotes, openRFQs, assignedToMe } =
     useLoaderData<typeof loader>();
 
@@ -152,19 +152,19 @@ export default function SalesDashboard() {
     const defaultSteps = [
       {
         id: "rfqs",
-        label: t("RFQs"),
+        label: t(msg({ id: "RFQs", message: "RFQs" })),
         value: 0,
         colorClassName: "text-violet-600"
       },
       {
         id: "quotes",
-        label: t("Quotes"),
+        label: t(msg({ id: "Quotes", message: "Quotes" })),
         value: 0,
         colorClassName: "text-blue-600"
       },
       {
         id: "salesOrders",
-        label: t("Sales Orders"),
+        label: t(msg({ id: "Sales Orders", message: "Sales Orders" })),
         value: 0,
         additionalValue: 0,
         colorClassName: "text-teal-500"
@@ -217,7 +217,10 @@ export default function SalesDashboard() {
   const [customers] = useCustomers();
   const customerOptions = useMemo(() => {
     return [
-      { label: t("All Customers"), value: "all" },
+      {
+        label: t(msg({ id: "All Customers", message: "All Customers" })),
+        value: "all"
+      },
       ...customers.map((customer) => ({
         label: customer.name,
         value: customer.id
@@ -369,7 +372,9 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress2Line className="text-muted-foreground" />
-            <CardTitle>{t("Open RFQs")}</CardTitle>
+            <CardTitle>
+              {t(msg({ id: "Open RFQs", message: "Open RFQs" }))}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -386,7 +391,7 @@ export default function SalesDashboard() {
                     path.to.salesRfqs
                   }?filter=status:in:${OPEN_RFQ_STATUSES.join(",")}`}
                 >
-                  {t("View Open RFQs")}
+                  {t(msg({ id: "View Open RFQs", message: "View Open RFQs" }))}
                 </Link>
               </Button>
             </HStack>
@@ -396,7 +401,9 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress4Line className="text-muted-foreground" />
-            <CardTitle>{t("Open Quotes")}</CardTitle>
+            <CardTitle>
+              {t(msg({ id: "Open Quotes", message: "Open Quotes" }))}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -413,7 +420,9 @@ export default function SalesDashboard() {
                     path.to.quotes
                   }?filter=status:in:${OPEN_QUOTE_STATUSES.join(",")}`}
                 >
-                  {t("View Open Quotes")}
+                  {t(
+                    msg({ id: "View Open Quotes", message: "View Open Quotes" })
+                  )}
                 </Link>
               </Button>
             </HStack>
@@ -423,7 +432,11 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress8Line className="text-muted-foreground" />
-            <CardTitle>{t("Open Sales Orders")}</CardTitle>
+            <CardTitle>
+              {t(
+                msg({ id: "Open Sales Orders", message: "Open Sales Orders" })
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -440,7 +453,9 @@ export default function SalesDashboard() {
                     path.to.salesOrders
                   }?filter=status:in:${OPEN_SALES_ORDER_STATUSES.join(",")}`}
                 >
-                  {t("View Open Orders")}
+                  {t(
+                    msg({ id: "View Open Orders", message: "View Open Orders" })
+                  )}
                 </Link>
               </Button>
             </HStack>
@@ -498,7 +513,7 @@ export default function SalesDashboard() {
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label={t("More")}
+                  aria-label={t(msg({ id: "More", message: "More" }))}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -509,7 +524,7 @@ export default function SalesDashboard() {
                     className="flex flex-row items-center gap-2"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    {t("Export CSV")}
+                    {t(msg({ id: "Export CSV", message: "Export CSV" }))}
                   </CSVLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -612,7 +627,9 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuClock className="text-muted-foreground" />
-            <CardTitle>{t("Recently Created")}</CardTitle>
+            <CardTitle>
+              {t(msg({ id: "Recently Created", message: "Recently Created" }))}
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="min-h-[200px] max-h-[360px] w-full overflow-y-auto">
@@ -620,9 +637,9 @@ export default function SalesDashboard() {
                 <Table>
                   <Thead>
                     <Tr>
-                      <Th>{t("Document")}</Th>
-                      <Th>{t("Status")}</Th>
-                      <Th>{t("Customer")}</Th>
+                      <Th>{t(msg({ id: "Document", message: "Document" }))}</Th>
+                      <Th>{t(msg({ id: "Status", message: "Status" }))}</Th>
+                      <Th>{t(msg({ id: "Customer", message: "Customer" }))}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -667,14 +684,23 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuInbox className="text-muted-foreground" />
-            <CardTitle>{t("Assigned to Me")}</CardTitle>
+            <CardTitle>
+              {t(msg({ id: "Assigned to Me", message: "Assigned to Me" }))}
+            </CardTitle>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <Suspense fallback={<Loading isLoading />}>
               <Await
                 resolve={assignedToMe}
                 errorElement={
-                  <div>{t("Error loading assigned documents")}</div>
+                  <div>
+                    {t(
+                      msg({
+                        id: "Error loading assigned documents",
+                        message: "Error loading assigned documents"
+                      })
+                    )}
+                  </div>
                 }
               >
                 {(assignedDocs) =>
@@ -682,9 +708,13 @@ export default function SalesDashboard() {
                     <Table>
                       <Thead>
                         <Tr>
-                          <Th>{t("Document")}</Th>
-                          <Th>{t("Status")}</Th>
-                          <Th>{t("Customer")}</Th>
+                          <Th>
+                            {t(msg({ id: "Document", message: "Document" }))}
+                          </Th>
+                          <Th>{t(msg({ id: "Status", message: "Status" }))}</Th>
+                          <Th>
+                            {t(msg({ id: "Customer", message: "Customer" }))}
+                          </Th>
                         </Tr>
                       </Thead>
                       <Tbody>

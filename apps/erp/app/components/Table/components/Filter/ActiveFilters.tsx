@@ -1,4 +1,3 @@
-import { useTranslation } from "@carbon/locale";
 import {
   Button,
   Checkbox,
@@ -14,6 +13,8 @@ import {
   reactNodeToString,
   useMount
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LuX } from "react-icons/lu";
@@ -58,7 +59,7 @@ type ActiveFilterProps = {
 };
 
 const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
-  const { t, i18n } = useTranslation("shared");
+  const { _: t, i18n } = useLingui();
   const { hasFilter, removeKey, toggleFilter } = useFilters();
 
   const [open, setOpen] = useState(false);
@@ -125,7 +126,7 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
   };
 
   const translate = (text: string) => {
-    const fromSales = i18n.t(text, { ns: "sales", defaultValue: text });
+    const fromSales = i18n._(text);
     if (fromSales !== text) return fromSales;
     return t(text);
   };
@@ -142,10 +143,10 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
       </Button>
       <Button className="rounded-none border-l-0" size="sm" variant="secondary">
         {operator === "eq"
-          ? t("is")
+          ? t(msg({ id: "is", message: "is" }))
           : operator === "in"
-            ? t("is any of")
-            : t("matches")}
+            ? t(msg({ id: "is any of", message: "is any of" }))
+            : t(msg({ id: "matches", message: "matches" }))}
       </Button>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -169,11 +170,18 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder={t("Search...")}
+              placeholder={t(msg({ id: "Search...", message: "Search..." }))}
               className="h-9"
             />
             <CommandEmpty>
-              {loading ? t("Loading...") : t("No options found.")}
+              {loading
+                ? t(msg({ id: "Loading...", message: "Loading..." }))
+                : t(
+                    msg({
+                      id: "No options found.",
+                      message: "No options found."
+                    })
+                  )}
             </CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
@@ -207,7 +215,7 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         </PopoverContent>
       </Popover>
       <Button
-        aria-label={t("Remove filter")}
+        aria-label={t(msg({ id: "Remove filter", message: "Remove filter" }))}
         className="rounded-l-none border-l-0 px-1 w-6"
         size="sm"
         variant="secondary"

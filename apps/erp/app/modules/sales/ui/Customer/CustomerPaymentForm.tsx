@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -8,6 +7,8 @@ import {
   CardTitle,
   HStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useState } from "react";
 import type { z } from "zod";
 import {
@@ -27,8 +28,8 @@ type CustomerPaymentFormProps = {
 };
 
 const CustomerPaymentForm = ({ initialValues }: CustomerPaymentFormProps) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const permissions = usePermissions();
   const [customer, setCustomer] = useState<string | undefined>(
     initialValues.invoiceCustomerId
@@ -44,34 +45,47 @@ const CustomerPaymentForm = ({ initialValues }: CustomerPaymentFormProps) => {
     >
       <Card>
         <CardHeader>
-          <CardTitle>{t("Payment Terms")}</CardTitle>
+          <CardTitle>
+            {t(msg({ id: "Payment Terms", message: "Payment Terms" }))}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="customerId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Customer
               name="invoiceCustomerId"
-              label={t("Invoice Customer")}
+              label={t(
+                msg({ id: "Invoice Customer", message: "Invoice Customer" })
+              )}
               onChange={(value) => setCustomer(value?.value as string)}
             />
             <CustomerLocation
               name="invoiceCustomerLocationId"
-              label={t("Invoice Location")}
+              label={t(
+                msg({ id: "Invoice Location", message: "Invoice Location" })
+              )}
               customer={customer}
             />
             <CustomerContact
               name="invoiceCustomerContactId"
-              label={t("Invoice Contact")}
+              label={t(
+                msg({ id: "Invoice Contact", message: "Invoice Contact" })
+              )}
               customer={customer}
             />
 
-            <PaymentTerm name="paymentTermId" label={t("Payment Term")} />
+            <PaymentTerm
+              name="paymentTermId"
+              label={t(msg({ id: "Payment Term", message: "Payment Term" }))}
+            />
             <CustomFormFields table="customerPayment" />
           </div>
         </CardContent>
         <CardFooter>
           <HStack>
-            <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
+            <Submit isDisabled={isDisabled}>
+              {tShared(msg({ id: "Save", message: "Save" }))}
+            </Submit>
           </HStack>
         </CardFooter>
       </Card>

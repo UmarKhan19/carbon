@@ -1,6 +1,7 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { useFetcher, useParams } from "react-router";
 import { Hidden, Input, Submit, TextArea } from "~/components/Form";
 import type { User } from "~/modules/users/types";
@@ -12,7 +13,7 @@ type ProfileFormProps = {
 };
 
 const ProfileForm = ({ user }: ProfileFormProps) => {
-  const { t } = useTranslation("shared");
+  const { _: t } = useLingui();
   const { personId } = useParams();
   const isSelf = !personId;
   const fetcher = useFetcher<{}>();
@@ -27,19 +28,29 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
       className="w-full"
     >
       <VStack spacing={4}>
-        <Input name="email" label={t("Email")} isDisabled />
+        <Input
+          name="email"
+          label={t(msg({ id: "Email", message: "Email" }))}
+          isDisabled
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          <Input name="firstName" label={t("First Name")} />
-          <Input name="lastName" label={t("Last Name")} />
+          <Input
+            name="firstName"
+            label={t(msg({ id: "First Name", message: "First Name" }))}
+          />
+          <Input
+            name="lastName"
+            label={t(msg({ id: "Last Name", message: "Last Name" }))}
+          />
         </div>
         <TextArea
           name="about"
-          label={t("About")}
+          label={t(msg({ id: "About", message: "About" }))}
           characterLimit={160}
           className="my-2"
         />
         <Hidden name="intent" value="about" />
-        <Submit>{t("Save")}</Submit>
+        <Submit>{t(msg({ id: "Save", message: "Save" }))}</Submit>
       </VStack>
     </ValidatedForm>
   );

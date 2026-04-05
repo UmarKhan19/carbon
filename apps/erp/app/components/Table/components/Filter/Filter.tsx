@@ -1,4 +1,3 @@
-import { useTranslation } from "@carbon/locale";
 import {
   Button,
   Checkbox,
@@ -14,6 +13,8 @@ import {
   reactNodeToString,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
@@ -33,7 +34,7 @@ export type FilterProps = Omit<
 
 const Filter = forwardRef<HTMLButtonElement, FilterProps>(
   ({ filters, trigger = "button", ...props }, ref) => {
-    const { t, i18n } = useTranslation("shared");
+    const { _: t, i18n } = useLingui();
     const { clearFilters, hasFilter, hasFilters, hasFilterKey, toggleFilter } =
       useFilters();
 
@@ -77,7 +78,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
 
     const translate = useCallback(
       (value: string) => {
-        const fromSales = i18n.t(value, { ns: "sales", defaultValue: value });
+        const fromSales = i18n._(value);
         if (fromSales !== value) return fromSales;
         return t(value);
       },
@@ -130,7 +131,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
           className={"!border-dashed border-border"}
           {...props}
         >
-          {t("Clear Filters")}
+          {t(msg({ id: "Clear Filters", message: "Clear Filters" }))}
         </Button>
       </HStack>
     ) : (
@@ -138,7 +139,9 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
         <PopoverTrigger asChild>
           {trigger === "icon" ? (
             <Button
-              aria-label={t("Remove filter")}
+              aria-label={t(
+                msg({ id: "Remove filter", message: "Remove filter" })
+              )}
               className="px-1 w-6"
               variant="secondary"
               size="sm"
@@ -160,7 +163,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
               className={"!border-dashed border-border"}
               {...props}
             >
-              {t("Filter")}
+              {t(msg({ id: "Filter", message: "Filter" }))}
             </Button>
           )}
         </PopoverTrigger>
@@ -172,11 +175,18 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder={t("Search...")}
+              placeholder={t(msg({ id: "Search...", message: "Search..." }))}
               className="h-9"
             />
             <CommandEmpty>
-              {loading ? t("Loading...") : t("No available filters")}
+              {loading
+                ? t(msg({ id: "Loading...", message: "Loading..." }))
+                : t(
+                    msg({
+                      id: "No available filters",
+                      message: "No available filters"
+                    })
+                  )}
             </CommandEmpty>
             {activeFilter === null ? (
               <CommandGroup>

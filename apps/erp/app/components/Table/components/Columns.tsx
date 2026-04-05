@@ -1,4 +1,3 @@
-import { useTranslation } from "@carbon/locale";
 import {
   Drawer,
   DrawerBody,
@@ -13,6 +12,8 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { Column, ColumnOrderState } from "@tanstack/react-table";
 import { Reorder } from "framer-motion";
 import {
@@ -37,10 +38,10 @@ const Columns = <T extends object>({
   withSelectableRows,
   setColumnOrder
 }: ColumnsProps<T>) => {
-  const { t, i18n } = useTranslation("shared");
+  const { _: t, i18n } = useLingui();
 
   const translate = (value: string) => {
-    const fromSales = i18n.t(value, { ns: "sales", defaultValue: value });
+    const fromSales = i18n._(value);
     if (fromSales !== value) return fromSales;
     return t(value);
   };
@@ -51,22 +52,41 @@ const Columns = <T extends object>({
         <Tooltip>
           <TooltipTrigger asChild>
             <IconButton
-              aria-label={t("Columns")}
-              title={t("Columns")}
+              aria-label={t(msg({ id: "Columns", message: "Columns" }))}
+              title={t(msg({ id: "Columns", message: "Columns" }))}
               variant="ghost"
               icon={<LuColumns2 />}
             />
           </TooltipTrigger>
           <TooltipContent>
-            <p>{t("Column visibility and order")}</p>
+            <p>
+              {t(
+                msg({
+                  id: "Column visibility and order",
+                  message: "Column visibility and order"
+                })
+              )}
+            </p>
           </TooltipContent>
         </Tooltip>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>{t("Edit column visibility")}</DrawerTitle>
+          <DrawerTitle>
+            {t(
+              msg({
+                id: "Edit column visibility",
+                message: "Edit column visibility"
+              })
+            )}
+          </DrawerTitle>
           <DrawerDescription>
-            {t("Hide, pin and reorder columns")}
+            {t(
+              msg({
+                id: "Hide, pin and reorder columns",
+                message: "Hide, pin and reorder columns"
+              })
+            )}
           </DrawerDescription>
         </DrawerHeader>
         <DrawerBody>
@@ -117,7 +137,9 @@ const Columns = <T extends object>({
                   >
                     <HStack className="w-full">
                       <IconButton
-                        aria-label={t("Drag handle")}
+                        aria-label={t(
+                          msg({ id: "Drag handle", message: "Drag handle" })
+                        )}
                         icon={<LuGripVertical />}
                         variant="ghost"
                       />
@@ -126,7 +148,9 @@ const Columns = <T extends object>({
                         <>{translate(column.columnDef.header as string)}</>
                       </span>
                       <IconButton
-                        aria-label={t("Toggle column")}
+                        aria-label={t(
+                          msg({ id: "Toggle column", message: "Toggle column" })
+                        )}
                         icon={column.getIsPinned() ? <LuPin /> : <LuPinOff />}
                         onClick={() => {
                           if (column.getIsPinned()) {
@@ -170,7 +194,9 @@ const Columns = <T extends object>({
                         disabled={!column.getIsPinned() && !canPin}
                       />
                       <IconButton
-                        aria-label={t("Toggle column")}
+                        aria-label={t(
+                          msg({ id: "Toggle column", message: "Toggle column" })
+                        )}
                         icon={column.getIsVisible() ? <LuEye /> : <LuEyeOff />}
                         onClick={() => {
                           // When hiding a column, unpin it and move after pinned columns

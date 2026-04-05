@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   cn,
   HStack,
@@ -13,6 +12,8 @@ import {
   ModalCardTitle,
   toast
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -45,8 +46,8 @@ const CustomerForm = ({
   type = "card",
   onClose
 }: CustomerFormProps) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<Customer>>();
 
@@ -59,15 +60,24 @@ const CustomerForm = ({
         ? fetcher.data.data[0]
         : fetcher.data.data;
       toast.success(
-        t("Created customer: {{name}}", {
-          name: createdCustomer?.name ?? t("Customer")
-        })
+        t(
+          msg({
+            id: "Created customer: {{name}}",
+            message: `Created customer: ${
+              createdCustomer?.name ??
+              t(msg({ id: "Customer", message: "Customer" }))
+            }`
+          })
+        )
       );
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        t("Failed to create customer: {{message}}", {
-          message: fetcher.data.error.message
-        })
+        t(
+          msg({
+            id: "Failed to create customer: {{message}}",
+            message: `Failed to create customer: ${fetcher.data.error.message}`
+          })
+        )
       );
     }
   }, [fetcher.data, fetcher.state, onClose, t, type]);
@@ -91,12 +101,23 @@ const CustomerForm = ({
             >
               <ModalCardHeader>
                 <ModalCardTitle>
-                  {isEditing ? t("Customer Overview") : t("New Customer")}
+                  {isEditing
+                    ? t(
+                        msg({
+                          id: "Customer Overview",
+                          message: "Customer Overview"
+                        })
+                      )
+                    : t(msg({ id: "New Customer", message: "New Customer" }))}
                 </ModalCardTitle>
                 {!isEditing && (
                   <ModalCardDescription>
                     {t(
-                      "A customer is a business or person who buys your parts or services."
+                      msg({
+                        id: "A customer is a business or person who buys your parts or services.",
+                        message:
+                          "A customer is a business or person who buys your parts or services."
+                      })
                     )}
                   </ModalCardDescription>
                 )}
@@ -114,36 +135,63 @@ const CustomerForm = ({
                         : "grid-cols-1 md:grid-cols-2"
                   )}
                 >
-                  <Input name="name" label={t("Name")} autoFocus={!isEditing} />
+                  <Input
+                    name="name"
+                    label={t(msg({ id: "Name", message: "Name" }))}
+                    autoFocus={!isEditing}
+                  />
 
                   <CustomerStatus
                     name="customerStatusId"
-                    label={t("Customer Status")}
-                    placeholder={t("Select Customer Status")}
+                    label={t(
+                      msg({ id: "Customer Status", message: "Customer Status" })
+                    )}
+                    placeholder={t(
+                      msg({
+                        id: "Select Customer Status",
+                        message: "Select Customer Status"
+                      })
+                    )}
                   />
                   <CustomerType
                     name="customerTypeId"
-                    label={t("Customer Type")}
-                    placeholder={t("Select Customer Type")}
+                    label={t(
+                      msg({ id: "Customer Type", message: "Customer Type" })
+                    )}
+                    placeholder={t(
+                      msg({
+                        id: "Select Customer Type",
+                        message: "Select Customer Type"
+                      })
+                    )}
                   />
                   <Employee
                     name="accountManagerId"
-                    label={t("Account Manager")}
+                    label={t(
+                      msg({ id: "Account Manager", message: "Account Manager" })
+                    )}
                   />
                   {isEditing && (
                     <>
                       <CustomerContact
                         customer={initialValues.id}
                         name="salesContactId"
-                        label={t("Sales Contact")}
+                        label={t(
+                          msg({ id: "Sales Contact", message: "Sales Contact" })
+                        )}
                       />
                     </>
                   )}
-                  <Currency name="currencyCode" label={t("Currency")} />
+                  <Currency
+                    name="currencyCode"
+                    label={t(msg({ id: "Currency", message: "Currency" }))}
+                  />
 
                   <Number
                     name="taxPercent"
-                    label={t("Tax Percent")}
+                    label={t(
+                      msg({ id: "Tax Percent", message: "Tax Percent" })
+                    )}
                     minValue={0}
                     maxValue={1}
                     step={0.0001}
@@ -154,9 +202,18 @@ const CustomerForm = ({
                     }}
                   />
 
-                  <Input name="taxId" label={t("Tax ID")} />
-                  <Input name="vatNumber" label={t("VAT Number")} />
-                  <Input name="website" label={t("Website")} />
+                  <Input
+                    name="taxId"
+                    label={t(msg({ id: "Tax ID", message: "Tax ID" }))}
+                  />
+                  <Input
+                    name="vatNumber"
+                    label={t(msg({ id: "VAT Number", message: "VAT Number" }))}
+                  />
+                  <Input
+                    name="website"
+                    label={t(msg({ id: "Website", message: "Website" }))}
+                  />
 
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}
                   <CustomFormFields table="customer" />
@@ -164,7 +221,9 @@ const CustomerForm = ({
               </ModalCardBody>
               <ModalCardFooter>
                 <HStack>
-                  <Submit isDisabled={isDisabled}>{tShared("Save")}</Submit>
+                  <Submit isDisabled={isDisabled}>
+                    {tShared(msg({ id: "Save", message: "Save" }))}
+                  </Submit>
                 </HStack>
               </ModalCardFooter>
             </ValidatedForm>

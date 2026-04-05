@@ -1,4 +1,5 @@
-import { useTranslation } from "@carbon/locale";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import {
   LuBan,
   LuCreditCard,
@@ -18,46 +19,46 @@ import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
 export default function useSalesSubmodules() {
-  const { t } = useTranslation("sales");
+  const { _: t } = useLingui();
   const permissions = usePermissions();
   const { addSavedViewsToRoutes } = useSavedViews();
   const salesRoutes: AuthenticatedRouteGroup[] = [
     {
-      name: t("Manage"),
+      name: t(msg({ id: "Manage", message: "Manage" })),
       routes: [
         {
-          name: t("Customers"),
+          name: t(msg({ id: "Customers", message: "Customers" })),
           to: path.to.customers,
           icon: <LuSquareUser />,
           table: "customer"
         },
         {
-          name: t("RFQs"),
+          name: t(msg({ id: "RFQs", message: "RFQs" })),
           to: path.to.salesRfqs,
           icon: <RiProgress2Line />,
           table: "salesRfq"
         },
         {
-          name: t("Quotes"),
+          name: t(msg({ id: "Quotes", message: "Quotes" })),
           to: path.to.quotes,
           icon: <RiProgress4Line />,
           table: "quote"
         },
         {
-          name: t("Orders"),
+          name: t(msg({ id: "Orders", message: "Orders" })),
           to: path.to.salesOrders,
           icon: <RiProgress8Line />,
           table: "salesOrder"
         },
         {
-          name: t("Invoices"),
+          name: t(msg({ id: "Invoices", message: "Invoices" })),
           to: path.to.salesInvoices,
           icon: <LuCreditCard />,
           permission: "invoicing",
           table: "salesInvoice"
         },
         {
-          name: t("Portals"),
+          name: t(msg({ id: "Portals", message: "Portals" })),
           to: path.to.customerPortals,
           role: "employee",
           icon: <LuGlobe />
@@ -65,23 +66,23 @@ export default function useSalesSubmodules() {
       ]
     },
     {
-      name: t("Configure"),
+      name: t(msg({ id: "Configure", message: "Configure" })),
       routes: [
         {
-          name: t("No Quotes"),
+          name: t(msg({ id: "No Quotes", message: "No Quotes" })),
           to: path.to.noQuoteReasons,
           role: "employee",
           icon: <LuBan />
         },
 
         {
-          name: t("Statuses"),
+          name: t(msg({ id: "Statuses", message: "Statuses" })),
           to: path.to.customerStatuses,
           role: "employee",
           icon: <LuStar />
         },
         {
-          name: t("Types"),
+          name: t(msg({ id: "Types", message: "Types" })),
           to: path.to.customerTypes,
           role: "employee",
           icon: <LuShapes />

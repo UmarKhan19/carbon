@@ -1,5 +1,4 @@
 import { ValidatedForm } from "@carbon/form";
-import { useTranslation } from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -7,6 +6,8 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -45,8 +46,8 @@ const SalesOrderShipmentForm = forwardRef<
   SalesOrderShipmentFormRef,
   SalesOrderShipmentFormProps
 >(({ initialValues, defaultCollapsed = false }, ref) => {
-  const { t } = useTranslation("sales");
-  const { t: tShared } = useTranslation("shared");
+  const { _: t } = useLingui();
+  const { _: tShared } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<typeof action>();
   const [dropShip, setDropShip] = useState<boolean>(
@@ -98,14 +99,16 @@ const SalesOrderShipmentForm = forwardRef<
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>{t("Shipping")}</CardTitle>
+          <CardTitle>
+            {t(msg({ id: "Shipping", message: "Shipping" }))}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="shippingCost"
-              label={t("Shipping Cost")}
+              label={t(msg({ id: "Shipping Cost", message: "Shipping Cost" }))}
               minValue={0}
               formatOptions={{
                 style: "currency",
@@ -117,38 +120,55 @@ const SalesOrderShipmentForm = forwardRef<
             />
             <Location
               name="locationId"
-              label={t("Shipment Location")}
+              label={t(
+                msg({ id: "Shipment Location", message: "Shipment Location" })
+              )}
               isReadOnly={isCustomer}
               isClearable
             />
             <ShippingMethod
               name="shippingMethodId"
-              label={t("Shipping Method")}
+              label={t(
+                msg({ id: "Shipping Method", message: "Shipping Method" })
+              )}
             />
 
             <DatePicker
               name="receiptRequestedDate"
-              label={t("Requested Date")}
+              label={t(
+                msg({ id: "Requested Date", message: "Requested Date" })
+              )}
             />
-            <DatePicker name="receiptPromisedDate" label={t("Promised Date")} />
-            <DatePicker name="shipmentDate" label={t("Shipment Date")} />
+            <DatePicker
+              name="receiptPromisedDate"
+              label={t(msg({ id: "Promised Date", message: "Promised Date" }))}
+            />
+            <DatePicker
+              name="shipmentDate"
+              label={t(msg({ id: "Shipment Date", message: "Shipment Date" }))}
+            />
 
-            <Input name="trackingNumber" label={t("Tracking Number")} />
+            <Input
+              name="trackingNumber"
+              label={t(
+                msg({ id: "Tracking Number", message: "Tracking Number" })
+              )}
+            />
             <Boolean
               name="dropShipment"
-              label={t("Drop Shipment")}
+              label={t(msg({ id: "Drop Shipment", message: "Drop Shipment" }))}
               onChange={setDropShip}
             />
             {dropShip && (
               <>
                 <Customer
                   name="customerId"
-                  label={t("Customer")}
+                  label={t(msg({ id: "Customer", message: "Customer" }))}
                   onChange={(value) => setCustomer(value?.value as string)}
                 />
                 <CustomerLocation
                   name="customerLocationId"
-                  label={t("Location")}
+                  label={t(msg({ id: "Location", message: "Location" }))}
                   customer={customer}
                 />
               </>
@@ -158,7 +178,7 @@ const SalesOrderShipmentForm = forwardRef<
         </CardContent>
         <CardFooter>
           <Submit isDisabled={!permissions.can("update", "sales")}>
-            {tShared("Save")}
+            {tShared(msg({ id: "Save", message: "Save" }))}
           </Submit>
         </CardFooter>
       </ValidatedForm>

@@ -9,6 +9,8 @@ const sales = {
     "Faktura sprzedazy to dokument okreslajacy produkty lub uslugi sprzedane klientowi oraz odpowiadajacy im koszt.",
   "A sales invoice line contains invoice details for a particular item":
     "Pozycja faktury sprzedazy zawiera szczegoly faktury dla konkretnego produktu",
+  "A sales order contains information about the agreement between the company and a specific customer for parts and services.":
+    "Zamowienie sprzedazy zawiera informacje o umowie miedzy firma a konkretnym klientem dotyczacej czesci i uslug.",
   "A sales order line contains order details for a particular item":
     "Pozycja zamowienia sprzedazy zawiera szczegoly zamowienia dla konkretnego produktu",
   "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote.":
@@ -224,6 +226,7 @@ const sales = {
   Types: "Typy",
   Unassigned: "Nieprzypisany",
   "Unit of Measure": "Jednostka miary",
+  "Unit Price": "Cena jednostkowa",
   "Updated At": "Zaktualizowano",
   "Updated By": "Zaktualizowane przez",
   "VAT Number": "Numer VAT",
