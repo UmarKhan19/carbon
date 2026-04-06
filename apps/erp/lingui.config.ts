@@ -12,6 +12,7 @@ export default defineConfig({
       path: "<rootDir>/app/locales/{locale}/shared",
       include: [
         "app/components",
+        "app/hooks",
         "app/root.tsx",
         "app/routes",
         "app/modules/shared"

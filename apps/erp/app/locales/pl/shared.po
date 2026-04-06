@@ -186,6 +186,11 @@ msgid "Document"
 msgstr "Dokument"
 
 #. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:95
+msgid "Documents"
+msgstr "Dokumenty"
+
+#. js-lingui-explicit-id
 #: app/components/Table/components/Columns.tsx:141
 msgid "Drag handle"
 msgstr "Uchwyt przeciagnij"
@@ -236,6 +241,11 @@ msgid "Filter"
 msgstr "Filtr"
 
 #. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:71
+msgid "Finance"
+msgstr "Finanse"
+
+#. js-lingui-explicit-id
 #: app/components/Greeting.tsx:25
 msgid "Good afternoon"
 msgstr "Dobre popoludnie"
@@ -270,6 +280,11 @@ msgid "Inbox"
 msgstr "Skrzynka odbiorcza"
 
 #. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:53
+msgid "Inventory"
+msgstr "Magazyn"
+
+#. js-lingui-explicit-id
 #: app/components/Table/components/Filter/ActiveFilters.tsx:146
 msgid "is"
 msgstr "jest"
@@ -283,6 +298,11 @@ msgstr "jest dowolnym z"
 #: app/components/Layout/Topbar/CreateMenu.tsx:47
 msgid "Issue"
 msgstr "Niezgodnosc"
+
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:47
+msgid "Items"
+msgstr "Pozycje"
 
 #. js-lingui-explicit-id
 #: app/components/Layout/Topbar/CreateMenu.tsx:55
@@ -416,6 +436,11 @@ msgid "Part"
 msgstr "Czesc"
 
 #. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:83
+msgid "People"
+msgstr "Kadry"
+
+#. js-lingui-explicit-id
 #: app/components/Table/components/Sort/Sort.tsx:134
 msgid "Pick a column to sort by"
 msgstr "Wybierz kolumne do sortowania"
@@ -431,6 +456,11 @@ msgid "Privacy Policy"
 msgstr "Polityka prywatnosci"
 
 #. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:41
+msgid "Production"
+msgstr "Produkcja"
+
+#. js-lingui-explicit-id
 #: app/routes/x+/account+/profile.tsx:151
 msgid "Profile"
 msgstr "Profil"
@@ -439,6 +469,16 @@ msgstr "Profil"
 #: app/components/Layout/Topbar/CreateMenu.tsx:71
 msgid "Purchase Order"
 msgstr "Zamowienie zakupu"
+
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:59
+msgid "Purchasing"
+msgstr "Zakupy"
+
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:65
+msgid "Quality"
+msgstr "Jakosc"
 
 #. js-lingui-explicit-id
 #: app/components/Layout/Topbar/CreateMenu.tsx:97
@@ -475,6 +515,11 @@ msgstr "Usun filtry"
 msgid "Remove sort by column"
 msgstr "Usun sortowanie kolumny"
 
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:89
+msgid "Resources"
+msgstr "Zasoby"
+
 #: app/components/Layout/Topbar/Search.tsx:286
 msgid "Results"
 msgstr "Wyniki"
@@ -498,6 +543,11 @@ msgstr "RFQ"
 #: app/components/Table/components/Pagination/Pagination.tsx:58
 msgid "rows"
 msgstr "wierszy"
+
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:35
+msgid "Sales"
+msgstr "Sprzedaz"
 
 #. js-lingui-explicit-id
 #: app/components/Layout/Topbar/CreateMenu.tsx:102
@@ -568,6 +618,16 @@ msgstr "Wybierz pracownika"
 #: app/components/Layout/Topbar/Suggestion.tsx:220
 msgid "Send"
 msgstr "Wyslij"
+
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:107
+msgid "Settings"
+msgstr "Ustawienia"
+
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:28
+msgid "Shop Floor"
+msgstr "Hala produkcyjna"
 
 #: app/components/AvatarMenu.tsx:216
 msgid "Sign Out"
@@ -668,6 +728,11 @@ msgstr "Aktualizuj"
 #: app/components/Layout/Topbar/Suggestion.tsx:79
 msgid "Uploading {fileName}"
 msgstr "Przesylanie {fileName}"
+
+#. js-lingui-explicit-id
+#: app/hooks/useModules.tsx:101
+msgid "Users"
+msgstr "Uzytkownicy"
 
 #. js-lingui-explicit-id
 #: app/routes/x+/sales+/_index.tsx:457
