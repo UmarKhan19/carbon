@@ -104,7 +104,8 @@ export default function NewPriceListItemRoute() {
     <PriceListItemForm
       initialValues={{
         priceListId: id,
-        unitPrice: 0
+        unitPrice: 0,
+        pricingMethod: "Fixed"
       }}
       priceListType={routeData?.priceList?.type}
       onClose={() => navigate(path.to.priceListItems(id))}

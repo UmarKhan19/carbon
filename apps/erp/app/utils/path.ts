@@ -1431,6 +1431,8 @@ export const path = {
       generatePath(`${x}/price-list/${id}/assignments`),
     priceListVersions: (id: string) =>
       generatePath(`${x}/price-list/${id}/versions`),
+    priceListDuplicate: (id: string) =>
+      generatePath(`${x}/price-list/${id}/duplicate`),
     updatePriceList: `${x}/price-list/update`,
     salesRfq: (id: string) => generatePath(`${x}/sales-rfq/${id}`),
     salesRfqConvert: (id: string) =>

@@ -182,18 +182,24 @@ const PriceListRuleForm = ({
                 </div>
 
                 {itemScope === "item" ? (
-                  <Item
-                    name="itemId"
-                    label="Item"
-                    type="Item"
-                    placeholder="All items"
-                  />
+                  <>
+                    <input type="hidden" name="itemPostingGroupId" value="" />
+                    <Item
+                      name="itemId"
+                      label="Item"
+                      type="Item"
+                      placeholder="All items"
+                    />
+                  </>
                 ) : (
-                  <ItemPostingGroup
-                    name="itemPostingGroupId"
-                    label="Item Category"
-                    placeholder="All categories"
-                  />
+                  <>
+                    <input type="hidden" name="itemId" value="" />
+                    <ItemPostingGroup
+                      name="itemPostingGroupId"
+                      label="Item Category"
+                      placeholder="All categories"
+                    />
+                  </>
                 )}
               </VStack>
             </ModalDrawerBody>

@@ -490,11 +490,34 @@ export async function createPriceListVersion(
 
   if (createError || !newList) return { data: null, error: createError };
 
-  // 4. Copy items
+  // 4. Copy children (items, breaks, rules, assignments)
+  await copyPriceListChildren(
+    client,
+    priceListId,
+    newList.id,
+    companyId,
+    userId
+  );
+
+  return { data: newList, error: null };
+}
+
+// ------------------------------------------------------------
+// Copy all children from one price list to another
+// ------------------------------------------------------------
+
+async function copyPriceListChildren(
+  client: SupabaseClient<Database>,
+  sourceListId: string,
+  targetListId: string,
+  companyId: string,
+  userId: string
+) {
+  // Items + breaks
   const { data: items } = await client
     .from("priceListItem")
     .select("*")
-    .eq("priceListId", priceListId);
+    .eq("priceListId", sourceListId);
 
   if (items && items.length > 0) {
     for (const item of items) {
@@ -502,7 +525,7 @@ export async function createPriceListVersion(
         .from("priceListItem")
         .insert([
           {
-            priceListId: newList.id,
+            priceListId: targetListId,
             itemId: item.itemId,
             itemPostingGroupId: item.itemPostingGroupId,
             unitPrice: item.unitPrice,
@@ -519,7 +542,6 @@ export async function createPriceListVersion(
         .select("id")
         .single();
 
-      // Copy quantity breaks for this item
       if (newItem) {
         const { data: breaks } = await client
           .from("priceListItemBreak")
@@ -541,16 +563,16 @@ export async function createPriceListVersion(
     }
   }
 
-  // 5. Copy rules
+  // Rules
   const { data: rules } = await client
     .from("priceListRule")
     .select("*")
-    .eq("priceListId", priceListId);
+    .eq("priceListId", sourceListId);
 
   if (rules && rules.length > 0) {
     await client.from("priceListRule").insert(
       rules.map((r) => ({
-        priceListId: newList.id,
+        priceListId: targetListId,
         name: r.name,
         ruleType: r.ruleType,
         amountType: r.amountType,
@@ -568,16 +590,16 @@ export async function createPriceListVersion(
     );
   }
 
-  // 6. Copy assignments
+  // Assignments
   const { data: assignments } = await client
     .from("priceListAssignment")
     .select("*")
-    .eq("priceListId", priceListId);
+    .eq("priceListId", sourceListId);
 
   if (assignments && assignments.length > 0) {
     await client.from("priceListAssignment").insert(
       assignments.map((a) => ({
-        priceListId: newList.id,
+        priceListId: targetListId,
         customerId: a.customerId,
         customerTypeId: a.customerTypeId,
         supplierId: a.supplierId,
@@ -587,6 +609,70 @@ export async function createPriceListVersion(
       }))
     );
   }
+}
+
+// ------------------------------------------------------------
+// Duplicate Price List (new name, version 1, source untouched)
+// ------------------------------------------------------------
+
+export async function duplicatePriceList(
+  client: SupabaseClient<Database>,
+  priceListId: string,
+  companyId: string,
+  userId: string
+) {
+  const { data: current, error: fetchError } = await getPriceList(
+    client,
+    priceListId
+  );
+  if (fetchError || !current) return { data: null, error: fetchError };
+
+  const baseName = `Copy of ${current.name}`;
+  let name = baseName;
+
+  // Handle unique constraint: try base name, then append a counter
+  const { data: existing } = await client
+    .from("priceList")
+    .select("id")
+    .eq("name", baseName)
+    .eq("version", 1)
+    .eq("companyId", companyId)
+    .maybeSingle();
+
+  if (existing) {
+    name = `${baseName} (${new Date().toISOString().slice(0, 10)})`;
+  }
+
+  const { data: newList, error: createError } = await client
+    .from("priceList")
+    .insert([
+      {
+        name,
+        description: current.description,
+        type: current.type,
+        status: "Draft" as const,
+        priceType: current.priceType,
+        currencyCode: current.currencyCode,
+        validFrom: current.validFrom,
+        validTo: current.validTo,
+        sequence: current.sequence,
+        version: 1,
+        companyId,
+        createdBy: userId
+      }
+    ])
+    .select("id")
+    .single();
+
+  if (createError || !newList) return { data: null, error: createError };
+
+  await copyPriceListChildren(
+    client,
+    priceListId,
+    newList.id,
+    companyId,
+    userId
+  );
 
   return { data: newList, error: null };
 }

@@ -225,16 +225,20 @@ export async function resolvePrice(
           unitPrice: number;
         }>;
 
-        // Check if quantity breaks override the base price
-        if (breaks.length > 0) {
+        if (item.pricingMethod === "Price Breaks" && breaks.length > 0) {
+          // Price Breaks method: use quantity tiers exclusively
           const priceBreaks = breaks.map((b) => ({
             quantity: b.minQuantity,
             unitPrice: b.unitPrice
           }));
+          // Fallback to lowest break price when qty is below all tiers
+          const lowestBreak = priceBreaks.reduce((min, b) =>
+            b.quantity < min.quantity ? b : min
+          );
           basePrice = lookupPriceFromBreaks(
             priceBreaks,
             input.quantity,
-            item.unitPrice
+            lowestBreak.unitPrice
           );
         } else if (item.pricingMethod === "Formula") {
           // Formula-based pricing: compute from cost or sale price

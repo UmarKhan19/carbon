@@ -53526,15 +53526,19 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
+<<<<<<< HEAD
             columns: ["invoiceCountryCode"]
             columns: ["invoiceCountryCode"]
+=======
+            columns: ["shipmentCountryCode"]
+>>>>>>> d77d620b2 (- small fixes)
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -54081,16 +54085,24 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
+<<<<<<< HEAD
             columns: ["paymentCountryCode"]
             columns: ["paymentCountryCode"]
+=======
+            columns: ["customerCountryCode"]
+>>>>>>> d77d620b2 (- small fixes)
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
+<<<<<<< HEAD
             columns: ["customerCountryCode"]
             columns: ["customerCountryCode"]
+=======
+            columns: ["paymentCountryCode"]
+>>>>>>> d77d620b2 (- small fixes)
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]

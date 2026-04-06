@@ -1,46 +1,12 @@
--- Price List Management (VER-ERP-001)
--- Adds price list support for both Sales and Purchase with:
---   - Price list headers with versioning and price type
---   - Item/category-level pricing with quantity breaks and formula support
---   - Structured discount/surcharge rules
---   - Customer/supplier assignments
---   - Traceability on order lines
+-- Price List Management
 
--- ============================================================
--- ENUMS
--- ============================================================
+CREATE TYPE "priceListStatus" AS ENUM ('Draft', 'Active', 'Expired', 'Archived');
+CREATE TYPE "priceListType" AS ENUM ('Sales', 'Purchase');
+CREATE TYPE "priceListPriceType" AS ENUM ('Gross', 'Net', 'Discounted');
+CREATE TYPE "priceListRuleType" AS ENUM ('Discount', 'Surcharge');
+CREATE TYPE "priceListRuleAmountType" AS ENUM ('Percentage', 'Fixed');
 
-CREATE TYPE "priceListStatus" AS ENUM (
-  'Draft',
-  'Active',
-  'Expired',
-  'Archived'
-);
-
-CREATE TYPE "priceListType" AS ENUM (
-  'Sales',
-  'Purchase'
-);
-
-CREATE TYPE "priceListPriceType" AS ENUM (
-  'Gross',
-  'Net',
-  'Discounted'
-);
-
-CREATE TYPE "priceListRuleType" AS ENUM (
-  'Discount',
-  'Surcharge'
-);
-
-CREATE TYPE "priceListRuleAmountType" AS ENUM (
-  'Percentage',
-  'Fixed'
-);
-
--- ============================================================
--- TABLE: priceList (Header)
--- ============================================================
+-- priceList
 
 CREATE TABLE "priceList" (
   "id" TEXT NOT NULL DEFAULT id('pl'),
@@ -123,9 +89,7 @@ FOR DELETE USING (
   )
 );
 
--- ============================================================
--- TABLE: priceListItem (Line Items — Base Prices)
--- ============================================================
+-- priceListItem
 
 CREATE TABLE "priceListItem" (
   "id" TEXT NOT NULL DEFAULT id('pli'),
@@ -134,7 +98,6 @@ CREATE TABLE "priceListItem" (
   "itemPostingGroupId" TEXT,
   "unitPrice" NUMERIC(15, 5) NOT NULL,
   "unitOfMeasureCode" TEXT,
-  -- Pricing method: 'Fixed' (use unitPrice directly) or 'Formula' (compute from cost/salePrice)
   "pricingMethod" TEXT NOT NULL DEFAULT 'Fixed',
   "formulaBase" TEXT,
   "markupPercent" NUMERIC(10, 5),
@@ -218,9 +181,7 @@ FOR DELETE USING (
   )
 );
 
--- ============================================================
--- TABLE: priceListItemBreak (Quantity Breaks)
--- ============================================================
+-- priceListItemBreak
 
 CREATE TABLE "priceListItemBreak" (
   "priceListItemId" TEXT NOT NULL,
@@ -291,9 +252,7 @@ FOR DELETE USING (
   )
 );
 
--- ============================================================
--- TABLE: priceListRule (Structured Discounts & Surcharges)
--- ============================================================
+-- priceListRule
 
 CREATE TABLE "priceListRule" (
   "id" TEXT NOT NULL DEFAULT id('plr'),
@@ -303,7 +262,6 @@ CREATE TABLE "priceListRule" (
   "amountType" "priceListRuleAmountType" NOT NULL DEFAULT 'Percentage',
   "amount" NUMERIC(15, 5) NOT NULL,
   "priority" INTEGER NOT NULL DEFAULT 0,
-  -- Structured scope fields (NULL = applies to all for that dimension)
   "minQuantity" NUMERIC(20, 2),
   "maxQuantity" NUMERIC(20, 2),
   "customerTypeId" TEXT,
@@ -394,9 +352,7 @@ FOR DELETE USING (
   )
 );
 
--- ============================================================
--- TABLE: priceListAssignment (Customer/Supplier Assignments)
--- ============================================================
+-- priceListAssignment
 
 CREATE TABLE "priceListAssignment" (
   "id" TEXT NOT NULL DEFAULT id('pla'),
@@ -495,9 +451,7 @@ FOR DELETE USING (
   )
 );
 
--- ============================================================
--- ALTER: Add priceListId to salesOrderLine and purchaseOrderLine
--- ============================================================
+-- Add priceListId to order lines and customer/supplier
 
 ALTER TABLE "salesOrderLine" ADD COLUMN "priceListId" TEXT;
 ALTER TABLE "salesOrderLine" ADD CONSTRAINT "salesOrderLine_priceListId_fkey"
@@ -508,10 +462,6 @@ ALTER TABLE "purchaseOrderLine" ADD COLUMN "priceListId" TEXT;
 ALTER TABLE "purchaseOrderLine" ADD CONSTRAINT "purchaseOrderLine_priceListId_fkey"
   FOREIGN KEY ("priceListId") REFERENCES "priceList"("id")
   ON DELETE SET NULL ON UPDATE CASCADE;
-
--- ============================================================
--- ALTER: Add default priceListId to customer and supplier
--- ============================================================
 
 ALTER TABLE "customer" ADD COLUMN "priceListId" TEXT;
 ALTER TABLE "customer" ADD CONSTRAINT "customer_priceListId_fkey"

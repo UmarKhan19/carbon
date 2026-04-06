@@ -53,18 +53,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
       if (overlapping.length > 0) {
         const names = overlapping.map((o) => o.name).join(", ");
-        await client
-          .from("priceList")
-          .update({
-            status: "Active",
-            updatedBy: userId,
-            updatedAt: new Date().toISOString()
-          })
-          .eq("id", id);
-
         return {
-          data: null,
-          warning: `Price list activated. Overlapping dates with: ${names}. Conflicts resolved by specificity.`
+          error: {
+            message: `Cannot activate: overlapping dates with: ${names}. Adjust dates, assignments, or deactivate the conflicting list.`
+          },
+          data: null
         };
       }
     }

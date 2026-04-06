@@ -95,14 +95,29 @@ const PriceListAssignmentForm = ({
 
                 {isSales ? (
                   assigneeMode === "entity" ? (
-                    <Customer name="customerId" label="Customer" />
+                    <>
+                      <input type="hidden" name="customerTypeId" value="" />
+                      <Customer name="customerId" label="Customer" />
+                    </>
                   ) : (
-                    <CustomerType name="customerTypeId" label="Customer Type" />
+                    <>
+                      <input type="hidden" name="customerId" value="" />
+                      <CustomerType
+                        name="customerTypeId"
+                        label="Customer Type"
+                      />
+                    </>
                   )
                 ) : assigneeMode === "entity" ? (
-                  <Supplier name="supplierId" label="Supplier" />
+                  <>
+                    <input type="hidden" name="supplierTypeId" value="" />
+                    <Supplier name="supplierId" label="Supplier" />
+                  </>
                 ) : (
-                  <SupplierType name="supplierTypeId" label="Supplier Type" />
+                  <>
+                    <input type="hidden" name="supplierId" value="" />
+                    <SupplierType name="supplierTypeId" label="Supplier Type" />
+                  </>
                 )}
               </VStack>
             </ModalDrawerBody>

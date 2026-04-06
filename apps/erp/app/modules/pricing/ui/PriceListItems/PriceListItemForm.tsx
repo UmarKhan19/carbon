@@ -178,7 +178,9 @@ const PriceListItemForm = ({
               <input
                 type="hidden"
                 name="priceBreaks"
-                value={JSON.stringify(priceBreaks)}
+                value={JSON.stringify(
+                  pricingMethod === "Price Breaks" ? priceBreaks : []
+                )}
               />
               <VStack spacing={4}>
                 <div className="space-y-3">
@@ -204,18 +206,34 @@ const PriceListItemForm = ({
                 </div>
 
                 {itemScope === "item" ? (
-                  <Item
-                    name="itemId"
-                    label="Item"
-                    type="Item"
-                    onChange={onItemChange}
-                  />
+                  <>
+                    <input type="hidden" name="itemPostingGroupId" value="" />
+                    <Item
+                      name="itemId"
+                      label="Item"
+                      type="Item"
+                      onChange={onItemChange}
+                    />
+                  </>
                 ) : (
-                  <ItemPostingGroup
-                    name="itemPostingGroupId"
-                    label="Item Posting Group"
-                  />
+                  <>
+                    <input type="hidden" name="itemId" value="" />
+                    <ItemPostingGroup
+                      name="itemPostingGroupId"
+                      label="Item Posting Group"
+                    />
+                  </>
                 )}
+
+                {itemScope === "item" &&
+                  (replenishmentSystem === "Make" ||
+                    replenishmentSystem === "Buy and Make") && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      This item is manufactured in-house. Its unit cost may be
+                      stale if a cost rollup hasn't been run since the last BOM
+                      change.
+                    </p>
+                  )}
 
                 <UnitOfMeasure
                   name="unitOfMeasureCode"
@@ -229,7 +247,11 @@ const PriceListItemForm = ({
                   label="Pricing Method"
                   options={pricingMethods.map((m) => ({
                     label:
-                      m === "Fixed" ? "Fixed Price" : "Formula (Cost-Based)",
+                      m === "Fixed"
+                        ? "Fixed Price"
+                        : m === "Formula"
+                          ? "Formula (Cost-Based)"
+                          : "Price Breaks",
                     value: m
                   }))}
                   onChange={(v) =>
@@ -268,15 +290,6 @@ const PriceListItemForm = ({
                         setFormulaBase((v?.value as string) ?? "")
                       }
                     />
-                    {formulaBase === "cost" &&
-                      (replenishmentSystem === "Make" ||
-                        replenishmentSystem === "Buy and Make") && (
-                        <p className="text-xs text-amber-600 dark:text-amber-400 -mt-2">
-                          This item is manufactured in-house. Cost-based pricing
-                          uses the stored unit cost, which may be stale if a
-                          cost rollup hasn't been run since the last BOM change.
-                        </p>
-                      )}
                     <Select
                       name="markupPercent"
                       label="Markup %"
@@ -299,14 +312,14 @@ const PriceListItemForm = ({
                       ]}
                       onChange={(v) =>
                         setMarkupPercent(
-                          v?.value ? Number.parseFloat(v.value as string) : 0
+                          v?.value ? parseFloat(v.value as string) : 0
                         )
                       }
                     />
                     <Number
                       name="minMarginPercent"
                       label="Min Margin %"
-                      helperText="Floor: never price below cost + this margin"
+                      helperText="Lowest price allowed after markup"
                       minValue={0}
                       maxValue={1}
                       step={0.01}
@@ -332,13 +345,14 @@ const PriceListItemForm = ({
                   </>
                 )}
 
-                {/* Price Breaks — available for both Fixed and Formula */}
-                <PriceBreaks
-                  priceBreaks={priceBreaks}
-                  onChange={setPriceBreaks}
-                  baseCurrency={company?.baseCurrencyCode ?? "USD"}
-                  isDisabled={isDisabled}
-                />
+                {pricingMethod === "Price Breaks" && (
+                  <PriceBreaks
+                    priceBreaks={priceBreaks}
+                    onChange={setPriceBreaks}
+                    baseCurrency={company?.baseCurrencyCode ?? "USD"}
+                    isDisabled={isDisabled}
+                  />
+                )}
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

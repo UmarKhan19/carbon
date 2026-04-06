@@ -24,7 +24,7 @@ import { Currency } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
-import { priceListPriceTypes, priceListStatusTypes } from "../pricing.models";
+import { priceListPriceTypes } from "../pricing.models";
 import type { PriceListDetail } from "../types";
 
 const PriceListProperties = () => {
@@ -179,33 +179,6 @@ const PriceListProperties = () => {
       </ValidatedForm>
 
       <div className="border-b border-border" />
-
-      {/* Status */}
-      <ValidatedForm
-        defaultValues={{
-          status: priceList?.status ?? ""
-        }}
-        validator={z.object({
-          status: z.string().optional()
-        })}
-        className="w-full"
-      >
-        <Select
-          options={priceListStatusTypes.map((s) => ({
-            value: s,
-            label: <Enumerable value={s} />
-          }))}
-          isReadOnly={!canUpdate}
-          label="Status"
-          name="status"
-          inline={(value) => <Enumerable value={value} />}
-          onChange={(value) => {
-            if (value) {
-              onUpdate("status", value.value);
-            }
-          }}
-        />
-      </ValidatedForm>
 
       {/* Price Type */}
       <ValidatedForm

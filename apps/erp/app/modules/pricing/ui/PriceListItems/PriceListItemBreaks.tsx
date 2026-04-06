@@ -62,8 +62,8 @@ const PriceListItemBreaks = ({
   );
 
   const addBreak = useCallback(() => {
-    const qty = Number.parseFloat(newQty);
-    const price = Number.parseFloat(newPrice);
+    const qty = parseFloat(newQty);
+    const price = parseFloat(newPrice);
     if (Number.isNaN(qty) || Number.isNaN(price) || qty < 0 || price < 0)
       return;
 

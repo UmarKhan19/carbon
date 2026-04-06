@@ -38,7 +38,7 @@ export const priceListValidator = z.object({
   validTo: zfd.text(z.string().optional())
 });
 
-export const pricingMethods = ["Fixed", "Formula"] as const;
+export const pricingMethods = ["Fixed", "Formula", "Price Breaks"] as const;
 export const formulaBases = ["cost", "salePrice"] as const;
 
 export const priceListItemValidator = z

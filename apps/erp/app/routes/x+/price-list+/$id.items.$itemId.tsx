@@ -127,9 +127,7 @@ export default function EditPriceListItemRoute() {
         formulaBase: item.formulaBase ?? undefined,
         markupPercent: item.markupPercent ?? undefined,
         roundingPrecision: item.roundingPrecision ?? undefined,
-        minMarginPercent: item.minMarginPercent ?? undefined,
-        discountPercent: item.discountPercent ?? undefined,
-        surchargeAmount: item.surchargeAmount ?? undefined
+        minMarginPercent: item.minMarginPercent ?? undefined
       }}
       initialBreaks={breaks.map((b) => ({
         quantity: b.minQuantity,

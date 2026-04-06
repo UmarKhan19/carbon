@@ -8,7 +8,19 @@ import {
   Skeleton
 } from "@carbon/react";
 import { useMemo, useState } from "react";
-import { LuChevronRight, LuCirclePlus, LuSearch } from "react-icons/lu";
+import {
+  LuBox,
+  LuChevronRight,
+  LuCirclePlus,
+  LuContainer,
+  LuHistory,
+  LuLayoutList,
+  LuSearch,
+  LuShapes,
+  LuSquareUser,
+  LuStar
+} from "react-icons/lu";
+import { RiProgress8Line } from "react-icons/ri";
 import { Link, useNavigate } from "react-router";
 import { Enumerable } from "~/components/Enumerable";
 import Hyperlink from "~/components/Hyperlink";
@@ -156,13 +168,24 @@ function Section({
 // Row — Hyperlink with "Open" button on hover
 // ---------------------------------------------------------------------------
 
-function ExplorerRow({ to, label }: { to: string; label: string }) {
+function ExplorerRow({
+  to,
+  label,
+  icon
+}: {
+  to: string;
+  label: string;
+  icon?: React.ReactNode;
+}) {
   return (
     <Hyperlink
       to={to}
       className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-accent w-full font-medium whitespace-nowrap"
     >
       <LevelLine isSelected={false} />
+      {icon && (
+        <span className="text-muted-foreground flex-shrink-0">{icon}</span>
+      )}
       <span className="truncate">{label}</span>
     </Hyperlink>
   );
@@ -204,21 +227,26 @@ export function PriceListExplorer({
   const permissionModule = isSales ? "sales" : "purchasing";
   const canCreate = permissions.can("create", permissionModule);
 
-  // ---- Items ----
-  const filteredItems = useMemo(
+  // ---- Items (specific items vs item groups) ----
+  const filteredSpecificItems = useMemo(
     () =>
       items.filter((item) => {
+        if (!item.itemId || !item.item) return false;
         if (!q) return true;
-        if (item.item) {
-          return (
-            item.item.readableId.toLowerCase().includes(q) ||
-            item.item.name.toLowerCase().includes(q)
-          );
-        }
-        if (item.itemPostingGroup) {
-          return item.itemPostingGroup.name.toLowerCase().includes(q);
-        }
-        return false;
+        return (
+          item.item.readableId.toLowerCase().includes(q) ||
+          item.item.name.toLowerCase().includes(q)
+        );
+      }),
+    [items, q]
+  );
+
+  const filteredItemGroups = useMemo(
+    () =>
+      items.filter((item) => {
+        if (!item.itemPostingGroupId || !item.itemPostingGroup) return false;
+        if (!q) return true;
+        return item.itemPostingGroup.name.toLowerCase().includes(q);
       }),
     [items, q]
   );
@@ -268,7 +296,7 @@ export function PriceListExplorer({
         result.push({
           id: a.customerTypeId,
           name: a.customerType.name,
-          link: path.to.customerType(a.customerTypeId)
+          link: `${path.to.customers}?filter=customerTypeId:eq:${a.customerTypeId}`
         });
       }
     }
@@ -321,7 +349,7 @@ export function PriceListExplorer({
         result.push({
           id: a.supplierTypeId,
           name: a.supplierType.name,
-          link: path.to.supplierType(a.supplierTypeId)
+          link: `${path.to.suppliers}?filter=supplierTypeId:eq:${a.supplierTypeId}`
         });
       }
     }
@@ -370,20 +398,6 @@ export function PriceListExplorer({
     [versions, q]
   );
 
-  // ---- Item helpers ----
-  function getItemLabel(item: PriceListItemRow): string {
-    if (item.item) return `${item.item.readableId} — ${item.item.name}`;
-    if (item.itemPostingGroup) return item.itemPostingGroup.name;
-    return "Unknown item";
-  }
-
-  function getItemLink(item: PriceListItemRow): string {
-    if (item.itemId) return path.to.part(item.itemId);
-    if (item.itemPostingGroupId)
-      return path.to.itemPostingGroup(item.itemPostingGroupId);
-    return "#";
-  }
-
   return (
     <ScrollArea className="h-full">
       <div className="flex flex-col w-full py-1">
@@ -401,28 +415,51 @@ export function PriceListExplorer({
           </InputGroup>
         </div>
 
-        {/* Items */}
+        {/* Specific Items */}
         <Section
           title="Items"
-          count={filteredItems.length}
+          count={filteredSpecificItems.length}
           onAdd={
             canCreate
               ? () => navigate(`${path.to.priceListItems(priceListId)}/new`)
               : undefined
           }
         >
-          {filteredItems.length === 0 ? (
+          {filteredSpecificItems.length === 0 ? (
             <EmptyRow label="items" />
           ) : (
-            filteredItems.map((item) => (
+            filteredSpecificItems.map((item) => (
               <ExplorerRow
                 key={item.id}
-                to={getItemLink(item)}
-                label={getItemLabel(item)}
+                to={path.to.part(item.itemId!)}
+                label={`${item.item!.readableId} — ${item.item!.name}`}
+                icon={<LuBox className="size-4" />}
               />
             ))
           )}
         </Section>
+
+        {/* Item Groups */}
+        {filteredItemGroups.length > 0 && (
+          <Section
+            title="Item Groups"
+            count={filteredItemGroups.length}
+            onAdd={
+              canCreate
+                ? () => navigate(`${path.to.priceListItems(priceListId)}/new`)
+                : undefined
+            }
+          >
+            {filteredItemGroups.map((item) => (
+              <ExplorerRow
+                key={item.id}
+                to={`${path.to.parts}?filter=itemPostingGroupId:eq:${item.itemPostingGroupId}`}
+                label={item.itemPostingGroup!.name}
+                icon={<LuShapes className="size-4" />}
+              />
+            ))}
+          </Section>
+        )}
 
         {/* Customers — Sales price lists */}
         {isSales && (
@@ -444,6 +481,7 @@ export function PriceListExplorer({
                   key={entity.id}
                   to={entity.link}
                   label={entity.name}
+                  icon={<LuSquareUser className="size-4" />}
                 />
               ))
             )}
@@ -458,6 +496,7 @@ export function PriceListExplorer({
                 key={entity.id}
                 to={entity.link}
                 label={entity.name}
+                icon={<LuShapes className="size-4" />}
               />
             ))}
           </Section>
@@ -483,6 +522,7 @@ export function PriceListExplorer({
                   key={entity.id}
                   to={entity.link}
                   label={entity.name}
+                  icon={<LuContainer className="size-4" />}
                 />
               ))
             )}
@@ -497,6 +537,7 @@ export function PriceListExplorer({
                 key={entity.id}
                 to={entity.link}
                 label={entity.name}
+                icon={<LuStar className="size-4" />}
               />
             ))}
           </Section>
@@ -510,6 +551,7 @@ export function PriceListExplorer({
                 key={order.id}
                 to={path.to.salesOrder(order.id)}
                 label={order.readableId}
+                icon={<RiProgress8Line className="size-4" />}
               />
             ))}
           </Section>
@@ -523,6 +565,7 @@ export function PriceListExplorer({
                 key={order.id}
                 to={path.to.purchaseOrder(order.id)}
                 label={order.readableId}
+                icon={<LuLayoutList className="size-4" />}
               />
             ))}
           </Section>
@@ -543,6 +586,9 @@ export function PriceListExplorer({
                 )}
               >
                 <LevelLine isSelected={version.id === priceListId} />
+                <span className="text-muted-foreground flex-shrink-0">
+                  <LuHistory className="size-4" />
+                </span>
                 <span className="truncate flex-shrink-0">
                   v{version.version}
                 </span>

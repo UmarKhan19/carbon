@@ -21,11 +21,12 @@ import {
   ModalCardHeader,
   ModalCardProvider,
   ModalCardTitle,
+  useDebounce,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuChevronRight, LuPlus, LuTrash, LuTruck } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -96,6 +97,9 @@ const SalesOrderLineForm = ({
 
   const [lineType, setLineType] = useState(initialValues.salesOrderLineType);
   const [locationId, setLocationId] = useState(initialValues.locationId ?? "");
+  const [saleQuantity, setSaleQuantity] = useState(
+    initialValues.saleQuantity ?? 1
+  );
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: string;
@@ -105,6 +109,7 @@ const SalesOrderLineForm = ({
     shelfId: string;
     modelUploadId: string | null;
     priceListId: string | null;
+    priceListName: string | null;
   }>({
     itemId: initialValues.itemId ?? "",
     description: initialValues.description ?? "",
@@ -113,10 +118,26 @@ const SalesOrderLineForm = ({
     uom: initialValues.unitOfMeasureCode ?? "",
     shelfId: initialValues.shelfId ?? "",
     modelUploadId: initialValues.modelUploadId ?? null,
-    priceListId: null
+    priceListId: initialValues.priceListId ?? null,
+    priceListName: null
   });
 
   const isEditing = initialValues.id !== undefined;
+
+  // Load price list name when editing a line that has a priceListId
+  useEffect(() => {
+    if (!initialValues.priceListId || !carbon) return;
+    carbon
+      .from("priceList")
+      .select("name")
+      .eq("id", initialValues.priceListId)
+      .single()
+      .then(({ data }) => {
+        if (data?.name) {
+          setItemData((d) => ({ ...d, priceListName: data.name }));
+        }
+      });
+  }, [initialValues.priceListId, carbon]);
 
   const onTypeChange = (t: SalesOrderLineType) => {
     // @ts-ignore
@@ -129,12 +150,60 @@ const SalesOrderLineForm = ({
       uom: "EA",
       shelfId: "",
       modelUploadId: null,
-      priceListId: null
+      priceListId: null,
+      priceListName: null
     });
   };
 
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
+
+  const resolvePrice = useCallback(
+    async (itemId: string, quantity: number) => {
+      const customerId = routeData?.salesOrder?.customerId;
+      if (!customerId) return null;
+
+      try {
+        const response = await fetch(path.to.api.resolvePrice, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customerId, itemId, quantity })
+        });
+        if (response.ok) {
+          const result = await response.json();
+          if (result.priceListId) {
+            return {
+              finalPrice: result.finalPrice as number,
+              priceListId: result.priceListId as string,
+              priceListName: (result.priceListName as string) ?? null
+            };
+          }
+        }
+      } catch {
+        // Fall back to itemUnitSalePrice on any error
+      }
+      return null;
+    },
+    [routeData?.salesOrder?.customerId]
+  );
+
+  const debouncedQuantityResolve = useDebounce(async (qty: number) => {
+    if (!itemData.itemId) return;
+    const result = await resolvePrice(itemData.itemId, qty);
+    if (result) {
+      setItemData((d) => ({
+        ...d,
+        unitPrice: result.finalPrice,
+        priceListId: result.priceListId,
+        priceListName: result.priceListName
+      }));
+    }
+  }, 400);
+
+  const onQuantityChange = (qty: number) => {
+    setSaleQuantity(qty);
+    debouncedQuantityResolve(qty);
+  };
 
   const onChange = async (itemId: string) => {
     if (!itemId) return;
@@ -165,28 +234,10 @@ const SalesOrderLineForm = ({
     let resolvedPrice = price.data?.unitSalePrice ?? 0;
     let priceListId: string | null = null;
 
-    const customerId = routeData?.salesOrder?.customerId;
-    if (customerId) {
-      try {
-        const response = await fetch(path.to.api.resolvePrice, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customerId,
-            itemId,
-            quantity: initialValues.saleQuantity ?? 1
-          })
-        });
-        if (response.ok) {
-          const result = await response.json();
-          if (result.priceListId) {
-            resolvedPrice = result.finalPrice;
-            priceListId = result.priceListId;
-          }
-        }
-      } catch {
-        // Fall back to itemUnitSalePrice on any error
-      }
+    const result = await resolvePrice(itemId, saleQuantity);
+    if (result) {
+      resolvedPrice = result.finalPrice;
+      priceListId = result.priceListId;
     }
 
     setItemData({
@@ -197,7 +248,8 @@ const SalesOrderLineForm = ({
       uom: item.data?.unitOfMeasureCode ?? "EA",
       shelfId: defaultShelfId ?? "",
       modelUploadId: item.data?.modelUploadId ?? null,
-      priceListId
+      priceListId,
+      priceListName: result?.priceListName ?? null
     });
   };
 
@@ -391,27 +443,39 @@ const SalesOrderLineForm = ({
                               }));
                           }}
                         />
-                        <Number name="saleQuantity" label="Quantity" />
+                        <NumberControlled
+                          name="saleQuantity"
+                          label="Quantity"
+                          value={saleQuantity}
+                          onChange={onQuantityChange}
+                        />
                         <UnitOfMeasure
                           name="unitOfMeasureCode"
                           label="Unit of Measure"
                           value={itemData.uom}
                         />
-                        <NumberControlled
-                          name="unitPrice"
-                          label="Unit Price"
-                          value={itemData.unitPrice}
-                          formatOptions={{
-                            style: "currency",
-                            currency: baseCurrency
-                          }}
-                          onChange={(value) =>
-                            setItemData((d) => ({
-                              ...d,
-                              unitPrice: value
-                            }))
-                          }
-                        />
+                        <div>
+                          <NumberControlled
+                            name="unitPrice"
+                            label="Unit Price"
+                            value={itemData.unitPrice}
+                            formatOptions={{
+                              style: "currency",
+                              currency: baseCurrency
+                            }}
+                            onChange={(value) =>
+                              setItemData((d) => ({
+                                ...d,
+                                unitPrice: value
+                              }))
+                            }
+                          />
+                          {itemData.priceListName && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              From: {itemData.priceListName}
+                            </p>
+                          )}
+                        </div>
                         <DatePicker name="promisedDate" label="Promised Date" />
                         {[
                           "Part",
