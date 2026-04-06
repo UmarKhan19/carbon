@@ -137,6 +137,7 @@ const sales = {
   "No Quote Reason": "No Quote Reason",
   "No Quote Reasons": "No Quote Reasons",
   "No Quotes": "No Quotes",
+  No: "No",
   "Non-Taxable Add-On Cost": "Non-Taxable Add-On Cost",
   Notes: "Notes",
   "On Hold": "On Hold",
@@ -234,6 +235,7 @@ const sales = {
   "View Open Quotes": "View Open Quotes",
   "View Open RFQs": "View Open RFQs",
   Website: "Website",
+  Yes: "Yes",
   "Work Phone": "Work Phone"
 } as const;
 

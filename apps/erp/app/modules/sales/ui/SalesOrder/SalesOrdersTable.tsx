@@ -14,6 +14,8 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import {
   getLocalTimeZone,
   isSameDay,
@@ -89,6 +91,7 @@ const IconWithTooltip = ({
 );
 
 const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
+  const { _: t } = useLingui();
   const permissions = usePermissions();
   const currencyFormatter = useCurrencyFormatter();
 
@@ -132,7 +135,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         id: "customerId",
-        header: "Customer",
+        header: t(msg({ id: "Customer", message: "Customer" })),
         cell: ({ row }) => {
           return <CustomerAvatar customerId={row.original.customerId} />;
         },
@@ -149,7 +152,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t(msg({ id: "Status", message: "Status" })),
         cell: ({ row }) => {
           const status =
             row.getValue<(typeof salesOrderStatusType)[number]>("status");
@@ -188,7 +191,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
               label: <SalesStatus status={status} />
             }))
           },
-          pluralHeader: "Statuses",
+          pluralHeader: t(msg({ id: "Statuses", message: "Statuses" })),
           icon: <LuStar />
         }
       },
@@ -369,7 +372,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
 
       {
         id: "assignee",
-        header: "Assignee",
+        header: t(msg({ id: "Assignee", message: "Assignee" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -409,7 +412,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "locationId",
-        header: "Location",
+        header: t(msg({ id: "Location", message: "Location" })),
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -446,23 +449,34 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "dropShipment",
-        header: "Drop Shipment",
+        header: t(msg({ id: "Drop Shipment", message: "Drop Shipment" })),
         cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
         meta: {
           filter: {
             type: "static",
             options: [
-              { value: "true", label: "Yes" },
-              { value: "false", label: "No" }
+              {
+                value: "true",
+                label: t(msg({ id: "Yes", message: "Yes" }))
+              },
+              {
+                value: "false",
+                label: t(msg({ id: "No", message: "No" }))
+              }
             ]
           },
-          pluralHeader: "Drop Shipment Statuses",
+          pluralHeader: t(
+            msg({
+              id: "Drop Shipment Statuses",
+              message: "Drop Shipment Statuses"
+            })
+          ),
           icon: <LuTruck />
         }
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t(msg({ id: "Created By", message: "Created By" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -487,7 +501,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t(msg({ id: "Updated By", message: "Updated By" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -521,7 +535,8 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
     todaysDate,
     currencyFormatter,
     shippingMethods,
-    paymentTerms
+    paymentTerms,
+    t
   ]);
 
   const renderContextMenu = useMemo(() => {

@@ -6,6 +6,8 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
 import {
@@ -44,6 +46,7 @@ type QuotesTableProps = {
 };
 
 const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
+  const { _: t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
 
@@ -92,7 +95,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "customerId",
-        header: "Customer",
+        header: t(msg({ id: "Customer", message: "Customer" })),
         cell: ({ row }) => (
           <CustomerAvatar customerId={row.original.customerId} />
         ),
@@ -110,7 +113,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
 
       {
         accessorKey: "status",
-        header: "Status",
+        header: t(msg({ id: "Status", message: "Status" })),
         cell: ({ row }) => {
           const status = row.original.status;
           const lines = row.original.lines ?? 0;
@@ -132,7 +135,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
               label: <QuoteStatus status={status} />
             }))
           },
-          pluralHeader: "Statuses",
+          pluralHeader: t(msg({ id: "Statuses", message: "Statuses" })),
           icon: <LuStar />
         }
       },
@@ -146,7 +149,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "salesPersonId",
-        header: "Sales Person",
+        header: t(msg({ id: "Sales Person", message: "Sales Person" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.salesPersonId} />
         ),
@@ -160,7 +163,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "estimatorId",
-        header: "Estimator",
+        header: t(msg({ id: "Estimator", message: "Estimator" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.estimatorId} />
         ),
@@ -174,7 +177,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "assignee",
-        header: "Assignee",
+        header: t(msg({ id: "Assignee", message: "Assignee" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -204,7 +207,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "locationName",
-        header: "Location",
+        header: t(msg({ id: "Location", message: "Location" })),
         cell: (item) => <Enumerable value={item.getValue<string>()} />,
         meta: {
           filter: {
@@ -221,7 +224,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t(msg({ id: "Created By", message: "Created By" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -246,7 +249,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t(msg({ id: "Updated By", message: "Updated By" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -272,7 +275,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
     ];
 
     return [...defaultColumns, ...customColumns];
-  }, [customers, people, customColumns]);
+  }, [customers, people, customColumns, t]);
 
   const renderContextMenu = useMemo(() => {
     return (row: Quotation) => (

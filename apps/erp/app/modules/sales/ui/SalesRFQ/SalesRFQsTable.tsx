@@ -1,5 +1,7 @@
 import { HStack, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
 import {
@@ -37,6 +39,7 @@ type SalesRFQsTableProps = {
 };
 
 const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
+  const { _: t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
 
@@ -68,7 +71,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
 
       {
         id: "customerId",
-        header: "Customer",
+        header: t(msg({ id: "Customer", message: "Customer" })),
         cell: ({ row }) => (
           <CustomerAvatar customerId={row.original.customerId} />
         ),
@@ -85,7 +88,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t(msg({ id: "Status", message: "Status" })),
         cell: (item) => {
           const status = item.getValue<(typeof salesRFQStatusType)[number]>();
           return <SalesRFQStatus status={status} />;
@@ -98,7 +101,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
               label: <SalesRFQStatus status={status} />
             }))
           },
-          pluralHeader: "Statuses",
+          pluralHeader: t(msg({ id: "Statuses", message: "Statuses" })),
           icon: <LuStar />
         }
       },
@@ -129,7 +132,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
 
       {
         id: "assignee",
-        header: "Assignee",
+        header: t(msg({ id: "Assignee", message: "Assignee" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -146,7 +149,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t(msg({ id: "Created By", message: "Created By" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -163,7 +166,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
       },
       {
         accessorKey: "locationName",
-        header: "Location",
+        header: t(msg({ id: "Location", message: "Location" })),
         cell: (item) => <Enumerable value={item.getValue<string>()} />,
         meta: {
           filter: {
@@ -188,7 +191,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t(msg({ id: "Updated By", message: "Updated By" })),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -214,7 +217,7 @@ const SalesRFQsTable = memo(({ data, count }: SalesRFQsTableProps) => {
     ];
 
     return [...defaultColumns, ...customColumns];
-  }, [customers, people, customColumns]);
+  }, [customers, people, customColumns, t]);
 
   const renderContextMenu = useMemo(() => {
     return (row: SalesRFQ) => (
