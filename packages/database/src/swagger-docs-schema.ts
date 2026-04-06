@@ -3,7 +3,7 @@ export default {
   info: {
     description: "",
     title: "standard public schema",
-    version: "14.7",
+    version: "13.0.7",
   },
   host: "0.0.0.0:3000",
   basePath: "/",
@@ -35707,6 +35707,9 @@ export default {
             $ref: "#/parameters/rowFilter.riskRegister.type",
           },
           {
+            $ref: "#/parameters/rowFilter.riskRegister.updatedBy",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -35814,6 +35817,9 @@ export default {
             $ref: "#/parameters/rowFilter.riskRegister.type",
           },
           {
+            $ref: "#/parameters/rowFilter.riskRegister.updatedBy",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -35873,6 +35879,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.riskRegister.type",
+          },
+          {
+            $ref: "#/parameters/rowFilter.riskRegister.updatedBy",
           },
           {
             $ref: "#/parameters/body.riskRegister",
@@ -64186,6 +64195,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -64350,6 +64362,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -64466,6 +64481,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -88011,6 +88029,12 @@ export default {
           format: 'public."riskRegisterType"',
           type: "string",
         },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -101584,6 +101608,7 @@ export default {
         "qualityIssueTarget",
         "consoleEnabled",
         "timeCardEnabled",
+        "updateLeadTimesOnReceipt",
       ],
       properties: {
         id: {
@@ -101780,6 +101805,11 @@ export default {
           type: "boolean",
         },
         timeCardEnabled: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        updateLeadTimesOnReceipt: {
           default: false,
           format: "boolean",
           type: "boolean",
@@ -121440,6 +121470,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.riskRegister.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.shipment": {
       name: "shipment",
       description: "shipment",
@@ -136872,6 +136908,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.companySettings.updateLeadTimesOnReceipt": {
+      name: "updateLeadTimesOnReceipt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.part": {
       name: "part",
       description: "part",
@@ -137271,6 +137313,6 @@ export default {
   },
   externalDocs: {
     description: "PostgREST Documentation",
-    url: "https://postgrest.org/en/v14/references/api.html",
+    url: "https://postgrest.org/en/v13/references/api.html",
   },
 };
