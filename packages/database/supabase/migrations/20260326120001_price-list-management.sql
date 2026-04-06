@@ -101,7 +101,6 @@ CREATE TABLE "priceListItem" (
   "pricingMethod" TEXT NOT NULL DEFAULT 'Fixed',
   "formulaBase" TEXT,
   "markupPercent" NUMERIC(10, 5),
-  "roundingPrecision" NUMERIC(15, 5),
   "minMarginPercent" NUMERIC(10, 5),
   "companyId" TEXT NOT NULL,
   "createdBy" TEXT NOT NULL,

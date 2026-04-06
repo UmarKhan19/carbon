@@ -23,7 +23,6 @@ import {
   getSalesOrdersByPriceList,
   getSuppliersByDefaultPriceList
 } from "~/modules/pricing";
-import { PriceListAssignmentsTable } from "~/modules/pricing/ui/PriceListAssignments";
 import { PriceListDescription } from "~/modules/pricing/ui/PriceListDescription";
 import {
   PriceListExplorer,
@@ -97,11 +96,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function PriceListRoute() {
-  const { priceList, items, rules, assignments, explorerData } =
+  const { items, rules, assignments, explorerData } =
     useLoaderData<typeof loader>();
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
-  const priceListType = priceList?.type ?? "Sales";
 
   return (
     <PanelProvider>
@@ -135,11 +133,6 @@ export default function PriceListRoute() {
                     <PriceListDescription />
                     <PriceListItemsTable data={items} />
                     <PriceListRulesTable data={rules} />
-                    <PriceListAssignmentsTable
-                      data={assignments}
-                      priceListId={id}
-                      priceListType={priceListType}
-                    />
                   </VStack>
                 </div>
               }

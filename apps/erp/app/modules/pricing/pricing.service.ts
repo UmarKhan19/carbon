@@ -438,6 +438,85 @@ export async function deletePriceListAssignment(
   return client.from("priceListAssignment").delete().eq("id", id);
 }
 
+export async function syncPriceListAssignments(
+  client: SupabaseClient<Database>,
+  priceListId: string,
+  companyId: string,
+  userId: string,
+  assignments: {
+    customerIds?: string[];
+    customerTypeIds?: string[];
+    supplierIds?: string[];
+    supplierTypeIds?: string[];
+  }
+) {
+  // Delete all existing assignments for this price list
+  await client
+    .from("priceListAssignment")
+    .delete()
+    .eq("priceListId", priceListId);
+
+  // Build new assignment rows (one entity per row, per DB constraint)
+  const rows: Array<{
+    priceListId: string;
+    customerId: string | null;
+    customerTypeId: string | null;
+    supplierId: string | null;
+    supplierTypeId: string | null;
+    companyId: string;
+    createdBy: string;
+  }> = [];
+
+  for (const id of assignments.customerIds ?? []) {
+    rows.push({
+      priceListId,
+      customerId: id,
+      customerTypeId: null,
+      supplierId: null,
+      supplierTypeId: null,
+      companyId,
+      createdBy: userId
+    });
+  }
+  for (const id of assignments.customerTypeIds ?? []) {
+    rows.push({
+      priceListId,
+      customerId: null,
+      customerTypeId: id,
+      supplierId: null,
+      supplierTypeId: null,
+      companyId,
+      createdBy: userId
+    });
+  }
+  for (const id of assignments.supplierIds ?? []) {
+    rows.push({
+      priceListId,
+      customerId: null,
+      customerTypeId: null,
+      supplierId: id,
+      supplierTypeId: null,
+      companyId,
+      createdBy: userId
+    });
+  }
+  for (const id of assignments.supplierTypeIds ?? []) {
+    rows.push({
+      priceListId,
+      customerId: null,
+      customerTypeId: null,
+      supplierId: null,
+      supplierTypeId: id,
+      companyId,
+      createdBy: userId
+    });
+  }
+
+  if (rows.length === 0) return { data: [], error: null };
+
+  return client.from("priceListAssignment").insert(rows);
+}
+
 // ============================================================
 // Version Management
 // ============================================================
@@ -810,7 +889,6 @@ export async function getActivePriceListsForCustomer(
   date: string,
   currencyCode?: string
 ) {
-  // Get all active Sales price lists for this company
   let query = client
     .from("priceList")
     .select("*, priceListAssignment(*)")
@@ -819,12 +897,10 @@ export async function getActivePriceListsForCustomer(
     .eq("status", "Active")
     .order("sequence", { ascending: true });
 
-  // Currency filtering — only return lists matching the order currency
   if (currencyCode) {
     query = query.eq("currencyCode", currencyCode);
   }
 
-  // Date filtering
   query = query.or(`validFrom.is.null,validFrom.lte.${date}`);
   query = query.or(`validTo.is.null,validTo.gte.${date}`);
 
@@ -838,7 +914,6 @@ export async function getActivePriceListsForCustomer(
       customerTypeId: string | null;
     }>;
 
-    // Global list — no assignments means it applies to everyone
     if (!assignments || assignments.length === 0) return true;
 
     return assignments.some(

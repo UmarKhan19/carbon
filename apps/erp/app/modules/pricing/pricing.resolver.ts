@@ -150,6 +150,29 @@ export async function resolvePrice(
   const date = input.date ?? new Date().toISOString().split("T")[0]!;
   const trace: PriceTraceStep[] = [];
 
+  // Look up customerTypeId / supplierTypeId from DB if not provided
+  // (the form only sends customerId / supplierId)
+  let resolvedCustomerTypeId = input.customerTypeId ?? null;
+  let resolvedSupplierTypeId = input.supplierTypeId ?? null;
+
+  if (input.listType === "Sales" && input.customerId && !resolvedCustomerTypeId) {
+    const { data: cust } = await client
+      .from("customer")
+      .select("customerTypeId")
+      .eq("id", input.customerId)
+      .maybeSingle();
+    resolvedCustomerTypeId = cust?.customerTypeId ?? null;
+  }
+
+  if (input.listType === "Purchase" && input.supplierId && !resolvedSupplierTypeId) {
+    const { data: supp } = await client
+      .from("supplier")
+      .select("supplierTypeId")
+      .eq("id", input.supplierId)
+      .maybeSingle();
+    resolvedSupplierTypeId = supp?.supplierTypeId ?? null;
+  }
+
   // ---------------------------------------------------------
   // Step 1: Find applicable price lists
   // ---------------------------------------------------------
@@ -160,7 +183,7 @@ export async function resolvePrice(
       client,
       companyId,
       input.customerId,
-      input.customerTypeId ?? null,
+      resolvedCustomerTypeId,
       date,
       input.currencyCode
     );
@@ -170,12 +193,13 @@ export async function resolvePrice(
       client,
       companyId,
       input.supplierId,
-      input.supplierTypeId ?? null,
+      resolvedSupplierTypeId,
       date,
       input.currencyCode
     );
     if (data) applicableLists = data;
   }
+
 
   // ---------------------------------------------------------
   // Step 2: Resolve base price using specificity-based resolution
@@ -192,9 +216,9 @@ export async function resolvePrice(
     const assignmentType = getAssignmentType(
       list,
       input.customerId,
-      input.customerTypeId,
+      resolvedCustomerTypeId ?? undefined,
       input.supplierId,
-      input.supplierTypeId
+      resolvedSupplierTypeId ?? undefined
     );
 
     const result = await getPriceListItemsForResolution(
@@ -318,8 +342,8 @@ export async function resolvePrice(
       client,
       listIdForRules,
       input.quantity,
-      input.customerTypeId ?? null,
-      input.supplierTypeId ?? null,
+      resolvedCustomerTypeId,
+      resolvedSupplierTypeId,
       input.itemId,
       input.itemPostingGroupId ?? null
     );

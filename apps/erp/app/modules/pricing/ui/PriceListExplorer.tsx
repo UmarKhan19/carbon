@@ -506,16 +506,7 @@ export function PriceListExplorer({
 
         {/* Customers — Sales price lists */}
         {isSales && (
-          <Section
-            title="Customers"
-            count={customers.length}
-            onAdd={
-              canCreate
-                ? () =>
-                    navigate(`${path.to.priceListAssignments(priceListId)}/new`)
-                : undefined
-            }
-          >
+          <Section title="Customers" count={customers.length}>
             {customers.length === 0 ? (
               <EmptyRow label="customers" />
             ) : (
@@ -547,16 +538,7 @@ export function PriceListExplorer({
 
         {/* Suppliers — Purchase price lists */}
         {!isSales && (
-          <Section
-            title="Suppliers"
-            count={suppliers.length}
-            onAdd={
-              canCreate
-                ? () =>
-                    navigate(`${path.to.priceListAssignments(priceListId)}/new`)
-                : undefined
-            }
-          >
+          <Section title="Suppliers" count={suppliers.length}>
             {suppliers.length === 0 ? (
               <EmptyRow label="suppliers" />
             ) : (

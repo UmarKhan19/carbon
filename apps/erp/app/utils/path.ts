@@ -1427,8 +1427,6 @@ export const path = {
       generatePath(`${x}/price-list/${id}/details`),
     priceListItems: (id: string) => generatePath(`${x}/price-list/${id}/items`),
     priceListRules: (id: string) => generatePath(`${x}/price-list/${id}/rules`),
-    priceListAssignments: (id: string) =>
-      generatePath(`${x}/price-list/${id}/assignments`),
     priceListVersions: (id: string) =>
       generatePath(`${x}/price-list/${id}/versions`),
     priceListDuplicate: (id: string) =>

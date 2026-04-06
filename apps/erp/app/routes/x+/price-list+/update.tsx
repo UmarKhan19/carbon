@@ -1,6 +1,10 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
-import { checkOverlappingPriceLists, getPriceList } from "~/modules/pricing";
+import {
+  checkOverlappingPriceLists,
+  getPriceList,
+  syncPriceListAssignments
+} from "~/modules/pricing";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -10,13 +14,35 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const id = formData.get("id");
   const field = formData.get("field");
-  const value = formData.get("value");
 
-  if (
-    typeof id !== "string" ||
-    typeof field !== "string" ||
-    (typeof value !== "string" && value !== null)
-  ) {
+  if (typeof id !== "string" || typeof field !== "string") {
+    return { error: { message: "Invalid form data" }, data: null };
+  }
+
+  // Sync assignments (multi-select from Properties panel)
+  if (field === "assignments") {
+    const customerIds = formData.getAll("customerIds") as string[];
+    const customerTypeIds = formData.getAll("customerTypeIds") as string[];
+    const supplierIds = formData.getAll("supplierIds") as string[];
+    const supplierTypeIds = formData.getAll("supplierTypeIds") as string[];
+
+    const result = await syncPriceListAssignments(
+      client,
+      id,
+      companyId,
+      userId,
+      { customerIds, customerTypeIds, supplierIds, supplierTypeIds }
+    );
+
+    if (result.error) {
+      return { error: { message: result.error.message }, data: null };
+    }
+    return { data: null, error: null };
+  }
+
+  // Single-field updates
+  const value = formData.get("value");
+  if (typeof value !== "string" && value !== null) {
     return { error: { message: "Invalid form data" }, data: null };
   }
 

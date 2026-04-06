@@ -3,7 +3,7 @@ export default {
   info: {
     description: "",
     title: "standard public schema",
-    version: "13.0.7",
+    version: "14.7",
   },
   host: "0.0.0.0:3000",
   basePath: "/",
@@ -51403,9 +51403,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListItem.markupPercent",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListItem.roundingPrecision",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
           },
           {
@@ -51510,9 +51507,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListItem.markupPercent",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListItem.roundingPrecision",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
           },
           {
@@ -51569,9 +51563,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.priceListItem.markupPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListItem.roundingPrecision",
           },
           {
             $ref: "#/parameters/rowFilter.priceListItem.minMarginPercent",
@@ -95343,10 +95334,6 @@ export default {
           format: "numeric",
           type: "number",
         },
-        roundingPrecision: {
-          format: "numeric",
-          type: "number",
-        },
         minMarginPercent: {
           format: "numeric",
           type: "number",
@@ -129753,12 +129740,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.priceListItem.roundingPrecision": {
-      name: "roundingPrecision",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.priceListItem.minMarginPercent": {
       name: "minMarginPercent",
       required: false,
@@ -137313,6 +137294,6 @@ export default {
   },
   externalDocs: {
     description: "PostgREST Documentation",
-    url: "https://postgrest.org/en/v13/references/api.html",
+    url: "https://postgrest.org/en/v14/references/api.html",
   },
 };
