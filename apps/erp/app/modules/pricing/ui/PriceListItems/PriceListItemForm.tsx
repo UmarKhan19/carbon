@@ -16,8 +16,9 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
-  ToggleGroup,
-  ToggleGroupItem,
+  Tabs,
+  TabsList,
+  TabsTrigger,
   VStack
 } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -43,7 +44,6 @@ import {
   priceListItemValidator,
   pricingMethods
 } from "../../pricing.models";
-import { toggleGroupClass, toggleItemClass } from "../shared";
 
 type PriceBreakRow = {
   quantity: number;
@@ -185,24 +185,17 @@ const PriceListItemForm = ({
               <VStack spacing={4}>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Applies To</label>
-                  <ToggleGroup
-                    type="single"
+                  <Tabs
                     value={itemScope}
-                    onValueChange={(v) => {
-                      if (v) setItemScope(v as "item" | "category");
-                    }}
-                    className={toggleGroupClass}
+                    onValueChange={(v) =>
+                      setItemScope(v as "item" | "category")
+                    }
                   >
-                    <ToggleGroupItem value="item" className={toggleItemClass}>
-                      Specific Item
-                    </ToggleGroupItem>
-                    <ToggleGroupItem
-                      value="category"
-                      className={toggleItemClass}
-                    >
-                      Item Group
-                    </ToggleGroupItem>
-                  </ToggleGroup>
+                    <TabsList className="grid grid-cols-2 w-full">
+                      <TabsTrigger value="item">Specific Item</TabsTrigger>
+                      <TabsTrigger value="category">Item Group</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
 
                 {itemScope === "item" ? (

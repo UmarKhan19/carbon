@@ -9,8 +9,9 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
-  ToggleGroup,
-  ToggleGroupItem,
+  Tabs,
+  TabsList,
+  TabsTrigger,
   VStack
 } from "@carbon/react";
 import { useState } from "react";
@@ -25,7 +26,6 @@ import {
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { priceListAssignmentValidator } from "../../pricing.models";
-import { toggleGroupClass, toggleItemClass } from "../shared";
 
 type AssigneeMode = "entity" | "type";
 
@@ -76,21 +76,19 @@ const PriceListAssignmentForm = ({
               <VStack spacing={4}>
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Assign To</label>
-                  <ToggleGroup
-                    type="single"
+                  <Tabs
                     value={assigneeMode}
-                    onValueChange={(v) => {
-                      if (v) setAssigneeMode(v as AssigneeMode);
-                    }}
-                    className={toggleGroupClass}
+                    onValueChange={(v) => setAssigneeMode(v as AssigneeMode)}
                   >
-                    <ToggleGroupItem value="entity" className={toggleItemClass}>
-                      {isSales ? "Customer" : "Supplier"}
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="type" className={toggleItemClass}>
-                      {isSales ? "Customer Type" : "Supplier Type"}
-                    </ToggleGroupItem>
-                  </ToggleGroup>
+                    <TabsList className="grid grid-cols-2 w-full">
+                      <TabsTrigger value="entity">
+                        {isSales ? "Customer" : "Supplier"}
+                      </TabsTrigger>
+                      <TabsTrigger value="type">
+                        {isSales ? "Customer Type" : "Supplier Type"}
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
 
                 {isSales ? (

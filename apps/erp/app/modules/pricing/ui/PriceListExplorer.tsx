@@ -70,10 +70,18 @@ type PurchaseOrderLineRef = {
   purchaseOrder: { id: string; purchaseOrderId: string } | null;
 };
 
+type PriceListRuleRow = {
+  id: string;
+  name: string;
+  ruleType: string;
+  active: boolean;
+};
+
 type DefaultEntity = { id: string; name: string };
 
 export type PriceListExplorerProps = {
   items: PriceListItemRow[];
+  rules: PriceListRuleRow[];
   assignments: PriceListAssignmentRow[];
   versions: PriceListVersionRow[];
   salesOrders: SalesOrderLineRef[];
@@ -206,6 +214,7 @@ function EmptyRow({ label }: { label: string }) {
 
 export function PriceListExplorer({
   items,
+  rules,
   assignments,
   versions,
   salesOrders,
@@ -249,6 +258,16 @@ export function PriceListExplorer({
         return item.itemPostingGroup.name.toLowerCase().includes(q);
       }),
     [items, q]
+  );
+
+  // ---- Rules ----
+  const filteredRules = useMemo(
+    () =>
+      rules.filter((rule) => {
+        if (!q) return true;
+        return rule.name.toLowerCase().includes(q);
+      }),
+    [rules, q]
   );
 
   // ---- Customers (assigned + defaults, deduplicated) ----
@@ -460,6 +479,30 @@ export function PriceListExplorer({
             ))}
           </Section>
         )}
+
+        {/* Rules */}
+        <Section
+          title="Rules"
+          count={filteredRules.length}
+          onAdd={
+            canCreate
+              ? () => navigate(`${path.to.priceListRules(priceListId)}/new`)
+              : undefined
+          }
+        >
+          {filteredRules.length === 0 ? (
+            <EmptyRow label="rules" />
+          ) : (
+            filteredRules.map((rule) => (
+              <ExplorerRow
+                key={rule.id}
+                to={`${path.to.priceListRules(priceListId)}/${rule.id}`}
+                label={rule.name}
+                icon={<LuStar className="size-4" />}
+              />
+            ))
+          )}
+        </Section>
 
         {/* Customers — Sales price lists */}
         {isSales && (

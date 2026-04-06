@@ -234,7 +234,6 @@ export async function createPriceListItem(
         pricingMethod: data.pricingMethod ?? "Fixed",
         formulaBase: data.formulaBase ?? null,
         markupPercent: data.markupPercent ?? null,
-        roundingPrecision: data.roundingPrecision ?? null,
         minMarginPercent: data.minMarginPercent ?? null,
         companyId,
         createdBy: userId
@@ -533,7 +532,6 @@ async function copyPriceListChildren(
             pricingMethod: item.pricingMethod,
             formulaBase: item.formulaBase,
             markupPercent: item.markupPercent,
-            roundingPrecision: item.roundingPrecision,
             minMarginPercent: item.minMarginPercent,
             companyId,
             createdBy: userId

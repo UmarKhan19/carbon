@@ -116,6 +116,7 @@ export default function PriceListRoute() {
                     {(deferred) => (
                       <PriceListExplorer
                         items={items}
+                        rules={rules}
                         assignments={assignments}
                         versions={deferred.versions}
                         salesOrders={deferred.salesOrders}

@@ -9,8 +9,9 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
-  ToggleGroup,
-  ToggleGroupItem,
+  Tabs,
+  TabsList,
+  TabsTrigger,
   VStack
 } from "@carbon/react";
 import { useState } from "react";
@@ -34,7 +35,6 @@ import {
   priceListRuleTypes,
   priceListRuleValidator
 } from "../../pricing.models";
-import { toggleGroupClass, toggleItemClass } from "../shared";
 
 type PriceListRuleFormProps = {
   initialValues: z.infer<typeof priceListRuleValidator>;
@@ -161,24 +161,17 @@ const PriceListRuleForm = ({
 
                 <div className="space-y-3">
                   <label className="text-sm font-medium">Item Scope</label>
-                  <ToggleGroup
-                    type="single"
+                  <Tabs
                     value={itemScope}
-                    onValueChange={(v) => {
-                      if (v) setItemScope(v as "item" | "category");
-                    }}
-                    className={toggleGroupClass}
+                    onValueChange={(v) =>
+                      setItemScope(v as "item" | "category")
+                    }
                   >
-                    <ToggleGroupItem value="item" className={toggleItemClass}>
-                      Specific Item
-                    </ToggleGroupItem>
-                    <ToggleGroupItem
-                      value="category"
-                      className={toggleItemClass}
-                    >
-                      Item Group
-                    </ToggleGroupItem>
-                  </ToggleGroup>
+                    <TabsList className="grid grid-cols-2 w-full">
+                      <TabsTrigger value="item">Specific Item</TabsTrigger>
+                      <TabsTrigger value="category">Item Group</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
 
                 {itemScope === "item" ? (

@@ -53,7 +53,6 @@ async function computeFormulaPrice(
   itemId: string,
   formulaBase: string,
   markupPercent: number,
-  roundingPrecision: number | null,
   minMarginPercent: number | null
 ): Promise<number> {
   let base = 0;
@@ -68,7 +67,6 @@ async function computeFormulaPrice(
     base = data?.unitSalePrice ?? 0;
   }
 
-  // Always fetch cost for margin enforcement
   const { data: costData } = await client
     .from("itemCost")
     .select("unitCost")
@@ -80,15 +78,8 @@ async function computeFormulaPrice(
     base = cost;
   }
 
-  // Apply markup
   let price = base * (1 + markupPercent);
 
-  // Apply rounding
-  if (roundingPrecision && roundingPrecision > 0) {
-    price = Math.round(price / roundingPrecision) * roundingPrecision;
-  }
-
-  // Enforce minimum margin
   if (minMarginPercent && minMarginPercent > 0 && cost > 0) {
     const minPrice = cost / (1 - minMarginPercent);
     price = Math.max(price, minPrice);
@@ -247,7 +238,6 @@ export async function resolvePrice(
             input.itemId,
             item.formulaBase ?? "cost",
             item.markupPercent ?? 0,
-            item.roundingPrecision,
             item.minMarginPercent
           );
         } else {

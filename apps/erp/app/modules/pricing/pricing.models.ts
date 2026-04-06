@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-// ============================================================
-// Enums / Constants
-// ============================================================
-
 export const priceListStatusTypes = [
   "Draft",
   "Active",
@@ -20,9 +16,9 @@ export const priceListRuleTypes = ["Discount", "Surcharge"] as const;
 
 export const priceListRuleAmountTypes = ["Percentage", "Fixed"] as const;
 
-// ============================================================
-// Validators
-// ============================================================
+export const pricingMethods = ["Fixed", "Formula", "Price Breaks"] as const;
+
+export const formulaBases = ["cost", "salePrice"] as const;
 
 export const priceListValidator = z.object({
   id: zfd.text(z.string().optional()),
@@ -38,9 +34,6 @@ export const priceListValidator = z.object({
   validTo: zfd.text(z.string().optional())
 });
 
-export const pricingMethods = ["Fixed", "Formula", "Price Breaks"] as const;
-export const formulaBases = ["cost", "salePrice"] as const;
-
 export const priceListItemValidator = z
   .object({
     id: zfd.text(z.string().optional()),
@@ -49,23 +42,15 @@ export const priceListItemValidator = z
     itemPostingGroupId: zfd.text(z.string().optional()),
     unitPrice: zfd.numeric(z.number().min(0).default(0)),
     unitOfMeasureCode: zfd.text(z.string().optional()),
-    // Pricing method
     pricingMethod: z.enum(pricingMethods).default("Fixed"),
-    // Formula fields (used when pricingMethod = 'Formula')
     formulaBase: z.enum(formulaBases).optional(),
     markupPercent: zfd.numeric(z.number().min(0).optional()),
-    roundingPrecision: zfd.numeric(z.number().min(0).optional()),
     minMarginPercent: zfd.numeric(z.number().min(0).max(1).optional())
   })
   .refine((d) => d.pricingMethod !== "Formula" || d.formulaBase, {
     message: "Base price source is required for formula pricing",
     path: ["formulaBase"]
   });
-
-export const priceListItemBreakValidator = z.object({
-  minQuantity: z.number().min(0),
-  unitPrice: z.number().min(0)
-});
 
 export const priceListRuleValidator = z
   .object({
@@ -108,19 +93,3 @@ export const priceListAssignmentValidator = z
       path: ["customerId"]
     }
   );
-
-export const priceResolutionInputValidator = z.object({
-  customerId: zfd.text(z.string().optional()),
-  customerTypeId: zfd.text(z.string().optional()),
-  supplierId: zfd.text(z.string().optional()),
-  supplierTypeId: zfd.text(z.string().optional()),
-  supplierPartId: zfd.text(z.string().optional()),
-  itemId: z.string().min(1),
-  itemPostingGroupId: zfd.text(z.string().optional()),
-  quantity: z.number().positive(),
-  date: zfd.text(z.string().optional()),
-  currencyCode: zfd.text(z.string().optional()),
-  exchangeRate: z.number().optional(),
-  listType: z.enum(priceListTypes),
-  existingBasePrice: z.number().optional()
-});

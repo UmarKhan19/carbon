@@ -204,19 +204,7 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
           </CardAction>
         </HStack>
         <CardContent>
-          <Grid<PriceListItem>
-            data={data}
-            columns={columns}
-            canEdit={false}
-            onNewRow={
-              canCreate
-                ? () =>
-                    navigate(
-                      `${path.to.priceListItems(id)}/new?${params.toString()}`
-                    )
-                : undefined
-            }
-          />
+          <Grid<PriceListItem> data={data} columns={columns} canEdit={false} />
         </CardContent>
       </Card>
     </>

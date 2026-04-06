@@ -162,19 +162,7 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
           </CardAction>
         </HStack>
         <CardContent>
-          <Grid<PriceListRule>
-            data={data}
-            columns={columns}
-            canEdit={false}
-            onNewRow={
-              canCreate
-                ? () =>
-                    navigate(
-                      `${path.to.priceListRules(id)}/new?${params.toString()}`
-                    )
-                : undefined
-            }
-          />
+          <Grid<PriceListRule> data={data} columns={columns} canEdit={false} />
         </CardContent>
       </Card>
     </>
