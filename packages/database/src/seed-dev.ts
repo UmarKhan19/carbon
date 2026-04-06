@@ -18,6 +18,7 @@ import {
   currencies,
   customerStatuses,
   defaultLocation,
+  dimensions,
   failureModes,
   fiscalYearSettings,
   gaugeTypes,
@@ -366,8 +367,8 @@ async function seedDev() {
       const accountIdByKey: Record<string, string> = {};
       for (const { key, parentKey, ...acc } of accounts) {
         const result = await client.query(
-          `INSERT INTO account (number, name, "isGroup", "accountType", "incomeBalance", class, "parentId", "companyGroupId", "createdBy")
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'system') RETURNING id`,
+          `INSERT INTO account (number, name, "isGroup", "accountType", "incomeBalance", class, "parentId", "isSystem", "companyGroupId", "createdBy")
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'system') RETURNING id`,
           [
             acc.number,
             acc.name,
@@ -376,6 +377,7 @@ async function seedDev() {
             acc.incomeBalance,
             acc.class,
             parentKey ? (accountIdByKey[parentKey] ?? null) : null,
+            acc.isSystem ?? false,
             companyGroupId
           ]
         );
@@ -384,39 +386,49 @@ async function seedDev() {
         }
       }
 
+      // Seed dimensions for all entity types
+      for (const d of dimensions) {
+        await client.query(
+          `INSERT INTO dimension (name, "entityType", "companyGroupId", "createdBy")
+           VALUES ($1, $2, $3, 'system')`,
+          [d.name, d.entityType, companyGroupId]
+        );
+      }
+
       // Seed account defaults
       await client.query(
         `INSERT INTO "accountDefault" (
-          "salesAccount", "salesDiscountAccount", "costOfGoodsSoldAccount", "purchaseAccount",
-          "directCostAppliedAccount", "overheadCostAppliedAccount", "purchaseVarianceAccount",
-          "inventoryAdjustmentVarianceAccount", "materialVarianceAccount", "capacityVarianceAccount",
-          "overheadAccount", "maintenanceAccount", "assetDepreciationExpenseAccount",
+          "salesAccount", "salesDiscountAccount", "costOfGoodsSoldAccount",
+          "purchaseVarianceAccount", "inventoryAdjustmentVarianceAccount",
+          "materialVarianceAccount", "laborAndMachineVarianceAccount",
+          "overheadVarianceAccount", "lotSizeVarianceAccount", "subcontractingVarianceAccount",
+          "indirectCostAccount", "maintenanceAccount", "assetDepreciationExpenseAccount",
           "assetGainsAndLossesAccount", "serviceChargeAccount", "interestAccount",
           "supplierPaymentDiscountAccount", "customerPaymentDiscountAccount", "roundingAccount",
           "assetAquisitionCostAccount", "assetAquisitionCostOnDisposalAccount",
           "accumulatedDepreciationAccount", "accumulatedDepreciationOnDisposalAccount",
-          "inventoryAccount", "inventoryInterimAccrualAccount", "workInProgressAccount",
-          "receivablesAccount", "inventoryInvoicedNotReceivedAccount", "bankCashAccount",
+          "inventoryAccount", "workInProgressAccount",
+          "receivablesAccount", "bankCashAccount",
           "bankLocalCurrencyAccount", "bankForeignCurrencyAccount", "prepaymentAccount",
-          "payablesAccount", "inventoryReceivedNotInvoicedAccount", "inventoryShippedNotInvoicedAccount",
+          "payablesAccount", "goodsReceivedNotInvoicedAccount", "inventoryShippedNotInvoicedAccount",
           "salesTaxPayableAccount", "purchaseTaxPayableAccount", "reverseChargeSalesTaxPayableAccount",
           "retainedEarningsAccount", "companyId", "companyGroupId"
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
-          $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41
+          $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39
         )`,
         [
           accountDefaults.salesAccount,
           accountDefaults.salesDiscountAccount,
           accountDefaults.costOfGoodsSoldAccount,
-          accountDefaults.purchaseAccount,
-          accountDefaults.directCostAppliedAccount,
-          accountDefaults.overheadCostAppliedAccount,
           accountDefaults.purchaseVarianceAccount,
           accountDefaults.inventoryAdjustmentVarianceAccount,
           accountDefaults.materialVarianceAccount,
-          accountDefaults.capacityVarianceAccount,
-          accountDefaults.overheadAccount,
+          accountDefaults.laborAndMachineVarianceAccount,
+          accountDefaults.overheadVarianceAccount,
+          accountDefaults.lotSizeVarianceAccount,
+          accountDefaults.subcontractingVarianceAccount,
+          accountDefaults.indirectCostAccount,
           accountDefaults.maintenanceAccount,
           accountDefaults.assetDepreciationExpenseAccount,
           accountDefaults.assetGainsAndLossesAccount,
@@ -430,16 +442,14 @@ async function seedDev() {
           accountDefaults.accumulatedDepreciationAccount,
           accountDefaults.accumulatedDepreciationOnDisposalAccount,
           accountDefaults.inventoryAccount,
-          accountDefaults.inventoryInterimAccrualAccount,
           accountDefaults.workInProgressAccount,
           accountDefaults.receivablesAccount,
-          accountDefaults.inventoryInvoicedNotReceivedAccount,
           accountDefaults.bankCashAccount,
           accountDefaults.bankLocalCurrencyAccount,
           accountDefaults.bankForeignCurrencyAccount,
           accountDefaults.prepaymentAccount,
           accountDefaults.payablesAccount,
-          accountDefaults.inventoryReceivedNotInvoicedAccount,
+          accountDefaults.goodsReceivedNotInvoicedAccount,
           accountDefaults.inventoryShippedNotInvoicedAccount,
           accountDefaults.salesTaxPayableAccount,
           accountDefaults.purchaseTaxPayableAccount,

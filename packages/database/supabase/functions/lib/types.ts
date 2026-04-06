@@ -185,6 +185,7 @@ export type Database = {
           id: string
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
           isGroup: boolean
+          isSystem: boolean
           name: string
           number: string | null
           parentId: string | null
@@ -204,6 +205,7 @@ export type Database = {
           id?: string
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
           isGroup?: boolean
+          isSystem?: boolean
           name: string
           number?: string | null
           parentId?: string | null
@@ -223,6 +225,7 @@ export type Database = {
           id?: string
           incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"]
           isGroup?: boolean
+          isSystem?: boolean
           name?: string
           number?: string | null
           parentId?: string | null
@@ -335,27 +338,24 @@ export type Database = {
           bankCashAccount: string
           bankForeignCurrencyAccount: string
           bankLocalCurrencyAccount: string
-          capacityVarianceAccount: string
           companyGroupId: string
           companyId: string
           costOfGoodsSoldAccount: string
           currencyTranslationAccount: string
           customerPaymentDiscountAccount: string
-          directCostAppliedAccount: string
+          goodsReceivedNotInvoicedAccount: string
+          indirectCostAccount: string
           interestAccount: string
           inventoryAccount: string
           inventoryAdjustmentVarianceAccount: string
-          inventoryInterimAccrualAccount: string
-          inventoryInvoicedNotReceivedAccount: string
-          inventoryReceivedNotInvoicedAccount: string
           inventoryShippedNotInvoicedAccount: string
+          laborAndMachineVarianceAccount: string
+          lotSizeVarianceAccount: string
           maintenanceAccount: string
           materialVarianceAccount: string
-          overheadAccount: string
-          overheadCostAppliedAccount: string
+          overheadVarianceAccount: string
           payablesAccount: string
           prepaymentAccount: string
-          purchaseAccount: string
           purchaseTaxPayableAccount: string
           purchaseVarianceAccount: string
           receivablesAccount: string
@@ -366,6 +366,7 @@ export type Database = {
           salesDiscountAccount: string
           salesTaxPayableAccount: string
           serviceChargeAccount: string
+          subcontractingVarianceAccount: string
           supplierPaymentDiscountAccount: string
           updatedBy: string | null
           workInProgressAccount: string
@@ -380,27 +381,24 @@ export type Database = {
           bankCashAccount: string
           bankForeignCurrencyAccount: string
           bankLocalCurrencyAccount: string
-          capacityVarianceAccount: string
           companyGroupId: string
           companyId: string
           costOfGoodsSoldAccount: string
           currencyTranslationAccount: string
           customerPaymentDiscountAccount: string
-          directCostAppliedAccount: string
+          goodsReceivedNotInvoicedAccount: string
+          indirectCostAccount: string
           interestAccount: string
           inventoryAccount: string
           inventoryAdjustmentVarianceAccount: string
-          inventoryInterimAccrualAccount: string
-          inventoryInvoicedNotReceivedAccount: string
-          inventoryReceivedNotInvoicedAccount: string
           inventoryShippedNotInvoicedAccount: string
+          laborAndMachineVarianceAccount: string
+          lotSizeVarianceAccount: string
           maintenanceAccount: string
           materialVarianceAccount: string
-          overheadAccount: string
-          overheadCostAppliedAccount: string
+          overheadVarianceAccount: string
           payablesAccount: string
           prepaymentAccount: string
-          purchaseAccount: string
           purchaseTaxPayableAccount: string
           purchaseVarianceAccount: string
           receivablesAccount: string
@@ -411,6 +409,7 @@ export type Database = {
           salesDiscountAccount: string
           salesTaxPayableAccount: string
           serviceChargeAccount: string
+          subcontractingVarianceAccount: string
           supplierPaymentDiscountAccount: string
           updatedBy?: string | null
           workInProgressAccount: string
@@ -425,27 +424,24 @@ export type Database = {
           bankCashAccount?: string
           bankForeignCurrencyAccount?: string
           bankLocalCurrencyAccount?: string
-          capacityVarianceAccount?: string
           companyGroupId?: string
           companyId?: string
           costOfGoodsSoldAccount?: string
           currencyTranslationAccount?: string
           customerPaymentDiscountAccount?: string
-          directCostAppliedAccount?: string
+          goodsReceivedNotInvoicedAccount?: string
+          indirectCostAccount?: string
           interestAccount?: string
           inventoryAccount?: string
           inventoryAdjustmentVarianceAccount?: string
-          inventoryInterimAccrualAccount?: string
-          inventoryInvoicedNotReceivedAccount?: string
-          inventoryReceivedNotInvoicedAccount?: string
           inventoryShippedNotInvoicedAccount?: string
+          laborAndMachineVarianceAccount?: string
+          lotSizeVarianceAccount?: string
           maintenanceAccount?: string
           materialVarianceAccount?: string
-          overheadAccount?: string
-          overheadCostAppliedAccount?: string
+          overheadVarianceAccount?: string
           payablesAccount?: string
           prepaymentAccount?: string
-          purchaseAccount?: string
           purchaseTaxPayableAccount?: string
           purchaseVarianceAccount?: string
           receivablesAccount?: string
@@ -456,6 +452,7 @@ export type Database = {
           salesDiscountAccount?: string
           salesTaxPayableAccount?: string
           serviceChargeAccount?: string
+          subcontractingVarianceAccount?: string
           supplierPaymentDiscountAccount?: string
           updatedBy?: string | null
           workInProgressAccount?: string
@@ -594,20 +591,6 @@ export type Database = {
             referencedColumns: ["number", "companyGroupId"]
           },
           {
-            foreignKeyName: "accountDefault_capacityVarianceAccount_fkey"
-            columns: ["capacityVarianceAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_capacityVarianceAccount_fkey"
-            columns: ["capacityVarianceAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
             foreignKeyName: "accountDefault_costOfGoodsSoldAccount_fkey"
             columns: ["costOfGoodsSoldAccount", "companyGroupId"]
             isOneToOne: false
@@ -645,20 +628,6 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_customerPaymentDiscountAccount_fkey"
             columns: ["customerPaymentDiscountAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_directCostAppliedAccount_fkey"
-            columns: ["directCostAppliedAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_directCostAppliedAccount_fkey"
-            columns: ["directCostAppliedAccount", "companyGroupId"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["number", "companyGroupId"]
@@ -692,6 +661,34 @@ export type Database = {
             referencedColumns: ["companyId"]
           },
           {
+            foreignKeyName: "accountDefault_goodsReceivedNotInvoicedAccount_fkey"
+            columns: ["goodsReceivedNotInvoicedAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_goodsReceivedNotInvoicedAccount_fkey"
+            columns: ["goodsReceivedNotInvoicedAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_indirectCostAccount_fkey"
+            columns: ["indirectCostAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_indirectCostAccount_fkey"
+            columns: ["indirectCostAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
             foreignKeyName: "accountDefault_interestAccount_fkey"
             columns: ["interestAccount", "companyGroupId"]
             isOneToOne: false
@@ -734,34 +731,6 @@ export type Database = {
             referencedColumns: ["number", "companyGroupId"]
           },
           {
-            foreignKeyName: "accountDefault_inventoryInterimAccrualAccount_fkey"
-            columns: ["inventoryInterimAccrualAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_inventoryInterimAccrualAccount_fkey"
-            columns: ["inventoryInterimAccrualAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_inventoryReceivedNotInvoicedAccount_fkey"
-            columns: ["inventoryReceivedNotInvoicedAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_inventoryReceivedNotInvoicedAccount_fkey"
-            columns: ["inventoryReceivedNotInvoicedAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
             foreignKeyName: "accountDefault_inventoryShippedNotInvoicedAccount_fkey"
             columns: ["inventoryShippedNotInvoicedAccount", "companyGroupId"]
             isOneToOne: false
@@ -771,6 +740,34 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_inventoryShippedNotInvoicedAccount_fkey"
             columns: ["inventoryShippedNotInvoicedAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_laborAndMachineVarianceAccount_fkey"
+            columns: ["laborAndMachineVarianceAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_laborAndMachineVarianceAccount_fkey"
+            columns: ["laborAndMachineVarianceAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_lotSizeVarianceAccount_fkey"
+            columns: ["lotSizeVarianceAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_lotSizeVarianceAccount_fkey"
+            columns: ["lotSizeVarianceAccount", "companyGroupId"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["number", "companyGroupId"]
@@ -804,29 +801,15 @@ export type Database = {
             referencedColumns: ["number", "companyGroupId"]
           },
           {
-            foreignKeyName: "accountDefault_overheadAccount_fkey"
-            columns: ["overheadAccount", "companyGroupId"]
+            foreignKeyName: "accountDefault_overheadVarianceAccount_fkey"
+            columns: ["overheadVarianceAccount", "companyGroupId"]
             isOneToOne: false
             referencedRelation: "account"
             referencedColumns: ["number", "companyGroupId"]
           },
           {
-            foreignKeyName: "accountDefault_overheadAccount_fkey"
-            columns: ["overheadAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_overheadCostAppliedAccount_fkey"
-            columns: ["overheadCostAppliedAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_overheadCostAppliedAccount_fkey"
-            columns: ["overheadCostAppliedAccount", "companyGroupId"]
+            foreignKeyName: "accountDefault_overheadVarianceAccount_fkey"
+            columns: ["overheadVarianceAccount", "companyGroupId"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["number", "companyGroupId"]
@@ -855,20 +838,6 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_prepaymentAccount_fkey"
             columns: ["prepaymentAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_purchaseAccount_fkey"
-            columns: ["purchaseAccount", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "accountDefault_purchaseAccount_fkey"
-            columns: ["purchaseAccount", "companyGroupId"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["number", "companyGroupId"]
@@ -1009,6 +978,20 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_serviceChargeAccount_fkey"
             columns: ["serviceChargeAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_subcontractingVarianceAccount_fkey"
+            columns: ["subcontractingVarianceAccount", "companyGroupId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["number", "companyGroupId"]
+          },
+          {
+            foreignKeyName: "accountDefault_subcontractingVarianceAccount_fkey"
+            columns: ["subcontractingVarianceAccount", "companyGroupId"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["number", "companyGroupId"]
@@ -43014,6 +42997,7 @@ export type Database = {
           id: string | null
           incomeBalance: Database["public"]["Enums"]["glIncomeBalance"] | null
           isGroup: boolean | null
+          isSystem: boolean | null
           name: string | null
           number: string | null
           parentId: string | null
@@ -43035,6 +43019,7 @@ export type Database = {
           id?: string | null
           incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null
           isGroup?: boolean | null
+          isSystem?: boolean | null
           name?: string | null
           number?: string | null
           parentId?: string | null
@@ -43056,6 +43041,7 @@ export type Database = {
           id?: string | null
           incomeBalance?: Database["public"]["Enums"]["glIncomeBalance"] | null
           isGroup?: boolean | null
+          isSystem?: boolean | null
           name?: string | null
           number?: string | null
           parentId?: string | null
@@ -49865,14 +49851,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -53009,14 +52995,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]

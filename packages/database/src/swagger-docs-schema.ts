@@ -26851,15 +26851,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.costOfGoodsSoldAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.purchaseAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.directCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.overheadCostAppliedAccount",
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.purchaseVarianceAccount",
           },
           {
@@ -26869,10 +26860,10 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.materialVarianceAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.capacityVarianceAccount",
+            $ref: "#/parameters/rowFilter.accountDefault.laborAndMachineVarianceAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.overheadAccount",
+            $ref: "#/parameters/rowFilter.accountDefault.indirectCostAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.maintenanceAccount",
@@ -26914,9 +26905,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.inventoryAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryInterimAccrualAccount",
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.workInProgressAccount",
           },
           {
@@ -26924,9 +26912,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.inventoryShippedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryInvoicedNotReceivedAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.bankCashAccount",
@@ -26942,9 +26927,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.payablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryReceivedNotInvoicedAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.salesTaxPayableAccount",
@@ -26963,6 +26945,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.goodsReceivedNotInvoicedAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.overheadVarianceAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.lotSizeVarianceAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.subcontractingVarianceAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount",
@@ -27039,15 +27033,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.costOfGoodsSoldAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.purchaseAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.directCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.overheadCostAppliedAccount",
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.purchaseVarianceAccount",
           },
           {
@@ -27057,10 +27042,10 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.materialVarianceAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.capacityVarianceAccount",
+            $ref: "#/parameters/rowFilter.accountDefault.laborAndMachineVarianceAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.overheadAccount",
+            $ref: "#/parameters/rowFilter.accountDefault.indirectCostAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.maintenanceAccount",
@@ -27102,9 +27087,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.inventoryAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryInterimAccrualAccount",
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.workInProgressAccount",
           },
           {
@@ -27112,9 +27094,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.inventoryShippedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryInvoicedNotReceivedAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.bankCashAccount",
@@ -27130,9 +27109,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.payablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryReceivedNotInvoicedAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.salesTaxPayableAccount",
@@ -27151,6 +27127,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.goodsReceivedNotInvoicedAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.overheadVarianceAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.lotSizeVarianceAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.subcontractingVarianceAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount",
@@ -27181,15 +27169,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.costOfGoodsSoldAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.purchaseAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.directCostAppliedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.overheadCostAppliedAccount",
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.purchaseVarianceAccount",
           },
           {
@@ -27199,10 +27178,10 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.materialVarianceAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.capacityVarianceAccount",
+            $ref: "#/parameters/rowFilter.accountDefault.laborAndMachineVarianceAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.overheadAccount",
+            $ref: "#/parameters/rowFilter.accountDefault.indirectCostAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.maintenanceAccount",
@@ -27244,9 +27223,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.inventoryAccount",
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryInterimAccrualAccount",
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.workInProgressAccount",
           },
           {
@@ -27254,9 +27230,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.inventoryShippedNotInvoicedAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryInvoicedNotReceivedAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.bankCashAccount",
@@ -27272,9 +27245,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.payablesAccount",
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.inventoryReceivedNotInvoicedAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.salesTaxPayableAccount",
@@ -27293,6 +27263,18 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.companyGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.goodsReceivedNotInvoicedAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.overheadVarianceAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.lotSizeVarianceAccount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.subcontractingVarianceAccount",
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount",
@@ -30151,6 +30133,9 @@ export default {
             $ref: "#/parameters/rowFilter.account.accountType",
           },
           {
+            $ref: "#/parameters/rowFilter.account.isSystem",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -30261,6 +30246,9 @@ export default {
             $ref: "#/parameters/rowFilter.account.accountType",
           },
           {
+            $ref: "#/parameters/rowFilter.account.isSystem",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -30323,6 +30311,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.account.accountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.account.isSystem",
           },
           {
             $ref: "#/parameters/body.account",
@@ -31474,6 +31465,9 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.accountType",
           },
           {
+            $ref: "#/parameters/rowFilter.accounts.isSystem",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -31584,6 +31578,9 @@ export default {
             $ref: "#/parameters/rowFilter.accounts.accountType",
           },
           {
+            $ref: "#/parameters/rowFilter.accounts.isSystem",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -31646,6 +31643,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accounts.accountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.accounts.isSystem",
           },
           {
             $ref: "#/parameters/body.accounts",
@@ -83928,14 +83928,11 @@ export default {
         "salesAccount",
         "salesDiscountAccount",
         "costOfGoodsSoldAccount",
-        "purchaseAccount",
-        "directCostAppliedAccount",
-        "overheadCostAppliedAccount",
         "purchaseVarianceAccount",
         "inventoryAdjustmentVarianceAccount",
         "materialVarianceAccount",
-        "capacityVarianceAccount",
-        "overheadAccount",
+        "laborAndMachineVarianceAccount",
+        "indirectCostAccount",
         "maintenanceAccount",
         "assetDepreciationExpenseAccount",
         "assetGainsAndLossesAccount",
@@ -83949,22 +83946,23 @@ export default {
         "accumulatedDepreciationAccount",
         "accumulatedDepreciationOnDisposalAccount",
         "inventoryAccount",
-        "inventoryInterimAccrualAccount",
         "workInProgressAccount",
         "receivablesAccount",
         "inventoryShippedNotInvoicedAccount",
-        "inventoryInvoicedNotReceivedAccount",
         "bankCashAccount",
         "bankLocalCurrencyAccount",
         "bankForeignCurrencyAccount",
         "prepaymentAccount",
         "payablesAccount",
-        "inventoryReceivedNotInvoicedAccount",
         "salesTaxPayableAccount",
         "purchaseTaxPayableAccount",
         "reverseChargeSalesTaxPayableAccount",
         "retainedEarningsAccount",
         "companyGroupId",
+        "goodsReceivedNotInvoicedAccount",
+        "overheadVarianceAccount",
+        "lotSizeVarianceAccount",
+        "subcontractingVarianceAccount",
         "currencyTranslationAccount",
       ],
       properties: {
@@ -83986,18 +83984,6 @@ export default {
           format: "text",
           type: "string",
         },
-        purchaseAccount: {
-          format: "text",
-          type: "string",
-        },
-        directCostAppliedAccount: {
-          format: "text",
-          type: "string",
-        },
-        overheadCostAppliedAccount: {
-          format: "text",
-          type: "string",
-        },
         purchaseVarianceAccount: {
           format: "text",
           type: "string",
@@ -84010,11 +83996,11 @@ export default {
           format: "text",
           type: "string",
         },
-        capacityVarianceAccount: {
+        laborAndMachineVarianceAccount: {
           format: "text",
           type: "string",
         },
-        overheadAccount: {
+        indirectCostAccount: {
           format: "text",
           type: "string",
         },
@@ -84070,10 +84056,6 @@ export default {
           format: "text",
           type: "string",
         },
-        inventoryInterimAccrualAccount: {
-          format: "text",
-          type: "string",
-        },
         workInProgressAccount: {
           format: "text",
           type: "string",
@@ -84083,10 +84065,6 @@ export default {
           type: "string",
         },
         inventoryShippedNotInvoicedAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryInvoicedNotReceivedAccount: {
           format: "text",
           type: "string",
         },
@@ -84107,10 +84085,6 @@ export default {
           type: "string",
         },
         payablesAccount: {
-          format: "text",
-          type: "string",
-        },
-        inventoryReceivedNotInvoicedAccount: {
           format: "text",
           type: "string",
         },
@@ -84137,6 +84111,22 @@ export default {
           type: "string",
         },
         companyGroupId: {
+          format: "text",
+          type: "string",
+        },
+        goodsReceivedNotInvoicedAccount: {
+          format: "text",
+          type: "string",
+        },
+        overheadVarianceAccount: {
+          format: "text",
+          type: "string",
+        },
+        lotSizeVarianceAccount: {
+          format: "text",
+          type: "string",
+        },
+        subcontractingVarianceAccount: {
           format: "text",
           type: "string",
         },
@@ -85431,6 +85421,7 @@ export default {
         "createdAt",
         "companyGroupId",
         "isGroup",
+        "isSystem",
       ],
       properties: {
         id: {
@@ -85542,6 +85533,11 @@ export default {
           ],
           format: 'public."accountType"',
           type: "string",
+        },
+        isSystem: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
         },
       },
       type: "object",
@@ -86231,6 +86227,10 @@ export default {
           ],
           format: 'public."accountType"',
           type: "string",
+        },
+        isSystem: {
+          format: "boolean",
+          type: "boolean",
         },
       },
       type: "object",
@@ -116877,24 +116877,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.accountDefault.purchaseAccount": {
-      name: "purchaseAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountDefault.directCostAppliedAccount": {
-      name: "directCostAppliedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountDefault.overheadCostAppliedAccount": {
-      name: "overheadCostAppliedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.accountDefault.purchaseVarianceAccount": {
       name: "purchaseVarianceAccount",
       required: false,
@@ -116913,14 +116895,14 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.accountDefault.capacityVarianceAccount": {
-      name: "capacityVarianceAccount",
+    "rowFilter.accountDefault.laborAndMachineVarianceAccount": {
+      name: "laborAndMachineVarianceAccount",
       required: false,
       in: "query",
       type: "string",
     },
-    "rowFilter.accountDefault.overheadAccount": {
-      name: "overheadAccount",
+    "rowFilter.accountDefault.indirectCostAccount": {
+      name: "indirectCostAccount",
       required: false,
       in: "query",
       type: "string",
@@ -117003,12 +116985,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.accountDefault.inventoryInterimAccrualAccount": {
-      name: "inventoryInterimAccrualAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.accountDefault.workInProgressAccount": {
       name: "workInProgressAccount",
       required: false,
@@ -117023,12 +116999,6 @@ export default {
     },
     "rowFilter.accountDefault.inventoryShippedNotInvoicedAccount": {
       name: "inventoryShippedNotInvoicedAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountDefault.inventoryInvoicedNotReceivedAccount": {
-      name: "inventoryInvoicedNotReceivedAccount",
       required: false,
       in: "query",
       type: "string",
@@ -117059,12 +117029,6 @@ export default {
     },
     "rowFilter.accountDefault.payablesAccount": {
       name: "payablesAccount",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.accountDefault.inventoryReceivedNotInvoicedAccount": {
-      name: "inventoryReceivedNotInvoicedAccount",
       required: false,
       in: "query",
       type: "string",
@@ -117101,6 +117065,30 @@ export default {
     },
     "rowFilter.accountDefault.companyGroupId": {
       name: "companyGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accountDefault.goodsReceivedNotInvoicedAccount": {
+      name: "goodsReceivedNotInvoicedAccount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accountDefault.overheadVarianceAccount": {
+      name: "overheadVarianceAccount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accountDefault.lotSizeVarianceAccount": {
+      name: "lotSizeVarianceAccount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accountDefault.subcontractingVarianceAccount": {
+      name: "subcontractingVarianceAccount",
       required: false,
       in: "query",
       type: "string",
@@ -118590,6 +118578,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.account.isSystem": {
+      name: "isSystem",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.jobOperation": {
       name: "jobOperation",
       description: "jobOperation",
@@ -119311,6 +119305,12 @@ export default {
     },
     "rowFilter.accounts.accountType": {
       name: "accountType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.accounts.isSystem": {
+      name: "isSystem",
       required: false,
       in: "query",
       type: "string",

@@ -38,6 +38,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // Root accounts (Balance Sheet, Income Statement) cannot be deleted
+  const existing = await getAccount(client, accountId);
+  if (existing.data?.isSystem) {
+    throw redirect(
+      path.to.chartOfAccounts,
+      await flash(request, error(null, "Root accounts cannot be deleted"))
+    );
+  }
+
   const { error: deleteTypeError } = await deleteAccount(client, accountId);
   if (deleteTypeError) {
     throw redirect(

@@ -20,6 +20,90 @@ import type {
 } from "./accounting.models";
 import type { Transaction, TranslatedBalance } from "./types";
 
+/**
+ * Sign multiplier for root account aggregation.
+ * Asset and Revenue have normal debit balances and add to parent.
+ * Liability, Equity, and Expense have normal credit balances and subtract.
+ */
+function rootSignMultiplier(accountClass: string | null): number {
+  switch (accountClass) {
+    case "Asset":
+    case "Revenue":
+      return 1;
+    case "Liability":
+    case "Equity":
+    case "Expense":
+      return -1;
+    default:
+      return 1;
+  }
+}
+
+/**
+ * Recalculates balance/balanceAtDate/netChange for system (root) accounts
+ * using sign-aware aggregation based on direct children's account class.
+ *
+ * Standard accounting:
+ *   Balance Sheet  = Assets − Liabilities − Equity   (should ≈ 0)
+ *   Income Statement = Revenue − Expenses             (= Net Income)
+ */
+function applyRootSignCorrection<
+  T extends {
+    id: string;
+    parentId: string | null;
+    isSystem?: boolean;
+    class: string | null;
+    balance: number;
+    balanceAtDate: number;
+    netChange: number;
+    translatedBalance?: number;
+  }
+>(accounts: T[]): T[] {
+  const roots = accounts.filter((a) => a.isSystem ?? a.parentId === null);
+  if (roots.length === 0) return accounts;
+
+  const rootIds = new Set(roots.map((r) => r.id));
+  const childrenByRoot = new Map<string, T[]>();
+
+  for (const account of accounts) {
+    if (account.parentId && rootIds.has(account.parentId)) {
+      const list = childrenByRoot.get(account.parentId) ?? [];
+      list.push(account);
+      childrenByRoot.set(account.parentId, list);
+    }
+  }
+
+  return accounts.map((account) => {
+    if (!rootIds.has(account.id)) return account;
+
+    const children = childrenByRoot.get(account.id) ?? [];
+    let balance = 0;
+    let balanceAtDate = 0;
+    let netChange = 0;
+    let translatedBalance = 0;
+
+    for (const child of children) {
+      const sign = rootSignMultiplier(child.class);
+      balance += sign * child.balance;
+      balanceAtDate += sign * child.balanceAtDate;
+      netChange += sign * child.netChange;
+      if (
+        "translatedBalance" in child &&
+        typeof child.translatedBalance === "number"
+      ) {
+        translatedBalance += sign * child.translatedBalance;
+      }
+    }
+
+    const result = { ...account, balance, balanceAtDate, netChange };
+    if ("translatedBalance" in account) {
+      (result as T & { translatedBalance: number }).translatedBalance =
+        translatedBalance;
+    }
+    return result;
+  });
+}
+
 export async function getTrialBalance(
   client: SupabaseClient<Database>,
   companyGroupId: string,
@@ -83,12 +167,14 @@ export async function getFinancialStatementBalances(
   }, {});
 
   return {
-    data: (accountsResponse.data ?? []).map((account) => ({
-      ...account,
-      netChange: balancesByAccountId[account.id]?.netChange ?? 0,
-      balance: balancesByAccountId[account.id]?.balance ?? 0,
-      balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
-    })),
+    data: applyRootSignCorrection(
+      (accountsResponse.data ?? []).map((account) => ({
+        ...account,
+        netChange: balancesByAccountId[account.id]?.netChange ?? 0,
+        balance: balancesByAccountId[account.id]?.balance ?? 0,
+        balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
+      }))
+    ),
     error: null
   };
 }
@@ -273,12 +359,14 @@ export async function getChartOfAccounts(
   }, {});
 
   return {
-    data: (accountsResponse.data ?? []).map((account) => ({
-      ...account,
-      netChange: balancesByAccountId[account.id]?.netChange ?? 0,
-      balance: balancesByAccountId[account.id]?.balance ?? 0,
-      balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
-    })),
+    data: applyRootSignCorrection(
+      (accountsResponse.data ?? []).map((account) => ({
+        ...account,
+        netChange: balancesByAccountId[account.id]?.netChange ?? 0,
+        balance: balancesByAccountId[account.id]?.balance ?? 0,
+        balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
+      }))
+    ),
     error: null
   };
 }
@@ -1223,7 +1311,7 @@ export async function getConsolidatedBalances(
     };
   });
 
-  return { data: consolidated, cta: totalCta };
+  return { data: applyRootSignCorrection(consolidated), cta: totalCta };
 }
 
 // -- Intercompany --

@@ -7,6 +7,7 @@ import {
   accounts,
   currencies,
   customerStatuses,
+  dimensions,
   failureModes,
   fiscalYearSettings,
   gaugeTypes,
@@ -284,6 +285,18 @@ serve(async (req: Request) => {
             accountIdByKey[key] = result[0].id;
           }
         }
+
+        await trx
+          .insertInto("dimension")
+          .values(
+            dimensions.map((d) => ({
+              name: d.name,
+              entityType: d.entityType,
+              companyGroupId,
+              createdBy: userId,
+            }))
+          )
+          .execute();
       }
 
       // Company-specific accounting defaults and posting groups

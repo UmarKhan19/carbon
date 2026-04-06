@@ -121,10 +121,12 @@ const ChartOfAccountForm = ({
                 <Combobox
                   name="parentId"
                   label="Group"
-                  options={groupAccounts.map((a) => ({
-                    label: a.name,
-                    value: a.id
-                  }))}
+                  options={groupAccounts
+                    .filter((a) => a.class !== null)
+                    .map((a) => ({
+                      label: a.name,
+                      value: a.id
+                    }))}
                   onChange={onParentChange}
                 />
                 <Input name="number" label="Account Number" />

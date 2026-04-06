@@ -8,6 +8,7 @@ export {
   accounts,
   currencies,
   customerStatuses,
+  dimensions,
   failureModes,
   fiscalYearSettings,
   gaugeTypes,

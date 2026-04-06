@@ -1,27 +1,22 @@
-# Phase 4: Consolidated Financial Statements (Simplified)
+# Sign-Aware Root Account Totals & Non-Editable Root Accounts
 
-Consolidation is now built into the existing report pages via multi-company
-selection. No separate consolidation submodule, no persisted entity.
+## Implementation
 
-## Remove
+- [x] 1. Add `rootSignMultiplier()` and `applyRootSignCorrection()` helpers to `accounting.service.ts`
+- [x] 2. Apply correction in `getFinancialStatementBalances()` (BS, IS, TB routes)
+- [x] 3. Apply correction in `getChartOfAccounts()` (COA route)
+- [x] 4. Apply correction in `getConsolidatedBalances()` (multi-company views)
+- [x] 5. Hide Edit/Delete menu items for system accounts in `ChartOfAccountsTree.tsx`
+- [x] 6. Add server guard in `charts.$accountId.tsx` action
+- [x] 7. Add server guard in `charts.delete.$accountId.tsx` action
+- [x] 8. Add `isSystem` column + DB trigger migration (`20260405000000_protect-root-accounts.sql`)
+- [x] 9. Update seed data (`seed.data.ts`) with `isSystem: true` on root accounts
+- [x] 10. Update reset migration VALUES to include `is_system` column
+- [x] 11. Update `seed-dev.ts` INSERT to include `isSystem`
 
-- [x] Drop `consolidationRun`, `consolidationRunDetail` tables and `executeConsolidation` RPC
-- [x] Remove all consolidation service functions, types, validators
-- [x] Remove all consolidation UI components and routes
-- [x] Remove consolidation from sidebar nav and path helpers
-- [x] Remove old snippet file
-
-## Build
-
-- [x] Multi-select `CompanySelector` (checkboxes in popover)
-- [x] Update `ReportFilters` to support multi-company (hides translation toggle, shows "Showing in {currency}")
-- [x] `getConsolidatedBalances` service function — translates each company to parent currency, sums
-- [x] Auto-include elimination entities (walks ancestor chain, includes elim entities at each level)
-- [x] Update balance-sheet, income-statement, trial-balance loaders for multi-company
-- [x] URL param: `?companies=id1,id2` (defaults to current company)
-
-## Remaining
-
-- [ ] Regenerate database types after running migration
-- [ ] Test multi-company consolidation with elimination entities
-- [ ] Test single-company mode still works unchanged
+## Review
+- [ ] Run `supabase db reset` to verify migration
+- [ ] Verify BS root shows ~0 (Assets - Liabilities - Equity)
+- [ ] Verify IS root shows Net Income (Revenue - Expenses)
+- [ ] Verify root accounts have no Edit/Delete in COA tree menu
+- [ ] Verify DB trigger prevents UPDATE/DELETE on system accounts

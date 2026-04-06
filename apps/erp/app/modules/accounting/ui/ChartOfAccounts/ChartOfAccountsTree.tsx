@@ -198,12 +198,14 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
                 <DropdownMenuContent align="end">
                   {isGroup ? (
                     <>
-                      <DropdownMenuItem
-                        onClick={() => navigate(account.id as string)}
-                      >
-                        <LuPencil className="mr-2 h-4 w-4" />
-                        Edit Group
-                      </DropdownMenuItem>
+                      {!account.isSystem && (
+                        <DropdownMenuItem
+                          onClick={() => navigate(account.id as string)}
+                        >
+                          <LuPencil className="mr-2 h-4 w-4" />
+                          Edit Group
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem
                         onClick={() =>
                           navigate(`new-group?parentId=${account.id}`)
@@ -218,13 +220,15 @@ const ChartOfAccountsTree = memo(({ data }: ChartOfAccountsTreeProps) => {
                         <LuFilePlus className="mr-2 h-4 w-4" />
                         Add Account
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => navigate(`delete/${account.id}`)}
-                      >
-                        <LuTrash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
+                      {!account.isSystem && (
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => navigate(`delete/${account.id}`)}
+                        >
+                          <LuTrash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      )}
                     </>
                   ) : (
                     <>

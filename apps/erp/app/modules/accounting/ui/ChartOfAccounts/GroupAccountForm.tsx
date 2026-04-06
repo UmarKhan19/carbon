@@ -33,6 +33,11 @@ const classToIncomeBalance: Record<AccountClass, AccountIncomeBalance> = {
   Expense: "Income Statement"
 };
 
+const incomeBalanceToClasses: Record<AccountIncomeBalance, AccountClass[]> = {
+  "Balance Sheet": ["Asset", "Liability", "Equity"],
+  "Income Statement": ["Revenue", "Expense"]
+};
+
 type GroupAccount = {
   id: string;
   name: string;
@@ -71,6 +76,7 @@ const GroupAccountForm = ({
 
   const hasParent = !!initialValues.parentId || !!parentGroup;
   const isRootGroup = !hasParent;
+  const parentIsSystem = hasParent && !parentGroup?.class;
 
   useEffect(() => {
     if (fetcher.state === "loading" && fetcher.data?.data) {
@@ -91,7 +97,9 @@ const GroupAccountForm = ({
       const group = groupAccounts.find((a) => a.id === newValue.value);
       if (group) {
         setIncomeBalance(group.incomeBalance as AccountIncomeBalance);
-        setAccountClass(group.class as AccountClass);
+        if (group.class) {
+          setAccountClass(group.class as AccountClass);
+        }
       }
     }
   };
@@ -153,11 +161,15 @@ const GroupAccountForm = ({
                     value: t
                   }))}
                 />
-                {isRootGroup ? (
+                {isRootGroup || parentIsSystem ? (
                   <Combobox
                     name="_class"
                     label="Class"
-                    options={accountClassTypes.map((c) => ({
+                    options={(parentIsSystem
+                      ? (incomeBalanceToClasses[incomeBalance] ??
+                        accountClassTypes)
+                      : [...accountClassTypes]
+                    ).map((c) => ({
                       label: c,
                       value: c
                     }))}

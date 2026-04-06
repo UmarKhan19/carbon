@@ -5,6 +5,16 @@
  * This is the single source of truth for all seed data.
  */
 
+export const dimensions = [
+  { name: "Location", entityType: "Location" },
+  { name: "Department", entityType: "Department" },
+  { name: "Employee", entityType: "Employee" },
+  { name: "Cost Center", entityType: "CostCenter" },
+  { name: "Item Posting Group", entityType: "ItemPostingGroup" },
+  { name: "Customer Type", entityType: "CustomerType" },
+  { name: "Supplier Type", entityType: "SupplierType" },
+] as const;
+
 export const supplierStatuses = [
   "Active",
   "Inactive",
@@ -462,7 +472,7 @@ export const accounts = [
   // ═══════════════════════════════════════════════════════════
   // BALANCE SHEET
   // ═══════════════════════════════════════════════════════════
-  { key: "balance-sheet", number: null, name: "Balance Sheet", isGroup: true, parentKey: null, accountType: null, incomeBalance: "Balance Sheet", class: null, consolidatedRate: "Current", createdBy: "system" },
+  { key: "balance-sheet", number: null, name: "Balance Sheet", isGroup: true, parentKey: null, accountType: null, incomeBalance: "Balance Sheet", class: null, consolidatedRate: "Current", isSystem: true, createdBy: "system" },
 
   // ─── 1000-1999: ASSETS ───
   { key: "assets", number: null, name: "Assets", isGroup: true, parentKey: "balance-sheet", accountType: "Other Current Asset", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
@@ -476,13 +486,11 @@ export const accounts = [
   // Receivables
   { key: "receivables", number: null, name: "Receivables", isGroup: true, parentKey: "assets", accountType: "Accounts Receivable", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
   { key: "1110", number: "1110", name: "Accounts Receivable", isGroup: false, parentKey: "receivables", accountType: "Accounts Receivable", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
-  { key: "1120", number: "1120", name: "Inventory Invoiced Not Received", isGroup: false, parentKey: "receivables", accountType: "Accounts Receivable", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
   { key: "1130", number: "1130", name: "Inter-Company Receivables", isGroup: false, parentKey: "receivables", accountType: "Accounts Receivable", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
 
   // Inventory
   { key: "inventory", number: null, name: "Inventory & Stock", isGroup: true, parentKey: "assets", accountType: "Inventory", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
   { key: "1210", number: "1210", name: "Inventory", isGroup: false, parentKey: "inventory", accountType: "Inventory", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
-  { key: "1220", number: "1220", name: "Inventory Interim", isGroup: false, parentKey: "inventory", accountType: "Inventory", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
   { key: "1230", number: "1230", name: "Work In Progress (WIP)", isGroup: false, parentKey: "inventory", accountType: "Inventory", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
   { key: "1240", number: "1240", name: "Inventory Reserves / Allowances", isGroup: false, parentKey: "inventory", accountType: "Inventory", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
 
@@ -513,7 +521,7 @@ export const accounts = [
   // Current Liabilities
   { key: "current-liabilities", number: null, name: "Current Liabilities", isGroup: true, parentKey: "liabilities", accountType: "Other Current Liability", incomeBalance: "Balance Sheet", class: "Liability", consolidatedRate: "Current", createdBy: "system" },
   { key: "2110", number: "2110", name: "Customer Prepayments", isGroup: false, parentKey: "current-liabilities", accountType: "Other Current Liability", incomeBalance: "Balance Sheet", class: "Liability", consolidatedRate: "Current", createdBy: "system" },
-  { key: "2120", number: "2120", name: "Inventory Received Not Invoiced", isGroup: false, parentKey: "current-liabilities", accountType: "Other Current Liability", incomeBalance: "Balance Sheet", class: "Liability", consolidatedRate: "Current", createdBy: "system" },
+  { key: "2125", number: "2125", name: "GR/IR Clearing", isGroup: false, parentKey: "current-liabilities", accountType: "Other Current Liability", incomeBalance: "Balance Sheet", class: "Liability", consolidatedRate: "Current", createdBy: "system" },
   { key: "2130", number: "2130", name: "Inventory Shipped Not Invoiced", isGroup: false, parentKey: "current-liabilities", accountType: "Other Current Liability", incomeBalance: "Balance Sheet", class: "Liability", consolidatedRate: "Current", createdBy: "system" },
   { key: "2140", number: "2140", name: "Accrued Expenses", isGroup: false, parentKey: "current-liabilities", accountType: "Other Current Liability", incomeBalance: "Balance Sheet", class: "Liability", consolidatedRate: "Current", createdBy: "system" },
   { key: "2150", number: "2150", name: "Accrued Wages & Salaries", isGroup: false, parentKey: "current-liabilities", accountType: "Other Current Liability", incomeBalance: "Balance Sheet", class: "Liability", consolidatedRate: "Current", createdBy: "system" },
@@ -542,7 +550,7 @@ export const accounts = [
   // ═══════════════════════════════════════════════════════════
   // INCOME STATEMENT
   // ═══════════════════════════════════════════════════════════
-  { key: "income-statement", number: null, name: "Income Statement", isGroup: true, parentKey: null, accountType: null, incomeBalance: "Income Statement", class: null, consolidatedRate: "Average", createdBy: "system" },
+  { key: "income-statement", number: null, name: "Income Statement", isGroup: true, parentKey: null, accountType: null, incomeBalance: "Income Statement", class: null, consolidatedRate: "Average", isSystem: true, createdBy: "system" },
 
   // ─── 4000-4999: REVENUE ───
   { key: "revenue", number: null, name: "Revenue", isGroup: true, parentKey: "income-statement", accountType: "Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
@@ -558,16 +566,16 @@ export const accounts = [
   // ─── 5000-5999: COST OF GOODS SOLD ───
   { key: "cogs", number: null, name: "Cost of Goods Sold", isGroup: true, parentKey: "income-statement", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
   { key: "5010", number: "5010", name: "Cost of Goods Sold - Direct", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
-  { key: "5020", number: "5020", name: "Purchases", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
-  { key: "5030", number: "5030", name: "Direct Cost Applied", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
-  { key: "5040", number: "5040", name: "Overhead Applied", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5050", number: "5050", name: "Indirect Materials & Services", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
 
   // Variances
   { key: "variances", number: null, name: "Variances", isGroup: true, parentKey: "cogs", accountType: "Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
-  { key: "5210", number: "5210", name: "Purchase Variance", isGroup: false, parentKey: "variances", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
-  { key: "5220", number: "5220", name: "Material Variance", isGroup: false, parentKey: "variances", accountType: "Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
-  { key: "5230", number: "5230", name: "Capacity Variance", isGroup: false, parentKey: "variances", accountType: "Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
-  { key: "5240", number: "5240", name: "Overhead Variance", isGroup: false, parentKey: "variances", accountType: "Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5210", number: "5210", name: "Purchase Price Variance", isGroup: false, parentKey: "variances", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5220", number: "5220", name: "Material Usage Variance", isGroup: false, parentKey: "variances", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5230", number: "5230", name: "Labor & Machine Variance", isGroup: false, parentKey: "variances", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5240", number: "5240", name: "Overhead Variance", isGroup: false, parentKey: "variances", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5250", number: "5250", name: "Lot Size Variance", isGroup: false, parentKey: "variances", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5260", number: "5260", name: "Subcontracting Variance", isGroup: false, parentKey: "variances", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
 
   // Inventory Adjustments
   { key: "inventory-adjustments", number: null, name: "Inventory Adjustments", isGroup: true, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
@@ -608,14 +616,14 @@ export const accountDefaults = {
   salesAccount: "4010",
   salesDiscountAccount: "4020",
   costOfGoodsSoldAccount: "5010",
-  purchaseAccount: "5020",
-  directCostAppliedAccount: "5030",
-  overheadCostAppliedAccount: "5040",
   purchaseVarianceAccount: "5210",
   inventoryAdjustmentVarianceAccount: "5310",
   materialVarianceAccount: "5220",
-  capacityVarianceAccount: "5230",
-  overheadAccount: "5240",
+  laborAndMachineVarianceAccount: "5230",
+  overheadVarianceAccount: "5240",
+  lotSizeVarianceAccount: "5250",
+  subcontractingVarianceAccount: "5260",
+  indirectCostAccount: "5050",
   maintenanceAccount: "6010",
   assetDepreciationExpenseAccount: "6310",
   assetGainsAndLossesAccount: "6320",
@@ -629,16 +637,14 @@ export const accountDefaults = {
   accumulatedDepreciationAccount: "1330",
   accumulatedDepreciationOnDisposalAccount: "1340",
   inventoryAccount: "1210",
-  inventoryInterimAccrualAccount: "1220",
   workInProgressAccount: "1230",
   receivablesAccount: "1110",
-  inventoryInvoicedNotReceivedAccount: "1120",
   bankCashAccount: "1010",
   bankLocalCurrencyAccount: "1020",
   bankForeignCurrencyAccount: "1030",
   prepaymentAccount: "2110",
   payablesAccount: "2010",
-  inventoryReceivedNotInvoicedAccount: "2120",
+  goodsReceivedNotInvoicedAccount: "2125",
   inventoryShippedNotInvoicedAccount: "2130",
   salesTaxPayableAccount: "2210",
   purchaseTaxPayableAccount: "2220",

@@ -218,14 +218,8 @@ export const defaultBalanceSheetAccountValidator = z.object({
   inventoryAccount: z.string().min(1, {
     message: "Inventory account is required"
   }),
-  inventoryInterimAccrualAccount: z.string().min(1, {
-    message: "Inventory interim accrual account is required"
-  }),
-  inventoryReceivedNotInvoicedAccount: z.string().min(1, {
-    message: "Inventory received not invoiced account is required"
-  }),
-  inventoryInvoicedNotReceivedAccount: z.string().min(1, {
-    message: "Inventory invoiced not received account is required"
+  goodsReceivedNotInvoicedAccount: z.string().min(1, {
+    message: "GR/IR clearing account is required"
   }),
   inventoryShippedNotInvoicedAccount: z.string().min(1, {
     message: "Inventory shipped not invoiced account is required"
@@ -288,29 +282,29 @@ export const defaultIncomeAcountValidator = z.object({
   costOfGoodsSoldAccount: z.string().min(1, {
     message: "Cost of goods sold account is required"
   }),
-  purchaseAccount: z.string().min(1, {
-    message: "Purchase account is required"
-  }),
-  directCostAppliedAccount: z.string().min(1, {
-    message: "Direct cost applied account is required"
-  }),
-  overheadCostAppliedAccount: z.string().min(1, {
-    message: "Overhead cost applied account is required"
-  }),
   purchaseVarianceAccount: z.string().min(1, {
-    message: "Purchase variance account is required"
+    message: "Purchase price variance account is required"
   }),
   inventoryAdjustmentVarianceAccount: z.string().min(1, {
     message: "Inventory adjustment variance account is required"
   }),
   materialVarianceAccount: z.string().min(1, {
-    message: "Material variance account is required"
+    message: "Material usage variance account is required"
   }),
-  capacityVarianceAccount: z.string().min(1, {
-    message: "Capacity variance account is required"
+  laborAndMachineVarianceAccount: z.string().min(1, {
+    message: "Labor & machine variance account is required"
   }),
-  overheadAccount: z.string().min(1, {
-    message: "Overhead account is required"
+  overheadVarianceAccount: z.string().min(1, {
+    message: "Overhead variance account is required"
+  }),
+  lotSizeVarianceAccount: z.string().min(1, {
+    message: "Lot size variance account is required"
+  }),
+  subcontractingVarianceAccount: z.string().min(1, {
+    message: "Subcontracting variance account is required"
+  }),
+  indirectCostAccount: z.string().min(1, {
+    message: "Indirect cost account is required"
   }),
   maintenanceAccount: z.string().min(1, {
     message: "Maintenance account is required"

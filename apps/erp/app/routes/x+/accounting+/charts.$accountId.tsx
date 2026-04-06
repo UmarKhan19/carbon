@@ -38,11 +38,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId } = await requirePermissions(request, {
     update: "accounting"
   });
+
+  // Root accounts (Balance Sheet, Income Statement) cannot be modified
+  const { accountId } = params;
+  if (accountId) {
+    const existing = await getAccount(client, accountId);
+    if (existing.data?.isSystem) {
+      throw redirect(
+        path.to.chartOfAccounts,
+        await flash(request, error(null, "Root accounts cannot be modified"))
+      );
+    }
+  }
 
   const formData = await request.formData();
   const intent = formData.get("intent");

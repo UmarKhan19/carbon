@@ -172,6 +172,23 @@ FOR DELETE USING (
 );
 
 
+-- Seed entity-based dimensions for all existing company groups
+INSERT INTO "dimension" ("name", "entityType", "companyGroupId", "createdBy")
+SELECT d."name", d."entityType"::"dimensionEntityType", cg."id", 'system'
+FROM "companyGroup" cg
+CROSS JOIN (
+  VALUES
+    ('Location', 'Location'),
+    ('Department', 'Department'),
+    ('Employee', 'Employee'),
+    ('Cost Center', 'CostCenter'),
+    ('Item Posting Group', 'ItemPostingGroup'),
+    ('Customer Type', 'CustomerType'),
+    ('Supplier Type', 'SupplierType')
+) AS d("name", "entityType")
+ON CONFLICT ("name", "companyGroupId") DO NOTHING;
+
+
 CREATE OR REPLACE VIEW "dimensionValues" WITH(SECURITY_INVOKER=true) AS
   SELECT
     d."id" AS "dimensionId",
