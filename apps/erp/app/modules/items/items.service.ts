@@ -3516,7 +3516,7 @@ export async function getItemShelfLife(
   return client
     .from("itemShelfLife")
     .select(
-      "itemId, totalShelfLifeDays, commercialShelfLifeDays, minRemainingShelfLifeDays, storageTypeId, shelfLifeLabelTypeId, ...storageType(storageTypeName:name), ...shelfLifeLabelType(shelfLifeLabelTypeName:name)"
+      "itemId, totalShelfLifeDays, commercialShelfLifeDays, minRemainingShelfLifeDays, storageTypeId, shelfLifeLabelTypeId, shelfLifeTrigger, triggerProcessId, ...storageType(storageTypeName:name), ...shelfLifeLabelType(shelfLifeLabelTypeName:name)"
     )
     .eq("itemId", itemId)
     .maybeSingle();

@@ -576,9 +576,17 @@ export const shelfLifeLabelTypeValidator = z.object({
   active: zfd.checkbox()
 });
 
+export const shelfLifeTriggerTypes = [
+  "receipt",
+  "production_step",
+  "cascading"
+] as const;
+
 export const itemShelfLifeValidator = z
   .object({
     itemId: z.string().min(1, { message: "Item ID is required" }),
+    shelfLifeTrigger: z.enum(shelfLifeTriggerTypes).default("receipt"),
+    triggerProcessId: zfd.text(z.string().optional()),
     totalShelfLifeDays: zfd.numeric(
       z
         .number()
@@ -591,6 +599,24 @@ export const itemShelfLifeValidator = z
     storageTypeId: zfd.text(z.string().optional()),
     shelfLifeLabelTypeId: zfd.text(z.string().optional())
   })
+  .refine(
+    (data) =>
+      data.shelfLifeTrigger !== "production_step" ||
+      (data.triggerProcessId !== undefined && data.triggerProcessId !== ""),
+    {
+      message: "A process must be selected for production step trigger",
+      path: ["triggerProcessId"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.shelfLifeTrigger === "cascading" ||
+      (data.totalShelfLifeDays !== undefined && data.totalShelfLifeDays >= 1),
+    {
+      message: "Total shelf life is required for this trigger type",
+      path: ["totalShelfLifeDays"]
+    }
+  )
   .refine(
     (data) =>
       data.commercialShelfLifeDays === undefined ||

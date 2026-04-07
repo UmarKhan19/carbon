@@ -85,7 +85,8 @@ serve(async (req: Request) => {
       client
         .from("itemShelfLife")
         .select(
-          "itemId, totalShelfLifeDays, minRemainingShelfLifeDays, storageTypeId, storageType(name), shelfLifeLabelType(name)"
+          // @ts-ignore - shelfLifeTrigger column added in trigger configuration migration
+          "itemId, totalShelfLifeDays, minRemainingShelfLifeDays, storageTypeId, shelfLifeTrigger, storageType(name), shelfLifeLabelType(name)"
         )
         .in("itemId", itemIds),
       shelfIds.length > 0
@@ -108,6 +109,7 @@ serve(async (req: Request) => {
       totalShelfLifeDays: number;
       minRemainingShelfLifeDays: number | null;
       storageTypeId: string | null;
+      shelfLifeTrigger?: string;
       storageType: { name: string } | null;
       shelfLifeLabelType: { name: string } | null;
     };
@@ -242,8 +244,15 @@ serve(async (req: Request) => {
             const resolvedManufacturingDate: string | null = itemTracking.manufacturingDate ?? null;
 
             if (shelfLifeConfig) {
-              // Auto-calculate expiration if not manually entered but manufacturing date is known
-              if (!resolvedExpirationDate && resolvedManufacturingDate) {
+              // Auto-calculate expiration only for receipt-triggered items
+              // (production_step and cascading items get their expiry during production, not at receipt)
+              const trigger = shelfLifeConfig.shelfLifeTrigger ?? "receipt";
+              if (
+                trigger === "receipt" &&
+                !resolvedExpirationDate &&
+                resolvedManufacturingDate &&
+                shelfLifeConfig.totalShelfLifeDays
+              ) {
                 const [y, m, d] = resolvedManufacturingDate.split("-").map(Number);
                 const exp = new Date(
                   Date.UTC(y, m - 1, d + shelfLifeConfig.totalShelfLifeDays)

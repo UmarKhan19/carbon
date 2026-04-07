@@ -243,6 +243,8 @@ export default function PartInventoryRoute() {
 
   const shelfLifeInitialValues = {
     itemId,
+    shelfLifeTrigger: shelfLife?.shelfLifeTrigger ?? "receipt",
+    triggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     totalShelfLifeDays: shelfLife?.totalShelfLifeDays ?? undefined,
     commercialShelfLifeDays: shelfLife?.commercialShelfLifeDays ?? undefined,
     minRemainingShelfLifeDays:

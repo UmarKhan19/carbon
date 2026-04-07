@@ -16,6 +16,116 @@ import { TrackedEntityAttributes } from "../lib/utils.ts";
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
 
+/**
+ * Resolves shelf life dates for a tracked entity based on the item's configured trigger type.
+ *
+ * Trigger types:
+ * - "receipt" (default): expiry = today + totalShelfLifeDays
+ * - "production_step": expiry = today + totalShelfLifeDays, but ONLY when the
+ *   completing operation's processId matches the configured triggerProcessId
+ * - "cascading": expiry = MIN(expirationDate) of all consumed input tracked entities
+ */
+async function resolveShelfLifeDates(
+  client: Awaited<ReturnType<typeof getSupabaseServiceRole>>,
+  outputItemId: string | undefined,
+  trackedEntityId: string,
+  currentProcessId: string,
+  todayStr: string
+): Promise<{
+  expirationDate: string | null;
+  manufacturingDate: string | null;
+  storageTypeName: string | null;
+  labelTypeName: string | null;
+}> {
+  const result = {
+    expirationDate: null as string | null,
+    manufacturingDate: null as string | null,
+    storageTypeName: null as string | null,
+    labelTypeName: null as string | null,
+  };
+
+  if (!outputItemId) return result;
+
+  const { data: slConfig } = await client
+    .from("itemShelfLife")
+    .select(
+      // @ts-ignore - columns added in trigger configuration migration
+      "totalShelfLifeDays, shelfLifeTrigger, triggerProcessId, storageType(name), shelfLifeLabelType(name)"
+    )
+    .eq("itemId", outputItemId)
+    .maybeSingle();
+
+  if (!slConfig) return result;
+
+  result.storageTypeName = (slConfig.storageType as any)?.name ?? null;
+  result.labelTypeName = (slConfig.shelfLifeLabelType as any)?.name ?? null;
+
+  // @ts-ignore - column added in trigger configuration migration
+  const trigger: string = slConfig.shelfLifeTrigger ?? "receipt";
+
+  if (trigger === "receipt") {
+    // Current behavior: always compute expiry from today
+    if (slConfig.totalShelfLifeDays) {
+      const [ty, tm, td] = todayStr.split("-").map(Number);
+      const exp = new Date(
+        Date.UTC(ty, tm - 1, td + slConfig.totalShelfLifeDays)
+      );
+      result.expirationDate = exp.toISOString().split("T")[0];
+      result.manufacturingDate = todayStr;
+    }
+  } else if (trigger === "production_step") {
+    // Only set expiry when the current operation's process matches the trigger
+    // @ts-ignore - column added in trigger configuration migration
+    const triggerProcessId: string | null = slConfig.triggerProcessId ?? null;
+    if (
+      triggerProcessId &&
+      currentProcessId === triggerProcessId &&
+      slConfig.totalShelfLifeDays
+    ) {
+      const [ty, tm, td] = todayStr.split("-").map(Number);
+      const exp = new Date(
+        Date.UTC(ty, tm - 1, td + slConfig.totalShelfLifeDays)
+      );
+      result.expirationDate = exp.toISOString().split("T")[0];
+      result.manufacturingDate = todayStr;
+    }
+  } else if (trigger === "cascading") {
+    // Inherit the earliest expiration date from consumed input tracked entities
+    // Step 1: Find activities where this entity is an output of a Consume activity
+    const { data: outputActivities } = await client
+      .from("trackedActivityOutput")
+      .select("trackedActivityId, trackedActivity!inner(type)")
+      .eq("trackedEntityId", trackedEntityId)
+      .eq("trackedActivity.type" as any, "Consume");
+
+    if (outputActivities?.length) {
+      const activityIds = outputActivities.map(
+        (a: any) => a.trackedActivityId
+      );
+
+      // Step 2: Find all input entities for those activities and get their expiration dates
+      const { data: inputEntities } = await client
+        .from("trackedActivityInput")
+        .select("trackedEntityId, trackedEntity!inner(expirationDate)")
+        .in("trackedActivityId", activityIds);
+
+      if (inputEntities?.length) {
+        const expirationDates = inputEntities
+          .map((ie: any) => ie.trackedEntity?.expirationDate)
+          .filter(Boolean)
+          .sort();
+
+        if (expirationDates.length > 0) {
+          result.expirationDate = expirationDates[0]; // earliest
+          result.manufacturingDate = todayStr;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
 const payloadValidator = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("convertEntity"),
@@ -570,34 +680,16 @@ serve(async (req: Request) => {
           throw new Error("Job operation not found");
         }
 
-        // Resolve shelf life dates for the output item (manufacturing date = today)
+        // Resolve shelf life dates using the item's configured trigger type
         const todayStr = new Date().toISOString().split("T")[0];
-        let shelfLifeExpirationDate: string | null = null;
-        let shelfLifeStorageTypeName: string | null = null;
-        let shelfLifeLabelTypeName: string | null = null;
-
         const outputItemId = entityPreview.data?.sourceDocumentId;
-        if (outputItemId) {
-          const { data: slConfig } = await client
-            .from("itemShelfLife")
-            .select(
-              "totalShelfLifeDays, storageType(name), shelfLifeLabelType(name)"
-            )
-            .eq("itemId", outputItemId)
-            .maybeSingle();
-
-          if (slConfig?.totalShelfLifeDays) {
-            const [ty, tm, td] = todayStr.split("-").map(Number);
-            const exp = new Date(
-              Date.UTC(ty, tm - 1, td + slConfig.totalShelfLifeDays)
-            );
-            shelfLifeExpirationDate = exp.toISOString().split("T")[0];
-            shelfLifeStorageTypeName =
-              (slConfig.storageType as any)?.name ?? null;
-            shelfLifeLabelTypeName =
-              (slConfig.shelfLifeLabelType as any)?.name ?? null;
-          }
-        }
+        const shelfLife = await resolveShelfLifeDates(
+          client,
+          outputItemId,
+          trackedEntityId,
+          jobOperation.data.processId,
+          todayStr
+        );
 
         await db.transaction().execute(async (trx) => {
           await trx
@@ -659,11 +751,11 @@ serve(async (req: Request) => {
             // Enrich attributes with shelf life metadata if configured
             const enrichedAttributes: TrackedEntityAttributes = {
               ...(trackedEntity.attributes as TrackedEntityAttributes),
-              ...(shelfLifeStorageTypeName
-                ? { "Storage Type": shelfLifeStorageTypeName }
+              ...(shelfLife.storageTypeName
+                ? { "Storage Type": shelfLife.storageTypeName }
                 : {}),
-              ...(shelfLifeLabelTypeName
-                ? { "Shelf Life Label Type": shelfLifeLabelTypeName }
+              ...(shelfLife.labelTypeName
+                ? { "Shelf Life Label Type": shelfLife.labelTypeName }
                 : {}),
             };
 
@@ -675,10 +767,10 @@ serve(async (req: Request) => {
                 quantity: previousProductionQuantities + row.quantity,
                 attributes: enrichedAttributes,
                 // @ts-ignore - columns added in shelf-life migration
-                ...(shelfLifeExpirationDate
+                ...(shelfLife.expirationDate
                   ? {
-                      expirationDate: shelfLifeExpirationDate,
-                      manufacturingDate: todayStr,
+                      expirationDate: shelfLife.expirationDate,
+                      manufacturingDate: shelfLife.manufacturingDate ?? todayStr,
                     }
                   : {}),
               })
@@ -739,34 +831,16 @@ serve(async (req: Request) => {
             (trackedEntity.attributes as TrackedEntityAttributes)
         );
 
-        // Resolve shelf life dates for the output item (manufacturing date = today)
+        // Resolve shelf life dates using the item's configured trigger type
         const todayStr = new Date().toISOString().split("T")[0];
-        let shelfLifeExpirationDate: string | null = null;
-        let shelfLifeStorageTypeName: string | null = null;
-        let shelfLifeLabelTypeName: string | null = null;
-
         const outputItemId = entityPreview.data?.sourceDocumentId;
-        if (outputItemId) {
-          const { data: slConfig } = await client
-            .from("itemShelfLife")
-            .select(
-              "totalShelfLifeDays, storageType(name), shelfLifeLabelType(name)"
-            )
-            .eq("itemId", outputItemId)
-            .maybeSingle();
-
-          if (slConfig?.totalShelfLifeDays) {
-            const [ty, tm, td] = todayStr.split("-").map(Number);
-            const exp = new Date(
-              Date.UTC(ty, tm - 1, td + slConfig.totalShelfLifeDays)
-            );
-            shelfLifeExpirationDate = exp.toISOString().split("T")[0];
-            shelfLifeStorageTypeName =
-              (slConfig.storageType as any)?.name ?? null;
-            shelfLifeLabelTypeName =
-              (slConfig.shelfLifeLabelType as any)?.name ?? null;
-          }
-        }
+        const shelfLife = await resolveShelfLifeDates(
+          client,
+          outputItemId,
+          trackedEntityId,
+          jobOperation.data.processId,
+          todayStr
+        );
 
         let newEntityId: string | undefined;
         await db.transaction().execute(async (trx) => {
@@ -791,44 +865,16 @@ serve(async (req: Request) => {
           }
 
           if (trackedEntity.status !== "Consumed") {
-            // const activityId = nanoid();
-            // await trx
-            //   .insertInto("trackedActivity")
-            //   .values({
-            //     id: activityId,
-            //     type: "Complete",
-            //     sourceDocument: "Job Operation",
-            //     sourceDocumentId: row.jobOperationId,
-            //     attributes: {
-            //       "Job Operation": row.jobOperationId,
-            //       Employee: userId,
-            //     },
-            //     companyId,
-            //     createdBy: userId,
-            //   })
-            //   .execute();
-
-            // await trx
-            //   .insertInto("trackedActivityOutput")
-            //   .values({
-            //     trackedActivityId: activityId,
-            //     trackedEntityId: trackedEntityId,
-            //     quantity: 1,
-            //     companyId,
-            //     createdBy: userId,
-            //   })
-            //   .execute();
-
             // Enrich attributes with shelf life metadata if configured
             const enrichedAttributes: TrackedEntityAttributes = {
               ...(trackedEntity.attributes as TrackedEntityAttributes),
               [`Operation ${row.jobOperationId}`]:
                 relatedTrackedEntities.length + 1,
-              ...(shelfLifeStorageTypeName
-                ? { "Storage Type": shelfLifeStorageTypeName }
+              ...(shelfLife.storageTypeName
+                ? { "Storage Type": shelfLife.storageTypeName }
                 : {}),
-              ...(shelfLifeLabelTypeName
-                ? { "Shelf Life Label Type": shelfLifeLabelTypeName }
+              ...(shelfLife.labelTypeName
+                ? { "Shelf Life Label Type": shelfLife.labelTypeName }
                 : {}),
             };
 
@@ -840,10 +886,10 @@ serve(async (req: Request) => {
                 quantity: 1,
                 attributes: enrichedAttributes,
                 // @ts-ignore - columns added in shelf-life migration
-                ...(shelfLifeExpirationDate
+                ...(shelfLife.expirationDate
                   ? {
-                      expirationDate: shelfLifeExpirationDate,
-                      manufacturingDate: todayStr,
+                      expirationDate: shelfLife.expirationDate,
+                      manufacturingDate: shelfLife.manufacturingDate ?? todayStr,
                     }
                   : {}),
               })

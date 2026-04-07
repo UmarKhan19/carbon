@@ -3,7 +3,7 @@ export default {
   info: {
     description: "",
     title: "standard public schema",
-    version: "13.0.7",
+    version: "14.7",
   },
   host: "0.0.0.0:3000",
   basePath: "/",
@@ -17994,6 +17994,168 @@ export default {
         tags: ["salesOrder"],
       },
     },
+    "/shelfLifeLabelType": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/shelfLifeLabelType",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["shelfLifeLabelType"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.shelfLifeLabelType",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["shelfLifeLabelType"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["shelfLifeLabelType"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelfLifeLabelType.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.shelfLifeLabelType",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["shelfLifeLabelType"],
+      },
+    },
     "/jobOperationTool": {
       get: {
         parameters: [
@@ -26007,6 +26169,195 @@ export default {
         tags: ["purchasingRfqFavorite"],
       },
     },
+    "/itemShelfLife": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.totalShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.commercialShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.minRemainingShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.storageTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.shelfLifeLabelTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/itemShelfLife",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["itemShelfLife"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.itemShelfLife",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["itemShelfLife"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.totalShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.commercialShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.minRemainingShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.storageTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.shelfLifeLabelTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["itemShelfLife"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.totalShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.commercialShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.minRemainingShelfLifeDays",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.storageTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.shelfLifeLabelTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.itemShelfLife",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["itemShelfLife"],
+      },
+    },
     "/maintenanceDispatch": {
       get: {
         parameters: [
@@ -28315,6 +28666,9 @@ export default {
             $ref: "#/parameters/rowFilter.shelf.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.shelf.storageTypeId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -28410,6 +28764,9 @@ export default {
             $ref: "#/parameters/rowFilter.shelf.tags",
           },
           {
+            $ref: "#/parameters/rowFilter.shelf.storageTypeId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -28457,6 +28814,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.shelf.tags",
+          },
+          {
+            $ref: "#/parameters/rowFilter.shelf.storageTypeId",
           },
           {
             $ref: "#/parameters/body.shelf",
@@ -35232,6 +35592,177 @@ export default {
         tags: ["quotes"],
       },
     },
+    "/storageType": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.storageType.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/storageType",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["storageType"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.storageType",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["storageType"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.storageType.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["storageType"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.storageType.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.description",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.storageType.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.storageType",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["storageType"],
+      },
+    },
     "/riskRegister": {
       get: {
         parameters: [
@@ -41032,6 +41563,12 @@ export default {
             $ref: "#/parameters/rowFilter.trackedEntity.readableId",
           },
           {
+            $ref: "#/parameters/rowFilter.trackedEntity.expirationDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.trackedEntity.manufacturingDate",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -41124,6 +41661,12 @@ export default {
             $ref: "#/parameters/rowFilter.trackedEntity.readableId",
           },
           {
+            $ref: "#/parameters/rowFilter.trackedEntity.expirationDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.trackedEntity.manufacturingDate",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -41168,6 +41711,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.trackedEntity.readableId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.trackedEntity.expirationDate",
+          },
+          {
+            $ref: "#/parameters/rowFilter.trackedEntity.manufacturingDate",
           },
           {
             $ref: "#/parameters/body.trackedEntity",
@@ -63052,6 +63601,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.shelfLifeExpiryNotificationGroup",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -63216,6 +63768,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.shelfLifeExpiryNotificationGroup",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -63332,6 +63887,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.shelfLifeExpiryNotificationGroup",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -66587,6 +67145,85 @@ export default {
         tags: ["(rpc) nanoid_optimized"],
       },
     },
+    "/rpc/validate_min_remaining_shelf_life": {
+      get: {
+        parameters: [
+          {
+            format: "text",
+            in: "query",
+            name: "p_item_id",
+            required: true,
+            type: "string",
+          },
+          {
+            format: "date",
+            in: "query",
+            name: "p_expiration_date",
+            required: true,
+            type: "string",
+          },
+          {
+            format: "date",
+            in: "query",
+            name: "p_receipt_date",
+            required: true,
+            type: "string",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) validate_min_remaining_shelf_life"],
+      },
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_expiration_date: {
+                  format: "date",
+                  type: "string",
+                },
+                p_item_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_receipt_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_item_id", "p_expiration_date", "p_receipt_date"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) validate_min_remaining_shelf_life"],
+      },
+    },
     "/rpc/get_active_job_operations_by_location": {
       post: {
         parameters: [
@@ -67903,6 +68540,49 @@ export default {
         tags: ["(rpc) get_supplier_ids_with_supplier_permission"],
       },
     },
+    "/rpc/get_fefo_tracked_entities": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_item_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_location_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_item_id", "p_company_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) get_fefo_tracked_entities"],
+      },
+    },
     "/rpc/attach_event_trigger": {
       post: {
         parameters: [
@@ -68299,6 +68979,85 @@ export default {
           },
         },
         tags: ["(rpc) get_material_naming_details"],
+      },
+    },
+    "/rpc/validate_commercial_shelf_life": {
+      get: {
+        parameters: [
+          {
+            format: "text",
+            in: "query",
+            name: "p_item_id",
+            required: true,
+            type: "string",
+          },
+          {
+            format: "date",
+            in: "query",
+            name: "p_expiration_date",
+            required: true,
+            type: "string",
+          },
+          {
+            format: "date",
+            in: "query",
+            name: "p_ship_date",
+            required: true,
+            type: "string",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) validate_commercial_shelf_life"],
+      },
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_expiration_date: {
+                  format: "date",
+                  type: "string",
+                },
+                p_item_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_ship_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_item_id", "p_expiration_date", "p_ship_date"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) validate_commercial_shelf_life"],
       },
     },
     "/rpc/get_api_key_scopes": {
@@ -69488,6 +70247,74 @@ export default {
           },
         },
         tags: ["(rpc) update_receipt_line_batch_tracking"],
+      },
+    },
+    "/rpc/calculate_expiration_date": {
+      get: {
+        parameters: [
+          {
+            format: "text",
+            in: "query",
+            name: "p_item_id",
+            required: true,
+            type: "string",
+          },
+          {
+            format: "date",
+            in: "query",
+            name: "p_packaging_date",
+            required: true,
+            type: "string",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) calculate_expiration_date"],
+      },
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_item_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_packaging_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_item_id", "p_packaging_date"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) calculate_expiration_date"],
       },
     },
     "/rpc/insert_audit_log": {
@@ -78630,6 +79457,54 @@ export default {
       },
       type: "object",
     },
+    shelfLifeLabelType: {
+      required: ["id", "name", "companyId", "active", "createdBy", "createdAt"],
+      properties: {
+        id: {
+          default: "public.id('sllt'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        active: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     jobOperationTool: {
       required: [
         "id",
@@ -82046,6 +82921,75 @@ export default {
       },
       type: "object",
     },
+    itemShelfLife: {
+      required: [
+        "itemId",
+        "totalShelfLifeDays",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        itemId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        totalShelfLifeDays: {
+          format: "integer",
+          type: "integer",
+        },
+        commercialShelfLifeDays: {
+          format: "integer",
+          type: "integer",
+        },
+        minRemainingShelfLifeDays: {
+          format: "integer",
+          type: "integer",
+        },
+        storageTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `storageType.id`.<fk table='storageType' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        shelfLifeLabelTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `shelfLifeLabelType.id`.<fk table='shelfLifeLabelType' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     maintenanceDispatch: {
       required: [
         "id",
@@ -83281,6 +84225,12 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        storageTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `storageType.id`.<fk table='storageType' column='id'/>",
+          format: "text",
+          type: "string",
         },
       },
       type: "object",
@@ -86611,6 +87561,58 @@ export default {
       },
       type: "object",
     },
+    storageType: {
+      required: ["id", "name", "companyId", "active", "createdBy", "createdAt"],
+      properties: {
+        id: {
+          default: "public.id('st'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        description: {
+          format: "text",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        active: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     riskRegister: {
       required: [
         "id",
@@ -89155,6 +90157,14 @@ export default {
         },
         readableId: {
           format: "text",
+          type: "string",
+        },
+        expirationDate: {
+          format: "date",
+          type: "string",
+        },
+        manufacturingDate: {
+          format: "date",
           type: "string",
         },
       },
@@ -99983,6 +100993,7 @@ export default {
         "qualityIssueTarget",
         "consoleEnabled",
         "timeCardEnabled",
+        "shelfLifeExpiryNotificationGroup",
       ],
       properties: {
         id: {
@@ -100182,6 +101193,13 @@ export default {
           default: false,
           format: "boolean",
           type: "boolean",
+        },
+        shelfLifeExpiryNotificationGroup: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
         },
       },
       type: "object",
@@ -110492,6 +111510,63 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.shelfLifeLabelType": {
+      name: "shelfLifeLabelType",
+      description: "shelfLifeLabelType",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/shelfLifeLabelType",
+      },
+    },
+    "rowFilter.shelfLifeLabelType.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelfLifeLabelType.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelfLifeLabelType.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelfLifeLabelType.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelfLifeLabelType.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelfLifeLabelType.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelfLifeLabelType.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelfLifeLabelType.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.jobOperationTool": {
       name: "jobOperationTool",
       description: "jobOperationTool",
@@ -114386,6 +115461,81 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.itemShelfLife": {
+      name: "itemShelfLife",
+      description: "itemShelfLife",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/itemShelfLife",
+      },
+    },
+    "rowFilter.itemShelfLife.itemId": {
+      name: "itemId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.totalShelfLifeDays": {
+      name: "totalShelfLifeDays",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.commercialShelfLifeDays": {
+      name: "commercialShelfLifeDays",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.minRemainingShelfLifeDays": {
+      name: "minRemainingShelfLifeDays",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.storageTypeId": {
+      name: "storageTypeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.shelfLifeLabelTypeId": {
+      name: "shelfLifeLabelTypeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.maintenanceDispatch": {
       name: "maintenanceDispatch",
       description: "maintenanceDispatch",
@@ -115822,6 +116972,12 @@ export default {
     },
     "rowFilter.shelf.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.shelf.storageTypeId": {
+      name: "storageTypeId",
       required: false,
       in: "query",
       type: "string",
@@ -119554,6 +120710,69 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.storageType": {
+      name: "storageType",
+      description: "storageType",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/storageType",
+      },
+    },
+    "rowFilter.storageType.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.storageType.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.riskRegister": {
       name: "riskRegister",
       description: "riskRegister",
@@ -122383,6 +123602,18 @@ export default {
     },
     "rowFilter.trackedEntity.readableId": {
       name: "readableId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.trackedEntity.expirationDate": {
+      name: "expirationDate",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.trackedEntity.manufacturingDate": {
+      name: "manufacturingDate",
       required: false,
       in: "query",
       type: "string",
@@ -134770,6 +136001,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.companySettings.shelfLifeExpiryNotificationGroup": {
+      name: "shelfLifeExpiryNotificationGroup",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.part": {
       name: "part",
       description: "part",
@@ -135169,6 +136406,6 @@ export default {
   },
   externalDocs: {
     description: "PostgREST Documentation",
-    url: "https://postgrest.org/en/v13/references/api.html",
+    url: "https://postgrest.org/en/v14/references/api.html",
   },
 };
