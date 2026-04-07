@@ -1,1 +1,0 @@
-/*eslint-disable*/export const messages=JSON.parse("{\"About\":[\"About\"],\"Choose your preferred language for the interface.\":[\"Choose your preferred language for the interface.\"],\"Email\":[\"Email\"],\"English\":[\"English\"],\"First Name\":[\"First Name\"],\"Language\":[\"Language\"],\"Last Name\":[\"Last Name\"],\"Polish\":[\"Polish\"],\"Save\":[\"Save\"]}");
