@@ -1,6 +1,8 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
+import { lookupPriceFromBreaks } from "~/modules/shared";
+import { getDatabaseClient } from "~/services/database.server";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
@@ -132,6 +134,28 @@ export async function getPriceListType(
     .eq("id", priceListId)
     .single();
   return (data?.type as "Sales" | "Purchase") ?? "Sales";
+}
+
+/**
+ * Returns the type AND a flag indicating whether the price list is
+ * locked for edits (status === "Active"). Active price lists are
+ * immutable to satisfy AC-ERP-08: every modification must produce a
+ * new version. Mutation routes call this and reject the request if
+ * `isLocked` is true.
+ */
+export async function getPriceListLockState(
+  client: SupabaseClient<Database>,
+  priceListId: string
+): Promise<{ type: "Sales" | "Purchase"; isLocked: boolean }> {
+  const { data } = await client
+    .from("priceList")
+    .select("type, status")
+    .eq("id", priceListId)
+    .single();
+  return {
+    type: (data?.type as "Sales" | "Purchase") ?? "Sales",
+    isLocked: data?.status === "Active"
+  };
 }
 
 export async function createPriceList(
@@ -286,30 +310,33 @@ export async function getPriceListItemBreaks(
 }
 
 export async function upsertPriceListItemBreaks(
-  client: SupabaseClient<Database>,
   priceListItemId: string,
   companyId: string,
   userId: string,
   breaks: Array<{ minQuantity: number; unitPrice: number }>
 ) {
-  // Delete existing breaks
-  await client
-    .from("priceListItemBreak")
-    .delete()
-    .eq("priceListItemId", priceListItemId);
+  const db = getDatabaseClient();
+  await db.transaction().execute(async (trx) => {
+    await trx
+      .deleteFrom("priceListItemBreak")
+      .where("priceListItemId", "=", priceListItemId)
+      .execute();
 
-  if (breaks.length === 0) return { data: [], error: null };
+    if (breaks.length === 0) return;
 
-  // Insert new breaks
-  return client.from("priceListItemBreak").insert(
-    breaks.map((b) => ({
-      priceListItemId,
-      minQuantity: b.minQuantity,
-      unitPrice: b.unitPrice,
-      companyId,
-      createdBy: userId
-    }))
-  );
+    await trx
+      .insertInto("priceListItemBreak")
+      .values(
+        breaks.map((b) => ({
+          priceListItemId,
+          minQuantity: b.minQuantity,
+          unitPrice: b.unitPrice,
+          companyId,
+          createdBy: userId
+        }))
+      )
+      .execute();
+  });
 }
 
 // ============================================================
@@ -355,6 +382,8 @@ export async function createPriceListRule(
         supplierTypeId: data.supplierTypeId ?? null,
         itemId: data.itemId ?? null,
         itemPostingGroupId: data.itemPostingGroupId ?? null,
+        validFrom: data.validFrom || null,
+        validTo: data.validTo || null,
         active: data.active ?? true,
         companyId,
         createdBy: userId
@@ -439,7 +468,6 @@ export async function deletePriceListAssignment(
 }
 
 export async function syncPriceListAssignments(
-  client: SupabaseClient<Database>,
   priceListId: string,
   companyId: string,
   userId: string,
@@ -449,72 +477,86 @@ export async function syncPriceListAssignments(
     supplierIds?: string[];
     supplierTypeIds?: string[];
   }
-) {
-  // Delete all existing assignments for this price list
-  await client
-    .from("priceListAssignment")
-    .delete()
-    .eq("priceListId", priceListId);
+): Promise<{ error: { message: string } | null }> {
+  // CHECK constraint enforces exactly-one-entity per row, so each loop
+  // produces a row with three FKs as null and one set. We return a
+  // { error } shape to match the existing call site in update.tsx.
+  const db = getDatabaseClient();
+  try {
+    await db.transaction().execute(async (trx) => {
+      await trx
+        .deleteFrom("priceListAssignment")
+        .where("priceListId", "=", priceListId)
+        .execute();
 
-  // Build new assignment rows (one entity per row, per DB constraint)
-  const rows: Array<{
-    priceListId: string;
-    customerId: string | null;
-    customerTypeId: string | null;
-    supplierId: string | null;
-    supplierTypeId: string | null;
-    companyId: string;
-    createdBy: string;
-  }> = [];
+      const rows: Array<{
+        priceListId: string;
+        customerId: string | null;
+        customerTypeId: string | null;
+        supplierId: string | null;
+        supplierTypeId: string | null;
+        companyId: string;
+        createdBy: string;
+      }> = [];
 
-  for (const id of assignments.customerIds ?? []) {
-    rows.push({
-      priceListId,
-      customerId: id,
-      customerTypeId: null,
-      supplierId: null,
-      supplierTypeId: null,
-      companyId,
-      createdBy: userId
-    });
-  }
-  for (const id of assignments.customerTypeIds ?? []) {
-    rows.push({
-      priceListId,
-      customerId: null,
-      customerTypeId: id,
-      supplierId: null,
-      supplierTypeId: null,
-      companyId,
-      createdBy: userId
-    });
-  }
-  for (const id of assignments.supplierIds ?? []) {
-    rows.push({
-      priceListId,
-      customerId: null,
-      customerTypeId: null,
-      supplierId: id,
-      supplierTypeId: null,
-      companyId,
-      createdBy: userId
-    });
-  }
-  for (const id of assignments.supplierTypeIds ?? []) {
-    rows.push({
-      priceListId,
-      customerId: null,
-      customerTypeId: null,
-      supplierId: null,
-      supplierTypeId: id,
-      companyId,
-      createdBy: userId
-    });
-  }
+      for (const id of assignments.customerIds ?? []) {
+        rows.push({
+          priceListId,
+          customerId: id,
+          customerTypeId: null,
+          supplierId: null,
+          supplierTypeId: null,
+          companyId,
+          createdBy: userId
+        });
+      }
+      for (const id of assignments.customerTypeIds ?? []) {
+        rows.push({
+          priceListId,
+          customerId: null,
+          customerTypeId: id,
+          supplierId: null,
+          supplierTypeId: null,
+          companyId,
+          createdBy: userId
+        });
+      }
+      for (const id of assignments.supplierIds ?? []) {
+        rows.push({
+          priceListId,
+          customerId: null,
+          customerTypeId: null,
+          supplierId: id,
+          supplierTypeId: null,
+          companyId,
+          createdBy: userId
+        });
+      }
+      for (const id of assignments.supplierTypeIds ?? []) {
+        rows.push({
+          priceListId,
+          customerId: null,
+          customerTypeId: null,
+          supplierId: null,
+          supplierTypeId: id,
+          companyId,
+          createdBy: userId
+        });
+      }
 
-  if (rows.length === 0) return { data: [], error: null };
+      if (rows.length === 0) return;
 
-  return client.from("priceListAssignment").insert(rows);
+      await trx.insertInto("priceListAssignment").values(rows).execute();
+    });
+    return { error: null };
+  } catch (err) {
+    return {
+      error: {
+        message:
+          err instanceof Error ? err.message : "Failed to sync assignments"
+      }
+    };
+  }
 }
 
 // ============================================================
@@ -660,6 +702,8 @@ async function copyPriceListChildren(
         supplierTypeId: r.supplierTypeId,
         itemId: r.itemId,
         itemPostingGroupId: r.itemPostingGroupId,
+        validFrom: r.validFrom,
+        validTo: r.validTo,
         active: r.active,
         companyId,
         createdBy: userId
@@ -799,85 +843,6 @@ export async function updatePriceListSequence(
 }
 
 // ============================================================
-// Overlap Validation
-// ============================================================
-
-export async function checkOverlappingPriceLists(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  priceListId: string,
-  type: "Sales" | "Purchase",
-  validFrom: string | null,
-  validTo: string | null
-) {
-  // Find other Active price lists of the same type with overlapping dates
-  let query = client
-    .from("priceList")
-    .select("id, name, validFrom, validTo")
-    .eq("companyId", companyId)
-    .eq("type", type)
-    .eq("status", "Active")
-    .neq("id", priceListId);
-
-  const { data: candidates, error } = await query;
-  if (error || !candidates) return { overlapping: [], error };
-
-  // Get assignments for the target list
-  const { data: targetAssignments } = await client
-    .from("priceListAssignment")
-    .select("customerId, customerTypeId, supplierId, supplierTypeId")
-    .eq("priceListId", priceListId);
-
-  const overlapping: Array<{ id: string; name: string }> = [];
-
-  for (const candidate of candidates) {
-    // Check date overlap: two ranges overlap unless one ends before the other starts
-    const cFrom = candidate.validFrom;
-    const cTo = candidate.validTo;
-
-    // No dates means "always valid" — always overlaps
-    const datesOverlap =
-      (validFrom === null || cTo === null || validFrom <= cTo) &&
-      (validTo === null || cFrom === null || validTo >= cFrom);
-
-    if (!datesOverlap) continue;
-
-    // Check assignment overlap: do they share any customers/suppliers?
-    const { data: candidateAssignments } = await client
-      .from("priceListAssignment")
-      .select("customerId, customerTypeId, supplierId, supplierTypeId")
-      .eq("priceListId", candidate.id);
-
-    const targetIsGlobal = !targetAssignments || targetAssignments.length === 0;
-    const candidateIsGlobal =
-      !candidateAssignments || candidateAssignments.length === 0;
-
-    // Both global = overlap; one global = overlap; both assigned = check intersection
-    if (targetIsGlobal || candidateIsGlobal) {
-      overlapping.push({ id: candidate.id, name: candidate.name });
-      continue;
-    }
-
-    // Check if any assignments intersect
-    const hasSharedAssignment = targetAssignments!.some((ta) =>
-      candidateAssignments!.some(
-        (ca) =>
-          (ta.customerId && ta.customerId === ca.customerId) ||
-          (ta.customerTypeId && ta.customerTypeId === ca.customerTypeId) ||
-          (ta.supplierId && ta.supplierId === ca.supplierId) ||
-          (ta.supplierTypeId && ta.supplierTypeId === ca.supplierTypeId)
-      )
-    );
-
-    if (hasSharedAssignment) {
-      overlapping.push({ id: candidate.id, name: candidate.name });
-    }
-  }
-
-  return { overlapping, error: null };
-}
-
-// ============================================================
 // Price Resolution Helpers (DB queries for the resolver)
 // ============================================================
 
@@ -1013,7 +978,8 @@ export async function getApplicableRules(
   customerTypeId: string | null,
   supplierTypeId: string | null,
   itemId: string,
-  itemPostingGroupId: string | null
+  itemPostingGroupId: string | null,
+  date: string
 ) {
   // Fetch all active rules for this price list
   const { data: allRules, error } = await client
@@ -1030,6 +996,10 @@ export async function getApplicableRules(
     // Quantity range check
     if (rule.minQuantity !== null && quantity < rule.minQuantity) return false;
     if (rule.maxQuantity !== null && quantity > rule.maxQuantity) return false;
+
+    // Validity window check (NULL = open-ended on that side)
+    if (rule.validFrom && date < rule.validFrom) return false;
+    if (rule.validTo && date > rule.validTo) return false;
 
     // Scope field checks (NULL = applies to all)
     if (rule.customerTypeId !== null && rule.customerTypeId !== customerTypeId)
@@ -1104,4 +1074,490 @@ export async function getPriceListsForItem(
     )
     .eq("itemId", itemId)
     .order("createdAt", { ascending: false });
+}
+
+// ============================================================
+// Price Resolution — Types
+// ============================================================
+
+export type AssignmentType = "direct" | "type" | "global";
+
+export type PriceTraceStep = {
+  step: string;
+  source: string;
+  amount: number;
+  adjustment?: number;
+};
+
+export type MatchedRule = {
+  id: string;
+  name: string;
+  ruleType: string;
+  amountType: string;
+  amount: number;
+};
+
+export type PriceResolutionInput = {
+  customerId?: string;
+  customerTypeId?: string;
+  supplierId?: string;
+  supplierTypeId?: string;
+  supplierPartId?: string;
+  itemId: string;
+  itemPostingGroupId?: string;
+  quantity: number;
+  date?: string;
+  currencyCode?: string;
+  exchangeRate?: number;
+  listType: "Sales" | "Purchase";
+  existingBasePrice?: number;
+};
+
+export type PriceResolutionResult = {
+  finalPrice: number;
+  basePrice: number;
+  priceListId: string | null;
+  priceListName: string | null;
+  priceType: "Gross" | "Net" | "Discounted";
+  trace: PriceTraceStep[];
+};
+
+// ============================================================
+// Price Resolution — Pure Helpers (testable without DB)
+// ============================================================
+
+/**
+ * Lower score = higher specificity = wins.
+ * direct+item=0, direct+category=1, type+item=2, type+category=3,
+ * global+item=4, global+category=5.
+ */
+export function specificityScore(
+  assignmentType: AssignmentType,
+  matchType: string | null
+): number {
+  const assignmentScore =
+    assignmentType === "direct" ? 0 : assignmentType === "type" ? 2 : 4;
+  const matchScore = matchType === "item" ? 0 : 1;
+  return assignmentScore + matchScore;
+}
+
+/**
+ * Apply discount and surcharge rules to a base price.
+ *
+ * Discounts: best-rate-wins, non-stacking. If the price list type is
+ * "Discounted", discount rules are skipped entirely.
+ * Surcharges: all stack additively.
+ * Final price is clamped to >= 0.
+ */
+export function applyPriceRules(
+  basePrice: number,
+  matchedRules: MatchedRule[],
+  winningPriceType: "Gross" | "Net" | "Discounted"
+): { finalPrice: number; appendedTrace: PriceTraceStep[] } {
+  const appendedTrace: PriceTraceStep[] = [];
+  let finalPrice = basePrice;
+
+  const surchargeRules = matchedRules.filter((r) => r.ruleType === "Surcharge");
+
+  const discountRules =
+    winningPriceType === "Discounted"
+      ? []
+      : matchedRules.filter((r) => r.ruleType === "Discount");
+
+  if (
+    winningPriceType === "Discounted" &&
+    matchedRules.some((r) => r.ruleType === "Discount")
+  ) {
+    appendedTrace.push({
+      step: "Discount",
+      source: `Skipped — price list type is "Discounted" (discounts already applied)`,
+      amount: finalPrice
+    });
+  }
+
+  // Discounts: best rate wins (non-stacking)
+  if (discountRules.length > 0) {
+    let bestDiscount = 0;
+    let bestRule: MatchedRule | null = null;
+
+    for (const rule of discountRules) {
+      const effective =
+        rule.amountType === "Percentage"
+          ? basePrice * rule.amount
+          : rule.amount;
+
+      if (effective > bestDiscount) {
+        bestDiscount = effective;
+        bestRule = rule;
+      }
+    }
+
+    if (bestRule) {
+      finalPrice -= bestDiscount;
+      appendedTrace.push({
+        step: "Discount",
+        source: `Rule: ${bestRule.name}`,
+        amount: finalPrice,
+        adjustment: -bestDiscount
+      });
+    }
+  }
+
+  // Surcharges: all stack additively
+  for (const rule of surchargeRules) {
+    const adjustment =
+      rule.amountType === "Percentage" ? basePrice * rule.amount : rule.amount;
+
+    finalPrice += adjustment;
+    appendedTrace.push({
+      step: "Surcharge",
+      source: `Rule: ${rule.name}`,
+      amount: finalPrice,
+      adjustment
+    });
+  }
+
+  finalPrice = Math.max(0, finalPrice);
+
+  return { finalPrice, appendedTrace };
+}
+
+// ============================================================
+// Price Resolution — DB-aware helpers
+// ============================================================
+
+async function computeFormulaPrice(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  formulaBase: string,
+  markupPercent: number,
+  minMarginPercent: number | null
+): Promise<number> {
+  let base = 0;
+  let cost = 0;
+
+  if (formulaBase === "salePrice") {
+    const { data } = await client
+      .from("itemUnitSalePrice")
+      .select("unitSalePrice")
+      .eq("itemId", itemId)
+      .maybeSingle();
+    base = data?.unitSalePrice ?? 0;
+  }
+
+  const { data: costData } = await client
+    .from("itemCost")
+    .select("unitCost")
+    .eq("itemId", itemId)
+    .maybeSingle();
+  cost = costData?.unitCost ?? 0;
+
+  if (formulaBase === "cost") {
+    base = cost;
+  }
+
+  let price = base * (1 + markupPercent);
+
+  if (minMarginPercent && minMarginPercent > 0 && cost > 0) {
+    const minPrice = cost / (1 - minMarginPercent);
+    price = Math.max(price, minPrice);
+  }
+
+  return Math.max(0, price);
+}
+
+function getAssignmentType(
+  list: any,
+  customerId?: string,
+  customerTypeId?: string,
+  supplierId?: string,
+  supplierTypeId?: string
+): AssignmentType {
+  const assignments = list.priceListAssignment as
+    | Array<{
+        customerId: string | null;
+        customerTypeId: string | null;
+        supplierId: string | null;
+        supplierTypeId: string | null;
+      }>
+    | undefined;
+
+  if (!assignments || assignments.length === 0) return "global";
+
+  const hasDirect = assignments.some(
+    (a) => a.customerId === customerId || a.supplierId === supplierId
+  );
+  if (hasDirect) return "direct";
+
+  const hasType = assignments.some(
+    (a) =>
+      (customerTypeId && a.customerTypeId === customerTypeId) ||
+      (supplierTypeId && a.supplierTypeId === supplierTypeId)
+  );
+  if (hasType) return "type";
+
+  return "global";
+}
+
+// ============================================================
+// Price Resolution — Main entry point
+// ============================================================
+
+export async function resolvePrice(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  input: PriceResolutionInput
+): Promise<PriceResolutionResult> {
+  const date = input.date ?? new Date().toISOString().split("T")[0]!;
+  const trace: PriceTraceStep[] = [];
+
+  // Look up customerTypeId / supplierTypeId from DB if not provided
+  // (the form only sends customerId / supplierId)
+  let resolvedCustomerTypeId = input.customerTypeId ?? null;
+  let resolvedSupplierTypeId = input.supplierTypeId ?? null;
+
+  if (
+    input.listType === "Sales" &&
+    input.customerId &&
+    !resolvedCustomerTypeId
+  ) {
+    const { data: cust } = await client
+      .from("customer")
+      .select("customerTypeId")
+      .eq("id", input.customerId)
+      .maybeSingle();
+    resolvedCustomerTypeId = cust?.customerTypeId ?? null;
+  }
+
+  if (
+    input.listType === "Purchase" &&
+    input.supplierId &&
+    !resolvedSupplierTypeId
+  ) {
+    const { data: supp } = await client
+      .from("supplier")
+      .select("supplierTypeId")
+      .eq("id", input.supplierId)
+      .maybeSingle();
+    resolvedSupplierTypeId = supp?.supplierTypeId ?? null;
+  }
+
+  // ---------------------------------------------------------
+  // Step 1: Find applicable price lists
+  // ---------------------------------------------------------
+  let applicableLists: any[] = [];
+
+  if (input.listType === "Sales" && input.customerId) {
+    const { data } = await getActivePriceListsForCustomer(
+      client,
+      companyId,
+      input.customerId,
+      resolvedCustomerTypeId,
+      date,
+      input.currencyCode
+    );
+    if (data) applicableLists = data;
+  } else if (input.listType === "Purchase" && input.supplierId) {
+    const { data } = await getActivePriceListsForSupplier(
+      client,
+      companyId,
+      input.supplierId,
+      resolvedSupplierTypeId,
+      date,
+      input.currencyCode
+    );
+    if (data) applicableLists = data;
+  }
+
+  // ---------------------------------------------------------
+  // Step 2: Resolve base price using specificity-based resolution
+  // ---------------------------------------------------------
+  let basePrice: number | null = null;
+  let winningListId: string | null = null;
+  let winningListName: string | null = null;
+  let winningPriceType: "Gross" | "Net" | "Discounted" = "Net";
+  let bestScore = Infinity;
+  let bestSequence = Infinity;
+  let bestMatchType: string | null = null;
+
+  for (const list of applicableLists) {
+    const assignmentType = getAssignmentType(
+      list,
+      input.customerId,
+      resolvedCustomerTypeId ?? undefined,
+      input.supplierId,
+      resolvedSupplierTypeId ?? undefined
+    );
+
+    const result = await getPriceListItemsForResolution(
+      client,
+      list.id,
+      input.itemId,
+      input.itemPostingGroupId ?? null
+    );
+
+    if (result.data) {
+      const score = specificityScore(assignmentType, result.matchType);
+      const seq = list.sequence ?? 0;
+
+      // Lower score wins. Within same score, lower sequence wins.
+      if (score < bestScore || (score === bestScore && seq < bestSequence)) {
+        const item = result.data as any;
+        const breaks = (item.priceListItemBreak ?? []) as Array<{
+          minQuantity: number;
+          unitPrice: number;
+        }>;
+
+        if (item.pricingMethod === "Price Breaks" && breaks.length > 0) {
+          // Price Breaks method: use quantity tiers exclusively
+          const priceBreaks = breaks.map((b) => ({
+            quantity: b.minQuantity,
+            unitPrice: b.unitPrice
+          }));
+          // Fallback to lowest break price when qty is below all tiers
+          const lowestBreak = priceBreaks.reduce((min, b) =>
+            b.quantity < min.quantity ? b : min
+          );
+          basePrice = lookupPriceFromBreaks(
+            priceBreaks,
+            input.quantity,
+            lowestBreak.unitPrice
+          );
+        } else if (item.pricingMethod === "Formula") {
+          // Formula-based pricing: compute from cost or sale price
+          basePrice = await computeFormulaPrice(
+            client,
+            input.itemId,
+            item.formulaBase ?? "cost",
+            item.markupPercent ?? 0,
+            item.minMarginPercent
+          );
+        } else {
+          // Fixed pricing (default)
+          basePrice = item.unitPrice;
+        }
+
+        winningListId = list.id;
+        winningListName = list.name;
+        winningPriceType = list.priceType ?? "Net";
+        bestScore = score;
+        bestSequence = seq;
+        bestMatchType = result.matchType;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------
+  // Step 3: Fallback base price
+  // ---------------------------------------------------------
+  if (basePrice === null) {
+    if (input.existingBasePrice !== undefined) {
+      basePrice = input.existingBasePrice;
+      trace.push({
+        step: "Base Price",
+        source:
+          input.listType === "Purchase"
+            ? "Supplier Part Price (existing)"
+            : "Item Unit Sale Price (fallback)",
+        amount: basePrice
+      });
+    } else if (input.listType === "Sales") {
+      const { data: salePrice } = await client
+        .from("itemUnitSalePrice")
+        .select("unitSalePrice")
+        .eq("itemId", input.itemId)
+        .maybeSingle();
+
+      basePrice = salePrice?.unitSalePrice ?? 0;
+      trace.push({
+        step: "Base Price",
+        source: "Item Unit Sale Price (fallback)",
+        amount: basePrice
+      });
+    } else {
+      basePrice = 0;
+      trace.push({
+        step: "Base Price",
+        source: "No price found",
+        amount: 0
+      });
+    }
+  } else {
+    trace.push({
+      step: "Base Price",
+      source: `Price List: ${winningListName} (${bestMatchType} match)`,
+      amount: basePrice
+    });
+  }
+
+  // ---------------------------------------------------------
+  // Step 4: Evaluate structured rules
+  // ---------------------------------------------------------
+  const listIdForRules = winningListId ?? applicableLists[0]?.id;
+
+  let matchedRules: MatchedRule[] = [];
+
+  if (listIdForRules) {
+    const { data: rules } = await getApplicableRules(
+      client,
+      listIdForRules,
+      input.quantity,
+      resolvedCustomerTypeId,
+      resolvedSupplierTypeId,
+      input.itemId,
+      input.itemPostingGroupId ?? null,
+      date
+    );
+
+    if (rules) {
+      matchedRules = rules;
+      if (!winningListId && rules.length > 0) {
+        winningListId = listIdForRules;
+        winningListName = applicableLists[0]?.name ?? null;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------
+  // Step 5: Apply adjustments (pure — see applyPriceRules above)
+  // ---------------------------------------------------------
+  const { finalPrice, appendedTrace } = applyPriceRules(
+    basePrice,
+    matchedRules,
+    winningPriceType
+  );
+  trace.push(...appendedTrace);
+
+  trace.push({
+    step: "Final Price",
+    source: "Resolved",
+    amount: finalPrice
+  });
+
+  return {
+    finalPrice,
+    basePrice,
+    priceListId: winningListId,
+    priceListName: winningListName,
+    priceType: winningPriceType,
+    trace
+  };
+}
+
+/**
+ * Batch resolution for multiple items.
+ */
+export async function resolvePrices(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  inputs: PriceResolutionInput[]
+): Promise<Map<string, PriceResolutionResult>> {
+  const results = new Map<string, PriceResolutionResult>();
+
+  for (const input of inputs) {
+    const result = await resolvePrice(client, companyId, input);
+    results.set(input.itemId, result);
+  }
+
+  return results;
 }

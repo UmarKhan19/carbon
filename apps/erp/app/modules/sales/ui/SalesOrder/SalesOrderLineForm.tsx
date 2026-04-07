@@ -10,6 +10,9 @@ import {
   DropdownMenuIcon,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   HStack,
   IconButton,
   Label,
@@ -110,6 +113,7 @@ const SalesOrderLineForm = ({
     modelUploadId: string | null;
     priceListId: string | null;
     priceListName: string | null;
+    priceTrace: unknown;
   }>({
     itemId: initialValues.itemId ?? "",
     description: initialValues.description ?? "",
@@ -119,7 +123,8 @@ const SalesOrderLineForm = ({
     shelfId: initialValues.shelfId ?? "",
     modelUploadId: initialValues.modelUploadId ?? null,
     priceListId: initialValues.priceListId ?? null,
-    priceListName: null
+    priceListName: null,
+    priceTrace: (initialValues as { priceTrace?: unknown }).priceTrace ?? null
   });
 
   const isEditing = initialValues.id !== undefined;
@@ -151,7 +156,8 @@ const SalesOrderLineForm = ({
       shelfId: "",
       modelUploadId: null,
       priceListId: null,
-      priceListName: null
+      priceListName: null,
+      priceTrace: null
     });
   };
 
@@ -175,7 +181,8 @@ const SalesOrderLineForm = ({
             return {
               finalPrice: result.finalPrice as number,
               priceListId: result.priceListId as string,
-              priceListName: (result.priceListName as string) ?? null
+              priceListName: (result.priceListName as string) ?? null,
+              trace: result.trace ?? null
             };
           }
         }
@@ -195,7 +202,8 @@ const SalesOrderLineForm = ({
         ...d,
         unitPrice: result.finalPrice,
         priceListId: result.priceListId,
-        priceListName: result.priceListName
+        priceListName: result.priceListName,
+        priceTrace: result.trace
       }));
     }
   }, 400);
@@ -249,7 +257,8 @@ const SalesOrderLineForm = ({
       shelfId: defaultShelfId ?? "",
       modelUploadId: item.data?.modelUploadId ?? null,
       priceListId,
-      priceListName: result?.priceListName ?? null
+      priceListName: result?.priceListName ?? null,
+      priceTrace: result?.trace ?? null
     });
   };
 
@@ -390,6 +399,14 @@ const SalesOrderLineForm = ({
                   name="priceListId"
                   value={itemData?.priceListId ?? undefined}
                 />
+                <Hidden
+                  name="priceTrace"
+                  value={
+                    itemData?.priceTrace
+                      ? JSON.stringify(itemData.priceTrace)
+                      : undefined
+                  }
+                />
                 <VStack>
                   <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                     <Item
@@ -471,9 +488,52 @@ const SalesOrderLineForm = ({
                             }
                           />
                           {itemData.priceListName && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              From: {itemData.priceListName}
-                            </p>
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <p className="text-xs text-muted-foreground mt-1 cursor-help underline decoration-dotted underline-offset-2">
+                                  From: {itemData.priceListName}
+                                </p>
+                              </HoverCardTrigger>
+                              {Array.isArray(itemData.priceTrace) &&
+                                itemData.priceTrace.length > 0 && (
+                                  <HoverCardContent
+                                    align="start"
+                                    className="w-80 text-xs"
+                                  >
+                                    <div className="font-medium mb-2">
+                                      Pricing trace
+                                    </div>
+                                    <ol className="space-y-1.5">
+                                      {(
+                                        itemData.priceTrace as Array<{
+                                          step: string;
+                                          source: string;
+                                          amount: number;
+                                          adjustment?: number;
+                                        }>
+                                      ).map((step, i) => (
+                                        <li
+                                          key={i}
+                                          className="flex justify-between gap-2"
+                                        >
+                                          <span className="text-muted-foreground">
+                                            <span className="font-medium text-foreground">
+                                              {step.step}:
+                                            </span>{" "}
+                                            {step.source}
+                                          </span>
+                                          <span className="font-mono tabular-nums">
+                                            {step.adjustment
+                                              ? `${step.adjustment > 0 ? "+" : ""}${step.adjustment.toFixed(2)} → `
+                                              : ""}
+                                            {step.amount.toFixed(2)}
+                                          </span>
+                                        </li>
+                                      ))}
+                                    </ol>
+                                  </HoverCardContent>
+                                )}
+                            </HoverCard>
                           )}
                         </div>
                         <DatePicker name="promisedDate" label="Promised Date" />

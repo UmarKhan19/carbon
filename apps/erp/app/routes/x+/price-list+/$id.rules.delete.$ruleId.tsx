@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
-import { deletePriceListRule, getPriceListType } from "~/modules/pricing";
+import { deletePriceListRule, getPriceListLockState } from "~/modules/pricing";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -19,7 +19,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id, ruleId } = params;
   if (!id || !ruleId) throw new Error("IDs not found");
 
-  const plType = await getPriceListType(client, id);
+  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  if (isLocked) {
+    throw redirect(
+      path.to.priceListRules(id),
+      await flash(
+        request,
+        error(
+          null,
+          "Price list is Active. Create a new version before deleting rules."
+        )
+      )
+    );
+  }
   await requirePermissions(request, {
     delete: plType === "Purchase" ? "purchasing" : "sales"
   });

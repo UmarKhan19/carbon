@@ -66,6 +66,8 @@ export const priceListRuleValidator = z
     supplierTypeId: zfd.text(z.string().optional()),
     itemId: zfd.text(z.string().optional()),
     itemPostingGroupId: zfd.text(z.string().optional()),
+    validFrom: zfd.text(z.string().optional()),
+    validTo: zfd.text(z.string().optional()),
     active: z
       .union([z.boolean(), z.literal("on"), z.literal("off")])
       .transform((v) => v === true || v === "on")
@@ -74,6 +76,10 @@ export const priceListRuleValidator = z
   .refine((d) => d.amountType !== "Percentage" || d.amount <= 1, {
     message: "Percentage must be between 0% and 100%",
     path: ["amount"]
+  })
+  .refine((d) => !d.validFrom || !d.validTo || d.validFrom <= d.validTo, {
+    message: "Valid From must be on or before Valid To",
+    path: ["validTo"]
   });
 
 export const priceListAssignmentValidator = z
@@ -93,3 +99,18 @@ export const priceListAssignmentValidator = z
       path: ["customerId"]
     }
   );
+
+export const priceResolutionInputValidator = z.object({
+  itemId: z.string().min(1),
+  quantity: z.number().nonnegative(),
+  customerId: z.string().optional(),
+  customerTypeId: z.string().optional(),
+  supplierId: z.string().optional(),
+  supplierTypeId: z.string().optional(),
+  supplierPartId: z.string().optional(),
+  itemPostingGroupId: z.string().optional(),
+  date: z.string().optional(),
+  currencyCode: z.string().optional(),
+  exchangeRate: z.number().positive().optional(),
+  existingBasePrice: z.number().optional()
+});

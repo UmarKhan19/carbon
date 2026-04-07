@@ -26218,6 +26218,7 @@ export type Database = {
           locationId: string | null
           modelUploadId: string | null
           priceListId: string | null
+          priceTrace: Json | null
           promisedDate: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -26268,6 +26269,7 @@ export type Database = {
           locationId?: string | null
           modelUploadId?: string | null
           priceListId?: string | null
+          priceTrace?: Json | null
           promisedDate?: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -26318,6 +26320,7 @@ export type Database = {
           locationId?: string | null
           modelUploadId?: string | null
           priceListId?: string | null
+          priceTrace?: Json | null
           promisedDate?: string | null
           purchaseOrderId?: string
           purchaseOrderLineType?: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -32826,6 +32829,7 @@ export type Database = {
           modelUploadId: string | null
           nonTaxableAddOnCost: number
           priceListId: string | null
+          priceTrace: Json | null
           promisedDate: string | null
           quantityInvoiced: number | null
           quantitySent: number | null
@@ -32871,6 +32875,7 @@ export type Database = {
           modelUploadId?: string | null
           nonTaxableAddOnCost?: number
           priceListId?: string | null
+          priceTrace?: Json | null
           promisedDate?: string | null
           quantityInvoiced?: number | null
           quantitySent?: number | null
@@ -32916,6 +32921,7 @@ export type Database = {
           modelUploadId?: string | null
           nonTaxableAddOnCost?: number
           priceListId?: string | null
+          priceTrace?: Json | null
           promisedDate?: string | null
           quantityInvoiced?: number | null
           quantitySent?: number | null

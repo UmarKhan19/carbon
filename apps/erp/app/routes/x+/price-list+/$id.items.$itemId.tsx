@@ -9,7 +9,7 @@ import type { PriceListDetail } from "~/modules/pricing";
 import {
   getPriceListItem,
   getPriceListItemBreaks,
-  getPriceListType,
+  getPriceListLockState,
   priceListItemValidator,
   updatePriceListItem,
   upsertPriceListItemBreaks
@@ -23,7 +23,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id, itemId } = params;
   if (!id) throw new Error("Price list ID not found");
 
-  const plType = await getPriceListType(client, id);
+  const { type: plType } = await getPriceListLockState(client, id);
   await requirePermissions(request, {
     update: plType === "Purchase" ? "purchasing" : "sales"
   });
@@ -50,7 +50,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id, itemId } = params;
   if (!id || !itemId) throw new Error("IDs not found");
 
-  const plType = await getPriceListType(client, id);
+  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  if (isLocked) {
+    return {
+      error: {
+        message:
+          "Price list is Active and cannot be modified. Create a new version first."
+      },
+      data: null
+    };
+  }
   await requirePermissions(request, {
     update: plType === "Purchase" ? "purchasing" : "sales"
   });
@@ -83,7 +92,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         unitPrice: number;
       }>;
       await upsertPriceListItemBreaks(
-        client,
         itemId,
         companyId,
         userId,

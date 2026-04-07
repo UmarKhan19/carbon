@@ -1,5 +1,4 @@
 import {
-  CreatableMultiSelect,
   DatePicker,
   InputControlled,
   Select,
@@ -21,12 +20,14 @@ import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { Enumerable } from "~/components/Enumerable";
-import { Currency } from "~/components/Form";
-import { useCustomerTypes } from "~/components/Form/CustomerType";
-import { useSupplierTypes } from "~/components/Form/SupplierType";
+import {
+  Currency,
+  Customers,
+  CustomerTypes,
+  Suppliers,
+  SupplierTypes
+} from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
-import { useCustomers } from "~/stores/customers";
-import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
 import { priceListPriceTypes } from "../pricing.models";
@@ -77,6 +78,12 @@ const PriceListProperties = () => {
   const isSales = priceList?.type === "Sales";
 
   const canUpdate = permissions.can("update", permissionModule);
+  // Active price lists are immutable for everything that affects pricing
+  // (assignments, dates, currency, type). Name and description stay editable
+  // because they're just labels. Forces users through "Create New Version"
+  // before making pricing changes — satisfies AC-ERP-08.
+  const isLocked = priceList?.status === "Active";
+  const canEditPricing = canUpdate && !isLocked;
 
   const fetcher = useFetcher();
   const assignmentFetcher = useFetcher();
@@ -133,22 +140,6 @@ const PriceListProperties = () => {
         .filter((a) => a.supplierTypeId)
         .map((a) => a.supplierTypeId) as string[],
     [assignments]
-  );
-
-  // Options from stores/hooks
-  const [customers] = useCustomers();
-  const [suppliers] = useSuppliers();
-  const customerTypeOptions = useCustomerTypes();
-  const supplierTypeOptions = useSupplierTypes();
-
-  const customerOptions = useMemo(
-    () => customers.map((c) => ({ value: c.id, label: c.name })),
-    [customers]
-  );
-
-  const supplierOptions = useMemo(
-    () => suppliers.map((s) => ({ value: s.id, label: s.name })),
-    [suppliers]
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: assignmentFetcher.submit is stable
@@ -297,7 +288,7 @@ const PriceListProperties = () => {
             value: t,
             label: <Enumerable value={t} />
           }))}
-          isReadOnly={!canUpdate}
+          isReadOnly={!canEditPricing}
           label="Price Type"
           name="priceType"
           inline={(value) => <Enumerable value={value} />}
@@ -319,7 +310,7 @@ const PriceListProperties = () => {
           label="Currency"
           inline
           value={priceList?.currencyCode ?? ""}
-          isReadOnly={!canUpdate}
+          isReadOnly={!canEditPricing}
           onChange={(value) => {
             if (value?.value) onUpdate("currencyCode", value.value);
           }}
@@ -337,7 +328,7 @@ const PriceListProperties = () => {
           name="validFrom"
           label="Valid From"
           inline
-          isDisabled={!canUpdate}
+          isDisabled={!canEditPricing}
           onChange={(date) => onUpdate("validFrom", date)}
         />
       </ValidatedForm>
@@ -351,7 +342,7 @@ const PriceListProperties = () => {
           name="validTo"
           label="Valid To"
           inline
-          isDisabled={!canUpdate}
+          isDisabled={!canEditPricing}
           onChange={(date) => onUpdate("validTo", date)}
         />
       </ValidatedForm>
@@ -368,12 +359,11 @@ const PriceListProperties = () => {
             })}
             className="w-full"
           >
-            <CreatableMultiSelect
+            <Customers
               name="customerIds"
               label="Customers"
-              options={customerOptions}
               value={currentCustomerIds}
-              isReadOnly={!canUpdate}
+              isReadOnly={!canEditPricing}
               inline={inlinePreview}
               onChange={(selected) =>
                 onSyncAssignments({ customerIds: selected })
@@ -388,12 +378,11 @@ const PriceListProperties = () => {
             })}
             className="w-full"
           >
-            <CreatableMultiSelect
+            <CustomerTypes
               name="customerTypeIds"
               label="Customer Types"
-              options={customerTypeOptions}
               value={currentCustomerTypeIds}
-              isReadOnly={!canUpdate}
+              isReadOnly={!canEditPricing}
               inline={inlinePreview}
               onChange={(selected) =>
                 onSyncAssignments({ customerTypeIds: selected })
@@ -410,12 +399,11 @@ const PriceListProperties = () => {
             })}
             className="w-full"
           >
-            <CreatableMultiSelect
+            <Suppliers
               name="supplierIds"
               label="Suppliers"
-              options={supplierOptions}
               value={currentSupplierIds}
-              isReadOnly={!canUpdate}
+              isReadOnly={!canEditPricing}
               inline={inlinePreview}
               onChange={(selected) =>
                 onSyncAssignments({ supplierIds: selected })
@@ -430,12 +418,11 @@ const PriceListProperties = () => {
             })}
             className="w-full"
           >
-            <CreatableMultiSelect
+            <SupplierTypes
               name="supplierTypeIds"
               label="Supplier Types"
-              options={supplierTypeOptions}
               value={currentSupplierTypeIds}
-              isReadOnly={!canUpdate}
+              isReadOnly={!canEditPricing}
               inline={inlinePreview}
               onChange={(selected) =>
                 onSyncAssignments({ supplierTypeIds: selected })

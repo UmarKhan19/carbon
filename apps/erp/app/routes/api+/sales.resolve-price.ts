@@ -1,17 +1,24 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { resolvePrice } from "~/modules/pricing";
+import { priceResolutionInputValidator, resolvePrice } from "~/modules/pricing";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
     view: "sales"
   });
 
-  const body = await request.json();
+  const payload = priceResolutionInputValidator.safeParse(await request.json());
+
+  if (!payload.success) {
+    return data(
+      { errors: payload.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
 
   const result = await resolvePrice(client, companyId, {
-    ...body,
+    ...payload.data,
     listType: "Sales"
   });
 

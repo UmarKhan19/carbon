@@ -46,8 +46,11 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
   );
   const permissionModule =
     routeData?.priceList?.type === "Purchase" ? "purchasing" : "sales";
-  const canCreate = permissions.can("create", permissionModule);
-  const canDelete = permissions.can("delete", permissionModule);
+  // Active price lists are immutable: editing requires creating a new version
+  // first. This satisfies AC-ERP-08 (modifications generate new versions).
+  const isLocked = routeData?.priceList?.status === "Active";
+  const canCreate = permissions.can("create", permissionModule) && !isLocked;
+  const canDelete = permissions.can("delete", permissionModule) && !isLocked;
 
   const columns = useMemo<ColumnDef<PriceListItem>[]>(
     () => [

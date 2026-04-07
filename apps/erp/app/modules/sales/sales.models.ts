@@ -667,7 +667,13 @@ export const salesOrderLineValidator = z
     unitOfMeasureCode: zfd.text(z.string().optional()),
     unitPrice: zfd.numeric(z.number().optional()),
     exchangeRate: zfd.numeric(z.number().optional()),
-    priceListId: zfd.text(z.string().optional())
+    priceListId: zfd.text(z.string().optional()),
+    // Resolver trace stored as JSON string in a hidden form field;
+    // preprocess parses it back into an object before insert.
+    priceTrace: z.preprocess(
+      (v) => (typeof v === "string" && v.length > 0 ? JSON.parse(v) : v),
+      z.any().optional()
+    )
   })
   .refine((data) => (data.salesOrderLineType === "Part" ? data.itemId : true), {
     message: "Part is required",

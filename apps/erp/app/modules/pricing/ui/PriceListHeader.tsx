@@ -16,6 +16,7 @@ import {
 } from "@carbon/react";
 import { useEffect } from "react";
 import {
+  LuArchive,
   LuCircleCheck,
   LuCopy,
   LuEllipsisVertical,
@@ -48,7 +49,7 @@ const PriceListHeader = () => {
     path.to.priceList(id)
   );
 
-  // Surface overlap or other errors from the update route
+  // Surface errors from the update route
   useEffect(() => {
     if (statusFetcher.data?.error) {
       toast.error(statusFetcher.data.error.message);
@@ -78,6 +79,17 @@ const PriceListHeader = () => {
     duplicateFetcher.submit(null, {
       method: "post",
       action: path.to.priceListDuplicate(id)
+    });
+  };
+
+  const handleArchive = () => {
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("field", "status");
+    formData.append("value", "Archived");
+    statusFetcher.submit(formData, {
+      method: "post",
+      action: path.to.updatePriceList
     });
   };
 
@@ -111,6 +123,15 @@ const PriceListHeader = () => {
                   <DropdownMenuIcon icon={<LuFiles />} />
                   Duplicate Price List
                 </DropdownMenuItem>
+                {status !== "Archived" && (
+                  <DropdownMenuItem
+                    disabled={!canUpdate}
+                    onClick={handleArchive}
+                  >
+                    <DropdownMenuIcon icon={<LuArchive />} />
+                    Archive Price List
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={!permissions.can("delete", permissionModule)}

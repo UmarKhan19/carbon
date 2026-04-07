@@ -26818,6 +26818,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -27021,6 +27024,9 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -27176,6 +27182,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceTrace",
           },
           {
             $ref: "#/parameters/body.purchaseOrderLine",
@@ -49711,6 +49720,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.priceListId",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -49899,6 +49911,9 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.priceListId",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -50039,6 +50054,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.priceListId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceTrace",
           },
           {
             $ref: "#/parameters/body.salesOrderLine",
@@ -83772,6 +83790,11 @@ export default {
           format: "text",
           type: "string",
         },
+        priceTrace: {
+          description:
+            "Snapshot of price resolution trace at order line save time",
+          format: "jsonb",
+        },
       },
       type: "object",
     },
@@ -94777,6 +94800,11 @@ export default {
             "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
           format: "text",
           type: "string",
+        },
+        priceTrace: {
+          description:
+            "Snapshot of price resolution trace at order line save time",
+          format: "jsonb",
         },
       },
       type: "object",
@@ -116670,6 +116698,13 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.purchaseOrderLine.priceTrace": {
+      name: "priceTrace",
+      description: "Snapshot of price resolution trace at order line save time",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.stockTransferLines": {
       name: "stockTransferLines",
       description: "stockTransferLines",
@@ -129043,6 +129078,13 @@ export default {
     },
     "rowFilter.salesOrderLine.priceListId": {
       name: "priceListId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesOrderLine.priceTrace": {
+      name: "priceTrace",
+      description: "Snapshot of price resolution trace at order line save time",
       required: false,
       in: "query",
       type: "string",

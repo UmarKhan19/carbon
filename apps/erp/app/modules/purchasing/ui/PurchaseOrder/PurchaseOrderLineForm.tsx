@@ -5,6 +5,9 @@ import {
   cn,
   FormControl,
   FormLabel,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
   Input,
   ModalCard,
   ModalCardBody,
@@ -97,6 +100,7 @@ const PurchaseOrderLineForm = ({
     priceBreaks: Array<{ quantity: number; unitPrice: number }>;
     priceListId: string | null;
     priceListName: string | null;
+    priceTrace: unknown;
     purchaseQuantity: number;
     purchaseUom: string;
     requestedDate: string | null;
@@ -117,6 +121,7 @@ const PurchaseOrderLineForm = ({
     priceBreaks: [],
     priceListId: initialValues.priceListId ?? null,
     priceListName: null,
+    priceTrace: (initialValues as { priceTrace?: unknown }).priceTrace ?? null,
     requestedDate: initialValues?.requestedDate ?? null,
     shelfId: initialValues.shelfId ?? "",
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
@@ -225,7 +230,8 @@ const PurchaseOrderLineForm = ({
             return {
               finalPrice: result.finalPrice as number,
               priceListId: result.priceListId as string,
-              priceListName: (result.priceListName as string) ?? null
+              priceListName: (result.priceListName as string) ?? null,
+              trace: result.trace ?? null
             };
           }
         }
@@ -253,7 +259,8 @@ const PurchaseOrderLineForm = ({
           ...d,
           supplierUnitPrice: result.finalPrice,
           priceListId: result.priceListId,
-          priceListName: result.priceListName
+          priceListName: result.priceListName,
+          priceTrace: result.trace
         }));
       }
     },
@@ -273,6 +280,7 @@ const PurchaseOrderLineForm = ({
       priceBreaks: [],
       priceListId: null,
       priceListName: null,
+      priceTrace: null,
       purchaseQuantity: 1,
       purchaseUom: "",
       requestedDate: null,
@@ -341,6 +349,7 @@ const PurchaseOrderLineForm = ({
         let finalPrice = resolvedPrice;
         let priceListId: string | null = null;
         let priceListName: string | null = null;
+        let priceTrace: unknown = null;
         const plResult = await resolvePurchasePrice(
           itemId,
           initialQty,
@@ -350,6 +359,7 @@ const PurchaseOrderLineForm = ({
           finalPrice = plResult.finalPrice;
           priceListId = plResult.priceListId;
           priceListName = plResult.priceListName;
+          priceTrace = plResult.trace;
         }
 
         setItemData({
@@ -378,6 +388,7 @@ const PurchaseOrderLineForm = ({
           priceBreaks: breaks,
           priceListId,
           priceListName,
+          priceTrace,
           fallbackUnitPrice: baseFallback
         });
 
@@ -492,6 +503,14 @@ const PurchaseOrderLineForm = ({
                   value={itemData.priceListId ?? undefined}
                 />
                 <Hidden
+                  name="priceTrace"
+                  value={
+                    itemData?.priceTrace
+                      ? JSON.stringify(itemData.priceTrace)
+                      : undefined
+                  }
+                />
+                <Hidden
                   name="exchangeRate"
                   value={routeData?.purchaseOrder?.exchangeRate ?? 1}
                 />
@@ -560,7 +579,9 @@ const PurchaseOrderLineForm = ({
                         setItemData((d) => ({
                           ...d,
                           purchaseQuantity: value,
-                          supplierUnitPrice: supplierPrice
+                          supplierUnitPrice: d.priceListId
+                            ? d.supplierUnitPrice
+                            : supplierPrice
                         }));
                         debouncedQuantityResolve(value, supplierPrice);
                       }}
@@ -620,9 +641,52 @@ const PurchaseOrderLineForm = ({
                         }
                       />
                       {itemData.priceListName && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          From: {itemData.priceListName}
-                        </p>
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <p className="text-xs text-muted-foreground mt-1 cursor-help underline decoration-dotted underline-offset-2">
+                              From: {itemData.priceListName}
+                            </p>
+                          </HoverCardTrigger>
+                          {Array.isArray(itemData.priceTrace) &&
+                            itemData.priceTrace.length > 0 && (
+                              <HoverCardContent
+                                align="start"
+                                className="w-80 text-xs"
+                              >
+                                <div className="font-medium mb-2">
+                                  Pricing trace
+                                </div>
+                                <ol className="space-y-1.5">
+                                  {(
+                                    itemData.priceTrace as Array<{
+                                      step: string;
+                                      source: string;
+                                      amount: number;
+                                      adjustment?: number;
+                                    }>
+                                  ).map((step, i) => (
+                                    <li
+                                      key={i}
+                                      className="flex justify-between gap-2"
+                                    >
+                                      <span className="text-muted-foreground">
+                                        <span className="font-medium text-foreground">
+                                          {step.step}:
+                                        </span>{" "}
+                                        {step.source}
+                                      </span>
+                                      <span className="font-mono tabular-nums">
+                                        {step.adjustment
+                                          ? `${step.adjustment > 0 ? "+" : ""}${step.adjustment.toFixed(2)} → `
+                                          : ""}
+                                        {step.amount.toFixed(2)}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ol>
+                              </HoverCardContent>
+                            )}
+                        </HoverCard>
                       )}
                     </div>
                     <NumberControlled

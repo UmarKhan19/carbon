@@ -8,7 +8,7 @@ import { useRouteData } from "~/hooks";
 import type { PriceListDetail } from "~/modules/pricing";
 import {
   createPriceListItem,
-  getPriceListType,
+  getPriceListLockState,
   priceListItemValidator,
   upsertPriceListItemBreaks
 } from "~/modules/pricing";
@@ -19,7 +19,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, { role: "employee" });
   const { id } = params;
   if (!id) throw new Error("Price list ID not found");
-  const plType = await getPriceListType(client, id);
+  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  if (isLocked) {
+    throw new Error(
+      "Price list is Active and cannot be modified. Create a new version first."
+    );
+  }
   await requirePermissions(request, {
     create: plType === "Purchase" ? "purchasing" : "sales"
   });
@@ -35,7 +40,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Price list ID not found");
 
-  const plType = await getPriceListType(client, id);
+  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  if (isLocked) {
+    return {
+      error: {
+        message:
+          "Price list is Active and cannot be modified. Create a new version first."
+      },
+      data: null
+    };
+  }
   await requirePermissions(request, {
     create: plType === "Purchase" ? "purchasing" : "sales"
   });
@@ -69,7 +83,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }>;
       if (breaks.length > 0) {
         await upsertPriceListItemBreaks(
-          client,
           result.data.id,
           companyId,
           userId,

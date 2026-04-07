@@ -38,7 +38,9 @@ import Customer from "./Customer";
 import CustomerContact from "./CustomerContact";
 import CustomerLocation from "./CustomerLocation";
 import CustomerStatus from "./CustomerStatus";
+import Customers from "./Customers";
 import CustomerType from "./CustomerType";
+import CustomerTypes from "./CustomerTypes";
 import CustomFormFields from "./CustomFormFields";
 import DefaultMethodType from "./DefaultMethodType";
 import Department from "./Department";
@@ -70,6 +72,7 @@ import SupplierProcess from "./SupplierProcess";
 import SupplierStatus from "./SupplierStatus";
 import Suppliers from "./Suppliers";
 import SupplierType from "./SupplierType";
+import SupplierTypes from "./SupplierTypes";
 import Tags from "./Tags";
 import Tool from "./Tool";
 import UnitHint from "./UnitHint";
@@ -98,8 +101,10 @@ export {
   Customer,
   CustomerContact,
   CustomerLocation,
+  Customers,
   CustomerStatus,
   CustomerType,
+  CustomerTypes,
   CustomFormFields,
   DatePicker,
   DateTimePicker,
@@ -147,6 +152,7 @@ export {
   Suppliers,
   SupplierStatus,
   SupplierType,
+  SupplierTypes,
   Tags,
   TextArea,
   TimePicker,

@@ -19,7 +19,12 @@ import { LuEllipsisVertical, LuPencil, LuTrash } from "react-icons/lu";
 import { useNavigate, useParams } from "react-router";
 import { New } from "~/components";
 import Grid from "~/components/Grid";
-import { usePermissions, useRouteData, useUrlParams } from "~/hooks";
+import {
+  useCurrencyFormatter,
+  usePermissions,
+  useRouteData,
+  useUrlParams
+} from "~/hooks";
 import { path } from "~/utils/path";
 import type { PriceListDetail, PriceListRule } from "../../types";
 
@@ -40,9 +45,18 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
   );
   const permissionModule =
     routeData?.priceList?.type === "Purchase" ? "purchasing" : "sales";
-  const canEdit = permissions.can("update", permissionModule);
-  const canCreate = permissions.can("create", permissionModule);
-  const canDelete = permissions.can("delete", permissionModule);
+  // Active price lists are immutable: editing requires creating a new version
+  // first. This satisfies AC-ERP-08 (modifications generate new versions).
+  const isLocked = routeData?.priceList?.status === "Active";
+  const canEdit = permissions.can("update", permissionModule) && !isLocked;
+  const canCreate = permissions.can("create", permissionModule) && !isLocked;
+  const canDelete = permissions.can("delete", permissionModule) && !isLocked;
+
+  const formatter = useCurrencyFormatter(
+    routeData?.priceList?.currencyCode
+      ? { currency: routeData.priceList.currencyCode }
+      : undefined
+  );
 
   const columns = useMemo<ColumnDef<PriceListRule>[]>(
     () => [
@@ -113,7 +127,7 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
         cell: ({ row }) =>
           row.original.amountType === "Percentage"
             ? `${(row.original.amount * 100).toFixed(1)}%`
-            : `$${row.original.amount.toFixed(2)}`
+            : formatter.format(row.original.amount)
       },
       {
         id: "scope",
@@ -142,7 +156,7 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
           )
       }
     ],
-    [canEdit, canDelete, navigate, id, params]
+    [canEdit, canDelete, navigate, id, params, formatter]
   );
 
   return (

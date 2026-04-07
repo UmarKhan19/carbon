@@ -96,10 +96,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function PriceListRoute() {
-  const { items, rules, assignments, explorerData } =
+  const { priceList, items, rules, assignments, explorerData } =
     useLoaderData<typeof loader>();
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
+  const isLocked = priceList?.status === "Active";
 
   return (
     <PanelProvider>
@@ -114,7 +115,6 @@ export default function PriceListRoute() {
                     {(deferred) => (
                       <PriceListExplorer
                         items={items}
-                        rules={rules}
                         assignments={assignments}
                         versions={deferred.versions}
                         salesOrders={deferred.salesOrders}
@@ -131,6 +131,14 @@ export default function PriceListRoute() {
                 <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
                   <VStack spacing={2} className="p-2">
                     <PriceListDescription />
+                    {isLocked && (
+                      <div className="w-full rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+                        This price list is <strong>Active</strong> and locked
+                        from edits. Use <strong>Create New Version</strong> from
+                        the header to make changes — the new version will carry
+                        over all items, rules, and assignments.
+                      </div>
+                    )}
                     <PriceListItemsTable data={items} />
                     <PriceListRulesTable data={rules} />
                   </VStack>

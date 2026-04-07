@@ -19,6 +19,7 @@ import type { z } from "zod";
 import {
   Boolean as BooleanField,
   CustomerType,
+  DatePicker,
   Hidden,
   Input,
   Item,
@@ -137,12 +138,19 @@ const PriceListRuleForm = ({
 
                 <BooleanField name="active" label="Active" />
 
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <DatePicker name="validFrom" label="Valid From" />
+                  <DatePicker name="validTo" label="Valid To" />
+                </div>
+
                 <p className="text-sm font-medium text-muted-foreground pt-2">
                   Scope (leave blank to apply to all)
                 </p>
 
-                <Number name="minQuantity" label="Min Quantity" />
-                <Number name="maxQuantity" label="Max Quantity" />
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <Number name="minQuantity" label="Min Qty" />
+                  <Number name="maxQuantity" label="Max Qty" />
+                </div>
 
                 {priceListType === "Sales" && (
                   <CustomerType

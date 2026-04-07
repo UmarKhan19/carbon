@@ -1,26 +1,16 @@
 import {
   Count,
   cn,
+  HStack,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
-  ScrollArea,
-  Skeleton
+  Skeleton,
+  VStack
 } from "@carbon/react";
 import { useMemo, useState } from "react";
-import {
-  LuBox,
-  LuChevronRight,
-  LuCirclePlus,
-  LuContainer,
-  LuHistory,
-  LuLayoutList,
-  LuSearch,
-  LuShapes,
-  LuSquareUser,
-  LuStar
-} from "react-icons/lu";
-import { RiProgress8Line } from "react-icons/ri";
+import { LuChevronRight, LuCirclePlus, LuSearch, LuTag } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
 import { Enumerable } from "~/components/Enumerable";
 import Hyperlink from "~/components/Hyperlink";
@@ -70,18 +60,10 @@ type PurchaseOrderLineRef = {
   purchaseOrder: { id: string; purchaseOrderId: string } | null;
 };
 
-type PriceListRuleRow = {
-  id: string;
-  name: string;
-  ruleType: string;
-  active: boolean;
-};
-
 type DefaultEntity = { id: string; name: string };
 
 export type PriceListExplorerProps = {
   items: PriceListItemRow[];
-  rules: PriceListRuleRow[];
   assignments: PriceListAssignmentRow[];
   versions: PriceListVersionRow[];
   salesOrders: SalesOrderLineRef[];
@@ -126,49 +108,39 @@ function Section({
   );
 
   return (
-    <div className="flex flex-col w-full">
-      <button
-        type="button"
-        onClick={() => setIsExpanded((prev) => !prev)}
-        className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-accent"
-      >
-        <div className="h-8 w-4 flex items-center justify-center flex-shrink-0">
-          <LuChevronRight
-            className={cn(
-              "size-4 transition-transform",
-              isExpanded && "rotate-90"
-            )}
-          />
-        </div>
-        <span className="font-medium flex-grow text-left truncate">
-          {title}
-        </span>
-        {count > 0 && <Count count={count} />}
-        {onAdd && (
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label={`Add ${title}`}
-            className="ml-1 rounded-sm p-0.5 hover:bg-accent-foreground/10 text-muted-foreground hover:text-foreground"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdd();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.stopPropagation();
-                onAdd();
-              }
-            }}
-          >
-            <LuCirclePlus className="size-4" />
+    <>
+      <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-accent">
+        <button
+          type="button"
+          className="flex flex-grow cursor-pointer items-center overflow-hidden font-medium"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded((prev) => !prev);
+          }}
+        >
+          <div className="h-8 w-4 flex items-center justify-center">
+            <LuChevronRight
+              className={cn("size-4", isExpanded && "rotate-90")}
+            />
           </div>
+          <div className="flex flex-grow items-center justify-between gap-2">
+            <span>{title}</span>
+            {count > 0 && <Count count={count} />}
+          </div>
+        </button>
+        {onAdd && (
+          <IconButton
+            aria-label={`Add ${title}`}
+            size="sm"
+            variant="ghost"
+            icon={<LuCirclePlus />}
+            className="ml-auto"
+            onClick={onAdd}
+          />
         )}
-      </button>
-      {isExpanded && (
-        <div className="flex flex-col w-full px-2">{children}</div>
-      )}
-    </div>
+      </div>
+      {isExpanded && <div className="flex flex-col w-full">{children}</div>}
+    </>
   );
 }
 
@@ -190,9 +162,9 @@ function ExplorerRow({
       to={to}
       className="flex h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-accent w-full font-medium whitespace-nowrap"
     >
-      <LevelLine isSelected={false} />
+      <LevelLine isSelected={false} className="mr-2" />
       {icon && (
-        <span className="text-muted-foreground flex-shrink-0">{icon}</span>
+        <span className="text-muted-foreground flex-shrink-0 mr-2">{icon}</span>
       )}
       <span className="truncate">{label}</span>
     </Hyperlink>
@@ -214,7 +186,6 @@ function EmptyRow({ label }: { label: string }) {
 
 export function PriceListExplorer({
   items,
-  rules,
   assignments,
   versions,
   salesOrders,
@@ -258,16 +229,6 @@ export function PriceListExplorer({
         return item.itemPostingGroup.name.toLowerCase().includes(q);
       }),
     [items, q]
-  );
-
-  // ---- Rules ----
-  const filteredRules = useMemo(
-    () =>
-      rules.filter((rule) => {
-        if (!q) return true;
-        return rule.name.toLowerCase().includes(q);
-      }),
-    [rules, q]
   );
 
   // ---- Customers (assigned + defaults, deduplicated) ----
@@ -418,212 +379,193 @@ export function PriceListExplorer({
   );
 
   return (
-    <ScrollArea className="h-full">
-      <div className="flex flex-col w-full py-1">
-        {/* Search */}
-        <div className="px-2 pt-2 pb-1 flex-shrink-0">
-          <InputGroup size="sm">
-            <InputLeftElement>
-              <LuSearch className="size-4 text-muted-foreground" />
-            </InputLeftElement>
-            <Input
-              placeholder="Search..."
-              value={filterText}
-              onChange={(e) => setFilterText(e.target.value)}
-            />
-          </InputGroup>
-        </div>
+    <div className="flex flex-col h-full">
+      <HStack className="w-full justify-between flex-shrink-0 p-2 pb-0">
+        <InputGroup size="sm" className="flex flex-grow">
+          <InputLeftElement>
+            <LuSearch className="h-4 w-4" />
+          </InputLeftElement>
+          <Input
+            placeholder="Search..."
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+          />
+        </InputGroup>
+      </HStack>
+      <div className="flex-1 overflow-y-auto">
+        <VStack className="w-full p-2" spacing={0}>
+          {/* Versions — at the top so users always see lineage first */}
+          <Section title="Versions" count={filteredVersions.length}>
+            {filteredVersions.length === 0 ? (
+              <EmptyRow label="versions" />
+            ) : (
+              filteredVersions.map((version) => (
+                <Link
+                  key={version.id}
+                  to={path.to.priceListDetails(version.id)}
+                  className={cn(
+                    "flex h-8 items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-accent w-full whitespace-nowrap",
+                    version.id === priceListId && "font-semibold"
+                  )}
+                >
+                  <LevelLine
+                    isSelected={version.id === priceListId}
+                    className="mr-2"
+                  />
+                  <LuTag className="size-4 text-muted-foreground flex-shrink-0 mr-2" />
+                  <span className="truncate flex-grow">v{version.version}</span>
+                  <Enumerable
+                    value={version.status}
+                    className="text-xs flex-shrink-0"
+                  />
+                </Link>
+              ))
+            )}
+          </Section>
 
-        {/* Specific Items */}
-        <Section
-          title="Items"
-          count={filteredSpecificItems.length}
-          onAdd={
-            canCreate
-              ? () => navigate(`${path.to.priceListItems(priceListId)}/new`)
-              : undefined
-          }
-        >
-          {filteredSpecificItems.length === 0 ? (
-            <EmptyRow label="items" />
-          ) : (
-            filteredSpecificItems.map((item) => (
-              <ExplorerRow
-                key={item.id}
-                to={path.to.part(item.itemId!)}
-                label={`${item.item!.readableId} — ${item.item!.name}`}
-                icon={<LuBox className="size-4" />}
-              />
-            ))
-          )}
-        </Section>
-
-        {/* Item Groups */}
-        {filteredItemGroups.length > 0 && (
+          {/* Specific Items */}
           <Section
-            title="Item Groups"
-            count={filteredItemGroups.length}
+            title="Items"
+            count={filteredSpecificItems.length}
             onAdd={
               canCreate
                 ? () => navigate(`${path.to.priceListItems(priceListId)}/new`)
                 : undefined
             }
           >
-            {filteredItemGroups.map((item) => (
-              <ExplorerRow
-                key={item.id}
-                to={`${path.to.parts}?filter=itemPostingGroupId:eq:${item.itemPostingGroupId}`}
-                label={item.itemPostingGroup!.name}
-                icon={<LuShapes className="size-4" />}
-              />
-            ))}
-          </Section>
-        )}
-
-        {/* Rules */}
-        <Section
-          title="Rules"
-          count={filteredRules.length}
-          onAdd={
-            canCreate
-              ? () => navigate(`${path.to.priceListRules(priceListId)}/new`)
-              : undefined
-          }
-        >
-          {filteredRules.length === 0 ? (
-            <EmptyRow label="rules" />
-          ) : (
-            filteredRules.map((rule) => (
-              <ExplorerRow
-                key={rule.id}
-                to={`${path.to.priceListRules(priceListId)}/${rule.id}`}
-                label={rule.name}
-                icon={<LuStar className="size-4" />}
-              />
-            ))
-          )}
-        </Section>
-
-        {/* Customers — Sales price lists */}
-        {isSales && (
-          <Section title="Customers" count={customers.length}>
-            {customers.length === 0 ? (
-              <EmptyRow label="customers" />
+            {filteredSpecificItems.length === 0 ? (
+              <EmptyRow label="items" />
             ) : (
-              customers.map((entity) => (
+              filteredSpecificItems.map((item) => (
                 <ExplorerRow
-                  key={entity.id}
-                  to={entity.link}
-                  label={entity.name}
-                  icon={<LuSquareUser className="size-4" />}
+                  key={item.id}
+                  to={path.to.part(item.itemId!)}
+                  label={`${item.item!.readableId} — ${item.item!.name}`}
+                  icon={<LuTag className="size-4" />}
                 />
               ))
             )}
           </Section>
-        )}
 
-        {/* Customer Types — Sales price lists */}
-        {isSales && customerTypes.length > 0 && (
-          <Section title="Customer Types" count={customerTypes.length}>
-            {customerTypes.map((entity) => (
-              <ExplorerRow
-                key={entity.id}
-                to={entity.link}
-                label={entity.name}
-                icon={<LuShapes className="size-4" />}
-              />
-            ))}
-          </Section>
-        )}
+          {/* Item Groups */}
+          {filteredItemGroups.length > 0 && (
+            <Section
+              title="Item Groups"
+              count={filteredItemGroups.length}
+              onAdd={
+                canCreate
+                  ? () => navigate(`${path.to.priceListItems(priceListId)}/new`)
+                  : undefined
+              }
+            >
+              {filteredItemGroups.map((item) => (
+                <ExplorerRow
+                  key={item.id}
+                  to={`${path.to.parts}?filter=itemPostingGroupId:eq:${item.itemPostingGroupId}`}
+                  label={item.itemPostingGroup!.name}
+                  icon={<LuTag className="size-4" />}
+                />
+              ))}
+            </Section>
+          )}
 
-        {/* Suppliers — Purchase price lists */}
-        {!isSales && (
-          <Section title="Suppliers" count={suppliers.length}>
-            {suppliers.length === 0 ? (
-              <EmptyRow label="suppliers" />
-            ) : (
-              suppliers.map((entity) => (
+          {/* Customers — Sales price lists */}
+          {isSales && (
+            <Section title="Customers" count={customers.length}>
+              {customers.length === 0 ? (
+                <EmptyRow label="customers" />
+              ) : (
+                customers.map((entity) => (
+                  <ExplorerRow
+                    key={entity.id}
+                    to={entity.link}
+                    label={entity.name}
+                    icon={<LuTag className="size-4" />}
+                  />
+                ))
+              )}
+            </Section>
+          )}
+
+          {/* Customer Types — Sales price lists */}
+          {isSales && customerTypes.length > 0 && (
+            <Section title="Customer Types" count={customerTypes.length}>
+              {customerTypes.map((entity) => (
                 <ExplorerRow
                   key={entity.id}
                   to={entity.link}
                   label={entity.name}
-                  icon={<LuContainer className="size-4" />}
+                  icon={<LuTag className="size-4" />}
                 />
-              ))
-            )}
-          </Section>
-        )}
-
-        {/* Supplier Types — Purchase price lists */}
-        {!isSales && supplierTypes.length > 0 && (
-          <Section title="Supplier Types" count={supplierTypes.length}>
-            {supplierTypes.map((entity) => (
-              <ExplorerRow
-                key={entity.id}
-                to={entity.link}
-                label={entity.name}
-                icon={<LuStar className="size-4" />}
-              />
-            ))}
-          </Section>
-        )}
-
-        {/* Sales Orders */}
-        {isSales && uniqueSalesOrders.length > 0 && (
-          <Section title="Sales Orders" count={uniqueSalesOrders.length}>
-            {uniqueSalesOrders.map((order) => (
-              <ExplorerRow
-                key={order.id}
-                to={path.to.salesOrder(order.id)}
-                label={order.readableId}
-                icon={<RiProgress8Line className="size-4" />}
-              />
-            ))}
-          </Section>
-        )}
-
-        {/* Purchase Orders */}
-        {!isSales && uniquePurchaseOrders.length > 0 && (
-          <Section title="Purchase Orders" count={uniquePurchaseOrders.length}>
-            {uniquePurchaseOrders.map((order) => (
-              <ExplorerRow
-                key={order.id}
-                to={path.to.purchaseOrder(order.id)}
-                label={order.readableId}
-                icon={<LuLayoutList className="size-4" />}
-              />
-            ))}
-          </Section>
-        )}
-
-        {/* Versions */}
-        <Section title="Versions" count={filteredVersions.length}>
-          {filteredVersions.length === 0 ? (
-            <EmptyRow label="versions" />
-          ) : (
-            filteredVersions.map((version) => (
-              <Link
-                key={version.id}
-                to={path.to.priceListDetails(version.id)}
-                className={cn(
-                  "flex h-8 items-center overflow-hidden rounded-sm px-1 gap-4 text-sm hover:bg-accent w-full whitespace-nowrap",
-                  version.id === priceListId && "font-semibold"
-                )}
-              >
-                <LevelLine isSelected={version.id === priceListId} />
-                <span className="text-muted-foreground flex-shrink-0">
-                  <LuHistory className="size-4" />
-                </span>
-                <span className="truncate flex-shrink-0">
-                  v{version.version}
-                </span>
-                <Enumerable value={version.status} className="text-xs" />
-              </Link>
-            ))
+              ))}
+            </Section>
           )}
-        </Section>
+
+          {/* Suppliers — Purchase price lists */}
+          {!isSales && (
+            <Section title="Suppliers" count={suppliers.length}>
+              {suppliers.length === 0 ? (
+                <EmptyRow label="suppliers" />
+              ) : (
+                suppliers.map((entity) => (
+                  <ExplorerRow
+                    key={entity.id}
+                    to={entity.link}
+                    label={entity.name}
+                    icon={<LuTag className="size-4" />}
+                  />
+                ))
+              )}
+            </Section>
+          )}
+
+          {/* Supplier Types — Purchase price lists */}
+          {!isSales && supplierTypes.length > 0 && (
+            <Section title="Supplier Types" count={supplierTypes.length}>
+              {supplierTypes.map((entity) => (
+                <ExplorerRow
+                  key={entity.id}
+                  to={entity.link}
+                  label={entity.name}
+                  icon={<LuTag className="size-4" />}
+                />
+              ))}
+            </Section>
+          )}
+
+          {/* Sales Orders */}
+          {isSales && uniqueSalesOrders.length > 0 && (
+            <Section title="Sales Orders" count={uniqueSalesOrders.length}>
+              {uniqueSalesOrders.map((order) => (
+                <ExplorerRow
+                  key={order.id}
+                  to={path.to.salesOrder(order.id)}
+                  label={order.readableId}
+                  icon={<LuTag className="size-4" />}
+                />
+              ))}
+            </Section>
+          )}
+
+          {/* Purchase Orders */}
+          {!isSales && uniquePurchaseOrders.length > 0 && (
+            <Section
+              title="Purchase Orders"
+              count={uniquePurchaseOrders.length}
+            >
+              {uniquePurchaseOrders.map((order) => (
+                <ExplorerRow
+                  key={order.id}
+                  to={path.to.purchaseOrder(order.id)}
+                  label={order.readableId}
+                  icon={<LuTag className="size-4" />}
+                />
+              ))}
+            </Section>
+          )}
+        </VStack>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
 

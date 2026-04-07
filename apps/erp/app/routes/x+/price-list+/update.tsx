@@ -1,10 +1,20 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import {
-  checkOverlappingPriceLists,
-  getPriceList,
+  getPriceListLockState,
   syncPriceListAssignments
 } from "~/modules/pricing";
+
+// Fields that affect pricing and are blocked when the list is Active.
+// Name, description, and status are NOT in this list — name/description
+// are just labels, and status is the escape hatch (you change it to Draft
+// to unlock the rest).
+const PRICING_FIELDS = new Set([
+  "priceType",
+  "currencyCode",
+  "validFrom",
+  "validTo"
+]);
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -21,23 +31,47 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Sync assignments (multi-select from Properties panel)
   if (field === "assignments") {
+    const { isLocked } = await getPriceListLockState(client, id);
+    if (isLocked) {
+      return {
+        error: {
+          message:
+            "Price list is Active. Create a new version before changing assignments."
+        },
+        data: null
+      };
+    }
+
     const customerIds = formData.getAll("customerIds") as string[];
     const customerTypeIds = formData.getAll("customerTypeIds") as string[];
     const supplierIds = formData.getAll("supplierIds") as string[];
     const supplierTypeIds = formData.getAll("supplierTypeIds") as string[];
 
-    const result = await syncPriceListAssignments(
-      client,
-      id,
-      companyId,
-      userId,
-      { customerIds, customerTypeIds, supplierIds, supplierTypeIds }
-    );
+    const result = await syncPriceListAssignments(id, companyId, userId, {
+      customerIds,
+      customerTypeIds,
+      supplierIds,
+      supplierTypeIds
+    });
 
     if (result.error) {
       return { error: { message: result.error.message }, data: null };
     }
     return { data: null, error: null };
+  }
+
+  // Block pricing-affecting field edits when the list is Active
+  if (PRICING_FIELDS.has(field)) {
+    const { isLocked } = await getPriceListLockState(client, id);
+    if (isLocked) {
+      return {
+        error: {
+          message:
+            "Price list is Active. Create a new version before changing pricing fields."
+        },
+        data: null
+      };
+    }
   }
 
   // Single-field updates
@@ -62,31 +96,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (field === "name" && !value) {
     return { error: { message: "Name is required" }, data: null };
-  }
-
-  // Check for overlapping price lists when activating
-  if (field === "status" && value === "Active") {
-    const { data: current } = await getPriceList(client, id);
-    if (current && current.status !== "Active") {
-      const { overlapping } = await checkOverlappingPriceLists(
-        client,
-        companyId,
-        id,
-        current.type as "Sales" | "Purchase",
-        current.validFrom,
-        current.validTo
-      );
-
-      if (overlapping.length > 0) {
-        const names = overlapping.map((o) => o.name).join(", ");
-        return {
-          error: {
-            message: `Cannot activate: overlapping dates with: ${names}. Adjust dates, assignments, or deactivate the conflicting list.`
-          },
-          data: null
-        };
-      }
-    }
   }
 
   return client

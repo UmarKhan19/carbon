@@ -267,6 +267,8 @@ CREATE TABLE "priceListRule" (
   "supplierTypeId" TEXT,
   "itemId" TEXT,
   "itemPostingGroupId" TEXT,
+  "validFrom" DATE,
+  "validTo" DATE,
   "active" BOOLEAN NOT NULL DEFAULT true,
   "companyId" TEXT NOT NULL,
   "createdBy" TEXT NOT NULL,
@@ -471,3 +473,14 @@ ALTER TABLE "supplier" ADD COLUMN "priceListId" TEXT;
 ALTER TABLE "supplier" ADD CONSTRAINT "supplier_priceListId_fkey"
   FOREIGN KEY ("priceListId") REFERENCES "priceList"("id")
   ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- Audit trace for price resolution at order line save time.
+-- Stores the resolver's trace array (Base Price → Discount → Surcharge → Final)
+-- so historical pricing decisions remain auditable even after price lists change.
+ALTER TABLE "salesOrderLine" ADD COLUMN "priceTrace" JSONB;
+ALTER TABLE "purchaseOrderLine" ADD COLUMN "priceTrace" JSONB;
+
+COMMENT ON COLUMN "salesOrderLine"."priceTrace" IS
+  'Snapshot of price resolution trace at order line save time';
+COMMENT ON COLUMN "purchaseOrderLine"."priceTrace" IS
+  'Snapshot of price resolution trace at order line save time';
