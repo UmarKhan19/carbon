@@ -154,15 +154,14 @@ export const EXCHANGE_RATES_API_KEY = getEnv("EXCHANGE_RATES_API_KEY", {
   isSecret: true
 });
 
-const isInngestDev = process.env.INNGEST_DEV
-  ? parseInt(process.env.INNGEST_DEV) === 1
-  : false;
+const INNGEST_DEV = getEnv("INNGEST_DEV", { isRequired: false });
+
 export const INNGEST_SIGNING_KEY = getEnv("INNGEST_SIGNING_KEY", {
-  isRequired: !isInngestDev,
+  isRequired: !INNGEST_DEV,
   isSecret: true
 });
 export const INNGEST_EVENT_KEY = getEnv("INNGEST_EVENT_KEY", {
-  isRequired: !isInngestDev,
+  isRequired: !INNGEST_DEV,
   isSecret: true
 });
 
