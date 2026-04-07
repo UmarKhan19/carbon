@@ -18,7 +18,7 @@ import {
 } from "~/modules/inventory";
 import { getJob } from "~/modules/production";
 import { getNextSequence } from "~/modules/settings";
-import { getPeriods } from "~/modules/shared/shared.service";
+import { getOrCreatePeriods } from "~/modules/shared/shared.server";
 import { path } from "~/utils/path";
 
 const jobMaterialsSessionValidator = z.object({
@@ -117,17 +117,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const periods = await getPeriods(client, {
-    startDate: startDate.toString(),
-    endDate: (jobStartDate ?? startDate.add({ weeks: 8 })).toString()
-  });
-
-  if (periods.error || !periods.data) {
-    return data(
-      { success: false, message: "Failed to get periods" },
-      await flash(request, error(periods.error, "Failed to get periods"))
-    );
-  }
+  const endDate = jobStartDate
+    ? new Date(String(jobStartDate))
+    : new Date(startDate.add({ weeks: 8 }).toString());
+  const weeksToProject = Math.max(
+    1,
+    Math.ceil(
+      (endDate.getTime() - new Date(startDate.toString()).getTime()) /
+        (7 * 24 * 60 * 60 * 1000)
+    )
+  );
+  const periods = await getOrCreatePeriods(
+    today(getLocalTimeZone()),
+    weeksToProject
+  );
 
   const transferItems = sessionItems.filter(
     (item) => item.action === "transfer"
@@ -380,16 +383,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         // Helper function to find period ID
         const findPeriodId = (dueDate: string) => {
           const dueDateParsed = parseDate(dueDate);
-          const period = periods.data?.find((p) => {
+          const period = periods?.find((p) => {
             const startDate = parseDate(p.startDate);
             const endDate = parseDate(p.endDate);
             return dueDateParsed >= startDate && dueDateParsed <= endDate;
           });
 
           if (!period) {
-            if (periods.data && periods.data.length > 0) {
-              const firstPeriod = periods.data[0];
-              const lastPeriod = periods.data[periods.data.length - 1];
+            if (periods && periods.length > 0) {
+              const firstPeriod = periods[0];
+              const lastPeriod = periods[periods.length - 1];
               const firstStartDate = parseDate(firstPeriod.startDate);
               const lastEndDate = parseDate(lastPeriod.endDate);
 
@@ -399,7 +402,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 return lastPeriod.id;
               }
             }
-            return periods.data?.[0]?.id || "";
+            return periods?.[0]?.id || "";
           }
 
           return period.id;
@@ -512,7 +515,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         // Find the correct period based on the production order due date
         const findPeriodId = (dueDate: string) => {
           const dueDateParsed = parseDate(dueDate);
-          const period = periods.data?.find((p) => {
+          const period = periods?.find((p) => {
             const startDate = parseDate(p.startDate);
             const endDate = parseDate(p.endDate);
             return dueDateParsed >= startDate && dueDateParsed <= endDate;
@@ -521,9 +524,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
           // If no matching period found, use the first period if due date is before it,
           // or the last period if due date is after all periods
           if (!period) {
-            if (periods.data && periods.data.length > 0) {
-              const firstPeriod = periods.data[0];
-              const lastPeriod = periods.data[periods.data.length - 1];
+            if (periods && periods.length > 0) {
+              const firstPeriod = periods[0];
+              const lastPeriod = periods[periods.length - 1];
               const firstStartDate = parseDate(firstPeriod.startDate);
               const lastEndDate = parseDate(lastPeriod.endDate);
 
@@ -533,7 +536,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 return lastPeriod.id;
               }
             }
-            return periods.data?.[0]?.id || "";
+            return periods?.[0]?.id || "";
           }
 
           return period.id;

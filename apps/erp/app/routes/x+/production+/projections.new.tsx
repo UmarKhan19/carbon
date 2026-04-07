@@ -3,34 +3,28 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { useRouteData } from "@carbon/remix";
-import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useNavigate } from "react-router";
 import { demandProjectionValidator } from "~/modules/production/production.models";
 import { upsertDemandProjections } from "~/modules/production/production.service";
 import DemandProjectionForm from "~/modules/production/ui/Projection/DemandProjectionForm";
-import { getPeriods } from "~/modules/shared/shared.service";
+import { getOrCreatePeriods } from "~/modules/shared/shared.server";
 import { path } from "~/utils/path";
 
 const WEEKS_TO_PROJECT = 52;
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  await requirePermissions(request, {
     create: "production"
   });
 
-  const startDate = startOfWeek(today(getLocalTimeZone()), "en-US");
-  const endDate = startDate.add({ weeks: WEEKS_TO_PROJECT });
-  const periods = await getPeriods(client, {
-    startDate: startDate.toString(),
-    endDate: endDate.toString()
-  });
+  const periods = await getOrCreatePeriods(
+    today(getLocalTimeZone()),
+    WEEKS_TO_PROJECT
+  );
 
-  if (periods.error) {
-    throw new Error("Failed to load periods");
-  }
-
-  return { periods: periods.data ?? [] };
+  return { periods };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

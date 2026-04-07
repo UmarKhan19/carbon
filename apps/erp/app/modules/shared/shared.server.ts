@@ -2,6 +2,8 @@ import type { Database } from "@carbon/database";
 import { SalesOrderEmail } from "@carbon/documents/email";
 import { trigger } from "@carbon/jobs";
 import { redis } from "@carbon/kv";
+import type { CalendarDate } from "@internationalized/date";
+import { startOfWeek } from "@internationalized/date";
 import { renderAsync } from "@react-email/components";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LoaderFunctionArgs } from "react-router";
@@ -14,6 +16,7 @@ import {
 } from "~/modules/sales";
 import { getCompany } from "~/modules/settings";
 import { getUser } from "~/modules/users/users.server";
+import { getDatabaseClient } from "~/services/database.server";
 import { stripSpecialCharacters } from "~/utils/string";
 import { upsertDocument } from "../documents/documents.service";
 import type { CustomFieldsTableType } from "../settings";
@@ -284,4 +287,91 @@ export async function sendSalesOrderEmail(args: {
   });
 
   return { success: true };
+}
+
+export async function getOrCreatePeriods(
+  today: CalendarDate,
+  weeksToProject: number
+) {
+  const start = startOfWeek(today, "en-US");
+
+  // Generate weekly date ranges
+  const ranges: { startDate: string; endDate: string }[] = [];
+  let currentStart = start;
+  for (let i = 0; i < weeksToProject; i++) {
+    const periodEnd = currentStart.add({ days: 6 });
+    ranges.push({
+      startDate: currentStart.toString(),
+      endDate: periodEnd.toString()
+    });
+    currentStart = periodEnd.add({ days: 1 });
+  }
+
+  const db = getDatabaseClient();
+
+  // Check which periods already exist
+  const existingPeriods = await db
+    .selectFrom("period")
+    .selectAll()
+    .where(
+      "startDate",
+      "in",
+      ranges.map((r) => r.startDate)
+    )
+    .where("periodType", "=", "Week")
+    .execute();
+
+  if (existingPeriods.length === ranges.length) {
+    return existingPeriods.map((p) => ({
+      ...p,
+      startDate:
+        p.startDate instanceof Date
+          ? p.startDate.toISOString().split("T")[0]
+          : String(p.startDate),
+      endDate:
+        p.endDate instanceof Date
+          ? p.endDate.toISOString().split("T")[0]
+          : String(p.endDate)
+    }));
+  }
+
+  // Find missing periods
+  const existingStartDates = new Set(
+    existingPeriods.map((p) => {
+      const d = p.startDate;
+      return d instanceof Date ? d.toISOString().split("T")[0] : String(d);
+    })
+  );
+
+  const periodsToCreate = ranges.filter(
+    (r) => !existingStartDates.has(r.startDate)
+  );
+
+  // Create missing periods in a transaction
+  const created = await db.transaction().execute(async (trx) => {
+    return await trx
+      .insertInto("period")
+      .values(
+        periodsToCreate.map((p) => ({
+          startDate: p.startDate,
+          endDate: p.endDate,
+          periodType: "Week" as const,
+          createdAt: new Date().toISOString()
+        }))
+      )
+      .returningAll()
+      .execute();
+  });
+
+  return [...existingPeriods, ...created].map((p) => ({
+    ...p,
+    startDate:
+      p.startDate instanceof Date
+        ? p.startDate.toISOString().split("T")[0]
+        : String(p.startDate),
+    endDate:
+      p.endDate instanceof Date
+        ? p.endDate.toISOString().split("T")[0]
+        : String(p.endDate)
+  }));
 }
