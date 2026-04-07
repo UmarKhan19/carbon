@@ -10,9 +10,6 @@ import {
   customerValidator,
   getMethodValidator,
   noQuoteReasonValidator,
-  operationParameterValidator,
-  operationStepValidator,
-  operationToolValidator,
   quoteLineAdditionalChargesValidator,
   quoteLineValidator,
   quoteMaterialValidator,
@@ -180,6 +177,11 @@ import {
   upsertSalesRFQ,
   upsertSalesRFQLine
 } from "~/modules/sales/sales.service";
+import {
+  operationParameterValidator,
+  operationStepValidator,
+  operationToolValidator
+} from "~/modules/shared";
 import type { RegisterTools } from "../types";
 import {
   DESTRUCTIVE_ANNOTATIONS,

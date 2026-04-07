@@ -61,6 +61,8 @@ interface ModuleInfo {
   servicePath: string;
   modelsPath: string | null;
   functions: FunctionInfo[];
+  /** Maps validator name → import source path (resolved from the service file's imports) */
+  validatorSources: Map<string, string>;
 }
 
 /**
@@ -367,14 +369,27 @@ function typeToZod(
 }
 
 /**
- * Extract function info from a service file
+ * Extract function info and validator import sources from a service file
  */
 function extractFunctions(
   project: Project,
   filePath: string,
   moduleName: string
-): FunctionInfo[] {
+): { functions: FunctionInfo[]; validatorSources: Map<string, string> } {
   const sourceFile = project.addSourceFileAtPath(filePath);
+
+  // Build a map of imported names → their source module path
+  // This lets us know where validators are actually imported from
+  const validatorSources = new Map<string, string>();
+  for (const imp of sourceFile.getImportDeclarations()) {
+    const moduleSpecifier = imp.getModuleSpecifierValue();
+    for (const named of imp.getNamedImports()) {
+      const name = named.getName();
+      if (name.endsWith("Validator") || name.endsWith("Type") || name.endsWith("type")) {
+        validatorSources.set(name, moduleSpecifier);
+      }
+    }
+  }
   const functions: FunctionInfo[] = [];
 
   for (const fn of sourceFile.getFunctions()) {
@@ -429,7 +444,7 @@ function extractFunctions(
     functions.push({ name, params, classification, validatorImports });
   }
 
-  return functions;
+  return { functions, validatorSources };
 }
 
 /**
@@ -463,12 +478,45 @@ import {
 ${fnNames.map((n) => `  ${n},`).join("\n")}
 } from "~/modules/${moduleName}/${moduleName}.service";`;
 
-  if (allValidatorImports.size > 0 && module.modelsPath) {
-    imports += `\nimport {
-${Array.from(allValidatorImports)
-  .map((v) => `  ${v},`)
-  .join("\n")}
-} from "~/modules/${moduleName}/${moduleName}.models";`;
+  // Group validator imports by their actual source module
+  if (allValidatorImports.size > 0) {
+    const importsBySource = new Map<string, string[]>();
+    for (const v of allValidatorImports) {
+      const source = module.validatorSources.get(v);
+      // Resolve the import path: use the original source if available,
+      // otherwise fall back to the module's own models file
+      let importPath: string;
+      if (source) {
+        // Convert relative paths from the service file to be relative to mcp/tools/
+        // Service files are at ~/modules/{mod}/{mod}.service.ts
+        // Tool files are at ~/modules/mcp/tools/{mod}.ts
+        // So "../shared" from items.service.ts → "~/modules/shared"
+        if (source.startsWith("../")) {
+          importPath = `~/modules/${source.slice(3)}`;
+        } else if (source.startsWith("./")) {
+          importPath = `~/modules/${moduleName}/${source.slice(2)}`;
+        } else if (source.startsWith("~/")) {
+          importPath = source;
+        } else {
+          // External package — use as-is
+          importPath = source;
+        }
+      } else if (module.modelsPath) {
+        importPath = `~/modules/${moduleName}/${moduleName}.models`;
+      } else {
+        continue; // Skip if no source found and no models file
+      }
+      if (!importsBySource.has(importPath)) {
+        importsBySource.set(importPath, []);
+      }
+      importsBySource.get(importPath)!.push(v);
+    }
+
+    for (const [importPath, names] of importsBySource) {
+      imports += `\nimport {
+${names.map((n) => `  ${n},`).join("\n")}
+} from "${importPath}";`;
+    }
   }
 
   const toolRegistrations = functions
@@ -794,7 +842,7 @@ async function main() {
   for (const sf of serviceFiles) {
     console.log(`  Parsing ${sf.moduleName}...`);
     try {
-      const functions = extractFunctions(project, sf.servicePath, sf.moduleName);
+      const { functions, validatorSources } = extractFunctions(project, sf.servicePath, sf.moduleName);
       console.log(`    → ${functions.length} exported functions`);
 
       modules.push({
@@ -802,6 +850,7 @@ async function main() {
         servicePath: sf.servicePath,
         modelsPath: sf.modelsPath,
         functions,
+        validatorSources,
       });
     } catch (err) {
       console.error(`    ✗ Error parsing ${sf.moduleName}:`, err);

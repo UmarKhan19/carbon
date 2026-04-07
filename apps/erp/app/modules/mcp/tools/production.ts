@@ -12,9 +12,6 @@ import {
   maintenanceDispatchWorkCenterValidator,
   maintenanceScheduleItemValidator,
   maintenanceScheduleValidator,
-  operationParameterValidator,
-  operationStepValidator,
-  operationToolValidator,
   procedureParameterValidator,
   procedureStepValidator,
   procedureValidator,
@@ -152,6 +149,11 @@ import {
   upsertProductionQuantity,
   upsertScrapReason
 } from "~/modules/production/production.service";
+import {
+  operationParameterValidator,
+  operationStepValidator,
+  operationToolValidator
+} from "~/modules/shared";
 import type { RegisterTools } from "../types";
 import {
   DESTRUCTIVE_ANNOTATIONS,

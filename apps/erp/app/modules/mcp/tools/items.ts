@@ -25,9 +25,6 @@ import {
   materialValidator,
   methodMaterialValidator,
   methodOperationValidator,
-  operationParameterValidator,
-  operationStepValidator,
-  operationToolValidator,
   partValidator,
   pickMethodValidator,
   serviceValidator,
@@ -173,6 +170,11 @@ import {
   upsertTool,
   upsertUnitOfMeasure
 } from "~/modules/items/items.service";
+import {
+  operationParameterValidator,
+  operationStepValidator,
+  operationToolValidator
+} from "~/modules/shared";
 import type { RegisterTools } from "../types";
 import {
   DESTRUCTIVE_ANNOTATIONS,
