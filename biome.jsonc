@@ -9,6 +9,8 @@
       "!sst.env.d.ts",
       "!packages/database/src/types.ts",
       "!packages/database/src/swagger-docs-schema.ts",
+      "!apps/erp/app/modules/mcp/tools/**",
+      "!apps/erp/app/modules/mcp/server.ts",
       "**/*.json",
       "examples/**/*"
     ]
