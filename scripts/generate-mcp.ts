@@ -14,7 +14,8 @@ import * as fs from "fs";
 
 const ROOT = path.resolve(__dirname, "..");
 const MODULES_DIR = path.join(ROOT, "apps/erp/app/modules");
-const TOOLS_DIR = path.join(MODULES_DIR, "mcp/tools");
+const MCP_LIB_DIR = path.join(ROOT, "apps/erp/app/routes/api+/mcp+/lib");
+const TOOLS_DIR = path.join(MCP_LIB_DIR, "tools");
 const DOCS_PATH = path.join(ROOT, "llm/cache/mcp-tools-reference.md");
 
 // Parameters that should be auto-filled from McpContext
@@ -888,7 +889,7 @@ async function main() {
   const serverContent = generateServerFile(
     modules.filter((m) => m.functions.length > 0)
   );
-  fs.writeFileSync(path.join(MODULES_DIR, "mcp/server.ts"), serverContent);
+  fs.writeFileSync(path.join(MCP_LIB_DIR, "server.ts"), serverContent);
   console.log("  ✓ server.ts");
 
   // Generate docs
