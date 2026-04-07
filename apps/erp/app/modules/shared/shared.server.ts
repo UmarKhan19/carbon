@@ -322,25 +322,12 @@ export async function getOrCreatePeriods(
     .execute();
 
   if (existingPeriods.length === ranges.length) {
-    return existingPeriods.map((p) => ({
-      ...p,
-      startDate:
-        p.startDate instanceof Date
-          ? p.startDate.toISOString().split("T")[0]
-          : String(p.startDate),
-      endDate:
-        p.endDate instanceof Date
-          ? p.endDate.toISOString().split("T")[0]
-          : String(p.endDate)
-    }));
+    return existingPeriods.map(toPlainPeriod);
   }
 
   // Find missing periods
   const existingStartDates = new Set(
-    existingPeriods.map((p) => {
-      const d = p.startDate;
-      return d instanceof Date ? d.toISOString().split("T")[0] : String(d);
-    })
+    existingPeriods.map((p) => dateToString(p.startDate))
   );
 
   const periodsToCreate = ranges.filter(
@@ -363,15 +350,32 @@ export async function getOrCreatePeriods(
       .execute();
   });
 
-  return [...existingPeriods, ...created].map((p) => ({
-    ...p,
-    startDate:
-      p.startDate instanceof Date
-        ? p.startDate.toISOString().split("T")[0]
-        : String(p.startDate),
-    endDate:
-      p.endDate instanceof Date
-        ? p.endDate.toISOString().split("T")[0]
-        : String(p.endDate)
-  }));
+  return [...existingPeriods, ...created].map(toPlainPeriod);
+}
+
+/** Convert a pg DATE value (Date object or string) to an ISO date string. */
+function dateToString(value: Date | string): string {
+  if (value instanceof Date) {
+    // Use local date parts to avoid timezone shift from toISOString()
+    const y = value.getFullYear();
+    const m = String(value.getMonth() + 1).padStart(2, "0");
+    const d = String(value.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+  return String(value);
+}
+
+/** Return a plain JSON-safe object with only the fields consumers need. */
+function toPlainPeriod(p: {
+  id: string;
+  startDate: Date | string;
+  endDate: Date | string;
+  periodType: string;
+}) {
+  return {
+    id: String(p.id),
+    startDate: dateToString(p.startDate),
+    endDate: dateToString(p.endDate),
+    periodType: p.periodType
+  };
 }

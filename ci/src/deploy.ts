@@ -62,7 +62,6 @@ export type Workspace = {
   stripe_webhook_secret: string | null;
   inngest_signing_key: string | null;
   inngest_event_key: string | null;
-  redis_url: string | null;
   url_erp: string | null;
   url_mes: string | null;
   xero_client_id: string | null;
@@ -261,8 +260,10 @@ async function deploy(): Promise<void> {
           DOMAIN: domain_name,
           EXCHANGE_RATES_API_KEY: exchange_rates_api_key ?? undefined,
           GOOGLE_PLACES_API_KEY: google_places_api_key ?? undefined,
-          NOVU_APPLICATION_ID: novu_application_id ?? undefined,
+          INNGEST_EVENT_KEY: inngest_event_key,
+          INNGEST_SIGNING_KEY: inngest_signing_key,
           NOVU_API_URL: novu_api_url ?? undefined,
+          NOVU_APPLICATION_ID: novu_application_id ?? undefined,
           NOVU_SECRET_KEY: novu_secret_key ?? undefined,
           OPENAI_API_KEY: openai_api_key,
           POSTHOG_API_HOST: posthog_api_host ?? undefined,
@@ -287,9 +288,6 @@ async function deploy(): Promise<void> {
           SUPABASE_DB_URL: database_connection_pooler_url,
           SUPABASE_SERVICE_ROLE_KEY: service_role_key,
           SUPABASE_URL: database_url,
-          INNGEST_SIGNING_KEY: inngest_signing_key,
-          INNGEST_EVENT_KEY: inngest_event_key,
-          REDIS_URL: redis_url,
           URL_ERP: url_erp,
           URL_MES: url_mes,
           VERCEL_ENV: "production",
