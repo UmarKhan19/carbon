@@ -69,13 +69,11 @@ export const eventQueueFunction = inngest.createFunction(
 
     // 3. Dispatch webhooks
     if (grouped.WEBHOOK.length > 0) {
-      const webhookIds = await step.run("dispatch-webhooks", async () => {
-        const queue: number[] = [];
+      const { ids, events } = await step.run("prepare-webhooks", () => {
+        const ids: number[] = [];
 
-        // Send events for each webhook
         const events = grouped.WEBHOOK.map((job) => {
-          const event = job.message.event;
-          queue.push(job.msg_id);
+          ids.push(job.msg_id);
 
           return {
             name: "carbon/event-webhook" as const,
@@ -83,49 +81,50 @@ export const eventQueueFunction = inngest.createFunction(
               msgId: job.msg_id,
               url: job.message.handlerConfig.url,
               config: job.message.handlerConfig,
-              data: event
+              data: job.message.event
             }
           };
         });
 
-        await inngest.send(events);
-        return queue;
+        return { ids, events };
       });
-      total = total.concat(webhookIds);
+
+      await step.sendEvent("dispatch-webhooks", events);
+      total = total.concat(ids);
     }
 
     // 4. Dispatch workflows
     if (grouped.WORKFLOW.length > 0) {
-      const workflowIds = await step.run("dispatch-workflows", async () => {
-        const queue: number[] = [];
+      const { ids, events } = await step.run("prepare-workflows", () => {
+        const ids: number[] = [];
 
         const events = grouped.WORKFLOW.map((job) => {
-          const event = job.message.event;
-          queue.push(job.msg_id);
+          ids.push(job.msg_id);
 
           return {
             name: "carbon/event-workflow" as const,
             data: {
               msgId: job.msg_id,
               workflowId: job.message.handlerConfig.workflowId,
-              data: event
+              data: job.message.event
             }
           };
         });
 
-        await inngest.send(events);
-        return queue;
+        return { ids, events };
       });
-      total = total.concat(workflowIds);
+
+      await step.sendEvent("dispatch-workflows", events);
+      total = total.concat(ids);
     }
 
     // 5. Dispatch syncs (batched into single event)
     if (grouped.SYNC.length > 0) {
-      const syncIds = await step.run("dispatch-syncs", async () => {
-        const queue: number[] = [];
+      const { ids, payload } = await step.run("prepare-syncs", () => {
+        const ids: number[] = [];
 
         const records = grouped.SYNC.map((job) => {
-          queue.push(job.msg_id);
+          ids.push(job.msg_id);
 
           return {
             event: job.message.event,
@@ -134,23 +133,23 @@ export const eventQueueFunction = inngest.createFunction(
           };
         });
 
-        await inngest.send({
-          name: "carbon/event-sync",
-          data: { records }
-        });
-
-        return queue;
+        return {
+          ids,
+          payload: { name: "carbon/event-sync" as const, data: { records } }
+        };
       });
-      total = total.concat(syncIds);
+
+      await step.sendEvent("dispatch-syncs", payload);
+      total = total.concat(ids);
     }
 
     // 6. Dispatch searches (batched into single event)
     if (grouped.SEARCH.length > 0) {
-      const searchIds = await step.run("dispatch-searches", async () => {
-        const queue: number[] = [];
+      const { ids, payload } = await step.run("prepare-searches", () => {
+        const ids: number[] = [];
 
         const records = grouped.SEARCH.map((job) => {
-          queue.push(job.msg_id);
+          ids.push(job.msg_id);
 
           return {
             event: job.message.event,
@@ -158,23 +157,23 @@ export const eventQueueFunction = inngest.createFunction(
           };
         });
 
-        await inngest.send({
-          name: "carbon/event-search",
-          data: { records }
-        });
-
-        return queue;
+        return {
+          ids,
+          payload: { name: "carbon/event-search" as const, data: { records } }
+        };
       });
-      total = total.concat(searchIds);
+
+      await step.sendEvent("dispatch-searches", payload);
+      total = total.concat(ids);
     }
 
     // 7. Dispatch audits (batched into single event)
     if (grouped.AUDIT.length > 0) {
-      const auditIds = await step.run("dispatch-audits", async () => {
-        const queue: number[] = [];
+      const { ids, payload } = await step.run("prepare-audits", () => {
+        const ids: number[] = [];
 
         const records = grouped.AUDIT.map((job) => {
-          queue.push(job.msg_id);
+          ids.push(job.msg_id);
 
           return {
             event: job.message.event,
@@ -184,23 +183,23 @@ export const eventQueueFunction = inngest.createFunction(
           };
         });
 
-        await inngest.send({
-          name: "carbon/event-audit",
-          data: { records }
-        });
-
-        return queue;
+        return {
+          ids,
+          payload: { name: "carbon/event-audit" as const, data: { records } }
+        };
       });
-      total = total.concat(auditIds);
+
+      await step.sendEvent("dispatch-audits", payload);
+      total = total.concat(ids);
     }
 
     // 8. Dispatch embeddings (batched into single event)
     if (grouped.EMBEDDING.length > 0) {
-      const embeddingIds = await step.run("dispatch-embeddings", async () => {
-        const queue: number[] = [];
+      const { ids, payload } = await step.run("prepare-embeddings", () => {
+        const ids: number[] = [];
 
         const records = grouped.EMBEDDING.map((job) => {
-          queue.push(job.msg_id);
+          ids.push(job.msg_id);
 
           return {
             event: job.message.event,
@@ -208,14 +207,17 @@ export const eventQueueFunction = inngest.createFunction(
           };
         });
 
-        await inngest.send({
-          name: "carbon/event-embedding",
-          data: { records }
-        });
-
-        return queue;
+        return {
+          ids,
+          payload: {
+            name: "carbon/event-embedding" as const,
+            data: { records }
+          }
+        };
       });
-      total = total.concat(embeddingIds);
+
+      await step.sendEvent("dispatch-embeddings", payload);
+      total = total.concat(ids);
     }
 
     // 9. Delete processed messages from PGMQ

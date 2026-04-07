@@ -244,6 +244,20 @@ export type Events = {
     };
   };
 
+  "carbon/event-embedding": {
+    data: {
+      records: Array<{
+        event: {
+          table: string;
+          recordId: string;
+          operation: "INSERT" | "UPDATE" | "DELETE" | "TRUNCATE";
+          [key: string]: unknown;
+        };
+        companyId: string;
+      }>;
+    };
+  };
+
   // Cleanup tasks
   "carbon/cleanup": {
     data: Record<string, never>;

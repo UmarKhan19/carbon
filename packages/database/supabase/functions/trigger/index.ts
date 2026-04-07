@@ -35,8 +35,7 @@ const payloadValidator = z.discriminatedUnion("type", [
 ]);
 
 const INNGEST_EVENT_KEY = Deno.env.get("INNGEST_EVENT_KEY") ?? "";
-const INNGEST_BASE_URL =
-  Deno.env.get("INNGEST_BASE_URL") ?? "https://inn.gs";
+const INNGEST_BASE_URL = Deno.env.get("INNGEST_BASE_URL");
 
 async function sendInngestEvent(name: string, data: Record<string, unknown>) {
   const res = await fetch(`${INNGEST_BASE_URL}/e/${INNGEST_EVENT_KEY}`, {
@@ -46,7 +45,9 @@ async function sendInngestEvent(name: string, data: Record<string, unknown>) {
   });
 
   if (!res.ok) {
-    throw new Error(`Inngest event send failed: ${res.status} ${await res.text()}`);
+    throw new Error(
+      `Inngest event send failed: ${res.status} ${await res.text()}`,
+    );
   }
 }
 
@@ -89,7 +90,7 @@ serve(async (req: Request) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
-      }
+      },
     );
   } catch (err) {
     console.error(err);
