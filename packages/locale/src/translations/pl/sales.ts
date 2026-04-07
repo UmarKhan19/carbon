@@ -135,10 +135,10 @@ const sales = {
   "New Sales Order": "Nowe zamowienie sprzedazy",
   "New Sales Order Line": "Nowa pozycja zamowienia sprzedazy",
   "Next Sequence": "Nastepny numer",
+  No: "Nie",
   "No Quote Reason": "Powod braku oferty",
   "No Quote Reasons": "Powody braku oferty",
   "No Quotes": "Powody braku oferty",
-  No: "Nie",
   "Non-Taxable Add-On Cost": "Koszt doplaty niepodlegajacy opodatkowaniu",
   Notes: "Notatki",
   "On Hold": "Wstrzymane",
@@ -237,8 +237,8 @@ const sales = {
   "View Open Quotes": "Zobacz otwarte oferty",
   "View Open RFQs": "Zobacz otwarte RFQ",
   Website: "Strona",
-  Yes: "Tak",
-  "Work Phone": "Telefon sluzbowy"
+  "Work Phone": "Telefon sluzbowy",
+  Yes: "Tak"
 } as const;
 
 export default sales;

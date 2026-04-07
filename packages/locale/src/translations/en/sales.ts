@@ -134,10 +134,10 @@ const sales = {
   "New Sales Order": "New Sales Order",
   "New Sales Order Line": "New Sales Order Line",
   "Next Sequence": "Next Sequence",
+  No: "No",
   "No Quote Reason": "No Quote Reason",
   "No Quote Reasons": "No Quote Reasons",
   "No Quotes": "No Quotes",
-  No: "No",
   "Non-Taxable Add-On Cost": "Non-Taxable Add-On Cost",
   Notes: "Notes",
   "On Hold": "On Hold",
@@ -235,8 +235,8 @@ const sales = {
   "View Open Quotes": "View Open Quotes",
   "View Open RFQs": "View Open RFQs",
   Website: "Website",
-  Yes: "Yes",
-  "Work Phone": "Work Phone"
+  "Work Phone": "Work Phone",
+  Yes: "Yes"
 } as const;
 
 export default sales;
