@@ -10,6 +10,7 @@
     "@carbon/kv": "*",
     "@carbon/lib": "*",
     "@carbon/logger": "*",
+    "@carbon/printing": "*",
     "@carbon/react": "*",
     "@carbon/remix": "*",
     "@carbon/utils": "*",

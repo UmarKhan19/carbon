@@ -47,6 +47,7 @@ import {
   LuMapPin,
   LuMonitor,
   LuMoon,
+  LuPrinter,
   LuShieldCheck,
   LuSun,
   LuUser,
@@ -209,6 +210,11 @@ export function OperationsNav({
       icon: LuWrench,
       label: (activeMaintenanceCount ?? 0).toString(),
       to: path.to.maintenance
+    },
+    {
+      title: "Print Manager",
+      icon: LuPrinter,
+      to: `${ERP_URL}/x/print-manager`
     }
   ];
 

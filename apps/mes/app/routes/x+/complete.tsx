@@ -3,7 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import type { PrintingSettings } from "@carbon/printing";
 import { FunctionRegion } from "@supabase/supabase-js";
+import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { nonScrapQuantityValidator } from "~/services/models";
@@ -73,7 +75,51 @@ export async function action({ request }: ActionFunctionArgs) {
       region: FunctionRegion.UsEast1
     });
 
-    const trackedEntityId = response.data?.newTrackedEntityId;
+    const newTrackedEntityId = response.data?.newTrackedEntityId;
+    // Print the entity that was just completed (from form), not the new reserved one
+    const completedEntityId = validation.data.trackedEntityId;
+
+    // Auto-print label if enabled
+    if (completedEntityId) {
+      try {
+        const { data: cs } = await serviceRole
+          .from("companySettings")
+          .select("printing")
+          .eq("id", companyId)
+          .single();
+        const printing = cs?.printing as PrintingSettings | null;
+        if (printing?.autoPrint?.operationLabels) {
+          let locationId: string | undefined;
+          if (jobOperation.data.workCenterId) {
+            const { data: wc } = await serviceRole
+              .from("workCenter")
+              .select("locationId")
+              .eq("id", jobOperation.data.workCenterId)
+              .single();
+            locationId = wc?.locationId ?? undefined;
+          }
+          await tasks.trigger(
+            "print-job",
+            {
+              sourceDocument: "Entity" as const,
+              sourceDocumentId: completedEntityId,
+              companyId,
+              userId,
+              locationId,
+              workCenterId: jobOperation.data.workCenterId ?? undefined
+            },
+            {
+              idempotencyKey: `auto-print-Entity-${completedEntityId}`,
+              idempotencyKeyTTL: "5m"
+            }
+          );
+        }
+      } catch (e) {
+        console.error("Auto-print failed:", e);
+      }
+    }
+
+    const trackedEntityId = newTrackedEntityId;
 
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
@@ -129,6 +175,44 @@ export async function action({ request }: ActionFunctionArgs) {
           flash: "error"
         })
       );
+    }
+
+    // Auto-print label if enabled (Batch)
+    try {
+      const { data: cs } = await serviceRole
+        .from("companySettings")
+        .select("printing")
+        .eq("id", companyId)
+        .single();
+      const printing = cs?.printing as PrintingSettings | null;
+      if (printing?.autoPrint?.operationLabels) {
+        let batchLocationId: string | undefined;
+        if (jobOperation.data.workCenterId) {
+          const { data: wc } = await serviceRole
+            .from("workCenter")
+            .select("locationId")
+            .eq("id", jobOperation.data.workCenterId)
+            .single();
+          batchLocationId = wc?.locationId ?? undefined;
+        }
+        await tasks.trigger(
+          "print-job",
+          {
+            sourceDocument: "Operation" as const,
+            sourceDocumentId: validation.data.jobOperationId,
+            companyId,
+            userId,
+            locationId: batchLocationId,
+            workCenterId: jobOperation.data.workCenterId ?? undefined
+          },
+          {
+            idempotencyKey: `auto-print-Operation-${validation.data.jobOperationId}-batch`,
+            idempotencyKeyTTL: "5m"
+          }
+        );
+      }
+    } catch (e) {
+      console.error("Auto-print failed:", e);
     }
 
     if (willBeFinished) {

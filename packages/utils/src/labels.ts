@@ -44,6 +44,7 @@ export const labelSizes: LabelSize[] = [
     columns: 2,
     rotated: false
   },
+  // Legacy Zebra-branded sizes (kept for backward compatibility)
   {
     id: "zebra2x1",
     name: "Zebra 2x1",
@@ -63,6 +64,32 @@ export const labelSizes: LabelSize[] = [
     width: 4,
     height: 2,
     description: 'Thermal Transfer Labels (2" x 4")',
+    rotated: false,
+    zpl: {
+      dpi: 203,
+      width: 4,
+      height: 2
+    }
+  },
+  {
+    id: "label2x1",
+    name: "Label 2x1",
+    width: 2,
+    height: 1,
+    description: 'Thermal Labels (1" x 2")',
+    rotated: false,
+    zpl: {
+      dpi: 203,
+      width: 2,
+      height: 1
+    }
+  },
+  {
+    id: "label4x2",
+    name: "Label 4x2",
+    width: 4,
+    height: 2,
+    description: 'Thermal Labels (2" x 4")',
     rotated: false,
     zpl: {
       dpi: 203,

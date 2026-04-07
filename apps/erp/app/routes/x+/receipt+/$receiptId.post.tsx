@@ -2,7 +2,9 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import type { PrintingSettings } from "@carbon/printing";
 import { FunctionRegion } from "@supabase/supabase-js";
+import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -42,7 +44,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .single();
 
     const companySettings = await (serviceRole.from("companySettings") as any)
-      .select("updateLeadTimesOnReceipt")
+      .select("updateLeadTimesOnReceipt,printing")
       .eq("id", companyId)
       .single();
 
@@ -100,8 +102,40 @@ export async function action({ request, params }: ActionFunctionArgs) {
         );
       }
     }
-    // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  } catch (error) {
+
+    // Auto-print labels if enabled
+    try {
+      const printing = companySettings.data
+        ?.printing as PrintingSettings | null;
+      if (printing?.autoPrint?.receiptLabels) {
+        const { data: receipt } = await serviceRole
+          .from("receipt")
+          .select("locationId")
+          .eq("id", receiptId)
+          .single();
+        await tasks.trigger(
+          "print-job",
+          {
+            sourceDocument: "Receipt",
+            sourceDocumentId: receiptId,
+            companyId,
+            userId,
+            locationId: receipt?.locationId ?? undefined
+          },
+          {
+            idempotencyKey: `auto-print-Receipt-${receiptId}`,
+            idempotencyKeyTTL: "5m"
+          }
+        );
+      }
+    } catch (e) {
+      console.error("Auto-print failed:", e);
+    }
+  } catch (thrown) {
+    // Re-throw redirects — don't swallow them
+    if (thrown instanceof Response) throw thrown;
+
+    // Only reset to Draft for actual errors
     await client
       .from("receipt")
       .update({

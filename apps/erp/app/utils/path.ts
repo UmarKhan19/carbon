@@ -1239,6 +1239,8 @@ export const path = {
       generatePath(`${x}/resources/processes/activate/${id}`),
     processDeactivate: (id: string) =>
       generatePath(`${x}/resources/processes/deactivate/${id}`),
+    printingSettings: `${x}/settings/printing`,
+    printManager: `${x}/print-manager`,
     production: `${x}/production`,
     productionPlanning: `${x}/production/planning`,
     productionPlanningItem: (itemId: string) =>

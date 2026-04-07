@@ -10,6 +10,7 @@ import {
   LuImage,
   LuKey,
   LuLayoutDashboard,
+  LuPrinter,
   LuSheet,
   LuShoppingCart,
   LuSquareStack,
@@ -55,6 +56,12 @@ const settingsRoutes: AuthenticatedRouteGroup<{
         to: path.to.logos,
         role: "employee",
         icon: <LuImage />
+      },
+      {
+        name: "Printing",
+        to: path.to.printingSettings,
+        role: "employee",
+        icon: <LuPrinter />
       }
     ]
   },

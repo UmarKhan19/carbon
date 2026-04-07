@@ -5,6 +5,7 @@ import {
   LuFiles,
   LuFolderCheck,
   LuLandmark,
+  LuPrinter,
   LuSettings,
   LuShield,
   LuShoppingCart,
@@ -92,6 +93,12 @@ export function useModules() {
       name: "Documents",
       to: path.to.documents,
       icon: LuFiles
+    },
+    {
+      permission: "printing",
+      name: "Print Manager",
+      to: path.to.printManager,
+      icon: LuPrinter
     },
     {
       permission: "users",

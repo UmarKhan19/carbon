@@ -2,7 +2,9 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import type { PrintingSettings } from "@carbon/printing";
 import { FunctionRegion } from "@supabase/supabase-js";
+import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { upsertDocument } from "~/modules/documents";
@@ -136,8 +138,41 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       );
     }
-    // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  } catch (error) {
+
+    // Auto-print labels if enabled
+    try {
+      const { data: cs } = await serviceRole
+        .from("companySettings")
+        .select("printing")
+        .eq("id", companyId)
+        .single();
+      const printing = cs?.printing as PrintingSettings | null;
+      if (printing?.autoPrint?.shipmentLabels) {
+        const { data: shipment } = await serviceRole
+          .from("shipment")
+          .select("locationId")
+          .eq("id", shipmentId)
+          .single();
+        await tasks.trigger(
+          "print-job",
+          {
+            sourceDocument: "Shipment",
+            sourceDocumentId: shipmentId,
+            companyId,
+            userId,
+            locationId: shipment?.locationId ?? undefined
+          },
+          {
+            idempotencyKey: `auto-print-Shipment-${shipmentId}`,
+            idempotencyKeyTTL: "5m"
+          }
+        );
+      }
+    } catch (e) {
+      console.error("Auto-print failed:", e);
+    }
+  } catch (thrown) {
+    if (thrown instanceof Response) throw thrown;
     await client
       .from("shipment")
       .update({

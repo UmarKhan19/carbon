@@ -50,6 +50,7 @@ declare global {
       POSTHOG_PROJECT_PUBLIC_KEY: string;
       QUICKBOOKS_CLIENT_SECRET: string;
       QUICKBOOKS_WEBHOOK_SECRET: string;
+      BINDERY_PRESS_API_KEY: string;
       RESEND_API_KEY: string;
       RESEND_DOMAIN: string;
       SESSION_SECRET: string;
@@ -104,6 +105,11 @@ export function getEnv(
 /**
  * Server env
  */
+
+export const BINDERY_PRESS_API_KEY = getEnv("BINDERY_PRESS_API_KEY", {
+  isRequired: false,
+  isSecret: true
+});
 
 export const AUTH_PROVIDERS =
   getEnv("AUTH_PROVIDERS", {

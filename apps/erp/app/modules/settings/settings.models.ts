@@ -135,6 +135,14 @@ export const materialUnitsValidator = z.object({
   useMetric: zfd.checkbox()
 });
 
+export {
+  assignmentSettingsValidator,
+  autoPrintSettingsValidator,
+  locationOverrideValidator,
+  printerRouteValidator,
+  workCenterOverrideValidator
+} from "@carbon/printing";
+
 export const productLabelSizeValidator = z.object({
   productLabelSize: z.enum(
     labelSizes.map((size) => size.id) as [string, ...string[]],

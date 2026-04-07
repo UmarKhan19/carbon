@@ -1,0 +1,23 @@
+{
+  "name": "@carbon/printing",
+  "dependencies": {
+    "zod": "^3.25.76",
+    "zod-form-data": "2.0.8"
+  },
+  "devDependencies": {
+    "@carbon/database": "*",
+    "@supabase/supabase-js": "2.80.0",
+    "typescript": "^5.2.2"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "private": true,
+  "scripts": {
+    "clean": "rimraf .turbo node_modules dist",
+    "dev": "tsup --watch",
+    "lint": "biome lint --write "
+  },
+  "sideEffects": false,
+  "version": "*"
+}
