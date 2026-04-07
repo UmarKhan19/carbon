@@ -56,7 +56,8 @@ export const eventQueueFunction = inngest.createFunction(
       WORKFLOW: [],
       SYNC: [],
       SEARCH: [],
-      AUDIT: []
+      AUDIT: [],
+      EMBEDDING: []
     };
 
     // 2. Sort into buckets
@@ -193,7 +194,31 @@ export const eventQueueFunction = inngest.createFunction(
       total = total.concat(auditIds);
     }
 
-    // 8. Delete processed messages from PGMQ
+    // 8. Dispatch embeddings (batched into single event)
+    if (grouped.EMBEDDING.length > 0) {
+      const embeddingIds = await step.run("dispatch-embeddings", async () => {
+        const queue: number[] = [];
+
+        const records = grouped.EMBEDDING.map((job) => {
+          queue.push(job.msg_id);
+
+          return {
+            event: job.message.event,
+            companyId: job.message.companyId
+          };
+        });
+
+        await inngest.send({
+          name: "carbon/event-embedding",
+          data: { records }
+        });
+
+        return queue;
+      });
+      total = total.concat(embeddingIds);
+    }
+
+    // 9. Delete processed messages from PGMQ
     if (total.length > 0) {
       await step.run("cleanup-pgmq", async () => {
         await sql`SELECT pgmq.delete(${QUEUE_NAME}, id::bigint) FROM unnest(${total}::bigint[]) AS id`.execute(
