@@ -33,11 +33,13 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: cd ci && npm install
+        run: |
+          npm install
+          npm install --prefix ci
 
       - name: Sync Inngest functions
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: cd ci && npx tsx src/jobs.ts
+        run: npm run -w ci ci:jobs
