@@ -4,6 +4,16 @@ import type { ActionFunctionArgs } from "react-router";
 import { createMcpServer } from "./lib/server";
 
 export async function action({ request }: ActionFunctionArgs) {
+  const authHeader = request.headers.get("Authorization");
+  const hasCarbonKey = request.headers.has("carbon-key");
+
+  if (authHeader?.startsWith("Bearer ") && !hasCarbonKey) {
+    const token = authHeader.slice(7);
+    const headers = new Headers(request.headers);
+    headers.set("carbon-key", token);
+    request = new Request(request, { headers });
+  }
+
   const { client, companyId, userId } = await requirePermissions(request, {});
 
   const server = createMcpServer({ client, companyId, userId });
