@@ -17,6 +17,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -44,6 +45,7 @@ import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 import PurchaseInvoicePostModal from "./PurchaseInvoicePostModal";
 
 const PurchaseInvoiceHeader = () => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const settings = useSettings();
   const { invoiceId } = useParams();
@@ -178,7 +180,10 @@ const PurchaseInvoiceHeader = () => {
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton
-              aria-label="Toggle Explorer"
+              aria-label={t({
+                id: "Toggle Explorer",
+                message: "Toggle Explorer"
+              })}
               icon={<LuPanelLeft />}
               onClick={toggleExplorer}
               variant="ghost"
@@ -192,7 +197,10 @@ const PurchaseInvoiceHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t({
+                    id: "More options",
+                    message: "More options"
+                  })}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -213,7 +221,10 @@ const PurchaseInvoiceHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Purchase Invoice
+                  {t({
+                    id: "Delete Purchase Invoice",
+                    message: "Delete Purchase Invoice"
+                  })}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -222,7 +233,12 @@ const PurchaseInvoiceHeader = () => {
               status={routeData?.purchaseInvoice?.status}
             />
             {settings?.supplierApproval && !isSupplierApproved && (
-              <Status color="red">Unapproved Supplier</Status>
+              <Status color="red">
+                {t({
+                  id: "Unapproved Supplier",
+                  message: "Unapproved Supplier"
+                })}
+              </Status>
             )}
           </HStack>
           <HStack>
@@ -233,7 +249,7 @@ const PurchaseInvoiceHeader = () => {
                     relatedDocs.purchaseOrders[0].id
                   )}
                 >
-                  Purchase Order
+                  {t({ id: "Purchase Order", message: "Purchase Order" })}
                 </Link>
               </Button>
             )}
@@ -241,7 +257,7 @@ const PurchaseInvoiceHeader = () => {
             {relatedDocs.receipts.length === 1 && (
               <Button variant="secondary" leftIcon={<LuHandCoins />} asChild>
                 <Link to={path.to.receipt(relatedDocs.receipts[0].id)}>
-                  Receipt
+                  {t({ id: "Receipt", message: "Receipt" })}
                 </Link>
               </Button>
             )}
@@ -250,7 +266,10 @@ const PurchaseInvoiceHeader = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary" leftIcon={<LuShoppingCart />}>
-                    Purchase Orders
+                    {t({
+                      id: "Purchase Orders",
+                      message: "Purchase Orders"
+                    })}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -269,7 +288,7 @@ const PurchaseInvoiceHeader = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary" leftIcon={<LuHandCoins />}>
-                    Receipts
+                    {t({ id: "Receipts", message: "Receipts" })}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -298,7 +317,7 @@ const PurchaseInvoiceHeader = () => {
                 !isSupplierApproved
               }
             >
-              Post
+              {t({ id: "Post", message: "Post" })}
             </Button>
 
             <DropdownMenu>
@@ -313,7 +332,7 @@ const PurchaseInvoiceHeader = () => {
                   leftIcon={<LuHandCoins />}
                   rightIcon={<LuChevronDown />}
                 >
-                  Payment
+                  {t({ id: "Payment", message: "Payment" })}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -345,7 +364,10 @@ const PurchaseInvoiceHeader = () => {
             </DropdownMenu>
 
             <IconButton
-              aria-label="Toggle Properties"
+              aria-label={t({
+                id: "Toggle Properties",
+                message: "Toggle Properties"
+              })}
               icon={<LuPanelRight />}
               onClick={toggleProperties}
               variant="ghost"
@@ -367,7 +389,10 @@ const PurchaseInvoiceHeader = () => {
           action={path.to.deletePurchaseInvoice(invoiceId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.purchaseInvoice?.invoiceId ?? "purchase invoice"}
-          text={`Are you sure you want to delete ${routeData?.purchaseInvoice?.invoiceId}? This cannot be undone.`}
+          text={t({
+            id: "Are you sure you want to delete {{invoiceId}}? This cannot be undone.",
+            message: `Are you sure you want to delete ${routeData?.purchaseInvoice?.invoiceId}? This cannot be undone.`
+          })}
           onCancel={() => {
             deleteModal.onClose();
           }}

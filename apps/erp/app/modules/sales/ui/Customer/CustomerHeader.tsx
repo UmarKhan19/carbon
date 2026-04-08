@@ -36,7 +36,7 @@ import { path } from "~/utils/path";
 import type { CustomerDetail, CustomerStatus } from "../../types";
 
 const CustomerHeader = () => {
-  const { i18n } = useLingui();
+  const { i18n, t } = useLingui();
   const { customerId } = useParams();
 
   if (!customerId) throw new Error("Could not find customerId");
@@ -99,7 +99,10 @@ const CustomerHeader = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
-                      aria-label="More options"
+                      aria-label={t({
+                        id: "More options",
+                        message: "More options"
+                      })}
                       icon={<LuEllipsisVertical />}
                       variant="secondary"
                       size="sm"
@@ -114,7 +117,10 @@ const CustomerHeader = () => {
                       onClick={deleteModal.onOpen}
                     >
                       <DropdownMenuIcon icon={<LuTrash />} />
-                      Delete Customer
+                      {t({
+                        id: "Delete Customer",
+                        message: "Delete Customer"
+                      })}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -124,7 +130,9 @@ const CustomerHeader = () => {
           <CardContent>
             <CardAttributes>
               <CardAttribute>
-                <CardAttributeLabel>Status</CardAttributeLabel>
+                <CardAttributeLabel>
+                  {t({ id: "Status", message: "Status" })}
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {customerStatus ? (
                     <Enumerable value={i18n._(customerStatus)} />
@@ -134,13 +142,20 @@ const CustomerHeader = () => {
                 </CardAttributeValue>
               </CardAttribute>
               <CardAttribute>
-                <CardAttributeLabel>Type</CardAttributeLabel>
+                <CardAttributeLabel>
+                  {t({ id: "Type", message: "Type" })}
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {customerType ? <Enumerable value={customerType!} /> : "-"}
                 </CardAttributeValue>
               </CardAttribute>
               <CardAttribute>
-                <CardAttributeLabel>Account Manager</CardAttributeLabel>
+                <CardAttributeLabel>
+                  {t({
+                    id: "Account Manager",
+                    message: "Account Manager"
+                  })}
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {routeData?.customer?.accountManagerId ? (
                     <EmployeeAvatar
@@ -163,7 +178,7 @@ const CustomerHeader = () => {
                     className="w-full"
                   >
                     <Tags
-                      label="Tags"
+                      label={t({ id: "Tags", message: "Tags" })}
                       name="tags"
                       availableTags={routeData?.tags ?? []}
                       table="customer"
@@ -195,7 +210,10 @@ const CustomerHeader = () => {
           action={path.to.deleteCustomer(customerId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.customer?.name!}
-          text={`Are you sure you want to delete ${routeData?.customer?.name!}? This cannot be undone.`}
+          text={t({
+            id: "Are you sure you want to delete {{name}}? This cannot be undone.",
+            message: `Are you sure you want to delete ${routeData?.customer?.name!}? This cannot be undone.`
+          })}
           onCancel={deleteModal.onClose}
           onSubmit={deleteModal.onClose}
         />

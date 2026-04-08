@@ -97,7 +97,7 @@ const CustomersTable = memo(
                 label: <Enumerable value={translateStatus(status.name ?? "")} />
               }))
             },
-            pluralHeader: "Statuses",
+            pluralHeader: t({ id: "Statuses", message: "Statuses" }),
             icon: <LuStar />
           }
         },

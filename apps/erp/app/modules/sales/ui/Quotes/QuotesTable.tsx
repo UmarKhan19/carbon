@@ -67,7 +67,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
     const defaultColumns: ColumnDef<Quotation>[] = [
       {
         accessorKey: "quoteId",
-        header: "Quote Number",
+        header: t({ id: "Quote Number", message: "Quote Number" }),
         cell: ({ row }) => (
           <HStack>
             <ItemThumbnail
@@ -140,7 +140,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "customerReference",
-        header: "Customer RFQ",
+        header: t({ id: "Customer RFQ", message: "Customer RFQ" }),
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuQrCode />
@@ -190,7 +190,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "dueDate",
-        header: "Due Date",
+        header: t({ id: "Due Date", message: "Due Date" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -198,7 +198,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "expirationDate",
-        header: "Expiration Date",
+        header: t({ id: "Expiration Date", message: "Expiration Date" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -240,7 +240,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t({ id: "Created At", message: "Created At" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -265,7 +265,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t({ id: "Updated At", message: "Updated At" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -281,7 +281,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       <>
         <MenuItem onClick={() => navigate(path.to.quoteDetails(row.id!))}>
           <MenuIcon icon={<LuPencil />} />
-          Edit
+          {t({ id: "Edit", message: "Edit" })}
         </MenuItem>
         <MenuItem
           disabled={!permissions.can("delete", "sales")}
@@ -292,7 +292,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
           }}
         >
           <MenuIcon icon={<LuTrash />} />
-          Delete
+          {t({ id: "Delete", message: "Delete" })}
         </MenuItem>
       </>
     );
@@ -315,12 +315,15 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
         }}
         primaryAction={
           permissions.can("create", "sales") && (
-            <New label="Quote" to={path.to.newQuote} />
+            <New
+              label={t({ id: "Quote", message: "Quote" })}
+              to={path.to.newQuote}
+            />
           )
         }
         renderContextMenu={renderContextMenu}
         table="quote"
-        title="Quotes"
+        title={t({ id: "Quotes", message: "Quotes" })}
         withSavedView
       />
       {selectedQuotation && selectedQuotation.id && (
@@ -328,7 +331,10 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
           action={path.to.deleteQuote(selectedQuotation.id)}
           isOpen={deleteQuotationModal.isOpen}
           name={selectedQuotation.quoteId!}
-          text={`Are you sure you want to delete ${selectedQuotation.quoteId!}? This cannot be undone.`}
+          text={t({
+            id: "Are you sure you want to delete {{quoteId}}? This cannot be undone.",
+            message: `Are you sure you want to delete ${selectedQuotation.quoteId!}? This cannot be undone.`
+          })}
           onCancel={() => {
             deleteQuotationModal.onClose();
             setSelectedQuotation(null);

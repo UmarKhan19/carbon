@@ -28,6 +28,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuCircleCheck,
@@ -53,6 +54,7 @@ import type { Opportunity, SalesRFQ, SalesRFQLine } from "../../types";
 import SalesRFQStatus from "./SalesRFQStatus";
 
 const SalesRFQHeader = () => {
+  const { t } = useLingui();
   const { rfqId } = useParams();
   if (!rfqId) throw new Error("rfqId not found");
 
@@ -80,7 +82,10 @@ const SalesRFQHeader = () => {
       <HStack className="w-full justify-between">
         <HStack>
           <IconButton
-            aria-label="Toggle Explorer"
+            aria-label={t({
+              id: "Toggle Explorer",
+              message: "Toggle Explorer"
+            })}
             icon={<LuPanelLeft />}
             onClick={toggleExplorer}
             variant="ghost"
@@ -94,7 +99,10 @@ const SalesRFQHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More options"
+                aria-label={t({
+                  id: "More options",
+                  message: "More options"
+                })}
                 icon={<LuEllipsisVertical />}
                 variant="secondary"
                 size="sm"
@@ -111,7 +119,7 @@ const SalesRFQHeader = () => {
                 onClick={deleteRFQModal.onOpen}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete RFQ
+                {t({ id: "Delete RFQ", message: "Delete RFQ" })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -138,7 +146,10 @@ const SalesRFQHeader = () => {
                 variant={status === "Draft" ? "primary" : "secondary"}
                 type="submit"
               >
-                Ready for Quote
+                {t({
+                  id: "Ready for Quote",
+                  message: "Ready for Quote"
+                })}
               </Button>
             </statusFetcher.Form>
           ) : (
@@ -152,7 +163,10 @@ const SalesRFQHeader = () => {
               variant={status === "Draft" ? "primary" : "secondary"}
               onClick={requiresCustomerAlert.onOpen}
             >
-              Ready for Quote
+              {t({
+                id: "Ready for Quote",
+                message: "Ready for Quote"
+              })}
             </Button>
           )}
 
@@ -171,7 +185,7 @@ const SalesRFQHeader = () => {
             }
             onClick={convertToQuoteModal.onOpen}
           >
-            Quote
+            {t({ id: "Quote", message: "Quote" })}
           </Button>
           {/* <statusFetcher.Form
             method="post"
@@ -217,7 +231,7 @@ const SalesRFQHeader = () => {
                 : "secondary"
             }
           >
-            No Quote
+            {t({ id: "No Quote", message: "No Quote" })}
           </Button>
 
           <statusFetcher.Form
@@ -240,7 +254,7 @@ const SalesRFQHeader = () => {
                 type="submit"
                 variant="secondary"
               >
-                Reopen
+                {t({ id: "Reopen", message: "Reopen" })}
               </Button>
             ) : (
               <Tooltip>
@@ -250,18 +264,25 @@ const SalesRFQHeader = () => {
                     isDisabled
                     variant="secondary"
                   >
-                    Reopen
+                    {t({ id: "Reopen", message: "Reopen" })}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  RFQ is linked to a Quote. Delete the quote to reopen.
+                  {t({
+                    id: "RFQ is linked to a Quote. Delete the quote to reopen.",
+                    message:
+                      "RFQ is linked to a Quote. Delete the quote to reopen."
+                  })}
                 </TooltipContent>
               </Tooltip>
             )}
           </statusFetcher.Form>
 
           <IconButton
-            aria-label="Toggle Properties"
+            aria-label={t({
+              id: "Toggle Properties",
+              message: "Toggle Properties"
+            })}
             icon={<LuPanelRight />}
             onClick={toggleProperties}
             variant="ghost"
@@ -290,8 +311,11 @@ const SalesRFQHeader = () => {
           action={path.to.deleteSalesRfq(rfqId)}
           isOpen={deleteRFQModal.isOpen}
           name={routeData?.rfqSummary?.rfqId!}
-          text={`Are you sure you want to delete ${routeData?.rfqSummary
-            ?.rfqId!}? This cannot be undone.`}
+          text={t({
+            id: "Are you sure you want to delete {{rfqId}}? This cannot be undone.",
+            message: `Are you sure you want to delete ${routeData?.rfqSummary
+              ?.rfqId!}? This cannot be undone.`
+          })}
           onCancel={() => {
             deleteRFQModal.onClose();
           }}
@@ -320,6 +344,7 @@ function NoQuoteReasonModal({
   rfqId: string;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const user = useUser();
   const [noQuoteReasons, setNoQuoteReasons] = useState<
     {
@@ -357,9 +382,14 @@ function NoQuoteReasonModal({
           }}
         >
           <ModalHeader>
-            <ModalTitle>No Quote Reason</ModalTitle>
+            <ModalTitle>
+              {t({ id: "No Quote Reason", message: "No Quote Reason" })}
+            </ModalTitle>
             <ModalDescription>
-              Select a reason for why the quote was not created.
+              {t({
+                id: "Select a reason for why the quote was not created.",
+                message: "Select a reason for why the quote was not created."
+              })}
             </ModalDescription>
           </ModalHeader>
           <ModalBody>
@@ -367,16 +397,21 @@ function NoQuoteReasonModal({
             <VStack spacing={2}>
               <Select
                 name="noQuoteReasonId"
-                label="No Quote Reason"
+                label={t({
+                  id: "No Quote Reason",
+                  message: "No Quote Reason"
+                })}
                 options={noQuoteReasons}
               />
             </VStack>
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              {t({ id: "Cancel", message: "Cancel" })}
             </Button>
-            <Submit withBlocker={false}>Save</Submit>
+            <Submit withBlocker={false}>
+              {t({ id: "Save", message: "Save" })}
+            </Submit>
           </ModalFooter>
         </ValidatedForm>
       </ModalContent>
@@ -385,24 +420,35 @@ function NoQuoteReasonModal({
 }
 
 function RequiresCustomerAlert({ onClose }: { onClose: () => void }) {
+  const { t } = useLingui();
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Cannot convert RFQ to quote</ModalTitle>
+          <ModalTitle>
+            {t({
+              id: "Cannot convert RFQ to quote",
+              message: "Cannot convert RFQ to quote"
+            })}
+          </ModalTitle>
         </ModalHeader>
         <ModalBody>
           <Alert variant="destructive">
             <LuTriangleAlert className="h-4 w-4" />
-            <AlertTitle>RFQ has no customer</AlertTitle>
+            <AlertTitle>
+              {t({ id: "RFQ has no customer", message: "RFQ has no customer" })}
+            </AlertTitle>
             <AlertDescription>
-              In order to convert this RFQ to a quote, it must be associated
-              with a customer.
+              {t({
+                id: "In order to convert this RFQ to a quote, it must be associated with a customer.",
+                message:
+                  "In order to convert this RFQ to a quote, it must be associated with a customer."
+              })}
             </AlertDescription>
           </Alert>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={onClose}>OK</Button>
+          <Button onClick={onClose}>{t({ id: "OK", message: "OK" })}</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -418,6 +464,7 @@ function ConvertToQuoteModal({
   rfqId: string;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const routeData = useRouteData<{ rfqSummary: SalesRFQ }>(
     path.to.salesRfq(rfqId)
   );
@@ -445,9 +492,14 @@ function ConvertToQuoteModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Convert to Quote</ModalTitle>
+          <ModalTitle>
+            {t({ id: "Convert to Quote", message: "Convert to Quote" })}
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to convert the RFQ to a quote?
+            {t({
+              id: "Are you sure you want to convert the RFQ to a quote?",
+              message: "Are you sure you want to convert the RFQ to a quote?"
+            })}
           </ModalDescription>
         </ModalHeader>
 
@@ -455,23 +507,43 @@ function ConvertToQuoteModal({
           {requiresCustomer && (
             <Alert variant="destructive">
               <LuTriangleAlert className="h-4 w-4" />
-              <AlertTitle>RFQ has no customer</AlertTitle>
+              <AlertTitle>
+                {t({
+                  id: "RFQ has no customer",
+                  message: "RFQ has no customer"
+                })}
+              </AlertTitle>
               <AlertDescription>
-                In order to convert this RFQ to a quote, it must have a
-                customer.
+                {t({
+                  id: "In order to convert this RFQ to a quote, it must have a customer.",
+                  message:
+                    "In order to convert this RFQ to a quote, it must have a customer."
+                })}
               </AlertDescription>
             </Alert>
           )}
           {requiresPartNumbers && (
             <Alert variant="warning">
               <LuTriangleAlert className="h-4 w-4" />
-              <AlertTitle>Lines need internal part numbers</AlertTitle>
+              <AlertTitle>
+                {t({
+                  id: "Lines need internal part numbers",
+                  message: "Lines need internal part numbers"
+                })}
+              </AlertTitle>
               <AlertDescription>
-                In order to convert this RFQ to a quote, all lines must have an
-                internal part number. <br />
+                {t({
+                  id: "In order to convert this RFQ to a quote, all lines must have an internal part number.",
+                  message:
+                    "In order to convert this RFQ to a quote, all lines must have an internal part number."
+                })}{" "}
                 <br />
-                Upon clicking Convert, parts will be created with the following
-                internal part numbers:
+                <br />
+                {t({
+                  id: "Upon clicking Convert, parts will be created with the following internal part numbers:",
+                  message:
+                    "Upon clicking Convert, parts will be created with the following internal part numbers:"
+                })}
                 <ul className="list-disc py-2 pl-4">
                   {linesWithoutItems.map((line) => (
                     <li key={line.id}>
@@ -482,8 +554,11 @@ function ConvertToQuoteModal({
                   ))}
                 </ul>
                 <br />
-                If you wish to change the part numbers, please click Cancel and
-                manually assign the parts for each line item before converting.
+                {t({
+                  id: "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting.",
+                  message:
+                    "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
+                })}
               </AlertDescription>
             </Alert>
           )}
@@ -491,11 +566,11 @@ function ConvertToQuoteModal({
 
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            {t({ id: "Cancel", message: "Cancel" })}
           </Button>
           <fetcher.Form method="post" action={path.to.salesRfqConvert(rfqId)}>
             <Button isDisabled={isLoading} type="submit" isLoading={isLoading}>
-              Convert
+              {t({ id: "Convert", message: "Convert" })}
             </Button>
           </fetcher.Form>
         </ModalFooter>

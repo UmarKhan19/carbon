@@ -114,7 +114,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
     const defaultColumns: ColumnDef<SalesOrder>[] = [
       {
         accessorKey: "salesOrderId",
-        header: "Sales Order Number",
+        header: t({ id: "Sales Order Number", message: "Sales Order Number" }),
         cell: ({ row }) => (
           <HStack>
             <ItemThumbnail
@@ -196,7 +196,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         id: "jobs",
-        header: "Jobs",
+        header: t({ id: "Jobs", message: "Jobs" }),
         cell: ({ row }) => {
           const jobs = (row.original.jobs ?? []) as SalesOrderJob[];
           const lines =
@@ -242,17 +242,26 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
           const statusIcon = everyMadeLineIsCompleted ? (
             <IconWithTooltip
               icon={<LuCheck className="w-3 h-3 mr-2 text-emerald-500" />}
-              tooltip="All jobs completed"
+              tooltip={t({
+                id: "All jobs completed",
+                message: "All jobs completed"
+              })}
             />
           ) : everyMadeLineHasSufficientJobs ? (
             <IconWithTooltip
               icon={<LuLoader className="w-3 h-3 mr-2 text-orange-500" />}
-              tooltip="Jobs in progress"
+              tooltip={t({
+                id: "Jobs in progress",
+                message: "Jobs in progress"
+              })}
             />
           ) : (
             <IconWithTooltip
               icon={<LuTriangleAlert className="w-3 h-3 mr-2 text-red-500" />}
-              tooltip="Not enough jobs to cover quantity"
+              tooltip={t({
+                id: "Not enough jobs to cover quantity",
+                message: "Not enough jobs to cover quantity"
+              })}
             />
           );
 
@@ -273,7 +282,12 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="left">
-                    <p>Not enough jobs to cover quantity</p>
+                    <p>
+                      {t({
+                        id: "Not enough jobs to cover quantity",
+                        message: "Not enough jobs to cover quantity"
+                      })}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -282,8 +296,10 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
                   <HoverCardTrigger>
                     <Badge variant="secondary" className="cursor-pointer">
                       {statusIcon}
-                      {jobs.length} Job
-                      {jobs.length > 1 ? "s" : ""}
+                      {jobs.length}{" "}
+                      {jobs.length > 1
+                        ? t({ id: "Jobs", message: "Jobs" })
+                        : t({ id: "Job", message: "Job" })}
                       <LuEllipsisVertical className="w-3 h-3 ml-2" />
                     </Badge>
                   </HoverCardTrigger>
@@ -344,7 +360,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "customerReference",
-        header: "Customer PO",
+        header: t({ id: "Customer PO", message: "Customer PO" }),
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuQrCode />
@@ -352,7 +368,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "orderDate",
-        header: "Order Date",
+        header: t({ id: "Order Date", message: "Order Date" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -360,7 +376,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "orderTotal",
-        header: "Order Total",
+        header: t({ id: "Order Total", message: "Order Total" }),
         cell: (item) => currencyFormatter.format(item.getValue<number>()),
         meta: {
           icon: <LuDollarSign />,
@@ -388,7 +404,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "receiptPromisedDate",
-        header: "Promised Date",
+        header: t({ id: "Promised Date", message: "Promised Date" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -396,7 +412,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "shippingMethodId",
-        header: "Shipping Method",
+        header: t({ id: "Shipping Method", message: "Shipping Method" }),
         cell: (item) => (
           <Enumerable
             value={
@@ -433,7 +449,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "paymentTermId",
-        header: "Payment Method",
+        header: t({ id: "Payment Method", message: "Payment Method" }),
         cell: (item) => (
           <Enumerable
             value={
@@ -490,7 +506,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t({ id: "Created At", message: "Created At" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -515,7 +531,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t({ id: "Updated At", message: "Updated At" }),
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -544,7 +560,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
           onClick={() => edit(row)}
         >
           <MenuIcon icon={<LuPencil />} />
-          Edit
+          {t({ id: "Edit", message: "Edit" })}
         </MenuItem>
 
         {/*<MenuItem
@@ -569,7 +585,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
           }}
         >
           <MenuIcon icon={<LuTrash />} />
-          Delete
+          {t({ id: "Delete", message: "Delete" })}
         </MenuItem>
       </>
     );
@@ -597,11 +613,14 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
         }}
         primaryAction={
           permissions.can("create", "sales") && (
-            <New label="Sales Order" to={path.to.newSalesOrder} />
+            <New
+              label={t({ id: "Sales Order", message: "Sales Order" })}
+              to={path.to.newSalesOrder}
+            />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Sales Orders"
+        title={t({ id: "Sales Orders", message: "Sales Orders" })}
         table="salesOrder"
         withSavedView
       />
@@ -611,7 +630,10 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
           action={path.to.deleteSalesOrder(selectedSalesOrder.id)}
           isOpen={deleteSalesOrderModal.isOpen}
           name={selectedSalesOrder.salesOrderId!}
-          text={`Are you sure you want to delete ${selectedSalesOrder.salesOrderId!}? This cannot be undone.`}
+          text={t({
+            id: "Are you sure you want to delete {{salesOrderId}}? This cannot be undone.",
+            message: `Are you sure you want to delete ${selectedSalesOrder.salesOrderId!}? This cannot be undone.`
+          })}
           onCancel={() => {
             deleteSalesOrderModal.onClose();
             setSelectedSalesOrder(null);

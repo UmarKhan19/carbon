@@ -27,6 +27,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
+import { useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import MotionNumber from "motion-number";
@@ -59,6 +60,7 @@ const SalesOrderSummary = ({
 }: {
   onEditShippingCost: () => void;
 }) => {
+  const { t } = useLingui();
   const { orderId } = useParams();
   if (!orderId) throw new Error("Could not find orderId");
 
@@ -132,22 +134,37 @@ const SalesOrderSummary = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex flex-row gap-2">
-                <LuTriangleAlert /> Jobs Required
+                <LuTriangleAlert />{" "}
+                {t({ id: "Jobs Required", message: "Jobs Required" })}
               </CardTitle>
               <CardDescription>
-                This sales order has lines that require jobs to be created
+                {t({
+                  id: "This sales order has lines that require jobs to be created",
+                  message:
+                    "This sales order has lines that require jobs to be created"
+                })}
               </CardDescription>
             </CardHeader>
             <CardFooter>
               <Button variant="primary" onClick={salesOrderToJobsModal.onOpen}>
-                Create Jobs
+                {t({ id: "Create Jobs", message: "Create Jobs" })}
               </Button>
             </CardFooter>
             {salesOrderToJobsModal.isOpen && (
               <Confirm
-                title="Convert Lines to Jobs"
-                text="Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs."
-                confirmText="Create Jobs"
+                title={t({
+                  id: "Convert Lines to Jobs",
+                  message: "Convert Lines to Jobs"
+                })}
+                text={t({
+                  id: "Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs.",
+                  message:
+                    "Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs."
+                })}
+                confirmText={t({
+                  id: "Create Jobs",
+                  message: "Create Jobs"
+                })}
                 onCancel={salesOrderToJobsModal.onClose}
                 onSubmit={salesOrderToJobsModal.onClose}
                 action={path.to.salesOrderLinesToJobs(orderId)}
@@ -160,7 +177,9 @@ const SalesOrderSummary = ({
           <HStack className="justify-between items-center">
             <div className="flex flex-col gap-1">
               <CardTitle>{routeData?.salesOrder.salesOrderId}</CardTitle>
-              <CardDescription>Sales Order</CardDescription>
+              <CardDescription>
+                {t({ id: "Sales Order", message: "Sales Order" })}
+              </CardDescription>
             </div>
             <div className="flex flex-col gap-1 items-end">
               <CustomerAvatar
@@ -168,12 +187,16 @@ const SalesOrderSummary = ({
               />
               {routeData?.salesOrder?.orderDate && (
                 <span className="text-muted-foreground text-sm">
-                  Ordered {formatDate(routeData?.salesOrder.orderDate)}
+                  {t({ id: "Ordered", message: "Ordered" })}{" "}
+                  {formatDate(routeData?.salesOrder.orderDate)}
                 </span>
               )}
               {routeData?.quote?.digitalQuoteAcceptedBy && (
                 <span className="text-muted-foreground text-sm flex flex-row items-center gap-x-1">
-                  via Digital Quote
+                  {t({
+                    id: "via Digital Quote",
+                    message: "via Digital Quote"
+                  })}
                   <Tooltip>
                     <TooltipTrigger>
                       <LuInfo className="size-4" />
@@ -203,7 +226,7 @@ const SalesOrderSummary = ({
 
           <VStack spacing={2} className="mt-8">
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Subtotal:</span>
+              <span>{t({ id: "Subtotal:", message: "Subtotal:" })}</span>
               <MotionNumber
                 value={subtotal}
                 format={{
@@ -214,7 +237,7 @@ const SalesOrderSummary = ({
               />
             </HStack>
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Tax:</span>
+              <span>{t({ id: "Tax:", message: "Tax:" })}</span>
               <MotionNumber
                 value={tax}
                 format={{
@@ -228,14 +251,17 @@ const SalesOrderSummary = ({
               {convertedShippingCost > 0 ? (
                 <>
                   <VStack spacing={0}>
-                    <span>Shipping:</span>
+                    <span>{t({ id: "Shipping:", message: "Shipping:" })}</span>
                     <Button
                       variant="link"
                       size="sm"
                       className="text-muted-foreground"
                       onClick={onEditShippingCost}
                     >
-                      Edit Shipping
+                      {t({
+                        id: "Edit Shipping",
+                        message: "Edit Shipping"
+                      })}
                     </Button>
                   </VStack>
                   <MotionNumber
@@ -254,12 +280,12 @@ const SalesOrderSummary = ({
                   className="text-muted-foreground"
                   onClick={onEditShippingCost}
                 >
-                  Add Shipping
+                  {t({ id: "Add Shipping", message: "Add Shipping" })}
                 </Button>
               ) : null}
             </HStack>
             <HStack className="justify-between text-xl font-bold w-full">
-              <span>Total:</span>
+              <span>{t({ id: "Total:", message: "Total:" })}</span>
               <MotionNumber
                 value={total}
                 format={{
@@ -271,7 +297,12 @@ const SalesOrderSummary = ({
             </HStack>
             <div className="h-px bg-border my-2 w-full" />
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Invoiced Amount:</span>
+              <span>
+                {t({
+                  id: "Invoiced Amount:",
+                  message: "Invoiced Amount:"
+                })}
+              </span>
               <MotionNumber
                 value={routeData?.invoiceSummary?.invoicedAmount ?? 0}
                 format={{
@@ -282,7 +313,7 @@ const SalesOrderSummary = ({
               />
             </HStack>
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Paid Amount:</span>
+              <span>{t({ id: "Paid Amount:", message: "Paid Amount:" })}</span>
               <MotionNumber
                 value={routeData?.invoiceSummary?.paidAmount ?? 0}
                 format={{
@@ -322,6 +353,7 @@ function LineItems({
   lines: SalesOrderLine[];
   salesOrder?: SalesOrder;
 }) {
+  const { t } = useLingui();
   const { orderId } = useParams();
   if (!orderId) throw new Error("Could not find orderId");
 
@@ -393,7 +425,7 @@ function LineItems({
                           className="text-muted-foreground flex-shrink-0"
                         >
                           <Link to={path.to.salesOrderLine(orderId, line.id!)}>
-                            Edit
+                            {t({ id: "Edit", message: "Edit" })}
                           </Link>
                         </Button>
                       </HStack>
@@ -461,7 +493,7 @@ function LineItems({
                         <Tooltip>
                           <TooltipTrigger>
                             <Badge variant="secondary">
-                              {jobs.length} Jobs
+                              {jobs.length} {t({ id: "Jobs", message: "Jobs" })}
                               <LuEllipsisVertical className="w-3 h-3 ml-2" />
                             </Badge>
                           </TooltipTrigger>
