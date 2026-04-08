@@ -19,7 +19,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useCallback } from "react";
 import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -68,7 +68,6 @@ const CustomerHeader = () => {
     (status) => status.id === routeData?.customer?.customerStatusId
   )?.name;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const onUpdateTags = useCallback(
     (value: string[]) => {
       const formData = new FormData();

@@ -15,8 +15,7 @@ import {
   TabsTrigger
 } from "@carbon/react";
 import { formatTimeAgo } from "@carbon/utils";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuBell,
@@ -129,12 +128,12 @@ function Notification({
   onClose: () => void;
 }) {
   const { id: userId } = useUser();
-  const { _: t } = useLingui();
+  const { t } = useLingui();
   const [people] = usePeople();
   let byUser = "";
   if (from) {
     if (from === userId) {
-      byUser = t(msg({ id: "yourself", message: "yourself" }));
+      byUser = t({ id: "yourself", message: "yourself" });
     } else {
       byUser = people.find((p) => p.id === from)?.name ?? "";
     }
@@ -155,9 +154,7 @@ function Notification({
           <p className="text-sm">
             {description}{" "}
             {byUser && (
-              <span>
-                {t(msg({ id: "by {{name}}", message: `by ${byUser}` }))}
-              </span>
+              <span>{t({ id: "by {{name}}", message: `by ${byUser}` })}</span>
             )}
           </p>
           <span className="text-xs text-muted-foreground">
@@ -168,7 +165,7 @@ function Notification({
       {markMessageAsRead && (
         <div>
           <IconButton
-            aria-label={t(msg({ id: "Mark as read", message: "Mark as read" }))}
+            aria-label={t({ id: "Mark as read", message: "Mark as read" })}
             icon={<LuMailCheck />}
             variant="secondary"
             className="rounded-full before:rounded-full"
@@ -379,7 +376,7 @@ function GenericNotification({
 }
 
 const Notifications = () => {
-  const { _: t } = useLingui();
+  const { t } = useLingui();
   const {
     id: userId,
     company: { id: companyId }
@@ -459,13 +456,13 @@ const Notifications = () => {
         >
           <TabsList className="w-full border-b-[1px] py-6 rounded-none bg-muted/[0.5]">
             <TabsTrigger value="inbox" className="font-normal">
-              {t(msg({ id: "Inbox", message: "Inbox" }))}
+              {t({ id: "Inbox", message: "Inbox" })}
             </TabsTrigger>
             <TabsTrigger value="trainings" className="font-normal">
-              {t(msg({ id: "Trainings", message: "Trainings" }))}
+              {t({ id: "Trainings", message: "Trainings" })}
             </TabsTrigger>
             <TabsTrigger value="archive" className="font-normal">
-              {t(msg({ id: "Archive", message: "Archive" }))}
+              {t({ id: "Archive", message: "Archive" })}
             </TabsTrigger>
           </TabsList>
 
@@ -486,12 +483,10 @@ const Notifications = () => {
           <TabsContent value="inbox" className="relative mt-0">
             {!unreadNotifications.length && (
               <EmptyState
-                description={t(
-                  msg({
-                    id: "No new notifications",
-                    message: "No new notifications"
-                  })
-                )}
+                description={t({
+                  id: "No new notifications",
+                  message: "No new notifications"
+                })}
               />
             )}
 
@@ -530,7 +525,7 @@ const Notifications = () => {
                   className="bg-transparent"
                   onClick={markAllMessagesAsRead}
                 >
-                  {t(msg({ id: "Archive all", message: "Archive all" }))}
+                  {t({ id: "Archive all", message: "Archive all" })}
                 </Button>
               </div>
             )}
@@ -545,12 +540,10 @@ const Notifications = () => {
 
             {!isLoadingTrainings && outstandingTrainings.length === 0 && (
               <EmptyState
-                description={t(
-                  msg({
-                    id: "No outstanding trainings",
-                    message: "No outstanding trainings"
-                  })
-                )}
+                description={t({
+                  id: "No outstanding trainings",
+                  message: "No outstanding trainings"
+                })}
               />
             )}
 
@@ -572,12 +565,10 @@ const Notifications = () => {
           <TabsContent value="archive" className="mt-0">
             {!archivedNotifications.length && (
               <EmptyState
-                description={t(
-                  msg({
-                    id: "Nothing in the archive",
-                    message: "Nothing in the archive"
-                  })
-                )}
+                description={t({
+                  id: "Nothing in the archive",
+                  message: "Nothing in the archive"
+                })}
               />
             )}
 

@@ -18,8 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@carbon/react";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { Reorder } from "framer-motion";
 import { BsChevronDown, BsSortUp } from "react-icons/bs";
 import { IoMdClose } from "react-icons/io";
@@ -31,7 +30,7 @@ type SortProps = {
 };
 
 const Sort = ({ columnAccessors }: SortProps) => {
-  const { _: t } = useLingui();
+  const { t } = useLingui();
   const {
     sorts,
     removeSortBy,
@@ -47,15 +46,15 @@ const Sort = ({ columnAccessors }: SortProps) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <IconButton
-              aria-label={t(msg({ id: "Sort", message: "Sort" }))}
-              title={t(msg({ id: "Sort", message: "Sort" }))}
+              aria-label={t({ id: "Sort", message: "Sort" })}
+              title={t({ id: "Sort", message: "Sort" })}
               variant={hasNoSorts ? "ghost" : "active"}
               icon={<LuArrowUpDown />}
               className={cn(hasNoSorts && "!border-dashed border-border")}
             />
           </TooltipTrigger>
           <TooltipContent>
-            <p>{t(msg({ id: "Sort by", message: "Sort by" }))}</p>
+            <p>{t({ id: "Sort by", message: "Sort by" })}</p>
           </TooltipContent>
         </Tooltip>
       </PopoverTrigger>
@@ -63,20 +62,16 @@ const Sort = ({ columnAccessors }: SortProps) => {
         {hasNoSorts && (
           <PopoverHeader>
             <p className="text-sm">
-              {t(
-                msg({
-                  id: "No sorts applied to this view",
-                  message: "No sorts applied to this view"
-                })
-              )}
+              {t({
+                id: "No sorts applied to this view",
+                message: "No sorts applied to this view"
+              })}
             </p>
             <p className="text-xs text-muted-foreground">
-              {t(
-                msg({
-                  id: "Add a column below to sort the view",
-                  message: "Add a column below to sort the view"
-                })
-              )}
+              {t({
+                id: "Add a column below to sort the view",
+                message: "Add a column below to sort the view"
+              })}
             </p>
           </PopoverHeader>
         )}
@@ -106,15 +101,13 @@ const Sort = ({ columnAccessors }: SortProps) => {
                       onCheckedChange={() => toggleSortByDirection(column)}
                     />
                     <span className="text-sm text-muted-foreground">
-                      {t(msg({ id: "Ascending", message: "Ascending" }))}
+                      {t({ id: "Ascending", message: "Ascending" })}
                     </span>
                     <IconButton
-                      aria-label={t(
-                        msg({
-                          id: "Remove sort by column",
-                          message: "Remove sort by column"
-                        })
-                      )}
+                      aria-label={t({
+                        id: "Remove sort by column",
+                        message: "Remove sort by column"
+                      })}
                       icon={<IoMdClose />}
                       onClick={() => removeSortBy(sort)}
                       variant="ghost"
@@ -130,12 +123,10 @@ const Sort = ({ columnAccessors }: SortProps) => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button rightIcon={<BsChevronDown />} variant="secondary">
-                {t(
-                  msg({
-                    id: "Pick a column to sort by",
-                    message: "Pick a column to sort by"
-                  })
-                )}
+                {t({
+                  id: "Pick a column to sort by",
+                  message: "Pick a column to sort by"
+                })}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48">

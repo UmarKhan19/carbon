@@ -17,8 +17,7 @@ import {
 } from "@carbon/react";
 import { ItarDisclosure, useEdition, useMode } from "@carbon/remix";
 import { Edition, themes } from "@carbon/utils";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import {
   LuCreditCard,
@@ -39,7 +38,7 @@ import type { action } from "~/root";
 import { path } from "~/utils/path";
 
 const AvatarMenu = () => {
-  const { _ } = useLingui();
+  const { t } = useLingui();
   const user = useUser();
   const name = `${user.firstName} ${user.lastName}`;
   const { isOwner } = usePermissions();
@@ -83,12 +82,12 @@ const AvatarMenu = () => {
           <Avatar path={user.avatarUrl} name={name} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>{_(msg`Signed in as ${name}`)}</DropdownMenuLabel>
+          <DropdownMenuLabel>{t`Signed in as ${name}`}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to={path.to.authenticatedRoot}>
               <DropdownMenuIcon icon={<LuHouse />} />
-              {_(msg`Dashboard`)}
+              {t`Dashboard`}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -96,7 +95,7 @@ const AvatarMenu = () => {
           <DropdownMenuItem asChild>
             <Link to={path.to.apiIntroduction}>
               <DropdownMenuIcon icon={<LuFileText />} />
-              {_(msg`API Documentation`)}
+              {t`API Documentation`}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -106,7 +105,7 @@ const AvatarMenu = () => {
                 <DropdownMenuIcon
                   icon={mode === "dark" ? <LuMoon /> : <LuSun />}
                 />
-                {_(msg`Dark Mode`)}
+                {t`Dark Mode`}
               </div>
               <div>
                 <Switch
@@ -134,7 +133,7 @@ const AvatarMenu = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <DropdownMenuIcon icon={<LuPalette />} />
-              {_(msg`Theme Color`)}
+              {t`Theme Color`}
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup
@@ -168,7 +167,7 @@ const AvatarMenu = () => {
           <DropdownMenuItem asChild>
             <Link to={path.to.profile}>
               <DropdownMenuIcon icon={<LuUser />} />
-              {_(msg`Account Settings`)}
+              {t`Account Settings`}
             </Link>
           </DropdownMenuItem>
 
@@ -176,7 +175,7 @@ const AvatarMenu = () => {
             <DropdownMenuItem asChild>
               <Link to={path.to.billing}>
                 <DropdownMenuIcon icon={<LuCreditCard />} />
-                <span>{_(msg`Manage Subscription`)}</span>
+                <span>{t`Manage Subscription`}</span>
               </Link>
             </DropdownMenuItem>
           )}
@@ -184,19 +183,19 @@ const AvatarMenu = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <DropdownMenuIcon icon={<LuFileText />} />
-              {_(msg`Terms and Privacy`)}
+              {t`Terms and Privacy`}
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuItem asChild>
                 <a href={path.to.legal.termsAndConditions}>
                   <DropdownMenuIcon icon={<LuFileText />} />
-                  {_(msg`Terms of Service`)}
+                  {t`Terms of Service`}
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a href={path.to.legal.privacyPolicy}>
                   <DropdownMenuIcon icon={<LuShieldCheck />} />
-                  {_(msg`Privacy Policy`)}
+                  {t`Privacy Policy`}
                 </a>
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -206,14 +205,14 @@ const AvatarMenu = () => {
           {CONTROLLED_ENVIRONMENT && (
             <DropdownMenuItem onClick={itarDisclosure.onOpen}>
               <DropdownMenuIcon icon={<LuShieldCheck />} />
-              {_(msg`About`)}
+              {t`About`}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem asChild>
             <Form method="post" action={path.to.logout}>
               <button type="submit" className="w-full h-full flex items-center">
                 <DropdownMenuIcon icon={<LuLogOut />} />
-                <span>{_(msg`Sign Out`)}</span>
+                <span>{t`Sign Out`}</span>
               </button>
             </Form>
           </DropdownMenuItem>

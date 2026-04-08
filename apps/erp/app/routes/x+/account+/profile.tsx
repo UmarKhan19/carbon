@@ -11,8 +11,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getPreferenceHeaders } from "@carbon/remix";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
 import {
@@ -142,21 +141,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function AccountProfile() {
   const { user, locale } = useLoaderData<typeof loader>();
-  const { _: t } = useLingui();
+  const { t } = useLingui();
 
   return (
     <VStack spacing={2}>
       <Card>
         <CardHeader>
-          <CardTitle>{t(msg({ id: "Profile", message: "Profile" }))}</CardTitle>
+          <CardTitle>{t({ id: "Profile", message: "Profile" })}</CardTitle>
           <CardDescription>
-            {t(
-              msg({
-                id: "This information will be visible to all users, so be careful what you share.",
-                message:
-                  "This information will be visible to all users, so be careful what you share."
-              })
-            )}
+            {t({
+              id: "This information will be visible to all users, so be careful what you share.",
+              message:
+                "This information will be visible to all users, so be careful what you share."
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent>

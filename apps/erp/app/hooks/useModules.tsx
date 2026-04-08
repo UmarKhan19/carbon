@@ -1,5 +1,4 @@
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import {
   LuBox,
   LuCrown,
@@ -21,54 +20,54 @@ import { usePermissions } from "./usePermissions";
 
 export function useModules() {
   const permissions = usePermissions();
-  const { _: t } = useLingui();
+  const { t } = useLingui();
 
   const modules: Authenticated<NavItem>[] = [
     {
-      name: t(msg({ id: "Shop Floor", message: "Shop Floor" })),
+      name: t({ id: "Shop Floor", message: "Shop Floor" }),
       to: path.to.external.mes,
       icon: LuTvMinimalPlay,
       role: "employee"
     },
     {
       permission: "sales",
-      name: t(msg({ id: "Sales", message: "Sales" })),
+      name: t({ id: "Sales", message: "Sales" }),
       to: path.to.sales,
       icon: LuCrown
     },
     {
       permission: "production",
-      name: t(msg({ id: "Production", message: "Production" })),
+      name: t({ id: "Production", message: "Production" }),
       to: path.to.production,
       icon: LuFactory
     },
     {
       permission: "parts",
-      name: t(msg({ id: "Items", message: "Items" })),
+      name: t({ id: "Items", message: "Items" }),
       to: path.to.parts,
       icon: LuSquareStack
     },
     {
       permission: "inventory",
-      name: t(msg({ id: "Inventory", message: "Inventory" })),
+      name: t({ id: "Inventory", message: "Inventory" }),
       to: path.to.inventory,
       icon: LuBox
     },
     {
       permission: "purchasing",
-      name: t(msg({ id: "Purchasing", message: "Purchasing" })),
+      name: t({ id: "Purchasing", message: "Purchasing" }),
       to: path.to.purchasing,
       icon: LuShoppingCart
     },
     {
       permission: "quality",
-      name: t(msg({ id: "Quality", message: "Quality" })),
+      name: t({ id: "Quality", message: "Quality" }),
       to: path.to.quality,
       icon: LuFolderCheck
     },
     {
       permission: "accounting",
-      name: t(msg({ id: "Finance", message: "Finance" })),
+      name: t({ id: "Finance", message: "Finance" }),
       to: path.to.currencies,
       icon: LuLandmark
     },
@@ -80,31 +79,31 @@ export function useModules() {
     // },
     {
       permission: "people",
-      name: t(msg({ id: "People", message: "People" })),
+      name: t({ id: "People", message: "People" }),
       to: path.to.people,
       icon: LuUsers
     },
     {
       permission: "resources",
-      name: t(msg({ id: "Resources", message: "Resources" })),
+      name: t({ id: "Resources", message: "Resources" }),
       to: path.to.resources,
       icon: LuWrench
     },
     {
       permission: "documents",
-      name: t(msg({ id: "Documents", message: "Documents" })),
+      name: t({ id: "Documents", message: "Documents" }),
       to: path.to.documents,
       icon: LuFiles
     },
     {
       permission: "users",
-      name: t(msg({ id: "Users", message: "Users" })),
+      name: t({ id: "Users", message: "Users" }),
       to: path.to.employeeAccounts,
       icon: LuShield
     },
     {
       permission: "settings",
-      name: t(msg({ id: "Settings", message: "Settings" })),
+      name: t({ id: "Settings", message: "Settings" }),
       to: path.to.company,
       icon: LuSettings
     }

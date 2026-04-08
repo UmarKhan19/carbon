@@ -24,8 +24,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { LuChevronRight, LuCircleAlert, LuPlus, LuTruck } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -72,8 +71,8 @@ const SalesInvoiceLineForm = ({
   isSalesOrderLine = false,
   onClose
 }: SalesInvoiceLineFormProps) => {
-  const { _: t } = useLingui();
-  const { _: tShared } = useLingui();
+  const { t } = useLingui();
+  const { t: tShared } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
 
@@ -201,18 +200,14 @@ const SalesInvoiceLineForm = ({
         if (trackingType === "Batch" || trackingType === "Serial") {
           const errorMessage =
             trackingType === "Batch"
-              ? t(
-                  msg({
-                    id: "Batch items require a sales order",
-                    message: "Batch items require a sales order"
-                  })
-                )
-              : t(
-                  msg({
-                    id: "Serial items require a sales order",
-                    message: "Serial items require a sales order"
-                  })
-                );
+              ? t({
+                  id: "Batch items require a sales order",
+                  message: "Batch items require a sales order"
+                })
+              : t({
+                  id: "Serial items require a sales order",
+                  message: "Serial items require a sales order"
+                });
           toast.error(errorMessage);
           setItemData({
             itemId: "",
@@ -311,12 +306,10 @@ const SalesInvoiceLineForm = ({
               >
                 {isEditing
                   ? (getItemReadableId(items, itemData?.itemId) ?? "...")
-                  : t(
-                      msg({
-                        id: "New Sales Invoice Line",
-                        message: "New Sales Invoice Line"
-                      })
-                    )}
+                  : t({
+                      id: "New Sales Invoice Line",
+                      message: "New Sales Invoice Line"
+                    })}
               </ModalCardTitle>
               <ModalCardDescription>
                 {isEditing ? (
@@ -339,19 +332,17 @@ const SalesInvoiceLineForm = ({
                       {initialValues?.taxPercent > 0 ? (
                         <Badge variant="red">
                           {percentFormatter.format(initialValues?.taxPercent)}{" "}
-                          {t(msg({ id: "Tax", message: "Tax" }))}
+                          {t({ id: "Tax", message: "Tax" })}
                         </Badge>
                       ) : null}
                     </div>
                   </div>
                 ) : (
-                  t(
-                    msg({
-                      id: "A sales invoice line contains invoice details for a particular item",
-                      message:
-                        "A sales invoice line contains invoice details for a particular item"
-                    })
-                  )
+                  t({
+                    id: "A sales invoice line contains invoice details for a particular item",
+                    message:
+                      "A sales invoice line contains invoice details for a particular item"
+                  })
                 )}
               </ModalCardDescription>
             </ModalCardHeader>
@@ -374,13 +365,11 @@ const SalesInvoiceLineForm = ({
                   <Alert variant="destructive" className="mb-4">
                     <LuCircleAlert className="w-4 h-4" />
                     <AlertTitle>
-                      {t(
-                        msg({
-                          id: "Make items cannot be invoiced directly. Change method to Pick to continue.",
-                          message:
-                            "Make items cannot be invoiced directly. Change method to Pick to continue."
-                        })
-                      )}
+                      {t({
+                        id: "Make items cannot be invoiced directly. Change method to Pick to continue.",
+                        message:
+                          "Make items cannot be invoiced directly. Change method to Pick to continue."
+                      })}
                     </AlertTitle>
                   </Alert>
                 )}
@@ -398,7 +387,7 @@ const SalesInvoiceLineForm = ({
 
                   <FormControl className="col-span-2">
                     <FormLabel>
-                      {t(msg({ id: "Description", message: "Description" }))}
+                      {t({ id: "Description", message: "Description" })}
                     </FormLabel>
                     <Input
                       value={itemData.description}
@@ -418,7 +407,7 @@ const SalesInvoiceLineForm = ({
                       <div className="space-y-2">
                         <SelectControlled
                           name="methodType"
-                          label={t(msg({ id: "Method", message: "Method" }))}
+                          label={t({ id: "Method", message: "Method" })}
                           options={
                             methodType.map((m) => ({
                               label: (
@@ -443,7 +432,7 @@ const SalesInvoiceLineForm = ({
 
                       <NumberControlled
                         name="quantity"
-                        label={t(msg({ id: "Quantity", message: "Quantity" }))}
+                        label={t({ id: "Quantity", message: "Quantity" })}
                         value={itemData.quantity}
                         onChange={(value) => {
                           setItemData((d) => ({
@@ -455,9 +444,7 @@ const SalesInvoiceLineForm = ({
 
                       <NumberControlled
                         name="unitPrice"
-                        label={t(
-                          msg({ id: "Unit Price", message: "Unit Price" })
-                        )}
+                        label={t({ id: "Unit Price", message: "Unit Price" })}
                         value={itemData.unitPrice}
                         formatOptions={{
                           style: "currency",
@@ -474,13 +461,13 @@ const SalesInvoiceLineForm = ({
                       />
                       <Location
                         name="locationId"
-                        label={t(msg({ id: "Location", message: "Location" }))}
+                        label={t({ id: "Location", message: "Location" })}
                         value={locationId}
                         onChange={onLocationChange}
                       />
                       <Shelf
                         name="shelfId"
-                        label={t(msg({ id: "Shelf", message: "Shelf" }))}
+                        label={t({ id: "Shelf", message: "Shelf" })}
                         locationId={locationId}
                         value={itemData.shelfId ?? undefined}
                         onChange={(newValue) => {
@@ -507,12 +494,10 @@ const SalesInvoiceLineForm = ({
                         onClick={costsDisclosure.onToggle}
                       >
                         <Label>
-                          {t(
-                            msg({
-                              id: "Tax & Additional Costs",
-                              message: "Tax & Additional Costs"
-                            })
-                          )}
+                          {t({
+                            id: "Tax & Additional Costs",
+                            message: "Tax & Additional Costs"
+                          })}
                         </Label>
                         <HStack>
                           {(itemData.taxPercent ?? 0) > 0 && (
@@ -520,7 +505,7 @@ const SalesInvoiceLineForm = ({
                               {percentFormatter.format(
                                 itemData.taxPercent ?? 0
                               )}{" "}
-                              {t(msg({ id: "Tax", message: "Tax" }))}
+                              {t({ id: "Tax", message: "Tax" })}
                             </Badge>
                           )}
                           {(itemData.shippingCost ?? 0) > 0 && (
@@ -548,7 +533,7 @@ const SalesInvoiceLineForm = ({
                                     (initialValues?.addOnCost ?? 0) +
                                       (initialValues?.nonTaxableAddOnCost ?? 0)
                                   )}{" "}
-                                  {t(msg({ id: "Add-On", message: "Add-On" }))}
+                                  {t({ id: "Add-On", message: "Add-On" })}
                                 </span>
                               </Badge>
                             ))}
@@ -557,18 +542,14 @@ const SalesInvoiceLineForm = ({
                             icon={<LuChevronRight />}
                             aria-label={
                               costsDisclosure.isOpen
-                                ? t(
-                                    msg({
-                                      id: "Collapse Costs",
-                                      message: "Collapse Costs"
-                                    })
-                                  )
-                                : t(
-                                    msg({
-                                      id: "Expand Costs",
-                                      message: "Expand Costs"
-                                    })
-                                  )
+                                ? t({
+                                    id: "Collapse Costs",
+                                    message: "Collapse Costs"
+                                  })
+                                : t({
+                                    id: "Expand Costs",
+                                    message: "Expand Costs"
+                                  })
                             }
                             variant="ghost"
                             size="md"
@@ -589,9 +570,10 @@ const SalesInvoiceLineForm = ({
                       >
                         <NumberControlled
                           name="taxPercent"
-                          label={t(
-                            msg({ id: "Tax Percent", message: "Tax Percent" })
-                          )}
+                          label={t({
+                            id: "Tax Percent",
+                            message: "Tax Percent"
+                          })}
                           value={itemData.taxPercent}
                           minValue={0}
                           maxValue={1}
@@ -614,9 +596,7 @@ const SalesInvoiceLineForm = ({
                         />
                         <NumberControlled
                           name="taxAmount"
-                          label={t(
-                            msg({ id: "Tax Amount", message: "Tax Amount" })
-                          )}
+                          label={t({ id: "Tax Amount", message: "Tax Amount" })}
                           value={itemData.taxAmount}
                           formatOptions={{
                             style: "currency",
@@ -637,12 +617,10 @@ const SalesInvoiceLineForm = ({
                         />
                         <NumberControlled
                           name="shippingCost"
-                          label={t(
-                            msg({
-                              id: "Shipping Cost",
-                              message: "Shipping Cost"
-                            })
-                          )}
+                          label={t({
+                            id: "Shipping Cost",
+                            message: "Shipping Cost"
+                          })}
                           value={itemData.shippingCost}
                           minValue={0}
                           formatOptions={{
@@ -660,9 +638,10 @@ const SalesInvoiceLineForm = ({
                         />
                         <Number
                           name="addOnCost"
-                          label={t(
-                            msg({ id: "Add-On Cost", message: "Add-On Cost" })
-                          )}
+                          label={t({
+                            id: "Add-On Cost",
+                            message: "Add-On Cost"
+                          })}
                           formatOptions={{
                             style: "currency",
                             currency:
@@ -672,12 +651,10 @@ const SalesInvoiceLineForm = ({
                         />
                         <Number
                           name="nonTaxableAddOnCost"
-                          label={t(
-                            msg({
-                              id: "Non-Taxable Add-On Cost",
-                              message: "Non-Taxable Add-On Cost"
-                            })
-                          )}
+                          label={t({
+                            id: "Non-Taxable Add-On Cost",
+                            message: "Non-Taxable Add-On Cost"
+                          })}
                           formatOptions={{
                             style: "currency",
                             currency:
@@ -693,7 +670,7 @@ const SalesInvoiceLineForm = ({
             </ModalCardBody>
             <ModalCardFooter>
               <Submit isDisabled={isDisabled} withBlocker={false}>
-                {tShared(msg({ id: "Save", message: "Save" }))}
+                {tShared({ id: "Save", message: "Save" })}
               </Submit>
             </ModalCardFooter>
           </ValidatedForm>

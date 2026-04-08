@@ -14,48 +14,47 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:48
+#: app/modules/account/ui/Profile/ProfileForm.tsx:47
 msgid "About"
 msgstr "O mnie"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:37
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:35
 msgid "Choose your preferred language for the interface."
 msgstr "Wybierz preferowany jezyk interfejsu."
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:33
+#: app/modules/account/ui/Profile/ProfileForm.tsx:32
 msgid "Email"
 msgstr "Email"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:29
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
 msgid "English"
 msgstr "Angielski"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:39
+#: app/modules/account/ui/Profile/ProfileForm.tsx:38
 msgid "First Name"
 msgstr "Imie"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:26
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:25
 msgid "Language"
 msgstr "Jezyk"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:43
+#: app/modules/account/ui/Profile/ProfileForm.tsx:42
 msgid "Last Name"
 msgstr "Nazwisko"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:32
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:31
 msgid "Polish"
 msgstr "Polski"
 
 #. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:53
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:44
+#: app/modules/account/ui/Profile/ProfileForm.tsx:52
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:41
 msgid "Save"
 msgstr "Zapisz"
-

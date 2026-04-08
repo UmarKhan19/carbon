@@ -19,8 +19,7 @@ import {
   VStack
 } from "@carbon/react";
 import data from "@emoji-mart/data";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
 import React, { Suspense, useEffect, useRef, useState } from "react";
@@ -43,7 +42,7 @@ type EmojiData = {
 };
 
 const Suggestion = () => {
-  const { _ } = useLingui();
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof action>();
   const location = useLocation();
   const popoverTriggerRef = useRef<HTMLButtonElement>(null);
@@ -76,11 +75,11 @@ const Suggestion = () => {
     if (e.target.files && carbon) {
       const file = e.target.files[0];
       const fileName = file.name;
-      toast.info(_(msg`Uploading ${fileName}`));
+      toast.info(t`Uploading ${fileName}`);
       const fileExtension = file.name.substring(file.name.lastIndexOf(".") + 1);
 
       if (file.size > MAX_FILE_SIZE) {
-        toast.error(_(msg`File size exceeds 10MB limit`));
+        toast.error(t`File size exceeds 10MB limit`);
         return;
       }
 
@@ -94,7 +93,7 @@ const Suggestion = () => {
 
       if (imageUpload.error) {
         console.error(imageUpload.error);
-        toast.error(_(msg`Failed to upload image`));
+        toast.error(t`Failed to upload image`);
       }
 
       if (imageUpload.data?.path) {
@@ -115,7 +114,7 @@ const Suggestion = () => {
     <Popover>
       <PopoverTrigger ref={popoverTriggerRef} asChild>
         <Button variant="secondary" className="hover:scale-100">
-          {_(msg`Suggestion`)}
+          {t`Suggestion`}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[380px] ">
@@ -136,7 +135,7 @@ const Suggestion = () => {
                 label=""
                 value={suggestion}
                 onChange={(value) => setSuggestion(value)}
-                placeholder={_(msg`Ideas, suggestions or problems?`)}
+                placeholder={t`Ideas, suggestions or problems?`}
               />
               {attachment && (
                 <Badge className="-mt-2 truncate" variant="secondary">
@@ -156,7 +155,7 @@ const Suggestion = () => {
                   isChecked={anonymous}
                   onCheckedChange={(checked) => setAnonymous(checked === true)}
                 />
-                <span className="text-sm">{_(msg`Submit anonymously`)}</span>
+                <span className="text-sm">{t`Submit anonymously`}</span>
               </HStack>
               <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
                 <PopoverTrigger asChild>
@@ -196,7 +195,7 @@ const Suggestion = () => {
                   popoverTriggerRef.current?.click();
                 }}
               >
-                {_(msg`Cancel`)}
+                {t`Cancel`}
               </Button>
               <HStack spacing={1}>
                 <Button
@@ -204,11 +203,11 @@ const Suggestion = () => {
                   variant="secondary"
                   onClick={() => setSuggestion("")}
                 >
-                  {_(msg`Clear`)}
+                  {t`Clear`}
                 </Button>
                 <File
                   accept="image/*"
-                  aria-label={_(msg`Attach File`)}
+                  aria-label={t`Attach File`}
                   className="px-2"
                   isDisabled={!!attachment}
                   variant="secondary"
@@ -216,9 +215,7 @@ const Suggestion = () => {
                 >
                   <LuImage />
                 </File>
-                <Submit isDisabled={suggestion.length < 3}>
-                  {_(msg`Send`)}
-                </Submit>
+                <Submit isDisabled={suggestion.length < 3}>{t`Send`}</Submit>
               </HStack>
             </HStack>
           </VStack>

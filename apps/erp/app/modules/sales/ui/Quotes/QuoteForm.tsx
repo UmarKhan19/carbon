@@ -11,8 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
@@ -45,8 +44,8 @@ type QuoteFormProps = {
 };
 
 const QuoteForm = ({ initialValues }: QuoteFormProps) => {
-  const { _: t } = useLingui();
-  const { _: tShared } = useLingui();
+  const { t } = useLingui();
+  const { t: tShared } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -80,12 +79,10 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
   ) => {
     if (!carbon) {
       toast.error(
-        t(
-          msg({
-            id: "Carbon client not found",
-            message: "Carbon client not found"
-          })
-        )
+        t({
+          id: "Carbon client not found",
+          message: "Carbon client not found"
+        })
       );
       return;
     }
@@ -110,12 +107,10 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         .single();
       if (error) {
         toast.error(
-          t(
-            msg({
-              id: "Error fetching customer data",
-              message: "Error fetching customer data"
-            })
-          )
+          t({
+            id: "Error fetching customer data",
+            message: "Error fetching customer data"
+          })
         );
       } else {
         setCustomer((prev) => ({
@@ -147,18 +142,16 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         <CardHeader>
           <CardTitle>
             {isEditing
-              ? t(msg({ id: "Quote", message: "Quote" }))
-              : t(msg({ id: "New Quote", message: "New Quote" }))}
+              ? t({ id: "Quote", message: "Quote" })
+              : t({ id: "New Quote", message: "New Quote" })}
           </CardTitle>
           {!isEditing && (
             <CardDescription>
-              {t(
-                msg({
-                  id: "A quote is a set of prices for specific parts and quantities.",
-                  message:
-                    "A quote is a set of prices for specific parts and quantities."
-                })
-              )}
+              {t({
+                id: "A quote is a set of prices for specific parts and quantities.",
+                message:
+                  "A quote is a set of prices for specific parts and quantities."
+              })}
             </CardDescription>
           )}
         </CardHeader>
@@ -176,14 +169,14 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="quoteId"
-                  label={t(msg({ id: "Quote ID", message: "Quote ID" }))}
+                  label={t({ id: "Quote ID", message: "Quote ID" })}
                   table="quote"
                 />
               )}
               <Customer
                 autoFocus={!isEditing}
                 name="customerId"
-                label={t(msg({ id: "Customer", message: "Customer" }))}
+                label={t({ id: "Customer", message: "Customer" })}
                 onChange={(newValue) => {
                   if (newValue?.value) {
                     onCustomerChange(newValue);
@@ -192,71 +185,64 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
               />
               <Input
                 name="customerReference"
-                label={t(msg({ id: "Customer RFQ", message: "Customer RFQ" }))}
+                label={t({ id: "Customer RFQ", message: "Customer RFQ" })}
               />
               <CustomerContact
                 name="customerContactId"
-                label={t(
-                  msg({
-                    id: "Purchasing Contact",
-                    message: "Purchasing Contact"
-                  })
-                )}
+                label={t({
+                  id: "Purchasing Contact",
+                  message: "Purchasing Contact"
+                })}
                 isOptional
                 customer={customer.id}
                 value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
-                label={t(
-                  msg({
-                    id: "Engineering Contact",
-                    message: "Engineering Contact"
-                  })
-                )}
+                label={t({
+                  id: "Engineering Contact",
+                  message: "Engineering Contact"
+                })}
                 isOptional
                 customer={customer.id}
               />
               <CustomerLocation
                 name="customerLocationId"
-                label={t(
-                  msg({ id: "Customer Location", message: "Customer Location" })
-                )}
+                label={t({
+                  id: "Customer Location",
+                  message: "Customer Location"
+                })}
                 isOptional
                 customer={customer.id}
                 value={customer.customerLocationId}
               />
               <Employee
                 name="salesPersonId"
-                label={t(msg({ id: "Sales Person", message: "Sales Person" }))}
+                label={t({ id: "Sales Person", message: "Sales Person" })}
                 isOptional
               />
               <Employee
                 name="estimatorId"
-                label={t(msg({ id: "Estimator", message: "Estimator" }))}
+                label={t({ id: "Estimator", message: "Estimator" })}
                 isOptional
               />
               <Location
                 name="locationId"
-                label={t(
-                  msg({ id: "Quote Location", message: "Quote Location" })
-                )}
+                label={t({ id: "Quote Location", message: "Quote Location" })}
               />
               <DatePicker
                 name="dueDate"
-                label={t(msg({ id: "Due Date", message: "Due Date" }))}
+                label={t({ id: "Due Date", message: "Due Date" })}
                 isDisabled={isCustomer}
               />
               <DatePicker
                 name="expirationDate"
-                label={t(
-                  msg({ id: "Expiration Date", message: "Expiration Date" })
-                )}
+                label={t({ id: "Expiration Date", message: "Expiration Date" })}
                 isDisabled={isCustomer}
               />
               <Currency
                 name="currencyCode"
-                label={t(msg({ id: "Currency", message: "Currency" }))}
+                label={t({ id: "Currency", message: "Currency" })}
                 value={customer.currencyCode}
                 onChange={(
                   newValue: {
@@ -308,7 +294,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 : !permissions.can("create", "sales"))
             }
           >
-            {tShared(msg({ id: "Save", message: "Save" }))}
+            {tShared({ id: "Save", message: "Save" })}
           </Submit>
         </CardFooter>
       </ValidatedForm>

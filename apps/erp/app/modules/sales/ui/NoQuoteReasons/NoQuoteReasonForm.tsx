@@ -12,8 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -36,8 +35,8 @@ const NoQuoteReasonForm = ({
   type = "drawer",
   onClose
 }: NoQuoteReasonFormProps) => {
-  const { _: t } = useLingui();
-  const { _: tShared } = useLingui();
+  const { t } = useLingui();
+  const { t: tShared } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -47,21 +46,17 @@ const NoQuoteReasonForm = ({
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
       toast.success(
-        t(
-          msg({
-            id: "Created no quote reason",
-            message: "Created no quote reason"
-          })
-        )
+        t({
+          id: "Created no quote reason",
+          message: "Created no quote reason"
+        })
       );
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        t(
-          msg({
-            id: "Failed to create no quote reason: {{message}}",
-            message: `Failed to create no quote reason: ${fetcher.data.error.message}`
-          })
-        )
+        t({
+          id: "Failed to create no quote reason: {{message}}",
+          message: `Failed to create no quote reason: ${fetcher.data.error.message}`
+        })
       );
     }
   }, [fetcher.data, fetcher.state, onClose, t, type]);
@@ -95,9 +90,9 @@ const NoQuoteReasonForm = ({
             <ModalDrawerHeader>
               <ModalDrawerTitle>
                 {isEditing
-                  ? tShared(msg({ id: "Edit", message: "Edit" }))
-                  : tShared(msg({ id: "New", message: "New" }))}{" "}
-                {t(msg({ id: "No Quote Reason", message: "No Quote Reason" }))}
+                  ? tShared({ id: "Edit", message: "Edit" })
+                  : tShared({ id: "New", message: "New" })}{" "}
+                {t({ id: "No Quote Reason", message: "No Quote Reason" })}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -106,9 +101,10 @@ const NoQuoteReasonForm = ({
               <VStack spacing={4}>
                 <Input
                   name="name"
-                  label={t(
-                    msg({ id: "No Quote Reason", message: "No Quote Reason" })
-                  )}
+                  label={t({
+                    id: "No Quote Reason",
+                    message: "No Quote Reason"
+                  })}
                 />
                 <CustomFormFields table="noQuoteReason" />
               </VStack>
@@ -116,10 +112,10 @@ const NoQuoteReasonForm = ({
             <ModalDrawerFooter>
               <HStack>
                 <Submit isDisabled={isDisabled}>
-                  {tShared(msg({ id: "Save", message: "Save" }))}
+                  {tShared({ id: "Save", message: "Save" })}
                 </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  {tShared(msg({ id: "Cancel", message: "Cancel" }))}
+                  {tShared({ id: "Cancel", message: "Cancel" })}
                 </Button>
               </HStack>
             </ModalDrawerFooter>

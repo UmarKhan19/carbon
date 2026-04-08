@@ -25,8 +25,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuChevronRight, LuPlus, LuTrash, LuTruck } from "react-icons/lu";
@@ -80,8 +79,8 @@ const SalesOrderLineForm = ({
   type,
   onClose
 }: SalesOrderLineFormProps) => {
-  const { _: t } = useLingui();
-  const { _: tShared } = useLingui();
+  const { t } = useLingui();
+  const { t: tShared } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -232,12 +231,10 @@ const SalesOrderLineForm = ({
                   >
                     {isEditing
                       ? getItemReadableId(items, itemData?.itemId) || "..."
-                      : t(
-                          msg({
-                            id: "New Sales Order Line",
-                            message: "New Sales Order Line"
-                          })
-                        )}
+                      : t({
+                          id: "New Sales Order Line",
+                          message: "New Sales Order Line"
+                        })}
                   </ModalCardTitle>
                   <ModalCardDescription>
                     {isEditing ? (
@@ -262,19 +259,17 @@ const SalesOrderLineForm = ({
                               {percentFormatter.format(
                                 initialValues?.taxPercent
                               )}{" "}
-                              {t(msg({ id: "Tax", message: "Tax" }))}
+                              {t({ id: "Tax", message: "Tax" })}
                             </Badge>
                           ) : null}
                         </div>
                       </div>
                     ) : (
-                      t(
-                        msg({
-                          id: "A sales order line contains order details for a particular item",
-                          message:
-                            "A sales order line contains order details for a particular item"
-                        })
-                      )
+                      t({
+                        id: "A sales order line contains order details for a particular item",
+                        message:
+                          "A sales order line contains order details for a particular item"
+                      })
                     )}
                   </ModalCardDescription>
                 </ModalCardHeader>
@@ -286,7 +281,7 @@ const SalesOrderLineForm = ({
                         <DropdownMenuTrigger asChild>
                           <IconButton
                             icon={<BsThreeDotsVertical />}
-                            aria-label={t(msg({ id: "More", message: "More" }))}
+                            aria-label={t({ id: "More", message: "More" })}
                             variant="ghost"
                           />
                         </DropdownMenuTrigger>
@@ -296,9 +291,7 @@ const SalesOrderLineForm = ({
                             onClick={deleteDisclosure.onOpen}
                           >
                             <DropdownMenuIcon icon={<LuTrash />} />
-                            {t(
-                              msg({ id: "Delete Line", message: "Delete Line" })
-                            )}
+                            {t({ id: "Delete Line", message: "Delete Line" })}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -336,12 +329,10 @@ const SalesOrderLineForm = ({
                     {isEditing && (
                       <InputControlled
                         name="description"
-                        label={t(
-                          msg({
-                            id: "Short Description",
-                            message: "Short Description"
-                          })
-                        )}
+                        label={t({
+                          id: "Short Description",
+                          message: "Short Description"
+                        })}
                         onChange={(value) => {
                           setItemData((d) => ({
                             ...d,
@@ -356,7 +347,7 @@ const SalesOrderLineForm = ({
                       <>
                         <SelectControlled
                           name="methodType"
-                          label={t(msg({ id: "Method", message: "Method" }))}
+                          label={t({ id: "Method", message: "Method" })}
                           options={
                             methodType.map((m) => ({
                               label: (
@@ -379,25 +370,19 @@ const SalesOrderLineForm = ({
                         />
                         <Number
                           name="saleQuantity"
-                          label={t(
-                            msg({ id: "Quantity", message: "Quantity" })
-                          )}
+                          label={t({ id: "Quantity", message: "Quantity" })}
                         />
                         <UnitOfMeasure
                           name="unitOfMeasureCode"
-                          label={t(
-                            msg({
-                              id: "Unit of Measure",
-                              message: "Unit of Measure"
-                            })
-                          )}
+                          label={t({
+                            id: "Unit of Measure",
+                            message: "Unit of Measure"
+                          })}
                           value={itemData.uom}
                         />
                         <NumberControlled
                           name="unitPrice"
-                          label={t(
-                            msg({ id: "Unit Price", message: "Unit Price" })
-                          )}
+                          label={t({ id: "Unit Price", message: "Unit Price" })}
                           value={itemData.unitPrice}
                           formatOptions={{
                             style: "currency",
@@ -412,12 +397,10 @@ const SalesOrderLineForm = ({
                         />
                         <DatePicker
                           name="promisedDate"
-                          label={t(
-                            msg({
-                              id: "Promised Date",
-                              message: "Promised Date"
-                            })
-                          )}
+                          label={t({
+                            id: "Promised Date",
+                            message: "Promised Date"
+                          })}
                         />
                         {[
                           "Part",
@@ -428,9 +411,7 @@ const SalesOrderLineForm = ({
                         ].includes(lineType) && (
                           <Location
                             name="locationId"
-                            label={t(
-                              msg({ id: "Location", message: "Location" })
-                            )}
+                            label={t({ id: "Location", message: "Location" })}
                             onChange={onLocationChange}
                           />
                         )}
@@ -443,7 +424,7 @@ const SalesOrderLineForm = ({
                         ].includes(lineType) && (
                           <Shelf
                             name="shelfId"
-                            label={t(msg({ id: "Shelf", message: "Shelf" }))}
+                            label={t({ id: "Shelf", message: "Shelf" })}
                             locationId={locationId}
                             itemId={itemData.itemId}
                             value={itemData.shelfId ?? undefined}
@@ -470,12 +451,10 @@ const SalesOrderLineForm = ({
                           onClick={costsDisclosure.onToggle}
                         >
                           <Label>
-                            {t(
-                              msg({
-                                id: "Tax & Additional Costs",
-                                message: "Tax & Additional Costs"
-                              })
-                            )}
+                            {t({
+                              id: "Tax & Additional Costs",
+                              message: "Tax & Additional Costs"
+                            })}
                           </Label>
                           <HStack>
                             {(initialValues?.taxPercent ?? 0) > 0 && (
@@ -483,7 +462,7 @@ const SalesOrderLineForm = ({
                                 {percentFormatter.format(
                                   initialValues?.taxPercent ?? 0
                                 )}{" "}
-                                {t(msg({ id: "Tax", message: "Tax" }))}
+                                {t({ id: "Tax", message: "Tax" })}
                               </Badge>
                             )}
                             {(initialValues?.shippingCost ?? 0) > 0 && (
@@ -513,9 +492,7 @@ const SalesOrderLineForm = ({
                                         (initialValues?.nonTaxableAddOnCost ??
                                           0)
                                     )}{" "}
-                                    {t(
-                                      msg({ id: "Add-On", message: "Add-On" })
-                                    )}
+                                    {t({ id: "Add-On", message: "Add-On" })}
                                   </span>
                                 </Badge>
                               ))}
@@ -524,18 +501,14 @@ const SalesOrderLineForm = ({
                               icon={<LuChevronRight />}
                               aria-label={
                                 costsDisclosure.isOpen
-                                  ? t(
-                                      msg({
-                                        id: "Collapse Costs",
-                                        message: "Collapse Costs"
-                                      })
-                                    )
-                                  : t(
-                                      msg({
-                                        id: "Expand Costs",
-                                        message: "Expand Costs"
-                                      })
-                                    )
+                                  ? t({
+                                      id: "Collapse Costs",
+                                      message: "Collapse Costs"
+                                    })
+                                  : t({
+                                      id: "Expand Costs",
+                                      message: "Expand Costs"
+                                    })
                               }
                               variant="ghost"
                               size="md"
@@ -556,9 +529,10 @@ const SalesOrderLineForm = ({
                         >
                           <Number
                             name="taxPercent"
-                            label={t(
-                              msg({ id: "Tax Percent", message: "Tax Percent" })
-                            )}
+                            label={t({
+                              id: "Tax Percent",
+                              message: "Tax Percent"
+                            })}
                             minValue={0}
                             maxValue={1}
                             step={0.0001}
@@ -570,12 +544,10 @@ const SalesOrderLineForm = ({
                           />
                           <Number
                             name="shippingCost"
-                            label={t(
-                              msg({
-                                id: "Shipping Cost",
-                                message: "Shipping Cost"
-                              })
-                            )}
+                            label={t({
+                              id: "Shipping Cost",
+                              message: "Shipping Cost"
+                            })}
                             minValue={0}
                             formatOptions={{
                               style: "currency",
@@ -584,9 +556,10 @@ const SalesOrderLineForm = ({
                           />
                           <Number
                             name="addOnCost"
-                            label={t(
-                              msg({ id: "Add-On Cost", message: "Add-On Cost" })
-                            )}
+                            label={t({
+                              id: "Add-On Cost",
+                              message: "Add-On Cost"
+                            })}
                             formatOptions={{
                               style: "currency",
                               currency: baseCurrency
@@ -594,12 +567,10 @@ const SalesOrderLineForm = ({
                           />
                           <Number
                             name="nonTaxableAddOnCost"
-                            label={t(
-                              msg({
-                                id: "Non-Taxable Add-On Cost",
-                                message: "Non-Taxable Add-On Cost"
-                              })
-                            )}
+                            label={t({
+                              id: "Non-Taxable Add-On Cost",
+                              message: "Non-Taxable Add-On Cost"
+                            })}
                             formatOptions={{
                               style: "currency",
                               currency: baseCurrency
@@ -620,7 +591,7 @@ const SalesOrderLineForm = ({
                       : !permissions.can("create", "sales"))
                   }
                 >
-                  {tShared(msg({ id: "Save", message: "Save" }))}
+                  {tShared({ id: "Save", message: "Save" })}
                 </Submit>
               </ModalCardFooter>
             </ValidatedForm>

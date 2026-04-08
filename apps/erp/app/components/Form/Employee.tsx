@@ -1,7 +1,6 @@
 import type { ComboboxProps } from "@carbon/form";
 import { Combobox } from "@carbon/form";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import { usePeople } from "~/stores";
 import Avatar from "../Avatar";
@@ -23,7 +22,7 @@ const EmployeePreview = (
 };
 
 const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
-  const { _: t } = useLingui();
+  const { t } = useLingui();
   const [people] = usePeople();
 
   const options = useMemo(() => {
@@ -42,7 +41,7 @@ const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
       return [
         {
           value: "",
-          label: t(msg({ id: "Unassigned", message: "Unassigned" }))
+          label: t({ id: "Unassigned", message: "Unassigned" })
         },
         ...base
       ];
@@ -57,10 +56,10 @@ const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
         options={options}
         {...props}
         inline={inline ? EmployeePreview : undefined}
-        label={props?.label ?? t(msg({ id: "Employee", message: "Employee" }))}
+        label={props?.label ?? t({ id: "Employee", message: "Employee" })}
         placeholder={
           props?.placeholder ??
-          t(msg({ id: "Select Employee", message: "Select Employee" }))
+          t({ id: "Select Employee", message: "Select Employee" })
         }
       />
     </>

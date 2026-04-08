@@ -1,7 +1,7 @@
 import type { ComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { useDisclosure, useMount } from "@carbon/react";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Enumerable } from "~/components/Enumerable";

@@ -6,8 +6,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
 import {
@@ -46,7 +45,7 @@ type QuotesTableProps = {
 };
 
 const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
-  const { _: t } = useLingui();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
 
@@ -95,7 +94,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "customerId",
-        header: t(msg({ id: "Customer", message: "Customer" })),
+        header: t({ id: "Customer", message: "Customer" }),
         cell: ({ row }) => (
           <CustomerAvatar customerId={row.original.customerId} />
         ),
@@ -113,7 +112,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
 
       {
         accessorKey: "status",
-        header: t(msg({ id: "Status", message: "Status" })),
+        header: t({ id: "Status", message: "Status" }),
         cell: ({ row }) => {
           const status = row.original.status;
           const lines = row.original.lines ?? 0;
@@ -135,7 +134,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
               label: <QuoteStatus status={status} />
             }))
           },
-          pluralHeader: t(msg({ id: "Statuses", message: "Statuses" })),
+          pluralHeader: t({ id: "Statuses", message: "Statuses" }),
           icon: <LuStar />
         }
       },
@@ -149,7 +148,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "salesPersonId",
-        header: t(msg({ id: "Sales Person", message: "Sales Person" })),
+        header: t({ id: "Sales Person", message: "Sales Person" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.salesPersonId} />
         ),
@@ -163,7 +162,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "estimatorId",
-        header: t(msg({ id: "Estimator", message: "Estimator" })),
+        header: t({ id: "Estimator", message: "Estimator" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.estimatorId} />
         ),
@@ -177,7 +176,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "assignee",
-        header: t(msg({ id: "Assignee", message: "Assignee" })),
+        header: t({ id: "Assignee", message: "Assignee" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -207,7 +206,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         accessorKey: "locationName",
-        header: t(msg({ id: "Location", message: "Location" })),
+        header: t({ id: "Location", message: "Location" }),
         cell: (item) => <Enumerable value={item.getValue<string>()} />,
         meta: {
           filter: {
@@ -224,7 +223,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "createdBy",
-        header: t(msg({ id: "Created By", message: "Created By" })),
+        header: t({ id: "Created By", message: "Created By" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -249,7 +248,7 @@ const QuotesTable = memo(({ data, count }: QuotesTableProps) => {
       },
       {
         id: "updatedBy",
-        header: t(msg({ id: "Updated By", message: "Updated By" })),
+        header: t({ id: "Updated By", message: "Updated By" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),

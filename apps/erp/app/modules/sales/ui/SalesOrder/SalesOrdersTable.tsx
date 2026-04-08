@@ -20,8 +20,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { memo, useMemo, useState } from "react";
@@ -91,7 +90,7 @@ const IconWithTooltip = ({
 );
 
 const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
-  const { _: t } = useLingui();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const currencyFormatter = useCurrencyFormatter();
 
@@ -135,7 +134,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         id: "customerId",
-        header: t(msg({ id: "Customer", message: "Customer" })),
+        header: t({ id: "Customer", message: "Customer" }),
         cell: ({ row }) => {
           return <CustomerAvatar customerId={row.original.customerId} />;
         },
@@ -152,7 +151,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "status",
-        header: t(msg({ id: "Status", message: "Status" })),
+        header: t({ id: "Status", message: "Status" }),
         cell: ({ row }) => {
           const status =
             row.getValue<(typeof salesOrderStatusType)[number]>("status");
@@ -191,7 +190,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
               label: <SalesStatus status={status} />
             }))
           },
-          pluralHeader: t(msg({ id: "Statuses", message: "Statuses" })),
+          pluralHeader: t({ id: "Statuses", message: "Statuses" }),
           icon: <LuStar />
         }
       },
@@ -372,7 +371,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
 
       {
         id: "assignee",
-        header: t(msg({ id: "Assignee", message: "Assignee" })),
+        header: t({ id: "Assignee", message: "Assignee" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -412,7 +411,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "locationId",
-        header: t(msg({ id: "Location", message: "Location" })),
+        header: t({ id: "Location", message: "Location" }),
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -449,7 +448,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "dropShipment",
-        header: t(msg({ id: "Drop Shipment", message: "Drop Shipment" })),
+        header: t({ id: "Drop Shipment", message: "Drop Shipment" }),
         cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
         meta: {
           filter: {
@@ -457,26 +456,24 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
             options: [
               {
                 value: "true",
-                label: t(msg({ id: "Yes", message: "Yes" }))
+                label: t({ id: "Yes", message: "Yes" })
               },
               {
                 value: "false",
-                label: t(msg({ id: "No", message: "No" }))
+                label: t({ id: "No", message: "No" })
               }
             ]
           },
-          pluralHeader: t(
-            msg({
-              id: "Drop Shipment Statuses",
-              message: "Drop Shipment Statuses"
-            })
-          ),
+          pluralHeader: t({
+            id: "Drop Shipment Statuses",
+            message: "Drop Shipment Statuses"
+          }),
           icon: <LuTruck />
         }
       },
       {
         id: "createdBy",
-        header: t(msg({ id: "Created By", message: "Created By" })),
+        header: t({ id: "Created By", message: "Created By" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -501,7 +498,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         id: "updatedBy",
-        header: t(msg({ id: "Updated By", message: "Updated By" })),
+        header: t({ id: "Updated By", message: "Updated By" }),
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),

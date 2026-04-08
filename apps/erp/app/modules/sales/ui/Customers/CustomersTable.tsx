@@ -7,8 +7,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -51,7 +50,7 @@ type CustomersTableProps = {
 
 const CustomersTable = memo(
   ({ data, count, customerStatuses, tags }: CustomersTableProps) => {
-    const { _: t, i18n } = useLingui();
+    const { t, i18n } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
     const [people] = usePeople();
@@ -72,7 +71,7 @@ const CustomersTable = memo(
       const defaultColumns: ColumnDef<Customer>[] = [
         {
           accessorKey: "name",
-          header: t(msg({ id: "Name", message: "Name" })),
+          header: t({ id: "Name", message: "Name" }),
           cell: ({ row }) => (
             <div className="max-w-[320px] truncate">
               <Hyperlink to={path.to.customerDetails(row.original.id!)}>
@@ -86,7 +85,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "status",
-          header: t(msg({ id: "Status", message: "Status" })),
+          header: t({ id: "Status", message: "Status" }),
           cell: (item) => (
             <Enumerable value={translateStatus(item.getValue<string>())} />
           ),
@@ -104,7 +103,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "customerTypeId",
-          header: t(msg({ id: "Type", message: "Type" })),
+          header: t({ id: "Type", message: "Type" }),
           cell: (item) => {
             if (!item.getValue<string>()) return null;
             const customerType = customerTypes?.find(
@@ -125,7 +124,7 @@ const CustomersTable = memo(
         },
         {
           id: "accountManagerId",
-          header: t(msg({ id: "Account Manager", message: "Account Manager" })),
+          header: t({ id: "Account Manager", message: "Account Manager" }),
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.accountManagerId} />
           ),
@@ -142,7 +141,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "tags",
-          header: t(msg({ id: "Tags", message: "Tags" })),
+          header: t({ id: "Tags", message: "Tags" }),
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
               {row.original.tags?.map((tag) => (
@@ -166,7 +165,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "currencyCode",
-          header: t(msg({ id: "Currency", message: "Currency" })),
+          header: t({ id: "Currency", message: "Currency" }),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuEuro />
@@ -174,7 +173,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "phone",
-          header: t(msg({ id: "Phone", message: "Phone" })),
+          header: t({ id: "Phone", message: "Phone" }),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuPhone />
@@ -182,7 +181,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "fax",
-          header: t(msg({ id: "Fax", message: "Fax" })),
+          header: t({ id: "Fax", message: "Fax" }),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuPrinter />
@@ -190,7 +189,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "website",
-          header: t(msg({ id: "Website", message: "Website" })),
+          header: t({ id: "Website", message: "Website" }),
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuGlobe />
@@ -198,7 +197,7 @@ const CustomersTable = memo(
         },
         {
           id: "createdBy",
-          header: t(msg({ id: "Created By", message: "Created By" })),
+          header: t({ id: "Created By", message: "Created By" }),
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -215,7 +214,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: t(msg({ id: "Created At", message: "Created At" })),
+          header: t({ id: "Created At", message: "Created At" }),
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -223,7 +222,7 @@ const CustomersTable = memo(
         },
         {
           id: "updatedBy",
-          header: t(msg({ id: "Updated By", message: "Updated By" })),
+          header: t({ id: "Updated By", message: "Updated By" }),
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -240,7 +239,7 @@ const CustomersTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: t(msg({ id: "Updated At", message: "Updated At" })),
+          header: t({ id: "Updated At", message: "Updated At" }),
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -264,7 +263,7 @@ const CustomersTable = memo(
         <>
           <MenuItem onClick={() => navigate(path.to.customer(row.id!))}>
             <MenuIcon icon={<LuPencil />} />
-            {t(msg({ id: "Edit", message: "Edit" }))}
+            {t({ id: "Edit", message: "Edit" })}
           </MenuItem>
           <MenuItem
             destructive
@@ -275,7 +274,7 @@ const CustomersTable = memo(
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            {t(msg({ id: "Delete Customer", message: "Delete Customer" }))}
+            {t({ id: "Delete Customer", message: "Delete Customer" })}
           </MenuItem>
         </>
       ),
@@ -304,11 +303,11 @@ const CustomersTable = memo(
           importCSV={[
             {
               table: "customer",
-              label: t(msg({ id: "Customers", message: "Customers" }))
+              label: t({ id: "Customers", message: "Customers" })
             },
             {
               table: "customerContact",
-              label: t(msg({ id: "Contacts", message: "Contacts" }))
+              label: t({ id: "Contacts", message: "Contacts" })
             }
           ]}
           primaryAction={
@@ -321,13 +320,11 @@ const CustomersTable = memo(
                   asChild
                 >
                   <Link to={path.to.customerTypes}>
-                    {t(
-                      msg({ id: "Customer Types", message: "Customer Types" })
-                    )}
+                    {t({ id: "Customer Types", message: "Customer Types" })}
                   </Link>
                 </Button>
                 <New
-                  label={t(msg({ id: "Customer", message: "Customer" }))}
+                  label={t({ id: "Customer", message: "Customer" })}
                   to={path.to.newCustomer}
                 />
               </div>
@@ -335,7 +332,7 @@ const CustomersTable = memo(
           }
           renderContextMenu={renderContextMenu}
           table="customer"
-          title={t(msg({ id: "Customers", message: "Customers" }))}
+          title={t({ id: "Customers", message: "Customers" })}
           withSavedView
         />
         {selectedCustomer && selectedCustomer.id && (
@@ -343,12 +340,10 @@ const CustomersTable = memo(
             action={path.to.deleteCustomer(selectedCustomer.id)}
             isOpen={deleteModal.isOpen}
             name={selectedCustomer.name!}
-            text={t(
-              msg({
-                id: "Are you sure you want to delete {{name}}? This cannot be undone.",
-                message: `Are you sure you want to delete ${selectedCustomer.name!}? This cannot be undone.`
-              })
-            )}
+            text={t({
+              id: "Are you sure you want to delete {{name}}? This cannot be undone.",
+              message: `Are you sure you want to delete ${selectedCustomer.name!}? This cannot be undone.`
+            })}
             onCancel={() => {
               deleteModal.onClose();
               setSelectedCustomer(null);

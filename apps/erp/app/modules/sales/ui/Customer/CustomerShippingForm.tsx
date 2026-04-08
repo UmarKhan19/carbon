@@ -7,8 +7,7 @@ import {
   CardTitle,
   HStack
 } from "@carbon/react";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { z } from "zod";
 import {
@@ -28,8 +27,8 @@ type CustomerShippingFormProps = {
 };
 
 const CustomerShippingForm = ({ initialValues }: CustomerShippingFormProps) => {
-  const { _: t } = useLingui();
-  const { _: tShared } = useLingui();
+  const { t } = useLingui();
+  const { t: tShared } = useLingui();
   const permissions = usePermissions();
   const [customer, setCustomer] = useState<string | undefined>(
     initialValues.shippingCustomerId
@@ -51,40 +50,36 @@ const CustomerShippingForm = ({ initialValues }: CustomerShippingFormProps) => {
     >
       <Card>
         <CardHeader>
-          <CardTitle>
-            {t(msg({ id: "Shipping", message: "Shipping" }))}
-          </CardTitle>
+          <CardTitle>{t({ id: "Shipping", message: "Shipping" })}</CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="customerId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Customer
               name="shippingCustomerId"
-              label={t(
-                msg({ id: "Shipping Customer", message: "Shipping Customer" })
-              )}
+              label={t({
+                id: "Shipping Customer",
+                message: "Shipping Customer"
+              })}
               onChange={(value) => setCustomer(value?.value as string)}
             />
             <CustomerLocation
               name="shippingCustomerLocationId"
-              label={t(
-                msg({ id: "Shipping Location", message: "Shipping Location" })
-              )}
+              label={t({
+                id: "Shipping Location",
+                message: "Shipping Location"
+              })}
               customer={customer}
             />
             <CustomerContact
               name="shippingCustomerContactId"
-              label={t(
-                msg({ id: "Shipping Contact", message: "Shipping Contact" })
-              )}
+              label={t({ id: "Shipping Contact", message: "Shipping Contact" })}
               customer={customer}
             />
 
             <ShippingMethod
               name="shippingMethodId"
-              label={t(
-                msg({ id: "Shipping Method", message: "Shipping Method" })
-              )}
+              label={t({ id: "Shipping Method", message: "Shipping Method" })}
             />
             {/* <Select
               name="shippingTermId"
@@ -97,7 +92,7 @@ const CustomerShippingForm = ({ initialValues }: CustomerShippingFormProps) => {
         <CardFooter>
           <HStack>
             <Submit isDisabled={isDisabled}>
-              {tShared(msg({ id: "Save", message: "Save" }))}
+              {tShared({ id: "Save", message: "Save" })}
             </Submit>
           </HStack>
         </CardFooter>

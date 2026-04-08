@@ -7,8 +7,7 @@ import {
   CardTitle,
   HStack
 } from "@carbon/react";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -35,8 +34,8 @@ type SalesOrderPaymentFormProps = {
 const SalesOrderPaymentForm = ({
   initialValues
 }: SalesOrderPaymentFormProps) => {
-  const { _: t } = useLingui();
-  const { _: tShared } = useLingui();
+  const { t } = useLingui();
+  const { t: tShared } = useLingui();
   const fetcher = useFetcher<{}>();
   const permissions = usePermissions();
   const { orderId } = useParams();
@@ -61,43 +60,37 @@ const SalesOrderPaymentForm = ({
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>{t(msg({ id: "Payment", message: "Payment" }))}</CardTitle>
+          <CardTitle>{t({ id: "Payment", message: "Payment" })}</CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Customer
               name="invoiceCustomerId"
-              label={t(
-                msg({ id: "Invoice Customer", message: "Invoice Customer" })
-              )}
+              label={t({ id: "Invoice Customer", message: "Invoice Customer" })}
               onChange={(value) => setCustomer(value?.value as string)}
             />
             <CustomerLocation
               name="invoiceCustomerLocationId"
-              label={t(
-                msg({ id: "Invoice Location", message: "Invoice Location" })
-              )}
+              label={t({ id: "Invoice Location", message: "Invoice Location" })}
               customer={customer}
             />
             <CustomerContact
               name="invoiceCustomerContactId"
-              label={t(
-                msg({ id: "Invoice Contact", message: "Invoice Contact" })
-              )}
+              label={t({ id: "Invoice Contact", message: "Invoice Contact" })}
               customer={customer}
             />
 
             <PaymentTerm
               name="paymentTermId"
-              label={t(msg({ id: "Payment Term", message: "Payment Term" }))}
+              label={t({ id: "Payment Term", message: "Payment Term" })}
             />
           </div>
         </CardContent>
         <CardFooter>
           <HStack>
             <Submit isDisabled={isDisabled}>
-              {tShared(msg({ id: "Save", message: "Save" }))}
+              {tShared({ id: "Save", message: "Save" })}
             </Submit>
           </HStack>
         </CardFooter>

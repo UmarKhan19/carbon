@@ -12,8 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { msg } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
+import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -36,8 +35,8 @@ const CustomerPortalForm = ({
   type = "drawer",
   onClose
 }: CustomerPortalFormProps) => {
-  const { _: t } = useLingui();
-  const { _: tShared } = useLingui();
+  const { t } = useLingui();
+  const { t: tShared } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -47,21 +46,17 @@ const CustomerPortalForm = ({
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
       toast.success(
-        t(
-          msg({
-            id: "Created customer portal",
-            message: "Created customer portal"
-          })
-        )
+        t({
+          id: "Created customer portal",
+          message: "Created customer portal"
+        })
       );
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        t(
-          msg({
-            id: "Failed to create customer portal: {{message}}",
-            message: `Failed to create customer portal: ${fetcher.data.error.message}`
-          })
-        )
+        t({
+          id: "Failed to create customer portal: {{message}}",
+          message: `Failed to create customer portal: ${fetcher.data.error.message}`
+        })
       );
     }
   }, [fetcher.data, fetcher.state, onClose, t, type]);
@@ -95,9 +90,9 @@ const CustomerPortalForm = ({
             <ModalDrawerHeader>
               <ModalDrawerTitle>
                 {isEditing
-                  ? tShared(msg({ id: "Edit", message: "Edit" }))
-                  : tShared(msg({ id: "New", message: "New" }))}{" "}
-                {t(msg({ id: "Customer Portal", message: "Customer Portal" }))}
+                  ? tShared({ id: "Edit", message: "Edit" })
+                  : tShared({ id: "New", message: "New" })}{" "}
+                {t({ id: "Customer Portal", message: "Customer Portal" })}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -106,7 +101,7 @@ const CustomerPortalForm = ({
               <VStack spacing={4}>
                 <Customer
                   name="customerId"
-                  label={t(msg({ id: "Customer", message: "Customer" }))}
+                  label={t({ id: "Customer", message: "Customer" })}
                 />
                 <CustomFormFields table="externalLink" />
               </VStack>
@@ -114,10 +109,10 @@ const CustomerPortalForm = ({
             <ModalDrawerFooter>
               <HStack>
                 <Submit isDisabled={isDisabled}>
-                  {tShared(msg({ id: "Save", message: "Save" }))}
+                  {tShared({ id: "Save", message: "Save" })}
                 </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  {tShared(msg({ id: "Cancel", message: "Cancel" }))}
+                  {tShared({ id: "Cancel", message: "Cancel" })}
                 </Button>
               </HStack>
             </ModalDrawerFooter>
