@@ -2,3 +2,9 @@
 . "$(dirname "$0")/_/husky.sh"
 
 npx lint-staged
+
+# Regenerate MCP tools if any .service.ts file was modified
+if git diff --cached --name-only | grep -q '\.service\.ts$'; then
+  npx tsx scripts/generate-mcp.ts
+  git add apps/erp/app/routes/api+/mcp+/lib/tools/ llm/cache/mcp-tools-reference.md
+fi
