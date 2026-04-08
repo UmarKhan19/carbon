@@ -296,7 +296,7 @@ export async function action(args: ActionFunctionArgs) {
         const text = await renderAsync(emailTemplate, { plainText: true });
 
         await trigger("send-email-resend", {
-          to: [seller.data.email, customer.data.contact.email],
+          to: [seller.data.email, customer.data.contact.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: seller.data.email,
           subject: `Invoice ${salesInvoice.data.invoiceId} from ${company.data.name}`,

@@ -27,10 +27,21 @@ export async function withTriggersDisabled<T>(
   });
 }
 
+export type HttpResponse<T> = {
+  error: boolean;
+  message: string;
+  code: number;
+  data: T | null;
+};
+
 export class HTTPClient {
   constructor(private baseUrl?: string) {}
 
-  async request<T>(method: string, path: string, opts: RequestInit = {}) {
+  async request<T>(
+    method: string,
+    path: string,
+    opts: RequestInit = {}
+  ): Promise<HttpResponse<T>> {
     let response!: Response;
 
     try {
@@ -64,7 +75,7 @@ export class HTTPClient {
     });
   }
 
-  private async parseResponse<T>(response: Response) {
+  private async parseResponse<T>(response: Response): Promise<HttpResponse<T>> {
     const contentType = response.headers.get("content-type");
     const isJson = contentType?.includes("application/json");
 
@@ -85,8 +96,8 @@ export class HTTPClient {
         error: true,
         message: response.statusText,
         code: response.status,
-        data: parsedData
-      } as const;
+        data: parsedData as T | null
+      };
     }
 
     if (isJson) {
@@ -98,21 +109,21 @@ export class HTTPClient {
             message: response.statusText,
             code: response.status,
             data: null
-          } as const;
+          };
         }
         return {
           error: false,
           message: response.statusText,
           code: response.status,
           data: JSON.parse(text) as T
-        } as const;
+        };
       } catch {
         return {
           error: true,
           message: "Invalid JSON response",
           code: response.status,
           data: null
-        } as const;
+        };
       }
     }
 
@@ -121,7 +132,7 @@ export class HTTPClient {
       message: response.statusText,
       code: response.status,
       data: null
-    } as const;
+    };
   }
 }
 

@@ -273,13 +273,15 @@ export const dispatchFunction = inngest.createFunction(
                 );
 
                 // Get employees assigned to this work center to notify them
-                const { data: workCenterEmployees } = await serviceRole
+                const { data: workCenterEmployees } = await (serviceRole as any)
                   .from("workCenterEmployee")
                   .select("userId")
                   .eq("workCenterId", schedule.workCenterId);
 
                 if (workCenterEmployees && workCenterEmployees.length > 0) {
-                  const userIds = workCenterEmployees.map((e) => e.userId);
+                  const userIds = workCenterEmployees.map(
+                    (e: any) => e.userId as string
+                  );
                   await inngest.send({
                     name: "carbon/notify",
                     data: {

@@ -71,8 +71,7 @@ export const onboardFunction = inngest.createFunction(
         const leadType = await step.run("classify-lead", async () => {
           let type: "Warm" | "Cold" = "Warm";
           try {
-            const { object } = await generateObject<Record<string, string>>({
-              // @ts-ignore
+            const { object } = await generateObject({
               model: openai("gpt-4o"),
               schema: z.object({
                 type: z.enum(["Warm", "Cold"]).describe("The type of lead")
@@ -94,7 +93,7 @@ export const onboardFunction = inngest.createFunction(
               `,
               temperature: 0.2
             });
-            type = object.type as "Warm" | "Cold";
+            type = (object as any).type as "Warm" | "Cold";
             console.log("Generated type:", type);
           } catch (error) {
             console.error("Error generating type", error);
@@ -152,7 +151,7 @@ export const onboardFunction = inngest.createFunction(
                   externalId: {
                     twenty: twentyPersonId
                   }
-                })
+                } as any)
                 .eq("id", userId);
 
               console.log("User update result:", updateResult);
@@ -170,9 +169,11 @@ export const onboardFunction = inngest.createFunction(
                   name: company.name,
                   domainName: {
                     primaryLinkLabel: removeProtocolFromWebsite(
-                      company.website
+                      company.website ?? ""
                     ),
-                    primaryLinkUrl: ensureProtocolFromWebsite(company.website),
+                    primaryLinkUrl: ensureProtocolFromWebsite(
+                      company.website ?? ""
+                    ),
                     additionalLinks: []
                   }
                 });
@@ -190,7 +191,7 @@ export const onboardFunction = inngest.createFunction(
                     externalId: {
                       twenty: twentyOpportunityId
                     }
-                  })
+                  } as any)
                   .eq("id", companyId);
 
                 console.log("Company update result:", updateResult);
@@ -311,7 +312,7 @@ export const onboardFunction = inngest.createFunction(
           let isPlanActiveAfter30Days =
             planAfter30Days?.data?.stripeSubscriptionStatus === "Active";
 
-          if (isPlanActiveAfter30Days) {
+          if (isPlanActiveAfter30Days && twentyId) {
             await twenty.updatePerson(twentyId, {
               customerStatus: [
                 isPlanActiveAfter30Days

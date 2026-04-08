@@ -13,9 +13,8 @@ export const sendEmailFunction = inngest.createFunction(
     const payload = event.data;
     const serviceRole = getCarbonServiceRole();
 
-    const { company, integration } = await step.run(
-      "fetch-company-integration",
-      async () => {
+    const { companyName, integrationMetadata, integrationActive } =
+      await step.run("fetch-company-integration", async () => {
         const [companyResult, integrationResult] = await Promise.all([
           serviceRole
             .from("company")
@@ -30,26 +29,27 @@ export const sendEmailFunction = inngest.createFunction(
             .maybeSingle()
         ]);
 
-        return { company: companyResult, integration: integrationResult };
-      }
-    );
+        return {
+          companyName: companyResult.data?.name ?? null,
+          integrationActive: integrationResult.data?.active ?? false,
+          integrationMetadata: integrationResult.data?.metadata ?? null
+        };
+      });
 
-    const integrationMetadata = ResendConfig.schema.safeParse(
-      integration?.data?.metadata
-    );
+    const parsedMetadata = ResendConfig.schema.safeParse(integrationMetadata);
 
-    console.info(integrationMetadata.data?.fromEmail ?? "No email found");
+    console.info(parsedMetadata.data?.fromEmail ?? "No email found");
 
-    if (!integrationMetadata.success || integration?.data?.active !== true) {
+    if (!parsedMetadata.success || !integrationActive) {
       return { success: false, message: "Invalid or inactive integration" };
     }
 
     const result = await step.run("send-email", async () => {
-      const resend = new Resend(integrationMetadata.data.apiKey);
+      const resend = new Resend(parsedMetadata.data.apiKey);
 
       const email = {
-        from: `${company.data?.name} <${
-          integrationMetadata.data.fromEmail ?? "onboarding@resend.dev"
+        from: `${companyName} <${
+          parsedMetadata.data.fromEmail ?? "onboarding@resend.dev"
         }>`,
         to: payload.to,
         cc: payload.cc,

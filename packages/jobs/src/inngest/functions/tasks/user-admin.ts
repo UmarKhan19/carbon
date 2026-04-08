@@ -20,7 +20,7 @@ export const userAdminFunction = inngest.createFunction(
     const result = await step.run("user-admin-action", async () => {
       console.log(`User admin update ${payload.type} for ${payload.id}`);
 
-      let result: Result;
+      let result: Result = { success: false, message: "Unknown action" };
 
       switch (payload.type) {
         case "deactivate":

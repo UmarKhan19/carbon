@@ -1,5 +1,5 @@
-import type { EventSendPayload, Events } from "./events.ts";
-import { send } from "./inngest/client.ts";
+import type { Events } from "./events.ts";
+import { inngest } from "./inngest/client.ts";
 
 /**
  * Map trigger.dev task IDs → inngest event names.
@@ -49,7 +49,8 @@ export async function trigger<T extends keyof TaskPayloads>(
   payload: TaskPayloads[T]
 ) {
   const eventName = taskToEvent[taskId];
-  return send({ name: eventName, data: payload } as EventSendPayload);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return inngest.send({ name: eventName, data: payload } as any);
 }
 
 /**
@@ -66,7 +67,8 @@ export async function batchTrigger<T extends keyof TaskPayloads>(
   items: Array<{ payload: TaskPayloads[T] }>
 ) {
   const eventName = taskToEvent[taskId];
-  return send(
-    items.map((i) => ({ name: eventName, data: i.payload }) as EventSendPayload)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return inngest.send(
+    items.map((i) => ({ name: eventName, data: i.payload })) as any
   );
 }

@@ -507,7 +507,7 @@ export async function syncDocumentToSlack(
             documentId: data.documentId,
             companyId: data.companyId,
             previousAssignee,
-            newAssignee,
+            newAssignee: newAssignee ?? "",
             updatedBy: slackAuth.slackUserId || data.payload.updatedBy
           });
           break;
@@ -521,7 +521,7 @@ export async function syncDocumentToSlack(
           throw new Error(`Invalid type ${data.type}`);
       }
 
-      return { data: { success: true, taskId: result.id }, error: null };
+      return { data: { success: true, taskId: result.ids[0] }, error: null };
     } catch (error) {
       console.error("slack-document-sync error:", error);
       return {

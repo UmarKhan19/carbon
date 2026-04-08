@@ -6,7 +6,10 @@ import {
 } from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
-import { notifyTaskAssigned } from "@carbon/ee/notifications";
+import {
+  type CompanyIntegration,
+  notifyTaskAssigned
+} from "@carbon/ee/notifications";
 import {
   getSubscriberId,
   NotificationEvent,
@@ -544,20 +547,24 @@ export const notifyFunction = inngest.createFunction(
           );
 
           if (integrationsResult.data && integrationsResult.data.length > 0) {
-            await notifyTaskAssigned({ client }, integrationsResult.data, {
-              companyId: payload.companyId,
-              userId: payload.from || "system",
-              carbonUrl: `${ERP_URL}/x/issue/${payload.documentId}`,
-              task: {
-                id: payload.documentId,
-                table: "nonConformance",
-                assignee:
-                  payload.recipient.type === "user"
-                    ? payload.recipient.userId
-                    : "",
-                title: description
+            await notifyTaskAssigned(
+              { client },
+              integrationsResult.data as CompanyIntegration[],
+              {
+                companyId: payload.companyId,
+                userId: payload.from || "system",
+                carbonUrl: `${ERP_URL}/x/issue/${payload.documentId}`,
+                task: {
+                  id: payload.documentId,
+                  table: "nonConformance",
+                  assignee:
+                    payload.recipient.type === "user"
+                      ? payload.recipient.userId
+                      : "",
+                  title: description
+                }
               }
-            });
+            );
           }
         } catch (error) {
           console.error(

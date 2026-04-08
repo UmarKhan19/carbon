@@ -1,5 +1,5 @@
 // Re-export the inngest client and helpers
-export { inngest, sendEvent, sendEvents } from "./client.ts";
+export { inngest } from "./client.ts";
 
 import {
   auditFunction,

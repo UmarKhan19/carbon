@@ -95,14 +95,18 @@ export async function action({ request }: ActionFunctionArgs) {
       await flash(request, success("Successfully resent invite"))
     );
   } else {
+    const location = request.headers.get("x-vercel-ip-city") ?? "Unknown";
+    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
     try {
       await batchTrigger(
         "user-admin",
         users.map((id) => ({
           payload: {
             id,
-            type: "resend",
-            companyId
+            type: "resend" as const,
+            companyId,
+            location,
+            ip
           }
         }))
       );

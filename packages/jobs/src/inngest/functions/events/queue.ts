@@ -38,13 +38,13 @@ export const eventQueueFunction = inngest.createFunction(
     const pg = getDatabaseClient(1);
 
     // 1. Read batch from PGMQ
-    const jobs = await step.run("read-pgmq-batch", async () => {
+    const jobs = (await step.run("read-pgmq-batch", async () => {
       const { rows } =
         await sql<QueueJob>`SELECT * FROM pgmq.read(${QUEUE_NAME}, ${VISIBILITY_TIMEOUT}, ${BATCH_SIZE})`.execute(
           pg
         );
       return rows;
-    });
+    })) as QueueJob[];
 
     if (jobs.length === 0) {
       return { processed: 0 };
@@ -69,25 +69,16 @@ export const eventQueueFunction = inngest.createFunction(
 
     // 3. Dispatch webhooks
     if (grouped.WEBHOOK.length > 0) {
-      const { ids, events } = await step.run("prepare-webhooks", () => {
-        const ids: number[] = [];
-
-        const events = grouped.WEBHOOK.map((job) => {
-          ids.push(job.msg_id);
-
-          return {
-            name: "carbon/event-webhook" as const,
-            data: {
-              msgId: job.msg_id,
-              url: job.message.handlerConfig.url,
-              config: job.message.handlerConfig,
-              data: job.message.event
-            }
-          };
-        });
-
-        return { ids, events };
-      });
+      const ids = grouped.WEBHOOK.map((job) => job.msg_id);
+      const events = grouped.WEBHOOK.map((job) => ({
+        name: "carbon/event-webhook" as const,
+        data: {
+          msgId: job.msg_id,
+          url: job.message.handlerConfig.url,
+          config: job.message.handlerConfig,
+          data: job.message.event
+        }
+      }));
 
       await step.sendEvent("dispatch-webhooks", events);
       total = total.concat(ids);
@@ -95,24 +86,15 @@ export const eventQueueFunction = inngest.createFunction(
 
     // 4. Dispatch workflows
     if (grouped.WORKFLOW.length > 0) {
-      const { ids, events } = await step.run("prepare-workflows", () => {
-        const ids: number[] = [];
-
-        const events = grouped.WORKFLOW.map((job) => {
-          ids.push(job.msg_id);
-
-          return {
-            name: "carbon/event-workflow" as const,
-            data: {
-              msgId: job.msg_id,
-              workflowId: job.message.handlerConfig.workflowId,
-              data: job.message.event
-            }
-          };
-        });
-
-        return { ids, events };
-      });
+      const ids = grouped.WORKFLOW.map((job) => job.msg_id);
+      const events = grouped.WORKFLOW.map((job) => ({
+        name: "carbon/event-workflow" as const,
+        data: {
+          msgId: job.msg_id,
+          workflowId: job.message.handlerConfig.workflowId,
+          data: job.message.event
+        }
+      }));
 
       await step.sendEvent("dispatch-workflows", events);
       total = total.concat(ids);
@@ -120,103 +102,64 @@ export const eventQueueFunction = inngest.createFunction(
 
     // 5. Dispatch syncs (batched into single event)
     if (grouped.SYNC.length > 0) {
-      const { ids, payload } = await step.run("prepare-syncs", () => {
-        const ids: number[] = [];
+      const ids = grouped.SYNC.map((job) => job.msg_id);
+      const records = grouped.SYNC.map((job) => ({
+        event: job.message.event,
+        companyId: job.message.companyId,
+        handlerConfig: job.message.handlerConfig
+      }));
 
-        const records = grouped.SYNC.map((job) => {
-          ids.push(job.msg_id);
-
-          return {
-            event: job.message.event,
-            companyId: job.message.companyId,
-            handlerConfig: job.message.handlerConfig
-          };
-        });
-
-        return {
-          ids,
-          payload: { name: "carbon/event-sync" as const, data: { records } }
-        };
+      await step.sendEvent("dispatch-syncs", {
+        name: "carbon/event-sync" as const,
+        data: { records }
       });
-
-      await step.sendEvent("dispatch-syncs", payload);
       total = total.concat(ids);
     }
 
     // 6. Dispatch searches (batched into single event)
     if (grouped.SEARCH.length > 0) {
-      const { ids, payload } = await step.run("prepare-searches", () => {
-        const ids: number[] = [];
+      const ids = grouped.SEARCH.map((job) => job.msg_id);
+      const records = grouped.SEARCH.map((job) => ({
+        event: job.message.event,
+        companyId: job.message.companyId
+      }));
 
-        const records = grouped.SEARCH.map((job) => {
-          ids.push(job.msg_id);
-
-          return {
-            event: job.message.event,
-            companyId: job.message.companyId
-          };
-        });
-
-        return {
-          ids,
-          payload: { name: "carbon/event-search" as const, data: { records } }
-        };
+      await step.sendEvent("dispatch-searches", {
+        name: "carbon/event-search" as const,
+        data: { records }
       });
-
-      await step.sendEvent("dispatch-searches", payload);
       total = total.concat(ids);
     }
 
     // 7. Dispatch audits (batched into single event)
     if (grouped.AUDIT.length > 0) {
-      const { ids, payload } = await step.run("prepare-audits", () => {
-        const ids: number[] = [];
+      const ids = grouped.AUDIT.map((job) => job.msg_id);
+      const records = grouped.AUDIT.map((job) => ({
+        event: job.message.event,
+        companyId: job.message.companyId,
+        actorId: job.message.actorId,
+        handlerConfig: job.message.handlerConfig
+      }));
 
-        const records = grouped.AUDIT.map((job) => {
-          ids.push(job.msg_id);
-
-          return {
-            event: job.message.event,
-            companyId: job.message.companyId,
-            actorId: job.message.actorId,
-            handlerConfig: job.message.handlerConfig
-          };
-        });
-
-        return {
-          ids,
-          payload: { name: "carbon/event-audit" as const, data: { records } }
-        };
+      await step.sendEvent("dispatch-audits", {
+        name: "carbon/event-audit" as const,
+        data: { records }
       });
-
-      await step.sendEvent("dispatch-audits", payload);
       total = total.concat(ids);
     }
 
     // 8. Dispatch embeddings (batched into single event)
     if (grouped.EMBEDDING.length > 0) {
-      const { ids, payload } = await step.run("prepare-embeddings", () => {
-        const ids: number[] = [];
+      const ids = grouped.EMBEDDING.map((job) => job.msg_id);
+      const records = grouped.EMBEDDING.map((job) => ({
+        event: job.message.event,
+        companyId: job.message.companyId
+      }));
 
-        const records = grouped.EMBEDDING.map((job) => {
-          ids.push(job.msg_id);
-
-          return {
-            event: job.message.event,
-            companyId: job.message.companyId
-          };
-        });
-
-        return {
-          ids,
-          payload: {
-            name: "carbon/event-embedding" as const,
-            data: { records }
-          }
-        };
+      await step.sendEvent("dispatch-embeddings", {
+        name: "carbon/event-embedding" as const,
+        data: { records }
       });
-
-      await step.sendEvent("dispatch-embeddings", payload);
       total = total.concat(ids);
     }
 

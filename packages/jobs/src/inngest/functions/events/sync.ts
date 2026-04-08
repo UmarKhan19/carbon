@@ -96,13 +96,19 @@ export const syncFunction = inngest.createFunction(
         }
 
         // Process each company-provider group as a step for checkpointing
-        const groupResult = await step.run(
+        type GroupResults = {
+          success: BatchSyncResult[];
+          failed: { recordId: string; error: string }[];
+          skipped: { recordId: string; reason: string }[];
+        };
+
+        const groupResult = (await step.run(
           `sync-${companyId}-${provider}`,
           async () => {
-            const groupResults = {
-              success: [] as BatchSyncResult[],
-              failed: [] as { recordId: string; error: string }[],
-              skipped: [] as { recordId: string; reason: string }[]
+            const groupResults: GroupResults = {
+              success: [],
+              failed: [],
+              skipped: []
             };
 
             try {
@@ -213,7 +219,7 @@ export const syncFunction = inngest.createFunction(
 
             return groupResults;
           }
-        );
+        )) as GroupResults;
 
         results.success.push(...groupResult.success);
         results.failed.push(...groupResult.failed);
