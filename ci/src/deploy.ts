@@ -38,6 +38,10 @@ export type Workspace = {
   controlled_environment: string | null;
   exchange_rates_api_key: string | null;
   google_places_api_key: string | null;
+  jira_client_id: string | null;
+  jira_client_secret: string | null;
+  jira_oauth_redirect_url: string | null;
+  jira_state_secret: string | null;
   novu_application_id: string | null;
   novu_api_url: string | null;
   novu_secret_key: string | null;
@@ -63,7 +67,6 @@ export type Workspace = {
   trigger_api_url: string | null;
   trigger_project_id: string | null;
   trigger_secret_key: string | null;
-  redis_url: string | null;
   url_erp: string | null;
   url_mes: string | null;
   xero_client_id: string | null;
@@ -118,6 +121,10 @@ async function deploy(): Promise<void> {
         controlled_environment,
         exchange_rates_api_key,
         google_places_api_key,
+        jira_client_id,
+        jira_client_secret,
+        jira_oauth_redirect_url,
+        jira_state_secret,
         novu_application_id,
         novu_api_url,
         novu_secret_key,
@@ -268,6 +275,10 @@ async function deploy(): Promise<void> {
           DOMAIN: domain_name,
           EXCHANGE_RATES_API_KEY: exchange_rates_api_key ?? undefined,
           GOOGLE_PLACES_API_KEY: google_places_api_key ?? undefined,
+          JIRA_CLIENT_ID: jira_client_id ?? undefined,
+          JIRA_CLIENT_SECRET: jira_client_secret ?? undefined,
+          JIRA_OAUTH_REDIRECT_URL: jira_oauth_redirect_url ?? undefined,
+          JIRA_STATE_SECRET: jira_state_secret ?? undefined,
           NOVU_APPLICATION_ID: novu_application_id ?? undefined,
           NOVU_API_URL: novu_api_url ?? undefined,
           NOVU_SECRET_KEY: novu_secret_key ?? undefined,
@@ -297,7 +308,6 @@ async function deploy(): Promise<void> {
           TRIGGER_API_URL: trigger_api_url,
           TRIGGER_PROJECT_ID: trigger_project_id,
           TRIGGER_SECRET_KEY: trigger_secret_key,
-          REDIS_URL: redis_url,
           URL_ERP: url_erp,
           URL_MES: url_mes,
           VERCEL_ENV: "production",
