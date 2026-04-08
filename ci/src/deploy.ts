@@ -38,6 +38,10 @@ export type Workspace = {
   controlled_environment: string | null;
   exchange_rates_api_key: string | null;
   google_places_api_key: string | null;
+  jira_client_id: string | null;
+  jira_client_secret: string | null;
+  jira_oauth_redirect_url: string | null;
+  jira_state_secret: string | null;
   novu_application_id: string | null;
   novu_api_url: string | null;
   novu_secret_key: string | null;
@@ -116,6 +120,10 @@ async function deploy(): Promise<void> {
         controlled_environment,
         exchange_rates_api_key,
         google_places_api_key,
+        jira_client_id,
+        jira_client_secret,
+        jira_oauth_redirect_url,
+        jira_state_secret,
         novu_application_id,
         novu_api_url,
         novu_secret_key,
@@ -262,8 +270,12 @@ async function deploy(): Promise<void> {
           GOOGLE_PLACES_API_KEY: google_places_api_key ?? undefined,
           INNGEST_EVENT_KEY: inngest_event_key,
           INNGEST_SIGNING_KEY: inngest_signing_key,
-          NOVU_API_URL: novu_api_url ?? undefined,
+          JIRA_CLIENT_ID: jira_client_id ?? undefined,
+          JIRA_CLIENT_SECRET: jira_client_secret ?? undefined,
+          JIRA_OAUTH_REDIRECT_URL: jira_oauth_redirect_url ?? undefined,
+          JIRA_STATE_SECRET: jira_state_secret ?? undefined,
           NOVU_APPLICATION_ID: novu_application_id ?? undefined,
+          NOVU_API_URL: novu_api_url ?? undefined,
           NOVU_SECRET_KEY: novu_secret_key ?? undefined,
           OPENAI_API_KEY: openai_api_key,
           POSTHOG_API_HOST: posthog_api_host ?? undefined,
