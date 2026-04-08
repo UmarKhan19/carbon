@@ -51,6 +51,7 @@ import {
   updateAccountsPayableAddressSetting,
   updateAccountsPayableBillingAddress,
   updateDefaultSupplierCc,
+  updateLeadTimesOnReceiptSetting,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
   updateSupplierApprovalSetting,
@@ -118,6 +119,10 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (supplierApprovalResult.error) {
+        console.error(
+          "Failed to update supplier approval setting:",
+          supplierApprovalResult.error
+        );
         return {
           success: false,
           message: supplierApprovalResult.error.message
@@ -137,7 +142,14 @@ export async function action({ request }: ActionFunctionArgs) {
         apToggleEnabled
       );
       if (apToggleResult.error) {
-        return { success: false, message: apToggleResult.error.message };
+        console.error(
+          "Failed to update accounts payable address toggle:",
+          apToggleResult.error
+        );
+        return {
+          success: false,
+          message: apToggleResult.error.message
+        };
       }
       return {
         success: true,
@@ -160,12 +172,43 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (result.error) {
-        return { success: false, message: result.error.message };
+        console.error(
+          "Failed to update purchase price timing setting:",
+          result.error
+        );
+        return {
+          success: false,
+          message: result.error.message
+        };
       }
 
       return {
         success: true,
         message: "Purchase price update timing updated"
+      };
+
+    case "updateLeadTimesOnReceipt":
+      const updateLeadTimesOnReceipt = formData.get("enabled") === "true";
+      const updateLeadTimesResult = await updateLeadTimesOnReceiptSetting(
+        client,
+        companyId,
+        updateLeadTimesOnReceipt
+      );
+
+      if (updateLeadTimesResult.error) {
+        console.error(
+          "Failed to update lead-time-on-receipt setting:",
+          updateLeadTimesResult.error
+        );
+        return {
+          success: false,
+          message: updateLeadTimesResult.error.message
+        };
+      }
+
+      return {
+        success: true,
+        message: `Lead time updates on receipt ${updateLeadTimesOnReceipt ? "enabled" : "disabled"}`
       };
 
     case "supplierQuoteNotification":
@@ -184,7 +227,14 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (supplierQuoteResult.error) {
-        return { success: false, message: supplierQuoteResult.error.message };
+        console.error(
+          "Failed to update supplier quote notification setting:",
+          supplierQuoteResult.error
+        );
+        return {
+          success: false,
+          message: supplierQuoteResult.error.message
+        };
       }
 
       return {
@@ -201,7 +251,10 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (thumbnailsResult.error)
-        return { success: false, message: thumbnailsResult.error.message };
+        return {
+          success: false,
+          message: thumbnailsResult.error.message
+        };
 
       return { success: true, message: "PDF settings updated" };
     }
@@ -223,7 +276,14 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (apBillingResult.error) {
-        return { success: false, message: apBillingResult.error.message };
+        console.error(
+          "Failed to update accounts payable billing address:",
+          apBillingResult.error
+        );
+        return {
+          success: false,
+          message: apBillingResult.error.message
+        };
       }
 
       return {
@@ -247,6 +307,10 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (defaultSupplierCcResult.error) {
+        console.error(
+          "Failed to update default supplier CC:",
+          defaultSupplierCcResult.error
+        );
         return {
           success: false,
           message: defaultSupplierCcResult.error.message
@@ -304,11 +368,30 @@ export default function PurchasingSettingsRoute() {
     companySettings.accountsPayableAddress ?? false
   );
 
+  const [leadTimesOnReceiptEnabled, setLeadTimesOnReceiptEnabled] = useState(
+    (companySettings as { updateLeadTimesOnReceipt?: boolean })
+      .updateLeadTimesOnReceipt ?? false
+  );
+
   const handleApAddressToggle = useCallback(
     (checked: boolean) => {
       setApAddressEnabled(checked);
       toggleFetcher.submit(
         { intent: "accountsPayableAddressToggle", enabled: checked.toString() },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
+
+  const handleLeadTimesOnReceiptToggle = useCallback(
+    (checked: boolean) => {
+      setLeadTimesOnReceiptEnabled(checked);
+      toggleFetcher.submit(
+        {
+          intent: "updateLeadTimesOnReceipt",
+          enabled: checked.toString()
+        },
         { method: "POST" }
       );
     },
@@ -520,6 +603,23 @@ export default function PurchasingSettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
+        </Card>
+        <Card>
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>Lead Time Updates</CardTitle>
+                <CardDescription>
+                  Update part lead times from posted purchase receipts.
+                </CardDescription>
+              </div>
+              <Switch
+                checked={leadTimesOnReceiptEnabled}
+                onCheckedChange={handleLeadTimesOnReceiptToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
         </Card>
         <Card>
           <CardHeader>

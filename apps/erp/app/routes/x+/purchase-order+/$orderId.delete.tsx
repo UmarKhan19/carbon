@@ -123,6 +123,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const remove = await deletePurchaseOrder(client, orderId);
 
   if (remove.error) {
+    console.error("Failed to delete purchase order:", remove.error);
+
     throw redirect(
       path.to.purchaseOrders,
       await flash(request, error(remove.error, remove.error.message))

@@ -1,3 +1,4 @@
+import { getBrowserEnv } from "@carbon/auth";
 import { DateTimePicker, ValidatedForm } from "@carbon/form";
 import {
   Alert,
@@ -8,6 +9,7 @@ import {
   Input as InputBase,
   InputGroup,
   InputRightElement,
+  Label,
   Modal,
   ModalBody,
   ModalContent,
@@ -140,12 +142,17 @@ type ApiKeyViewProps = {
 };
 
 function ApiKeyView({ apiKey, onClose }: ApiKeyViewProps) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"key" | "mcp" | null>(null);
   useEffect(() => {
     if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 2000);
+    const timer = setTimeout(() => setCopied(null), 2000);
     return () => clearTimeout(timer);
   }, [copied]);
+
+  const { ERP_URL } = getBrowserEnv();
+  const mcpCommand = `claude mcp add --transport http \\
+  carbon ${ERP_URL}/api/mcp \\
+  --header "Authorization: Bearer ${apiKey}"`;
 
   return (
     <Modal
@@ -166,21 +173,42 @@ function ApiKeyView({ apiKey, onClose }: ApiKeyViewProps) {
                 You can only see this key once. Store it safely.
               </AlertTitle>
             </Alert>
-            <InputGroup>
-              <InputBase value={apiKey} />
-              <InputRightElement className="w-[2.75rem]">
-                <IconButton
-                  aria-label="Copy"
-                  icon={copied ? <LuCheck /> : <LuClipboard />}
-                  variant="ghost"
-                  onClick={() => {
-                    copyToClipboard(apiKey, () => {
-                      setCopied(true);
-                    });
-                  }}
-                />
-              </InputRightElement>
-            </InputGroup>
+            <div>
+              <Label htmlFor="api-key">API Key</Label>
+              <InputGroup>
+                <InputBase id="api-key" value={apiKey} />
+                <InputRightElement className="w-[2.75rem]">
+                  <IconButton
+                    aria-label="Copy API Key"
+                    icon={copied === "key" ? <LuCheck /> : <LuClipboard />}
+                    variant="ghost"
+                    onClick={() => {
+                      copyToClipboard(apiKey, () => {
+                        setCopied("key");
+                      });
+                    }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+            </div>
+            <div>
+              <Label htmlFor="mcp-command">MCP Command</Label>
+              <InputGroup>
+                <InputBase id="mcp-command" value={mcpCommand} />
+                <InputRightElement className="w-[2.75rem]">
+                  <IconButton
+                    aria-label="Copy MCP Command"
+                    icon={copied === "mcp" ? <LuCheck /> : <LuClipboard />}
+                    variant="ghost"
+                    onClick={() => {
+                      copyToClipboard(mcpCommand, () => {
+                        setCopied("mcp");
+                      });
+                    }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+            </div>
           </VStack>
         </ModalBody>
         <ModalFooter>
