@@ -2847,6 +2847,7 @@ export type Database = {
           supplierApproval: boolean
           supplierQuoteNotificationGroup: string[]
           timeCardEnabled: boolean
+          updateLeadTimesOnReceipt: boolean
           useMetric: boolean
         }
         Insert: {
@@ -2884,6 +2885,7 @@ export type Database = {
           supplierApproval?: boolean
           supplierQuoteNotificationGroup?: string[]
           timeCardEnabled?: boolean
+          updateLeadTimesOnReceipt?: boolean
           useMetric?: boolean
         }
         Update: {
@@ -2921,6 +2923,7 @@ export type Database = {
           supplierApproval?: boolean
           supplierQuoteNotificationGroup?: string[]
           timeCardEnabled?: boolean
+          updateLeadTimesOnReceipt?: boolean
           useMetric?: boolean
         }
         Relationships: [

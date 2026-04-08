@@ -63823,6 +63823,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -63987,6 +63990,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -64103,6 +64109,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -101706,6 +101715,7 @@ export default {
         "qualityIssueTarget",
         "consoleEnabled",
         "timeCardEnabled",
+        "updateLeadTimesOnReceipt",
       ],
       properties: {
         id: {
@@ -101902,6 +101912,11 @@ export default {
           type: "boolean",
         },
         timeCardEnabled: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        updateLeadTimesOnReceipt: {
           default: false,
           format: "boolean",
           type: "boolean",
@@ -136950,6 +136965,12 @@ export default {
     },
     "rowFilter.companySettings.timeCardEnabled": {
       name: "timeCardEnabled",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.updateLeadTimesOnReceipt": {
+      name: "updateLeadTimesOnReceipt",
       required: false,
       in: "query",
       type: "string",
