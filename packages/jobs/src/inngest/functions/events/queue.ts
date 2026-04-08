@@ -8,7 +8,7 @@ import { type Kysely, PostgresDriver, sql } from "kysely";
 import { inngest } from "../../client";
 
 const QUEUE_NAME = "event_system"; // Name of the PGMQ queue
-const BATCH_SIZE = 250; // Number of messages to process per run
+const BATCH_SIZE = 100; // Number of messages to process per run
 const VISIBILITY_TIMEOUT = 30; // Seconds a message is hidden after being read
 
 const getDatabaseClient = (size: number) => {
@@ -38,13 +38,10 @@ export const eventQueueFunction = inngest.createFunction(
     const pg = getDatabaseClient(1);
 
     // 1. Read batch from PGMQ
-    const jobs = (await step.run("read-pgmq-batch", async () => {
-      const { rows } =
-        await sql<QueueJob>`SELECT * FROM pgmq.read(${QUEUE_NAME}, ${VISIBILITY_TIMEOUT}, ${BATCH_SIZE})`.execute(
-          pg
-        );
-      return rows;
-    })) as QueueJob[];
+    const { rows: jobs } =
+      await sql<QueueJob>`SELECT * FROM pgmq.read(${QUEUE_NAME}, ${VISIBILITY_TIMEOUT}, ${BATCH_SIZE})`.execute(
+        pg
+      );
 
     if (jobs.length === 0) {
       return { processed: 0 };
@@ -165,11 +162,9 @@ export const eventQueueFunction = inngest.createFunction(
 
     // 9. Delete processed messages from PGMQ
     if (total.length > 0) {
-      await step.run("cleanup-pgmq", async () => {
-        await sql`SELECT pgmq.delete(${QUEUE_NAME}, id::bigint) FROM unnest(${total}::bigint[]) AS id`.execute(
-          pg
-        );
-      });
+      await sql`SELECT pgmq.delete(${QUEUE_NAME}, id::bigint) FROM unnest(${total}::bigint[]) AS id`.execute(
+        pg
+      );
     }
 
     return { routed: total.length };
