@@ -3,7 +3,7 @@ export default {
   info: {
     description: "",
     title: "standard public schema",
-    version: "13.0.7",
+    version: "14.7",
   },
   host: "0.0.0.0:3000",
   basePath: "/",
@@ -135211,6 +135211,6 @@ export default {
   },
   externalDocs: {
     description: "PostgREST Documentation",
-    url: "https://postgrest.org/en/v13/references/api.html",
+    url: "https://postgrest.org/en/v14/references/api.html",
   },
 };

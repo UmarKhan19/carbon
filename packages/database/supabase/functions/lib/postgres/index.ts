@@ -40,16 +40,14 @@ export function getPostgresConnectionPool(connections: number): Pool {
       const connectionPoolerUrl = url.includes("supabase.co")
         ? url.replace("5432", "6543")
         : url;
-      return new Pool({
-        connectionString: connectionPoolerUrl,
-        max: connections,
-      });
+      return new Pool(connectionPoolerUrl, connections);
     }
     case "node": {
       const url = process.env.SUPABASE_DB_URL!;
       const connectionPoolerUrl = url.includes("supabase.co")
         ? url.replace("5432", "6543")
         : url;
+        // @ts-expect-error Ignore
       return new Pool({
         connectionString: connectionPoolerUrl,
         max: connections,

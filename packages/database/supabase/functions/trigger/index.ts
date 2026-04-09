@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
 import { z } from "npm:zod@^3.24.1";
 
 import { corsHeaders } from "../lib/headers.ts";
+import { sendInngestEvent } from "../lib/inngest.ts";
 
 const recipientValidator = z.discriminatedUnion("type", [
   z.object({
@@ -33,23 +34,6 @@ const payloadValidator = z.discriminatedUnion("type", [
     from: z.string().optional(),
   }),
 ]);
-
-const INNGEST_EVENT_KEY = Deno.env.get("INNGEST_EVENT_KEY") ?? "";
-const INNGEST_BASE_URL = Deno.env.get("INNGEST_BASE_URL");
-
-async function sendInngestEvent(name: string, data: Record<string, unknown>) {
-  const res = await fetch(`${INNGEST_BASE_URL}/e/${INNGEST_EVENT_KEY}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, data }),
-  });
-
-  if (!res.ok) {
-    throw new Error(
-      `Inngest event send failed: ${res.status} ${await res.text()}`,
-    );
-  }
-}
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
