@@ -22,9 +22,13 @@ export function getTheme(request: Request): Theme {
 }
 
 export function setTheme(theme: string) {
-  return cookie.serialize(cookieName, theme, {
+  const cookieOptions: cookie.SerializeOptions = {
     path: "/",
-    maxAge: 31536000,
-    domain: DOMAIN
-  });
+    maxAge: 31536000
+  };
+
+  if (DOMAIN && !DOMAIN.startsWith("localhost")) {
+    cookieOptions.domain = DOMAIN;
+  }
+  return cookie.serialize(cookieName, theme, cookieOptions);
 }

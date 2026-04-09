@@ -33400,6 +33400,48 @@ export type Database = {
           },
         ]
       }
+      searchIndex_MG9Ks1bZ4Udn5xBu8k7Rv7: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
       searchIndexRegistry: {
         Row: {
           companyId: string
@@ -57200,6 +57242,7 @@ export type Database = {
           order: number
           parentMaterialId: string
           quantity: number
+          replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
           revision: string
           shelfIds: Json
           unitCost: number
