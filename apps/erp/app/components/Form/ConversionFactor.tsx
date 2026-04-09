@@ -21,6 +21,7 @@ import {
   VStack
 } from "@carbon/react";
 import { twoDecimals } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ElementRef } from "react";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -66,6 +67,7 @@ const ConversionFactor = forwardRef<
     },
     ref
   ) => {
+    const { t } = useLingui();
     const { getInputProps, error, defaultValue } = useField(name);
     const [controlValue, setControlValue] = useControlField<number>(name);
 
@@ -112,7 +114,7 @@ const ConversionFactor = forwardRef<
         "";
 
       const inverseOfConversion = 1 / conversionFactor;
-      if (purchasingCode === inventoryCode) return `No conversion is required`;
+      if (purchasingCode === inventoryCode) return t`No conversion is required`;
 
       if (conversionDirection === ConversionDirection.InventoryToPurchased) {
         return (
@@ -147,7 +149,8 @@ const ConversionFactor = forwardRef<
       conversionFactor,
       inventoryCode,
       purchasingCode,
-      unitOfMeasureOptions
+      unitOfMeasureOptions,
+      t
     ]);
 
     useEffect(() => {
@@ -218,7 +221,7 @@ const ConversionFactor = forwardRef<
                       size="sm"
                       className="border-dashed"
                     >
-                      Switch
+                      <Trans>Switch</Trans>
                       <LuArrowRightLeft className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
@@ -244,7 +247,9 @@ const ConversionFactor = forwardRef<
                           </NumberInputStepper>
                         </NumberInputGroup>
                       </NumberField>
-                      <span className="text-xs text-primary">Purchased</span>
+                      <span className="text-xs text-primary">
+                        <Trans>Purchased</Trans>
+                      </span>
                     </VStack>
                     <VStack className="w-auto pt-2">
                       <span className="font-mono text-xl">=</span>
@@ -256,7 +261,7 @@ const ConversionFactor = forwardRef<
                         </NumberInputGroup>
                       </NumberField>
                       <span className="text-xs text-muted-foreground ">
-                        Inventory
+                        <Trans>Inventory</Trans>
                       </span>
                     </VStack>
                   </HStack>
@@ -281,7 +286,7 @@ const ConversionFactor = forwardRef<
                         </NumberInputGroup>
                       </NumberField>
                       <span className="text-xs text-muted-foreground ">
-                        Inventory
+                        <Trans>Inventory</Trans>
                       </span>
                     </VStack>
                     <VStack className="w-auto pt-2">
@@ -294,7 +299,7 @@ const ConversionFactor = forwardRef<
                         </NumberInputGroup>
                       </NumberField>
                       <span className="text-xs text-muted-foreground text-primary">
-                        Purchased
+                        <Trans>Purchased</Trans>
                       </span>
                     </VStack>
                   </HStack>
@@ -303,9 +308,11 @@ const ConversionFactor = forwardRef<
             </ModalBody>
             <ModalFooter>
               <Button variant="secondary" onClick={onCancel}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
-              <Button onClick={onConfirm}>Confirm</Button>
+              <Button onClick={onConfirm}>
+                <Trans>Confirm</Trans>
+              </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

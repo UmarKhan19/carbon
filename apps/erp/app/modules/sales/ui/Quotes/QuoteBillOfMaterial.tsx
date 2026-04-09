@@ -28,6 +28,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import type { Dispatch, SetStateAction } from "react";
@@ -570,7 +571,9 @@ const QuoteBillOfMaterial = ({
     <Card>
       <HStack className="justify-between">
         <CardHeader>
-          <CardTitle>Bill of Material</CardTitle>
+          <CardTitle>
+            <Trans>Bill of Material</Trans>
+          </CardTitle>
         </CardHeader>
 
         <CardAction>
@@ -580,7 +583,7 @@ const QuoteBillOfMaterial = ({
             isDisabled={isDisabled || !permissions.can("update", "sales")}
             onClick={onAddItem}
           >
-            Add Item
+            <Trans>Add Item</Trans>
           </Button>
         </CardAction>
       </HStack>
@@ -621,6 +624,7 @@ function MaterialForm({
   setOrderState: Dispatch<SetStateAction<OrderState>>;
   onSubmit: () => void;
 }) {
+  const { t } = useLingui();
   const { quoteId, lineId } = useParams();
 
   if (!quoteId) throw new Error("quoteId not found");
@@ -702,7 +706,7 @@ function MaterialForm({
   const onItemChange = async (itemId: string) => {
     if (!carbon) return;
     if (itemId === params.itemId) {
-      toast.error("An item cannot be added to itself.");
+      toast.error(t`An item cannot be added to itself.`);
       return;
     }
 
@@ -719,7 +723,7 @@ function MaterialForm({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -866,12 +870,16 @@ function MaterialForm({
             {itemData.methodType === "Make to Order" ? (
               <>
                 <LuGitPullRequestCreate />
-                <Label>Finish To</Label>
+                <Label>
+                  <Trans>Finish To</Trans>
+                </Label>
               </>
             ) : (
               <>
                 <LuGitPullRequest />
-                <Label>Pull From</Label>
+                <Label>
+                  <Trans>Pull From</Trans>
+                </Label>
               </>
             )}
           </HStack>
@@ -944,7 +952,9 @@ function MaterialForm({
         >
           <HStack>
             <LuGitPullRequestCreateArrow />
-            <Label>Backflush</Label>
+            <Label>
+              <Trans>Backflush</Trans>
+            </Label>
           </HStack>
           <HStack>
             <Badge
@@ -1037,9 +1047,11 @@ function MaterialForm({
                   }}
                 >
                   <DropdownMenuRadioItem value="Subassembly">
-                    Subassembly
+                    <Trans>Subassembly</Trans>
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Kit">Kit</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="Kit">
+                    <Trans>Kit</Trans>
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1051,7 +1063,7 @@ function MaterialForm({
             isDisabled={isDisabled || methodMaterialFetcher.state !== "idle"}
             isLoading={methodMaterialFetcher.state === "submitting"}
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </motion.div>
       </motion.div>

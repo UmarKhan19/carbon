@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect } from "react";
 import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
@@ -17,7 +18,6 @@ import { Await, useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
 import { Boolean, ItemPostingGroup, Tags } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
@@ -43,6 +43,7 @@ import type {
 import { FileBadge } from "../Item";
 
 const ToolProperties = () => {
+  const { t } = useLingui();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -153,14 +154,14 @@ const ToolProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -173,14 +174,16 @@ const ToolProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to tool</span>
+                <span>
+                  <Trans>Copy link to tool</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -191,14 +194,16 @@ const ToolProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy tool unique identifier</span>
+                <span>
+                  <Trans>Copy tool unique identifier</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -211,7 +216,9 @@ const ToolProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy tool number</span>
+                <span>
+                  <Trans>Copy tool number</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -282,7 +289,7 @@ const ToolProperties = () => {
         className="w-full"
       >
         <ItemPostingGroup
-          label="Item Group"
+          label={t`Item Group`}
           name="itemPostingGroupId"
           inline
           isClearable
@@ -304,7 +311,7 @@ const ToolProperties = () => {
       >
         <Select
           name="replenishmentSystem"
-          label="Replenishment"
+          label={t`Replenishment`}
           inline={(value) => (
             <Badge variant="secondary">
               <ReplenishmentSystemIcon type={value} className="mr-2" />
@@ -338,7 +345,7 @@ const ToolProperties = () => {
       >
         <Select
           name="itemTrackingType"
-          label="Tracking Type"
+          label={t`Tracking Type`}
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
@@ -372,7 +379,7 @@ const ToolProperties = () => {
       >
         <Select
           name="defaultMethodType"
-          label="Default Method Type"
+          label={t`Default Method Type`}
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
@@ -402,7 +409,9 @@ const ToolProperties = () => {
       </ValidatedForm>
 
       <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Unit of Measure</h3>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Unit of Measure</Trans>
+        </h3>
         {routeData?.toolSummary?.unitOfMeasure && (
           <Badge variant="secondary">
             {routeData.toolSummary.unitOfMeasure}
@@ -412,7 +421,9 @@ const ToolProperties = () => {
 
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
-          <h3 className="text-xs text-muted-foreground">Methods</h3>
+          <h3 className="text-xs text-muted-foreground">
+            <Trans>Methods</Trans>
+          </h3>
         </HStack>
         {routeData?.toolSummary?.replenishmentSystem?.includes("Make") && (
           <Suspense fallback={null}>
@@ -464,7 +475,7 @@ const ToolProperties = () => {
         className="w-full"
       >
         <Boolean
-          label="Active"
+          label={t`Active`}
           name="active"
           variant="small"
           onChange={(value) => {
@@ -482,7 +493,7 @@ const ToolProperties = () => {
         className="w-full"
       >
         <Tags
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           availableTags={routeData?.tags ?? []}
           table="tool"
@@ -502,7 +513,9 @@ const ToolProperties = () => {
 
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
-          <h3 className="text-xs text-muted-foreground">Files</h3>
+          <h3 className="text-xs text-muted-foreground">
+            <Trans>Files</Trans>
+          </h3>
         </HStack>
 
         <Suspense fallback={null}>

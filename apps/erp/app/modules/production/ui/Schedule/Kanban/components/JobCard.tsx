@@ -19,6 +19,7 @@ import {
 import { formatDate } from "@carbon/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
 import { AiOutlinePartition } from "react-icons/ai";
 import {
@@ -88,6 +89,7 @@ type JobCardProps = {
 };
 
 export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
+  const { t } = useLingui();
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { displaySettings, selectedGroup, setSelectedGroup, tags } =
     useKanban();
@@ -187,7 +189,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
           </div>
           <HStack spacing={1} className="flex-shrink-0 -mr-2">
             <IconButton
-              aria-label="Move item"
+              aria-label={t`Move item`}
               icon={<LuGripVertical />}
               variant={"ghost"}
               {...attributes}
@@ -197,7 +199,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                 />

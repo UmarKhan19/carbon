@@ -31,6 +31,7 @@ import {
   startOfWeek,
   toCalendarDate
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuChevronLeft, LuChevronRight, LuSettings2 } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
@@ -510,6 +511,7 @@ const defaultDisplaySettings: DisplaySettings = {
 const DISPLAY_SETTINGS_KEY = "kanban-schedule-dates-display-settings";
 
 function DateKanbanSchedule() {
+  const { t } = useLingui();
   const {
     columns,
     items: initialItems,
@@ -713,13 +715,13 @@ function DateKanbanSchedule() {
         <HStack>
           <HStack>
             <Button variant="secondary" onClick={goToToday}>
-              Today
+              <Trans>Today</Trans>
             </Button>
             <IconButton
               variant="secondary"
               onClick={() => navigateDate("prev")}
               icon={<LuChevronLeft />}
-              aria-label="Previous Date"
+              aria-label={t`Previous Date`}
             />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -744,14 +746,14 @@ function DateKanbanSchedule() {
               variant="secondary"
               onClick={() => navigateDate("next")}
               icon={<LuChevronRight />}
-              aria-label="Next Date"
+              aria-label={t`Next Date`}
             />
           </HStack>
 
           <Popover>
             <PopoverTrigger asChild>
               <IconButton
-                aria-label="Settings"
+                aria-label={t`Settings`}
                 icon={<LuSettings2 />}
                 variant="secondary"
                 className="border-dashed border-border"
@@ -760,7 +762,7 @@ function DateKanbanSchedule() {
             <PopoverContent className="w-64">
               <VStack spacing={3}>
                 <span className="text-xs font-medium text-muted-foreground">
-                  Location
+                  <Trans>Location</Trans>
                 </span>
                 <div className="w-full">
                   <Combobox
@@ -779,18 +781,18 @@ function DateKanbanSchedule() {
                 </div>
                 <Separator />
                 <span className="text-xs font-medium text-muted-foreground">
-                  Display Settings
+                  <Trans>Display Settings</Trans>
                 </span>
                 <VStack>
                   {[
-                    { key: "showCustomer", label: "Customer" },
-                    { key: "showDueDate", label: "Due Date" },
-                    { key: "showDuration", label: "Duration" },
-                    { key: "showProgress", label: "Progress" },
-                    { key: "showQuantity", label: "Quantity" },
-                    { key: "showStatus", label: "Status" },
-                    { key: "showSalesOrder", label: "Sales Order" },
-                    { key: "showThumbnail", label: "Thumbnail" }
+                    { key: "showCustomer", label: t`Customer` },
+                    { key: "showDueDate", label: t`Due Date` },
+                    { key: "showDuration", label: t`Duration` },
+                    { key: "showProgress", label: t`Progress` },
+                    { key: "showQuantity", label: t`Quantity` },
+                    { key: "showStatus", label: t`Status` },
+                    { key: "showSalesOrder", label: t`Sales Order` },
+                    { key: "showThumbnail", label: t`Thumbnail` }
                   ].map(({ key, label }) => (
                     <Switch
                       key={key}

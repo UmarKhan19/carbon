@@ -2,9 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
   Boolean,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: Number is a component name
   Number,
   Submit,
   ValidatedForm,
@@ -23,6 +21,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -183,7 +182,9 @@ export default function ResourcesSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Resources</Heading>
+        <Heading size="h3">
+          <Trans>Resources</Trans>
+        </Heading>
 
         <Card>
           <ValidatedForm
@@ -210,18 +211,22 @@ export default function ResourcesSettingsRoute() {
             />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Maintenance Dispatch Notifications
+                <Trans>Maintenance Dispatch Notifications</Trans>
               </CardTitle>
               <CardDescription>
-                Configure notifications for when maintenance dispatches are
-                created from the shop floor. Notifications are routed based on
-                the failure mode type.
+                <Trans>
+                  Configure notifications for when maintenance dispatches are
+                  created from the shop floor. Notifications are routed based on
+                  the failure mode type.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <div className="flex flex-col gap-2">
-                  <Label>Maintenance Type</Label>
+                  <Label>
+                    <Trans>Maintenance Type</Trans>
+                  </Label>
                   <Users
                     name="maintenanceDispatchNotificationGroup"
                     label="Who should receive notifications for maintenance-related dispatches?"
@@ -229,7 +234,9 @@ export default function ResourcesSettingsRoute() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>Quality Type</Label>
+                  <Label>
+                    <Trans>Quality Type</Trans>
+                  </Label>
                   <Users
                     name="qualityDispatchNotificationGroup"
                     label="Who should receive notifications for quality-related dispatches?"
@@ -237,7 +244,9 @@ export default function ResourcesSettingsRoute() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>Operations Type</Label>
+                  <Label>
+                    <Trans>Operations Type</Trans>
+                  </Label>
                   <Users
                     name="operationsDispatchNotificationGroup"
                     label="Who should receive notifications for operations-related dispatches?"
@@ -245,7 +254,9 @@ export default function ResourcesSettingsRoute() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>Other Type</Label>
+                  <Label>
+                    <Trans>Other Type</Trans>
+                  </Label>
                   <Users
                     name="otherDispatchNotificationGroup"
                     label="Who should receive notifications for other dispatches?"
@@ -263,7 +274,7 @@ export default function ResourcesSettingsRoute() {
                     "maintenanceDispatchNotifications"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -284,11 +295,13 @@ export default function ResourcesSettingsRoute() {
             <input type="hidden" name="intent" value="maintenance" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Maintenance Scheduling
+                <Trans>Maintenance Scheduling</Trans>
               </CardTitle>
               <CardDescription>
-                Configure how preventative maintenance dispatches are
-                automatically generated from maintenance schedules.
+                <Trans>
+                  Configure how preventative maintenance dispatches are
+                  automatically generated from maintenance schedules.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -321,7 +334,7 @@ export default function ResourcesSettingsRoute() {
                   fetcher.formData?.get("intent") === "maintenance"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -339,16 +352,21 @@ export default function ResourcesSettingsRoute() {
             <input type="hidden" name="intent" value="suggestions" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Suggestion Notifications
+                <Trans>Suggestion Notifications</Trans>
               </CardTitle>
               <CardDescription>
-                Configure notifications for when new suggestions are submitted.
+                <Trans>
+                  Configure notifications for when new suggestions are
+                  submitted.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <div className="flex flex-col gap-2">
-                  <Label>Suggestion Notifications</Label>
+                  <Label>
+                    <Trans>Suggestion Notifications</Trans>
+                  </Label>
                   <Users
                     name="suggestionNotificationGroup"
                     label="Who should receive notifications when a new suggestion is submitted?"
@@ -365,7 +383,7 @@ export default function ResourcesSettingsRoute() {
                   fetcher.formData?.get("intent") === "suggestions"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>

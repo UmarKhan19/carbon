@@ -1,4 +1,5 @@
 import { Button, IconButton } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { AnimatePresence, motion } from "framer-motion";
 import { LuExternalLink, LuX } from "react-icons/lu";
 import type { TrainingVideo } from "~/utils/training";
@@ -15,6 +16,7 @@ export default function TrainingPanel({
   isOpen,
   onDismiss
 }: TrainingPanelProps) {
+  const { t } = useLingui();
   if (!training) return null;
 
   const embedUrl = getVideoEmbedUrl(training.videoUrl, training.videoType);
@@ -40,7 +42,7 @@ export default function TrainingPanel({
             />
             <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none" />
             <IconButton
-              aria-label="Close"
+              aria-label={t`Close`}
               icon={<LuX />}
               variant="ghost"
               size="sm"
@@ -60,7 +62,7 @@ export default function TrainingPanel({
 
           <div className="px-4 pb-3.5 flex items-center justify-end gap-2">
             <Button variant="secondary" size="sm" onClick={onDismiss}>
-              Dismiss
+              <Trans>Dismiss</Trans>
             </Button>
             {training.academyUrl ? (
               <Button
@@ -68,7 +70,7 @@ export default function TrainingPanel({
                 rightIcon={<LuExternalLink />}
                 onClick={() => window.open(training.academyUrl, "_blank")}
               >
-                View in Academy
+                <Trans>View in Academy</Trans>
               </Button>
             ) : (
               <Button
@@ -76,7 +78,7 @@ export default function TrainingPanel({
                 rightIcon={<LuExternalLink />}
                 onClick={() => window.open(training.videoUrl, "_blank")}
               >
-                Watch full video
+                <Trans>Watch full video</Trans>
               </Button>
             )}
           </div>

@@ -1,5 +1,6 @@
 import { Badge, MenuIcon, MenuItem, Status } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -33,6 +34,7 @@ type ActionsTableProps = {
 
 const ActionsTable = memo(
   ({ data, issueTypes, requiredActions, count }: ActionsTableProps) => {
+    const { t } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
 
@@ -43,7 +45,7 @@ const ActionsTable = memo(
       const defaultColumns: ColumnDef<QualityAction>[] = [
         {
           accessorKey: "readableNonConformanceId",
-          header: "Issue",
+          header: t`Issue`,
           cell: ({ row }) => (
             <Hyperlink
               to={path.to.issueActions(row.original.nonConformanceId!)}
@@ -64,7 +66,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "actionType",
-          header: "Action Type",
+          header: t`Action Type`,
           cell: ({ row }) => <Enumerable value={row.original.actionType} />,
           meta: {
             icon: <LuFileText />,
@@ -79,7 +81,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "status",
-          header: "Action Status",
+          header: t`Action Status`,
           cell: ({ row }) => <ActionStatus status={row.original.status} />,
           meta: {
             icon: <LuCircleGauge />,
@@ -94,7 +96,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "assignee",
-          header: "Assignee",
+          header: t`Assignee`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.assignee} />
           ),
@@ -111,7 +113,7 @@ const ActionsTable = memo(
         },
         {
           id: "items",
-          header: "Items",
+          header: t`Items`,
           cell: ({ row }) => (
             <span className="flex gap-2 items-center flex-wrap py-2">
               {((row.original.items ?? []) as Array<string>).map((i) => {
@@ -141,7 +143,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "dueDate",
-          header: "Due Date",
+          header: t`Due Date`,
           cell: ({ row }) => {
             const isOverdue =
               // @ts-ignore
@@ -161,7 +163,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "nonConformanceStatus",
-          header: "Issue Status",
+          header: t`Issue Status`,
           cell: ({ row }) =>
             row.original.nonConformanceStatus && (
               <IssueStatus status={row.original.nonConformanceStatus as any} />
@@ -172,7 +174,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "nonConformanceTypeName",
-          header: "Issue Type",
+          header: t`Issue Type`,
           cell: ({ row }) => (
             <Enumerable value={row.original.nonConformanceTypeName} />
           ),
@@ -190,7 +192,7 @@ const ActionsTable = memo(
 
         {
           accessorKey: "dueDate",
-          header: "Due Date",
+          header: t`Due Date`,
           cell: ({ row }) => formatDate(row.original.dueDate),
           meta: {
             icon: <LuCalendar />
@@ -198,7 +200,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "completedDate",
-          header: "Completed Date",
+          header: t`Completed Date`,
           cell: ({ row }) => formatDate(row.original.completedDate),
           meta: {
             icon: <LuCalendar />
@@ -206,7 +208,7 @@ const ActionsTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created",
+          header: t`Created`,
           cell: ({ row }) => formatDate(row.original.createdAt),
           meta: {
             icon: <LuCalendar />
@@ -214,7 +216,7 @@ const ActionsTable = memo(
         }
       ];
       return defaultColumns;
-    }, [requiredActions, people, items, issueTypes]);
+    }, [requiredActions, people, items, issueTypes, t]);
 
     const renderContextMenu = useCallback(
       (row: QualityAction) => {
@@ -227,7 +229,7 @@ const ActionsTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              View Issue
+              <Trans>View Issue</Trans>
             </MenuItem>
           </>
         );
@@ -241,7 +243,7 @@ const ActionsTable = memo(
         columns={columns}
         count={count}
         renderContextMenu={renderContextMenu}
-        title="Actions"
+        title={t`Actions`}
         table="nonConformanceActionTask"
         withSavedView
       />
@@ -255,12 +257,28 @@ export default ActionsTable;
 function ActionStatus({ status }: { status: QualityAction["status"] }) {
   switch (status) {
     case "Pending":
-      return <Status color="yellow">Pending</Status>;
+      return (
+        <Status color="yellow">
+          <Trans>Pending</Trans>
+        </Status>
+      );
     case "In Progress":
-      return <Status color="green">In Progress</Status>;
+      return (
+        <Status color="green">
+          <Trans>In Progress</Trans>
+        </Status>
+      );
     case "Completed":
-      return <Status color="blue">Completed</Status>;
+      return (
+        <Status color="blue">
+          <Trans>Completed</Trans>
+        </Status>
+      );
     case "Skipped":
-      return <Status color="gray">Skipped</Status>;
+      return (
+        <Status color="gray">
+          <Trans>Skipped</Trans>
+        </Status>
+      );
   }
 }

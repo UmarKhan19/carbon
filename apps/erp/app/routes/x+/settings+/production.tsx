@@ -17,6 +17,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -140,7 +141,9 @@ export default function ProductionSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Production</Heading>
+        <Heading size="h3">
+          <Trans>Production</Trans>
+        </Heading>
 
         <Card>
           <ValidatedForm
@@ -157,16 +160,20 @@ export default function ProductionSettingsRoute() {
             <input type="hidden" name="intent" value="jobCompleted" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Completed Job Notifications
+                <Trans>Completed Job Notifications</Trans>
               </CardTitle>
               <CardDescription>
-                Configure notifications for when jobs are completed.
+                <Trans>
+                  Configure notifications for when jobs are completed.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <div className="flex flex-col gap-2">
-                  <Label>Inventory Job Notifications</Label>
+                  <Label>
+                    <Trans>Inventory Job Notifications</Trans>
+                  </Label>
                   <Users
                     name="inventoryJobCompletedNotificationGroup"
                     label="Who should receive notifications when an inventory job is completed?"
@@ -174,7 +181,9 @@ export default function ProductionSettingsRoute() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>Sales Job Notifications</Label>
+                  <Label>
+                    <Trans>Sales Job Notifications</Trans>
+                  </Label>
                   <Users
                     name="salesJobCompletedNotificationGroup"
                     label="Who should receive notifications when a sales job is completed?"
@@ -188,7 +197,7 @@ export default function ProductionSettingsRoute() {
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -196,23 +205,33 @@ export default function ProductionSettingsRoute() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Job Traveler</CardTitle>
+            <CardTitle>
+              <Trans>Job Traveler</Trans>
+            </CardTitle>
             <CardDescription>
-              Configure the content displayed on job traveler PDFs.
+              <Trans>
+                Configure the content displayed on job traveler PDFs.
+              </Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {companySettings.jobTravelerIncludeWorkInstructions
-                    ? "Work instructions are included"
-                    : "Work instructions are not included"}
+                  {companySettings.jobTravelerIncludeWorkInstructions ? (
+                    <Trans>Work instructions are included</Trans>
+                  ) : (
+                    <Trans>Work instructions are not included</Trans>
+                  )}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {companySettings.jobTravelerIncludeWorkInstructions
-                    ? "Job traveler PDFs include work instructions."
-                    : "Enable to include work instructions on job traveler PDFs."}
+                  {companySettings.jobTravelerIncludeWorkInstructions ? (
+                    <Trans>Job traveler PDFs include work instructions.</Trans>
+                  ) : (
+                    <Trans>
+                      Enable to include work instructions on job traveler PDFs.
+                    </Trans>
+                  )}
                 </span>
               </VStack>
               <Switch

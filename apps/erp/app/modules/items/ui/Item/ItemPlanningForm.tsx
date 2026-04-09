@@ -9,6 +9,7 @@ import {
   Combobox,
   HStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { z } from "zod";
 import {
@@ -39,6 +40,7 @@ const ItemPlanningForm = ({
   type
 }: ItemPlanningFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
 
   const locationOptions = locations.map((location) => ({
     label: location.name,
@@ -56,7 +58,9 @@ const ItemPlanningForm = ({
       >
         <HStack className="w-full justify-between items-start">
           <CardHeader>
-            <CardTitle>Planning</CardTitle>
+            <CardTitle>
+              <Trans>Planning</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>
             <Combobox
@@ -80,7 +84,7 @@ const ItemPlanningForm = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <SelectForm
               name="reorderingPolicy"
-              label="Reordering Policy"
+              label={t`Reordering Policy`}
               options={itemReorderingPolicies.map((policy) => ({
                 label: <ItemReorderPolicy reorderingPolicy={policy} />,
                 value: policy
@@ -94,12 +98,12 @@ const ItemPlanningForm = ({
               <>
                 <Number
                   name="reorderPoint"
-                  label="Reorder Point"
+                  label={t`Reorder Point`}
                   minValue={0}
                 />
                 <Number
                   name="maximumInventoryQuantity"
-                  label="Maximum Inventory Quantity"
+                  label={t`Maximum Inventory Quantity`}
                   minValue={0}
                 />
               </>
@@ -109,12 +113,12 @@ const ItemPlanningForm = ({
               <>
                 <Number
                   name="demandAccumulationPeriod"
-                  label="Accumulation Period (Weeks)"
+                  label={t`Accumulation Period (Weeks)`}
                   minValue={0}
                 />
                 <Number
                   name="demandAccumulationSafetyStock"
-                  label="Safety Stock"
+                  label={t`Safety Stock`}
                   minValue={0}
                 />
               </>
@@ -123,12 +127,12 @@ const ItemPlanningForm = ({
               <>
                 <Number
                   name="reorderPoint"
-                  label="Reorder Point"
+                  label={t`Reorder Point`}
                   minValue={0}
                 />
                 <Number
                   name="reorderQuantity"
-                  label="Reorder Quantity"
+                  label={t`Reorder Quantity`}
                   minValue={0}
                 />
               </>
@@ -137,28 +141,30 @@ const ItemPlanningForm = ({
               <>
                 <Number
                   name="orderMultiple"
-                  label="Order Multiple"
+                  label={t`Order Multiple`}
                   minValue={0}
                 />
                 <Number
                   name="minimumOrderQuantity"
-                  label="Minimum Order Quantity"
+                  label={t`Minimum Order Quantity`}
                   minValue={0}
                 />
                 <Number
                   name="maximumOrderQuantity"
-                  label="Maximum Order Quantity"
+                  label={t`Maximum Order Quantity`}
                   minValue={0}
                 />
               </>
             )}
-            {/* <Boolean name="critical" label="Critical" /> */}
+            {/* <Boolean name="critical" label={t`Critical`} /> */}
 
             <CustomFormFields table="itemPlanning" />
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "parts")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "parts")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

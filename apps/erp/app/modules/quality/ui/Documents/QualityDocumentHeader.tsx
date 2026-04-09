@@ -19,6 +19,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useEffect, useState } from "react";
 import {
@@ -59,6 +60,7 @@ const QualityDocumentHeader = () => {
   }>(path.to.qualityDocument(id));
 
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { toggleExplorer, toggleProperties } = usePanels();
   const newVersionDisclosure = useDisclosure();
@@ -122,7 +124,7 @@ const QualityDocumentHeader = () => {
       <VStack spacing={0} className="flex-grow">
         <HStack>
           <IconButton
-            aria-label="Toggle Explorer"
+            aria-label={t`Toggle Explorer`}
             icon={<LuPanelLeft />}
             onClick={toggleExplorer}
             variant="ghost"
@@ -136,7 +138,7 @@ const QualityDocumentHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More options"
+                aria-label={t`More options`}
                 icon={<LuEllipsisVertical />}
                 variant="secondary"
                 size="sm"
@@ -153,7 +155,7 @@ const QualityDocumentHeader = () => {
                 onClick={deleteDisclosure.onOpen}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete Document
+                <Trans>Delete Document</Trans>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -192,7 +194,7 @@ const QualityDocumentHeader = () => {
               isDisabled={!canApprove}
               onClick={() => setApprovalDecision("Approved")}
             >
-              Approve
+              <Trans>Approve</Trans>
             </Button>
             <Button
               leftIcon={<LuX />}
@@ -200,7 +202,7 @@ const QualityDocumentHeader = () => {
               isDisabled={!canApprove}
               onClick={() => setApprovalDecision("Rejected")}
             >
-              Reject
+              <Trans>Reject</Trans>
             </Button>
           </>
         )}
@@ -214,7 +216,7 @@ const QualityDocumentHeader = () => {
                     leftIcon={<LuGitPullRequestArrow />}
                     rightIcon={<LuChevronDown />}
                   >
-                    Versions
+                    <Trans>Versions</Trans>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -222,7 +224,7 @@ const QualityDocumentHeader = () => {
                     <>
                       <DropdownMenuItem onClick={newVersionDisclosure.onOpen}>
                         <DropdownMenuIcon icon={<LuCirclePlus />} />
-                        New Version
+                        <Trans>New Version</Trans>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
@@ -268,7 +270,7 @@ const QualityDocumentHeader = () => {
           </Await>
         </Suspense>
         <IconButton
-          aria-label="Toggle Properties"
+          aria-label={t`Toggle Properties`}
           icon={<LuPanelRight />}
           onClick={toggleProperties}
           variant="ghost"

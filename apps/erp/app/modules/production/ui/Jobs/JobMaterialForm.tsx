@@ -12,6 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate, useParams } from "react-router";
 import type { z } from "zod";
@@ -46,6 +47,7 @@ const JobMaterialForm = ({
   operations
 }: JobMaterialFormProps) => {
   const fetcher = useFetcher<{ id: string; methodType: MethodType }>();
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const permissions = usePermissions();
   const navigate = useNavigate();
@@ -104,7 +106,7 @@ const JobMaterialForm = ({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -184,7 +186,7 @@ const JobMaterialForm = ({
               />
               <InputControlled
                 name="description"
-                label="Description"
+                label={t`Description`}
                 value={itemData.description}
                 onChange={(newValue) => {
                   setItemData((d) => ({ ...d, description: newValue }));
@@ -193,7 +195,7 @@ const JobMaterialForm = ({
 
               <Select
                 name="jobOperationId"
-                label="Operation"
+                label={t`Operation`}
                 isClearable
                 options={operations.map((o) => ({
                   value: o.id!,
@@ -203,11 +205,11 @@ const JobMaterialForm = ({
 
               <DefaultMethodType
                 name="methodType"
-                label="Method Type"
+                label={t`Method Type`}
                 value={itemData.methodType}
                 replenishmentSystem="Buy and Make"
               />
-              <Number name="quantity" label="Quantity per Parent" />
+              <Number name="quantity" label={t`Quantity per Parent`} />
               <UnitOfMeasure
                 name="unitOfMeasureCode"
                 value={itemData.unitOfMeasureCode}
@@ -221,7 +223,7 @@ const JobMaterialForm = ({
               {itemData.methodType !== "Make to Order" && (
                 <NumberControlled
                   name="unitCost"
-                  label="Unit Cost"
+                  label={t`Unit Cost`}
                   value={itemData.unitCost}
                   minValue={0}
                 />

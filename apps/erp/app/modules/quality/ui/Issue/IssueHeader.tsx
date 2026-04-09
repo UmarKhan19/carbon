@@ -12,6 +12,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuChevronDown,
   LuCircleCheck,
@@ -41,6 +42,7 @@ const IssueHeader = () => {
   }>(path.to.issue(id));
 
   const status = routeData?.nonConformance?.status;
+  const { t } = useLingui();
   const permissions = usePermissions();
   const statusFetcher = useFetcher<{}>();
   const [suppliers] = useSuppliers();
@@ -62,7 +64,7 @@ const IssueHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -79,7 +81,7 @@ const IssueHeader = () => {
                   onClick={deleteIssueModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Issue
+                  <Trans>Delete Issue</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -94,7 +96,7 @@ const IssueHeader = () => {
                 variant="secondary"
                 rightIcon={<LuChevronDown />}
               >
-                Reports
+                <Trans>Reports</Trans>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -140,7 +142,7 @@ const IssueHeader = () => {
                 statusFetcher.formData?.get("status") === "In Progress"
               }
             >
-              Start
+              <Trans>Start</Trans>
             </Button>
           </statusFetcher.Form>
 
@@ -160,7 +162,7 @@ const IssueHeader = () => {
                 statusFetcher.formData?.get("status") === "Closed"
               }
             >
-              Complete
+              <Trans>Complete</Trans>
             </Button>
           </statusFetcher.Form>
 
@@ -176,7 +178,7 @@ const IssueHeader = () => {
                 !permissions.can("update", "quality")
               }
             >
-              Reopen
+              <Trans>Reopen</Trans>
             </Button>
           </statusFetcher.Form>
         </HStack>

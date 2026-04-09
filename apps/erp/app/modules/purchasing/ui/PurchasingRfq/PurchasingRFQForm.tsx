@@ -9,6 +9,7 @@ import {
   cn,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useParams } from "react-router";
 import type { z } from "zod";
 import {
@@ -33,6 +34,7 @@ type PurchasingRFQFormProps = {
 };
 
 const PurchasingRFQForm = ({ initialValues }: PurchasingRFQFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { rfqId } = useParams();
   const routeData = useRouteData<{
@@ -74,15 +76,15 @@ const PurchasingRFQForm = ({ initialValues }: PurchasingRFQFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="rfqId"
-                  label="RFQ ID"
+                  label={t`RFQ ID`}
                   table="purchasingRfq"
                 />
               )}
-              <Suppliers name="supplierIds" label="Suppliers" />
-              <DatePicker name="rfqDate" label="RFQ Date" />
-              <DatePicker name="expirationDate" label="Due Date" />
-              <Location name="locationId" label="Receiving Location" />
-              <Employee name="employeeId" label="Buyer" isOptional />
+              <Suppliers name="supplierIds" label={t`Suppliers`} />
+              <DatePicker name="rfqDate" label={t`RFQ Date`} />
+              <DatePicker name="expirationDate" label={t`Due Date`} />
+              <Location name="locationId" label={t`Receiving Location`} />
+              <Employee name="employeeId" label={t`Buyer`} isOptional />
               <CustomFormFields table="purchasingRfq" />
             </div>
           </VStack>
@@ -96,7 +98,7 @@ const PurchasingRFQForm = ({ initialValues }: PurchasingRFQFormProps) => {
                 : !permissions.can("create", "purchasing"))
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

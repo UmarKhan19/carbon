@@ -9,6 +9,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import { LuCopy, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -31,6 +32,7 @@ import { isSalesRfqLocked } from "../../sales.models";
 import type { SalesRFQ } from "../../types";
 
 const SalesRFQProperties = () => {
+  const { t } = useLingui();
   const { rfqId } = useParams();
   if (!rfqId) throw new Error("rfqId not found");
 
@@ -112,7 +114,7 @@ const SalesRFQProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -132,7 +134,7 @@ const SalesRFQProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>

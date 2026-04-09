@@ -11,7 +11,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
@@ -41,7 +41,6 @@ const CustomerLocationForm = ({
   onClose
 }: CustomerLocationFormProps) => {
   const { t } = useLingui();
-  const { t: tShared } = useLingui();
   const fetcher = useFetcher<{}>();
 
   const permissions = usePermissions();
@@ -78,10 +77,8 @@ const CustomerLocationForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing
-                  ? tShared({ id: "Edit", message: "Edit" })
-                  : tShared({ id: "New", message: "New" })}{" "}
-                {t({ id: "Location", message: "Location" })}
+                {isEditing ? <Trans>Edit</Trans> : <Trans>New</Trans>}{" "}
+                <Trans>Location</Trans>
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -89,7 +86,7 @@ const CustomerLocationForm = ({
               <Hidden name="type" value={type} />
               <Hidden name="addressId" />
               <VStack spacing={4}>
-                <Input name="name" label={t({ id: "Name", message: "Name" })} />
+                <Input name="name" label={t`Name`} />
                 <AddressAutocomplete />
                 <CustomFormFields table="customerLocation" />
               </VStack>
@@ -97,10 +94,10 @@ const CustomerLocationForm = ({
             <ModalDrawerFooter>
               <HStack>
                 <Submit isDisabled={isDisabled}>
-                  {tShared({ id: "Save", message: "Save" })}
+                  <Trans>Save</Trans>
                 </Submit>
                 <Button size="md" variant="solid" onClick={onClose}>
-                  {tShared({ id: "Cancel", message: "Cancel" })}
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

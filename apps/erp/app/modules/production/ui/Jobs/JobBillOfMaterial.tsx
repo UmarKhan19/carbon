@@ -27,6 +27,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import type { Dispatch, SetStateAction } from "react";
@@ -160,7 +161,9 @@ function makeItem(
                 <TrackingTypeIcon type="Batch" />
               </Badge>
             </TooltipTrigger>
-            <TooltipContent>Batch Tracking</TooltipContent>
+            <TooltipContent>
+              <Trans>Batch Tracking</Trans>
+            </TooltipContent>
           </Tooltip>
         ) : material.requiresSerialTracking ? (
           <Tooltip>
@@ -169,7 +172,9 @@ function makeItem(
                 <TrackingTypeIcon type="Serial" />
               </Badge>
             </TooltipTrigger>
-            <TooltipContent>Serial Tracking</TooltipContent>
+            <TooltipContent>
+              <Trans>Serial Tracking</Trans>
+            </TooltipContent>
           </Tooltip>
         ) : null}
 
@@ -576,7 +581,9 @@ const JobBillOfMaterial = ({
     <Card>
       <HStack className="justify-between">
         <CardHeader>
-          <CardTitle>Bill of Material</CardTitle>
+          <CardTitle>
+            <Trans>Bill of Material</Trans>
+          </CardTitle>
         </CardHeader>
 
         <CardAction>
@@ -629,6 +636,7 @@ function MaterialForm({
   onSubmit: () => void;
 }) {
   const { jobId } = useParams();
+  const { t } = useLingui();
   if (!jobId) throw new Error("jobId not found");
 
   const routeData = useRouteData<{
@@ -711,7 +719,7 @@ function MaterialForm({
   const onItemChange = async (itemId: string) => {
     if (!carbon) return;
     if (itemId === params.itemId) {
-      toast.error("An item cannot be added to itself.");
+      toast.error(t`An item cannot be added to itself.`);
       return;
     }
 
@@ -735,7 +743,7 @@ function MaterialForm({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -817,7 +825,7 @@ function MaterialForm({
           onTypeChange={onTypeChange}
         />
 
-        <Number name="quantity" label="Quantity" />
+        <Number name="quantity" label={t`Quantity`} />
         <UnitOfMeasure
           name="unitOfMeasureCode"
           value={itemData.unitOfMeasureCode}
@@ -830,7 +838,7 @@ function MaterialForm({
         />
         <InputControlled
           name="description"
-          label="Description"
+          label={t`Description`}
           value={itemData.description}
           onChange={(newValue) => {
             setItemData((d) => ({ ...d, description: newValue }));
@@ -840,7 +848,7 @@ function MaterialForm({
         {itemData.methodType !== "Make to Order" && (
           <NumberControlled
             name="unitCost"
-            label="Unit Cost"
+            label={t`Unit Cost`}
             value={itemData.unitCost}
             minValue={0}
             formatOptions={{
@@ -860,12 +868,16 @@ function MaterialForm({
             {itemData.methodType === "Make to Order" ? (
               <>
                 <LuGitPullRequestCreate />
-                <Label>Finish To</Label>
+                <Label>
+                  <Trans>Finish To</Trans>
+                </Label>
               </>
             ) : (
               <>
                 <LuGitPullRequest />
-                <Label>Pull From</Label>
+                <Label>
+                  <Trans>Pull From</Trans>
+                </Label>
               </>
             )}
           </HStack>
@@ -886,8 +898,8 @@ function MaterialForm({
               {shelves.options?.find((s) => s.value === itemData.shelfId)
                 ?.label ??
                 (itemData.methodType === "Make to Order"
-                  ? "WIP"
-                  : "Default Shelf")}
+                  ? t`WIP`
+                  : t`Default Shelf`)}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -912,7 +924,7 @@ function MaterialForm({
         >
           <DefaultMethodType
             name="methodType"
-            label="Method Type"
+            label={t`Method Type`}
             value={itemData.methodType}
             onChange={(value) => {
               setItemData((d) => ({
@@ -924,7 +936,7 @@ function MaterialForm({
           />
           <Shelf
             name="shelfId"
-            label="Shelf"
+            label={t`Shelf`}
             value={itemData.shelfId}
             onChange={(value) => {
               setItemData((d) => ({
@@ -945,7 +957,9 @@ function MaterialForm({
         >
           <HStack>
             <LuGitPullRequestCreateArrow />
-            <Label>Backflush</Label>
+            <Label>
+              <Trans>Backflush</Trans>
+            </Label>
           </HStack>
           <HStack>
             <Badge
@@ -954,8 +968,8 @@ function MaterialForm({
               <LuCog className="size-3 mr-1" />
               {itemData.jobOperationId
                 ? jobOperations.find((o) => o.id === itemData.jobOperationId)
-                    ?.description || "Selected Operation"
-                : "First Operation"}
+                    ?.description || t`Selected Operation`
+                : t`First Operation`}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -983,7 +997,7 @@ function MaterialForm({
         >
           <Select
             name="jobOperationId"
-            label="Operation"
+            label={t`Operation`}
             isClearable
             options={jobOperations.map((o) => ({
               value: o.id!,
@@ -1040,7 +1054,9 @@ function MaterialForm({
                   <DropdownMenuRadioItem value="Subassembly">
                     Subassembly
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Kit">Kit</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="Kit">
+                    <Trans>Kit</Trans>
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>

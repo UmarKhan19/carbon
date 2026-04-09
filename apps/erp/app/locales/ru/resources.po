@@ -1,0 +1,1027 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-09 13:22-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ru\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: file.name
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:275
+msgid "{0} deleted successfully"
+msgstr ""
+
+#. placeholder {0}: file.name
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:229
+msgid "{0} uploaded successfully"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:77
+msgid "A contractor is a supplier contact with particular abilities and available hours"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:277
+msgid "Activate Process"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:298
+msgid "Activate Work Center"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:196
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:187
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:177
+msgid "Active"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:202
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:187
+msgid "Active Statuses"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:492
+msgid "Actual End"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:226
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:552
+msgid "Actual Failure Mode"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:472
+msgid "Actual Start"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:270
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:458
+msgid "Add"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:681
+msgid "Add & Issue"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:103
+msgid "Add notes and documentation for this maintenance dispatch"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:787
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:802
+msgid "Add options above first"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:672
+msgid "Add Pair"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:240
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:270
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:585
+msgid "Add Question"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:316
+msgid "Add Spare Part"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:240
+msgid "Add Supplier"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:440
+msgid "Add Timecard"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:58
+msgid "Address"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:459
+msgid "Assign to Groups"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:208
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:211
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:140
+msgid "Assignee"
+msgstr ""
+
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:76
+msgid "Assignments"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:159
+msgid "Attachment"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:113
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:122
+#: app/modules/resources/ui/Locations/LocationForm.tsx:113
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:672
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:455
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:526
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:657
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:206
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:162
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:426
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:691
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:161
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:470
+msgid "Cancel"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:212
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:263
+msgid "Carbon client not available"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:66
+msgid "City"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:294
+msgid "Clear search"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchHeader.tsx:132
+msgid "Complete"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:168
+msgid "Complete All"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:151
+msgid "Complete all quantities on barcode scan"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorsTable.tsx:32
+#: app/modules/resources/ui/Contractors/ContractorsTable.tsx:152
+msgid "Contractor"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorsTable.tsx:156
+msgid "Contractors"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:169
+msgid "Copy dispatch ID"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:191
+msgid "Copy dispatch number"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:151
+msgid "Copy link to dispatch"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:120
+msgid "Copy link to training"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:158
+msgid "Copy training name"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:138
+msgid "Copy training unique identifier"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:623
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:679
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:780
+msgid "Correct Answer"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:795
+msgid "Correct Answers"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:82
+msgid "Country"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:132
+msgid "Create a new maintenance dispatch to track equipment repairs and maintenance activities"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:292
+msgid "Created At"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:95
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:274
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:573
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:207
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:235
+msgid "Created By"
+msgstr ""
+
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:57
+msgid "Created failure mode"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationForm.tsx:54
+msgid "Created location"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:119
+msgid "Created maintenance schedule"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:74
+msgid "Created process"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:63
+msgid "Created work center"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:144
+#: app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:109
+msgid "Date"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:76
+msgid "Days"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:485
+msgid "Deactivate"
+msgstr ""
+
+#. placeholder {0}: workCenter.name
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:435
+msgid "Deactivate {0}"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:265
+msgid "Deactivate Process"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:290
+msgid "Deactivate Work Center"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:134
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:139
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:144
+msgid "Default Unit"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:396
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:378
+msgid "Delete"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorsTable.tsx:137
+msgid "Delete Contractor"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:355
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchHeader.tsx:78
+msgid "Delete Dispatch"
+msgstr ""
+
+#: app/modules/resources/ui/FailureModes/FailureModesTable.tsx:80
+msgid "Delete Failure Mode"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:153
+msgid "Delete Location"
+msgstr ""
+
+#: app/modules/resources/ui/Partners/PartnersTable.tsx:114
+msgid "Delete Partner"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:290
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:226
+msgid "Delete Process"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:442
+msgid "Delete Question"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:239
+msgid "Delete Schedule"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:141
+msgid "Delete Suggestion"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingHeader.tsx:77
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:200
+msgid "Delete Training"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:147
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:114
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:193
+msgid "Description"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:371
+msgid "Details"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:394
+msgid "Dispatch"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:78
+msgid "Dispatch ID"
+msgstr ""
+
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:25
+msgid "Dispatches"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:371
+msgid "Download"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:370
+msgid "Drag handle"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:122
+msgid "Duration"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:385
+msgid "Edit"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:360
+msgid "Edit Assignment"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:71
+#: app/modules/resources/ui/Contractors/ContractorsTable.tsx:123
+msgid "Edit Contractor"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:343
+msgid "Edit Dispatch"
+msgstr ""
+
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:94
+#: app/modules/resources/ui/FailureModes/FailureModesTable.tsx:68
+msgid "Edit Failure Mode"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationForm.tsx:89
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:141
+msgid "Edit Location"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:125
+msgid "Edit Maintenance Dispatch"
+msgstr ""
+
+#: app/modules/resources/ui/Partners/PartnersTable.tsx:100
+msgid "Edit Partner"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:253
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:111
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:215
+msgid "Edit Process"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:431
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:583
+msgid "Edit Question"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:227
+msgid "Edit Schedule"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:156
+msgid "Edit Scheduled Maintenance"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:198
+msgid "Edit supplier process"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:511
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:612
+msgid "Edit Timecard"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingForm.tsx:66
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:187
+msgid "Edit Training"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:100
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:281
+msgid "Edit Work Center"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:90
+msgid "Emoji"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:446
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:517
+#: app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:61
+msgid "Employee"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:449
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:520
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:644
+msgid "End Time"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:253
+msgid "Error downloading file"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:179
+msgid "Est. Duration"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:278
+msgid "Estimated Duration"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:192
+msgid "Estimated Duration (minutes)"
+msgstr ""
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:60
+msgid "Failed to create failure mode: {0}"
+msgstr ""
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/resources/ui/Locations/LocationForm.tsx:56
+msgid "Failed to create location: {0}"
+msgstr ""
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:122
+msgid "Failed to create maintenance schedule: {0}"
+msgstr ""
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:76
+msgid "Failed to create process: {0}"
+msgstr ""
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:66
+msgid "Failed to create work center: {0}"
+msgstr ""
+
+#. placeholder {0}: file.name
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:227
+msgid "Failed to upload file: {0}"
+msgstr ""
+
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:104
+#: app/modules/resources/ui/FailureModes/FailureModesTable.tsx:29
+#: app/modules/resources/ui/FailureModes/FailureModesTable.tsx:96
+msgid "Failure Mode"
+msgstr ""
+
+#: app/modules/resources/ui/FailureModes/FailureModesTable.tsx:102
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:37
+msgid "Failure Modes"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:137
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:166
+msgid "Files"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:154
+msgid "Frequencies"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:171
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:130
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:252
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:104
+msgid "Frequency"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:99
+#: app/modules/resources/ui/Contractors/ContractorsTable.tsx:101
+#: app/modules/resources/ui/Partners/PartnersTable.tsx:77
+msgid "Hours per Week"
+msgstr ""
+
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:44
+msgid "Infrastructure"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:205
+msgid "Labor Rate"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:119
+msgid "Labor Rate (Hourly)"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:683
+msgid "Leave empty for exact match"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:644
+msgid "Left item"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:347
+msgid "Loading item details..."
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:46
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:168
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:188
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:233
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:168
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:115
+#: app/modules/resources/ui/Partners/PartnersTable.tsx:58
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:115
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:162
+msgid "Location"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationForm.tsx:99
+msgid "Location Name"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:172
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:47
+msgid "Locations"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:215
+msgid "Machine Rate"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:127
+msgid "Machine Rate (Hourly)"
+msgstr ""
+
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:22
+msgid "Maintenance"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:401
+msgid "Maintenance Dispatches"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:153
+msgid "Mark Complete"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:638
+msgid "Matching Pairs"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:364
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:416
+msgid "More"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchHeader.tsx:61
+#: app/modules/resources/ui/Training/TrainingHeader.tsx:61
+msgid "More options"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:308
+#: app/modules/resources/ui/Training/TrainingForm.tsx:75
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:50
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:110
+msgid "Name"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:362
+msgid "New Assignment"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:73
+msgid "New Contractor"
+msgstr ""
+
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:96
+msgid "New Failure Mode"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationForm.tsx:91
+msgid "New Location"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:127
+msgid "New Maintenance Dispatch"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:113
+msgid "New Process"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:158
+msgid "New Scheduled Maintenance"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingForm.tsx:68
+msgid "New Training"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:102
+msgid "New Work Center"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:203
+msgid "Next Due"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:403
+msgid "No employees assigned yet. Add groups to see status."
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:286
+msgid "No employees found"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:394
+msgid "No files uploaded"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:450
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:521
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:100
+msgid "Notes"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:179
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:191
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:403
+msgid "OEE Impact"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:370
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:775
+msgid "Options"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:225
+msgid "Overhead Rate"
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:135
+msgid "Overhead Rate (Hourly)"
+msgstr ""
+
+#: app/modules/resources/ui/Partners/PartnersTable.tsx:129
+msgid "Partner"
+msgstr ""
+
+#: app/modules/resources/ui/Partners/PartnersTable.tsx:133
+msgid "Partners"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:151
+msgid "Path"
+msgstr ""
+
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:67
+msgid "People"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:452
+msgid "Planned End"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:208
+msgid "Planned End Time"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:197
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:432
+msgid "Planned Start"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:204
+msgid "Planned Start Time"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:207
+msgid "Please select an item"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:174
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:174
+msgid "Priorities"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:159
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:160
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:283
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:179
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:159
+msgid "Priority"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:375
+msgid "Procedure"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:65
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:312
+msgid "Process"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:121
+msgid "Process Name"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:89
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:124
+msgid "Process Type"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:316
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:53
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:112
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:132
+msgid "Processes"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:129
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:99
+msgid "Properties"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:358
+msgid "Quantity"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:269
+msgid "Quantity must be greater than 0"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:610
+msgid "Question"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:659
+msgid "Remove pair"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchHeader.tsx:151
+msgid "Reopen"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:652
+msgid "Right item"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:110
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:119
+#: app/modules/resources/ui/Locations/LocationForm.tsx:110
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:529
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:228
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:664
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:203
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:159
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:423
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:694
+#: app/modules/resources/ui/Training/TrainingForm.tsx:84
+#: app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:158
+msgid "Save"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
+msgid "Scan"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:166
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:98
+msgid "Schedule Name"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:268
+msgid "Scheduled Maintenance"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:275
+msgid "Scheduled Maintenances"
+msgstr ""
+
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:31
+msgid "Schedules"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:206
+msgid "Search employees..."
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:173
+msgid "Search..."
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:382
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:502
+msgid "Select"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:319
+msgid "Select an item and specify the quantity to issue"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:461
+msgid "Select the groups that should complete this training"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:181
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:315
+msgid "Severity"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:311
+msgid "Size"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:90
+msgid "Skip Holidays"
+msgstr ""
+
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:91
+msgid "Skip scheduled maintenance on company holidays"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:121
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:173
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:347
+msgid "Source"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchHeader.tsx:109
+msgid "Start"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:448
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:519
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:639
+msgid "Start Time"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:74
+msgid "State / Province"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:139
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:204
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:190
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:374
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:188
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:62
+msgid "Status"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:154
+msgid "Statuses"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:130
+msgid "Submitted By"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:83
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:121
+#: app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:41
+msgid "Suggestion"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:156
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:81
+msgid "Suggestions"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:87
+#: app/modules/resources/ui/Contractors/ContractorsTable.tsx:51
+#: app/modules/resources/ui/Partners/PartnersTable.tsx:32
+msgid "Supplier"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:149
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:188
+msgid "Suppliers"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:250
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:213
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:519
+msgid "Suspected Failure Mode"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:183
+#: app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:85
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:302
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:150
+msgid "Tags"
+msgstr ""
+
+#: app/modules/resources/ui/Contractors/ContractorForm.tsx:100
+msgid "The number of hours per week the contractor is available to work."
+msgstr ""
+
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:444
+msgid "These jobs have operations assigned to this work center:"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationForm.tsx:101
+msgid "Timezone"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingHeader.tsx:47
+msgid "Toggle Explorer"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingHeader.tsx:85
+msgid "Toggle Properties"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:682
+msgid "Tolerance (+/-)"
+msgstr ""
+
+#: app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:450
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:216
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:220
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:70
+msgid "Training"
+msgstr ""
+
+#: app/modules/resources/ui/FailureModes/FailureModeForm.tsx:107
+#: app/modules/resources/ui/FailureModes/FailureModesTable.tsx:41
+#: app/modules/resources/ui/Training/TrainingExplorer.tsx:601
+#: app/modules/resources/ui/Training/TrainingProperties.tsx:218
+#: app/modules/resources/ui/Training/TrainingsTable.tsx:81
+msgid "Type"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:365
+msgid "Unit of Measure"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:321
+msgid "Updated At"
+msgstr ""
+
+#: app/modules/resources/ui/Locations/LocationsTable.tsx:112
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:303
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:224
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:252
+msgid "Updated By"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:300
+msgid "Upload"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:167
+msgid "View Attachment"
+msgstr ""
+
+#: app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:129
+msgid "View Suggestion"
+msgstr ""
+
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:90
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:447
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:518
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:187
+#: app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:254
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:167
+#: app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:107
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:106
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:322
+msgid "Work Center"
+msgstr ""
+
+#: app/modules/resources/ui/Processes/ProcessesTable.tsx:102
+#: app/modules/resources/ui/Processes/ProcessForm.tsx:142
+#: app/modules/resources/ui/useResourcesSubmodules.tsx:59
+#: app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:326
+msgid "Work Centers"
+msgstr ""

@@ -12,3 +12,1886 @@ msgstr ""
 "Last-Translator: \n"
 "Language-Team: \n"
 "Plural-Forms: \n"
+
+#. placeholder {0}: history.length
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:259
+msgid "{0} orders"
+msgstr "{0} orders"
+
+#: app/modules/items/ui/Parts/PartProperties.tsx:565
+msgid "3D Model"
+msgstr "3D Model"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:106
+msgid "A consumable is a physical item used to make a part that can be used across multiple jobs"
+msgstr "A consumable is a physical item used to make a part that can be used across multiple jobs"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:153
+msgid "A material is a physical item used to make a part that can be used across multiple jobs"
+msgstr "A material is a physical item used to make a part that can be used across multiple jobs"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:95
+msgid "A new revision will be created using a copy of the current revision"
+msgstr "A new revision will be created using a copy of the current revision"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:94
+msgid "A new size will be created using a copy of the current size"
+msgstr "A new size will be created using a copy of the current size"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:216
+msgid "A part contains the information about a specific item that can be purchased or manufactured."
+msgstr "A part contains the information about a specific item that can be purchased or manufactured."
+
+#: app/modules/items/ui/Tools/ToolForm.tsx:215
+msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
+msgstr "A tool is a physical item used to make a part that can be used across multiple jobs"
+
+#: app/modules/items/ui/Consumables/useConsumableNavigation.tsx:45
+#: app/modules/items/ui/Materials/useMaterialNavigation.tsx:45
+#: app/modules/items/ui/Parts/usePartNavigation.tsx:50
+#: app/modules/items/ui/Tools/useToolNavigation.tsx:49
+msgid "Accounting"
+msgstr "Accounting"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:116
+msgid "Accumulation Period (Weeks)"
+msgstr "Accumulation Period (Weeks)"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:174
+#: app/modules/items/ui/Item/BoMExplorer.tsx:405
+msgid "Actions"
+msgstr "Actions"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:403
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:217
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:223
+#: app/modules/items/ui/Item/ItemForm.tsx:170
+#: app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:24
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:666
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:354
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:360
+#: app/modules/items/ui/Parts/PartProperties.tsx:515
+#: app/modules/items/ui/Parts/PartsTable.tsx:253
+#: app/modules/items/ui/Parts/PartsTable.tsx:259
+#: app/modules/items/ui/Tools/ToolProperties.tsx:478
+#: app/modules/items/ui/Tools/ToolsTable.tsx:252
+#: app/modules/items/ui/Tools/ToolsTable.tsx:258
+msgid "Active"
+msgstr "Active"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:227
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:364
+#: app/modules/items/ui/Parts/PartsTable.tsx:263
+#: app/modules/items/ui/Tools/ToolsTable.tsx:262
+msgid "Active Statuses"
+msgstr "Active Statuses"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:286
+msgid "Actual Cost"
+msgstr "Actual Cost"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:294
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:417
+msgid "Add Group"
+msgstr "Add Group"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:517
+msgid "Add Item"
+msgstr "Add Item"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:836
+msgid "Add Operation"
+msgstr "Add Operation"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:281
+msgid "Add Parameter"
+msgstr "Add Parameter"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:476
+msgid "All"
+msgstr "All"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:691
+msgid "An item cannot be added to itself."
+msgstr "An item cannot be added to itself."
+
+#: app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:30
+msgid "Archived"
+msgstr "Archived"
+
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:795
+msgid "Are you sure you want to change the {propertyName} property? Since you use generated material IDs this will change the part ID of this part, and all related revisions."
+msgstr "Are you sure you want to change the {propertyName} property? Since you use generated material IDs this will change the part ID of this part, and all related revisions."
+
+#. placeholder {0}: selectedGroup.name
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:376
+msgid "Are you sure you want to delete {0}?"
+msgstr "Are you sure you want to delete {0}?"
+
+#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
+#. placeholder {0}: routeData?.materialSummary?.readableIdWithRevision
+#. placeholder {0}: routeData?.partSummary?.readableIdWithRevision
+#: app/modules/items/ui/Consumables/ConsumableHeader.tsx:97
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:483
+#: app/modules/items/ui/Materials/MaterialHeader.tsx:99
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:641
+#: app/modules/items/ui/Parts/PartHeader.tsx:93
+#: app/modules/items/ui/Parts/PartsTable.tsx:556
+#: app/modules/items/ui/Tools/ToolHeader.tsx:91
+#: app/modules/items/ui/Tools/ToolsTable.tsx:545
+msgid "Are you sure you want to delete {0}? This cannot be undone."
+msgstr "Are you sure you want to delete {0}? This cannot be undone."
+
+#. placeholder {0}: parameter.label
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1089
+msgid "Are you sure you want to delete the {0} parameter? This will not update any formulas that are using this parameter."
+msgstr "Are you sure you want to delete the {0} parameter? This will not update any formulas that are using this parameter."
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:647
+msgid "Attributes are inherited from the procedure."
+msgstr "Attributes are inherited from the procedure."
+
+#: app/modules/items/ui/Item/ItemManufacturingForm.tsx:57
+#: app/modules/items/ui/Parts/PartForm.tsx:318
+msgid "Batch Size"
+msgstr "Batch Size"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:505
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:531
+msgid "Bill of Material"
+msgstr "Bill of Material"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:850
+msgid "Bill of Process"
+msgstr "Bill of Process"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:328
+#: app/modules/items/ui/Tools/ToolForm.tsx:320
+msgid "CAD Model"
+msgstr "CAD Model"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:105
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:105
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:105
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:804
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:120
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:120
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:117
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:431
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:945
+msgid "Cancel"
+msgstr "Cancel"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2468
+msgid "Cannot add parameters to unsaved operation"
+msgstr "Cannot add parameters to unsaved operation"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1819
+msgid "Cannot add steps to unsaved operation"
+msgstr "Cannot add steps to unsaved operation"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2757
+msgid "Cannot add tools to unsaved operation"
+msgstr "Cannot add tools to unsaved operation"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:411
+msgid "Carbon client not available"
+msgstr "Carbon client not available"
+
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:791
+msgid "Changing this will update the part ID"
+msgstr "Changing this will update the part ID"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:104
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:59
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:104
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:59
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:102
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:96
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasuresTable.tsx:43
+msgid "Code"
+msgstr "Code"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:185
+msgid "Configuration Parameters"
+msgstr "Configuration Parameters"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:522
+#: app/modules/items/ui/Item/BillOfProcess.tsx:841
+msgid "Configure"
+msgstr "Configure"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2361
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2667
+#: app/modules/items/ui/Item/ItemManufacturingForm.tsx:76
+msgid "Configured"
+msgstr "Configured"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:376
+msgid "Confirm"
+msgstr "Confirm"
+
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:784
+msgid "Confirm ID Change"
+msgstr "Confirm ID Change"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:467
+msgid "Consumable"
+msgstr "Consumable"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:102
+msgid "Consumable Details"
+msgstr "Consumable Details"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:122
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:126
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:84
+msgid "Consumable ID"
+msgstr "Consumable ID"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:456
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:473
+msgid "Consumables"
+msgstr "Consumables"
+
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:194
+#: app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:78
+msgid "Conversion Factor"
+msgstr "Conversion Factor"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:181
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:279
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:299
+#: app/modules/items/ui/Parts/PartProperties.tsx:199
+#: app/modules/items/ui/Parts/PartProperties.tsx:217
+#: app/modules/items/ui/Tools/ToolProperties.tsx:186
+#: app/modules/items/ui/Tools/ToolProperties.tsx:206
+msgid "Copy"
+msgstr "Copy"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:195
+msgid "Copy consumable number"
+msgstr "Copy consumable number"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:172
+msgid "Copy link to consumable"
+msgstr "Copy link to consumable"
+
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:271
+msgid "Copy link to material"
+msgstr "Copy link to material"
+
+#: app/modules/items/ui/Parts/PartProperties.tsx:191
+msgid "Copy link to part"
+msgstr "Copy link to part"
+
+#: app/modules/items/ui/Tools/ToolProperties.tsx:178
+msgid "Copy link to tool"
+msgstr "Copy link to tool"
+
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:313
+msgid "Copy material number"
+msgstr "Copy material number"
+
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:291
+msgid "Copy material unique identifier"
+msgstr "Copy material unique identifier"
+
+#: app/modules/items/ui/Parts/PartProperties.tsx:231
+msgid "Copy part number"
+msgstr "Copy part number"
+
+#: app/modules/items/ui/Parts/PartProperties.tsx:209
+msgid "Copy part unique identifier"
+msgstr "Copy part unique identifier"
+
+#: app/modules/items/ui/Tools/ToolProperties.tsx:220
+msgid "Copy tool number"
+msgstr "Copy tool number"
+
+#: app/modules/items/ui/Tools/ToolProperties.tsx:198
+msgid "Copy tool unique identifier"
+msgstr "Copy tool unique identifier"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:167
+msgid "Cost History"
+msgstr "Cost History"
+
+#: app/modules/items/ui/Item/ItemCostingForm.tsx:51
+msgid "Costing & Posting"
+msgstr "Costing & Posting"
+
+#: app/modules/items/ui/Item/UsedIn.tsx:227
+msgid "Create"
+msgstr "Create"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:442
+msgid "Create Version"
+msgstr "Create Version"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:112
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:990
+msgid "Created"
+msgstr "Created"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:266
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:387
+#: app/modules/items/ui/Parts/PartsTable.tsx:286
+#: app/modules/items/ui/Tools/ToolsTable.tsx:301
+msgid "Created At"
+msgstr "Created At"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:249
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:370
+#: app/modules/items/ui/Parts/PartsTable.tsx:269
+#: app/modules/items/ui/Tools/ToolsTable.tsx:284
+msgid "Created By"
+msgstr "Created By"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:63
+msgid "Created consumable"
+msgstr "Created consumable"
+
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:58
+msgid "Created item group"
+msgstr "Created item group"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:101
+msgid "Created material"
+msgstr "Created material"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:53
+msgid "Created material dimension"
+msgstr "Created material dimension"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:53
+msgid "Created material finish"
+msgstr "Created material finish"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:59
+msgid "Created material form"
+msgstr "Created material form"
+
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:53
+msgid "Created material grade"
+msgstr "Created material grade"
+
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:59
+msgid "Created material substance"
+msgstr "Created material substance"
+
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:55
+msgid "Created material type"
+msgstr "Created material type"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:158
+msgid "Created part"
+msgstr "Created part"
+
+#: app/modules/items/ui/Tools/ToolForm.tsx:157
+msgid "Created tool"
+msgstr "Created tool"
+
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:54
+msgid "Created unit of measure"
+msgstr "Created unit of measure"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:95
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:96
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:95
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:88
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:88
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:112
+msgid "Custom"
+msgstr "Custom"
+
+#: app/modules/items/ui/Item/CustomerPartForm.tsx:67
+#: app/modules/items/ui/Item/CustomerParts/CustomerParts.tsx:41
+msgid "Customer"
+msgstr "Customer"
+
+#: app/modules/items/ui/Item/CustomerParts/CustomerParts.tsx:87
+msgid "Customer ID"
+msgstr "Customer ID"
+
+#: app/modules/items/ui/Item/CustomerPartForm.tsx:68
+msgid "Customer Part ID"
+msgstr "Customer Part ID"
+
+#: app/modules/items/ui/Item/CustomerPartForm.tsx:71
+msgid "Customer Part Revision"
+msgstr "Customer Part Revision"
+
+#: app/modules/items/ui/Item/CustomerParts/CustomerParts.tsx:113
+msgid "Customer Parts"
+msgstr "Customer Parts"
+
+#: app/modules/items/ui/Item/CustomerParts/CustomerParts.tsx:92
+msgid "Customer Revision"
+msgstr "Customer Revision"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:237
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:915
+msgid "Data Type"
+msgstr "Data Type"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:168
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:305
+#: app/modules/items/ui/Parts/PartsTable.tsx:175
+#: app/modules/items/ui/Tools/ToolsTable.tsx:175
+msgid "Default Method"
+msgstr "Default Method"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:152
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:333
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:367
+#: app/modules/items/ui/Item/ItemForm.tsx:158
+#: app/modules/items/ui/Materials/MaterialForm.tsx:286
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:457
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:499
+#: app/modules/items/ui/Parts/PartForm.tsx:286
+#: app/modules/items/ui/Parts/PartProperties.tsx:404
+#: app/modules/items/ui/Parts/PartsTable.tsx:414
+#: app/modules/items/ui/Tools/ToolForm.tsx:281
+#: app/modules/items/ui/Tools/ToolProperties.tsx:382
+#: app/modules/items/ui/Tools/ToolsTable.tsx:403
+msgid "Default Method Type"
+msgstr "Default Method Type"
+
+#: app/modules/items/ui/Item/PickMethodForm.tsx:84
+msgid "Default Shelf"
+msgstr "Default Shelf"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:792
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1011
+msgid "Delete"
+msgstr "Delete"
+
+#: app/modules/items/ui/Consumables/ConsumableHeader.tsx:80
+msgid "Delete Consumable"
+msgstr "Delete Consumable"
+
+#: app/modules/items/ui/Materials/MaterialHeader.tsx:83
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:587
+msgid "Delete Material"
+msgstr "Delete Material"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:138
+msgid "Delete Material Dimension"
+msgstr "Delete Material Dimension"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:139
+msgid "Delete Material Finish"
+msgstr "Delete Material Finish"
+
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:136
+msgid "Delete Material Grade"
+msgstr "Delete Material Grade"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:129
+msgid "Delete Material Shape"
+msgstr "Delete Material Shape"
+
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:151
+msgid "Delete Material Type"
+msgstr "Delete Material Type"
+
+#: app/modules/items/ui/Parts/PartHeader.tsx:79
+#: app/modules/items/ui/Parts/PartsTable.tsx:502
+msgid "Delete Part"
+msgstr "Delete Part"
+
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:131
+msgid "Delete Substance"
+msgstr "Delete Substance"
+
+#: app/modules/items/ui/Tools/ToolHeader.tsx:77
+#: app/modules/items/ui/Tools/ToolsTable.tsx:491
+msgid "Delete Tool"
+msgstr "Delete Tool"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:482
+msgid "Demand"
+msgstr "Demand"
+
+#: app/modules/items/ui/Item/ItemReorderPolicy.tsx:34
+msgid "Demand-Based"
+msgstr "Demand-Based"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:107
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1166
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1177
+#: app/modules/items/ui/Item/BoMExplorer.tsx:558
+#: app/modules/items/ui/Item/ItemForm.tsx:141
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:97
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupsTable.tsx:49
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:125
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:64
+#: app/modules/items/ui/Methods/MethodOperationsTable.tsx:28
+#: app/modules/items/ui/Parts/PartsTable.tsx:115
+#: app/modules/items/ui/Tools/ToolsTable.tsx:115
+msgid "Description"
+msgstr "Description"
+
+#: app/modules/items/ui/Consumables/useConsumableNavigation.tsx:31
+#: app/modules/items/ui/Item/BillOfProcess.tsx:485
+#: app/modules/items/ui/Materials/useMaterialNavigation.tsx:31
+#: app/modules/items/ui/Parts/usePartNavigation.tsx:35
+#: app/modules/items/ui/Tools/useToolNavigation.tsx:34
+msgid "Details"
+msgstr "Details"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:55
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:207
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1046
+msgid "Dimension"
+msgstr "Dimension"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:268
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:551
+msgid "Dimensions"
+msgstr "Dimensions"
+
+#: app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:18
+msgid "Draft"
+msgstr "Draft"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2294
+msgid "Drag handle"
+msgstr "Drag handle"
+
+#: app/modules/items/ui/Item/UsedIn.tsx:279
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:780
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1005
+msgid "Edit"
+msgstr "Edit"
+
+#: app/modules/items/ui/Item/CustomerPartForm.tsx:58
+msgid "Edit Customer Part"
+msgstr "Edit Customer Part"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:415
+msgid "Edit Group"
+msgstr "Edit Group"
+
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:89
+msgid "Edit Item Group"
+msgstr "Edit Item Group"
+
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:557
+msgid "Edit Material"
+msgstr "Edit Material"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:85
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:122
+msgid "Edit Material Dimension"
+msgstr "Edit Material Dimension"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:123
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:85
+msgid "Edit Material Finish"
+msgstr "Edit Material Finish"
+
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:85
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:122
+msgid "Edit Material Grade"
+msgstr "Edit Material Grade"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:91
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:115
+msgid "Edit Material Shape"
+msgstr "Edit Material Shape"
+
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:91
+msgid "Edit Material Substance"
+msgstr "Edit Material Substance"
+
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:87
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:137
+msgid "Edit Material Type"
+msgstr "Edit Material Type"
+
+#: app/modules/items/ui/Parts/PartsTable.tsx:472
+msgid "Edit Part"
+msgstr "Edit Part"
+
+#: app/modules/items/ui/Item/CustomerParts/CustomerParts.tsx:49
+msgid "Edit purchase order line type"
+msgstr "Edit purchase order line type"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:86
+msgid "Edit Revision"
+msgstr "Edit Revision"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:85
+msgid "Edit Size"
+msgstr "Edit Size"
+
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:115
+msgid "Edit Substance"
+msgstr "Edit Substance"
+
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:164
+msgid "Edit Supplier Part"
+msgstr "Edit Supplier Part"
+
+#: app/modules/items/ui/Tools/ToolsTable.tsx:461
+msgid "Edit Tool"
+msgstr "Edit Tool"
+
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:86
+msgid "Edit Unit of Measure"
+msgstr "Edit Unit of Measure"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:320
+msgid "Error deleting file"
+msgstr "Error deleting file"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:370
+#: app/modules/items/ui/Item/ItemDocuments.tsx:393
+msgid "Error downloading file"
+msgstr "Error downloading file"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:338
+msgid "Error removing model from item"
+msgstr "Error removing model from item"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:184
+#: app/modules/items/ui/Item/BoMExplorer.tsx:415
+msgid "Export"
+msgstr "Export"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:66
+msgid "Failed to create consumable: {0}"
+msgstr "Failed to create consumable: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:61
+msgid "Failed to create item group: {0}"
+msgstr "Failed to create item group: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:56
+msgid "Failed to create material dimension: {0}"
+msgstr "Failed to create material dimension: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:56
+msgid "Failed to create material finish: {0}"
+msgstr "Failed to create material finish: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:62
+msgid "Failed to create material form: {0}"
+msgstr "Failed to create material form: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:56
+msgid "Failed to create material grade: {0}"
+msgstr "Failed to create material grade: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:62
+msgid "Failed to create material substance: {0}"
+msgstr "Failed to create material substance: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:58
+msgid "Failed to create material type: {0}"
+msgstr "Failed to create material type: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/Materials/MaterialForm.tsx:103
+msgid "Failed to create material: {0}"
+msgstr "Failed to create material: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/Parts/PartForm.tsx:160
+msgid "Failed to create part: {0}"
+msgstr "Failed to create part: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: app/modules/items/ui/Tools/ToolForm.tsx:159
+msgid "Failed to create tool: {0}"
+msgstr "Failed to create tool: {0}"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:705
+msgid "Failed to load item details"
+msgstr "Failed to load item details"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:119
+msgid "Failed to update configuration parameter"
+msgstr "Failed to update configuration parameter"
+
+#. placeholder {0}: file.name
+#: app/modules/items/ui/Item/ItemDocuments.tsx:427
+msgid "Failed to upload file: {0}"
+msgstr "Failed to upload file: {0}"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1803
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2110
+#: app/modules/items/ui/Item/ItemNotes.tsx:49
+msgid "Failed to upload image"
+msgstr "Failed to upload image"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:104
+#: app/modules/items/ui/Tools/ToolForm.tsx:104
+msgid "Failed to upload model"
+msgstr "Failed to upload model"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:324
+msgid "File deleted successfully"
+msgstr "File deleted successfully"
+
+#. placeholder {0}: SIZE_LIMIT.format()
+#: app/modules/items/ui/Parts/PartForm.tsx:133
+#: app/modules/items/ui/Parts/PartForm.tsx:143
+#: app/modules/items/ui/Tools/ToolForm.tsx:132
+#: app/modules/items/ui/Tools/ToolForm.tsx:142
+msgid "File size too big (max. {0})"
+msgstr "File size too big (max. {0})"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:127
+#: app/modules/items/ui/Parts/PartForm.tsx:145
+#: app/modules/items/ui/Tools/ToolForm.tsx:127
+#: app/modules/items/ui/Tools/ToolForm.tsx:144
+msgid "File type not supported"
+msgstr "File type not supported"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:445
+#: app/modules/items/ui/Item/ItemDocuments.tsx:94
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:708
+#: app/modules/items/ui/Parts/PartProperties.tsx:554
+#: app/modules/items/ui/Tools/ToolProperties.tsx:517
+msgid "Files"
+msgstr "Files"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:55
+#: app/modules/items/ui/Materials/MaterialForm.tsx:257
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:571
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:173
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1062
+msgid "Finish"
+msgstr "Finish"
+
+#: app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
+msgid "Fixed Reorder"
+msgstr "Fixed Reorder"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:127
+msgid "Get Method"
+msgstr "Get Method"
+
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:55
+#: app/modules/items/ui/Materials/MaterialForm.tsx:217
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:531
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:190
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1054
+msgid "Grade"
+msgstr "Grade"
+
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupsTable.tsx:97
+msgid "Group"
+msgstr "Group"
+
+#: app/modules/items/ui/Item/ItemCostingForm.tsx:60
+msgid "Group used together with the supplier type, customer type, and location to determine the account"
+msgstr "Group used together with the supplier type, customer type, and location to determine the account"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:74
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:75
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:74
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:67
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:67
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:91
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1022
+msgid "ID"
+msgstr "ID"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:224
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:361
+#: app/modules/items/ui/Parts/PartsTable.tsx:260
+#: app/modules/items/ui/Tools/ToolsTable.tsx:259
+msgid "Inactive"
+msgstr "Inactive"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:292
+msgid "Includes tax and shipping costs"
+msgstr "Includes tax and shipping costs"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:509
+msgid "Incoming"
+msgstr "Incoming"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:536
+msgid "Instructions are inherited from the procedure."
+msgstr "Instructions are inherited from the procedure."
+
+#: app/modules/items/ui/Consumables/useConsumableNavigation.tsx:61
+#: app/modules/items/ui/Item/PickMethodForm.tsx:56
+#: app/modules/items/ui/Materials/useMaterialNavigation.tsx:61
+#: app/modules/items/ui/Parts/usePartNavigation.tsx:66
+#: app/modules/items/ui/Tools/useToolNavigation.tsx:65
+msgid "Inventory"
+msgstr "Inventory"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:295
+msgid "Inventory Unit of Measure"
+msgstr "Inventory Unit of Measure"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:166
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:277
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:119
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:344
+#: app/modules/items/ui/Item/ItemCostingForm.tsx:59
+#: app/modules/items/ui/Materials/MaterialForm.tsx:310
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:401
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:244
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:476
+#: app/modules/items/ui/Parts/PartForm.tsx:302
+#: app/modules/items/ui/Parts/PartProperties.tsx:314
+#: app/modules/items/ui/Parts/PartsTable.tsx:127
+#: app/modules/items/ui/Parts/PartsTable.tsx:365
+#: app/modules/items/ui/Tools/ToolForm.tsx:296
+#: app/modules/items/ui/Tools/ToolProperties.tsx:292
+#: app/modules/items/ui/Tools/ToolsTable.tsx:127
+#: app/modules/items/ui/Tools/ToolsTable.tsx:380
+msgid "Item Group"
+msgstr "Item Group"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:464
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupsTable.tsx:103
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:622
+#: app/modules/items/ui/Parts/PartsTable.tsx:537
+#: app/modules/items/ui/Tools/ToolsTable.tsx:526
+msgid "Item Groups"
+msgstr "Item Groups"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:534
+#: app/modules/items/ui/Methods/MethodOperationsTable.tsx:47
+msgid "Item ID"
+msgstr "Item ID"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:586
+msgid "Item Type"
+msgstr "Item Type"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2500
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2610
+msgid "Key"
+msgstr "Key"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:222
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:901
+msgid "Label"
+msgstr "Label"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1431
+msgid "Labor"
+msgstr "Labor"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1444
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1458
+#: app/modules/items/ui/Methods/MethodOperationsTable.tsx:87
+msgid "Labor Time"
+msgstr "Labor Time"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1472
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1486
+msgid "Labor Unit"
+msgstr "Labor Unit"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1232
+msgid "Lead Time"
+msgstr "Lead Time"
+
+#: app/modules/items/ui/Item/ItemManufacturingForm.tsx:65
+#: app/modules/items/ui/Item/ItemPurchasingForm.tsx:83
+msgid "Lead Time (Days)"
+msgstr "Lead Time (Days)"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:158
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:257
+#: app/modules/items/ui/Parts/PartProperties.tsx:177
+#: app/modules/items/ui/Tools/ToolProperties.tsx:164
+msgid "Link"
+msgstr "Link"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1940
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2275
+msgid "List Options"
+msgstr "List Options"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:255
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:928
+msgid "List Parameters"
+msgstr "List Parameters"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:989
+msgid "Location"
+msgstr "Location"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:147
+#: app/modules/items/ui/Tools/ToolForm.tsx:264
+msgid "Long Description"
+msgstr "Long Description"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1543
+msgid "Machine"
+msgstr "Machine"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1556
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1570
+#: app/modules/items/ui/Methods/MethodOperationsTable.tsx:94
+msgid "Machine Time"
+msgstr "Machine Time"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1584
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1598
+msgid "Machine Unit"
+msgstr "Machine Unit"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:455
+msgid "Make Active"
+msgstr "Make Active"
+
+#: app/modules/items/ui/Item/UsedIn.tsx:335
+msgid "Make Default"
+msgstr "Make Default"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:596
+msgid "Make Method Version"
+msgstr "Make Method Version"
+
+#. placeholder {0}: selectedRevision.revision
+#: app/modules/items/ui/Item/UsedIn.tsx:339
+msgid "Make revision {0} default?"
+msgstr "Make revision {0} default?"
+
+#. placeholder {0}: selectedRevision.revision
+#: app/modules/items/ui/Item/UsedIn.tsx:338
+msgid "Make size {0} default?"
+msgstr "Make size {0} default?"
+
+#: app/modules/items/ui/Item/ItemReorderPolicy.tsx:28
+msgid "Manual"
+msgstr "Manual"
+
+#: app/modules/items/ui/Item/ItemManufacturingForm.tsx:50
+msgid "Manufacturing"
+msgstr "Manufacturing"
+
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:625
+msgid "Material"
+msgstr "Material"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:154
+msgid "Material Dimension"
+msgstr "Material Dimension"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:160
+msgid "Material Dimensions"
+msgstr "Material Dimensions"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:155
+msgid "Material Finish"
+msgstr "Material Finish"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:161
+msgid "Material Finishes"
+msgstr "Material Finishes"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1030
+msgid "Material Form"
+msgstr "Material Form"
+
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:152
+msgid "Material Grade"
+msgstr "Material Grade"
+
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:158
+msgid "Material Grades"
+msgstr "Material Grades"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:178
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:101
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:50
+msgid "Material ID"
+msgstr "Material ID"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:145
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:261
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:933
+msgid "Material Shape"
+msgstr "Material Shape"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:151
+msgid "Material Shapes"
+msgstr "Material Shapes"
+
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:147
+msgid "Material Substance"
+msgstr "Material Substance"
+
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:153
+msgid "Material Substances"
+msgstr "Material Substances"
+
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:167
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1070
+msgid "Material Type"
+msgstr "Material Type"
+
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:173
+msgid "Material Types"
+msgstr "Material Types"
+
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:614
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:631
+msgid "Materials"
+msgstr "Materials"
+
+#: app/modules/items/ui/Item/ItemReorderPolicy.tsx:46
+msgid "Max Quantity"
+msgstr "Max Quantity"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1930
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2239
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2251
+msgid "Maximum"
+msgstr "Maximum"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:106
+msgid "Maximum Inventory Quantity"
+msgstr "Maximum Inventory Quantity"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:154
+msgid "Maximum Order Quantity"
+msgstr "Maximum Order Quantity"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:577
+msgid "Method"
+msgstr "Method"
+
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:28
+msgid "Method Id"
+msgstr "Method Id"
+
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:137
+msgid "Method Materials"
+msgstr "Method Materials"
+
+#: app/modules/items/ui/Methods/MethodOperationsTable.tsx:107
+msgid "Method Operations"
+msgstr "Method Operations"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:961
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:974
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:69
+msgid "Method Type"
+msgstr "Method Type"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:369
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:630
+#: app/modules/items/ui/Parts/PartProperties.tsx:458
+#: app/modules/items/ui/Tools/ToolProperties.tsx:425
+msgid "Methods"
+msgstr "Methods"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1920
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2203
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2215
+msgid "Minimum"
+msgstr "Minimum"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1200
+msgid "Minimum Cost"
+msgstr "Minimum Cost"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:149
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:200
+#: app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:73
+msgid "Minimum Order Quantity"
+msgstr "Minimum Order Quantity"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:348
+#: app/modules/items/ui/Item/ItemDocuments.tsx:353
+msgid "Model data is missing"
+msgstr "Model data is missing"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:341
+msgid "Model removed from item"
+msgstr "Model removed from item"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:176
+#: app/modules/items/ui/Item/ItemDocuments.tsx:141
+#: app/modules/items/ui/Item/ItemDocuments.tsx:220
+msgid "More"
+msgstr "More"
+
+#: app/modules/items/ui/Consumables/ConsumableHeader.tsx:62
+#: app/modules/items/ui/Materials/MaterialHeader.tsx:65
+#: app/modules/items/ui/Parts/PartHeader.tsx:61
+#: app/modules/items/ui/Tools/ToolHeader.tsx:59
+msgid "More options"
+msgstr "More options"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1878
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2161
+#: app/modules/items/ui/Item/ItemDocuments.tsx:106
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:96
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupsTable.tsx:32
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:96
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:96
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:96
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:101
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:40
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:101
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:40
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:99
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:423
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasuresTable.tsx:31
+msgid "Name"
+msgstr "Name"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:102
+msgid "New Consumable"
+msgstr "New Consumable"
+
+#: app/modules/items/ui/Item/CustomerPartForm.tsx:58
+msgid "New Customer Part"
+msgstr "New Customer Part"
+
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:89
+msgid "New Item Group"
+msgstr "New Item Group"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:150
+msgid "New Material"
+msgstr "New Material"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:87
+msgid "New Material Dimension"
+msgstr "New Material Dimension"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:87
+msgid "New Material Finish"
+msgstr "New Material Finish"
+
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:87
+msgid "New Material Grade"
+msgstr "New Material Grade"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:93
+msgid "New Material Shape"
+msgstr "New Material Shape"
+
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:93
+msgid "New Material Substance"
+msgstr "New Material Substance"
+
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:89
+msgid "New Material Type"
+msgstr "New Material Type"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:211
+msgid "New Part"
+msgstr "New Part"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:89
+msgid "New Revision"
+msgstr "New Revision"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:88
+msgid "New Size"
+msgstr "New Size"
+
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:164
+msgid "New Supplier Part"
+msgstr "New Supplier Part"
+
+#: app/modules/items/ui/Tools/ToolForm.tsx:210
+msgid "New Tool"
+msgstr "New Tool"
+
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:86
+msgid "New Unit of Measure"
+msgstr "New Unit of Measure"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:429
+msgid "New Version"
+msgstr "New Version"
+
+#. placeholder {0}: node.name.toLowerCase()
+#: app/modules/items/ui/Item/UsedIn.tsx:250
+#: app/modules/items/ui/Item/UsedIn.tsx:427
+msgid "No {0} found"
+msgstr "No {0} found"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:349
+msgid "No cost history found"
+msgstr "No cost history found"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:640
+msgid "No due date"
+msgstr "No due date"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:249
+msgid "No files"
+msgstr "No files"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:347
+msgid "No planning data"
+msgstr "No planning data"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:270
+msgid "Nominal Cost"
+msgstr "Nominal Cost"
+
+#: app/modules/items/ui/Item/ItemNotes.tsx:82
+msgid "Notes"
+msgstr "Notes"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:606
+msgid "Onshape Status"
+msgstr "Onshape Status"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2404
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2699
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2936
+#: app/modules/items/ui/Item/ItemForm.tsx:110
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:766
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:998
+msgid "Open menu"
+msgstr "Open menu"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:1062
+msgid "Operation"
+msgstr "Operation"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1096
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1097
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1113
+msgid "Operation Order"
+msgstr "Operation Order"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1129
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1130
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1150
+#: app/modules/items/ui/Methods/MethodOperationsTable.tsx:64
+msgid "Operation Type"
+msgstr "Operation Type"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:144
+msgid "Order Multiple"
+msgstr "Order Multiple"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:529
+msgid "Outgoing"
+msgstr "Outgoing"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:495
+msgid "Parameters"
+msgstr "Parameters"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:601
+msgid "Parameters are inherited from the procedure."
+msgstr "Parameters are inherited from the procedure."
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:766
+#: app/modules/items/ui/Parts/PartsTable.tsx:540
+msgid "Part"
+msgstr "Part"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:209
+msgid "Part Details"
+msgstr "Part Details"
+
+#: app/modules/items/ui/Item/CustomerPartForm.tsx:66
+#: app/modules/items/ui/Parts/PartForm.tsx:241
+#: app/modules/items/ui/Parts/PartForm.tsx:245
+#: app/modules/items/ui/Parts/PartsTable.tsx:91
+msgid "Part ID"
+msgstr "Part ID"
+
+#: app/modules/items/ui/Parts/PartsTable.tsx:529
+#: app/modules/items/ui/Parts/PartsTable.tsx:546
+msgid "Parts"
+msgstr "Parts"
+
+#: app/modules/items/ui/Consumables/useConsumableNavigation.tsx:53
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:62
+#: app/modules/items/ui/Materials/useMaterialNavigation.tsx:53
+#: app/modules/items/ui/Parts/usePartNavigation.tsx:58
+#: app/modules/items/ui/Tools/useToolNavigation.tsx:57
+msgid "Planning"
+msgstr "Planning"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2471
+msgid "Please save the operation before adding parameters."
+msgstr "Please save the operation before adding parameters."
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1822
+msgid "Please save the operation before adding steps."
+msgstr "Please save the operation before adding steps."
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2760
+msgid "Please save the operation before adding tools."
+msgstr "Please save the operation before adding tools."
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:266
+msgid "Posting Date"
+msgstr "Posting Date"
+
+#: app/modules/items/ui/Item/ItemPurchasingForm.tsx:80
+msgid "Preferred Supplier"
+msgstr "Preferred Supplier"
+
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:388
+msgid "Price break actions"
+msgstr "Price break actions"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1656
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1664
+msgid "Procedure"
+msgstr "Procedure"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1070
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1076
+msgid "Process"
+msgstr "Process"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:342
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:359
+msgid "Projections"
+msgstr "Projections"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:151
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:250
+#: app/modules/items/ui/Parts/PartProperties.tsx:170
+#: app/modules/items/ui/Tools/ToolProperties.tsx:157
+msgid "Properties"
+msgstr "Properties"
+
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:255
+msgid "Purchase History"
+msgstr "Purchase History"
+
+#: app/modules/items/ui/Consumables/useConsumableNavigation.tsx:37
+#: app/modules/items/ui/Item/ItemPurchasingForm.tsx:72
+#: app/modules/items/ui/Materials/useMaterialNavigation.tsx:37
+#: app/modules/items/ui/Parts/usePartNavigation.tsx:41
+#: app/modules/items/ui/Tools/useToolNavigation.tsx:40
+msgid "Purchasing"
+msgstr "Purchasing"
+
+#: app/modules/items/ui/Item/ItemPurchasingForm.tsx:86
+msgid "Purchasing Unit of Measure"
+msgstr "Purchasing Unit of Measure"
+
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:126
+msgid "Qty. per Parent"
+msgstr "Qty. per Parent"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:782
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:788
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2792
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2890
+#: app/modules/items/ui/Item/BoMExplorer.tsx:567
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:298
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:379
+msgid "Quantity"
+msgstr "Quantity"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:493
+msgid "Quantity on Hand"
+msgstr "Quantity on Hand"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:353
+#: app/modules/items/ui/Tools/ToolForm.tsx:345
+msgid "Remove"
+msgstr "Remove"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:965
+msgid "Reorder"
+msgstr "Reorder"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:753
+msgid "Reorder Group"
+msgstr "Reorder Group"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:101
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:130
+msgid "Reorder Point"
+msgstr "Reorder Point"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:135
+msgid "Reorder Quantity"
+msgstr "Reorder Quantity"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:87
+msgid "Reordering Policy"
+msgstr "Reordering Policy"
+
+#: app/modules/items/ui/Parts/PartProperties.tsx:336
+#: app/modules/items/ui/Parts/PartsTable.tsx:200
+#: app/modules/items/ui/Parts/PartsTable.tsx:388
+#: app/modules/items/ui/Tools/ToolProperties.tsx:314
+#: app/modules/items/ui/Tools/ToolsTable.tsx:200
+msgid "Replenishment"
+msgstr "Replenishment"
+
+#: app/modules/items/ui/Item/ItemForm.tsx:145
+#: app/modules/items/ui/Parts/PartForm.tsx:273
+#: app/modules/items/ui/Tools/ToolForm.tsx:268
+msgid "Replenishment System"
+msgstr "Replenishment System"
+
+#: app/modules/items/ui/Item/ItemWithRevision.tsx:20
+msgid "Rev {revision}"
+msgstr "Rev {revision}"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:107
+#: app/modules/items/ui/Parts/PartForm.tsx:259
+#: app/modules/items/ui/Tools/ToolForm.tsx:253
+msgid "Revision"
+msgstr "Revision"
+
+#. placeholder {0}: revision.revision
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:572
+#: app/modules/items/ui/Parts/PartsTable.tsx:487
+#: app/modules/items/ui/Tools/ToolsTable.tsx:476
+msgid "Revision {0}"
+msgstr "Revision {0}"
+
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:121
+msgid "Safety Stock"
+msgstr "Safety Stock"
+
+#: app/modules/items/ui/Item/ItemSalePriceForm.tsx:33
+msgid "Sale Price"
+msgstr "Sale Price"
+
+#: app/modules/items/ui/Parts/usePartNavigation.tsx:74
+msgid "Sales"
+msgstr "Sales"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:197
+#: app/modules/items/ui/Item/CustomerPartForm.tsx:78
+#: app/modules/items/ui/Item/ItemCostingForm.tsx:98
+#: app/modules/items/ui/Item/ItemForm.tsx:175
+#: app/modules/items/ui/Item/ItemPlanningForm.tsx:166
+#: app/modules/items/ui/Item/ItemPurchasingForm.tsx:102
+#: app/modules/items/ui/Item/ItemSalePriceForm.tsx:72
+#: app/modules/items/ui/Item/PickMethodForm.tsx:94
+#: app/modules/items/ui/Item/RevisionForm.tsx:122
+#: app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:104
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:102
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:102
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:102
+#: app/modules/items/ui/Materials/MaterialForm.tsx:323
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:117
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:117
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:114
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:445
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:955
+#: app/modules/items/ui/Parts/PartForm.tsx:376
+#: app/modules/items/ui/Tools/ToolForm.tsx:368
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:109
+msgid "Save"
+msgstr "Save"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:137
+msgid "Save Method"
+msgstr "Save Method"
+
+#: app/modules/items/ui/Item/ItemManufacturingForm.tsx:60
+msgid "Scrap Percent"
+msgstr "Scrap Percent"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:553
+msgid "Search"
+msgstr "Search"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:165
+#: app/modules/items/ui/Item/UsedIn.tsx:136
+msgid "Search..."
+msgstr "Search..."
+
+#. placeholder {0}: selectedVersion.version
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:456
+msgid "Set Version {0} as Active Version?"
+msgstr "Set Version {0} as Active Version?"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1320
+msgid "Setup"
+msgstr "Setup"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1333
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1347
+#: app/modules/items/ui/Methods/MethodOperationsTable.tsx:80
+msgid "Setup Time"
+msgstr "Setup Time"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1361
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1375
+msgid "Setup Unit"
+msgstr "Setup Unit"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:95
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:40
+#: app/modules/items/ui/Materials/MaterialForm.tsx:228
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:492
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:156
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:98
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:57
+msgid "Shape"
+msgstr "Shape"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:997
+msgid "Shelf"
+msgstr "Shelf"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:140
+#: app/modules/items/ui/Item/ItemForm.tsx:134
+#: app/modules/items/ui/Materials/MaterialForm.tsx:193
+#: app/modules/items/ui/Parts/PartForm.tsx:263
+#: app/modules/items/ui/Tools/ToolForm.tsx:257
+msgid "Short Description"
+msgstr "Short Description"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:109
+#: app/modules/items/ui/Item/RevisionForm.tsx:107
+msgid "Size"
+msgstr "Size"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:313
+msgid "Sizes"
+msgstr "Sizes"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:281
+msgid "Source Method"
+msgstr "Source Method"
+
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:869
+msgid "Sourcing Type"
+msgstr "Sourcing Type"
+
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:87
+#: app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:91
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:88
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:92
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:87
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:91
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:80
+#: app/modules/items/ui/MaterialShapes/MaterialShapesTable.tsx:84
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:80
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceTable.tsx:84
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:104
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:108
+msgid "Standard"
+msgstr "Standard"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:500
+msgid "Steps"
+msgstr "Steps"
+
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:40
+#: app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:95
+#: app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:95
+#: app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:40
+#: app/modules/items/ui/Materials/MaterialForm.tsx:203
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:512
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:137
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:97
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:42
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:1038
+msgid "Substance"
+msgstr "Substance"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1194
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:301
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:174
+#: app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:45
+msgid "Supplier"
+msgstr "Supplier"
+
+#: app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:54
+msgid "Supplier ID"
+msgstr "Supplier ID"
+
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:175
+msgid "Supplier Part ID"
+msgstr "Supplier Part ID"
+
+#: app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:90
+msgid "Supplier Parts"
+msgstr "Supplier Parts"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:479
+msgid "Supply"
+msgstr "Supply"
+
+#: app/modules/items/ui/Item/ItemPlanningChart.tsx:470
+msgid "Supply & Demand"
+msgstr "Supply & Demand"
+
+#. placeholder {0}: supportedModelTypes.join(", ")
+#: app/modules/items/ui/Parts/PartForm.tsx:360
+#: app/modules/items/ui/Tools/ToolForm.tsx:352
+msgid "Supports {0} files"
+msgstr "Supports {0} files"
+
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:421
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:193
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:684
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:330
+#: app/modules/items/ui/Parts/PartProperties.tsx:534
+#: app/modules/items/ui/Parts/PartsTable.tsx:229
+#: app/modules/items/ui/Tools/ToolProperties.tsx:496
+#: app/modules/items/ui/Tools/ToolsTable.tsx:228
+msgid "Tags"
+msgstr "Tags"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:347
+msgid "Target Method"
+msgstr "Target Method"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:430
+msgid "The new version number of the method"
+msgstr "The new version number of the method"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:111
+msgid "The revision number of the part"
+msgstr "The revision number of the part"
+
+#: app/modules/items/ui/Item/RevisionForm.tsx:110
+msgid "The size of the part"
+msgstr "The size of the part"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:276
+msgid "The unit price of the item at the time of the purchase"
+msgstr "The unit price of the item at the time of the purchase"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:457
+msgid "This will make this version read-only and replace any material make methods with this version."
+msgstr "This will make this version read-only and replace any material make methods with this version."
+
+#: app/modules/items/ui/Item/UsedIn.tsx:344
+msgid "This will replace all method materials of other revisions with this revision."
+msgstr "This will replace all method materials of other revisions with this revision."
+
+#: app/modules/items/ui/Item/UsedIn.tsx:343
+msgid "This will replace all method materials of other sizes with this size."
+msgstr "This will replace all method materials of other sizes with this size."
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2789
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2889
+#: app/modules/items/ui/Tools/ToolsTable.tsx:529
+msgid "Tool"
+msgstr "Tool"
+
+#: app/modules/items/ui/Tools/ToolForm.tsx:208
+msgid "Tool Details"
+msgstr "Tool Details"
+
+#: app/modules/items/ui/Tools/ToolForm.tsx:234
+#: app/modules/items/ui/Tools/ToolForm.tsx:238
+#: app/modules/items/ui/Tools/ToolsTable.tsx:91
+msgid "Tool ID"
+msgstr "Tool ID"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:499
+#: app/modules/items/ui/Tools/ToolsTable.tsx:518
+#: app/modules/items/ui/Tools/ToolsTable.tsx:535
+msgid "Tools"
+msgstr "Tools"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:140
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:265
+#: app/modules/items/ui/Parts/PartsTable.tsx:149
+#: app/modules/items/ui/Tools/ToolsTable.tsx:149
+msgid "Tracking"
+msgstr "Tracking"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:143
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:299
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:387
+#: app/modules/items/ui/Item/ItemForm.tsx:137
+#: app/modules/items/ui/Materials/MaterialForm.tsx:280
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:423
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:519
+#: app/modules/items/ui/Parts/PartForm.tsx:267
+#: app/modules/items/ui/Parts/PartProperties.tsx:370
+#: app/modules/items/ui/Parts/PartsTable.tsx:434
+#: app/modules/items/ui/Tools/ToolForm.tsx:260
+#: app/modules/items/ui/Tools/ToolProperties.tsx:348
+#: app/modules/items/ui/Tools/ToolsTable.tsx:423
+msgid "Tracking Type"
+msgstr "Tracking Type"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1869
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2153
+#: app/modules/items/ui/Materials/MaterialForm.tsx:241
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:593
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:224
+#: app/modules/items/ui/MaterialTypes/MaterialTypesTable.tsx:72
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:93
+msgid "Type"
+msgstr "Type"
+
+#: app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:109
+#: app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:109
+#: app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:107
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:101
+msgid "Unique, uppercase, without spaces"
+msgstr "Unique, uppercase, without spaces"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:173
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1216
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:69
+#: app/modules/items/ui/Item/ItemCostingForm.tsx:84
+#: app/modules/items/ui/Materials/MaterialForm.tsx:300
+#: app/modules/items/ui/Parts/PartForm.tsx:309
+#: app/modules/items/ui/Tools/ToolForm.tsx:303
+msgid "Unit Cost"
+msgstr "Unit Cost"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:161
+#: app/modules/items/ui/Consumables/ConsumableProperties.tsx:359
+#: app/modules/items/ui/Item/BillOfMaterial.tsx:812
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1898
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2181
+#: app/modules/items/ui/Item/ItemForm.tsx:167
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:187
+#: app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:68
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:618
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:290
+#: app/modules/items/ui/Parts/PartForm.tsx:297
+#: app/modules/items/ui/Parts/PartProperties.tsx:446
+#: app/modules/items/ui/Tools/ToolForm.tsx:291
+#: app/modules/items/ui/Tools/ToolProperties.tsx:413
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:93
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasuresTable.tsx:90
+msgid "Unit of Measure"
+msgstr "Unit of Measure"
+
+#: app/modules/items/ui/UnitOfMeasure/UnitOfMeasuresTable.tsx:96
+msgid "Unit of Measures"
+msgstr "Unit of Measures"
+
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:178
+#: app/modules/items/ui/Item/SupplierPartForm.tsx:413
+#: app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:59
+msgid "Unit Price"
+msgstr "Unit Price"
+
+#: app/modules/items/ui/Item/ItemSalePriceForm.tsx:41
+msgid "Unit Sale Price"
+msgstr "Unit Sale Price"
+
+#: app/modules/items/ui/Methods/MethodMaterialsTable.tsx:121
+msgid "UoM"
+msgstr "UoM"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:338
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:470
+#: app/modules/items/ui/Parts/PartsTable.tsx:359
+#: app/modules/items/ui/Tools/ToolsTable.tsx:374
+msgid "Update"
+msgstr "Update"
+
+#: app/modules/items/ui/Parts/ConfigurationParameters.tsx:990
+msgid "Updated"
+msgstr "Updated"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:291
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:412
+#: app/modules/items/ui/Parts/PartsTable.tsx:311
+#: app/modules/items/ui/Tools/ToolsTable.tsx:326
+msgid "Updated At"
+msgstr "Updated At"
+
+#: app/modules/items/ui/Consumables/ConsumablesTable.tsx:274
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:395
+#: app/modules/items/ui/Parts/PartsTable.tsx:294
+#: app/modules/items/ui/Tools/ToolsTable.tsx:309
+msgid "Updated By"
+msgstr "Updated By"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:108
+#: app/modules/items/ui/Tools/ToolForm.tsx:108
+msgid "Uploaded model"
+msgstr "Uploaded model"
+
+#. placeholder {0}: file.name
+#: app/modules/items/ui/Item/ItemDocuments.tsx:429
+msgid "Uploaded: {0}"
+msgstr "Uploaded: {0}"
+
+#. placeholder {0}: file.name
+#: app/modules/items/ui/Item/ItemDocuments.tsx:416
+msgid "Uploading {0}"
+msgstr "Uploading {0}"
+
+#: app/modules/items/ui/Consumables/ConsumableForm.tsx:129
+msgid "Use ... to get the next consumable ID"
+msgstr "Use ... to get the next consumable ID"
+
+#: app/modules/items/ui/Materials/MaterialForm.tsx:181
+msgid "Use ... to get the next material ID"
+msgstr "Use ... to get the next material ID"
+
+#: app/modules/items/ui/Parts/PartForm.tsx:248
+msgid "Use ... to get the next part ID"
+msgstr "Use ... to get the next part ID"
+
+#: app/modules/items/ui/Tools/ToolForm.tsx:241
+msgid "Use ... to get the next tool ID"
+msgstr "Use ... to get the next tool ID"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2503
+#: app/modules/items/ui/Item/BillOfProcess.tsx:2613
+msgid "Value"
+msgstr "Value"
+
+#: app/modules/items/ui/Materials/MaterialsTable.tsx:563
+#: app/modules/items/ui/Parts/PartsTable.tsx:478
+#: app/modules/items/ui/Tools/ToolsTable.tsx:467
+msgid "Versions"
+msgstr "Versions"
+
+#: app/modules/items/ui/Item/ItemDocuments.tsx:149
+msgid "View"
+msgstr "View"
+
+#: app/modules/items/ui/Item/BoMExplorer.tsx:547
+#: app/modules/items/ui/Item/ItemForm.tsx:117
+msgid "View Item Master"
+msgstr "View Item Master"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:329
+msgid "View Purchase Invoice"
+msgstr "View Purchase Invoice"
+
+#: app/modules/items/ui/Item/ItemCostHistoryChart.tsx:73
+msgid "Weighted Average"
+msgstr "Weighted Average"
+
+#: app/modules/items/ui/Item/ItemCostingForm.tsx:89
+msgid "Weighted average cost over last year calculated when the invoice is posted"
+msgstr "Weighted average cost over last year calculated when the invoice is posted"
+
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1247
+#: app/modules/items/ui/Item/BillOfProcess.tsx:1255
+msgid "Work Center"
+msgstr "Work Center"
+
+#: app/modules/items/ui/Item/MakeMethodTools.tsx:503
+msgid "Work Instructions"
+msgstr "Work Instructions"
+
+#: app/modules/items/ui/Materials/MaterialProperties.tsx:807
+msgid "Yes, Update IDs"
+msgstr "Yes, Update IDs"

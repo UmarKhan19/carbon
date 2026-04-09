@@ -11,6 +11,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { usePermissions, useUser } from "~/hooks";
@@ -28,6 +29,7 @@ const ShipmentNotes = ({
     company: { id: companyId }
   } = useUser();
   const { carbon } = useCarbon();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const [notes, setNotes] = useState(initialNotes ?? {});
 
@@ -38,7 +40,7 @@ const ShipmentNotes = ({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 
@@ -69,7 +71,9 @@ const ShipmentNotes = ({
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Stock Transfer Notes</CardTitle>
+          <CardTitle>
+            <Trans>Stock Transfer Notes</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {permissions.can("update", "inventory") ? (

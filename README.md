@@ -81,12 +81,14 @@ Technical highlights:
 - [Radix UI](https://radix-ui.com) - behavior
 - [Supabase](https://supabase.com) - database
 - [Supabase](https://supabase.com) – auth
-- [Upstash](https://upstash.com) - cache
+- [Redis](https://redis.io) - cache
 - [Trigger](https://trigger.dev) - jobs
 - [Resend](https://resend.com) – email
+- [Lingui](https://lingui.dev) - i18n
 - [Novu](https://novu.co) – notifications
 - [Vercel](https://vercel.com) – hosting
 - [Stripe](https://stripe.com) - billing
+
 
 ## Codebase
 
@@ -382,4 +384,19 @@ const { data, error } = await carbon
   .from("item")
   .select("*")
   .eq("companyId", companyId);
+```
+
+
+## Translations
+
+In order to run `npx linguito translate --llm` you must first run:
+
+```bash
+brew install ollama
+brew services start ollama
+ollama pull llama3.2
+curl http://localhost:11434/api/tags
+npx linguito config set \
+  llmSettings.provider=ollama \
+  llmSettings.url=http://127.0.0.1:11434/api
 ```

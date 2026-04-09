@@ -29,6 +29,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuChevronRight,
@@ -290,9 +291,13 @@ const QuoteMakeMethodTools = () => {
               onSubmit={getMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Get Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Get Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
-                  Overwrite the quote method with the source method
+                  <Trans>
+                    Overwrite the quote method with the source method
+                  </Trans>
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
@@ -315,7 +320,9 @@ const QuoteMakeMethodTools = () => {
                           <Alert variant="destructive">
                             <LuTriangleAlert className="h-4 w-4" />
                             <AlertTitle>
-                              This will overwrite the existing quote method
+                              <Trans>
+                                This will overwrite the existing quote method
+                              </Trans>
                             </AlertTitle>
                           </Alert>
                         )}
@@ -359,7 +366,9 @@ const QuoteMakeMethodTools = () => {
                         <Alert variant="destructive">
                           <LuTriangleAlert className="h-4 w-4" />
                           <AlertTitle>
-                            This will overwrite the existing quote method
+                            <Trans>
+                              This will overwrite the existing quote method
+                            </Trans>
                           </AlertTitle>
                         </Alert>
                       )}
@@ -392,13 +401,13 @@ const QuoteMakeMethodTools = () => {
               </ModalBody>
               <ModalFooter>
                 <Button onClick={getMethodModal.onClose} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   isDisabled={!hasMethodParts}
                   variant={hasMethods ? "destructive" : "primary"}
                 >
-                  Confirm
+                  <Trans>Confirm</Trans>
                 </Submit>
               </ModalFooter>
             </ValidatedForm>
@@ -432,10 +441,14 @@ const QuoteMakeMethodTools = () => {
               onSubmit={saveMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Save Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Save Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
-                  Overwrite the target manufacturing method with the quote
-                  method
+                  <Trans>
+                    Overwrite the target manufacturing method with the quote
+                    method
+                  </Trans>
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
@@ -455,8 +468,10 @@ const QuoteMakeMethodTools = () => {
                   <Alert variant="destructive">
                     <LuTriangleAlert className="h-4 w-4" />
                     <AlertTitle>
-                      This will overwrite the existing manufacturing method and
-                      the latest versions of all subassemblies.
+                      <Trans>
+                        This will overwrite the existing manufacturing method
+                        and the latest versions of all subassemblies.
+                      </Trans>
                     </AlertTitle>
                   </Alert>
                   <Item
@@ -506,13 +521,13 @@ const QuoteMakeMethodTools = () => {
               </ModalBody>
               <ModalFooter>
                 <Button onClick={saveMethodModal.onClose} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   isDisabled={!selectedMakeMethod || !hasMethodParts}
                   variant={hasMethods ? "destructive" : "primary"}
                 >
-                  Confirm
+                  <Trans>Confirm</Trans>
                 </Submit>
               </ModalFooter>
             </ValidatedForm>
@@ -531,8 +546,12 @@ const QuoteMakeMethodTools = () => {
           <ModalContent>
             <ValidatedForm validator={getMethodValidator}>
               <ModalHeader>
-                <ModalTitle>Configure Item</ModalTitle>
-                <ModalDescription>Select an item to configure</ModalDescription>
+                <ModalTitle>
+                  <Trans>Configure Item</Trans>
+                </ModalTitle>
+                <ModalDescription>
+                  <Trans>Select an item to configure</Trans>
+                </ModalDescription>
               </ModalHeader>
               <ModalBody>
                 <Item
@@ -554,7 +573,7 @@ const QuoteMakeMethodTools = () => {
                   onClick={configureSelectModal.onClose}
                   variant="secondary"
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </ModalFooter>
             </ValidatedForm>

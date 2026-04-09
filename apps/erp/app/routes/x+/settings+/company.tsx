@@ -12,6 +12,7 @@ import {
   ScrollArea,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { useRouteData } from "~/hooks";
@@ -85,12 +86,16 @@ export default function Company() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Company</Heading>
+        <Heading size="h3">
+          <Trans>Company</Trans>
+        </Heading>
         <Card>
           <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+            <CardTitle>
+              <Trans>Basic Information</Trans>
+            </CardTitle>
             <CardDescription>
-              This information will be used on document headers
+              <Trans>This information will be used on document headers</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>

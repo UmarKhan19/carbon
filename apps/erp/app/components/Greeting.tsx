@@ -19,17 +19,17 @@ export function Greeting(props: ComponentProps<typeof Heading>) {
 
   const greeting = useMemo(() => {
     if (currentTime.hour >= 3 && currentTime.hour < 12) {
-      return t({ id: "Good morning", message: "Good morning" });
+      return t`Good morning, ${user.firstName}`;
     } else if (currentTime.hour >= 12 && currentTime.hour < 18) {
-      return t({ id: "Good afternoon", message: "Good afternoon" });
+      return t`Good afternoon, ${user.firstName}`;
     } else {
-      return t({ id: "Good evening", message: "Good evening" });
+      return t`Good evening, ${user.firstName}`;
     }
-  }, [currentTime.hour, t]);
+  }, [currentTime.hour, t, user.firstName]);
 
   return (
     <Heading size="h3" {...props}>
-      {greeting}, {user.firstName}
+      {greeting}
     </Heading>
   );
 }

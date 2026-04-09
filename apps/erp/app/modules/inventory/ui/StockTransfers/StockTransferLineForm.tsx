@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher, useParams } from "react-router";
@@ -45,6 +46,7 @@ const StockTransferLineForm = ({
   if (!id) throw new Error("id not found");
 
   const permissions = usePermissions();
+  const { t } = useLingui();
   const routeData = useRouteData<{
     stockTransfer: StockTransfer;
   }>(path.to.stockTransfer(id));
@@ -95,13 +97,13 @@ const StockTransferLineForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created stock transfer line`);
+      toast.success(t`Created stock transfer line`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create stock transfer line: ${fetcher.data.error.message}`
+        t`Failed to create stock transfer line: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isLocked = isStockTransferLocked(routeData?.stockTransfer?.status);
@@ -134,7 +136,7 @@ const StockTransferLineForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Line
+                {isEditing ? t`Edit Line` : t`New Line`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -162,20 +164,20 @@ const StockTransferLineForm = ({
                 />
                 <Number
                   name="quantity"
-                  label="Quantity"
+                  label={t`Quantity`}
                   minValue={itemTrackingType === "Serial" ? 1 : 0}
                   maxValue={itemTrackingType === "Serial" ? 1 : undefined}
                   defaultValue={itemTrackingType === "Serial" ? 1 : undefined}
                 />
                 <Shelf
                   name="fromShelfId"
-                  label="From Shelf"
+                  label={t`From Shelf`}
                   locationId={locationId}
                   itemId={itemId ?? undefined}
                 />
                 <Shelf
                   name="toShelfId"
-                  label="To Shelf"
+                  label={t`To Shelf`}
                   locationId={locationId}
                   itemId={itemId ?? undefined}
                 />
@@ -183,7 +185,9 @@ const StockTransferLineForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
               </HStack>
             </ModalDrawerFooter>
           </ValidatedForm>

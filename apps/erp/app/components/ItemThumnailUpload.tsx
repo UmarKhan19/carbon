@@ -1,5 +1,6 @@
 import { SUPABASE_URL, useCarbon } from "@carbon/auth";
 import { Button, File as FileUpload, HStack, toast } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -14,6 +15,7 @@ export function ItemThumbnailUpload({
   itemId: string;
   modelId?: string | null;
 }) {
+  const { t } = useLingui();
   const { company } = useUser();
   const { carbon } = useCarbon();
 
@@ -30,7 +32,7 @@ export function ItemThumbnailUpload({
 
   const onFileRemove = useCallback(async () => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t`Carbon client not found`);
       return;
     }
 
@@ -44,7 +46,7 @@ export function ItemThumbnailUpload({
       .eq("id", itemId);
 
     if (itemResult.error) {
-      toast.error("Failed to remove thumbnail");
+      toast.error(t`Failed to remove thumbnail`);
       return;
     }
 
@@ -57,23 +59,23 @@ export function ItemThumbnailUpload({
         .eq("id", modelId);
 
       if (modelResult.error) {
-        toast.error("Failed to remove model thumbnail");
+        toast.error(t`Failed to remove model thumbnail`);
         return;
       }
     }
 
-    toast.success("Thumbnail removed");
-  }, [carbon, itemId, modelId]);
+    toast.success(t`Thumbnail removed`);
+  }, [carbon, itemId, modelId, t]);
 
   const onFileChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
       if (!carbon) {
-        toast.error("Carbon client not found");
+        toast.error(t`Carbon client not found`);
         return;
       }
       const file = e.target.files?.[0];
       if (file) {
-        toast.info(`Uploading ${file.name}`);
+        toast.info(t`Uploading ${file.name}`);
         const formData = new FormData();
         formData.append("file", file);
         formData.append("contained", "true");
@@ -122,7 +124,7 @@ export function ItemThumbnailUpload({
             );
 
           if (error) {
-            toast.error("Failed to upload thumbnail");
+            toast.error(t`Failed to upload thumbnail`);
             return;
           }
 
@@ -134,21 +136,21 @@ export function ItemThumbnailUpload({
             .eq("id", itemId);
 
           if (result.error) {
-            toast.error("Failed to update thumbnail path");
+            toast.error(t`Failed to update thumbnail path`);
             return;
           }
 
           if (data) {
             setThumbnailPath(getPrivateUrl(data.path));
-            toast.success("Thumbnail uploaded");
+            toast.success(t`Thumbnail uploaded`);
           }
         } catch (error) {
           console.error("Image processing error:", error);
-          toast.error("Failed to resize image");
+          toast.error(t`Failed to resize image`);
         }
       }
     },
-    [carbon, company.id, itemId]
+    [carbon, company.id, itemId, t]
   );
 
   return (
@@ -161,7 +163,9 @@ export function ItemThumbnailUpload({
         />
       ) : (
         <div className="w-full h-full bg-gradient-to-bl from-muted to-muted/40 rounded-lg border border-border flex items-center justify-center">
-          <span className="text-muted-foreground">No image</span>
+          <span className="text-muted-foreground">
+            <Trans>No image</Trans>
+          </span>
         </div>
       )}
       <HStack className="absolute bottom-2 right-2">
@@ -172,7 +176,7 @@ export function ItemThumbnailUpload({
             size="sm"
             onClick={onFileRemove}
           >
-            Remove
+            <Trans>Remove</Trans>
           </Button>
         )}
         <FileUpload
@@ -182,7 +186,7 @@ export function ItemThumbnailUpload({
           className="bg-card opacity-100"
           onChange={onFileChange}
         >
-          Upload
+          <Trans>Upload</Trans>
         </FileUpload>
       </HStack>
     </div>

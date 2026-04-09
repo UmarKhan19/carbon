@@ -1,4 +1,5 @@
 import { Button, HStack, MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { BiAddToQueue } from "react-icons/bi";
@@ -19,6 +20,7 @@ type CustomFieldsTableProps = {
 };
 
 const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const [params] = useUrlParams();
   const permissions = usePermissions();
@@ -27,7 +29,7 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
     return [
       {
         accessorKey: "name",
-        header: "Table",
+        header: t`Table`,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <Hyperlink to={row.original.table!}>{row.original.name}</Hyperlink>
@@ -42,7 +44,7 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
       },
       {
         accessorKey: "module",
-        header: "Module",
+        header: t`Module`,
         cell: ({ row }) => <Enumerable value={row.original.module} />,
         meta: {
           icon: <LuLayoutGrid />,
@@ -56,7 +58,7 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
         }
       },
       {
-        header: "Fields",
+        header: t`Fields`,
         cell: ({ row }) => (
           <HStack className="text-xs text-muted-foreground">
             <LuList />
@@ -77,13 +79,13 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
                 );
               }}
             >
-              Edit
+              <Trans>Edit</Trans>
             </Button>
           </HStack>
         )
       }
     ];
-  }, [navigate, params]);
+  }, [navigate, params, t]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const renderContextMenu = useCallback(
@@ -98,7 +100,7 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
             }}
           >
             <MenuIcon icon={<BiAddToQueue />} />
-            New Field
+            <Trans>New Field</Trans>
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -108,7 +110,7 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
             }}
           >
             <MenuIcon icon={<BsListUl />} />
-            View Custom Fields
+            <Trans>View Custom Fields</Trans>
           </MenuItem>
         </>
       );
@@ -123,7 +125,7 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
         data={data}
         columns={columns}
         count={count ?? 0}
-        title="Custom Fields"
+        title={t`Custom Fields`}
         renderContextMenu={renderContextMenu}
       />
     </>

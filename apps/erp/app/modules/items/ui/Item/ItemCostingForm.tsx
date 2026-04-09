@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import {
   CustomFormFields,
@@ -23,6 +24,7 @@ type ItemCostingFormProps = {
 
 const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { company } = useUser();
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
 
@@ -45,20 +47,22 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
         defaultValues={initialValues}
       >
         <CardHeader>
-          <CardTitle>Costing & Posting</CardTitle>
+          <CardTitle>
+            <Trans>Costing & Posting</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="itemId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full items-start">
             <ItemPostingGroup
               name="itemPostingGroupId"
-              label="Item Group"
-              helperText="Group used together with the supplier type, customer type, and location to determine the account"
+              label={t`Item Group`}
+              helperText={t`Group used together with the supplier type, customer type, and location to determine the account`}
               isClearable
             />
             {/* <Select
               name="costingMethod"
-              label="Part Costing Method"
+              label={t`Part Costing Method`}
               options={partCostingMethodOptions}
               onChange={(newValue) => {
                 if (newValue) setItemCostingMethod(newValue.value);
@@ -66,7 +70,7 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
             />
             <Number
               name="standardCost"
-              label="Standard Cost"
+              label={t`Standard Cost`}
               formatOptions={{
                 style: "currency",
                 currency: baseCurrency,
@@ -77,20 +81,22 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
 
             <Number
               name="unitCost"
-              label="Unit Cost"
+              label={t`Unit Cost`}
               formatOptions={{
                 style: "currency",
                 currency: baseCurrency
               }}
-              helperText="Weighted average cost over last year calculated when the invoice is posted"
+              helperText={t`Weighted average cost over last year calculated when the invoice is posted`}
             />
 
-            {/* <Boolean name="costIsAdjusted" label="Cost Is Adjusted" /> */}
+            {/* <Boolean name="costIsAdjusted" label={t`Cost Is Adjusted`} /> */}
             <CustomFormFields table="partCost" />
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "parts")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "parts")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

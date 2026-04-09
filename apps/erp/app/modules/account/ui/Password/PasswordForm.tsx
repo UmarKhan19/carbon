@@ -7,6 +7,7 @@ import {
   CardTitle,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import { Password, Submit } from "~/components/Form";
 import { path } from "~/utils/path";
@@ -35,7 +36,9 @@ const PasswordForm = () => {
         validator={accountPasswordValidator}
       >
         <CardHeader>
-          <CardTitle>Update Password</CardTitle>
+          <CardTitle>
+            <Trans>Update Password</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <VStack spacing={4} className="my-4 max-w-[440px]">

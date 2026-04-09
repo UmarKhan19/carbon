@@ -1,6 +1,7 @@
 import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs
@@ -56,12 +57,14 @@ export default function DeleteSupplierProcessRoute() {
   const process = routeData?.processes.find((process) => process.id === id);
   if (!process) throw new Error("Could not find process");
 
+  const { t } = useLingui();
+
   return (
     <ConfirmDelete
       action={path.to.deleteSupplierProcess(supplierId, id)}
       isOpen
       name={process.processName!}
-      text={`Are you sure you want to permanently delete the supplier process?`}
+      text={t`Are you sure you want to permanently delete the supplier process?`}
       onCancel={() => {
         navigate(-1);
       }}

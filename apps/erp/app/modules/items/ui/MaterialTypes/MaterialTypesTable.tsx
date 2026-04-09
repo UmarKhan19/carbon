@@ -1,4 +1,5 @@
 import { Badge, Copy, MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -25,6 +26,7 @@ type MaterialTypesTableProps = {
 };
 
 const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -37,7 +39,7 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
     const defaultColumns: ColumnDef<(typeof rows)[number]>[] = [
       {
         accessorKey: "substanceName",
-        header: "Substance",
+        header: t`Substance`,
         cell: ({ row }) => <Enumerable value={row.original.substanceName} />,
         meta: {
           icon: <LuGlassWater />,
@@ -52,7 +54,7 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
       },
       {
         accessorKey: "formName",
-        header: "Shape",
+        header: t`Shape`,
         cell: ({ row }) => <Enumerable value={row.original.formName} />,
         meta: {
           icon: <LuShapes />,
@@ -67,7 +69,7 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
       },
       {
         accessorKey: "name",
-        header: "Type",
+        header: t`Type`,
         cell: ({ row }) =>
           row.original.companyId === null ? (
             row.original.name
@@ -86,7 +88,7 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
       },
       {
         accessorKey: "id",
-        header: "ID",
+        header: t`ID`,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs">{row.original.id}</span>
@@ -99,12 +101,16 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
       },
       {
         accessorKey: "companyId",
-        header: "Standard",
+        header: t`Standard`,
         cell: ({ row }) => {
           return row.original.companyId === null ? (
-            <Badge variant="outline">Standard</Badge>
+            <Badge variant="outline">
+              <Trans>Standard</Trans>
+            </Badge>
           ) : (
-            <Badge variant="blue">Custom</Badge>
+            <Badge variant="blue">
+              <Trans>Custom</Trans>
+            </Badge>
           );
         },
         meta: {
@@ -113,7 +119,7 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
       }
     ];
     return [...defaultColumns];
-  }, [params, substances, shapes]);
+  }, [params, substances, shapes, t]);
 
   const renderContextMenu = useCallback(
     (row: (typeof rows)[number]) => {
@@ -128,7 +134,7 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Material Type
+            <Trans>Edit Material Type</Trans>
           </MenuItem>
           <MenuItem
             disabled={
@@ -142,7 +148,7 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Material Type
+            <Trans>Delete Material Type</Trans>
           </MenuItem>
         </>
       );
@@ -158,13 +164,13 @@ const MaterialTypesTable = memo(({ data, count }: MaterialTypesTableProps) => {
       primaryAction={
         permissions.can("create", "parts") && (
           <New
-            label="Material Type"
+            label={t`Material Type`}
             to={`${path.to.newMaterialType}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Material Types"
+      title={t`Material Types`}
     />
   );
 });

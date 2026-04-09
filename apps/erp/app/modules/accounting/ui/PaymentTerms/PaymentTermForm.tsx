@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
@@ -44,6 +45,7 @@ const PaymentTermForm = ({
   type = "drawer",
   onClose
 }: PaymentTermFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
   const [selectedCalculationMethod, setSelectedCalculationMethod] =
@@ -54,13 +56,13 @@ const PaymentTermForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created payment term`);
+      toast.success(t`Created payment term`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create payment term: ${fetcher.data.error.message}`
+        t`Failed to create payment term: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -95,17 +97,21 @@ const PaymentTermForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Payment Term
+                {isEditing ? (
+                  <Trans>Edit Payment Term</Trans>
+                ) : (
+                  <Trans>New Payment Term</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <Select
                   name="calculationMethod"
-                  label="After"
+                  label={t`After`}
                   options={calculationMethodOptions}
                   onChange={(value) => {
                     setSelectedCalculationMethod(
@@ -115,29 +121,31 @@ const PaymentTermForm = ({
                 />
                 <Number
                   name="daysDue"
-                  label={`Due Days after ${selectedCalculationMethod}`}
+                  label={t`Due Days after ${selectedCalculationMethod}`}
                   minValue={0}
-                  helperText="The amount of days after the calculation method that the payment is due"
+                  helperText={t`The amount of days after the calculation method that the payment is due`}
                 />
                 <Number
                   name="daysDiscount"
-                  label={`Discount Days after ${selectedCalculationMethod}`}
+                  label={t`Discount Days after ${selectedCalculationMethod}`}
                   minValue={0}
-                  helperText="The amount of days after the calculation method that the cash discount is available"
+                  helperText={t`The amount of days after the calculation method that the cash discount is available`}
                 />
                 <Number
                   name="discountPercentage"
-                  label="Discount Percent"
+                  label={t`Discount Percent`}
                   minValue={0}
                   maxValue={100}
-                  helperText="The percentage of the cash discount. Use 0 for no discount."
+                  helperText={t`The percentage of the cash discount. Use 0 for no discount.`}
                 />
                 <CustomFormFields table="paymentTerm" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
               </HStack>
             </ModalDrawerFooter>
           </ValidatedForm>

@@ -13,48 +13,89 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:47
+#: app/modules/account/ui/Profile/ProfileForm.tsx:37
 msgid "About"
 msgstr "About"
 
-#. js-lingui-explicit-id
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:195
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:827
+msgid "Cancel"
+msgstr "Cancel"
+
 #: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:35
 msgid "Choose your preferred language for the interface."
 msgstr "Choose your preferred language for the interface."
 
-#. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:32
+#: app/modules/account/ui/Profile/ProfileForm.tsx:30
 msgid "Email"
 msgstr "Email"
 
-#. js-lingui-explicit-id
 #: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
 msgid "English"
 msgstr "English"
 
-#. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:38
+#. placeholder {0}: fileUpload.name
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:772
+msgid "Failed to upload file: {0}"
+msgstr "Failed to upload file: {0}"
+
+#: app/modules/account/ui/Profile/ProfileForm.tsx:32
 msgid "First Name"
 msgstr "First Name"
 
-#. js-lingui-explicit-id
 #: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:25
 msgid "Language"
 msgstr "Language"
 
-#. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:42
+#: app/modules/account/ui/Profile/ProfileForm.tsx:33
 msgid "Last Name"
 msgstr "Last Name"
 
-#. js-lingui-explicit-id
+#: app/modules/account/ui/Profile/ProfilePhotoForm.tsx:121
+msgid "Photo removed successfully"
+msgstr "Photo removed successfully"
+
+#: app/modules/account/ui/Profile/ProfilePhotoForm.tsx:100
+msgid "Photo uploaded successfully"
+msgstr "Photo uploaded successfully"
+
 #: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:31
 msgid "Polish"
 msgstr "Polish"
 
-#. js-lingui-explicit-id
-#: app/modules/account/ui/Profile/ProfileForm.tsx:52
-#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:41
+#: app/modules/account/ui/useAccountSubmodules.tsx:10
+msgid "Profile"
+msgstr "Profile"
+
+#: app/modules/account/ui/Profile/ProfilePhotoForm.tsx:150
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:871
+msgid "Remove"
+msgstr "Remove"
+
+#: app/modules/account/ui/Personal/PersonalDataForm.tsx:24
+#: app/modules/account/ui/Profile/ProfileForm.tsx:43
+#: app/modules/account/ui/Profile/ProfileLanguageForm.tsx:39
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:192
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:824
 msgid "Save"
 msgstr "Save"
+
+#: app/modules/account/ui/Password/PasswordForm.tsx:40
+msgid "Update Password"
+msgstr "Update Password"
+
+#: app/modules/account/ui/Profile/ProfilePhotoForm.tsx:103
+msgid "Upload completed but no file path returned"
+msgstr "Upload completed but no file path returned"
+
+#. placeholder {0}: fileUpload.name
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:774
+msgid "Uploaded: {0}"
+msgstr "Uploaded: {0}"
+
+#. placeholder {0}: avatarFile.name
+#. placeholder {0}: fileUpload.name
+#: app/modules/account/ui/Profile/ProfilePhotoForm.tsx:30
+#: app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:760
+msgid "Uploading {0}"
+msgstr "Uploading {0}"

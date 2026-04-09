@@ -1,5 +1,6 @@
 import { useCarbon } from "@carbon/auth";
 import { Button, cn, toast, useMount } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ComponentProps } from "react";
 import { forwardRef, useState } from "react";
 import { LuBarcode, LuQrCode } from "react-icons/lu";
@@ -16,6 +17,7 @@ export const handle: Handle = {
 const RECENT_SEARCHES_KEY = "traceability-searches";
 
 export default function TraceabilityRoute() {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
@@ -39,7 +41,7 @@ export default function TraceabilityRoute() {
       .maybeSingle();
 
     if (!response?.data) {
-      toast.error("Invalid tracking number");
+      toast.error(t`Invalid tracking number`);
       setInputValue("");
       return;
     }
@@ -76,7 +78,7 @@ export default function TraceabilityRoute() {
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
           <TrackingInput
-            placeholder="Scan or enter a tracking number"
+            placeholder={t`Scan or enter a tracking number`}
             className="pr-10"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}

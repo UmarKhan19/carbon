@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -89,7 +90,9 @@ const PurchaseInvoiceDeliveryForm = forwardRef<
         isDisabled={!isEditable}
       >
         <CardHeader>
-          <CardTitle>Shipping</CardTitle>
+          <CardTitle>
+            <Trans>Shipping</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
@@ -116,7 +119,7 @@ const PurchaseInvoiceDeliveryForm = forwardRef<
         </CardContent>
         <CardFooter>
           <Submit isDisabled={!permissions.can("update", "invoicing")}>
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

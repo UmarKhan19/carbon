@@ -12,6 +12,7 @@ import {
   toast
 } from "@carbon/react";
 import { getMaterialDescription, getMaterialId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
@@ -59,6 +60,7 @@ const MaterialForm = ({
   type = "card",
   onClose
 }: MaterialFormProps) => {
+  const { t } = useLingui();
   const [materialId, setMaterialId] = useState(initialValues.id ?? "");
   const [description, setDescription] = useState(
     initialValues.description ?? ""
@@ -96,11 +98,11 @@ const MaterialForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created material`);
+      toast.success(t`Created material`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(`Failed to create material: ${fetcher.data.error.message}`);
+      toast.error(t`Failed to create material: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const { id, onIdChange, loading } = useNextItemId("Material");
 
@@ -144,10 +146,14 @@ const MaterialForm = ({
             fetcher={fetcher}
           >
             <ModalCardHeader>
-              <ModalCardTitle>New Material</ModalCardTitle>
+              <ModalCardTitle>
+                <Trans>New Material</Trans>
+              </ModalCardTitle>
               <ModalCardDescription>
-                A material is a physical item used to make a part that can be
-                used across multiple jobs
+                <Trans>
+                  A material is a physical item used to make a part that can be
+                  used across multiple jobs
+                </Trans>
               </ModalCardDescription>
             </ModalCardHeader>
             <ModalCardBody>
@@ -169,10 +175,10 @@ const MaterialForm = ({
                   <>
                     <InputControlled
                       name="id"
-                      label="Material ID"
+                      label={t`Material ID`}
                       helperText={
                         startsWithLetter(id)
-                          ? "Use ... to get the next material ID"
+                          ? t`Use ... to get the next material ID`
                           : undefined
                       }
                       value={id}
@@ -184,7 +190,7 @@ const MaterialForm = ({
 
                     <InputControlled
                       name="name"
-                      label="Short Description"
+                      label={t`Short Description`}
                       value={description}
                       onChange={(value) => {
                         setDescription(value ?? "");
@@ -194,7 +200,7 @@ const MaterialForm = ({
                 )}
                 <Substance
                   name="materialSubstanceId"
-                  label="Substance"
+                  label={t`Substance`}
                   onChange={(value) => {
                     setSubstanceId(value?.value as string | undefined);
                     setProperties((prev) => ({
@@ -208,7 +214,7 @@ const MaterialForm = ({
                 />
                 <MaterialGrade
                   name="gradeId"
-                  label="Grade"
+                  label={t`Grade`}
                   substanceId={substanceId}
                   onChange={(value) => {
                     setProperties((prev) => ({
@@ -219,7 +225,7 @@ const MaterialForm = ({
                 />
                 <Shape
                   name="materialFormId"
-                  label="Shape"
+                  label={t`Shape`}
                   onChange={(value) => {
                     setFormId(value?.value as string | undefined);
                     setProperties((prev) => ({
@@ -232,7 +238,7 @@ const MaterialForm = ({
                 />
                 <MaterialType
                   name="materialTypeId"
-                  label="Type"
+                  label={t`Type`}
                   substanceId={substanceId}
                   formId={formId}
                   onChange={(value) => {
@@ -248,7 +254,7 @@ const MaterialForm = ({
                 />
                 <MaterialFinish
                   name="finishId"
-                  label="Finish"
+                  label={t`Finish`}
                   substanceId={substanceId}
                   onChange={(value) => {
                     setProperties((prev) => ({
@@ -259,7 +265,7 @@ const MaterialForm = ({
                 />
                 <MaterialDimension
                   name="dimensionId"
-                  label="Dimensions"
+                  label={t`Dimensions`}
                   formId={formId}
                   onChange={(value) => {
                     setProperties((prev) => ({
@@ -271,13 +277,13 @@ const MaterialForm = ({
 
                 <Select
                   name="itemTrackingType"
-                  label="Tracking Type"
+                  label={t`Tracking Type`}
                   options={itemTrackingTypeOptions}
                 />
 
                 <DefaultMethodType
                   name="defaultMethodType"
-                  label="Default Method Type"
+                  label={t`Default Method Type`}
                   replenishmentSystem="Buy"
                   value={defaultMethodType}
                   onChange={(newValue) =>
@@ -286,12 +292,12 @@ const MaterialForm = ({
                 />
                 <UnitOfMeasure
                   name="unitOfMeasureCode"
-                  label="Inventory Unit of Measure"
+                  label={t`Inventory Unit of Measure`}
                 />
 
                 <Number
                   name="unitCost"
-                  label="Unit Cost"
+                  label={t`Unit Cost`}
                   formatOptions={{
                     style: "currency",
                     currency: baseCurrency
@@ -301,10 +307,10 @@ const MaterialForm = ({
 
                 <ItemPostingGroup
                   name="postingGroupId"
-                  label="Item Group"
+                  label={t`Item Group`}
                   isClearable
                 />
-                <Array name="sizes" label="Sizes" />
+                <Array name="sizes" label={t`Sizes`} />
 
                 <CustomFormFields table="material" tags={initialValues.tags} />
               </div>
@@ -314,7 +320,7 @@ const MaterialForm = ({
                 isLoading={fetcher.state !== "idle"}
                 isDisabled={!permissions.can("create", "parts")}
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </ModalCardFooter>
           </ValidatedForm>

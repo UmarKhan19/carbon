@@ -21,6 +21,7 @@ import {
   toast
 } from "@carbon/react";
 import { convertKbToString, formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -59,6 +60,7 @@ const SupplierInteractionDocuments = ({
       type
     });
 
+  const { t } = useLingui();
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       upload(acceptedFiles);
@@ -71,7 +73,9 @@ const SupplierInteractionDocuments = ({
       <Card>
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Files</CardTitle>
+            <CardTitle>
+              <Trans>Files</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>
             {!isReadOnly && (
@@ -136,7 +140,7 @@ const SupplierInteractionDocuments = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <IconButton
-                              aria-label="More"
+                              aria-label={t`More`}
                               icon={<LuEllipsisVertical />}
                               variant="secondary"
                             />
@@ -145,14 +149,14 @@ const SupplierInteractionDocuments = ({
                             <DropdownMenuItem
                               onClick={() => download(attachment)}
                             >
-                              Download
+                              <Trans>Download</Trans>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               destructive
                               disabled={!canDelete || isReadOnly}
                               onClick={() => deleteAttachment(attachment)}
                             >
-                              Delete
+                              <Trans>Delete</Trans>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -166,7 +170,7 @@ const SupplierInteractionDocuments = ({
                     colSpan={24}
                     className="py-8 text-muted-foreground text-center"
                   >
-                    No files uploaded
+                    <Trans>No files uploaded</Trans>
                   </Td>
                 </Tr>
               )}
@@ -196,6 +200,7 @@ export const useSupplierInteractionDocuments = ({
   interactionId,
   type
 }: SupplierInteractionDocumentFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { company } = useUser();
   const { carbon } = useCarbon();
@@ -247,11 +252,11 @@ export const useSupplierInteractionDocuments = ({
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } catch (error) {
-        toast.error("Error downloading file");
+        toast.error(t`Error downloading file`);
         console.error(error);
       }
     },
-    [getPath]
+    [getPath, t]
   );
 
   const createDocumentRecord = useCallback(
@@ -284,7 +289,7 @@ export const useSupplierInteractionDocuments = ({
   const upload = useCallback(
     async (files: File[]) => {
       if (!carbon) {
-        toast.error("Carbon client not available");
+        toast.error(t`Carbon client not available`);
         return;
       }
 
@@ -312,7 +317,7 @@ export const useSupplierInteractionDocuments = ({
       }
       revalidator.revalidate();
     },
-    [getPath, createDocumentRecord, carbon, revalidator]
+    [getPath, createDocumentRecord, carbon, revalidator, t]
   );
 
   return {
@@ -346,7 +351,7 @@ const SupplierInteractionDocumentForm = (
       onChange={uploadFiles}
       multiple
     >
-      New
+      <Trans>New</Trans>
     </File>
   );
 };

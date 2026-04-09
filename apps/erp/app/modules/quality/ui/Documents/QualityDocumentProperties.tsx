@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback } from "react";
 import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -93,6 +94,7 @@ const QualityDocumentProperties = () => {
       ? optimisticAssignment
       : routeData?.document?.assignee;
 
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const { onUpdateTags } = useTags({ id, table: "qualityDocument" });
@@ -107,14 +109,14 @@ const QualityDocumentProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -127,14 +129,16 @@ const QualityDocumentProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to document</span>
+                <span>
+                  <Trans>Copy link to document</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() => copyToClipboard(routeData?.document?.id ?? "")}
@@ -143,14 +147,16 @@ const QualityDocumentProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy document unique identifier</span>
+                <span>
+                  <Trans>Copy document unique identifier</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -161,7 +167,9 @@ const QualityDocumentProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy document name</span>
+                <span>
+                  <Trans>Copy document name</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -191,7 +199,7 @@ const QualityDocumentProperties = () => {
       >
         <span className="text-sm tracking-tight">
           <Select
-            label="Status"
+            label={t`Status`}
             name="status"
             helperText={statusHelperText}
             inline={(value) => (
@@ -220,7 +228,7 @@ const QualityDocumentProperties = () => {
         className="w-full"
       >
         <Tags
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           table="qualityDocument"
           availableTags={availableTags}

@@ -16,6 +16,7 @@ import {
 import { useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { themes } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { BiMoon, BiSun } from "react-icons/bi";
 import { RxCheck } from "react-icons/rx";
@@ -118,9 +119,13 @@ export default function OnboardingTheme() {
   return (
     <Card className="max-w-lg">
       <CardHeader>
-        <CardTitle>Choose your style</CardTitle>
+        <CardTitle>
+          <Trans>Choose your style</Trans>
+        </CardTitle>
         <CardDescription>
-          You can change the UI style any time through the theme setting
+          <Trans>
+            You can change the UI style any time through the theme setting
+          </Trans>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -144,7 +149,7 @@ export default function OnboardingTheme() {
                   mode == "light" && "border-2 border-primary"
                 )}
               >
-                Light
+                <Trans>Light</Trans>
               </Button>
             </modeFetcher.Form>
             <modeFetcher.Form
@@ -165,7 +170,7 @@ export default function OnboardingTheme() {
                   mode == "dark" && "border-2 border-primary"
                 )}
               >
-                Dark
+                <Trans>Dark</Trans>
               </Button>
             </modeFetcher.Form>
           </HStack>
@@ -217,7 +222,7 @@ export default function OnboardingTheme() {
               tabIndex={-1}
             >
               <Link to={previous} prefetch="intent">
-                Previous
+                <Trans>Previous</Trans>
               </Link>
             </Button>
           )}
@@ -228,7 +233,7 @@ export default function OnboardingTheme() {
             ref={nextRef}
             onClick={onSubmit}
           >
-            Next
+            <Trans>Next</Trans>
           </Button>
         </HStack>
       </CardFooter>

@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -25,6 +26,7 @@ type IssueWorkflowsTableProps = {
 const IssueWorkflowsTable = memo(
   ({ data, count }: IssueWorkflowsTableProps) => {
     const navigate = useNavigate();
+    const { t } = useLingui();
     const permissions = usePermissions();
     const deleteDisclosure = useDisclosure();
     const [selectedIssueWorkflow, setSelectedIssueWorkflow] =
@@ -34,7 +36,7 @@ const IssueWorkflowsTable = memo(
       const defaultColumns: ColumnDef<IssueWorkflow>[] = [
         {
           accessorKey: "name",
-          header: "Name",
+          header: t`Name`,
           cell: ({ row }) => (
             <div className="flex flex-col gap-0">
               <Hyperlink to={path.to.issueWorkflow(row.original.id!)}>
@@ -48,7 +50,7 @@ const IssueWorkflowsTable = memo(
         },
         {
           accessorKey: "source",
-          header: "Default Source",
+          header: t`Default Source`,
           cell: ({ row }) => (
             <div className="flex gap-2 items-center">
               {getSourceIcon(row.original.source, false)}
@@ -61,7 +63,7 @@ const IssueWorkflowsTable = memo(
         },
         {
           accessorKey: "priority",
-          header: "Default Priority",
+          header: t`Default Priority`,
           cell: ({ row }) => (
             <div className="flex gap-2 items-center">
               {getPriorityIcon(row.original.priority, false)}
@@ -74,7 +76,7 @@ const IssueWorkflowsTable = memo(
         }
       ];
       return [...defaultColumns];
-    }, []);
+    }, [t]);
 
     const renderContextMenu = useCallback(
       (row: IssueWorkflow) => {
@@ -116,11 +118,11 @@ const IssueWorkflowsTable = memo(
           count={count}
           primaryAction={
             permissions.can("create", "quality") && (
-              <New label="Issue Workflow" to={path.to.newIssueWorkflow} />
+              <New label={t`Issue Workflow`} to={path.to.newIssueWorkflow} />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Issue Workflows"
+          title={t`Issue Workflows`}
           table="nonConformanceWorkflow"
           withSavedView
         />
@@ -137,7 +139,7 @@ const IssueWorkflowsTable = memo(
               deleteDisclosure.onClose();
             }}
             name={selectedIssueWorkflow.name ?? "issue workflow"}
-            text="Are you sure you want to delete this issue workflow?"
+            text={t`Are you sure you want to delete this issue workflow?`}
           />
         )}
       </>

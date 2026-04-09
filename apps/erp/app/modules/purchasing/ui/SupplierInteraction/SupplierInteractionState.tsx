@@ -10,6 +10,7 @@ import {
   SplitButton
 } from "@carbon/react";
 import { useOptimisticLocation } from "@carbon/remix";
+import { Trans } from "@lingui/react/macro";
 import { LuChevronDown, LuCircle, LuCreditCard } from "react-icons/lu";
 import {
   RiProgress2Line,
@@ -170,7 +171,9 @@ const SupplierInteractionState = ({
                   variant="ghost"
                   asChild
                 >
-                  <Link to={firstPath}>RFQ</Link>
+                  <Link to={firstPath}>
+                    <Trans>RFQ</Trans>
+                  </Link>
                 </Button>
               );
             }
@@ -310,7 +313,7 @@ const SupplierInteractionState = ({
                     onClick: () => navigate(item.path)
                   }))}
                 >
-                  Order
+                  <Trans>Order</Trans>
                 </SplitButton>
               );
             } else {
@@ -328,7 +331,9 @@ const SupplierInteractionState = ({
                   variant="ghost"
                   asChild
                 >
-                  <Link to={firstPath}>Order</Link>
+                  <Link to={firstPath}>
+                    <Trans>Order</Trans>
+                  </Link>
                 </Button>
               );
             }

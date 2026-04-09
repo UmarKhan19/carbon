@@ -31,6 +31,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -116,7 +117,9 @@ export function SalesOrderLineJobs({
       <Card>
         <HStack className="w-full justify-between">
           <CardHeader>
-            <CardTitle>Jobs</CardTitle>
+            <CardTitle>
+              <Trans>Jobs</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>
             {hasJobs && (
@@ -190,9 +193,13 @@ export function SalesOrderLineJobs({
               onSubmit={newJobDisclosure.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Convert Line to Job</ModalTitle>
+                <ModalTitle>
+                  <Trans>Convert Line to Job</Trans>
+                </ModalTitle>
                 <ModalDescription>
-                  Create a new production job to fulfill the sales order
+                  <Trans>
+                    Create a new production job to fulfill the sales order
+                  </Trans>
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
@@ -250,7 +257,7 @@ export function SalesOrderLineJobs({
               </ModalBody>
               <ModalFooter>
                 <Button variant="secondary" onClick={newJobDisclosure.onClose}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit>Create</Submit>
               </ModalFooter>
@@ -364,6 +371,7 @@ export function SalesOrderJobItem({ job }: { job: SalesOrderJob }) {
 }
 
 function JobDetails({ job }: { job: Job }) {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -371,7 +379,7 @@ function JobDetails({ job }: { job: Job }) {
 
   const getJobOperations = async () => {
     if (!carbon) {
-      toast.error("Failed to load job operations");
+      toast.error(t`Failed to load job operations`);
       return;
     }
 
@@ -483,7 +491,7 @@ function JobDetails({ job }: { job: Job }) {
                   </VStack>
 
                   <IconButton
-                    aria-label="Edit"
+                    aria-label={t`Edit`}
                     icon={<LuSettings2 />}
                     variant="ghost"
                     onClick={() => {

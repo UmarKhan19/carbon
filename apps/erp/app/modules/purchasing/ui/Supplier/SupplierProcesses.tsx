@@ -13,6 +13,7 @@ import {
   HStack,
   IconButton
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo } from "react";
 import { LuEllipsisVertical, LuPencil, LuTrash } from "react-icons/lu";
@@ -34,6 +35,7 @@ const SupplierProccesses = ({ processes }: SupplierProccessesProps) => {
   if (!supplierId) throw new Error("supplierId not found");
   const { id: userId, company } = useUser();
 
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
 
@@ -65,7 +67,7 @@ const SupplierProccesses = ({ processes }: SupplierProccessesProps) => {
     const defaultColumns: ColumnDef<SupplierProcess>[] = [
       {
         accessorKey: "proccessName",
-        header: "Process",
+        header: t`Process`,
         cell: ({ row }) => (
           <HStack className="justify-between min-w-[100px]">
             <span>{row.original.processName}</span>
@@ -73,7 +75,7 @@ const SupplierProccesses = ({ processes }: SupplierProccessesProps) => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
-                    aria-label="Edit supplier process"
+                    aria-label={t`Edit supplier process`}
                     icon={<LuEllipsisVertical />}
                     size="md"
                     className="absolute right-[-1px] top-[-6px]"
@@ -91,7 +93,7 @@ const SupplierProccesses = ({ processes }: SupplierProccessesProps) => {
                     disabled={!canEdit}
                   >
                     <DropdownMenuIcon icon={<LuPencil />} />
-                    Edit Process
+                    <Trans>Edit Process</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
@@ -106,7 +108,7 @@ const SupplierProccesses = ({ processes }: SupplierProccessesProps) => {
                     disabled={!canDelete}
                   >
                     <DropdownMenuIcon icon={<LuTrash />} />
-                    Delete Process
+                    <Trans>Delete Process</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -117,17 +119,17 @@ const SupplierProccesses = ({ processes }: SupplierProccessesProps) => {
 
       {
         accessorKey: "minimumCost",
-        header: "Minimum Cost",
+        header: t`Minimum Cost`,
         cell: ({ row }) => formatter.format(row.original.minimumCost ?? 0)
       },
       {
         accessorKey: "leadTime",
-        header: "Lead Time",
+        header: t`Lead Time`,
         cell: (item) => item.getValue()
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns, canEdit, canDelete, navigate, supplierId, formatter]);
+  }, [customColumns, canEdit, canDelete, navigate, supplierId, formatter, t]);
 
   const editableComponents = useMemo(
     () => ({
@@ -147,7 +149,9 @@ const SupplierProccesses = ({ processes }: SupplierProccessesProps) => {
       <Card className="w-full h-full min-h-[50vh]">
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Supplier Processes</CardTitle>
+            <CardTitle>
+              <Trans>Supplier Processes</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>{canEdit && <New to="new" />}</CardAction>
         </HStack>

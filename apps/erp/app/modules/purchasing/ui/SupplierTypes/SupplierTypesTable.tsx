@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { BsPeopleFill } from "react-icons/bs";
@@ -18,6 +19,7 @@ type SupplierTypesTableProps = {
 
 const SupplierTypesTable = memo(({ data, count }: SupplierTypesTableProps) => {
   const [params] = useUrlParams();
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const customColumns = useCustomColumns<SupplierType>("supplierType");
@@ -26,7 +28,7 @@ const SupplierTypesTable = memo(({ data, count }: SupplierTypesTableProps) => {
     const defaultColumns: ColumnDef<SupplierType>[] = [
       {
         accessorKey: "name",
-        header: "Supplier Type",
+        header: t`Supplier Type`,
         cell: ({ row }) => (
           <Enumerable
             value={row.original.name}
@@ -40,7 +42,7 @@ const SupplierTypesTable = memo(({ data, count }: SupplierTypesTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [navigate, customColumns]);
+  }, [navigate, customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: SupplierType) => {
@@ -52,7 +54,7 @@ const SupplierTypesTable = memo(({ data, count }: SupplierTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<BsPeopleFill />} />
-            View Suppliers
+            <Trans>View Suppliers</Trans>
           </MenuItem>
           <MenuItem
             disabled={row.protected || !permissions.can("update", "purchasing")}
@@ -61,7 +63,7 @@ const SupplierTypesTable = memo(({ data, count }: SupplierTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Supplier Type
+            <Trans>Edit Supplier Type</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -73,7 +75,7 @@ const SupplierTypesTable = memo(({ data, count }: SupplierTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Supplier Type
+            <Trans>Delete Supplier Type</Trans>
           </MenuItem>
         </>
       );
@@ -89,13 +91,13 @@ const SupplierTypesTable = memo(({ data, count }: SupplierTypesTableProps) => {
       primaryAction={
         permissions.can("create", "purchasing") && (
           <New
-            label="Supplier Type"
+            label={t`Supplier Type`}
             to={`${path.to.newSupplierType}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Supplier Types"
+      title={t`Supplier Types`}
     />
   );
 });

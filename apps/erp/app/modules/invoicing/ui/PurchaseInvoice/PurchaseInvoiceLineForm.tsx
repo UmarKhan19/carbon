@@ -18,6 +18,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import type { z } from "zod";
@@ -555,7 +556,7 @@ const PurchaseInvoiceLineForm = ({
             </ModalCardBody>
             <ModalCardFooter>
               <Submit isDisabled={isDisabled} withBlocker={false}>
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </ModalCardFooter>
           </ValidatedForm>

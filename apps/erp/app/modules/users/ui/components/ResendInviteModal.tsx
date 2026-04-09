@@ -9,6 +9,7 @@ import {
   ModalHeader,
   ModalTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import { UserSelect } from "~/components/Selectors";
 import { resendInviteValidator } from "~/modules/users";
@@ -38,21 +39,32 @@ const ResendInviteModal = ({
       <ModalContent>
         <ModalHeader>
           <ModalTitle>
-            {isSingleUser ? "Resend Invite" : "Resend Invites"}
+            {isSingleUser ? (
+              <Trans>Resend Invite</Trans>
+            ) : (
+              <Trans>Resend Invites</Trans>
+            )}
           </ModalTitle>
         </ModalHeader>
 
         <ModalBody>
           <p className="mb-2">
-            Are you sure you want to resend an invite to
-            {isSingleUser ? " this user" : " these users"}?
+            {isSingleUser ? (
+              <Trans>
+                Are you sure you want to resend an invite to this user?
+              </Trans>
+            ) : (
+              <Trans>
+                Are you sure you want to resend an invite to these users?
+              </Trans>
+            )}
           </p>
           <UserSelect value={userIds} readOnly isMulti />
         </ModalBody>
         <ModalFooter>
           <HStack>
             <Button variant="ghost" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <ValidatedForm
               method="post"
@@ -69,7 +81,9 @@ const ResendInviteModal = ({
                   value={id}
                 />
               ))}
-              <Button type="submit">Send</Button>
+              <Button type="submit">
+                <Trans>Send</Trans>
+              </Button>
             </ValidatedForm>
           </HStack>
         </ModalFooter>

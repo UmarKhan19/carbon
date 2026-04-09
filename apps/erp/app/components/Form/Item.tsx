@@ -26,6 +26,7 @@ import {
   useDisclosure,
   useMount
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LuFilter } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -75,6 +76,7 @@ const Item = ({
   onTypeChange,
   ...props
 }: ItemSelectProps) => {
+  const { t } = useLingui();
   const [items] = useItems();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -215,7 +217,7 @@ const Item = ({
                   <DropdownMenuTrigger asChild>
                     <IconButton
                       type="button"
-                      aria-label="Change Type"
+                      aria-label={t`Change Type`}
                       className={cn(
                         "absolute right-0 top-0 bg-card dark:bg-card flex-shrink-0 h-10 w-10 px-3 rounded-l-none before:rounded-l-none border -ml-px shadow-none hover:shadow-button-base"
                       )}
@@ -233,7 +235,9 @@ const Item = ({
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent>
-                  Change the item type (e.g. Part, Material, Tool, etc.)
+                  <Trans>
+                    Change the item type (e.g. Part, Material, Tool, etc.)
+                  </Trans>
                 </TooltipContent>
               </Tooltip>
               <DropdownMenuContent>
@@ -247,7 +251,9 @@ const Item = ({
                     className="flex items-center gap-2"
                   >
                     <LuFilter className="h-4 w-4" />
-                    <span>All Items</span>
+                    <span>
+                      <Trans>All Items</Trans>
+                    </span>
                   </DropdownMenuRadioItem>
                   {Object.values(methodItemType)
                     .filter(
@@ -288,7 +294,9 @@ const Item = ({
         >
           <ModalContent>
             <ModalHeader>
-              <ModalTitle>Select Item Type</ModalTitle>
+              <ModalTitle>
+                <Trans>Select Item Type</Trans>
+              </ModalTitle>
             </ModalHeader>
             <ModalBody>
               <div className="grid grid-cols-2 gap-4">
@@ -318,7 +326,7 @@ const Item = ({
                   selectTypeModal.onClose();
                 }}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 ref={submitRef}
@@ -328,7 +336,7 @@ const Item = ({
                   newItemsModal.onOpen();
                 }}
               >
-                Create
+                <Trans>Create</Trans>
               </Button>
             </ModalFooter>
           </ModalContent>

@@ -6,6 +6,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { Link } from "react-router";
 import type { Action } from "~/types";
 
@@ -30,6 +31,7 @@ enum UserStatus {
 }
 
 const Contact = ({ contact, url, user, actions }: ContactProps) => {
+  const { t } = useLingui();
   const name = `${contact.firstName ?? ""} ${contact.lastName ?? ""}`;
   const userStatus = user
     ? user.active
@@ -52,13 +54,13 @@ const Contact = ({ contact, url, user, actions }: ContactProps) => {
 
           {userStatus === UserStatus.Active && (
             <span
-              title="Active"
+              title={t`Active`}
               className="inline-block bg-emerald-400 rounded-full w-3 h-3 ml-1.5"
             />
           )}
           {userStatus === UserStatus.Inactive && (
             <span
-              title="Inactive"
+              title={t`Inactive`}
               className="inline-block bg-red-400 rounded-full w-3 h-3 ml-1.5"
             />
           )}

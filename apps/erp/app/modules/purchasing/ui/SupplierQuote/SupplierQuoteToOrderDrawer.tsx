@@ -22,6 +22,7 @@ import {
   VStack
 } from "@carbon/react";
 import { pluralize } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { LuImage } from "react-icons/lu";
@@ -54,6 +55,7 @@ const SupplierQuoteToOrderDrawer = ({
   pricing,
   onClose
 }: SupplierQuoteToOrderDrawerProps) => {
+  const { t } = useLingui();
   const [step] = useState(0);
   const [selectedLines, setSelectedLines] = useState<
     Record<string, SelectedLine>
@@ -62,7 +64,7 @@ const SupplierQuoteToOrderDrawer = ({
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
 
-  const titles = ["Select Quantities"];
+  const titles = [t`Select Quantities`];
 
   const { company } = useUser();
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
@@ -300,19 +302,31 @@ const LinePricingOptions = ({
           <Thead>
             <Tr>
               <Th></Th>
-              <Th>Quantity</Th>
-              <Th>Unit Price</Th>
-              <Th>Shipping</Th>
-              <Th>Lead Time</Th>
-              <Th>Tax</Th>
-              <Th>Total Price</Th>
+              <Th>
+                <Trans>Quantity</Trans>
+              </Th>
+              <Th>
+                <Trans>Unit Price</Trans>
+              </Th>
+              <Th>
+                <Trans>Shipping</Trans>
+              </Th>
+              <Th>
+                <Trans>Lead Time</Trans>
+              </Th>
+              <Th>
+                <Trans>Tax</Trans>
+              </Th>
+              <Th>
+                <Trans>Total Price</Trans>
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
             {!Array.isArray(options) || options.length === 0 ? (
               <Tr>
                 <Td colSpan={6} className="text-center py-8">
-                  No pricing options found
+                  <Trans>No pricing options found</Trans>
                 </Td>
               </Tr>
             ) : (

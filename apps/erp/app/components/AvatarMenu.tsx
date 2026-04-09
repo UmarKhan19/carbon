@@ -17,7 +17,7 @@ import {
 } from "@carbon/react";
 import { ItarDisclosure, useEdition, useMode } from "@carbon/remix";
 import { Edition, themes } from "@carbon/utils";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import {
   LuCreditCard,
@@ -87,7 +87,7 @@ const AvatarMenu = () => {
           <DropdownMenuItem asChild>
             <Link to={path.to.authenticatedRoot}>
               <DropdownMenuIcon icon={<LuHouse />} />
-              {t`Dashboard`}
+              <Trans>Dashboard</Trans>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -95,7 +95,7 @@ const AvatarMenu = () => {
           <DropdownMenuItem asChild>
             <Link to={path.to.apiIntroduction}>
               <DropdownMenuIcon icon={<LuFileText />} />
-              {t`API Documentation`}
+              <Trans>API Documentation</Trans>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -105,7 +105,7 @@ const AvatarMenu = () => {
                 <DropdownMenuIcon
                   icon={mode === "dark" ? <LuMoon /> : <LuSun />}
                 />
-                {t`Dark Mode`}
+                <Trans>Dark Mode</Trans>
               </div>
               <div>
                 <Switch
@@ -133,7 +133,7 @@ const AvatarMenu = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <DropdownMenuIcon icon={<LuPalette />} />
-              {t`Theme Color`}
+              <Trans>Theme Color</Trans>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup
@@ -167,7 +167,7 @@ const AvatarMenu = () => {
           <DropdownMenuItem asChild>
             <Link to={path.to.profile}>
               <DropdownMenuIcon icon={<LuUser />} />
-              {t`Account Settings`}
+              <Trans>Account Settings</Trans>
             </Link>
           </DropdownMenuItem>
 
@@ -175,7 +175,9 @@ const AvatarMenu = () => {
             <DropdownMenuItem asChild>
               <Link to={path.to.billing}>
                 <DropdownMenuIcon icon={<LuCreditCard />} />
-                <span>{t`Manage Subscription`}</span>
+                <span>
+                  <Trans>Manage Subscription</Trans>
+                </span>
               </Link>
             </DropdownMenuItem>
           )}
@@ -183,19 +185,19 @@ const AvatarMenu = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <DropdownMenuIcon icon={<LuFileText />} />
-              {t`Terms and Privacy`}
+              <Trans>Terms and Privacy</Trans>
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuItem asChild>
                 <a href={path.to.legal.termsAndConditions}>
                   <DropdownMenuIcon icon={<LuFileText />} />
-                  {t`Terms of Service`}
+                  <Trans>Terms of Service</Trans>
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a href={path.to.legal.privacyPolicy}>
                   <DropdownMenuIcon icon={<LuShieldCheck />} />
-                  {t`Privacy Policy`}
+                  <Trans>Privacy Policy</Trans>
                 </a>
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -205,14 +207,16 @@ const AvatarMenu = () => {
           {CONTROLLED_ENVIRONMENT && (
             <DropdownMenuItem onClick={itarDisclosure.onOpen}>
               <DropdownMenuIcon icon={<LuShieldCheck />} />
-              {t`About`}
+              <Trans>About</Trans>
             </DropdownMenuItem>
           )}
           <DropdownMenuItem asChild>
             <Form method="post" action={path.to.logout}>
               <button type="submit" className="w-full h-full flex items-center">
                 <DropdownMenuIcon icon={<LuLogOut />} />
-                <span>{t`Sign Out`}</span>
+                <span>
+                  <Trans>Sign Out</Trans>
+                </span>
               </button>
             </Form>
           </DropdownMenuItem>

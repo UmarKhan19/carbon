@@ -21,6 +21,7 @@ import {
   toast
 } from "@carbon/react";
 import { convertKbToString, formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
 import { LuAxis3D, LuEllipsisVertical, LuUpload } from "react-icons/lu";
@@ -53,6 +54,7 @@ const Documents = ({
   writeBucket,
   writeBucketPermission
 }: DocumentsProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const revalidator = useRevalidator();
   const { carbon } = useCarbon();
@@ -101,20 +103,20 @@ const Documents = ({
         .remove([getReadPath(file)]);
 
       if (!fileDelete || fileDelete.error) {
-        toast.error(fileDelete?.error?.message || "Error deleting file");
+        toast.error(fileDelete?.error?.message || t`Error deleting file`);
         return;
       }
 
-      toast.success(`${file.name} deleted successfully`);
+      toast.success(t`${file.name} deleted successfully`);
       revalidator.revalidate();
     },
-    [carbon?.storage, getReadPath, revalidator]
+    [carbon?.storage, getReadPath, revalidator, t]
   );
 
   const downloadModel = useCallback(
     async (model: ModelUpload) => {
       if (!model.modelPath || !model.modelName) {
-        toast.error("Model data is missing");
+        toast.error(t`Model data is missing`);
         return;
       }
 
@@ -131,12 +133,12 @@ const Documents = ({
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } catch (error) {
-        toast.error("Error downloading file");
+        toast.error(t`Error downloading file`);
         console.error(error);
       }
     },
 
-    []
+    [t]
   );
 
   const deleteModel = useCallback(async () => {
@@ -149,19 +151,19 @@ const Documents = ({
         .eq("id", sourceDocumentId);
 
       if (result.error) {
-        toast.error(`Error removing model from ${sourceDocument}`);
+        toast.error(t`Error removing model from ${sourceDocument}`);
         return;
       }
     } else if (sourceDocument === "Issue") {
       // no action required
     } else {
-      toast.error(`Unsupported source document type: ${sourceDocument}`);
+      toast.error(t`Unsupported source document type: ${sourceDocument}`);
       return;
     }
 
-    toast.success(`Model removed from ${sourceDocument}`);
+    toast.success(t`Model removed from ${sourceDocument}`);
     revalidator.revalidate();
-  }, [carbon, sourceDocument, sourceDocumentId, revalidator]);
+  }, [carbon, sourceDocument, sourceDocumentId, revalidator, t]);
 
   const download = useCallback(
     async (file: StorageItem) => {
@@ -178,23 +180,23 @@ const Documents = ({
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } catch (error) {
-        toast.error("Error downloading file");
+        toast.error(t`Error downloading file`);
         console.error(error);
       }
     },
-    [getReadPath]
+    [getReadPath, t]
   );
 
   const upload = useCallback(
     async (files: File[]) => {
       if (!carbon) {
-        toast.error("Carbon client not available");
+        toast.error(t`Carbon client not available`);
         return;
       }
 
       for (const file of files) {
         const fileName = getWritePath({ name: file.name });
-        toast.info(`Uploading ${file.name}`);
+        toast.info(t`Uploading ${file.name}`);
         const fileUpload = await carbon.storage
           .from("private")
           .upload(fileName, file, {
@@ -203,13 +205,13 @@ const Documents = ({
           });
 
         if (fileUpload.error) {
-          toast.error(`Failed to upload file: ${file.name}`);
+          toast.error(t`Failed to upload file: ${file.name}`);
         } else if (
           fileUpload.data?.path &&
           sourceDocument &&
           sourceDocumentId
         ) {
-          toast.success(`Uploaded: ${file.name}`);
+          toast.success(t`Uploaded: ${file.name}`);
           const formData = new FormData();
           formData.append("path", fileUpload.data.path);
           formData.append("name", file.name);
@@ -233,7 +235,8 @@ const Documents = ({
       revalidator,
       submit,
       sourceDocument,
-      sourceDocumentId
+      sourceDocumentId,
+      t
     ]
   );
 
@@ -248,7 +251,9 @@ const Documents = ({
     <Card className="flex-grow">
       <HStack className="justify-between items-start">
         <CardHeader>
-          <CardTitle>Files</CardTitle>
+          <CardTitle>
+            <Trans>Files</Trans>
+          </CardTitle>
         </CardHeader>
         <CardAction>
           <File
@@ -261,7 +266,7 @@ const Documents = ({
             }}
             multiple
           >
-            New
+            <Trans>New</Trans>
           </File>
         </CardAction>
       </HStack>
@@ -269,9 +274,15 @@ const Documents = ({
         <Table>
           <Thead>
             <Tr>
-              <Th>Name</Th>
-              <Th>Size</Th>
-              <Th>Created</Th>
+              <Th>
+                <Trans>Name</Trans>
+              </Th>
+              <Th>
+                <Trans>Size</Trans>
+              </Th>
+              <Th>
+                <Trans>Created</Trans>
+              </Th>
               <Th></Th>
             </Tr>
           </Thead>
@@ -306,7 +317,7 @@ const Documents = ({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <IconButton
-                          aria-label="More"
+                          aria-label={t`More`}
                           icon={<LuEllipsisVertical />}
                           variant="secondary"
                         />
@@ -315,7 +326,7 @@ const Documents = ({
                         <DropdownMenuItem
                           onClick={() => downloadModel(modelUpload)}
                         >
-                          Download
+                          <Trans>Download</Trans>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link
@@ -325,7 +336,7 @@ const Documents = ({
                                 : ""
                             }
                           >
-                            View
+                            <Trans>View</Trans>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -333,7 +344,7 @@ const Documents = ({
                           destructive
                           onClick={() => deleteModel()}
                         >
-                          Delete
+                          <Trans>Delete</Trans>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -392,21 +403,21 @@ const Documents = ({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <IconButton
-                            aria-label="More"
+                            aria-label={t`More`}
                             icon={<LuEllipsisVertical />}
                             variant="secondary"
                           />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem onClick={() => download(file)}>
-                            Download
+                            <Trans>Download</Trans>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             disabled={!canDelete}
                             onClick={() => deleteFile(file)}
                             destructive
                           >
-                            Delete
+                            <Trans>Delete</Trans>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -421,7 +432,7 @@ const Documents = ({
                   colSpan={24}
                   className="py-8 text-muted-foreground text-center"
                 >
-                  No files
+                  <Trans>No files</Trans>
                 </Td>
               </Tr>
             )}

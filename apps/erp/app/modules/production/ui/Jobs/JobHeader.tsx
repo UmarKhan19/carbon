@@ -36,6 +36,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -83,6 +84,23 @@ import JobStatus from "./JobStatus";
 
 const JobHeader = () => {
   const navigate = useNavigate();
+  const { t } = useLingui();
+  const getExplorerLabel = (type: string) => {
+    switch (type) {
+      case "materials":
+        return t`Materials`;
+      case "operations":
+        return t`Operations`;
+      case "step-records":
+        return t`Step Records`;
+      case "events":
+        return t`Production Events`;
+      case "quantities":
+        return t`Production Quantities`;
+      default:
+        return t`Job`;
+    }
+  };
   const permissions = usePermissions();
   const { jobId } = useParams();
   if (!jobId) throw new Error("jobId not found");
@@ -138,7 +156,7 @@ const JobHeader = () => {
       <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide ">
         <HStack>
           <IconButton
-            aria-label="Toggle Explorer"
+            aria-label={t`Toggle Explorer`}
             icon={<LuPanelLeft />}
             onClick={toggleExplorer}
             variant="ghost"
@@ -152,7 +170,7 @@ const JobHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More options"
+                aria-label={t`More options`}
                 icon={<LuEllipsisVertical />}
                 variant="secondary"
                 size="sm"
@@ -382,7 +400,7 @@ const JobHeader = () => {
           </statusFetcher.Form>
 
           <IconButton
-            aria-label="Toggle Properties"
+            aria-label={t`Toggle Properties`}
             icon={<LuPanelRight />}
             onClick={toggleProperties}
             variant="ghost"
@@ -431,23 +449,6 @@ const JobHeader = () => {
 };
 
 export default JobHeader;
-
-function getExplorerLabel(type: string) {
-  switch (type) {
-    case "materials":
-      return "Materials";
-    case "operations":
-      return "Operations";
-    case "step-records":
-      return "Step Records";
-    case "events":
-      return "Production Events";
-    case "quantities":
-      return "Production Quantities";
-    default:
-      return "Job";
-  }
-}
 
 function getExplorerMenuIcon(type: string) {
   switch (type) {
@@ -691,7 +692,9 @@ export function JobStartModal({
                   <>
                     <Alert>
                       <LuShoppingCart />
-                      <AlertTitle>Purchase orders required</AlertTitle>
+                      <AlertTitle>
+                        <Trans>Purchase orders required</Trans>
+                      </AlertTitle>
                       <AlertDescription>
                         A new purchase order will be created for each supplier.
                         Alternatively, you can choose an existing draft purchase
@@ -744,7 +747,9 @@ export function JobStartModal({
                 {!eachAssemblyHasAnOperation && (
                   <Alert variant="warning">
                     <LuTriangleAlert />
-                    <AlertTitle>Missing Operations</AlertTitle>
+                    <AlertTitle>
+                      <Trans>Missing Operations</Trans>
+                    </AlertTitle>
                     <AlertDescription>
                       There are Bills of Processes associated with this job that
                       have no operations. Please assign an operation to each
@@ -755,7 +760,9 @@ export function JobStartModal({
                 {!eachOutsideOperationHasASupplier && hasOutsideOperations && (
                   <Alert variant="warning">
                     <LuTriangleAlert />
-                    <AlertTitle>Missing Suppliers</AlertTitle>
+                    <AlertTitle>
+                      <Trans>Missing Suppliers</Trans>
+                    </AlertTitle>
                     <AlertDescription>
                       There are outside operations associated with this job that
                       have no suppliers. Please assign a supplier to each
@@ -862,6 +869,7 @@ function JobCompleteModal({
 }) {
   const { carbon } = useCarbon();
   const [loading, setLoading] = useState(true);
+  const { t } = useLingui();
   const [defaultShelfId, setDefaultShelfId] = useState<string | undefined>(
     undefined
   );
@@ -1017,17 +1025,21 @@ function JobCompleteModal({
               <VStack spacing={4}>
                 {!makeToOrder && (
                   <>
-                    <Location name="locationId" label="Location" isReadOnly />
+                    <Location
+                      name="locationId"
+                      label={t`Location`}
+                      isReadOnly
+                    />
                     <Shelf
                       name="shelfId"
                       locationId={job.locationId ?? undefined}
-                      label="Shelf"
+                      label={t`Shelf`}
                     />
                   </>
                 )}
                 <NumberControlled
                   name="quantityComplete"
-                  label="Quantity Completed"
+                  label={t`Quantity Completed`}
                   value={quantityComplete}
                   onChange={(value) => setQuantityComplete(value)}
                   isReadOnly={hasTrackedQuantity}
@@ -1037,7 +1049,9 @@ function JobCompleteModal({
                   <>
                     <Alert>
                       <LuPackage />
-                      <AlertTitle>Leftover Parts Detected</AlertTitle>
+                      <AlertTitle>
+                        <Trans>Leftover Parts Detected</Trans>
+                      </AlertTitle>
                       <AlertDescription>
                         You completed {leftoverQuantity} more{" "}
                         {leftoverQuantity === 1 ? "part" : "parts"} than the
@@ -1118,7 +1132,7 @@ function JobCompleteModal({
                         <div className="flex-1">
                           <NumberControlled
                             name="leftoverShipQuantity"
-                            label="Ship to Customer"
+                            label={t`Ship to Customer`}
                             value={leftoverShipQuantity}
                             onChange={(value) => {
                               const shipQty = Math.min(value, leftoverQuantity);
@@ -1134,7 +1148,7 @@ function JobCompleteModal({
                         <div className="flex-1">
                           <NumberControlled
                             name="leftoverReceiveQuantity"
-                            label="Receive to Inventory"
+                            label={t`Receive to Inventory`}
                             value={leftoverReceiveQuantity}
                             onChange={(value) => {
                               const receiveQty = Math.min(

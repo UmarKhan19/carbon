@@ -16,7 +16,7 @@ import { path } from "~/utils/path";
 type CustomerStatusSelectProps = Omit<ComboboxProps, "options">;
 
 const CustomerStatus = (props: CustomerStatusSelectProps) => {
-  const { i18n } = useLingui();
+  const { i18n, t } = useLingui();
   const newCustomerStatusModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -34,7 +34,7 @@ const CustomerStatus = (props: CustomerStatusSelectProps) => {
           })) ?? []
         }
         {...props}
-        label={props?.label ?? "CustomerStatus"}
+        label={props?.label ?? t`Customer Status`}
         onCreateOption={(option) => {
           newCustomerStatusModal.onOpen();
           setCreated(option);

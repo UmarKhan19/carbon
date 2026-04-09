@@ -16,6 +16,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -68,6 +69,7 @@ const ProductionPlanningTable = ({
   periods
 }: ProductionPlanningTableProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
 
   const dateFormatter = useDateFormatter({
     month: "short",
@@ -105,7 +107,7 @@ const ProductionPlanningTable = ({
     }
 
     if (bulkUpdateFetcher.data?.success === true) {
-      toast.success("Orders submitted");
+      toast.success(t`Orders submitted`);
     }
   }, [bulkUpdateFetcher.data?.success]);
 
@@ -248,7 +250,7 @@ const ProductionPlanningTable = ({
     return [
       {
         accessorKey: "readableIdWithRevision",
-        header: "Part ID",
+        header: t`Part ID`,
         cell: ({ row }) => (
           <HStack
             className="py-1 cursor-pointer"
@@ -290,7 +292,7 @@ const ProductionPlanningTable = ({
       },
       {
         accessorKey: "reorderingPolicy",
-        header: "Reorder Policy",
+        header: t`Reorder Policy`,
         cell: ({ row }) => {
           return (
             <HStack>
@@ -320,7 +322,7 @@ const ProductionPlanningTable = ({
       },
       {
         accessorKey: "quantityOnHand",
-        header: "On Hand",
+        header: t`On Hand`,
         cell: ({ row }) => numberFormatter.format(row.original.quantityOnHand),
         meta: {
           icon: <LuPackage />,
@@ -330,7 +332,7 @@ const ProductionPlanningTable = ({
       ...periodColumns,
       {
         accessorKey: "quantityToOrder",
-        header: "Qty to Order",
+        header: t`Qty to Order`,
         cell: ({ row }) => {
           const value = row.original.quantityToOrder;
           if (value === undefined || value === 0) return "-";
@@ -344,7 +346,7 @@ const ProductionPlanningTable = ({
       },
       {
         accessorKey: "type",
-        header: "Type",
+        header: t`Type`,
         cell: ({ row }) =>
           row.original.type && (
             <HStack>
@@ -423,7 +425,9 @@ const ProductionPlanningTable = ({
     (selectedRows: typeof data) => {
       return (
         <DropdownMenuContent align="end" className="min-w-[200px]">
-          <DropdownMenuLabel>Update</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <Trans>Update</Trans>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
@@ -491,7 +495,7 @@ const ProductionPlanningTable = ({
           </div>
         }
         renderActions={renderActions}
-        title="Planning"
+        title={t`Planning`}
         table="production-planning"
         withSavedView
         withSelectableRows

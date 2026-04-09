@@ -14,6 +14,7 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
   LuCheckCheck,
@@ -45,6 +46,7 @@ type WarehouseTransferHeaderProps = {
 const WarehouseTransferHeader = ({
   warehouseTransfer
 }: WarehouseTransferHeaderProps) => {
+  const { t } = useLingui();
   const { company } = useUser();
   const permissions = usePermissions();
   const statusFetcher = useFetcher<typeof statusAction>();
@@ -75,7 +77,7 @@ const WarehouseTransferHeader = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -94,7 +96,7 @@ const WarehouseTransferHeader = ({
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Warehouse Transfer
+                  <Trans>Delete Warehouse Transfer</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -175,7 +177,7 @@ const WarehouseTransferHeader = ({
                     }}
                   >
                     <DropdownMenuIcon icon={<LuCirclePlus />} />
-                    New Shipment
+                    <Trans>New Shipment</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {shipments.map((shipment) => (
@@ -242,7 +244,7 @@ const WarehouseTransferHeader = ({
                     }}
                   >
                     <DropdownMenuIcon icon={<LuCirclePlus />} />
-                    New Receipt
+                    <Trans>New Receipt</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {receipts.map((receipt) => (

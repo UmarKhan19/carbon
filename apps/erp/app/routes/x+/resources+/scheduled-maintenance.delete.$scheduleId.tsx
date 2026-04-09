@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -71,16 +72,18 @@ export default function DeleteMaintenanceScheduleRoute() {
   const { scheduleId } = useParams();
   const { schedule } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!schedule) return null;
   if (!scheduleId) throw notFound("scheduleId not found");
 
   const onCancel = () => navigate(path.to.maintenanceSchedules);
+  const name = schedule.name;
   return (
     <ConfirmDelete
       action={path.to.deleteMaintenanceSchedule(scheduleId)}
-      name={schedule.name}
-      text={`Are you sure you want to delete the maintenance schedule: ${schedule.name}? This cannot be undone.`}
+      name={name}
+      text={t`Are you sure you want to delete the maintenance schedule: ${name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

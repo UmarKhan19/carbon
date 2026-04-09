@@ -23,6 +23,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -77,6 +78,7 @@ type MaterialsTableProps = {
 };
 
 const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
 
@@ -96,7 +98,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
     const defaultColumns: ColumnDef<Material>[] = [
       {
         accessorKey: "id",
-        header: "Material ID",
+        header: t`Material ID`,
         cell: ({ row }) => (
           <HStack className="py-1 min-w-[200px] truncate">
             <ItemThumbnail
@@ -120,7 +122,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "description",
-        header: "Description",
+        header: t`Description`,
         cell: (item) => (
           <div className="max-w-[320px] truncate">
             {item.getValue<string>()}
@@ -132,7 +134,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "materialSubstanceId",
-        header: "Substance",
+        header: t`Substance`,
         cell: ({ row }) => (
           <Enumerable value={row.original.materialSubstance} />
         ),
@@ -151,7 +153,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "materialFormId",
-        header: "Shape",
+        header: t`Shape`,
         cell: ({ row }) => <Enumerable value={row.original.materialForm} />,
         meta: {
           filter: {
@@ -168,7 +170,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "finish",
-        header: "Finish",
+        header: t`Finish`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPaintBucket />,
@@ -185,7 +187,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "grade",
-        header: "Grade",
+        header: t`Grade`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuStar />,
@@ -202,7 +204,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "dimensions",
-        header: "Dimension",
+        header: t`Dimension`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuExpand />,
@@ -219,7 +221,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "materialType",
-        header: "Type",
+        header: t`Type`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPuzzle />,
@@ -239,7 +241,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "itemPostingGroupId",
-        header: "Item Group",
+        header: t`Item Group`,
         cell: (item) => {
           const itemPostingGroupId = item.row.original.itemPostingGroupId;
           const itemPostingGroup = itemPostingGroups.find(
@@ -260,7 +262,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "itemTrackingType",
-        header: "Tracking",
+        header: t`Tracking`,
         cell: (item) => (
           <Badge variant="secondary">
             <TrackingTypeIcon type={item.getValue<string>()} className="mr-2" />
@@ -285,7 +287,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "unitOfMeasureCode",
-        header: "Unit of Measure",
+        header: t`Unit of Measure`,
         cell: ({ row }) => <Enumerable value={row.original.unitOfMeasure} />,
         meta: {
           filter: {
@@ -300,7 +302,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "defaultMethodType",
-        header: "Default Method",
+        header: t`Default Method`,
         cell: (item) => (
           <Badge variant="secondary">
             <MethodIcon type={item.getValue<string>()} className="mr-2" />
@@ -325,7 +327,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "tags",
-        header: "Tags",
+        header: t`Tags`,
         cell: ({ row }) => (
           <HStack spacing={0} className="gap-1">
             {(row.original.tags || []).map((tag) => (
@@ -349,23 +351,23 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "active",
-        header: "Active",
+        header: t`Active`,
         cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
         meta: {
           filter: {
             type: "static",
             options: [
-              { value: "true", label: "Active" },
-              { value: "false", label: "Inactive" }
+              { value: "true", label: t`Active` },
+              { value: "false", label: t`Inactive` }
             ]
           },
-          pluralHeader: "Active Statuses",
+          pluralHeader: t`Active Statuses`,
           icon: <LuCheck />
         }
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -382,7 +384,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -390,7 +392,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t`Updated By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -407,7 +409,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t`Updated At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -422,7 +424,8 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
     unitsOfMeasure,
     tags,
     people,
-    customColumns
+    customColumns,
+    t
   ]);
 
   const fetcher = useFetcher<typeof action>();
@@ -463,11 +466,15 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
     (selectedRows: typeof data) => {
       return (
         <DropdownMenuContent align="end" className="min-w-[200px]">
-          <DropdownMenuLabel>Update</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <Trans>Update</Trans>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Item Group</DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger>
+                <Trans>Item Group</Trans>
+              </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
                   {itemPostingGroups.map((group) => (
@@ -489,7 +496,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
             </DropdownMenuSub>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                Default Method Type
+                <Trans>Default Method Type</Trans>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
@@ -508,7 +515,9 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Tracking Type</DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger>
+                <Trans>Tracking Type</Trans>
+              </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
                   {itemTrackingTypes.map((type) => (
@@ -545,13 +554,13 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
         <>
           <MenuItem onClick={() => navigate(path.to.material(row.id!))}>
             <MenuIcon icon={<LuPencil />} />
-            Edit Material
+            <Trans>Edit Material</Trans>
           </MenuItem>
           {revisions && revisions.length > 1 && (
             <MenuSub>
               <MenuSubTrigger>
                 <MenuIcon icon={<LuGitPullRequestArrow />} />
-                Versions
+                <Trans>Versions</Trans>
               </MenuSubTrigger>
               <MenuSubContent>
                 {revisions.map((revision) => (
@@ -560,7 +569,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
                     onClick={() => navigate(path.to.material(revision.id))}
                   >
                     <MenuIcon icon={<LuTag />} />
-                    Revision {revision.revision}
+                    <Trans>Revision {revision.revision}</Trans>
                   </MenuItem>
                 ))}
               </MenuSubContent>
@@ -575,7 +584,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Material
+            <Trans>Delete Material</Trans>
           </MenuItem>
         </>
       );
@@ -602,22 +611,24 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
         importCSV={[
           {
             table: "material" as const,
-            label: "Materials"
+            label: t`Materials`
           }
         ]}
         primaryAction={
           permissions.can("create", "parts") && (
             <div className="flex items-center gap-2">
               <Button variant="secondary" leftIcon={<LuGroup />} asChild>
-                <Link to={path.to.itemPostingGroups}>Item Groups</Link>
+                <Link to={path.to.itemPostingGroups}>
+                  <Trans>Item Groups</Trans>
+                </Link>
               </Button>
-              <New label="Material" to={path.to.newMaterial} />
+              <New label={t`Material`} to={path.to.newMaterial} />
             </div>
           )
         }
         renderActions={renderActions}
         renderContextMenu={renderContextMenu}
-        title="Materials"
+        title={t`Materials`}
         table="material"
         withSavedView
         withSelectableRows
@@ -627,7 +638,7 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
           action={path.to.deleteItem(selectedItem.id!)}
           isOpen={deleteItemModal.isOpen}
           name={selectedItem.readableIdWithRevision!}
-          text={`Are you sure you want to delete ${selectedItem.readableIdWithRevision!}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${selectedItem.readableIdWithRevision!}? This cannot be undone.`}
           onCancel={() => {
             deleteItemModal.onClose();
             setSelectedItem(null);

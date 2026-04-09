@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo } from "react";
 import { LuCopy, LuInfo, LuLink, LuRefreshCcw } from "react-icons/lu";
@@ -35,6 +36,7 @@ import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 import type { PurchaseInvoice } from "../../types";
 
 const PurchaseInvoiceProperties = () => {
+  const { t } = useLingui();
   const { invoiceId } = useParams();
   if (!invoiceId) throw new Error("invoiceId not found");
 
@@ -129,7 +131,7 @@ const PurchaseInvoiceProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -150,7 +152,7 @@ const PurchaseInvoiceProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -447,7 +449,7 @@ const PurchaseInvoiceProperties = () => {
               <IconButton
                 size="sm"
                 variant="secondary"
-                aria-label="Refresh"
+                aria-label={t`Refresh`}
                 icon={<LuRefreshCcw />}
                 isDisabled={isDisabled}
                 onClick={() => {

@@ -18,6 +18,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { Link, useParams } from "react-router";
@@ -118,7 +119,7 @@ export default function SalesInvoiceExplorer() {
                   variant="secondary"
                   onClick={newSalesInvoiceLineDisclosure.onOpen}
                 >
-                  Add Line Item
+                  <Trans>Add Line Item</Trans>
                 </Button>
               )}
             </Empty>
@@ -135,12 +136,14 @@ export default function SalesInvoiceExplorer() {
                 variant="secondary"
                 onClick={newSalesInvoiceLineDisclosure.onOpen}
               >
-                Add Line Item
+                <Trans>Add Line Item</Trans>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <HStack>
-                <span>New Line Item</span>
+                <span>
+                  <Trans>New Line Item</Trans>
+                </span>
                 <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
               </HStack>
             </TooltipContent>
@@ -228,7 +231,7 @@ function SalesInvoiceLineItem({
                   }}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Line
+                  <Trans>Delete Line</Trans>
                 </DropdownMenuItem>
                 {/* @ts-expect-error */}
                 {methodItemType.includes(line.invoiceLineType ?? "") && (
@@ -245,7 +248,7 @@ function SalesInvoiceLineItem({
                       <DropdownMenuIcon
                         icon={<MethodItemTypeIcon type={"Part"} />}
                       />
-                      View Item Master
+                      <Trans>View Item Master</Trans>
                     </Link>
                   </DropdownMenuItem>
                 )}

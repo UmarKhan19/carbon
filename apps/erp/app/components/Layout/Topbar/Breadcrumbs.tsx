@@ -23,7 +23,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
 import { IoMdAdd } from "react-icons/io";
@@ -152,9 +152,7 @@ function CompanyBreadcrumb() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[240px]">
-              <DropdownMenuLabel>
-                {tShared({ id: "Companies", message: "Companies" })}
-              </DropdownMenuLabel>
+              <DropdownMenuLabel>{tShared`Companies`}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {routeData?.companies.map((c) => {
@@ -195,7 +193,7 @@ function CompanyBreadcrumb() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={companyForm.onOpen}>
                       <DropdownMenuIcon icon={<IoMdAdd />} />
-                      {tShared({ id: "Add Company", message: "Add Company" })}
+                      {tShared`Add Company`}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </>
@@ -249,7 +247,9 @@ function CompanyBreadcrumb() {
                 </ModalBody>
                 <ModalFooter>
                   <HStack>
-                    <Submit>Save</Submit>
+                    <Submit>
+                      <Trans>Save</Trans>
+                    </Submit>
                   </HStack>
                 </ModalFooter>
               </ValidatedForm>

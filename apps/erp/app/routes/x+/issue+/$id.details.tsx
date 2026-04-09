@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner, VStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
@@ -115,6 +116,7 @@ export default function IssueDetailsRoute() {
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
 
+  const { t } = useLingui();
   const { nonConformance, actionTasks, reviewers } =
     useLoaderData<typeof loader>();
 
@@ -130,7 +132,7 @@ export default function IssueDetailsRoute() {
     <VStack spacing={2}>
       <IssueContent
         id={id}
-        title={"Description of Issue"}
+        title={t`Description of Issue`}
         subTitle={nonConformance?.name}
         content={nonConformance?.content as JSONContent}
         isDisabled={isIssueLocked(nonConformance?.status)}

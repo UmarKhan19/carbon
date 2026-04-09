@@ -1,6 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { Trans } from "@lingui/react/macro";
 import { Suspense, useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
@@ -96,7 +97,7 @@ export default function JobRoute() {
                       resolve={method}
                       errorElement={
                         <div className="p-2 text-red-500">
-                          Error loading job tree.
+                          <Trans>Error loading job tree.</Trans>
                         </div>
                       }
                     >

@@ -14,6 +14,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -112,7 +113,9 @@ export default function InventorySettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Inventory</Heading>
+        <Heading size="h3">
+          <Trans>Inventory</Trans>
+        </Heading>
         <Card>
           <ValidatedForm
             method="post"
@@ -124,10 +127,12 @@ export default function InventorySettingsRoute() {
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Kanban Output
+                <Trans>Kanban Output</Trans>
               </CardTitle>
               <CardDescription>
-                Style of kanban output to show in the Kanban table
+                <Trans>
+                  Style of kanban output to show in the Kanban table
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -146,7 +151,9 @@ export default function InventorySettingsRoute() {
               </div>
             </CardContent>
             <CardFooter>
-              <Submit>Save</Submit>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
             </CardFooter>
           </ValidatedForm>
         </Card>

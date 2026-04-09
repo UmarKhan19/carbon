@@ -15,6 +15,7 @@ import {
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import {
   LuBarcode,
@@ -57,6 +58,7 @@ const ShipmentHeader = () => {
 
   if (!routeData?.shipment) throw new Error("Failed to load shipment");
 
+  const { t } = useLingui();
   const { company } = useUser();
   const permissions = usePermissions();
   const postModal = useDisclosure();
@@ -122,7 +124,7 @@ const ShipmentHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -140,7 +142,7 @@ const ShipmentHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Shipment
+                  <Trans>Delete Shipment</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -234,7 +236,7 @@ const ShipmentHeader = () => {
                                   }}
                                 >
                                   <DropdownMenuIcon icon={<LuCirclePlus />} />
-                                  New Invoice
+                                  <Trans>New Invoice</Trans>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 {invoices.map((invoice) => (

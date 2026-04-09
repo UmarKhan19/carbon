@@ -12,6 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate, useParams } from "react-router";
 import type { z } from "zod";
@@ -44,6 +45,7 @@ const QuoteMaterialForm = ({
   initialValues,
   operations
 }: QuoteMaterialFormProps) => {
+  const { t } = useLingui();
   const fetcher = useFetcher<{ id: string; methodType: MethodType }>();
   const { carbon } = useCarbon();
   const permissions = usePermissions();
@@ -109,7 +111,7 @@ const QuoteMaterialForm = ({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -269,7 +271,9 @@ const QuoteMaterialForm = ({
           </VStack>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "sales")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "sales")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

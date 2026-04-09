@@ -24,6 +24,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Trans } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -437,19 +438,27 @@ export default function PurchasingSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Purchasing</Heading>
+        <Heading size="h3">
+          <Trans>Purchasing</Trans>
+        </Heading>
 
         <Card>
           <HStack className="justify-between items-start">
             <CardHeader>
-              <CardTitle>Purchasing Terms &amp; Conditions</CardTitle>
+              <CardTitle>
+                <Trans>Purchasing Terms &amp; Conditions</Trans>
+              </CardTitle>
               <CardDescription>
-                Define the terms and conditions for purchase orders
+                <Trans>
+                  Define the terms and conditions for purchase orders
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardAction className="py-6">
               {purchasingTermsStatus === "draft" ? (
-                <Badge variant="secondary">Draft</Badge>
+                <Badge variant="secondary">
+                  <Trans>Draft</Trans>
+                </Badge>
               ) : (
                 <LuCircleCheck className="w-4 h-4 text-emerald-500" />
               )}
@@ -476,10 +485,14 @@ export default function PurchasingSettingsRoute() {
           <CardHeader>
             <HStack className="justify-between items-center">
               <div>
-                <CardTitle>Accounts Payable Billing Address</CardTitle>
+                <CardTitle>
+                  <Trans>Accounts Payable Billing Address</Trans>
+                </CardTitle>
                 <CardDescription>
-                  The billing address used on purchase orders and other
-                  purchasing documents.
+                  <Trans>
+                    The billing address used on purchase orders and other
+                    purchasing documents.
+                  </Trans>
                 </CardDescription>
               </div>
               <Switch
@@ -515,7 +528,9 @@ export default function PurchasingSettingsRoute() {
                 value="accountsPayableBillingAddress"
               />
               <CardHeader>
-                <CardTitle>Billing Address</CardTitle>
+                <CardTitle>
+                  <Trans>Billing Address</Trans>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 w-full">
@@ -540,7 +555,7 @@ export default function PurchasingSettingsRoute() {
                       "accountsPayableBillingAddress"
                   }
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </CardFooter>
             </ValidatedForm>
@@ -564,10 +579,14 @@ export default function PurchasingSettingsRoute() {
               value="purchasePriceUpdateTiming"
             />
             <CardHeader>
-              <CardTitle>Purchase Price Updates</CardTitle>
+              <CardTitle>
+                <Trans>Purchase Price Updates</Trans>
+              </CardTitle>
               <CardDescription>
-                Configure when purchased item prices should be updated from
-                supplier transactions.
+                <Trans>
+                  Configure when purchased item prices should be updated from
+                  supplier transactions.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -591,7 +610,7 @@ export default function PurchasingSettingsRoute() {
                     "purchasePriceUpdateTiming"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -600,9 +619,13 @@ export default function PurchasingSettingsRoute() {
           <CardHeader>
             <HStack className="justify-between items-center">
               <div>
-                <CardTitle>Lead Time Updates</CardTitle>
+                <CardTitle>
+                  <Trans>Lead Time Updates</Trans>
+                </CardTitle>
                 <CardDescription>
-                  Update part lead times from posted purchase receipts.
+                  <Trans>
+                    Update part lead times from posted purchase receipts.
+                  </Trans>
                 </CardDescription>
               </div>
               <Switch
@@ -617,9 +640,13 @@ export default function PurchasingSettingsRoute() {
           <CardHeader>
             <HStack className="justify-between items-center">
               <div>
-                <CardTitle>Supplier Approval Required</CardTitle>
+                <CardTitle>
+                  <Trans>Supplier Approval Required</Trans>
+                </CardTitle>
                 <CardDescription>
-                  Require approval before suppliers can be set to Active
+                  <Trans>
+                    Require approval before suppliers can be set to Active
+                  </Trans>
                 </CardDescription>
               </div>
               <Switch
@@ -646,16 +673,22 @@ export default function PurchasingSettingsRoute() {
               value="supplierQuoteNotification"
             />
             <CardHeader>
-              <CardTitle>Supplier Quote Notifications</CardTitle>
+              <CardTitle>
+                <Trans>Supplier Quote Notifications</Trans>
+              </CardTitle>
               <CardDescription>
-                Configure who should receive notifications when a supplier
-                submits a quote.
+                <Trans>
+                  Configure who should receive notifications when a supplier
+                  submits a quote.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <div className="flex flex-col gap-2">
-                  <Label>Notifications</Label>
+                  <Label>
+                    <Trans>Notifications</Trans>
+                  </Label>
                   <Users
                     name="supplierQuoteNotificationGroup"
                     label="Who should receive notifications when a supplier quote is submitted?"
@@ -673,7 +706,7 @@ export default function PurchasingSettingsRoute() {
                     "supplierQuoteNotification"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -689,10 +722,14 @@ export default function PurchasingSettingsRoute() {
           >
             <input type="hidden" name="intent" value="emails" />
             <CardHeader>
-              <CardTitle>Emails</CardTitle>
+              <CardTitle>
+                <Trans>Emails</Trans>
+              </CardTitle>
               <CardDescription>
-                These email addresses will be automatically CC'd on all emails
-                sent to suppliers (quotes, purchase orders, etc.).
+                <Trans>
+                  These email addresses will be automatically CC'd on all emails
+                  sent to suppliers (quotes, purchase orders, etc.).
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -711,30 +748,40 @@ export default function PurchasingSettingsRoute() {
                   fetcher.formData?.get("intent") === "defaultSupplierCc"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>PDFs</CardTitle>
+            <CardTitle>
+              <Trans>PDFs</Trans>
+            </CardTitle>
             <CardDescription>
-              Show part thumbnails on purchase orders.
+              <Trans>Show part thumbnails on purchase orders.</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {companySettings.includeThumbnailsOnPurchasingPdfs
-                    ? "Thumbnails are included"
-                    : "Thumbnails are not included"}
+                  {companySettings.includeThumbnailsOnPurchasingPdfs ? (
+                    <Trans>Thumbnails are included</Trans>
+                  ) : (
+                    <Trans>Thumbnails are not included</Trans>
+                  )}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {companySettings.includeThumbnailsOnPurchasingPdfs
-                    ? "Part thumbnails are shown on purchase order PDFs."
-                    : "Enable to show part thumbnails on purchase order PDFs."}
+                  {companySettings.includeThumbnailsOnPurchasingPdfs ? (
+                    <Trans>
+                      Part thumbnails are shown on purchase order PDFs.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      Enable to show part thumbnails on purchase order PDFs.
+                    </Trans>
+                  )}
                 </span>
               </VStack>
               <Switch

@@ -8,6 +8,7 @@ import {
   Spinner,
   toast
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import Papa from "papaparse";
 import { useState } from "react";
@@ -18,6 +19,7 @@ import type { importSchemas } from "~/modules/shared";
 import { useCsvContext } from "./useCsvContext";
 
 export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const { company } = useUser();
   const { setFile, setFileColumns, setFirstRows, setFilePath } =
@@ -49,7 +51,7 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
         const { data, meta } = results;
 
         if (!data || data.length < 2) {
-          setError("CSV file must have at least 2 rows.");
+          setError(t`CSV file must have at least 2 rows.`);
           setFileColumns(null);
           setFirstRows(null);
           setLoading(false);
@@ -57,7 +59,7 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
         }
 
         if (!meta || !meta.fields || meta.fields.length <= 1) {
-          setError("Failed to retrieve CSV column data.");
+          setError(t`Failed to retrieve CSV column data.`);
           setFileColumns(null);
           setFirstRows(null);
           setLoading(false);
@@ -72,11 +74,11 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
   };
 
   const uploadFile = async (file: File) => {
-    toast.info(`Uploading ${file.name}`);
+    toast.info(t`Uploading ${file.name}`);
     const fileName = `${company.id}/imports/${nanoid()}.csv`;
 
     if (!carbon) {
-      setError("Carbon client not available");
+      setError(t`Carbon client not available`);
       setFileColumns(null);
       setFirstRows(null);
       setLoading(false);
@@ -88,7 +90,7 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
       .upload(fileName, file);
 
     if (error) {
-      setError("Failed to upload CSV file.");
+      setError(t`Failed to upload CSV file.`);
       setFileColumns(null);
       setFirstRows(null);
       setLoading(false);
@@ -100,7 +102,7 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
 
   const onDrop = async (acceptedFiles: File[]) => {
     if (!carbon) {
-      toast.error("Carbon client not available");
+      toast.error(t`Carbon client not available`);
       return;
     }
 
@@ -133,10 +135,12 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
   return (
     <>
       <ModalHeader>
-        <ModalTitle>Upload CSV</ModalTitle>
+        <ModalTitle>
+          <Trans>Upload CSV</Trans>
+        </ModalTitle>
 
         <ModalDescription>
-          Please upload a CSV file of your data
+          <Trans>Please upload a CSV file of your data</Trans>
         </ModalDescription>
       </ModalHeader>
       <ModalBody>
@@ -156,12 +160,18 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
             {loading ? (
               <div className="flex space-x-1 items-center">
                 <Spinner />
-                <span>Loading...</span>
+                <span>
+                  <Trans>Loading...</Trans>
+                </span>
               </div>
             ) : (
               <div>
-                <p>Drop your file here, or click to browse.</p>
-                <span>5MB file limit</span>
+                <p>
+                  <Trans>Drop your file here, or click to browse.</Trans>
+                </p>
+                <span>
+                  <Trans>5MB file limit</Trans>
+                </span>
               </div>
             )}
 

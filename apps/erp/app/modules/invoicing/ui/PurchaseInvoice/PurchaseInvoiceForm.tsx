@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import { useParams } from "react-router";
@@ -41,6 +42,7 @@ type PurchaseInvoiceFormProps = {
 };
 
 const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const settings = useSettings();
   const { carbon } = useCarbon();
@@ -89,7 +91,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t`Carbon client not found`);
       return;
     }
 
@@ -121,7 +123,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       ]);
 
       if (supplierData.error || paymentTermData.error) {
-        toast.error("Error fetching supplier data");
+        toast.error(t`Error fetching supplier data`);
       } else {
         setInvoiceSupplier((prev) => ({
           ...prev,
@@ -163,8 +165,10 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
           </CardTitle>
           {!isEditing && (
             <CardDescription>
-              A purchase invoice is a document that specifies the products or
-              services purchased by a customer and the corresponding cost.
+              <Trans>
+                A purchase invoice is a document that specifies the products or
+                services purchased by a customer and the corresponding cost.
+              </Trans>
             </CardDescription>
           )}
         </CardHeader>
@@ -273,7 +277,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 : !permissions.can("create", "invoicing")
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </Card>

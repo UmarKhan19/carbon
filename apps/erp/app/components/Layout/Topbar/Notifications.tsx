@@ -15,7 +15,7 @@ import {
   TabsTrigger
 } from "@carbon/react";
 import { formatTimeAgo } from "@carbon/utils";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuBell,
@@ -133,7 +133,7 @@ function Notification({
   let byUser = "";
   if (from) {
     if (from === userId) {
-      byUser = t({ id: "yourself", message: "yourself" });
+      byUser = t`yourself`;
     } else {
       byUser = people.find((p) => p.id === from)?.name ?? "";
     }
@@ -152,10 +152,7 @@ function Notification({
         </div>
         <div>
           <p className="text-sm">
-            {description}{" "}
-            {byUser && (
-              <span>{t({ id: "by {{name}}", message: `by ${byUser}` })}</span>
-            )}
+            {description} {byUser && <span>{t`by ${byUser}`}</span>}
           </p>
           <span className="text-xs text-muted-foreground">
             {formatTimeAgo(createdAt)}
@@ -165,7 +162,7 @@ function Notification({
       {markMessageAsRead && (
         <div>
           <IconButton
-            aria-label={t({ id: "Mark as read", message: "Mark as read" })}
+            aria-label={t`Mark as read`}
             icon={<LuMailCheck />}
             variant="secondary"
             className="rounded-full before:rounded-full"
@@ -456,13 +453,13 @@ const Notifications = () => {
         >
           <TabsList className="w-full border-b-[1px] py-6 rounded-none bg-muted/[0.5]">
             <TabsTrigger value="inbox" className="font-normal">
-              {t({ id: "Inbox", message: "Inbox" })}
+              <Trans>Inbox</Trans>
             </TabsTrigger>
             <TabsTrigger value="trainings" className="font-normal">
-              {t({ id: "Trainings", message: "Trainings" })}
+              <Trans>Trainings</Trans>
             </TabsTrigger>
             <TabsTrigger value="archive" className="font-normal">
-              {t({ id: "Archive", message: "Archive" })}
+              <Trans>Archive</Trans>
             </TabsTrigger>
           </TabsList>
 
@@ -482,12 +479,7 @@ const Notifications = () => {
 
           <TabsContent value="inbox" className="relative mt-0">
             {!unreadNotifications.length && (
-              <EmptyState
-                description={t({
-                  id: "No new notifications",
-                  message: "No new notifications"
-                })}
-              />
+              <EmptyState description={t`No new notifications`} />
             )}
 
             {unreadNotifications.length > 0 && (
@@ -525,7 +517,7 @@ const Notifications = () => {
                   className="bg-transparent"
                   onClick={markAllMessagesAsRead}
                 >
-                  {t({ id: "Archive all", message: "Archive all" })}
+                  <Trans>Archive all</Trans>
                 </Button>
               </div>
             )}
@@ -539,12 +531,7 @@ const Notifications = () => {
             )}
 
             {!isLoadingTrainings && outstandingTrainings.length === 0 && (
-              <EmptyState
-                description={t({
-                  id: "No outstanding trainings",
-                  message: "No outstanding trainings"
-                })}
-              />
+              <EmptyState description={t`No outstanding trainings`} />
             )}
 
             {!isLoadingTrainings && outstandingTrainings.length > 0 && (
@@ -564,12 +551,7 @@ const Notifications = () => {
 
           <TabsContent value="archive" className="mt-0">
             {!archivedNotifications.length && (
-              <EmptyState
-                description={t({
-                  id: "Nothing in the archive",
-                  message: "Nothing in the archive"
-                })}
-              />
+              <EmptyState description={t`Nothing in the archive`} />
             )}
 
             {archivedNotifications.length > 0 && (

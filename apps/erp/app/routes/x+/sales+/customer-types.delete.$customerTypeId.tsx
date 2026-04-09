@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs,
@@ -75,6 +76,7 @@ export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
 }
 
 export default function DeleteCustomerTypeRoute() {
+  const { t } = useLingui();
   const { customerTypeId } = useParams();
   const { customerType } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
@@ -87,7 +89,7 @@ export default function DeleteCustomerTypeRoute() {
     <ConfirmDelete
       action={path.to.deleteCustomerType(customerTypeId)}
       name={customerType.name}
-      text={`Are you sure you want to delete the customer type: ${customerType.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the customer type: ${customerType.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

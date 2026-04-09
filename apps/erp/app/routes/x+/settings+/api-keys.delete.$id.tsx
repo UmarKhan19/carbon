@@ -1,6 +1,7 @@
 import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -41,6 +42,7 @@ export default function DeleteApiKeyRoute() {
   if (!id) throw new Error("Could not find id");
   const routeData = useRouteData<{ apiKeys: ApiKey[] }>(path.to.apiKeys);
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   const apiKey = routeData?.apiKeys.find((apiKey) => apiKey.id === id);
   if (!apiKey) return null;
@@ -51,7 +53,7 @@ export default function DeleteApiKeyRoute() {
     <ConfirmDelete
       action={path.to.deleteApiKey(id)}
       name={apiKey.name}
-      text={`Are you sure you want to delete the API key: ${apiKey.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the API key: ${apiKey.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

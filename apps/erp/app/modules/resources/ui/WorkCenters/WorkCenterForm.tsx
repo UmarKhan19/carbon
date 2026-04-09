@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -47,6 +48,7 @@ const WorkCenterForm = ({
   showProcesses = true,
   onClose
 }: WorkCenterFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -58,13 +60,13 @@ const WorkCenterForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created work center`);
+      toast.success(t`Created work center`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create work center: ${fetcher.data.error.message}`
+        t`Failed to create work center: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -94,23 +96,27 @@ const WorkCenterForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Work Center
+                {isEditing ? (
+                  <Trans>Edit Work Center</Trans>
+                ) : (
+                  <Trans>New Work Center</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 {showProcesses && (
-                  <Processes name="processes" label="Processes" />
+                  <Processes name="processes" label={t`Processes`} />
                 )}
-                <TextArea name="description" label="Description" />
-                <Location name="locationId" label="Location" />
+                <TextArea name="description" label={t`Description`} />
+                <Location name="locationId" label={t`Location`} />
 
                 <Number
                   name="laborRate"
-                  label="Labor Rate (Hourly)"
+                  label={t`Labor Rate (Hourly)`}
                   formatOptions={{
                     style: "currency",
                     currency: baseCurrency
@@ -118,7 +124,7 @@ const WorkCenterForm = ({
                 />
                 <Number
                   name="machineRate"
-                  label="Machine Rate (Hourly)"
+                  label={t`Machine Rate (Hourly)`}
                   formatOptions={{
                     style: "currency",
                     currency: baseCurrency
@@ -126,7 +132,7 @@ const WorkCenterForm = ({
                 />
                 <Number
                   name="overheadRate"
-                  label="Overhead Rate (Hourly)"
+                  label={t`Overhead Rate (Hourly)`}
                   formatOptions={{
                     style: "currency",
                     currency: baseCurrency
@@ -135,7 +141,7 @@ const WorkCenterForm = ({
 
                 <StandardFactor
                   name="defaultStandardFactor"
-                  label="Default Unit"
+                  label={t`Default Unit`}
                   value={initialValues.defaultStandardFactor}
                 />
                 {/* <Ability
@@ -148,9 +154,11 @@ const WorkCenterForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose?.()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

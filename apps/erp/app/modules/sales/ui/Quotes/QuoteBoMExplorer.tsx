@@ -13,6 +13,8 @@ import {
   Spinner,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuChevronDown,
@@ -47,6 +49,7 @@ const QuoteBoMExplorer = ({
   methods,
   isSearchExpanded = false
 }: QuoteBoMExplorerProps) => {
+  const { t } = useLingui();
   const parentRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useOptimisticLocation();
@@ -164,7 +167,7 @@ const QuoteBoMExplorer = ({
                   <LuSearch className="h-4 w-4" />
                 </InputLeftElement>
                 <Input
-                  placeholder="Search..."
+                  placeholder={t`Search...`}
                   value={filterText}
                   onChange={(e) => setFilterText(e.target.value)}
                 />
@@ -319,6 +322,7 @@ function NodeData({ node }: { node: FlatTreeItem<QuoteMethod> }) {
 }
 
 function NodePreview({ node }: { node: FlatTreeItem<QuoteMethod> }) {
+  const { t } = useLingui();
   const integrations = useIntegrations();
   const onShapeState = integrations.has("onshape")
     ? // @ts-expect-error
@@ -343,7 +347,7 @@ function NodePreview({ node }: { node: FlatTreeItem<QuoteMethod> }) {
               )}
             >
               <IconButton
-                aria-label="View Item Master"
+                aria-label={t`View Item Master`}
                 size="sm"
                 variant="secondary"
                 icon={<LuExternalLink />}

@@ -18,6 +18,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import {
@@ -92,7 +93,9 @@ const SalesInvoicePostModal = ({
           fetcher={fetcher}
         >
           <ModalHeader>
-            <ModalTitle>Post Invoice</ModalTitle>
+            <ModalTitle>
+              <Trans>Post Invoice</Trans>
+            </ModalTitle>
             <ModalDescription>
               {hasLinesToShip ? (
                 <>
@@ -111,7 +114,9 @@ const SalesInvoicePostModal = ({
                   <Table>
                     <Thead>
                       <Tr>
-                        <Th>Item</Th>
+                        <Th>
+                          <Trans>Item</Trans>
+                        </Th>
                         <Th className="text-right">Quantity</Th>
                       </Tr>
                     </Thead>
@@ -171,7 +176,7 @@ const SalesInvoicePostModal = ({
           <ModalFooter>
             <HStack>
               <Button variant="secondary" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 isDisabled={fetcher.state !== "idle"}

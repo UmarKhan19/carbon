@@ -37,6 +37,7 @@ import {
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { getItemReadableId, labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
   LuCheck,
@@ -220,7 +221,9 @@ const ShipmentLines = () => {
       <Card>
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Shipment Lines</CardTitle>
+            <CardTitle>
+              <Trans>Shipment Lines</Trans>
+            </CardTitle>
           </CardHeader>
         </HStack>
 
@@ -322,6 +325,7 @@ function ShipmentLineItem({
         value: string;
       }) => Promise<void>;
 }) {
+  const { t } = useLingui();
   const [items] = useItems();
   const item = items.find((p) => p.id === line.itemId);
   const unitsOfMeasure = useUnitOfMeasure();
@@ -347,7 +351,7 @@ function ShipmentLineItem({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="Line options"
+                aria-label={t`Line options`}
                 variant="secondary"
                 icon={<LuEllipsisVertical />}
                 size="sm"
@@ -359,7 +363,7 @@ function ShipmentLineItem({
                 onClick={splitDisclosure.onOpen}
               >
                 <DropdownMenuIcon icon={<LuSplit />} />
-                Split shipment line
+                {t`Split shipment line`}
               </DropdownMenuItem>
               <DropdownMenuItem
                 destructive
@@ -367,7 +371,7 @@ function ShipmentLineItem({
                 onClick={deleteDisclosure.onOpen}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete shipment line
+                {t`Delete shipment line`}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -565,6 +569,7 @@ function BatchForm({
     value: string;
   }) => Promise<void>;
 }) {
+  const { t } = useLingui();
   const submit = useSubmit();
   const [values, setValues] = useState<{
     number: string;
@@ -811,7 +816,7 @@ function BatchForm({
           <div className="flex flex-col gap-1">
             <InputGroup isDisabled={isReadOnly}>
               <Input
-                placeholder="Batch number"
+                placeholder={t`Batch number`}
                 value={values.number}
                 onChange={(e) => {
                   setValues({
@@ -1121,6 +1126,7 @@ function SplitShipmentLineModal({
   line: ShipmentLine;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<{ success: boolean }>();
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -1152,7 +1158,7 @@ function SplitShipmentLineModal({
               name="locationId"
               value={line.locationId ?? ""}
             />
-            <Number name="quantity" label="Quantity" minValue={0.0001} />
+            <Number name="quantity" label={t`Quantity`} minValue={0.0001} />
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>

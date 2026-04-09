@@ -31,6 +31,7 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuChevronRight,
@@ -63,6 +64,7 @@ import type { Job, JobMakeMethod, JobMethod } from "../../types";
 
 const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { jobId, methodId } = useParams();
   if (!jobId) throw new Error("jobId not found");
 
@@ -340,7 +342,9 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
               onSubmit={getMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Get Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Get Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
                   Overwrite the job method with the source method
                 </ModalDescription>
@@ -382,7 +386,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                       )}
                       <Item
                         name="sourceId"
-                        label="Source Method"
+                        label={t`Source Method`}
                         type={(routeData?.job.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
@@ -454,7 +458,9 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
               onSubmit={saveMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Save Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Save Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
                   Overwrite the target manufacturing method with the job method
                 </ModalDescription>
@@ -482,7 +488,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   </Alert>
                   <Item
                     name="itemId"
-                    label="Target Method"
+                    label={t`Target Method`}
                     type={(routeData?.job?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
                     onChange={(value) => {
@@ -499,7 +505,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   <SelectControlled
                     name="targetId"
                     options={makeMethods}
-                    label="Version"
+                    label={t`Version`}
                     value={selectedMakeMethod ?? undefined}
                     onChange={(value) => {
                       if (value) {
@@ -557,13 +563,17 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           <ModalContent>
             <ValidatedForm validator={getJobMethodValidator}>
               <ModalHeader>
-                <ModalTitle>Configure Item</ModalTitle>
-                <ModalDescription>Select an item to configure</ModalDescription>
+                <ModalTitle>
+                  <Trans>Configure Item</Trans>
+                </ModalTitle>
+                <ModalDescription>
+                  <Trans>Select an item to configure</Trans>
+                </ModalDescription>
               </ModalHeader>
               <ModalBody>
                 <Item
                   name="sourceId"
-                  label="Item"
+                  label={t`Item`}
                   type={(routeData?.job?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}

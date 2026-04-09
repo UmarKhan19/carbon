@@ -1,4 +1,5 @@
 import { Button as _Button, Heading as _Heading, VStack } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { onboardingSequence } from "~/utils/path";
@@ -22,7 +23,7 @@ export default function GetStarted() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 2, ease: "easeInOut" }}
           src="/carbon-logo-mark.svg"
-          alt="Carbon Logo"
+          alt="Carbon"
           className="w-24 mb-3"
         />
 
@@ -32,7 +33,7 @@ export default function GetStarted() {
           size="h1"
           className="m-0"
         >
-          Welcome to Carbon
+          <Trans>Welcome to Carbon</Trans>
         </Heading>
 
         <motion.p
@@ -40,7 +41,7 @@ export default function GetStarted() {
           transition={{ duration: 1.2, ease: "easeInOut", delay: 1.7 }}
           className="text-muted-foreground text-balance text-base pb-4"
         >
-          The operating system for manufacturing
+          <Trans>The operating system for manufacturing</Trans>
         </motion.p>
 
         <Button
@@ -49,7 +50,7 @@ export default function GetStarted() {
           size="lg"
           onClick={() => navigate(onboardingSequence[0])}
         >
-          Get Started
+          <Trans>Get Started</Trans>
         </Button>
       </VStack>
     </AnimatePresence>

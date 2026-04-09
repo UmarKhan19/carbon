@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import { AiOutlinePartition } from "react-icons/ai";
 import {
   LuAtom,
@@ -17,30 +18,32 @@ import { useSavedViews } from "~/hooks/useSavedViews";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
-const itemsRoutes: AuthenticatedRouteGroup[] = [
+const useItemsRoutes = (
+  t: ReturnType<typeof useLingui>["t"]
+): AuthenticatedRouteGroup[] => [
   {
-    name: "Manage",
+    name: t`Manage`,
     routes: [
       {
-        name: "Parts",
+        name: t`Parts`,
         to: path.to.parts,
         icon: <AiOutlinePartition />,
         table: "part"
       },
       {
-        name: "Materials",
+        name: t`Materials`,
         to: path.to.materials,
         icon: <LuAtom />,
         table: "material"
       },
       {
-        name: "Tools",
+        name: t`Tools`,
         to: path.to.tools,
         icon: <LuHammer />,
         table: "tool"
       },
       {
-        name: "Consumables",
+        name: t`Consumables`,
         to: path.to.consumables,
         icon: <LuPizza />,
         table: "consumable"
@@ -68,40 +71,40 @@ const itemsRoutes: AuthenticatedRouteGroup[] = [
   //   ],
   // },
   {
-    name: "Configure Materials",
+    name: t`Configure Materials`,
     routes: [
       {
-        name: "Dimensions",
+        name: t`Dimensions`,
         to: path.to.materialDimensions,
         icon: <LuAxis3D />,
         role: "employee"
       },
       {
-        name: "Finishes",
+        name: t`Finishes`,
         to: path.to.materialFinishes,
         icon: <LuDessert />,
         role: "employee"
       },
       {
-        name: "Grades",
+        name: t`Grades`,
         to: path.to.materialGrades,
         icon: <LuBeef />,
         role: "employee"
       },
       {
-        name: "Shapes",
+        name: t`Shapes`,
         to: path.to.materialForms,
         icon: <LuShapes />,
         role: "employee"
       },
       {
-        name: "Substances",
+        name: t`Substances`,
         to: path.to.materialSubstances,
         icon: <LuGlassWater />,
         role: "employee"
       },
       {
-        name: "Types",
+        name: t`Types`,
         to: path.to.materialTypes,
         icon: <LuPuzzle />,
         role: "employee"
@@ -109,16 +112,16 @@ const itemsRoutes: AuthenticatedRouteGroup[] = [
     ]
   },
   {
-    name: "Configure",
+    name: t`Configure`,
     routes: [
       {
-        name: "Item Groups",
+        name: t`Item Groups`,
         to: path.to.itemPostingGroups,
         role: "employee",
         icon: <LuGroup />
       },
       {
-        name: "Units",
+        name: t`Units`,
         to: path.to.uoms,
         role: "employee",
         icon: <LuRuler />
@@ -128,11 +131,12 @@ const itemsRoutes: AuthenticatedRouteGroup[] = [
 ];
 
 export default function useItemsSubmodules() {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { addSavedViewsToRoutes } = useSavedViews();
 
   return {
-    groups: itemsRoutes
+    groups: useItemsRoutes(t)
       .filter((group) => {
         const filteredRoutes = group.routes.filter((route) => {
           if (route.role) {

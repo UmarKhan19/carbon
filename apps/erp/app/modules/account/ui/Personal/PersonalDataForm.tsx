@@ -1,5 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import { VStack } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { Submit } from "~/components/Form";
 import { path } from "~/utils/path";
 import { accountPersonalDataValidator } from "../../account.models";
@@ -19,7 +20,9 @@ const PersonalDataForm = ({ personalData }: PersonalDataFormProps) => {
         defaultValues={personalData}
       >
         <VStack spacing={4} className="mt-4">
-          <Submit>Save</Submit>
+          <Submit>
+            <Trans>Save</Trans>
+          </Submit>
         </VStack>
       </ValidatedForm>
     </div>

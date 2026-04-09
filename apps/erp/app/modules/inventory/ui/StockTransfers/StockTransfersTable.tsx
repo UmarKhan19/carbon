@@ -6,6 +6,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -43,6 +44,7 @@ const StockTransfersTable = memo(
     const wizardDisclosure = useDisclosure();
 
     const [params] = useUrlParams();
+    const { t } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
 
@@ -56,7 +58,7 @@ const StockTransfersTable = memo(
       const result: ColumnDef<(typeof rows)[number]>[] = [
         {
           accessorKey: "stockTransferId",
-          header: "Stock Transfer ID",
+          header: t`Stock Transfer ID`,
           cell: ({ row }) => (
             <Hyperlink to={path.to.stockTransfer(row.original.id!)}>
               {row.original.stockTransferId}
@@ -68,7 +70,7 @@ const StockTransfersTable = memo(
         },
         {
           accessorKey: "locationId",
-          header: "Location",
+          header: t`Location`,
           cell: ({ row }) => (
             <Enumerable
               value={
@@ -90,7 +92,7 @@ const StockTransfersTable = memo(
         },
         {
           accessorKey: "status",
-          header: "Status",
+          header: t`Status`,
           cell: (item) => {
             const status =
               item.getValue<(typeof stockTransferStatusType)[number]>();
@@ -104,13 +106,13 @@ const StockTransfersTable = memo(
                 label: <StockTransferStatus status={type} />
               }))
             },
-            pluralHeader: "Statuses",
+            pluralHeader: t`Statuses`,
             icon: <LuClock />
           }
         },
         {
           accessorKey: "assignee",
-          header: "Assignee",
+          header: t`Assignee`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.assignee} />
           ),
@@ -127,7 +129,7 @@ const StockTransfersTable = memo(
         },
         {
           accessorKey: "completedAt",
-          header: "Completed At",
+          header: t`Completed At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -135,7 +137,7 @@ const StockTransfersTable = memo(
         },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -152,7 +154,7 @@ const StockTransfersTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -160,7 +162,7 @@ const StockTransfersTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -177,7 +179,7 @@ const StockTransfersTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -186,7 +188,7 @@ const StockTransfersTable = memo(
       ];
 
       return [...result, ...customColumns];
-    }, [locations, people, customColumns]);
+    }, [locations, people, customColumns, t]);
 
     const [selectedStockTransfer, setSelectedStockTransfer] =
       useState<StockTransfer | null>(null);
@@ -205,7 +207,9 @@ const StockTransfersTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              {row.completedAt ? "View Stock Transfer" : "Edit Stock Transfer"}
+              {row.completedAt
+                ? t`View Stock Transfer`
+                : t`Edit Stock Transfer`}
             </MenuItem>
             <MenuItem
               disabled={
@@ -220,12 +224,12 @@ const StockTransfersTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Stock Transfer
+              <Trans>Delete Stock Transfer</Trans>
             </MenuItem>
           </>
         );
       },
-      [deleteStockTransferModal, navigate, params, permissions]
+      [deleteStockTransferModal, navigate, params, permissions, t]
     );
 
     return (
@@ -267,7 +271,7 @@ const StockTransfersTable = memo(
             </div>
           }
           renderContextMenu={renderContextMenu}
-          title="Stock Transfers"
+          title={t`Stock Transfers`}
           table="stockTransfer"
           withSavedView
         />

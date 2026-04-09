@@ -1,4 +1,5 @@
 import { HStack, IconButton } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { LuSquarePen } from "react-icons/lu";
 import { usePermissions, useUser } from "~/hooks";
 import AvatarMenu from "../../AvatarMenu";
@@ -10,6 +11,7 @@ import Search from "./Search";
 import Suggestion from "./Suggestion";
 
 const Topbar = () => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const user = useUser();
   const notificationsKey = `${user.id}:${user.company.id}`;
@@ -32,7 +34,7 @@ const Topbar = () => {
         <CreateMenu
           trigger={
             <IconButton
-              aria-label="Create"
+              aria-label={t`Create`}
               icon={<LuSquarePen />}
               variant="ghost"
             />

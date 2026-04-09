@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -46,6 +47,7 @@ const PurchaseOrderPaymentForm = ({
   const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
   const fetcher = useFetcher<typeof action>();
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const [supplier, setSupplier] = useState<string | undefined>(
@@ -63,36 +65,38 @@ const PurchaseOrderPaymentForm = ({
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>Payment</CardTitle>
+          <CardTitle>
+            <Trans>Payment</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Supplier
               name="invoiceSupplierId"
-              label="Invoice Supplier"
+              label={t`Invoice Supplier`}
               onChange={(value) => setSupplier(value?.value as string)}
             />
             <SupplierLocation
               name="invoiceSupplierLocationId"
-              label="Invoice Location"
+              label={t`Invoice Location`}
               supplier={supplier}
             />
             <SupplierContact
               name="invoiceSupplierContactId"
-              label="Invoice Contact"
+              label={t`Invoice Contact`}
               supplier={supplier}
             />
 
-            <PaymentTerm name="paymentTermId" label="Payment Terms" />
+            <PaymentTerm name="paymentTermId" label={t`Payment Terms`} />
 
-            <Boolean name="paymentComplete" label="Payment Complete" />
+            <Boolean name="paymentComplete" label={t`Payment Complete`} />
             <CustomFormFields table="purchaseOrderPayment" />
           </div>
         </CardContent>
         <CardFooter>
           <Submit isDisabled={!permissions.can("update", "purchasing")}>
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

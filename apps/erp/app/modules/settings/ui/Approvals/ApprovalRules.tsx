@@ -9,6 +9,7 @@ import {
   ScrollArea,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { memo } from "react";
 import { LuPlus } from "react-icons/lu";
 import { Link } from "react-router";
@@ -36,7 +37,9 @@ const ApprovalRules = memo(
       <ScrollArea className="h-full w-full">
         <div className="py-12 px-4 max-w-[60rem] mx-auto">
           <div className="mb-8">
-            <Heading size="h2">Approval Rules</Heading>
+            <Heading size="h2">
+              <Trans>Approval Rules</Trans>
+            </Heading>
           </div>
 
           <VStack spacing={4}>
@@ -44,16 +47,20 @@ const ApprovalRules = memo(
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">Purchase Orders</CardTitle>
+                    <CardTitle className="text-lg">
+                      <Trans>Purchase Orders</Trans>
+                    </CardTitle>
                     <CardDescription className="text-sm">
-                      Require approval for purchase orders based on amount
-                      thresholds
+                      <Trans>
+                        Require approval for purchase orders based on amount
+                        thresholds
+                      </Trans>
                     </CardDescription>
                   </div>
                   {canCreate && (
                     <Button variant="primary" leftIcon={<LuPlus />} asChild>
                       <Link to={path.to.newApprovalRule("purchaseOrder")}>
-                        New Rule
+                        <Trans>New Rule</Trans>
                       </Link>
                     </Button>
                   )}
@@ -82,9 +89,13 @@ const ApprovalRules = memo(
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">Quality Documents</CardTitle>
+                    <CardTitle className="text-lg">
+                      <Trans>Quality Documents</Trans>
+                    </CardTitle>
                     <CardDescription className="text-sm">
-                      Require approval for quality documents in your workflow
+                      <Trans>
+                        Require approval for quality documents in your workflow
+                      </Trans>
                     </CardDescription>
                   </div>
                   {canCreate &&
@@ -94,7 +105,7 @@ const ApprovalRules = memo(
                       qdRules.length === 0) && (
                       <Button variant="primary" leftIcon={<LuPlus />} asChild>
                         <Link to={path.to.newApprovalRule("qualityDocument")}>
-                          New Rule
+                          <Trans>New Rule</Trans>
                         </Link>
                       </Button>
                     )}
@@ -123,15 +134,19 @@ const ApprovalRules = memo(
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">Suppliers</CardTitle>
+                    <CardTitle className="text-lg">
+                      <Trans>Suppliers</Trans>
+                    </CardTitle>
                     <CardDescription className="text-sm">
-                      Require approval before suppliers can be set to Active
+                      <Trans>
+                        Require approval before suppliers can be set to Active
+                      </Trans>
                     </CardDescription>
                   </div>
                   {canCreate && supplierRules.length === 0 && (
                     <Button variant="primary" leftIcon={<LuPlus />} asChild>
                       <Link to={path.to.newApprovalRule("supplier")}>
-                        New Rule
+                        <Trans>New Rule</Trans>
                       </Link>
                     </Button>
                   )}

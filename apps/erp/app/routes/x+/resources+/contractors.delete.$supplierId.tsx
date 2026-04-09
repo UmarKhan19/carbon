@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -63,6 +64,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function DeleteContractorRoute() {
+  const { t } = useLingui();
   const { contractor } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
@@ -70,15 +72,13 @@ export default function DeleteContractorRoute() {
     throw notFound("supplierContactId not found");
 
   const onCancel = () => navigate(path.to.contractors);
+  const name = contractor.fullName ?? contractor.email ?? "Unknown";
 
   return (
     <ConfirmDelete
       action={path.to.deleteContractor(contractor.supplierContactId)}
-      name={contractor.fullName ?? contractor.email ?? "Unknown"}
-      text={`Are you sure you want to delete the contractor: 
-        ${
-          contractor.fullName ?? contractor.email ?? "Unknown"
-        }? This cannot be undone.`}
+      name={name}
+      text={t`Are you sure you want to delete the contractor: ${name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

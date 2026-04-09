@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ComponentProps } from "react";
 import { useEffect, useState } from "react";
@@ -93,7 +94,7 @@ export const WebSearchSources = ({
             transition={{ duration: 0.3, delay: 0.1 }}
           >
             <span className="text-xs text-muted-foreground font-medium">
-              Sources
+              <Trans>Sources</Trans>
             </span>
             <span className="text-xs text-muted-foreground">•</span>
             <motion.span

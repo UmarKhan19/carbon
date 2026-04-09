@@ -15,6 +15,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -46,6 +47,7 @@ import SalesInvoiceStatus from "./SalesInvoiceStatus";
 import SalesInvoiceVoidModal from "./SalesInvoiceVoidModal";
 
 const SalesInvoiceHeader = () => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { invoiceId } = useParams();
   const { company } = useUser();
@@ -175,7 +177,7 @@ const SalesInvoiceHeader = () => {
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton
-              aria-label="Toggle Explorer"
+              aria-label={t`Toggle Explorer`}
               icon={<LuPanelLeft />}
               onClick={toggleExplorer}
               variant="ghost"
@@ -189,7 +191,7 @@ const SalesInvoiceHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -351,7 +353,7 @@ const SalesInvoiceHeader = () => {
               </DropdownMenuContent>
             </DropdownMenu>
             <IconButton
-              aria-label="Toggle Properties"
+              aria-label={t`Toggle Properties`}
               icon={<LuPanelRight />}
               onClick={toggleProperties}
               variant="ghost"

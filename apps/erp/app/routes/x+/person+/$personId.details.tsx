@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { Card, CardContent, CardHeader, CardTitle } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { getAccount } from "~/modules/account";
@@ -35,7 +36,9 @@ export default function PersonProfileRoute() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
+        <CardTitle>
+          <Trans>Profile</Trans>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {/* @ts-expect-error TS2322 */}

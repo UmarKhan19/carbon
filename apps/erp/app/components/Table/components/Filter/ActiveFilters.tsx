@@ -13,7 +13,7 @@ import {
   reactNodeToString,
   useMount
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LuX } from "react-icons/lu";
@@ -137,11 +137,13 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         {translate(filter.header)}
       </Button>
       <Button className="rounded-none border-l-0" size="sm" variant="secondary">
-        {operator === "eq"
-          ? t({ id: "is", message: "is" })
-          : operator === "in"
-            ? t({ id: "is any of", message: "is any of" })
-            : t({ id: "matches", message: "matches" })}
+        {operator === "eq" ? (
+          <Trans>is</Trans>
+        ) : operator === "in" ? (
+          <Trans>is any of</Trans>
+        ) : (
+          <Trans>matches</Trans>
+        )}
       </Button>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -165,16 +167,15 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder={t({ id: "Search...", message: "Search..." })}
+              placeholder={t`Search...`}
               className="h-9"
             />
             <CommandEmpty>
-              {loading
-                ? t({ id: "Loading...", message: "Loading..." })
-                : t({
-                    id: "No options found.",
-                    message: "No options found."
-                  })}
+              {loading ? (
+                <Trans>Loading...</Trans>
+              ) : (
+                <Trans>No options found.</Trans>
+              )}
             </CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
@@ -208,7 +209,7 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         </PopoverContent>
       </Popover>
       <Button
-        aria-label={t({ id: "Remove filter", message: "Remove filter" })}
+        aria-label={t`Remove filter`}
         className="rounded-l-none border-l-0 px-1 w-6"
         size="sm"
         variant="secondary"

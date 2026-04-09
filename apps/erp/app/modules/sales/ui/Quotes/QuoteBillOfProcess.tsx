@@ -37,6 +37,7 @@ import {
 import { Editor } from "@carbon/react/Editor";
 import { formatRelativeTime } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { DragControls } from "framer-motion";
 import {
   AnimatePresence,
@@ -833,7 +834,9 @@ const QuoteBillOfProcess = ({
     <Card>
       <HStack className="justify-between">
         <CardHeader>
-          <CardTitle>Bill of Process</CardTitle>
+          <CardTitle>
+            <Trans>Bill of Process</Trans>
+          </CardTitle>
         </CardHeader>
 
         <CardAction>
@@ -879,6 +882,7 @@ function AttributesForm({
   temporaryItems: TemporaryItems;
   itemMentions: { id: string; label: string }[];
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof newQuoteOperationParameterAction>();
   const sortOrderFetcher = useFetcher<{ success: boolean }>();
   const [type, setType] = useState<OperationStep["type"]>("Task");
@@ -939,7 +943,7 @@ function AttributesForm({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 
@@ -968,7 +972,9 @@ function AttributesForm({
     return (
       <Alert className="max-w-[420px] mx-auto my-8">
         <LuTriangleAlert />
-        <AlertTitle>Cannot add steps to unsaved operation</AlertTitle>
+        <AlertTitle>
+          <Trans>Cannot add steps to unsaved operation</Trans>
+        </AlertTitle>
         <AlertDescription>
           Please save the operation before adding steps.
         </AlertDescription>
@@ -1180,6 +1186,7 @@ function AttributesListItem({
   itemMentions: { id: string; label: string }[];
   className?: string;
 }) {
+  const { t } = useLingui();
   const {
     name,
     unitOfMeasureCode,
@@ -1355,13 +1362,13 @@ function AttributesListItem({
             )}
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Submit
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </HStack>
           </VStack>
@@ -1370,7 +1377,7 @@ function AttributesListItem({
         <div className="flex flex-1 justify-between items-center w-full">
           <HStack spacing={4} className="w-1/2">
             <IconButton
-              aria-label="Drag handle"
+              aria-label={t`Drag handle`}
               icon={<LuGripVertical />}
               variant="ghost"
               disabled={isDisabled}
@@ -1460,7 +1467,7 @@ function AttributesListItem({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="Open menu"
+                  aria-label={t`Open menu`}
                   icon={<LuEllipsisVertical />}
                   variant="ghost"
                 />
@@ -1485,7 +1492,7 @@ function AttributesListItem({
           action={path.to.deleteQuoteOperationStep(id)}
           isOpen={deleteModalDisclosure.isOpen}
           name={name}
-          text={`Are you sure you want to delete the ${name} attribute from this operation? This cannot be undone.`}
+          text={t`Are you sure you want to delete the ${name} attribute from this operation? This cannot be undone.`}
           onCancel={() => {
             deleteModalDisclosure.onClose();
           }}
@@ -1515,7 +1522,9 @@ function ParametersForm({
     return (
       <Alert className="max-w-[420px] mx-auto my-8">
         <LuTriangleAlert />
-        <AlertTitle>Cannot add parameters to unsaved operation</AlertTitle>
+        <AlertTitle>
+          <Trans>Cannot add parameters to unsaved operation</Trans>
+        </AlertTitle>
         <AlertDescription>
           Please save the operation before adding parameters.
         </AlertDescription>
@@ -1590,6 +1599,7 @@ function ParametersListItem({
   operationId: string;
   className?: string;
 }) {
+  const { t } = useLingui();
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
   const submitted = useRef(false);
@@ -1698,7 +1708,7 @@ function ParametersListItem({
           action={path.to.deleteQuoteOperationParameter(id)}
           isOpen={deleteModalDisclosure.isOpen}
           name={key}
-          text={`Are you sure you want to delete the ${key} parameter from this operation? This cannot be undone.`}
+          text={t`Are you sure you want to delete the ${key} parameter from this operation? This cannot be undone.`}
           onCancel={() => {
             deleteModalDisclosure.onClose();
           }}
@@ -1730,6 +1740,7 @@ function OperationForm({
   temporaryItems: TemporaryItems;
   onSubmit: () => void;
 }) {
+  const { t } = useLingui();
   const { quoteId, lineId } = useParams();
   const { company } = useUser();
   if (!quoteId) throw new Error("quoteId not found");
@@ -1946,7 +1957,7 @@ function OperationForm({
         <Select
           name="operationOrder"
           label="Operation Order"
-          placeholder="Operation Order"
+          placeholder={t`Operation Order`}
           options={methodOperationOrders.map((o) => ({
             value: o,
             label: o
@@ -1955,7 +1966,7 @@ function OperationForm({
         <SelectControlled
           name="operationType"
           label="Operation Type"
-          placeholder="Operation Type"
+          placeholder={t`Operation Type`}
           options={operationTypes.map((o) => ({
             value: o,
             label: o
@@ -2446,7 +2457,7 @@ function OperationForm({
             isDisabled={isDisabled || fetcher.state !== "idle"}
             isLoading={fetcher.state === "submitting"}
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </motion.div>
       </motion.div>
@@ -2463,6 +2474,7 @@ function ToolsListItem({
   operationId: string;
   className?: string;
 }) {
+  const { t } = useLingui();
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
   const submitted = useRef(false);
@@ -2578,7 +2590,7 @@ function ToolsListItem({
           action={path.to.deleteQuoteOperationTool(id)}
           isOpen={deleteModalDisclosure.isOpen}
           name={tool.readableIdWithRevision}
-          text={`Are you sure you want to delete ${tool.readableIdWithRevision} from this operation? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${tool.readableIdWithRevision} from this operation? This cannot be undone.`}
           onCancel={() => {
             deleteModalDisclosure.onClose();
           }}
@@ -2608,7 +2620,9 @@ function ToolsForm({
     return (
       <Alert className="max-w-[420px] mx-auto my-8">
         <LuTriangleAlert />
-        <AlertTitle>Cannot add tools to unsaved operation</AlertTitle>
+        <AlertTitle>
+          <Trans>Cannot add tools to unsaved operation</Trans>
+        </AlertTitle>
         <AlertDescription>
           Please save the operation before adding tools.
         </AlertDescription>

@@ -13,6 +13,7 @@ import {
   IconButton,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuBarcode,
   LuCircleCheck,
@@ -48,6 +49,7 @@ const StockTransferHeader = () => {
     throw new Error("Failed to load stockTransfer");
   const status = routeData.stockTransfer.status;
 
+  const { t } = useLingui();
   const { company } = useUser();
   const permissions = usePermissions();
   const postModal = useDisclosure();
@@ -96,7 +98,7 @@ const StockTransferHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -117,7 +119,7 @@ const StockTransferHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Stock Transfer
+                  <Trans>Delete Stock Transfer</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

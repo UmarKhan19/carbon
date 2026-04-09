@@ -19,6 +19,7 @@ import {
 import { useRouteData } from "@carbon/remix";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher, useNavigation, useParams } from "react-router";
@@ -32,6 +33,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
   const { shipmentId } = useParams();
   if (!shipmentId) throw new Error("shipmentId not found");
 
+  const { t } = useLingui();
   const [items] = useItems();
   const routeData = useRouteData<{
     shipmentLines: ShipmentLine[];
@@ -61,7 +63,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
     }[] = [];
 
     if (!carbon) {
-      toast.error("Carbon client is not available");
+      toast.error(t`Carbon client is not available`);
       return;
     }
 
@@ -151,16 +153,20 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Post Shipment</ModalTitle>
+          <ModalTitle>
+            <Trans>Post Shipment</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to post this shipment?
+            <Trans>Are you sure you want to post this shipment?</Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
           {validationErrors.length > 0 && (
             <Alert variant="destructive">
               <LuTriangleAlert className="h-4 w-4" />
-              <AlertTitle>Missing Information</AlertTitle>
+              <AlertTitle>
+                <Trans>Missing Information</Trans>
+              </AlertTitle>
               <AlertDescription>
                 <ul className="list-disc pl-4 mt-2 space-y-1">
                   {validationErrors.map((error, index) => (
@@ -182,7 +188,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
         <ModalFooter>
           <HStack>
             <Button variant="solid" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <fetcher.Form
               action={path.to.shipmentPost(shipmentId)}

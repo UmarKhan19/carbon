@@ -16,6 +16,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useEffect } from "react";
 import {
@@ -38,6 +39,7 @@ import ProcedureStatus from "./ProcedureStatus";
 
 const ProcedureHeader = () => {
   const { id } = useParams();
+  const { t } = useLingui();
   if (!id) throw new Error("id not found");
 
   const routeData = useRouteData<{
@@ -61,7 +63,7 @@ const ProcedureHeader = () => {
       <VStack spacing={0} className="flex-grow">
         <HStack>
           <IconButton
-            aria-label="Toggle Explorer"
+            aria-label={t`Toggle Explorer`}
             icon={<LuPanelLeft />}
             onClick={toggleExplorer}
             variant="ghost"
@@ -75,7 +77,7 @@ const ProcedureHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More options"
+                aria-label={t`More options`}
                 icon={<LuEllipsisVertical />}
                 variant="secondary"
                 size="sm"
@@ -160,7 +162,7 @@ const ProcedureHeader = () => {
           </Await>
         </Suspense>
         <IconButton
-          aria-label="Toggle Properties"
+          aria-label={t`Toggle Properties`}
           icon={<LuPanelRight />}
           onClick={toggleProperties}
           variant="ghost"

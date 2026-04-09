@@ -18,6 +18,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import {
   LuArrowRight,
@@ -76,6 +77,7 @@ function StockTransferLineComponent({
   onDelete,
   permissions
 }: StockTransferLineProps) {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const params = useParams();
   const { id } = params;
@@ -180,7 +182,7 @@ function StockTransferLineComponent({
                   variant="secondary"
                   isDisabled={!isEditable}
                   icon={<LuEllipsisVertical />}
-                  aria-label="Line options"
+                  aria-label={t`Line options`}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -197,7 +199,7 @@ function StockTransferLineComponent({
                     )}
                   >
                     <DropdownMenuIcon icon={<LuPencilLine />} />
-                    Edit Line
+                    <Trans>Edit Line</Trans>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -208,7 +210,7 @@ function StockTransferLineComponent({
                   onClick={() => onDelete(line)}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Line
+                  <Trans>Delete Line</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -323,7 +325,9 @@ export default function StockTransferLines() {
       <Card>
         <HStack className="justify-between items-center">
           <CardHeader>
-            <CardTitle>Stock Transfer Lines</CardTitle>
+            <CardTitle>
+              <Trans>Stock Transfer Lines</Trans>
+            </CardTitle>
             <CardDescription>
               <Enumerable
                 value={
@@ -342,7 +346,9 @@ export default function StockTransferLines() {
                 leftIcon={<LuCirclePlus />}
                 asChild
               >
-                <Link to={path.to.newStockTransferLine(id)}>Add Line</Link>
+                <Link to={path.to.newStockTransferLine(id)}>
+                  <Trans>Add Line</Trans>
+                </Link>
               </Button>
             )}
           </CardAction>

@@ -29,6 +29,7 @@ import {
 import { Editor } from "@carbon/react/Editor";
 import { formatDate } from "@carbon/utils";
 import { parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { DragControls } from "framer-motion";
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -145,6 +146,7 @@ function SupplierAssignment({
   const [open, setOpen] = useState(false);
   const [suppliers] = useSuppliers();
   const submit = useSubmit();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetchers = useFetchers();
 
@@ -192,8 +194,8 @@ function SupplierAssignment({
         label: supplier.name
       }));
 
-    return [{ value: "", label: "Unassigned" }, ...filteredSuppliers];
-  }, [suppliers, supplierIds]);
+    return [{ value: "", label: t`Unassigned` }, ...filteredSuppliers];
+  }, [suppliers, supplierIds, t]);
 
   const isPending = pendingUpdate && pendingUpdate?.state !== "idle";
 
@@ -214,7 +216,9 @@ function SupplierAssignment({
               className="text-sm"
             />
           ) : (
-            <span>Supplier</span>
+            <span>
+              <Trans>Supplier</Trans>
+            </span>
           )}
         </Button>
       </PopoverTrigger>
@@ -224,7 +228,10 @@ function SupplierAssignment({
           className="min-w-[--radix-popover-trigger-width] p-0"
         >
           <Command>
-            <CommandInput placeholder="Search suppliers..." className="h-9" />
+            <CommandInput
+              placeholder={t`Search suppliers...`}
+              className="h-9"
+            />
             <CommandEmpty>No supplier found.</CommandEmpty>
             <CommandGroup className="max-h-[300px] overflow-y-auto">
               {options.map((option) => (
@@ -269,6 +276,7 @@ export function TaskItem({
 }) {
   useRealtime("nonConformanceActionTask", `id=eq.${task.id}`);
 
+  const { t } = useLingui();
   const integrations = useIntegrations();
   const permissions = usePermissions();
   const disclosure = useDisclosure({
@@ -338,7 +346,7 @@ export function TaskItem({
             icon={<LuChevronRight />}
             variant="ghost"
             onClick={disclosure.onToggle}
-            aria-label="Open task details"
+            aria-label={t`Open task details`}
             className={cn(disclosure.isOpen && "rotate-90")}
           />
         </div>
@@ -450,6 +458,7 @@ function useTaskNotes({
   hasLinearLink?: boolean;
   hasJiraLink?: boolean;
 }) {
+  const { t } = useLingui();
   const {
     id: userId,
     company: { id: companyId }
@@ -465,7 +474,7 @@ function useTaskNotes({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 
@@ -616,6 +625,7 @@ export function IssueTaskStatus({
   onChange?: (status: IssueActionTask["status"]) => void;
   isDisabled?: boolean;
 }) {
+  const { t } = useLingui();
   const { currentStatus, onOperationStatusChange } = useTaskStatus({
     task,
     type,
@@ -630,7 +640,7 @@ export function IssueTaskStatus({
           size="sm"
           variant="ghost"
           className={className}
-          aria-label="Change status"
+          aria-label={t`Change status`}
           icon={<IssueTaskStatusIcon status={currentStatus} />}
           isDisabled={isDisabled}
         />
@@ -681,6 +691,7 @@ function TaskDueDate({
   task: IssueActionTask;
   isDisabled: boolean;
 }) {
+  const { t } = useLingui();
   const submit = useSubmit();
   const [isOpen, setIsOpen] = useState(false);
   const permissions = usePermissions();
@@ -718,7 +729,7 @@ function TaskDueDate({
         leftIcon={<LuCalendar />}
         isDisabled
       >
-        <span>{task.dueDate ? formatDate(task.dueDate) : "No due date"}</span>
+        <span>{task.dueDate ? formatDate(task.dueDate) : t`No due date`}</span>
       </Button>
     );
   }
@@ -732,7 +743,7 @@ function TaskDueDate({
           leftIcon={<LuCalendar />}
           isDisabled={isDisabled}
         >
-          {pendingValue ? formatDate(String(pendingValue)) : "Due Date"}
+          {pendingValue ? formatDate(String(pendingValue)) : t`Due Date`}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-3" align="start">
@@ -748,7 +759,7 @@ function TaskDueDate({
               onClick={() => handleDateChange(null)}
               className="w-full"
             >
-              Clear due date
+              <Trans>Clear due date</Trans>
             </Button>
           )}
         </div>
@@ -764,6 +775,7 @@ function TaskProcesses({
   task: IssueActionTask;
   isDisabled: boolean;
 }) {
+  const { t } = useLingui();
   const submit = useSubmit();
   const [isOpen, setIsOpen] = useState(false);
   const permissions = usePermissions();
@@ -826,10 +838,10 @@ function TaskProcesses({
 
   const buttonLabel =
     selectedProcesses.length === 0
-      ? "Processes"
+      ? t`Processes`
       : selectedProcesses.length === 1
         ? selectedProcesses[0].label
-        : `${selectedProcesses.length} Processes`;
+        : t`${selectedProcesses.length} Processes`;
 
   if (!canEdit) {
     return (
@@ -853,7 +865,7 @@ function TaskProcesses({
       </PopoverTrigger>
       <PopoverContent className="w-[250px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search processes..." className="h-9" />
+          <CommandInput placeholder={t`Search processes...`} className="h-9" />
           <CommandEmpty>No process found.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-y-auto">
             {processOptions.map((option) => (

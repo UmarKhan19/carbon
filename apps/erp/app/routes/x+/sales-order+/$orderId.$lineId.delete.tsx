@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -74,6 +75,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function DeleteSalesOrderLineRoute() {
+  const { t } = useLingui();
   const { lineId, orderId } = useParams();
   const { salesOrderLine } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
@@ -87,8 +89,8 @@ export default function DeleteSalesOrderLineRoute() {
   return (
     <ConfirmDelete
       action={path.to.deleteSalesOrderLine(orderId, lineId)}
-      name="Sales Order Line"
-      text={`Are you sure you want to delete the sales order line for ${
+      name={t`Sales Order Line`}
+      text={t`Are you sure you want to delete the sales order line for ${
         salesOrderLine.saleQuantity ?? 0
       } ${salesOrderLine.description ?? ""}? This cannot be undone.`}
       onCancel={onCancel}

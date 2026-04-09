@@ -13,6 +13,7 @@ import {
 import { Button, Heading, ScrollArea, VStack } from "@carbon/react";
 import { usePlan } from "@carbon/remix";
 import { Edition, Plan } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { LuHistory } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Link, Outlet, redirect, useLoaderData } from "react-router";
@@ -169,10 +170,14 @@ export default function AuditLogRoute() {
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
         <div className="flex items-center justify-between w-full">
-          <Heading size="h3">Audit Logs</Heading>
+          <Heading size="h3">
+            <Trans>Audit Logs</Trans>
+          </Heading>
           {enabled && !isStarterTeaser && (
             <Button leftIcon={<LuHistory />} asChild>
-              <Link to={path.to.auditLogDetails}>View All</Link>
+              <Link to={path.to.auditLogDetails}>
+                <Trans>View All</Trans>
+              </Link>
             </Button>
           )}
         </div>

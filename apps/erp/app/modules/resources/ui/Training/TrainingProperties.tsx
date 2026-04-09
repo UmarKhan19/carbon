@@ -9,6 +9,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -29,6 +30,7 @@ import { copyToClipboard } from "~/utils/string";
 import TrainingStatus from "./TrainingStatus";
 
 const TrainingProperties = () => {
+  const { t } = useLingui();
   const { id } = useParams();
   if (!id) throw new Error("id not found");
 
@@ -94,7 +96,7 @@ const TrainingProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
@@ -114,7 +116,9 @@ const TrainingProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to training</span>
+                <span>
+                  <Trans>Copy link to training</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -130,7 +134,9 @@ const TrainingProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy training unique identifier</span>
+                <span>
+                  <Trans>Copy training unique identifier</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -148,7 +154,9 @@ const TrainingProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy training name</span>
+                <span>
+                  <Trans>Copy training name</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -177,7 +185,7 @@ const TrainingProperties = () => {
       >
         <span className="text-sm tracking-tight">
           <Select
-            label="Status"
+            label={t`Status`}
             name="status"
             inline={(value) => (
               <TrainingStatus
@@ -207,7 +215,7 @@ const TrainingProperties = () => {
       >
         <span className="text-sm tracking-tight">
           <Select
-            label="Type"
+            label={t`Type`}
             name="type"
             inline={(value) => (
               <Badge variant={value === "Mandatory" ? "default" : "secondary"}>
@@ -241,7 +249,7 @@ const TrainingProperties = () => {
       >
         <span className="text-sm tracking-tight">
           <Select
-            label="Frequency"
+            label={t`Frequency`}
             name="frequency"
             inline={(value) => <Badge variant="secondary">{value}</Badge>}
             options={trainingFrequency.map((f) => ({
@@ -267,7 +275,7 @@ const TrainingProperties = () => {
       >
         <span className="text-xs text-muted-foreground">
           <InputControlled
-            label="Estimated Duration"
+            label={t`Estimated Duration`}
             name="estimatedDuration"
             inline
             placeholder="45m"
@@ -291,7 +299,7 @@ const TrainingProperties = () => {
         className="w-full"
       >
         <Tags
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           table="training"
           availableTags={availableTags}

@@ -12,3 +12,135 @@ msgstr ""
 "Last-Translator: \n"
 "Language-Team: \n"
 "Plural-Forms: \n"
+
+#: app/modules/documents/ui/useDocumentsSubmodules.tsx:17
+msgid "All Documents"
+msgstr "All Documents"
+
+#: app/modules/documents/ui/Documents/DocumentForm.tsx:82
+msgid "Cancel"
+msgstr "Cancel"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:596
+msgid "Create"
+msgstr "Create"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:353
+msgid "Created At"
+msgstr "Created At"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:336
+msgid "Created By"
+msgstr "Created By"
+
+#: app/modules/documents/ui/Documents/DocumentForm.tsx:63
+msgid "Description"
+msgstr "Description"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:474
+msgid "Documents"
+msgstr "Documents"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:415
+#: app/modules/documents/ui/Documents/DocumentView.tsx:70
+#: app/modules/documents/ui/Documents/DocumentView.tsx:97
+msgid "Download"
+msgstr "Download"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:411
+msgid "Edit"
+msgstr "Edit"
+
+#: app/modules/documents/ui/Documents/DocumentForm.tsx:72
+msgid "Edit Permissions"
+msgstr "Edit Permissions"
+
+#: app/modules/documents/ui/Documents/DocumentCreateForm.tsx:35
+msgid "Failed to upload file"
+msgstr "Failed to upload file"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:423
+msgid "Favorite"
+msgstr "Favorite"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:321
+msgid "File Extension"
+msgstr "File Extension"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:236
+msgid "Labels"
+msgstr "Labels"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:434
+msgid "Move to Trash"
+msgstr "Move to Trash"
+
+#: app/modules/documents/ui/useDocumentsSubmodules.tsx:22
+msgid "My Documents"
+msgstr "My Documents"
+
+#: app/modules/documents/ui/Documents/DocumentForm.tsx:60
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:172
+msgid "Name"
+msgstr "Name"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:448
+msgid "Permanently Delete"
+msgstr "Permanently Delete"
+
+#: app/modules/documents/ui/useDocumentsSubmodules.tsx:34
+msgid "Pinned"
+msgstr "Pinned"
+
+#: app/modules/documents/ui/useDocumentsSubmodules.tsx:28
+msgid "Recent"
+msgstr "Recent"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:436
+msgid "Restore from Trash"
+msgstr "Restore from Trash"
+
+#: app/modules/documents/ui/Documents/DocumentForm.tsx:79
+msgid "Save"
+msgstr "Save"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:564
+msgid "Search..."
+msgstr "Search..."
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:293
+msgid "Size"
+msgstr "Size"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:204
+msgid "Source Document"
+msgstr "Source Document"
+
+#: app/modules/documents/ui/useDocumentsSubmodules.tsx:40
+msgid "Trash"
+msgstr "Trash"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:301
+msgid "Type"
+msgstr "Type"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:378
+msgid "Updated At"
+msgstr "Updated At"
+
+#: app/modules/documents/ui/Documents/DocumentsTable.tsx:361
+msgid "Updated By"
+msgstr "Updated By"
+
+#: app/modules/documents/ui/Documents/DocumentCreateForm.tsx:70
+msgid "Upload"
+msgstr "Upload"
+
+#. placeholder {0}: file.name
+#: app/modules/documents/ui/Documents/DocumentCreateForm.tsx:22
+msgid "Uploading {0}"
+msgstr "Uploading {0}"
+
+#: app/modules/documents/ui/Documents/DocumentForm.tsx:67
+msgid "View Permissions"
+msgstr "View Permissions"

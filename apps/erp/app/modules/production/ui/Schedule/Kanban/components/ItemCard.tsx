@@ -25,6 +25,7 @@ import {
 } from "@carbon/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
 import {
   LuCalendarDays,
@@ -97,6 +98,7 @@ type ItemCardProps = {
 };
 
 export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
+  const { t } = useLingui();
   const { displaySettings, selectedGroup, setSelectedGroup, tags } =
     useKanban();
   const {
@@ -168,7 +170,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           </div>
           <HStack spacing={1} className="flex-shrink-0 -mr-2">
             <IconButton
-              aria-label="Move item"
+              aria-label={t`Move item`}
               icon={<LuGripVertical />}
               variant={"ghost"}
               {...attributes}
@@ -178,7 +180,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                 />

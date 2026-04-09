@@ -1,5 +1,6 @@
 import { HStack, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
 import {
@@ -40,6 +41,7 @@ type SupplierQuotesTableProps = {
 
 const SupplierQuotesTable = memo(
   ({ data, count }: SupplierQuotesTableProps) => {
+    const { t } = useLingui();
     const permissions = usePermissions();
     const navigate = useNavigate();
 
@@ -62,7 +64,7 @@ const SupplierQuotesTable = memo(
       const defaultColumns: ColumnDef<SupplierQuote>[] = [
         {
           accessorKey: "supplierQuoteId",
-          header: "Quote Number",
+          header: t`Quote Number`,
           cell: ({ row }) => (
             <HStack>
               <ItemThumbnail
@@ -82,7 +84,7 @@ const SupplierQuotesTable = memo(
         },
         {
           id: "supplierId",
-          header: "Supplier",
+          header: t`Supplier`,
           cell: ({ row }) => (
             <SupplierAvatar supplierId={row.original.supplierId} />
           ),
@@ -100,7 +102,7 @@ const SupplierQuotesTable = memo(
 
         {
           accessorKey: "status",
-          header: "Status",
+          header: t`Status`,
           cell: ({ row }) => (
             <SupplierQuoteStatus status={row.original.status} />
           ),
@@ -112,13 +114,13 @@ const SupplierQuotesTable = memo(
                 label: <QuoteStatus status={status} />
               }))
             },
-            pluralHeader: "Statuses",
+            pluralHeader: t`Statuses`,
             icon: <LuStar />
           }
         },
         {
           accessorKey: "supplierReference",
-          header: "Supplier Reference",
+          header: t`Supplier Reference`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuQrCode />
@@ -127,7 +129,7 @@ const SupplierQuotesTable = memo(
 
         {
           id: "assignee",
-          header: "Assignee",
+          header: t`Assignee`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.assignee} />
           ),
@@ -141,7 +143,7 @@ const SupplierQuotesTable = memo(
         },
         {
           accessorKey: "quotedDate",
-          header: "Quoted Date",
+          header: t`Quoted Date`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -149,7 +151,7 @@ const SupplierQuotesTable = memo(
         },
         {
           accessorKey: "expirationDate",
-          header: "Expiration Date",
+          header: t`Expiration Date`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -158,7 +160,7 @@ const SupplierQuotesTable = memo(
 
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -175,7 +177,7 @@ const SupplierQuotesTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -183,7 +185,7 @@ const SupplierQuotesTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -200,7 +202,7 @@ const SupplierQuotesTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -209,7 +211,7 @@ const SupplierQuotesTable = memo(
       ];
 
       return [...defaultColumns, ...customColumns];
-    }, [suppliers, people, customColumns]);
+    }, [suppliers, people, customColumns, t]);
 
     const renderContextMenu = useMemo(() => {
       return (row: SupplierQuote) => (
@@ -218,7 +220,7 @@ const SupplierQuotesTable = memo(
             onClick={() => navigate(path.to.supplierQuoteDetails(row.id!))}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit
+            <Trans>Edit</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -229,7 +231,7 @@ const SupplierQuotesTable = memo(
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete
+            <Trans>Delete</Trans>
           </MenuItem>
         </>
       );
@@ -252,11 +254,11 @@ const SupplierQuotesTable = memo(
           }}
           primaryAction={
             permissions.can("create", "purchasing") && (
-              <New label="Supplier Quote" to={path.to.newSupplierQuote} />
+              <New label={t`Supplier Quote`} to={path.to.newSupplierQuote} />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Supplier Quotes"
+          title={t`Supplier Quotes`}
           table="supplierQuote"
           withSavedView
         />

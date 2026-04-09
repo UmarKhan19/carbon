@@ -7,7 +7,7 @@ import {
   CardTitle,
   HStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { z } from "zod";
 import {
@@ -28,7 +28,6 @@ type CustomerPaymentFormProps = {
 
 const CustomerPaymentForm = ({ initialValues }: CustomerPaymentFormProps) => {
   const { t } = useLingui();
-  const { t: tShared } = useLingui();
   const permissions = usePermissions();
   const [customer, setCustomer] = useState<string | undefined>(
     initialValues.invoiceCustomerId
@@ -45,7 +44,7 @@ const CustomerPaymentForm = ({ initialValues }: CustomerPaymentFormProps) => {
       <Card>
         <CardHeader>
           <CardTitle>
-            {t({ id: "Payment Terms", message: "Payment Terms" })}
+            <Trans>Payment Terms</Trans>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -53,31 +52,28 @@ const CustomerPaymentForm = ({ initialValues }: CustomerPaymentFormProps) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Customer
               name="invoiceCustomerId"
-              label={t({ id: "Invoice Customer", message: "Invoice Customer" })}
+              label={t`Invoice Customer`}
               onChange={(value) => setCustomer(value?.value as string)}
             />
             <CustomerLocation
               name="invoiceCustomerLocationId"
-              label={t({ id: "Invoice Location", message: "Invoice Location" })}
+              label={t`Invoice Location`}
               customer={customer}
             />
             <CustomerContact
               name="invoiceCustomerContactId"
-              label={t({ id: "Invoice Contact", message: "Invoice Contact" })}
+              label={t`Invoice Contact`}
               customer={customer}
             />
 
-            <PaymentTerm
-              name="paymentTermId"
-              label={t({ id: "Payment Term", message: "Payment Term" })}
-            />
+            <PaymentTerm name="paymentTermId" label={t`Payment Term`} />
             <CustomFormFields table="customerPayment" />
           </div>
         </CardContent>
         <CardFooter>
           <HStack>
             <Submit isDisabled={isDisabled}>
-              {tShared({ id: "Save", message: "Save" })}
+              <Trans>Save</Trans>
             </Submit>
           </HStack>
         </CardFooter>

@@ -16,6 +16,7 @@ import {
   parseAbsolute,
   toCalendarDateTime
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
@@ -44,6 +45,7 @@ const ProductionEventForm = ({
   operationOptions
 }: ProductionEventFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
 
@@ -88,18 +90,18 @@ const ProductionEventForm = ({
             <VStack spacing={4}>
               <Select
                 name="jobOperationId"
-                label="Operation"
+                label={t`Operation`}
                 options={operationOptions ?? []}
               />
-              <Employee name="employeeId" label="Employee" />
+              <Employee name="employeeId" label={t`Employee`} />
               <WorkCenter
                 name="workCenterId"
-                label="Work Center"
+                label={t`Work Center`}
                 processId={initialValues.jobOperationId}
               />
               <Select
                 name="type"
-                label="Event Type"
+                label={t`Event Type`}
                 options={[
                   { label: "Labor", value: "Labor" },
                   { label: "Machine", value: "Machine" },
@@ -108,22 +110,24 @@ const ProductionEventForm = ({
               />
               <DateTimePicker
                 name="startTime"
-                label="Start Time"
+                label={t`Start Time`}
                 maxValue={endTime}
                 onChange={setStartTime}
               />
               <DateTimePicker
                 name="endTime"
-                label="End Time"
+                label={t`End Time`}
                 minValue={startTime}
                 onChange={setEndTime}
               />
-              <TextArea name="notes" label="Notes" />
+              <TextArea name="notes" label={t`Notes`} />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button variant="solid" onClick={onClose}>
                 Cancel
               </Button>

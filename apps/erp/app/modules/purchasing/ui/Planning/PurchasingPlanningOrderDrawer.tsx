@@ -34,6 +34,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { memo, useCallback, useEffect, useState } from "react";
 import {
   LuCalendar,
@@ -89,6 +90,7 @@ export const PurchasingPlanningOrderDrawer = memo(
     onClose,
     onSupplierChange
   }: PurchasingPlanningOrderDrawerProps) => {
+    const { t } = useLingui();
     const fetcher = useFetcher<typeof bulkUpdateAction>();
     const { carbon } = useCarbon();
 
@@ -290,7 +292,7 @@ export const PurchasingPlanningOrderDrawer = memo(
       }
 
       if (fetcher.data?.success === true) {
-        toast.success("Orders submitted");
+        toast.success(t`Orders submitted`);
         setOrders(selectedItem, []);
         onClose();
       }
@@ -317,8 +319,12 @@ export const PurchasingPlanningOrderDrawer = memo(
               <DrawerDescription>{selectedItem.name}</DrawerDescription>
               <div className="absolute top-4 right-12">
                 <TabsList>
-                  <TabsTrigger value="ordering">Ordering</TabsTrigger>
-                  <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+                  <TabsTrigger value="ordering">
+                    <Trans>Ordering</Trans>
+                  </TabsTrigger>
+                  <TabsTrigger value="suppliers">
+                    <Trans>Suppliers</Trans>
+                  </TabsTrigger>
                 </TabsList>
               </div>
             </DrawerHeader>
@@ -328,10 +334,18 @@ export const PurchasingPlanningOrderDrawer = memo(
                   <TableBase>
                     <Thead>
                       <Tr>
-                        <Th>Supplier</Th>
-                        <Th>Unit</Th>
-                        <Th>Conversion</Th>
-                        <Th>Unit Price</Th>
+                        <Th>
+                          <Trans>Supplier</Trans>
+                        </Th>
+                        <Th>
+                          <Trans>Unit</Trans>
+                        </Th>
+                        <Th>
+                          <Trans>Conversion</Trans>
+                        </Th>
+                        <Th>
+                          <Trans>Unit Price</Trans>
+                        </Th>
                         <Th />
                       </Tr>
                     </Thead>
@@ -374,12 +388,12 @@ export const PurchasingPlanningOrderDrawer = memo(
                                     );
                                     setOrders(selectedItem, updatedOrders);
 
-                                    toast.success("Supplier updated");
+                                    toast.success(t`Supplier updated`);
                                     setActiveTab("ordering");
                                   }
                                 }}
                               >
-                                Select
+                                <Trans>Select</Trans>
                               </Button>
                             </Td>
                           </Tr>
@@ -393,7 +407,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                       leftIcon={<LuCirclePlus />}
                       onClick={supplierDisclosure.onOpen}
                     >
-                      Add Supplier
+                      <Trans>Add Supplier</Trans>
                     </Button>
                     {supplierDisclosure.isOpen && (
                       <SupplierPartForm
@@ -442,7 +456,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                                     setOrders(selectedItem, updatedOrders);
 
                                     toast.success(
-                                      "Supplier added and selected"
+                                      t`Supplier added and selected`
                                     );
                                     setActiveTab("ordering");
                                   }
@@ -459,7 +473,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                   <VStack spacing={2} className="text-sm border rounded-lg p-4">
                     <HStack className="justify-between w-full">
                       <span className="text-muted-foreground">
-                        Reorder Policy:
+                        <Trans>Reorder Policy:</Trans>
                       </span>
                       <ItemReorderPolicy
                         reorderingPolicy={selectedItem.reorderingPolicy}
@@ -467,13 +481,15 @@ export const PurchasingPlanningOrderDrawer = memo(
                     </HStack>
                     <Separator />
                     <HStack className="justify-between w-full">
-                      <span className="text-muted-foreground">Supplier:</span>
+                      <span className="text-muted-foreground">
+                        <Trans>Supplier:</Trans>
+                      </span>
                       <SupplierAvatar supplierId={selectedSupplier} />
                     </HStack>
                     <Separator />
                     <HStack className="justify-between w-full">
                       <span className="text-muted-foreground">
-                        Purchase Unit:
+                        <Trans>Purchase Unit:</Trans>
                       </span>
                       <span>
                         {unitOfMeasureOptions.find(
@@ -495,7 +511,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                       return conversionFactor !== 1 ? (
                         <HStack className="justify-between w-full">
                           <span className="text-muted-foreground">
-                            Conversion:
+                            <Trans>Conversion:</Trans>
                           </span>
                           <span>1 Purchase = {conversionFactor} Inventory</span>
                         </HStack>
@@ -506,13 +522,13 @@ export const PurchasingPlanningOrderDrawer = memo(
                       <>
                         <HStack className="justify-between w-full">
                           <span className="text-muted-foreground">
-                            Reorder Point:
+                            <Trans>Reorder Point:</Trans>
                           </span>
                           <span>{selectedItem.reorderPoint}</span>
                         </HStack>
                         <HStack className="justify-between w-full">
                           <span className="text-muted-foreground">
-                            Maximum Inventory:
+                            <Trans>Maximum Inventory:</Trans>
                           </span>
                           <span>{selectedItem.maximumInventoryQuantity}</span>
                         </HStack>
@@ -524,7 +540,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                       <>
                         <HStack className="justify-between w-full">
                           <span className="text-muted-foreground">
-                            Accumulation Period:
+                            <Trans>Accumulation Period:</Trans>
                           </span>
                           <span>
                             {selectedItem.demandAccumulationPeriod} weeks
@@ -532,7 +548,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                         </HStack>
                         <HStack className="justify-between w-full">
                           <span className="text-muted-foreground">
-                            Safety Stock:
+                            <Trans>Safety Stock:</Trans>
                           </span>
                           <span>
                             {selectedItem.demandAccumulationSafetyStock}
@@ -546,13 +562,13 @@ export const PurchasingPlanningOrderDrawer = memo(
                       <>
                         <HStack className="justify-between w-full">
                           <span className="text-muted-foreground">
-                            Reorder Point:
+                            <Trans>Reorder Point:</Trans>
                           </span>
                           <span>{selectedItem.reorderPoint}</span>
                         </HStack>
                         <HStack className="justify-between w-full">
                           <span className="text-muted-foreground">
-                            Reorder Quantity:
+                            <Trans>Reorder Quantity:</Trans>
                           </span>
                           <span>{selectedItem.reorderQuantity}</span>
                         </HStack>
@@ -563,14 +579,16 @@ export const PurchasingPlanningOrderDrawer = memo(
                       selectedItem.maximumOrderQuantity > 0) && <Separator />}
                     {selectedItem.lotSize > 0 && (
                       <HStack className="justify-between w-full">
-                        <span className="text-muted-foreground">Lot Size:</span>
+                        <span className="text-muted-foreground">
+                          <Trans>Lot Size:</Trans>
+                        </span>
                         <span>{selectedItem.lotSize}</span>
                       </HStack>
                     )}
                     {selectedItem.minimumOrderQuantity > 0 && (
                       <HStack className="justify-between w-full">
                         <span className="text-muted-foreground">
-                          Minimum Order:
+                          <Trans>Minimum Order:</Trans>
                         </span>
                         <span>{selectedItem.minimumOrderQuantity}</span>
                       </HStack>
@@ -578,7 +596,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                     {selectedItem.maximumOrderQuantity > 0 && (
                       <HStack className="justify-between w-full">
                         <span className="text-muted-foreground">
-                          Maximum Order:
+                          <Trans>Maximum Order:</Trans>
                         </span>
                         <span>{selectedItem.maximumOrderQuantity}</span>
                       </HStack>
@@ -591,25 +609,33 @@ export const PurchasingPlanningOrderDrawer = memo(
                         <Th>
                           <div className="flex items-center gap-2">
                             <LuCirclePlay />
-                            <span>PO</span>
+                            <span>
+                              <Trans>PO</Trans>
+                            </span>
                           </div>
                         </Th>
                         <Th>
                           <div className="flex items-center gap-2 text-left">
                             <LuStar />
-                            <span>Status</span>
+                            <span>
+                              <Trans>Status</Trans>
+                            </span>
                           </div>
                         </Th>
                         <Th>
                           <div className="flex items-center gap-2 text-right">
                             <LuPackage />
-                            <span>Purchase Qty</span>
+                            <span>
+                              <Trans>Purchase Qty</Trans>
+                            </span>
                           </div>
                         </Th>
                         <Th>
                           <div className="flex items-center gap-2">
                             <LuCalendar />
-                            <span>Due Date</span>
+                            <span>
+                              <Trans>Due Date</Trans>
+                            </span>
                           </div>
                         </Th>
                         <Th className="w-[50px]"></Th>
@@ -631,7 +657,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                                   {order.existingReadableId}
                                 </Link>
                               ) : (
-                                "New PO"
+                                t`New PO`
                               )}
                             </Td>
                             <Td className="flex flex-row items-center gap-1 group-hover:bg-inherit">
@@ -688,7 +714,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                             </Td>
                             <Td className="group-hover:bg-inherit">
                               <IconButton
-                                aria-label="Remove order"
+                                aria-label={t`Remove order`}
                                 variant="ghost"
                                 size="sm"
                                 isDisabled={!!order.existingId}
@@ -731,14 +757,14 @@ export const PurchasingPlanningOrderDrawer = memo(
             </DrawerBody>
             <DrawerFooter>
               <Button variant="secondary" onClick={onClose}>
-                Close
+                <Trans>Close</Trans>
               </Button>
               <Button
                 variant="primary"
                 onClick={() => {
                   if (!selectedSupplier) {
                     toast.error(
-                      "Cannot place order - no supplier associated with this item"
+                      t`Cannot place order - no supplier associated with this item`
                     );
                     return;
                   }
@@ -747,7 +773,7 @@ export const PurchasingPlanningOrderDrawer = memo(
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
-                Order
+                <Trans>Order</Trans>
               </Button>
             </DrawerFooter>
           </DrawerContent>

@@ -4,6 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { json2csv } from "json-2-csv";
 import { useCallback } from "react";
 import { LuDownload } from "react-icons/lu";
@@ -13,6 +14,7 @@ type DownloadProps = {
 };
 
 const Download = ({ data }: DownloadProps) => {
+  const { t } = useLingui();
   const onClick = useCallback(() => {
     if (!data?.length) {
       return;
@@ -36,8 +38,8 @@ const Download = ({ data }: DownloadProps) => {
     <Tooltip>
       <TooltipTrigger asChild>
         <IconButton
-          aria-label="Download CSV"
-          title="Download CSV"
+          aria-label={t`Download CSV`}
+          title={t`Download CSV`}
           variant={"ghost"}
           icon={<LuDownload />}
           className={"!border-dashed border-border"}
@@ -45,7 +47,9 @@ const Download = ({ data }: DownloadProps) => {
         />
       </TooltipTrigger>
       <TooltipContent>
-        <p>Download CSV</p>
+        <p>
+          <Trans>Download CSV</Trans>
+        </p>
       </TooltipContent>
     </Tooltip>
   );

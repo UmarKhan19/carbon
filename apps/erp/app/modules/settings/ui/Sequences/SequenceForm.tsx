@@ -11,6 +11,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
@@ -27,6 +28,7 @@ type SequenceFormProps = {
 };
 
 const SequenceForm = ({ initialValues }: SequenceFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
@@ -70,26 +72,31 @@ const SequenceForm = ({ initialValues }: SequenceFormProps) => {
 
               <Input
                 name="prefix"
-                label="Prefix"
+                label={t`Prefix`}
                 onChange={(e) => setPrefix(e.target.value)}
               />
               <Number
                 name="next"
                 minValue={0}
-                label="Current"
+                label={t`Current`}
                 onChange={setNext}
               />
               <Number
                 name="size"
                 minValue={0}
                 maxValue={30}
-                label="Size"
+                label={t`Size`}
                 onChange={setSize}
               />
-              <Number name="step" minValue={0} maxValue={10000} label="Step" />
+              <Number
+                name="step"
+                minValue={0}
+                maxValue={10000}
+                label={t`Step`}
+              />
               <Input
                 name="suffix"
-                label="Suffix"
+                label={t`Suffix`}
                 onChange={(e) => setSuffix(e.target.value)}
               />
               <VStack spacing={0}>
@@ -105,9 +112,11 @@ const SequenceForm = ({ initialValues }: SequenceFormProps) => {
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

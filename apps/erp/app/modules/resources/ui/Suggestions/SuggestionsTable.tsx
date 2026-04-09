@@ -1,5 +1,6 @@
 import { Avatar, Badge, HStack, MenuIcon, MenuItem } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -27,6 +28,7 @@ const defaultColumnVisibility = {};
 
 const SuggestionsTable = memo(
   ({ data, tags, count }: SuggestionsTableProps) => {
+    const { t } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
     const [params] = useUrlParams();
@@ -36,7 +38,7 @@ const SuggestionsTable = memo(
       const defaultColumns: ColumnDef<SuggestionListItem>[] = [
         {
           accessorKey: "suggestion",
-          header: "Suggestion",
+          header: t`Suggestion`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id!}>
               <HStack spacing={2} className="max-w-[400px]">
@@ -56,7 +58,7 @@ const SuggestionsTable = memo(
         },
         {
           id: "employee",
-          header: "Employee",
+          header: t`Employee`,
           cell: ({ row }) => (
             <HStack spacing={2}>
               <Avatar
@@ -80,7 +82,7 @@ const SuggestionsTable = memo(
         },
         {
           accessorKey: "tags",
-          header: "Tags",
+          header: t`Tags`,
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
               {row.original.tags?.map((tag) => (
@@ -104,7 +106,7 @@ const SuggestionsTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Date",
+          header: t`Date`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -112,7 +114,7 @@ const SuggestionsTable = memo(
         }
       ];
       return defaultColumns;
-    }, [tags, people]);
+    }, [tags, people, t]);
 
     const renderContextMenu = useCallback(
       (row: SuggestionListItem) => {
@@ -124,7 +126,7 @@ const SuggestionsTable = memo(
               }}
             >
               <MenuIcon icon={<LuEye />} />
-              View Suggestion
+              <Trans>View Suggestion</Trans>
             </MenuItem>
             <MenuItem
               destructive
@@ -136,7 +138,7 @@ const SuggestionsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Suggestion
+              <Trans>Delete Suggestion</Trans>
             </MenuItem>
           </>
         );
@@ -151,7 +153,7 @@ const SuggestionsTable = memo(
         columns={columns}
         defaultColumnVisibility={defaultColumnVisibility}
         renderContextMenu={renderContextMenu}
-        title="Suggestions"
+        title={t`Suggestions`}
         table="suggestion"
         withSavedView
       />

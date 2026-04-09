@@ -15,6 +15,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -125,7 +126,9 @@ export default function QualitySettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Quality</Heading>
+        <Heading size="h3">
+          <Trans>Quality</Trans>
+        </Heading>
 
         <Card>
           <ValidatedForm
@@ -141,16 +144,20 @@ export default function QualitySettingsRoute() {
             <Hidden name="intent" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Gauge Calibration Notifications
+                <Trans>Gauge Calibration Notifications</Trans>
               </CardTitle>
               <CardDescription>
-                Configure notifications for when gauges go out of calibration.
+                <Trans>
+                  Configure notifications for when gauges go out of calibration.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <div className="flex flex-col gap-2">
-                  <Label>Calibration Expiration Notifications</Label>
+                  <Label>
+                    <Trans>Calibration Expiration Notifications</Trans>
+                  </Label>
                   <Users
                     name="gaugeCalibrationExpiredNotificationGroup"
                     label="Who should receive notifications when a gauge goes out of calibration?"
@@ -164,7 +171,7 @@ export default function QualitySettingsRoute() {
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -181,19 +188,25 @@ export default function QualitySettingsRoute() {
           >
             <Hidden name="intent" />
             <CardHeader>
-              <CardTitle>Dashboard</CardTitle>
+              <CardTitle>
+                <Trans>Dashboard</Trans>
+              </CardTitle>
               <CardDescription>
-                Configure defaults for the quality dashboard.
+                <Trans>Configure defaults for the quality dashboard.</Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="qualityIssueTarget">Issue Target</Label>
+                  <Label htmlFor="qualityIssueTarget">
+                    <Trans>Issue Target</Trans>
+                  </Label>
                   <Input name="qualityIssueTarget" type="number" min={0} />
                   <p className="text-xs text-muted-foreground">
-                    Target number of open issues shown as a reference line on
-                    the Issue Trend chart.
+                    <Trans>
+                      Target number of open issues shown as a reference line on
+                      the Issue Trend chart.
+                    </Trans>
                   </p>
                 </div>
               </div>
@@ -203,7 +216,7 @@ export default function QualitySettingsRoute() {
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>

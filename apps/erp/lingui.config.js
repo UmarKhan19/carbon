@@ -4,8 +4,7 @@ const commonExcludes = ["**/*.server.*", "**/*.test.*", "**/*.spec.*"];
 
 export default defineConfig({
   sourceLocale: "en",
-  locales: ["en", "pl"],
-  compileNamespace: "es",
+  locales: ["en", "fr", "de", "es", "it", "ja", "pl", "pt", "ru", "zh"],
   format: "po",
   catalogs: [
     {

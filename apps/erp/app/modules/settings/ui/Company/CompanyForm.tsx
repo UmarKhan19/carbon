@@ -1,5 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import { VStack } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import { Currency, Hidden, Input, Submit } from "~/components/Form";
 import AddressAutocomplete from "~/components/Form/AddressAutocomplete";
@@ -11,6 +12,7 @@ type CompanyFormProps = {
 };
 
 const CompanyForm = ({ company }: CompanyFormProps) => {
+  const { t } = useLingui();
   return (
     <>
       <ValidatedForm
@@ -23,21 +25,23 @@ const CompanyForm = ({ company }: CompanyFormProps) => {
 
         <VStack spacing={4}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-            <Input name="name" label="Company Name" />
-            <Input name="taxId" label="Tax ID" />
-            <Input name="vatNumber" label="VAT Number" />
+            <Input name="name" label={t`Company Name`} />
+            <Input name="taxId" label={t`Tax ID`} />
+            <Input name="vatNumber" label={t`VAT Number`} />
             <AddressAutocomplete variant="grid" />
             <Currency
               name="baseCurrencyCode"
-              label="Base Currency"
+              label={t`Base Currency`}
               disabled={true}
             />
-            <Input name="phone" label="Phone Number" />
-            <Input name="fax" label="Fax Number" />
-            <Input name="email" label="Email" />
-            <Input name="website" label="Website" />
+            <Input name="phone" label={t`Phone Number`} />
+            <Input name="fax" label={t`Fax Number`} />
+            <Input name="email" label={t`Email`} />
+            <Input name="website" label={t`Website`} />
           </div>
-          <Submit>Save</Submit>
+          <Submit>
+            <Trans>Save</Trans>
+          </Submit>
         </VStack>
       </ValidatedForm>
     </>

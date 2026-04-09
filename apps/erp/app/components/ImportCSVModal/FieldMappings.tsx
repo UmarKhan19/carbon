@@ -16,6 +16,7 @@ import {
   toast
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { LuInfo, LuMoveRight } from "react-icons/lu";
@@ -54,6 +55,7 @@ export function FieldMapping({
   table: keyof typeof importSchemas;
   onReset: () => void;
 }) {
+  const { t } = useLingui();
   const initialized = useRef(false);
   const { validate } = useFormContext(formId);
   const { fileColumns, filePath, firstRows } = useCsvContext();
@@ -188,14 +190,14 @@ export function FieldMapping({
         <div className="flex space-x-4 items-center mb-4">
           <ModalTitle className="m-0 p-0">
             {currentStep === 0
-              ? "Field Mapping"
+              ? t`Field Mapping`
               : enumFields[currentStep - 1][1].label}
           </ModalTitle>
         </div>
 
         <ModalDescription>
           {currentStep === 0
-            ? "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
+            ? t`We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate.`
             : enumFields[currentStep - 1][1].enumData.description}
         </ModalDescription>
       </ModalHeader>
@@ -203,8 +205,12 @@ export function FieldMapping({
         <div className="mt-6">
           {currentStep === 0 ? (
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              <div className="text-sm">CSV column</div>
-              <div className="text-sm">Carbon column</div>
+              <div className="text-sm">
+                <Trans>CSV column</Trans>
+              </div>
+              <div className="text-sm">
+                <Trans>Carbon column</Trans>
+              </div>
               {Object.entries(mappableFields).map(
                 ([name, { label, required, type }]) => (
                   <FieldRow
@@ -254,7 +260,7 @@ export function FieldMapping({
               isDisabled={!filePath || fetcher.state !== "idle"}
               type="submit"
             >
-              Confirm Import
+              <Trans>Confirm Import</Trans>
             </Submit>
           )}
           {currentStep < steps - 1 && (
@@ -273,18 +279,18 @@ export function FieldMapping({
                 }
               }}
             >
-              Next
+              <Trans>Next</Trans>
             </Button>
           )}
           {currentStep === 0 && (
             <Button variant="link" type="button" onClick={onReset}>
-              Choose another file
+              <Trans>Choose another file</Trans>
             </Button>
           )}
 
           {currentStep > 0 && (
             <Button variant="link" type="button" onClick={onPrevious}>
-              Previous
+              <Trans>Previous</Trans>
             </Button>
           )}
         </div>
@@ -444,7 +450,9 @@ function EnumMappingStep({
         <div className="font-medium ">
           {`${capitalize(mappedColumn ?? "CSV")} Value`}
         </div>
-        <div className="font-medium">Carbon Value</div>
+        <div className="font-medium">
+          <Trans>Carbon Value</Trans>
+        </div>
 
         {[...new Set([...uniqueValues, "Default"])].map((csvValue) => {
           return (

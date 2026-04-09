@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import { Suspense, useRef } from "react";
 import { Fragment } from "react/jsx-runtime";
@@ -126,6 +127,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function PurchaseInvoiceBasicRoute() {
+  const { t } = useLingui();
   const { internalNotes } = useLoaderData<typeof loader>();
   const { invoiceId } = useParams();
   if (!invoiceId) throw new Error("invoiceId not found");
@@ -183,7 +185,7 @@ export default function PurchaseInvoiceBasicRoute() {
       <SupplierInteractionNotes
         key={`notes-${initialValues.id}`}
         id={invoiceId}
-        title="Notes"
+        title={t`Notes`}
         table="purchaseInvoice"
         internalNotes={internalNotes}
       />

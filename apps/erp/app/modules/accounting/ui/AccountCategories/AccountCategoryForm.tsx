@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import {
   CustomFormFields,
@@ -35,6 +36,7 @@ const AccountCategoryForm = ({
   initialValues,
   onClose
 }: AccountCategoryFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const isEditing = initialValues.id !== undefined;
@@ -63,16 +65,20 @@ const AccountCategoryForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit" : "New"} Account Category
+              {isEditing ? (
+                <Trans>Edit Account Category</Trans>
+              ) : (
+                <Trans>New Account Category</Trans>
+              )}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack>
-              <Input name="category" label="Category" />
+              <Input name="category" label={t`Category`} />
               <Select
                 name="incomeBalance"
-                label="Income Balance"
+                label={t`Income Balance`}
                 options={incomeBalanceTypes.map((incomeBalance) => ({
                   value: incomeBalance,
                   label: incomeBalance
@@ -80,7 +86,7 @@ const AccountCategoryForm = ({
               />
               <Select
                 name="class"
-                label="Class"
+                label={t`Class`}
                 options={accountClassTypes.map((accountClass) => ({
                   value: accountClass,
                   label: accountClass
@@ -91,9 +97,11 @@ const AccountCategoryForm = ({
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

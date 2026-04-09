@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -27,6 +28,7 @@ type LocationsTableProps = {
 };
 
 const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [params] = useUrlParams();
@@ -41,7 +43,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
     const defaultColumns: ColumnDef<(typeof rows)[number]>[] = [
       {
         accessorKey: "name",
-        header: "Location",
+        header: t`Location`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id}>
             <Enumerable value={row.original.name} className="cursor-pointer" />
@@ -53,7 +55,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       },
       {
         accessorKey: "addressLine1",
-        header: "Address",
+        header: t`Address`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuHouse />
@@ -61,7 +63,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       },
       {
         accessorKey: "city",
-        header: "City",
+        header: t`City`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuBuilding2 />
@@ -69,7 +71,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       },
       {
         accessorKey: "stateProvince",
-        header: "State / Province",
+        header: t`State / Province`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuMap />
@@ -77,7 +79,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       },
       {
         accessorKey: "countryCode",
-        header: "Country",
+        header: t`Country`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuGlobe />
@@ -90,7 +92,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       // },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -107,7 +109,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t`Updated By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -124,7 +126,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [people, customColumns]);
+  }, [people, customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: (typeof data)[number]) => {
@@ -136,7 +138,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Location
+            <Trans>Edit Location</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -148,7 +150,7 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Location
+            <Trans>Delete Location</Trans>
           </MenuItem>
         </>
       );
@@ -163,11 +165,11 @@ const LocationsTable = memo(({ data, count }: LocationsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "resources") && (
-          <New label="Location" to={`new?${params.toString()}`} />
+          <New label={t`Location`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Locations"
+      title={t`Locations`}
       table="location"
       withSavedView
     />
