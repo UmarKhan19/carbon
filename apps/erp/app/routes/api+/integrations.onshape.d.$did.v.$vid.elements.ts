@@ -1,7 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import {
   getOnshapeClient,
-  OnshapeDocument,
+  type OnshapeDocument,
   OnshapeElementType,
   OnshapeWVMType
 } from "@carbon/ee/onshape";
@@ -50,7 +50,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
 
   try {
-    const documentAssemblies = await onshapeClient.getElements(document, OnshapeElementType.ASSEMBLY);
+    const documentAssemblies = await onshapeClient.getElements(
+      document,
+      OnshapeElementType.ASSEMBLY
+    );
 
     return {
       data: documentAssemblies,
