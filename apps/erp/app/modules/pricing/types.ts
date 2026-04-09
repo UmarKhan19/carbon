@@ -50,8 +50,6 @@ export type PriceListVersion = NonNullable<
 export type PriceListStatusType =
   Database["public"]["Enums"]["priceListStatus"];
 
-export type PriceListTypeType = Database["public"]["Enums"]["priceListType"];
-
 export type PriceListRuleType =
   Database["public"]["Enums"]["priceListRuleType"];
 

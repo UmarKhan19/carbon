@@ -109,8 +109,7 @@ const PriceListItemForm = ({
   ]);
 
   const isEditing = initialValues.id !== undefined;
-  const permissionModule =
-    priceListType === "Purchase" ? "purchasing" : "sales";
+  const permissionModule = "sales";
   const isDisabled = isEditing
     ? !permissions.can("update", permissionModule)
     : !permissions.can("create", permissionModule);

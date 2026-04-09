@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const customerId = customerIdFilter?.value ?? undefined;
 
   const [priceLists, overlapIds] = await Promise.all([
-    getPriceLists(client, companyId, "Sales", {
+    getPriceLists(client, companyId, {
       search: search ?? undefined,
       customerId,
       limit,
@@ -43,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       sorts,
       filters
     }),
-    getOverlapIdsForPriceLists(client, companyId, "Sales")
+    getOverlapIdsForPriceLists(client, companyId)
   ]);
 
   return {
@@ -84,7 +84,6 @@ export default function SalesPriceListsRoute() {
       <PriceListsTable
         data={priceLists}
         count={count}
-        type="Sales"
         overlapIds={overlapIds}
       />
       <Outlet />

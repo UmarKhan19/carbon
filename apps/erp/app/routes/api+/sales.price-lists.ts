@@ -7,5 +7,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "sales"
   });
 
-  return await getPriceListsList(client, companyId, "Sales");
+  return await getPriceListsList(client, companyId);
 }

@@ -54,8 +54,7 @@ export function PriceListNotes() {
 
   if (!id || !priceList) return null;
 
-  const permissionModule =
-    priceList.type === "Purchase" ? "purchasing" : "sales";
+  const permissionModule = "sales";
   const canEdit = permissions.can("update", permissionModule);
 
   const isEmpty =

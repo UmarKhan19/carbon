@@ -1,7 +1,6 @@
 -- Price List Management
 
 CREATE TYPE "priceListStatus" AS ENUM ('Draft', 'Active', 'Expired', 'Archived');
-CREATE TYPE "priceListType" AS ENUM ('Sales', 'Purchase');
 CREATE TYPE "priceListPriceType" AS ENUM ('Gross', 'Net', 'Discounted');
 CREATE TYPE "priceListRuleType" AS ENUM ('Discount', 'Surcharge');
 CREATE TYPE "priceListRuleAmountType" AS ENUM ('Percentage', 'Fixed');
@@ -13,7 +12,7 @@ CREATE TABLE "priceList" (
   "name" TEXT NOT NULL,
   "description" TEXT,
   "notes" JSONB,
-  "type" "priceListType" NOT NULL DEFAULT 'Sales',
+  "type" TEXT NOT NULL DEFAULT 'Sales',
   "status" "priceListStatus" NOT NULL DEFAULT 'Draft',
   "priceType" "priceListPriceType" NOT NULL DEFAULT 'Net',
   "currencyCode" TEXT NOT NULL DEFAULT 'USD',
@@ -45,7 +44,6 @@ CREATE TABLE "priceList" (
 );
 
 CREATE INDEX "priceList_companyId_idx" ON "priceList" ("companyId");
-CREATE INDEX "priceList_type_status_idx" ON "priceList" ("type", "status");
 
 ALTER TABLE "priceList" ENABLE ROW LEVEL SECURITY;
 
@@ -59,33 +57,21 @@ FOR SELECT USING (
 CREATE POLICY "INSERT" ON "public"."priceList"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_create'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_create'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_create'))::text[]
   )
 );
 
 CREATE POLICY "UPDATE" ON "public"."priceList"
 FOR UPDATE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_update'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_update'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_update'))::text[]
   )
 );
 
 CREATE POLICY "DELETE" ON "public"."priceList"
 FOR DELETE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_delete'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_delete'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_delete'))::text[]
   )
 );
 
@@ -153,33 +139,21 @@ FOR SELECT USING (
 CREATE POLICY "INSERT" ON "public"."priceListItem"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_create'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_create'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_create'))::text[]
   )
 );
 
 CREATE POLICY "UPDATE" ON "public"."priceListItem"
 FOR UPDATE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_update'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_update'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_update'))::text[]
   )
 );
 
 CREATE POLICY "DELETE" ON "public"."priceListItem"
 FOR DELETE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_delete'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_delete'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_delete'))::text[]
   )
 );
 
@@ -224,33 +198,21 @@ FOR SELECT USING (
 CREATE POLICY "INSERT" ON "public"."priceListItemBreak"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_create'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_create'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_create'))::text[]
   )
 );
 
 CREATE POLICY "UPDATE" ON "public"."priceListItemBreak"
 FOR UPDATE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_update'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_update'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_update'))::text[]
   )
 );
 
 CREATE POLICY "DELETE" ON "public"."priceListItemBreak"
 FOR DELETE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_delete'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_delete'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_delete'))::text[]
   )
 );
 
@@ -267,7 +229,6 @@ CREATE TABLE "priceListRule" (
   "minQuantity" NUMERIC(20, 2),
   "maxQuantity" NUMERIC(20, 2),
   "customerTypeId" TEXT,
-  "supplierTypeId" TEXT,
   "itemId" TEXT,
   "itemPostingGroupId" TEXT,
   "validFrom" DATE,
@@ -285,9 +246,6 @@ CREATE TABLE "priceListRule" (
     ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "priceListRule_customerTypeId_fkey"
     FOREIGN KEY ("customerTypeId") REFERENCES "customerType"("id")
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "priceListRule_supplierTypeId_fkey"
-    FOREIGN KEY ("supplierTypeId") REFERENCES "supplierType"("id")
     ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "priceListRule_itemId_fkey"
     FOREIGN KEY ("itemId") REFERENCES "item"("id")
@@ -309,7 +267,6 @@ CREATE TABLE "priceListRule" (
 CREATE INDEX "priceListRule_priceListId_idx" ON "priceListRule" ("priceListId");
 CREATE INDEX "priceListRule_companyId_idx" ON "priceListRule" ("companyId");
 CREATE INDEX "priceListRule_customerTypeId_idx" ON "priceListRule" ("customerTypeId");
-CREATE INDEX "priceListRule_supplierTypeId_idx" ON "priceListRule" ("supplierTypeId");
 CREATE INDEX "priceListRule_itemId_idx" ON "priceListRule" ("itemId");
 CREATE INDEX "priceListRule_itemPostingGroupId_idx" ON "priceListRule" ("itemPostingGroupId");
 CREATE INDEX "priceListRule_active_idx" ON "priceListRule" ("active");
@@ -326,33 +283,21 @@ FOR SELECT USING (
 CREATE POLICY "INSERT" ON "public"."priceListRule"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_create'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_create'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_create'))::text[]
   )
 );
 
 CREATE POLICY "UPDATE" ON "public"."priceListRule"
 FOR UPDATE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_update'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_update'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_update'))::text[]
   )
 );
 
 CREATE POLICY "DELETE" ON "public"."priceListRule"
 FOR DELETE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_delete'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_delete'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_delete'))::text[]
   )
 );
 
@@ -363,8 +308,6 @@ CREATE TABLE "priceListAssignment" (
   "priceListId" TEXT NOT NULL,
   "customerId" TEXT,
   "customerTypeId" TEXT,
-  "supplierId" TEXT,
-  "supplierTypeId" TEXT,
   "companyId" TEXT NOT NULL,
   "createdBy" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -381,12 +324,6 @@ CREATE TABLE "priceListAssignment" (
   CONSTRAINT "priceListAssignment_customerTypeId_fkey"
     FOREIGN KEY ("customerTypeId") REFERENCES "customerType"("id")
     ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "priceListAssignment_supplierId_fkey"
-    FOREIGN KEY ("supplierId") REFERENCES "supplier"("id")
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "priceListAssignment_supplierTypeId_fkey"
-    FOREIGN KEY ("supplierTypeId") REFERENCES "supplierType"("id")
-    ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "priceListAssignment_companyId_fkey"
     FOREIGN KEY ("companyId") REFERENCES "company"("id")
     ON DELETE CASCADE ON UPDATE CASCADE,
@@ -397,20 +334,13 @@ CREATE TABLE "priceListAssignment" (
     FOREIGN KEY ("updatedBy") REFERENCES "user"("id")
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT "priceListAssignment_target_check" CHECK (
-    (
-      ("customerId" IS NOT NULL)::integer +
-      ("customerTypeId" IS NOT NULL)::integer +
-      ("supplierId" IS NOT NULL)::integer +
-      ("supplierTypeId" IS NOT NULL)::integer
-    ) = 1
+    (("customerId" IS NOT NULL)::integer + ("customerTypeId" IS NOT NULL)::integer) = 1
   )
 );
 
 CREATE INDEX "priceListAssignment_priceListId_idx" ON "priceListAssignment" ("priceListId");
 CREATE INDEX "priceListAssignment_customerId_idx" ON "priceListAssignment" ("customerId");
 CREATE INDEX "priceListAssignment_customerTypeId_idx" ON "priceListAssignment" ("customerTypeId");
-CREATE INDEX "priceListAssignment_supplierId_idx" ON "priceListAssignment" ("supplierId");
-CREATE INDEX "priceListAssignment_supplierTypeId_idx" ON "priceListAssignment" ("supplierTypeId");
 CREATE INDEX "priceListAssignment_companyId_idx" ON "priceListAssignment" ("companyId");
 
 ALTER TABLE "priceListAssignment" ENABLE ROW LEVEL SECURITY;
@@ -425,33 +355,21 @@ FOR SELECT USING (
 CREATE POLICY "INSERT" ON "public"."priceListAssignment"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_create'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_create'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_create'))::text[]
   )
 );
 
 CREATE POLICY "UPDATE" ON "public"."priceListAssignment"
 FOR UPDATE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_update'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_update'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_update'))::text[]
   )
 );
 
 CREATE POLICY "DELETE" ON "public"."priceListAssignment"
 FOR DELETE USING (
   "companyId" = ANY (
-    SELECT DISTINCT unnest(ARRAY(
-      SELECT unnest(get_companies_with_employee_permission('sales_delete'))
-      UNION
-      SELECT unnest(get_companies_with_employee_permission('purchasing_delete'))
-    ))
+    (SELECT get_companies_with_employee_permission('sales_delete'))::text[]
   )
 );
 
@@ -462,18 +380,8 @@ ALTER TABLE "salesOrderLine" ADD CONSTRAINT "salesOrderLine_priceListId_fkey"
   FOREIGN KEY ("priceListId") REFERENCES "priceList"("id")
   ON DELETE SET NULL ON UPDATE CASCADE;
 
-ALTER TABLE "purchaseOrderLine" ADD COLUMN "priceListId" TEXT;
-ALTER TABLE "purchaseOrderLine" ADD CONSTRAINT "purchaseOrderLine_priceListId_fkey"
-  FOREIGN KEY ("priceListId") REFERENCES "priceList"("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
-
 ALTER TABLE "customer" ADD COLUMN "priceListId" TEXT;
 ALTER TABLE "customer" ADD CONSTRAINT "customer_priceListId_fkey"
-  FOREIGN KEY ("priceListId") REFERENCES "priceList"("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
-
-ALTER TABLE "supplier" ADD COLUMN "priceListId" TEXT;
-ALTER TABLE "supplier" ADD CONSTRAINT "supplier_priceListId_fkey"
   FOREIGN KEY ("priceListId") REFERENCES "priceList"("id")
   ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -481,9 +389,6 @@ ALTER TABLE "supplier" ADD CONSTRAINT "supplier_priceListId_fkey"
 -- Stores the resolver's trace array (Base Price → Discount → Surcharge → Final)
 -- so historical pricing decisions remain auditable even after price lists change.
 ALTER TABLE "salesOrderLine" ADD COLUMN "priceTrace" JSONB;
-ALTER TABLE "purchaseOrderLine" ADD COLUMN "priceTrace" JSONB;
 
 COMMENT ON COLUMN "salesOrderLine"."priceTrace" IS
-  'Snapshot of price resolution trace at order line save time';
-COMMENT ON COLUMN "purchaseOrderLine"."priceTrace" IS
   'Snapshot of price resolution trace at order line save time';

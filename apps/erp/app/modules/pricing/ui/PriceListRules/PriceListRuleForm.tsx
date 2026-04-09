@@ -26,8 +26,7 @@ import {
   // biome-ignore lint/suspicious/noShadowRestrictedNames: consistent with codebase
   Number,
   Select,
-  Submit,
-  SupplierType
+  Submit
 } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
 import {
@@ -61,8 +60,7 @@ const PriceListRuleForm = ({
   });
 
   const isEditing = initialValues.id !== undefined;
-  const permissionModule =
-    priceListType === "Purchase" ? "purchasing" : "sales";
+  const permissionModule = "sales";
   const isDisabled = isEditing
     ? !permissions.can("update", permissionModule)
     : !permissions.can("create", permissionModule);
@@ -155,20 +153,11 @@ const PriceListRuleForm = ({
                   <Number name="maxQuantity" label="Max Qty" />
                 </div>
 
-                {priceListType === "Sales" && (
-                  <CustomerType
-                    name="customerTypeId"
-                    label="Customer Type"
-                    placeholder="All customer types"
-                  />
-                )}
-                {priceListType === "Purchase" && (
-                  <SupplierType
-                    name="supplierTypeId"
-                    label="Supplier Type"
-                    placeholder="All supplier types"
-                  />
-                )}
+                <CustomerType
+                  name="customerTypeId"
+                  label="Customer Type"
+                  placeholder="All customer types"
+                />
 
                 <ChoiceCardGroup<ItemScope>
                   label="Item Scope"

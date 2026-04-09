@@ -44,8 +44,7 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
   const routeData = useRouteData<{ priceList: PriceListDetail }>(
     path.to.priceList(id)
   );
-  const permissionModule =
-    routeData?.priceList?.type === "Purchase" ? "purchasing" : "sales";
+  const permissionModule = "sales";
   // Active price lists are immutable: editing requires creating a new version
   // first. This satisfies AC-ERP-08 (modifications generate new versions).
   const isLocked = routeData?.priceList?.status === "Active";
@@ -140,7 +139,6 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
           if (row.original.maxQuantity)
             parts.push(`Qty <= ${row.original.maxQuantity}`);
           if (row.original.customerTypeId) parts.push("Customer Type");
-          if (row.original.supplierTypeId) parts.push("Supplier Type");
           if (row.original.itemId) parts.push("Item");
           if (row.original.itemPostingGroupId) parts.push("Category");
           return parts.length > 0 ? parts.join(", ") : "All";

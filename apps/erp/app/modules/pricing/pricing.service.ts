@@ -19,14 +19,13 @@ import type {
 
 export async function getPriceListsList(
   client: SupabaseClient<Database>,
-  companyId: string,
-  type: "Sales" | "Purchase"
+  companyId: string
 ) {
   return client
     .from("priceList")
     .select("id, name")
     .eq("companyId", companyId)
-    .eq("type", type)
+    .eq("type", "Sales")
     .in("status", ["Active", "Draft"])
     .order("name");
 }
@@ -38,38 +37,29 @@ export async function getPriceListsList(
 export async function getPriceLists(
   client: SupabaseClient<Database>,
   companyId: string,
-  type: "Sales" | "Purchase",
   args?: GenericQueryFilters & {
     search?: string;
     customerId?: string;
-    supplierId?: string;
   }
 ) {
-  // If filtering by customer/supplier, first find matching price list IDs via assignments
   let priceListIds: string[] | null = null;
 
-  if (args?.customerId || args?.supplierId) {
+  if (args?.customerId) {
     let assignmentQuery = client
       .from("priceListAssignment")
       .select("priceListId")
       .eq("companyId", companyId);
 
-    if (args.customerId) {
-      assignmentQuery = assignmentQuery.eq("customerId", args.customerId);
-    }
-    if (args.supplierId) {
-      assignmentQuery = assignmentQuery.eq("supplierId", args.supplierId);
-    }
+    assignmentQuery = assignmentQuery.eq("customerId", args.customerId);
 
     const { data: assignments } = await assignmentQuery;
     priceListIds = (assignments ?? []).map((a) => a.priceListId);
 
-    // Also include global lists (those with no assignments at all)
     const { data: allLists } = await client
       .from("priceList")
       .select("id")
       .eq("companyId", companyId)
-      .eq("type", type);
+      .eq("type", "Sales");
 
     if (allLists) {
       const { data: allAssignments } = await client
@@ -92,7 +82,7 @@ export async function getPriceLists(
     .from("priceList")
     .select("*, priceListAssignment(count)", { count: "exact" })
     .eq("companyId", companyId)
-    .eq("type", type);
+    .eq("type", "Sales");
 
   if (priceListIds !== null) {
     query = query.in("id", priceListIds);
@@ -103,13 +93,9 @@ export async function getPriceLists(
   }
 
   if (args) {
-    // Strip customerId/supplierId from filters before applying generic filters
-    // (they don't exist as columns on priceList)
     const cleanedArgs = {
       ...args,
-      filters: args.filters?.filter(
-        (f) => f.column !== "customerId" && f.column !== "supplierId"
-      )
+      filters: args.filters?.filter((f) => f.column !== "customerId")
     };
     query = setGenericQueryFilters(query, cleanedArgs);
   }
@@ -124,18 +110,6 @@ export async function getPriceList(
   return client.from("priceList").select("*").eq("id", id).single();
 }
 
-export async function getPriceListType(
-  client: SupabaseClient<Database>,
-  priceListId: string
-): Promise<"Sales" | "Purchase"> {
-  const { data } = await client
-    .from("priceList")
-    .select("type")
-    .eq("id", priceListId)
-    .single();
-  return (data?.type as "Sales" | "Purchase") ?? "Sales";
-}
-
 /**
  * Returns the type AND a flag indicating whether the price list is
  * locked for edits (status === "Active"). Active price lists are
@@ -146,16 +120,13 @@ export async function getPriceListType(
 export async function getPriceListLockState(
   client: SupabaseClient<Database>,
   priceListId: string
-): Promise<{ type: "Sales" | "Purchase"; isLocked: boolean }> {
+): Promise<{ isLocked: boolean }> {
   const { data } = await client
     .from("priceList")
-    .select("type, status")
+    .select("status")
     .eq("id", priceListId)
     .single();
-  return {
-    type: (data?.type as "Sales" | "Purchase") ?? "Sales",
-    isLocked: data?.status === "Active"
-  };
+  return { isLocked: data?.status === "Active" };
 }
 
 export async function createPriceList(
@@ -170,7 +141,7 @@ export async function createPriceList(
       {
         name: data.name,
         description: data.description ?? null,
-        type: data.type,
+        type: "Sales",
         status: data.status ?? "Draft",
         priceType: data.priceType ?? "Net",
         currencyCode: data.currencyCode,
@@ -379,7 +350,6 @@ export async function createPriceListRule(
         minQuantity: data.minQuantity ?? null,
         maxQuantity: data.maxQuantity ?? null,
         customerTypeId: data.customerTypeId ?? null,
-        supplierTypeId: data.supplierTypeId ?? null,
         itemId: data.itemId ?? null,
         itemPostingGroupId: data.itemPostingGroupId ?? null,
         validFrom: data.validFrom || null,
@@ -430,9 +400,7 @@ export async function getPriceListAssignments(
 ) {
   return client
     .from("priceListAssignment")
-    .select(
-      "*, customer(id, name), customerType(id, name), supplier(id, name), supplierType(id, name)"
-    )
+    .select("*, customer(id, name), customerType(id, name)")
     .eq("priceListId", priceListId)
     .order("createdAt", { ascending: true });
 }
@@ -450,8 +418,6 @@ export async function createPriceListAssignment(
         priceListId: data.priceListId,
         customerId: data.customerId ?? null,
         customerTypeId: data.customerTypeId ?? null,
-        supplierId: data.supplierId ?? null,
-        supplierTypeId: data.supplierTypeId ?? null,
         companyId,
         createdBy: userId
       }
@@ -474,13 +440,8 @@ export async function syncPriceListAssignments(
   assignments: {
     customerIds?: string[];
     customerTypeIds?: string[];
-    supplierIds?: string[];
-    supplierTypeIds?: string[];
   }
 ): Promise<{ error: { message: string } | null }> {
-  // CHECK constraint enforces exactly-one-entity per row, so each loop
-  // produces a row with three FKs as null and one set. We return a
-  // { error } shape to match the existing call site in update.tsx.
   const db = getDatabaseClient();
   try {
     await db.transaction().execute(async (trx) => {
@@ -493,8 +454,6 @@ export async function syncPriceListAssignments(
         priceListId: string;
         customerId: string | null;
         customerTypeId: string | null;
-        supplierId: string | null;
-        supplierTypeId: string | null;
         companyId: string;
         createdBy: string;
       }> = [];
@@ -504,8 +463,6 @@ export async function syncPriceListAssignments(
           priceListId,
           customerId: id,
           customerTypeId: null,
-          supplierId: null,
-          supplierTypeId: null,
           companyId,
           createdBy: userId
         });
@@ -515,30 +472,6 @@ export async function syncPriceListAssignments(
           priceListId,
           customerId: null,
           customerTypeId: id,
-          supplierId: null,
-          supplierTypeId: null,
-          companyId,
-          createdBy: userId
-        });
-      }
-      for (const id of assignments.supplierIds ?? []) {
-        rows.push({
-          priceListId,
-          customerId: null,
-          customerTypeId: null,
-          supplierId: id,
-          supplierTypeId: null,
-          companyId,
-          createdBy: userId
-        });
-      }
-      for (const id of assignments.supplierTypeIds ?? []) {
-        rows.push({
-          priceListId,
-          customerId: null,
-          customerTypeId: null,
-          supplierId: null,
-          supplierTypeId: id,
           companyId,
           createdBy: userId
         });
@@ -622,6 +555,39 @@ export async function createPriceListVersion(
   return { data: newList, error: null };
 }
 
+/**
+ * Archive all Active sibling versions of a price list (same name + companyId,
+ * different ID). Called when a version is activated to enforce the invariant:
+ * at most one version is Active at a time. Draft siblings are left untouched
+ * because they don't participate in price resolution and archiving in-progress
+ * work would be surprising.
+ */
+export async function archiveSiblingVersions(
+  client: SupabaseClient<Database>,
+  priceListId: string,
+  companyId: string,
+  userId: string
+) {
+  const { data: self } = await client
+    .from("priceList")
+    .select("name")
+    .eq("id", priceListId)
+    .single();
+  if (!self) return;
+
+  return client
+    .from("priceList")
+    .update({
+      status: "Archived" as const,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("name", self.name)
+    .eq("companyId", companyId)
+    .eq("status", "Active")
+    .neq("id", priceListId);
+}
+
 // ------------------------------------------------------------
 // Copy all children from one price list to another
 // ------------------------------------------------------------
@@ -699,7 +665,6 @@ async function copyPriceListChildren(
         minQuantity: r.minQuantity,
         maxQuantity: r.maxQuantity,
         customerTypeId: r.customerTypeId,
-        supplierTypeId: r.supplierTypeId,
         itemId: r.itemId,
         itemPostingGroupId: r.itemPostingGroupId,
         validFrom: r.validFrom,
@@ -723,8 +688,6 @@ async function copyPriceListChildren(
         priceListId: targetListId,
         customerId: a.customerId,
         customerTypeId: a.customerTypeId,
-        supplierId: a.supplierId,
-        supplierTypeId: a.supplierTypeId,
         companyId,
         createdBy: userId
       }))
@@ -891,50 +854,6 @@ export async function getActivePriceListsForCustomer(
   return { data: applicable, error: null };
 }
 
-export async function getActivePriceListsForSupplier(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  supplierId: string,
-  supplierTypeId: string | null,
-  date: string,
-  currencyCode?: string
-) {
-  let query = client
-    .from("priceList")
-    .select("*, priceListAssignment(*)")
-    .eq("companyId", companyId)
-    .eq("type", "Purchase")
-    .eq("status", "Active")
-    .order("sequence", { ascending: true });
-
-  if (currencyCode) {
-    query = query.eq("currencyCode", currencyCode);
-  }
-
-  query = query.or(`validFrom.is.null,validFrom.lte.${date}`);
-  query = query.or(`validTo.is.null,validTo.gte.${date}`);
-
-  const { data, error } = await query;
-  if (error || !data) return { data: null, error };
-
-  const applicable = data.filter((pl) => {
-    const assignments = (pl as any).priceListAssignment as Array<{
-      supplierId: string | null;
-      supplierTypeId: string | null;
-    }>;
-
-    if (!assignments || assignments.length === 0) return true;
-
-    return assignments.some(
-      (a) =>
-        a.supplierId === supplierId ||
-        (supplierTypeId && a.supplierTypeId === supplierTypeId)
-    );
-  });
-
-  return { data: applicable, error: null };
-}
-
 export async function getPriceListItemsForResolution(
   client: SupabaseClient<Database>,
   priceListId: string,
@@ -976,12 +895,10 @@ export async function getApplicableRules(
   priceListId: string,
   quantity: number,
   customerTypeId: string | null,
-  supplierTypeId: string | null,
   itemId: string,
   itemPostingGroupId: string | null,
   date: string
 ) {
-  // Fetch all active rules for this price list
   const { data: allRules, error } = await client
     .from("priceListRule")
     .select("*")
@@ -991,20 +908,14 @@ export async function getApplicableRules(
 
   if (error || !allRules) return { data: null, error };
 
-  // Filter in-memory: a rule matches if ALL its non-null scope fields match
   const matched = allRules.filter((rule) => {
-    // Quantity range check
     if (rule.minQuantity !== null && quantity < rule.minQuantity) return false;
     if (rule.maxQuantity !== null && quantity > rule.maxQuantity) return false;
 
-    // Validity window check (NULL = open-ended on that side)
     if (rule.validFrom && date < rule.validFrom) return false;
     if (rule.validTo && date > rule.validTo) return false;
 
-    // Scope field checks (NULL = applies to all)
     if (rule.customerTypeId !== null && rule.customerTypeId !== customerTypeId)
-      return false;
-    if (rule.supplierTypeId !== null && rule.supplierTypeId !== supplierTypeId)
       return false;
     if (rule.itemId !== null && rule.itemId !== itemId) return false;
     if (
@@ -1033,32 +944,12 @@ export async function getSalesOrdersByPriceList(
     .eq("priceListId", priceListId);
 }
 
-export async function getPurchaseOrdersByPriceList(
-  client: SupabaseClient<Database>,
-  priceListId: string
-) {
-  return client
-    .from("purchaseOrderLine")
-    .select("purchaseOrderId, purchaseOrder!inner(id, purchaseOrderId)")
-    .eq("priceListId", priceListId);
-}
-
 export async function getCustomersByDefaultPriceList(
   client: SupabaseClient<Database>,
   priceListId: string
 ) {
   return client
     .from("customer")
-    .select("id, name")
-    .eq("priceListId", priceListId);
-}
-
-export async function getSuppliersByDefaultPriceList(
-  client: SupabaseClient<Database>,
-  priceListId: string
-) {
-  return client
-    .from("supplier")
     .select("id, name")
     .eq("priceListId", priceListId);
 }
@@ -1100,16 +991,12 @@ export type MatchedRule = {
 export type PriceResolutionInput = {
   customerId?: string;
   customerTypeId?: string;
-  supplierId?: string;
-  supplierTypeId?: string;
-  supplierPartId?: string;
   itemId: string;
   itemPostingGroupId?: string;
   quantity: number;
   date?: string;
   currencyCode?: string;
   exchangeRate?: number;
-  listType: "Sales" | "Purchase";
   existingBasePrice?: number;
 };
 
@@ -1269,30 +1156,22 @@ async function computeFormulaPrice(
 function getAssignmentType(
   list: any,
   customerId?: string,
-  customerTypeId?: string,
-  supplierId?: string,
-  supplierTypeId?: string
+  customerTypeId?: string
 ): AssignmentType {
   const assignments = list.priceListAssignment as
     | Array<{
         customerId: string | null;
         customerTypeId: string | null;
-        supplierId: string | null;
-        supplierTypeId: string | null;
       }>
     | undefined;
 
   if (!assignments || assignments.length === 0) return "global";
 
-  const hasDirect = assignments.some(
-    (a) => a.customerId === customerId || a.supplierId === supplierId
-  );
+  const hasDirect = assignments.some((a) => a.customerId === customerId);
   if (hasDirect) return "direct";
 
   const hasType = assignments.some(
-    (a) =>
-      (customerTypeId && a.customerTypeId === customerTypeId) ||
-      (supplierTypeId && a.supplierTypeId === supplierTypeId)
+    (a) => customerTypeId && a.customerTypeId === customerTypeId
   );
   if (hasType) return "type";
 
@@ -1311,16 +1190,9 @@ export async function resolvePrice(
   const date = input.date ?? new Date().toISOString().split("T")[0]!;
   const trace: PriceTraceStep[] = [];
 
-  // Look up customerTypeId / supplierTypeId from DB if not provided
-  // (the form only sends customerId / supplierId)
   let resolvedCustomerTypeId = input.customerTypeId ?? null;
-  let resolvedSupplierTypeId = input.supplierTypeId ?? null;
 
-  if (
-    input.listType === "Sales" &&
-    input.customerId &&
-    !resolvedCustomerTypeId
-  ) {
+  if (input.customerId && !resolvedCustomerTypeId) {
     const { data: cust } = await client
       .from("customer")
       .select("customerTypeId")
@@ -1329,40 +1201,17 @@ export async function resolvePrice(
     resolvedCustomerTypeId = cust?.customerTypeId ?? null;
   }
 
-  if (
-    input.listType === "Purchase" &&
-    input.supplierId &&
-    !resolvedSupplierTypeId
-  ) {
-    const { data: supp } = await client
-      .from("supplier")
-      .select("supplierTypeId")
-      .eq("id", input.supplierId)
-      .maybeSingle();
-    resolvedSupplierTypeId = supp?.supplierTypeId ?? null;
-  }
-
   // ---------------------------------------------------------
   // Step 1: Find applicable price lists
   // ---------------------------------------------------------
   let applicableLists: any[] = [];
 
-  if (input.listType === "Sales" && input.customerId) {
+  if (input.customerId) {
     const { data } = await getActivePriceListsForCustomer(
       client,
       companyId,
       input.customerId,
       resolvedCustomerTypeId,
-      date,
-      input.currencyCode
-    );
-    if (data) applicableLists = data;
-  } else if (input.listType === "Purchase" && input.supplierId) {
-    const { data } = await getActivePriceListsForSupplier(
-      client,
-      companyId,
-      input.supplierId,
-      resolvedSupplierTypeId,
       date,
       input.currencyCode
     );
@@ -1384,9 +1233,7 @@ export async function resolvePrice(
     const assignmentType = getAssignmentType(
       list,
       input.customerId,
-      resolvedCustomerTypeId ?? undefined,
-      input.supplierId,
-      resolvedSupplierTypeId ?? undefined
+      resolvedCustomerTypeId ?? undefined
     );
 
     const result = await getPriceListItemsForResolution(
@@ -1455,13 +1302,10 @@ export async function resolvePrice(
       basePrice = input.existingBasePrice;
       trace.push({
         step: "Base Price",
-        source:
-          input.listType === "Purchase"
-            ? "Supplier Part Price (existing)"
-            : "Item Unit Sale Price (fallback)",
+        source: "Item Unit Sale Price (fallback)",
         amount: basePrice
       });
-    } else if (input.listType === "Sales") {
+    } else {
       const { data: salePrice } = await client
         .from("itemUnitSalePrice")
         .select("unitSalePrice")
@@ -1473,13 +1317,6 @@ export async function resolvePrice(
         step: "Base Price",
         source: "Item Unit Sale Price (fallback)",
         amount: basePrice
-      });
-    } else {
-      basePrice = 0;
-      trace.push({
-        step: "Base Price",
-        source: "No price found",
-        amount: 0
       });
     }
   } else {
@@ -1503,7 +1340,6 @@ export async function resolvePrice(
       listIdForRules,
       input.quantity,
       resolvedCustomerTypeId,
-      resolvedSupplierTypeId,
       input.itemId,
       input.itemPostingGroupId ?? null,
       date
@@ -1576,8 +1412,6 @@ export function datesIntersect(
 type AssignmentRow = {
   customerId: string | null;
   customerTypeId: string | null;
-  supplierId: string | null;
-  supplierTypeId: string | null;
 };
 
 export function scopesIntersect(
@@ -1590,9 +1424,7 @@ export function scopesIntersect(
   const keys = (r: AssignmentRow): string[] =>
     [
       r.customerId && `c:${r.customerId}`,
-      r.customerTypeId && `ct:${r.customerTypeId}`,
-      r.supplierId && `s:${r.supplierId}`,
-      r.supplierTypeId && `st:${r.supplierTypeId}`
+      r.customerTypeId && `ct:${r.customerTypeId}`
     ].filter((k): k is string => Boolean(k));
 
   const bSet = new Set(b.flatMap(keys));
@@ -1630,9 +1462,7 @@ export async function getOverlappingPriceLists(
   const candidateIds = siblings.map((s) => s.id);
   const { data: allAssignments } = await client
     .from("priceListAssignment")
-    .select(
-      "priceListId, customerId, customerTypeId, supplierId, supplierTypeId"
-    )
+    .select("priceListId, customerId, customerTypeId")
     .in("priceListId", [priceListId, ...candidateIds]);
 
   const byList = new Map<string, AssignmentRow[]>();
@@ -1658,23 +1488,20 @@ export async function getOverlappingPriceLists(
 
 export async function getOverlapIdsForPriceLists(
   client: SupabaseClient<Database>,
-  companyId: string,
-  type: "Sales" | "Purchase"
+  companyId: string
 ): Promise<Set<string>> {
   const { data: activeLists } = await client
     .from("priceList")
     .select("id, currencyCode, validFrom, validTo")
     .eq("companyId", companyId)
-    .eq("type", type)
+    .eq("type", "Sales")
     .eq("status", "Active");
   if (!activeLists || activeLists.length < 2) return new Set();
 
   const ids = activeLists.map((l) => l.id);
   const { data: assignments } = await client
     .from("priceListAssignment")
-    .select(
-      "priceListId, customerId, customerTypeId, supplierId, supplierTypeId"
-    )
+    .select("priceListId, customerId, customerTypeId")
     .in("priceListId", ids);
 
   const byList = new Map<string, AssignmentRow[]>();

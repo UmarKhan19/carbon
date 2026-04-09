@@ -44,8 +44,7 @@ const PriceListItemsTable = ({ data }: PriceListItemsTableProps) => {
   const routeData = useRouteData<{ priceList: PriceListDetail }>(
     path.to.priceList(id)
   );
-  const permissionModule =
-    routeData?.priceList?.type === "Purchase" ? "purchasing" : "sales";
+  const permissionModule = "sales";
   // Active price lists are immutable: editing requires creating a new version
   // first. This satisfies AC-ERP-08 (modifications generate new versions).
   const isLocked = routeData?.priceList?.status === "Active";

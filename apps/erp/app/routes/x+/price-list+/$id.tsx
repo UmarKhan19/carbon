@@ -22,9 +22,7 @@ import {
   getPriceListItems,
   getPriceListRules,
   getPriceListVersions,
-  getPurchaseOrdersByPriceList,
-  getSalesOrdersByPriceList,
-  getSuppliersByDefaultPriceList
+  getSalesOrdersByPriceList
 } from "~/modules/pricing";
 import {
   PriceListExplorer,
@@ -70,24 +68,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const explorerData = Promise.all([
     getPriceListVersions(client, id),
     getSalesOrdersByPriceList(client, id),
-    getPurchaseOrdersByPriceList(client, id),
-    getCustomersByDefaultPriceList(client, id),
-    getSuppliersByDefaultPriceList(client, id)
-  ]).then(
-    ([
-      versions,
-      salesOrders,
-      purchaseOrders,
-      defaultCustomers,
-      defaultSuppliers
-    ]) => ({
-      versions: versions.data ?? [],
-      salesOrders: salesOrders.data ?? [],
-      purchaseOrders: purchaseOrders.data ?? [],
-      defaultCustomers: defaultCustomers.data ?? [],
-      defaultSuppliers: defaultSuppliers.data ?? []
-    })
-  );
+    getCustomersByDefaultPriceList(client, id)
+  ]).then(([versions, salesOrders, defaultCustomers]) => ({
+    versions: versions.data ?? [],
+    salesOrders: salesOrders.data ?? [],
+    defaultCustomers: defaultCustomers.data ?? []
+  }));
 
   return {
     priceList: priceList.data,
@@ -122,9 +108,7 @@ export default function PriceListRoute() {
                         assignments={assignments}
                         versions={deferred.versions}
                         salesOrders={deferred.salesOrders}
-                        purchaseOrders={deferred.purchaseOrders}
                         defaultCustomers={deferred.defaultCustomers}
-                        defaultSuppliers={deferred.defaultSuppliers}
                         priceListId={id}
                       />
                     )}

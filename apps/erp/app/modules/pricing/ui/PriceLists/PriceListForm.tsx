@@ -37,16 +37,12 @@ const PriceListForm = ({ initialValues, onClose }: PriceListFormProps) => {
   const permissions = usePermissions();
 
   const isEditing = initialValues.id !== undefined;
-  const permissionModule =
-    initialValues.type === "Purchase" ? "purchasing" : "sales";
+  const permissionModule = "sales";
   const isDisabled = isEditing
     ? !permissions.can("update", permissionModule)
     : !permissions.can("create", permissionModule);
 
-  const listPath =
-    initialValues.type === "Sales"
-      ? path.to.salesPriceLists
-      : path.to.purchasePriceLists;
+  const listPath = path.to.salesPriceLists;
 
   const action = isEditing
     ? path.to.priceListDetails(initialValues.id!)
@@ -75,7 +71,7 @@ const PriceListForm = ({ initialValues, onClose }: PriceListFormProps) => {
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
-              <Hidden name="type" value={initialValues.type} />
+              <Hidden name="type" value="Sales" />
               <VStack spacing={4}>
                 <Input name="name" label="Name" />
                 <Input name="description" label="Description" />

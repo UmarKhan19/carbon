@@ -19,7 +19,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id, ruleId } = params;
   if (!id || !ruleId) throw new Error("IDs not found");
 
-  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  const { isLocked } = await getPriceListLockState(client, id);
   if (isLocked) {
     throw redirect(
       path.to.priceListRules(id),
@@ -33,7 +33,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
   await requirePermissions(request, {
-    delete: plType === "Purchase" ? "purchasing" : "sales"
+    delete: "sales"
   });
 
   const { error: deleteError } = await deletePriceListRule(client, ruleId);

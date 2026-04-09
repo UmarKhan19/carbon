@@ -5,8 +5,7 @@ import {
   LuLayoutList,
   LuPackageSearch,
   LuSquareChartGantt,
-  LuStar,
-  LuTag
+  LuStar
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
 import { useSavedViews } from "~/hooks/useSavedViews";
@@ -64,12 +63,6 @@ const purchasingRoutes: AuthenticatedRouteGroup[] = [
   {
     name: "Configure",
     routes: [
-      {
-        name: "Price Lists",
-        to: path.to.purchasePriceLists,
-        role: "employee",
-        icon: <LuTag />
-      },
       {
         name: "Types",
         to: path.to.supplierTypes,

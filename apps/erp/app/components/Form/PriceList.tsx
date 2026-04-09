@@ -6,12 +6,10 @@ import { useFetcher } from "react-router";
 import type { getPriceListsList } from "~/modules/pricing";
 import { path } from "~/utils/path";
 
-type PriceListSelectProps = Omit<ComboboxProps, "options"> & {
-  type?: "Sales" | "Purchase";
-};
+type PriceListSelectProps = Omit<ComboboxProps, "options">;
 
-const PriceList = ({ type = "Sales", ...props }: PriceListSelectProps) => {
-  const options = usePriceLists(type);
+const PriceList = (props: PriceListSelectProps) => {
+  const options = usePriceLists();
 
   return (
     <Combobox
@@ -26,16 +24,11 @@ PriceList.displayName = "PriceList";
 
 export default PriceList;
 
-export const usePriceLists = (type: "Sales" | "Purchase" = "Sales") => {
+export const usePriceLists = () => {
   const fetcher = useFetcher<Awaited<ReturnType<typeof getPriceListsList>>>();
 
-  const apiPath =
-    type === "Sales"
-      ? path.to.api.salesPriceLists
-      : path.to.api.purchasePriceLists;
-
   useMount(() => {
-    fetcher.load(apiPath);
+    fetcher.load(path.to.api.salesPriceLists);
   });
 
   const options = useMemo(() => {

@@ -20,13 +20,7 @@ import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { Enumerable } from "~/components/Enumerable";
-import {
-  Currency,
-  Customers,
-  CustomerTypes,
-  Suppliers,
-  SupplierTypes
-} from "~/components/Form";
+import { Currency, Customers, CustomerTypes } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
@@ -55,8 +49,6 @@ type AssignmentRow = {
   id: string;
   customerId: string | null;
   customerTypeId: string | null;
-  supplierId: string | null;
-  supplierTypeId: string | null;
 };
 
 const PriceListProperties = () => {
@@ -73,9 +65,7 @@ const PriceListProperties = () => {
   const priceList = routeData?.priceList;
   const assignments = routeData?.assignments ?? [];
 
-  const permissionModule =
-    priceList?.type === "Purchase" ? "purchasing" : "sales";
-  const isSales = priceList?.type === "Sales";
+  const permissionModule = "sales";
 
   const canUpdate = permissions.can("update", permissionModule);
   // Active price lists are immutable for everything that affects pricing
@@ -126,30 +116,9 @@ const PriceListProperties = () => {
     [assignments]
   );
 
-  const currentSupplierIds = useMemo(
-    () =>
-      assignments
-        .filter((a) => a.supplierId)
-        .map((a) => a.supplierId) as string[],
-    [assignments]
-  );
-
-  const currentSupplierTypeIds = useMemo(
-    () =>
-      assignments
-        .filter((a) => a.supplierTypeId)
-        .map((a) => a.supplierTypeId) as string[],
-    [assignments]
-  );
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: assignmentFetcher.submit is stable
   const onSyncAssignments = useCallback(
-    (overrides: {
-      customerIds?: string[];
-      customerTypeIds?: string[];
-      supplierIds?: string[];
-      supplierTypeIds?: string[];
-    }) => {
+    (overrides: { customerIds?: string[]; customerTypeIds?: string[] }) => {
       const formData = new FormData();
       formData.append("id", id);
       formData.append("field", "assignments");
@@ -160,25 +129,13 @@ const PriceListProperties = () => {
       for (const ctid of overrides.customerTypeIds ?? currentCustomerTypeIds) {
         formData.append("customerTypeIds", ctid);
       }
-      for (const sid of overrides.supplierIds ?? currentSupplierIds) {
-        formData.append("supplierIds", sid);
-      }
-      for (const stid of overrides.supplierTypeIds ?? currentSupplierTypeIds) {
-        formData.append("supplierTypeIds", stid);
-      }
 
       assignmentFetcher.submit(formData, {
         method: "post",
         action: path.to.updatePriceList
       });
     },
-    [
-      id,
-      currentCustomerIds,
-      currentCustomerTypeIds,
-      currentSupplierIds,
-      currentSupplierTypeIds
-    ]
+    [id, currentCustomerIds, currentCustomerTypeIds]
   );
 
   const { locale } = useLocale();
@@ -350,87 +307,41 @@ const PriceListProperties = () => {
       <div className="border-b border-border" />
 
       {/* Assignments */}
-      {isSales ? (
-        <>
-          <ValidatedForm
-            defaultValues={{ customerIds: currentCustomerIds }}
-            validator={z.object({
-              customerIds: z.array(z.string()).optional()
-            })}
-            className="w-full"
-          >
-            <Customers
-              name="customerIds"
-              label="Customers"
-              value={currentCustomerIds}
-              isReadOnly={!canEditPricing}
-              inline={inlinePreview}
-              onChange={(selected) =>
-                onSyncAssignments({ customerIds: selected })
-              }
-            />
-          </ValidatedForm>
+      <ValidatedForm
+        defaultValues={{ customerIds: currentCustomerIds }}
+        validator={z.object({
+          customerIds: z.array(z.string()).optional()
+        })}
+        className="w-full"
+      >
+        <Customers
+          name="customerIds"
+          label="Customers"
+          value={currentCustomerIds}
+          isReadOnly={!canEditPricing}
+          inline={inlinePreview}
+          onChange={(selected) => onSyncAssignments({ customerIds: selected })}
+        />
+      </ValidatedForm>
 
-          <ValidatedForm
-            defaultValues={{ customerTypeIds: currentCustomerTypeIds }}
-            validator={z.object({
-              customerTypeIds: z.array(z.string()).optional()
-            })}
-            className="w-full"
-          >
-            <CustomerTypes
-              name="customerTypeIds"
-              label="Customer Types"
-              value={currentCustomerTypeIds}
-              isReadOnly={!canEditPricing}
-              inline={inlinePreview}
-              onChange={(selected) =>
-                onSyncAssignments({ customerTypeIds: selected })
-              }
-            />
-          </ValidatedForm>
-        </>
-      ) : (
-        <>
-          <ValidatedForm
-            defaultValues={{ supplierIds: currentSupplierIds }}
-            validator={z.object({
-              supplierIds: z.array(z.string()).optional()
-            })}
-            className="w-full"
-          >
-            <Suppliers
-              name="supplierIds"
-              label="Suppliers"
-              value={currentSupplierIds}
-              isReadOnly={!canEditPricing}
-              inline={inlinePreview}
-              onChange={(selected) =>
-                onSyncAssignments({ supplierIds: selected })
-              }
-            />
-          </ValidatedForm>
-
-          <ValidatedForm
-            defaultValues={{ supplierTypeIds: currentSupplierTypeIds }}
-            validator={z.object({
-              supplierTypeIds: z.array(z.string()).optional()
-            })}
-            className="w-full"
-          >
-            <SupplierTypes
-              name="supplierTypeIds"
-              label="Supplier Types"
-              value={currentSupplierTypeIds}
-              isReadOnly={!canEditPricing}
-              inline={inlinePreview}
-              onChange={(selected) =>
-                onSyncAssignments({ supplierTypeIds: selected })
-              }
-            />
-          </ValidatedForm>
-        </>
-      )}
+      <ValidatedForm
+        defaultValues={{ customerTypeIds: currentCustomerTypeIds }}
+        validator={z.object({
+          customerTypeIds: z.array(z.string()).optional()
+        })}
+        className="w-full"
+      >
+        <CustomerTypes
+          name="customerTypeIds"
+          label="Customer Types"
+          value={currentCustomerTypeIds}
+          isReadOnly={!canEditPricing}
+          inline={inlinePreview}
+          onChange={(selected) =>
+            onSyncAssignments({ customerTypeIds: selected })
+          }
+        />
+      </ValidatedForm>
 
       <div className="border-b border-border" />
 

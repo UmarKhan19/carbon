@@ -60,13 +60,9 @@ const PriceListHeader = () => {
   if (!priceList) return null;
 
   const status = priceList.status;
-  const permissionModule =
-    priceList.type === "Purchase" ? "purchasing" : "sales";
+  const permissionModule = "sales";
   const canUpdate = permissions.can("update", permissionModule);
-  const listPath =
-    priceList.type === "Sales"
-      ? path.to.salesPriceLists
-      : path.to.purchasePriceLists;
+  const listPath = path.to.salesPriceLists;
 
   const handleCreateVersion = () => {
     versionFetcher.submit(null, {

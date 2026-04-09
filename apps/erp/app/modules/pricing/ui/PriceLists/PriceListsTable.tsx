@@ -13,25 +13,18 @@ import PriceListStatus from "../PriceListStatus";
 type PriceListsTableProps = {
   data: PriceList[];
   count: number;
-  type: "Sales" | "Purchase";
   overlapIds: string[];
 };
 
-const PriceListsTable = ({
-  data,
-  count,
-  type,
-  overlapIds
-}: PriceListsTableProps) => {
+const PriceListsTable = ({ data, count, overlapIds }: PriceListsTableProps) => {
   const overlapSet = useMemo(() => new Set(overlapIds), [overlapIds]);
 
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [params] = useUrlParams();
 
-  const permissionModule = type === "Sales" ? "sales" : "purchasing";
-  const listPath =
-    type === "Sales" ? path.to.salesPriceLists : path.to.purchasePriceLists;
+  const permissionModule = "sales";
+  const listPath = path.to.salesPriceLists;
 
   const columns = useMemo<ColumnDef<PriceList>[]>(
     () => [

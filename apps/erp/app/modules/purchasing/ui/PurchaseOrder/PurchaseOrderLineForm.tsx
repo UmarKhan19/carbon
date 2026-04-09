@@ -14,7 +14,6 @@ import {
   ModalCardHeader,
   ModalCardProvider,
   ModalCardTitle,
-  useDebounce,
   useDisclosure,
   useMount,
   VStack
@@ -22,7 +21,7 @@ import {
 import { getItemReadableId } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { PostgrestResponse } from "@supabase/supabase-js";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
 import {
@@ -44,7 +43,6 @@ import {
   useUser
 } from "~/hooks";
 import { getSupplierPartPriceBreaks } from "~/modules/items";
-import { PriceTracePopover } from "~/modules/pricing/ui/PriceTracePopover";
 import type { PurchaseOrder, PurchaseOrderLine } from "~/modules/purchasing";
 import {
   isPurchaseOrderLocked,
@@ -96,9 +94,6 @@ const PurchaseOrderLineForm = ({
     inventoryUom: string;
     minimumOrderQuantity?: number;
     priceBreaks: Array<{ quantity: number; unitPrice: number }>;
-    priceListId: string | null;
-    priceListName: string | null;
-    priceTrace: unknown;
     purchaseQuantity: number;
     purchaseUom: string;
     requestedDate: string | null;
@@ -117,9 +112,6 @@ const PurchaseOrderLineForm = ({
     purchaseQuantity: initialValues.purchaseQuantity ?? 1,
     purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
     priceBreaks: [],
-    priceListId: initialValues.priceListId ?? null,
-    priceListName: null,
-    priceTrace: (initialValues as { priceTrace?: unknown }).priceTrace ?? null,
     requestedDate: initialValues?.requestedDate ?? null,
     shelfId: initialValues.shelfId ?? "",
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
@@ -157,21 +149,6 @@ const PurchaseOrderLineForm = ({
 
   const isEditing = initialValues.id !== undefined;
 
-  // Load price list name when editing a line that has a priceListId
-  useEffect(() => {
-    if (!initialValues.priceListId || !carbon) return;
-    carbon
-      .from("priceList")
-      .select("name")
-      .eq("id", initialValues.priceListId)
-      .single()
-      .then(({ data }) => {
-        if (data?.name) {
-          setItemData((d) => ({ ...d, priceListName: data.name }));
-        }
-      });
-  }, [initialValues.priceListId, carbon]);
-
   // Load price breaks on mount when editing so quantity changes resolve correctly
   useMount(() => {
     if (!isEditing || !initialValues.itemId) return;
@@ -205,66 +182,6 @@ const PurchaseOrderLineForm = ({
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
 
-  const resolvePurchasePrice = useCallback(
-    async (itemId: string, quantity: number, existingBasePrice: number) => {
-      const supplierId = routeData?.purchaseOrder?.supplierId;
-      if (!supplierId) return null;
-
-      try {
-        const response = await fetch(path.to.api.resolvePurchasePrice, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            supplierId,
-            itemId,
-            quantity,
-            existingBasePrice,
-            exchangeRate: routeData?.purchaseOrder?.exchangeRate ?? 1
-          })
-        });
-        if (response.ok) {
-          const result = await response.json();
-          if (result.priceListId) {
-            return {
-              finalPrice: result.finalPrice as number,
-              priceListId: result.priceListId as string,
-              priceListName: (result.priceListName as string) ?? null,
-              trace: result.trace ?? null
-            };
-          }
-        }
-      } catch {
-        // Fall back to supplier price on any error
-      }
-      return null;
-    },
-    [
-      routeData?.purchaseOrder?.supplierId,
-      routeData?.purchaseOrder?.exchangeRate
-    ]
-  );
-
-  const debouncedQuantityResolve = useDebounce(
-    async (qty: number, supplierUnitPrice: number) => {
-      if (!itemData.itemId) return;
-      const result = await resolvePurchasePrice(
-        itemData.itemId,
-        qty,
-        supplierUnitPrice
-      );
-      if (result) {
-        setItemData((d) => ({
-          ...d,
-          supplierUnitPrice: result.finalPrice,
-          priceListId: result.priceListId,
-          priceListName: result.priceListName,
-          priceTrace: result.trace
-        }));
-      }
-    },
-    400
-  );
-
   const onTypeChange = (t: MethodItemType | "Item") => {
     if (t === itemType) return;
     setItemType(t as MethodItemType);
@@ -276,9 +193,6 @@ const PurchaseOrderLineForm = ({
       inventoryUom: "",
       minimumOrderQuantity: undefined,
       priceBreaks: [],
-      priceListId: null,
-      priceListName: null,
-      priceTrace: null,
       purchaseQuantity: 1,
       purchaseUom: "",
       requestedDate: null,
@@ -343,28 +257,11 @@ const PurchaseOrderLineForm = ({
           exchangeRate
         );
 
-        // Try purchase price list resolution (layered on top of supplier price)
-        let finalPrice = resolvedPrice;
-        let priceListId: string | null = null;
-        let priceListName: string | null = null;
-        let priceTrace: unknown = null;
-        const plResult = await resolvePurchasePrice(
-          itemId,
-          initialQty,
-          resolvedPrice
-        );
-        if (plResult) {
-          finalPrice = plResult.finalPrice;
-          priceListId = plResult.priceListId;
-          priceListName = plResult.priceListName;
-          priceTrace = plResult.trace;
-        }
-
         setItemData({
           itemId: itemId,
           description: item.data?.name ?? "",
           purchaseQuantity: initialQty,
-          supplierUnitPrice: finalPrice,
+          supplierUnitPrice: resolvedPrice,
           supplierShippingCost: 0,
           purchaseUom:
             supplierPart?.data?.supplierUnitOfMeasureCode ??
@@ -384,9 +281,6 @@ const PurchaseOrderLineForm = ({
           supplierTaxAmount: 0,
           taxPercent: 0,
           priceBreaks: breaks,
-          priceListId,
-          priceListName,
-          priceTrace,
           fallbackUnitPrice: baseFallback
         });
 
@@ -497,18 +391,6 @@ const PurchaseOrderLineForm = ({
                 <Hidden name="purchaseOrderLineType" value={itemType} />
                 <Hidden name="description" value={itemData.description} />
                 <Hidden
-                  name="priceListId"
-                  value={itemData.priceListId ?? undefined}
-                />
-                <Hidden
-                  name="priceTrace"
-                  value={
-                    itemData?.priceTrace
-                      ? JSON.stringify(itemData.priceTrace)
-                      : undefined
-                  }
-                />
-                <Hidden
                   name="exchangeRate"
                   value={routeData?.purchaseOrder?.exchangeRate ?? 1}
                 />
@@ -577,11 +459,8 @@ const PurchaseOrderLineForm = ({
                         setItemData((d) => ({
                           ...d,
                           purchaseQuantity: value,
-                          supplierUnitPrice: d.priceListId
-                            ? d.supplierUnitPrice
-                            : supplierPrice
+                          supplierUnitPrice: supplierPrice
                         }));
-                        debouncedQuantityResolve(value, supplierPrice);
                       }}
                     />
 
@@ -620,38 +499,23 @@ const PurchaseOrderLineForm = ({
                         />
                       </>
                     )}
-                    <div className="flex flex-col gap-y-2 w-full">
-                      <div className="flex items-center justify-between min-h-[16px]">
-                        <span className="text-xs font-medium text-muted-foreground">
-                          Unit Price
-                        </span>
-                        <PriceTracePopover
-                          priceListId={itemData.priceListId}
-                          priceListName={itemData.priceListName}
-                          priceTrace={itemData.priceTrace}
-                          currencyCode={
-                            routeData?.purchaseOrder?.currencyCode ??
-                            company.baseCurrencyCode
-                          }
-                        />
-                      </div>
-                      <NumberControlled
-                        name="supplierUnitPrice"
-                        value={itemData.supplierUnitPrice}
-                        formatOptions={{
-                          style: "currency",
-                          currency:
-                            routeData?.purchaseOrder?.currencyCode ??
-                            company.baseCurrencyCode
-                        }}
-                        onChange={(value) =>
-                          setItemData((d) => ({
-                            ...d,
-                            supplierUnitPrice: value
-                          }))
-                        }
-                      />
-                    </div>
+                    <NumberControlled
+                      name="supplierUnitPrice"
+                      label="Unit Price"
+                      value={itemData.supplierUnitPrice}
+                      formatOptions={{
+                        style: "currency",
+                        currency:
+                          routeData?.purchaseOrder?.currencyCode ??
+                          company.baseCurrencyCode
+                      }}
+                      onChange={(value) =>
+                        setItemData((d) => ({
+                          ...d,
+                          supplierUnitPrice: value
+                        }))
+                      }
+                    />
                     <NumberControlled
                       name="supplierShippingCost"
                       label="Shipping"

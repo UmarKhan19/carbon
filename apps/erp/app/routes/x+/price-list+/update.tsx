@@ -1,6 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import {
+  archiveSiblingVersions,
   getPriceListLockState,
   syncPriceListAssignments
 } from "~/modules/pricing";
@@ -44,14 +45,10 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const customerIds = formData.getAll("customerIds") as string[];
     const customerTypeIds = formData.getAll("customerTypeIds") as string[];
-    const supplierIds = formData.getAll("supplierIds") as string[];
-    const supplierTypeIds = formData.getAll("supplierTypeIds") as string[];
 
     const result = await syncPriceListAssignments(id, companyId, userId, {
       customerIds,
-      customerTypeIds,
-      supplierIds,
-      supplierTypeIds
+      customerTypeIds
     });
 
     if (result.error) {
@@ -96,6 +93,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (field === "name" && !value) {
     return { error: { message: "Name is required" }, data: null };
+  }
+
+  // Activating a version → archive all other Active siblings first
+  // so at most one version is Active at a time.
+  if (field === "status" && value === "Active") {
+    await archiveSiblingVersions(client, id, companyId, userId);
   }
 
   return client

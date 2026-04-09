@@ -26815,12 +26815,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceTrace",
-          },
-          {
             $ref: "#/parameters/select",
           },
           {
@@ -27021,12 +27015,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceTrace",
-          },
-          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -27179,12 +27167,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate",
-          },
-          {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceListId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.priceTrace",
           },
           {
             $ref: "#/parameters/body.purchaseOrderLine",
@@ -51976,12 +51958,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListAssignment.customerTypeId",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListAssignment.supplierId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListAssignment.supplierTypeId",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListAssignment.companyId",
           },
           {
@@ -52068,12 +52044,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListAssignment.customerTypeId",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListAssignment.supplierId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListAssignment.supplierTypeId",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListAssignment.companyId",
           },
           {
@@ -52112,12 +52082,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.priceListAssignment.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListAssignment.supplierId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListAssignment.supplierTypeId",
           },
           {
             $ref: "#/parameters/rowFilter.priceListAssignment.companyId",
@@ -57133,9 +57097,6 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.priceListId",
-          },
-          {
             $ref: "#/parameters/select",
           },
           {
@@ -57267,9 +57228,6 @@ export default {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
           },
           {
-            $ref: "#/parameters/rowFilter.supplier.priceListId",
-          },
-          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -57353,9 +57311,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.supplier.supplierStatus",
-          },
-          {
-            $ref: "#/parameters/rowFilter.supplier.priceListId",
           },
           {
             $ref: "#/parameters/body.supplier",
@@ -61315,9 +61270,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListRule.customerTypeId",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListRule.supplierTypeId",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListRule.itemId",
           },
           {
@@ -61437,9 +61389,6 @@ export default {
             $ref: "#/parameters/rowFilter.priceListRule.customerTypeId",
           },
           {
-            $ref: "#/parameters/rowFilter.priceListRule.supplierTypeId",
-          },
-          {
             $ref: "#/parameters/rowFilter.priceListRule.itemId",
           },
           {
@@ -61511,9 +61460,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.priceListRule.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.priceListRule.supplierTypeId",
           },
           {
             $ref: "#/parameters/rowFilter.priceListRule.itemId",
@@ -71547,8 +71493,7 @@ export default {
         },
         type: {
           default: "Sales",
-          enum: ["Sales", "Purchase"],
-          format: 'public."priceListType"',
+          format: "text",
           type: "string",
         },
         status: {
@@ -83802,17 +83747,6 @@ export default {
           format: "date",
           type: "string",
         },
-        priceListId: {
-          description:
-            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        priceTrace: {
-          description:
-            "Snapshot of price resolution trace at order line save time",
-          format: "jsonb",
-        },
       },
       type: "object",
     },
@@ -95686,18 +95620,6 @@ export default {
           format: "text",
           type: "string",
         },
-        supplierId: {
-          description:
-            "Note:\nThis is a Foreign Key to `supplier.id`.<fk table='supplier' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        supplierTypeId: {
-          description:
-            "Note:\nThis is a Foreign Key to `supplierType.id`.<fk table='supplierType' column='id'/>",
-          format: "text",
-          type: "string",
-        },
         companyId: {
           description:
             "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
@@ -98277,12 +98199,6 @@ export default {
           format: 'public."supplierStatusType"',
           type: "string",
         },
-        priceListId: {
-          description:
-            "Note:\nThis is a Foreign Key to `priceList.id`.<fk table='priceList' column='id'/>",
-          format: "text",
-          type: "string",
-        },
       },
       type: "object",
     },
@@ -100483,12 +100399,6 @@ export default {
         customerTypeId: {
           description:
             "Note:\nThis is a Foreign Key to `customerType.id`.<fk table='customerType' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        supplierTypeId: {
-          description:
-            "Note:\nThis is a Foreign Key to `supplierType.id`.<fk table='supplierType' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -116718,19 +116628,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.purchaseOrderLine.priceListId": {
-      name: "priceListId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.purchaseOrderLine.priceTrace": {
-      name: "priceTrace",
-      description: "Snapshot of price resolution trace at order line save time",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "body.stockTransferLines": {
       name: "stockTransferLines",
       description: "stockTransferLines",
@@ -130117,18 +130014,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.priceListAssignment.supplierId": {
-      name: "supplierId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.priceListAssignment.supplierTypeId": {
-      name: "supplierTypeId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.priceListAssignment.companyId": {
       name: "companyId",
       required: false,
@@ -133060,12 +132945,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.supplier.priceListId": {
-      name: "priceListId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "body.timeCardEntry": {
       name: "timeCardEntry",
       description: "timeCardEntry",
@@ -135513,12 +135392,6 @@ export default {
     },
     "rowFilter.priceListRule.customerTypeId": {
       name: "customerTypeId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.priceListRule.supplierTypeId": {
-      name: "supplierTypeId",
       required: false,
       in: "query",
       type: "string",

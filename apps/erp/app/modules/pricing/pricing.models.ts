@@ -8,7 +8,7 @@ export const priceListStatusTypes = [
   "Archived"
 ] as const;
 
-export const priceListTypes = ["Sales", "Purchase"] as const;
+export const priceListTypes = ["Sales"] as const;
 
 export const priceListPriceTypes = ["Gross", "Net", "Discounted"] as const;
 
@@ -63,7 +63,6 @@ export const priceListRuleValidator = z
     minQuantity: zfd.numeric(z.number().min(0).optional()),
     maxQuantity: zfd.numeric(z.number().min(0).optional()),
     customerTypeId: zfd.text(z.string().optional()),
-    supplierTypeId: zfd.text(z.string().optional()),
     itemId: zfd.text(z.string().optional()),
     itemPostingGroupId: zfd.text(z.string().optional()),
     validFrom: zfd.text(z.string().optional()),
@@ -87,27 +86,18 @@ export const priceListAssignmentValidator = z
     id: zfd.text(z.string().optional()),
     priceListId: z.string().min(1),
     customerId: zfd.text(z.string().optional()),
-    customerTypeId: zfd.text(z.string().optional()),
-    supplierId: zfd.text(z.string().optional()),
-    supplierTypeId: zfd.text(z.string().optional())
+    customerTypeId: zfd.text(z.string().optional())
   })
-  .refine(
-    (d) =>
-      !!(d.customerId || d.customerTypeId || d.supplierId || d.supplierTypeId),
-    {
-      message: "Select a customer, customer type, supplier, or supplier type",
-      path: ["customerId"]
-    }
-  );
+  .refine((d) => !!(d.customerId || d.customerTypeId), {
+    message: "Select a customer or customer type",
+    path: ["customerId"]
+  });
 
 export const priceResolutionInputValidator = z.object({
   itemId: z.string().min(1),
   quantity: z.number().nonnegative(),
   customerId: z.string().optional(),
   customerTypeId: z.string().optional(),
-  supplierId: z.string().optional(),
-  supplierTypeId: z.string().optional(),
-  supplierPartId: z.string().optional(),
   itemPostingGroupId: z.string().optional(),
   date: z.string().optional(),
   currencyCode: z.string().optional(),

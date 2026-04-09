@@ -9,8 +9,8 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Pricing",
-  to: path.to.salesPriceLists
+  breadcrumb: "Sales",
+  to: path.to.sales
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

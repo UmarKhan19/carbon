@@ -23,9 +23,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id, itemId } = params;
   if (!id) throw new Error("Price list ID not found");
 
-  const { type: plType } = await getPriceListLockState(client, id);
+  await getPriceListLockState(client, id);
   await requirePermissions(request, {
-    update: plType === "Purchase" ? "purchasing" : "sales"
+    update: "sales"
   });
 
   if (!itemId) throw notFound("Item ID not found");
@@ -50,7 +50,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id, itemId } = params;
   if (!id || !itemId) throw new Error("IDs not found");
 
-  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  const { isLocked } = await getPriceListLockState(client, id);
   if (isLocked) {
     return {
       error: {
@@ -61,7 +61,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
   await requirePermissions(request, {
-    update: plType === "Purchase" ? "purchasing" : "sales"
+    update: "sales"
   });
 
   const formData = await request.formData();

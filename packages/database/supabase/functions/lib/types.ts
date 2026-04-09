@@ -22568,7 +22568,7 @@ export type Database = {
           priceType: Database["public"]["Enums"]["priceListPriceType"]
           sequence: number
           status: Database["public"]["Enums"]["priceListStatus"]
-          type: Database["public"]["Enums"]["priceListType"]
+          type: string
           updatedAt: string | null
           updatedBy: string | null
           validFrom: string | null
@@ -22588,7 +22588,7 @@ export type Database = {
           priceType?: Database["public"]["Enums"]["priceListPriceType"]
           sequence?: number
           status?: Database["public"]["Enums"]["priceListStatus"]
-          type?: Database["public"]["Enums"]["priceListType"]
+          type?: string
           updatedAt?: string | null
           updatedBy?: string | null
           validFrom?: string | null
@@ -22608,7 +22608,7 @@ export type Database = {
           priceType?: Database["public"]["Enums"]["priceListPriceType"]
           sequence?: number
           status?: Database["public"]["Enums"]["priceListStatus"]
-          type?: Database["public"]["Enums"]["priceListType"]
+          type?: string
           updatedAt?: string | null
           updatedBy?: string | null
           validFrom?: string | null
@@ -22739,8 +22739,6 @@ export type Database = {
           customerTypeId: string | null
           id: string
           priceListId: string
-          supplierId: string | null
-          supplierTypeId: string | null
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -22752,8 +22750,6 @@ export type Database = {
           customerTypeId?: string | null
           id?: string
           priceListId: string
-          supplierId?: string | null
-          supplierTypeId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -22765,8 +22761,6 @@ export type Database = {
           customerTypeId?: string | null
           id?: string
           priceListId?: string
-          supplierId?: string | null
-          supplierTypeId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -22867,48 +22861,6 @@ export type Database = {
             columns: ["priceListId"]
             isOneToOne: false
             referencedRelation: "priceList"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "priceListAssignment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "contractors"
-            referencedColumns: ["supplierId"]
-          },
-          {
-            foreignKeyName: "priceListAssignment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["supplierId"]
-          },
-          {
-            foreignKeyName: "priceListAssignment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "purchaseOrderSuppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "priceListAssignment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "supplier"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "priceListAssignment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "priceListAssignment_supplierTypeId_fkey"
-            columns: ["supplierTypeId"]
-            isOneToOne: false
-            referencedRelation: "supplierType"
             referencedColumns: ["id"]
           },
           {
@@ -23314,7 +23266,6 @@ export type Database = {
           priceListId: string
           priority: number
           ruleType: Database["public"]["Enums"]["priceListRuleType"]
-          supplierTypeId: string | null
           updatedAt: string | null
           updatedBy: string | null
           validFrom: string | null
@@ -23337,7 +23288,6 @@ export type Database = {
           priceListId: string
           priority?: number
           ruleType: Database["public"]["Enums"]["priceListRuleType"]
-          supplierTypeId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
           validFrom?: string | null
@@ -23360,7 +23310,6 @@ export type Database = {
           priceListId?: string
           priority?: number
           ruleType?: Database["public"]["Enums"]["priceListRuleType"]
-          supplierTypeId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
           validFrom?: string | null
@@ -23491,13 +23440,6 @@ export type Database = {
             columns: ["priceListId"]
             isOneToOne: false
             referencedRelation: "priceList"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "priceListRule_supplierTypeId_fkey"
-            columns: ["supplierTypeId"]
-            isOneToOne: false
-            referencedRelation: "supplierType"
             referencedColumns: ["id"]
           },
           {
@@ -26223,8 +26165,6 @@ export type Database = {
           jobOperationId: string | null
           locationId: string | null
           modelUploadId: string | null
-          priceListId: string | null
-          priceTrace: Json | null
           promisedDate: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -26274,8 +26214,6 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
-          priceListId?: string | null
-          priceTrace?: Json | null
           promisedDate?: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -26325,8 +26263,6 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
-          priceListId?: string | null
-          priceTrace?: Json | null
           promisedDate?: string | null
           purchaseOrderId?: string
           purchaseOrderLineType?: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -26516,13 +26452,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
-          },
-          {
-            foreignKeyName: "purchaseOrderLine_priceListId_fkey"
-            columns: ["priceListId"]
-            isOneToOne: false
-            referencedRelation: "priceList"
-            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "purchaseOrderLine_purchaseOrderId_fkey"
@@ -36704,7 +36633,6 @@ export type Database = {
           logo: string | null
           name: string
           phone: string | null
-          priceListId: string | null
           purchasingContactId: string | null
           supplierStatus:
             | Database["public"]["Enums"]["supplierStatusType"]
@@ -36733,7 +36661,6 @@ export type Database = {
           logo?: string | null
           name: string
           phone?: string | null
-          priceListId?: string | null
           purchasingContactId?: string | null
           supplierStatus?:
             | Database["public"]["Enums"]["supplierStatusType"]
@@ -36762,7 +36689,6 @@ export type Database = {
           logo?: string | null
           name?: string
           phone?: string | null
-          priceListId?: string | null
           purchasingContactId?: string | null
           supplierStatus?:
             | Database["public"]["Enums"]["supplierStatusType"]
@@ -36916,13 +36842,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "currencyCode"
             referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "supplier_priceListId_fkey"
-            columns: ["priceListId"]
-            isOneToOne: false
-            referencedRelation: "priceList"
-            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "supplier_purchasingContactId_fkey"
@@ -59360,7 +59279,6 @@ export type Database = {
       priceListRuleAmountType: "Percentage" | "Fixed"
       priceListRuleType: "Discount" | "Surcharge"
       priceListStatus: "Draft" | "Active" | "Expired" | "Archived"
-      priceListType: "Sales" | "Purchase"
       procedureStatus: "Draft" | "Active" | "Archived"
       procedureStepType:
         | "Value"
@@ -60538,7 +60456,6 @@ export const Constants = {
       priceListRuleAmountType: ["Percentage", "Fixed"],
       priceListRuleType: ["Discount", "Surcharge"],
       priceListStatus: ["Draft", "Active", "Expired", "Archived"],
-      priceListType: ["Sales", "Purchase"],
       procedureStatus: ["Draft", "Active", "Archived"],
       procedureStepType: [
         "Value",

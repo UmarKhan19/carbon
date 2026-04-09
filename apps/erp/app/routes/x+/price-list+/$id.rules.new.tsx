@@ -18,14 +18,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, { role: "employee" });
   const { id } = params;
   if (!id) throw new Error("Price list ID not found");
-  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  const { isLocked } = await getPriceListLockState(client, id);
   if (isLocked) {
     throw new Error(
       "Price list is Active and cannot be modified. Create a new version first."
     );
   }
   await requirePermissions(request, {
-    create: plType === "Purchase" ? "purchasing" : "sales"
+    create: "sales"
   });
   return null;
 }
@@ -39,7 +39,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Price list ID not found");
 
-  const { type: plType, isLocked } = await getPriceListLockState(client, id);
+  const { isLocked } = await getPriceListLockState(client, id);
   if (isLocked) {
     return {
       error: {
@@ -50,7 +50,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
   await requirePermissions(request, {
-    create: plType === "Purchase" ? "purchasing" : "sales"
+    create: "sales"
   });
 
   const formData = await request.formData();

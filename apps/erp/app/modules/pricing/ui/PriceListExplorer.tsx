@@ -14,9 +14,9 @@ import { LuChevronRight, LuCirclePlus, LuSearch, LuTag } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
 import Hyperlink from "~/components/Hyperlink";
 import { LevelLine } from "~/components/TreeView/TreeView";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import type { PriceListDetail, PriceListStatusType } from "../types";
+import type { PriceListStatusType } from "../types";
 import PriceListStatus from "./PriceListStatus";
 
 type PriceListItemRow = {
@@ -32,12 +32,8 @@ type PriceListAssignmentRow = {
   id: string;
   customerId: string | null;
   customerTypeId: string | null;
-  supplierId: string | null;
-  supplierTypeId: string | null;
   customer?: { id: string; name: string } | null;
   customerType?: { id: string; name: string } | null;
-  supplier?: { id: string; name: string } | null;
-  supplierType?: { id: string; name: string } | null;
 };
 
 type PriceListVersionRow = {
@@ -51,11 +47,6 @@ type SalesOrderLineRef = {
   salesOrder: { id: string; salesOrderId: string } | null;
 };
 
-type PurchaseOrderLineRef = {
-  purchaseOrderId: string;
-  purchaseOrder: { id: string; purchaseOrderId: string } | null;
-};
-
 type DefaultEntity = { id: string; name: string };
 
 export type PriceListExplorerProps = {
@@ -63,9 +54,7 @@ export type PriceListExplorerProps = {
   assignments: PriceListAssignmentRow[];
   versions: PriceListVersionRow[];
   salesOrders: SalesOrderLineRef[];
-  purchaseOrders: PurchaseOrderLineRef[];
   defaultCustomers: DefaultEntity[];
-  defaultSuppliers: DefaultEntity[];
   priceListId: string;
 };
 
@@ -169,9 +158,7 @@ export function PriceListExplorer({
   assignments,
   versions,
   salesOrders,
-  purchaseOrders,
   defaultCustomers,
-  defaultSuppliers,
   priceListId
 }: PriceListExplorerProps) {
   const navigate = useNavigate();
@@ -179,12 +166,7 @@ export function PriceListExplorer({
   const [filterText, setFilterText] = useState("");
   const q = filterText.toLowerCase();
 
-  const routeData = useRouteData<{ priceList: PriceListDetail }>(
-    path.to.priceList(priceListId)
-  );
-  const priceListType = routeData?.priceList?.type ?? "Sales";
-  const isSales = priceListType === "Sales";
-  const permissionModule = isSales ? "sales" : "purchasing";
+  const permissionModule = "sales";
   const canCreate = permissions.can("create", permissionModule);
 
   const filteredSpecificItems = useMemo(
@@ -261,57 +243,6 @@ export function PriceListExplorer({
     return result.filter((e) => !q || e.name.toLowerCase().includes(q));
   }, [assignments, q]);
 
-  const suppliers = useMemo(() => {
-    const result: { id: string; name: string; link: string }[] = [];
-    const seenIds = new Set<string>();
-
-    for (const a of assignments) {
-      if (a.supplierId && a.supplier && !seenIds.has(a.supplierId)) {
-        seenIds.add(a.supplierId);
-        result.push({
-          id: a.supplierId,
-          name: a.supplier.name,
-          link: path.to.supplier(a.supplierId)
-        });
-      }
-    }
-
-    for (const s of defaultSuppliers) {
-      if (!seenIds.has(s.id)) {
-        seenIds.add(s.id);
-        result.push({
-          id: s.id,
-          name: s.name,
-          link: path.to.supplier(s.id)
-        });
-      }
-    }
-
-    return result.filter((e) => !q || e.name.toLowerCase().includes(q));
-  }, [assignments, defaultSuppliers, q]);
-
-  const supplierTypes = useMemo(() => {
-    const result: { id: string; name: string; link: string }[] = [];
-    const seenIds = new Set<string>();
-
-    for (const a of assignments) {
-      if (
-        a.supplierTypeId &&
-        a.supplierType &&
-        !seenIds.has(a.supplierTypeId)
-      ) {
-        seenIds.add(a.supplierTypeId);
-        result.push({
-          id: a.supplierTypeId,
-          name: a.supplierType.name,
-          link: `${path.to.suppliers}?filter=supplierTypeId:eq:${a.supplierTypeId}`
-        });
-      }
-    }
-
-    return result.filter((e) => !q || e.name.toLowerCase().includes(q));
-  }, [assignments, q]);
-
   const uniqueSalesOrders = useMemo(
     () =>
       deduplicateById(
@@ -323,19 +254,6 @@ export function PriceListExplorer({
           }))
       ).filter((o) => !q || o.readableId.toLowerCase().includes(q)),
     [salesOrders, q]
-  );
-
-  const uniquePurchaseOrders = useMemo(
-    () =>
-      deduplicateById(
-        purchaseOrders
-          .filter((r) => r.purchaseOrder != null)
-          .map((r) => ({
-            id: r.purchaseOrder!.id,
-            readableId: r.purchaseOrder!.purchaseOrderId
-          }))
-      ).filter((o) => !q || o.readableId.toLowerCase().includes(q)),
-    [purchaseOrders, q]
   );
 
   const filteredVersions = useMemo(
@@ -439,24 +357,22 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {isSales && (
-            <Section title="Customers" count={customers.length}>
-              {customers.length === 0 ? (
-                <EmptyRow label="customers" />
-              ) : (
-                customers.map((entity) => (
-                  <ExplorerRow
-                    key={entity.id}
-                    to={entity.link}
-                    label={entity.name}
-                    icon={<LuTag className="size-4" />}
-                  />
-                ))
-              )}
-            </Section>
-          )}
+          <Section title="Customers" count={customers.length}>
+            {customers.length === 0 ? (
+              <EmptyRow label="customers" />
+            ) : (
+              customers.map((entity) => (
+                <ExplorerRow
+                  key={entity.id}
+                  to={entity.link}
+                  label={entity.name}
+                  icon={<LuTag className="size-4" />}
+                />
+              ))
+            )}
+          </Section>
 
-          {isSales && customerTypes.length > 0 && (
+          {customerTypes.length > 0 && (
             <Section title="Customer Types" count={customerTypes.length}>
               {customerTypes.map((entity) => (
                 <ExplorerRow
@@ -469,58 +385,12 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {!isSales && (
-            <Section title="Suppliers" count={suppliers.length}>
-              {suppliers.length === 0 ? (
-                <EmptyRow label="suppliers" />
-              ) : (
-                suppliers.map((entity) => (
-                  <ExplorerRow
-                    key={entity.id}
-                    to={entity.link}
-                    label={entity.name}
-                    icon={<LuTag className="size-4" />}
-                  />
-                ))
-              )}
-            </Section>
-          )}
-
-          {!isSales && supplierTypes.length > 0 && (
-            <Section title="Supplier Types" count={supplierTypes.length}>
-              {supplierTypes.map((entity) => (
-                <ExplorerRow
-                  key={entity.id}
-                  to={entity.link}
-                  label={entity.name}
-                  icon={<LuTag className="size-4" />}
-                />
-              ))}
-            </Section>
-          )}
-
-          {isSales && uniqueSalesOrders.length > 0 && (
+          {uniqueSalesOrders.length > 0 && (
             <Section title="Sales Orders" count={uniqueSalesOrders.length}>
               {uniqueSalesOrders.map((order) => (
                 <ExplorerRow
                   key={order.id}
                   to={path.to.salesOrder(order.id)}
-                  label={order.readableId}
-                  icon={<LuTag className="size-4" />}
-                />
-              ))}
-            </Section>
-          )}
-
-          {!isSales && uniquePurchaseOrders.length > 0 && (
-            <Section
-              title="Purchase Orders"
-              count={uniquePurchaseOrders.length}
-            >
-              {uniquePurchaseOrders.map((order) => (
-                <ExplorerRow
-                  key={order.id}
-                  to={path.to.purchaseOrder(order.id)}
                   label={order.readableId}
                   icon={<LuTag className="size-4" />}
                 />
