@@ -45,7 +45,12 @@ export const eventQueueFunction = inngest.createFunction(
   { cron: "* * * * *" }, // Every minute
   async ({ step }) => {
     // 1. Read batch from PGMQ (checkpointed so replays don't re-read)
-    const { grouped, allIds } = await step.run("read-queue", async () => {
+    type ReadQueueResult = {
+      grouped: Record<HandlerType, QueueJob[]>;
+      allIds: number[];
+    };
+
+    const { grouped, allIds } = (await step.run("read-queue", async () => {
       const pg = getDatabaseClient(1);
       const { rows: jobs } =
         await sql<QueueJob>`SELECT * FROM pgmq.read(${QUEUE_NAME}, ${VISIBILITY_TIMEOUT}, ${BATCH_SIZE})`.execute(
@@ -69,7 +74,7 @@ export const eventQueueFunction = inngest.createFunction(
         grouped,
         allIds: jobs.map((j) => j.msg_id)
       };
-    });
+    })) as ReadQueueResult;
 
     if (allIds.length === 0) {
       return { processed: 0 };

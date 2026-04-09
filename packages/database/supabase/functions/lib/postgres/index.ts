@@ -40,6 +40,7 @@ export function getPostgresConnectionPool(connections: number): Pool {
       const connectionPoolerUrl = url.includes("supabase.co")
         ? url.replace("5432", "6543")
         : url;
+      // @ts-ignore Compat
       return new Pool(connectionPoolerUrl, connections);
     }
     case "node": {
@@ -47,7 +48,6 @@ export function getPostgresConnectionPool(connections: number): Pool {
       const connectionPoolerUrl = url.includes("supabase.co")
         ? url.replace("5432", "6543")
         : url;
-        // @ts-expect-error Ignore
       return new Pool({
         connectionString: connectionPoolerUrl,
         max: connections,
