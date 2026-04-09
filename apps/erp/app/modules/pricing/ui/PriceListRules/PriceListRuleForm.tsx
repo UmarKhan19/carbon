@@ -9,15 +9,14 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
-  Tabs,
-  TabsList,
-  TabsTrigger,
   VStack
 } from "@carbon/react";
 import { useState } from "react";
+import { LuBoxes, LuLayers, LuPackage } from "react-icons/lu";
 import type { z } from "zod";
 import {
   Boolean as BooleanField,
+  ChoiceCardGroup,
   CustomerType,
   DatePicker,
   Hidden,
@@ -43,6 +42,8 @@ type PriceListRuleFormProps = {
   onClose: () => void;
 };
 
+type ItemScope = "all" | "item" | "category";
+
 const PriceListRuleForm = ({
   initialValues,
   priceListType,
@@ -53,9 +54,11 @@ const PriceListRuleForm = ({
   const [amountType, setAmountType] = useState(
     initialValues.amountType ?? "Percentage"
   );
-  const [itemScope, setItemScope] = useState<"item" | "category">(
-    initialValues.itemPostingGroupId ? "category" : "item"
-  );
+  const [itemScope, setItemScope] = useState<ItemScope>(() => {
+    if (initialValues.itemPostingGroupId) return "category";
+    if (initialValues.itemId) return "item";
+    return "all";
+  });
 
   const isEditing = initialValues.id !== undefined;
   const permissionModule =
@@ -144,7 +147,7 @@ const PriceListRuleForm = ({
                 </div>
 
                 <p className="text-sm font-medium text-muted-foreground pt-2">
-                  Scope (leave blank to apply to all)
+                  Scope
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 w-full">
@@ -167,38 +170,51 @@ const PriceListRuleForm = ({
                   />
                 )}
 
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Item Scope</label>
-                  <Tabs
-                    value={itemScope}
-                    onValueChange={(v) =>
-                      setItemScope(v as "item" | "category")
+                <ChoiceCardGroup<ItemScope>
+                  label="Item Scope"
+                  value={itemScope}
+                  onChange={setItemScope}
+                  options={[
+                    {
+                      value: "all",
+                      title: "All Items",
+                      description:
+                        "Rule applies to every item on this price list.",
+                      icon: <LuLayers />
+                    },
+                    {
+                      value: "item",
+                      title: "Specific Item",
+                      description: "Target one item by SKU.",
+                      icon: <LuPackage />
+                    },
+                    {
+                      value: "category",
+                      title: "Item Group",
+                      description: "Target an item posting group.",
+                      icon: <LuBoxes />
                     }
-                  >
-                    <TabsList className="grid grid-cols-2 w-full">
-                      <TabsTrigger value="item">Specific Item</TabsTrigger>
-                      <TabsTrigger value="category">Item Group</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
+                  ]}
+                />
 
-                {itemScope === "item" ? (
+                {itemScope === "all" && (
+                  <>
+                    <input type="hidden" name="itemId" value="" />
+                    <input type="hidden" name="itemPostingGroupId" value="" />
+                  </>
+                )}
+                {itemScope === "item" && (
                   <>
                     <input type="hidden" name="itemPostingGroupId" value="" />
-                    <Item
-                      name="itemId"
-                      label="Item"
-                      type="Item"
-                      placeholder="All items"
-                    />
+                    <Item name="itemId" label="Item" type="Item" />
                   </>
-                ) : (
+                )}
+                {itemScope === "category" && (
                   <>
                     <input type="hidden" name="itemId" value="" />
                     <ItemPostingGroup
                       name="itemPostingGroupId"
                       label="Item Category"
-                      placeholder="All categories"
                     />
                   </>
                 )}

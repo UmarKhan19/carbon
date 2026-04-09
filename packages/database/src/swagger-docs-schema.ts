@@ -61324,6 +61324,12 @@ export default {
             $ref: "#/parameters/rowFilter.priceListRule.itemPostingGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.priceListRule.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.validTo",
+          },
+          {
             $ref: "#/parameters/rowFilter.priceListRule.active",
           },
           {
@@ -61440,6 +61446,12 @@ export default {
             $ref: "#/parameters/rowFilter.priceListRule.itemPostingGroupId",
           },
           {
+            $ref: "#/parameters/rowFilter.priceListRule.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.validTo",
+          },
+          {
             $ref: "#/parameters/rowFilter.priceListRule.active",
           },
           {
@@ -61508,6 +61520,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.priceListRule.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.priceListRule.validTo",
           },
           {
             $ref: "#/parameters/rowFilter.priceListRule.active",
@@ -100486,6 +100504,14 @@ export default {
           format: "text",
           type: "string",
         },
+        validFrom: {
+          format: "date",
+          type: "string",
+        },
+        validTo: {
+          format: "date",
+          type: "string",
+        },
         active: {
           default: true,
           format: "boolean",
@@ -135505,6 +135531,18 @@ export default {
     },
     "rowFilter.priceListRule.itemPostingGroupId": {
       name: "itemPostingGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.validFrom": {
+      name: "validFrom",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.priceListRule.validTo": {
+      name: "validTo",
       required: false,
       in: "query",
       type: "string",

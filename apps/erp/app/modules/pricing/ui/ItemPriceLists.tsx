@@ -2,10 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { Hyperlink } from "~/components";
-import { Enumerable } from "~/components/Enumerable";
 import Grid from "~/components/Grid";
 import { useCurrencyFormatter } from "~/hooks";
 import { path } from "~/utils/path";
+import type { PriceListStatusType } from "./../types";
+import PriceListStatus from "./PriceListStatus";
 
 type PriceListItemRow = {
   id: string;
@@ -43,7 +44,11 @@ const ItemPriceLists = ({ data }: ItemPriceListsProps) => {
       {
         id: "status",
         header: "Status",
-        cell: ({ row }) => <Enumerable value={row.original.priceList.status} />
+        cell: ({ row }) => (
+          <PriceListStatus
+            status={row.original.priceList.status as PriceListStatusType}
+          />
+        )
       },
       {
         id: "type",

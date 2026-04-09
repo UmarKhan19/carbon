@@ -1561,3 +1561,139 @@ export async function resolvePrices(
 
   return results;
 }
+
+export function datesIntersect(
+  aFrom: string | null,
+  aTo: string | null,
+  bFrom: string | null,
+  bTo: string | null
+): boolean {
+  if (aTo && bFrom && aTo < bFrom) return false;
+  if (bTo && aFrom && bTo < aFrom) return false;
+  return true;
+}
+
+type AssignmentRow = {
+  customerId: string | null;
+  customerTypeId: string | null;
+  supplierId: string | null;
+  supplierTypeId: string | null;
+};
+
+export function scopesIntersect(
+  a: AssignmentRow[],
+  b: AssignmentRow[]
+): boolean {
+  if (a.length === 0 && b.length === 0) return true;
+  if (a.length === 0 || b.length === 0) return false;
+
+  const keys = (r: AssignmentRow): string[] =>
+    [
+      r.customerId && `c:${r.customerId}`,
+      r.customerTypeId && `ct:${r.customerTypeId}`,
+      r.supplierId && `s:${r.supplierId}`,
+      r.supplierTypeId && `st:${r.supplierTypeId}`
+    ].filter((k): k is string => Boolean(k));
+
+  const bSet = new Set(b.flatMap(keys));
+  return a.some((row) => keys(row).some((k) => bSet.has(k)));
+}
+
+export type PriceListOverlap = {
+  id: string;
+  name: string;
+  version: number;
+};
+
+export async function getOverlappingPriceLists(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  priceListId: string
+): Promise<PriceListOverlap[]> {
+  const { data: self } = await client
+    .from("priceList")
+    .select("id, name, version, type, status, currencyCode, validFrom, validTo")
+    .eq("id", priceListId)
+    .single();
+  if (!self || self.status !== "Active") return [];
+
+  const { data: siblings } = await client
+    .from("priceList")
+    .select("id, name, version, type, status, currencyCode, validFrom, validTo")
+    .eq("companyId", companyId)
+    .eq("type", self.type)
+    .eq("currencyCode", self.currencyCode)
+    .eq("status", "Active")
+    .neq("id", priceListId);
+  if (!siblings || siblings.length === 0) return [];
+
+  const candidateIds = siblings.map((s) => s.id);
+  const { data: allAssignments } = await client
+    .from("priceListAssignment")
+    .select(
+      "priceListId, customerId, customerTypeId, supplierId, supplierTypeId"
+    )
+    .in("priceListId", [priceListId, ...candidateIds]);
+
+  const byList = new Map<string, AssignmentRow[]>();
+  for (const a of allAssignments ?? []) {
+    const arr = byList.get(a.priceListId) ?? [];
+    arr.push(a);
+    byList.set(a.priceListId, arr);
+  }
+  const selfAssignments = byList.get(priceListId) ?? [];
+
+  const overlaps: PriceListOverlap[] = [];
+  for (const sib of siblings) {
+    if (
+      !datesIntersect(self.validFrom, self.validTo, sib.validFrom, sib.validTo)
+    )
+      continue;
+    if (!scopesIntersect(selfAssignments, byList.get(sib.id) ?? [])) continue;
+    overlaps.push({ id: sib.id, name: sib.name, version: sib.version });
+  }
+
+  return overlaps;
+}
+
+export async function getOverlapIdsForPriceLists(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  type: "Sales" | "Purchase"
+): Promise<Set<string>> {
+  const { data: activeLists } = await client
+    .from("priceList")
+    .select("id, currencyCode, validFrom, validTo")
+    .eq("companyId", companyId)
+    .eq("type", type)
+    .eq("status", "Active");
+  if (!activeLists || activeLists.length < 2) return new Set();
+
+  const ids = activeLists.map((l) => l.id);
+  const { data: assignments } = await client
+    .from("priceListAssignment")
+    .select(
+      "priceListId, customerId, customerTypeId, supplierId, supplierTypeId"
+    )
+    .in("priceListId", ids);
+
+  const byList = new Map<string, AssignmentRow[]>();
+  for (const id of ids) byList.set(id, []);
+  for (const a of assignments ?? []) byList.get(a.priceListId)?.push(a);
+
+  const overlapping = new Set<string>();
+  for (let i = 0; i < activeLists.length; i++) {
+    for (let j = i + 1; j < activeLists.length; j++) {
+      const a = activeLists[i];
+      const b = activeLists[j];
+      if (a.currencyCode !== b.currencyCode) continue;
+      if (!datesIntersect(a.validFrom, a.validTo, b.validFrom, b.validTo))
+        continue;
+      if (!scopesIntersect(byList.get(a.id) ?? [], byList.get(b.id) ?? []))
+        continue;
+      overlapping.add(a.id);
+      overlapping.add(b.id);
+    }
+  }
+  return overlapping;
+}

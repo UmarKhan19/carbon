@@ -23317,6 +23317,8 @@ export type Database = {
           supplierTypeId: string | null
           updatedAt: string | null
           updatedBy: string | null
+          validFrom: string | null
+          validTo: string | null
         }
         Insert: {
           active?: boolean
@@ -23338,6 +23340,8 @@ export type Database = {
           supplierTypeId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
+          validFrom?: string | null
+          validTo?: string | null
         }
         Update: {
           active?: boolean
@@ -23359,6 +23363,8 @@ export type Database = {
           supplierTypeId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
+          validFrom?: string | null
+          validTo?: string | null
         }
         Relationships: [
           {

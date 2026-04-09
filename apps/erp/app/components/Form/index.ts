@@ -31,6 +31,8 @@ import Account from "./Account";
 import AccountCategory from "./AccountCategory";
 import AccountSubcategory from "./AccountSubcategory";
 import AddressAutocomplete from "./AddressAutocomplete";
+import type { ChoiceCardOption } from "./ChoiceCard";
+import { ChoiceCardGroup } from "./ChoiceCard";
 import Color from "./Color";
 import ConversionFactor from "./ConversionFactor";
 import Currency from "./Currency";
@@ -92,6 +94,7 @@ export {
   Array,
   ArrayNumeric,
   Boolean,
+  ChoiceCardGroup,
   Color,
   Combobox,
   ConversionFactor,
@@ -165,3 +168,5 @@ export {
   WorkCenter,
   WorkCenters
 };
+
+export type { ChoiceCardOption };

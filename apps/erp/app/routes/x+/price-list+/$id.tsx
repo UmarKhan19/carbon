@@ -1,11 +1,13 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { VStack } from "@carbon/react";
+import { Alert, AlertDescription, AlertTitle, VStack } from "@carbon/react";
 import { Suspense } from "react";
+import { LuLock, LuTriangleAlert } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Await,
+  Link,
   Outlet,
   redirect,
   useLoaderData,
@@ -14,6 +16,7 @@ import {
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import {
   getCustomersByDefaultPriceList,
+  getOverlappingPriceLists,
   getPriceList,
   getPriceListAssignments,
   getPriceListItems,
@@ -23,25 +26,25 @@ import {
   getSalesOrdersByPriceList,
   getSuppliersByDefaultPriceList
 } from "~/modules/pricing";
-import { PriceListDescription } from "~/modules/pricing/ui/PriceListDescription";
 import {
   PriceListExplorer,
   PriceListExplorerSkeleton
 } from "~/modules/pricing/ui/PriceListExplorer";
 import PriceListHeader from "~/modules/pricing/ui/PriceListHeader";
 import { PriceListItemsTable } from "~/modules/pricing/ui/PriceListItems";
+import { PriceListNotes } from "~/modules/pricing/ui/PriceListNotes";
 import PriceListProperties from "~/modules/pricing/ui/PriceListProperties";
 import { PriceListRulesTable } from "~/modules/pricing/ui/PriceListRules";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Price List",
+  breadcrumb: "Price Lists",
   to: path.to.salesPriceLists
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     role: "employee"
   });
 
@@ -56,11 +59,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  // Await table data (needed for content rendering)
-  const [items, rules, assignments] = await Promise.all([
+  const [items, rules, assignments, overlaps] = await Promise.all([
     getPriceListItems(client, id),
     getPriceListRules(client, id),
-    getPriceListAssignments(client, id)
+    getPriceListAssignments(client, id),
+    getOverlappingPriceLists(client, companyId, id)
   ]);
 
   // Defer explorer-only data (versions, orders, defaults)
@@ -91,12 +94,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     items: items.data ?? [],
     rules: rules.data ?? [],
     assignments: assignments.data ?? [],
+    overlaps,
     explorerData
   };
 }
 
 export default function PriceListRoute() {
-  const { priceList, items, rules, assignments, explorerData } =
+  const { priceList, items, rules, assignments, overlaps, explorerData } =
     useLoaderData<typeof loader>();
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
@@ -130,15 +134,46 @@ export default function PriceListRoute() {
               content={
                 <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
                   <VStack spacing={2} className="p-2">
-                    <PriceListDescription />
                     {isLocked && (
-                      <div className="w-full rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-                        This price list is <strong>Active</strong> and locked
-                        from edits. Use <strong>Create New Version</strong> from
-                        the header to make changes — the new version will carry
-                        over all items, rules, and assignments.
-                      </div>
+                      <Alert variant="warning">
+                        <LuLock className="size-4" />
+                        <AlertTitle>Price list is Active and locked</AlertTitle>
+                        <AlertDescription>
+                          Use <strong>Create New Version</strong> from the
+                          header to make changes — the new version will carry
+                          over all items, rules, and assignments.
+                        </AlertDescription>
+                      </Alert>
                     )}
+                    {overlaps.length > 0 && (
+                      <Alert variant="warning">
+                        <LuTriangleAlert className="size-4" />
+                        <AlertTitle>
+                          Overlaps with {overlaps.length} other price list
+                          {overlaps.length === 1 ? "" : "s"}
+                        </AlertTitle>
+                        <AlertDescription>
+                          <p>
+                            Another active price list with the same type,
+                            currency, dates, and assignments exists — the
+                            resolver may pick either one for some customers.
+                          </p>
+                          <ul className="mt-1 list-disc pl-4">
+                            {overlaps.map((o) => (
+                              <li key={o.id}>
+                                <Link
+                                  className="underline hover:text-foreground"
+                                  to={path.to.priceList(o.id)}
+                                >
+                                  {o.name} (v{o.version})
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    <PriceListNotes />
                     <PriceListItemsTable data={items} />
                     <PriceListRulesTable data={rules} />
                   </VStack>

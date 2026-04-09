@@ -3,7 +3,11 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, useLoaderData } from "react-router";
-import { getPriceLists, updatePriceListSequence } from "~/modules/pricing";
+import {
+  getOverlapIdsForPriceLists,
+  getPriceLists,
+  updatePriceListSequence
+} from "~/modules/pricing";
 import { PriceListsTable } from "~/modules/pricing/ui/PriceLists";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -30,14 +34,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const supplierIdFilter = filters?.find((f) => f.column === "supplierId");
   const supplierId = supplierIdFilter?.value ?? undefined;
 
-  return await getPriceLists(client, companyId, "Purchase", {
-    search: search ?? undefined,
-    supplierId,
-    limit,
-    offset,
-    sorts,
-    filters
-  });
+  const [priceLists, overlapIds] = await Promise.all([
+    getPriceLists(client, companyId, "Purchase", {
+      search: search ?? undefined,
+      supplierId,
+      limit,
+      offset,
+      sorts,
+      filters
+    }),
+    getOverlapIdsForPriceLists(client, companyId, "Purchase")
+  ]);
+
+  return {
+    count: priceLists.count ?? 0,
+    priceLists: priceLists.data ?? [],
+    overlapIds: Array.from(overlapIds)
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -64,11 +77,16 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PurchasePriceListsRoute() {
-  const { data, count } = useLoaderData<typeof loader>();
+  const { count, priceLists, overlapIds } = useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={0} className="h-full">
-      <PriceListsTable data={data ?? []} count={count ?? 0} type="Purchase" />
+      <PriceListsTable
+        data={priceLists}
+        count={count}
+        type="Purchase"
+        overlapIds={overlapIds}
+      />
       <Outlet />
     </VStack>
   );

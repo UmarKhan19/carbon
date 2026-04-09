@@ -1,22 +1,30 @@
-import { Badge, MenuIcon, MenuItem } from "@carbon/react";
+import { Badge, MenuIcon, MenuItem, Status } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo } from "react";
 import { LuPencil, LuTrash } from "react-icons/lu";
 import { useNavigate } from "react-router";
 import { Hyperlink, New, Table } from "~/components";
-import { Enumerable } from "~/components/Enumerable";
 import { usePermissions, useUrlParams } from "~/hooks";
 import { path } from "~/utils/path";
-import type { PriceList } from "../../types";
+import type { PriceList, PriceListStatusType } from "../../types";
+import PriceListStatus from "../PriceListStatus";
 
 type PriceListsTableProps = {
   data: PriceList[];
   count: number;
   type: "Sales" | "Purchase";
+  overlapIds: string[];
 };
 
-const PriceListsTable = ({ data, count, type }: PriceListsTableProps) => {
+const PriceListsTable = ({
+  data,
+  count,
+  type,
+  overlapIds
+}: PriceListsTableProps) => {
+  const overlapSet = useMemo(() => new Set(overlapIds), [overlapIds]);
+
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [params] = useUrlParams();
@@ -39,16 +47,28 @@ const PriceListsTable = ({ data, count, type }: PriceListsTableProps) => {
       {
         accessorKey: "status",
         header: "Status",
-        cell: (item) => <Enumerable value={item.getValue<string>()} />,
+        cell: (item) => (
+          <PriceListStatus status={item.getValue<PriceListStatusType>()} />
+        ),
         meta: {
           filter: {
             type: "static",
-            options: ["Draft", "Active", "Expired", "Archived"].map((s) => ({
-              value: s,
-              label: <Enumerable value={s} />
-            }))
+            options: (["Draft", "Active", "Expired", "Archived"] as const).map(
+              (s) => ({
+                value: s,
+                label: <PriceListStatus status={s} />
+              })
+            )
           }
         }
+      },
+      {
+        id: "overlap",
+        header: "Overlap",
+        cell: ({ row }) =>
+          overlapSet.has(row.original.id) ? (
+            <Status color="yellow">Overlap</Status>
+          ) : null
       },
       {
         accessorKey: "priceType",
@@ -95,7 +115,7 @@ const PriceListsTable = ({ data, count, type }: PriceListsTableProps) => {
         }
       }
     ],
-    []
+    [overlapSet]
   );
 
   const renderContextMenu = useCallback(

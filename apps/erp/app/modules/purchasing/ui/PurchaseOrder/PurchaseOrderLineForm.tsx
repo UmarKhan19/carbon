@@ -5,9 +5,6 @@ import {
   cn,
   FormControl,
   FormLabel,
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
   Input,
   ModalCard,
   ModalCardBody,
@@ -47,6 +44,7 @@ import {
   useUser
 } from "~/hooks";
 import { getSupplierPartPriceBreaks } from "~/modules/items";
+import { PriceTracePopover } from "~/modules/pricing/ui/PriceTracePopover";
 import type { PurchaseOrder, PurchaseOrderLine } from "~/modules/purchasing";
 import {
   isPurchaseOrderLocked,
@@ -622,10 +620,23 @@ const PurchaseOrderLineForm = ({
                         />
                       </>
                     )}
-                    <div>
+                    <div className="flex flex-col gap-y-2 w-full">
+                      <div className="flex items-center justify-between min-h-[16px]">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          Unit Price
+                        </span>
+                        <PriceTracePopover
+                          priceListId={itemData.priceListId}
+                          priceListName={itemData.priceListName}
+                          priceTrace={itemData.priceTrace}
+                          currencyCode={
+                            routeData?.purchaseOrder?.currencyCode ??
+                            company.baseCurrencyCode
+                          }
+                        />
+                      </div>
                       <NumberControlled
                         name="supplierUnitPrice"
-                        label="Unit Price"
                         value={itemData.supplierUnitPrice}
                         formatOptions={{
                           style: "currency",
@@ -640,54 +651,6 @@ const PurchaseOrderLineForm = ({
                           }))
                         }
                       />
-                      {itemData.priceListName && (
-                        <HoverCard>
-                          <HoverCardTrigger asChild>
-                            <p className="text-xs text-muted-foreground mt-1 cursor-help underline decoration-dotted underline-offset-2">
-                              From: {itemData.priceListName}
-                            </p>
-                          </HoverCardTrigger>
-                          {Array.isArray(itemData.priceTrace) &&
-                            itemData.priceTrace.length > 0 && (
-                              <HoverCardContent
-                                align="start"
-                                className="w-80 text-xs"
-                              >
-                                <div className="font-medium mb-2">
-                                  Pricing trace
-                                </div>
-                                <ol className="space-y-1.5">
-                                  {(
-                                    itemData.priceTrace as Array<{
-                                      step: string;
-                                      source: string;
-                                      amount: number;
-                                      adjustment?: number;
-                                    }>
-                                  ).map((step, i) => (
-                                    <li
-                                      key={i}
-                                      className="flex justify-between gap-2"
-                                    >
-                                      <span className="text-muted-foreground">
-                                        <span className="font-medium text-foreground">
-                                          {step.step}:
-                                        </span>{" "}
-                                        {step.source}
-                                      </span>
-                                      <span className="font-mono tabular-nums">
-                                        {step.adjustment
-                                          ? `${step.adjustment > 0 ? "+" : ""}${step.adjustment.toFixed(2)} → `
-                                          : ""}
-                                        {step.amount.toFixed(2)}
-                                      </span>
-                                    </li>
-                                  ))}
-                                </ol>
-                              </HoverCardContent>
-                            )}
-                        </HoverCard>
-                      )}
                     </div>
                     <NumberControlled
                       name="supplierShippingCost"

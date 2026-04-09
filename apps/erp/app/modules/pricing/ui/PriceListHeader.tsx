@@ -26,11 +26,11 @@ import {
   LuTrash
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
-import { Enumerable } from "~/components/Enumerable";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
 import type { PriceListDetail } from "../types";
+import PriceListStatus from "./PriceListStatus";
 
 const PriceListHeader = () => {
   const { id } = useParams();
@@ -82,17 +82,6 @@ const PriceListHeader = () => {
     });
   };
 
-  const handleArchive = () => {
-    const formData = new FormData();
-    formData.append("id", id);
-    formData.append("field", "status");
-    formData.append("value", "Archived");
-    statusFetcher.submit(formData, {
-      method: "post",
-      action: path.to.updatePriceList
-    });
-  };
-
   return (
     <>
       <div className="flex flex-shrink-0 items-center justify-between px-4 py-2 bg-card border-b border-border h-[50px] overflow-x-auto scrollbar-hide dark:border-none dark:shadow-[inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)]">
@@ -103,7 +92,7 @@ const PriceListHeader = () => {
                 <span>{priceList.name}</span>
               </Heading>
             </Link>
-            <Enumerable value={priceList.status} />
+            <PriceListStatus status={priceList.status} />
             <Copy text={priceList.name} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -123,15 +112,6 @@ const PriceListHeader = () => {
                   <DropdownMenuIcon icon={<LuFiles />} />
                   Duplicate Price List
                 </DropdownMenuItem>
-                {status !== "Archived" && (
-                  <DropdownMenuItem
-                    disabled={!canUpdate}
-                    onClick={handleArchive}
-                  >
-                    <DropdownMenuIcon icon={<LuArchive />} />
-                    Archive Price List
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={!permissions.can("delete", permissionModule)}
@@ -146,66 +126,100 @@ const PriceListHeader = () => {
           </HStack>
         </VStack>
 
-        <HStack>
-          {status === "Draft" && (
-            <statusFetcher.Form method="post" action={path.to.updatePriceList}>
-              <input type="hidden" name="id" value={id} />
-              <input type="hidden" name="field" value="status" />
-              <input type="hidden" name="value" value="Active" />
-              <Button
-                type="submit"
-                leftIcon={<LuCircleCheck />}
-                variant="primary"
-                isDisabled={!canUpdate || statusFetcher.state !== "idle"}
-                isLoading={
-                  statusFetcher.state !== "idle" &&
-                  statusFetcher.formData?.get("value") === "Active"
-                }
-              >
-                Activate
-              </Button>
-            </statusFetcher.Form>
-          )}
+        <HStack spacing={1}>
+          <statusFetcher.Form method="post" action={path.to.updatePriceList}>
+            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="field" value="status" />
+            <input type="hidden" name="value" value="Active" />
+            <Button
+              type="submit"
+              leftIcon={<LuCircleCheck />}
+              variant={status === "Draft" ? "primary" : "secondary"}
+              isDisabled={
+                status !== "Draft" ||
+                !canUpdate ||
+                statusFetcher.state !== "idle"
+              }
+              isLoading={
+                statusFetcher.state !== "idle" &&
+                statusFetcher.formData?.get("value") === "Active"
+              }
+            >
+              Activate
+            </Button>
+          </statusFetcher.Form>
 
-          {status === "Active" && (
-            <statusFetcher.Form method="post" action={path.to.updatePriceList}>
-              <input type="hidden" name="id" value={id} />
-              <input type="hidden" name="field" value="status" />
-              <input type="hidden" name="value" value="Draft" />
-              <Button
-                type="submit"
-                leftIcon={<LuPause />}
-                variant="secondary"
-                isDisabled={!canUpdate || statusFetcher.state !== "idle"}
-                isLoading={
-                  statusFetcher.state !== "idle" &&
-                  statusFetcher.formData?.get("value") === "Draft"
-                }
-              >
-                Deactivate
-              </Button>
-            </statusFetcher.Form>
-          )}
+          <statusFetcher.Form method="post" action={path.to.updatePriceList}>
+            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="field" value="status" />
+            <input type="hidden" name="value" value="Draft" />
+            <Button
+              type="submit"
+              leftIcon={<LuPause />}
+              variant="secondary"
+              isDisabled={
+                status !== "Active" ||
+                !canUpdate ||
+                statusFetcher.state !== "idle"
+              }
+              isLoading={
+                statusFetcher.state !== "idle" &&
+                statusFetcher.formData?.get("value") === "Draft" &&
+                status === "Active"
+              }
+            >
+              Deactivate
+            </Button>
+          </statusFetcher.Form>
 
-          {(status === "Expired" || status === "Archived") && (
-            <statusFetcher.Form method="post" action={path.to.updatePriceList}>
-              <input type="hidden" name="id" value={id} />
-              <input type="hidden" name="field" value="status" />
-              <input type="hidden" name="value" value="Draft" />
-              <Button
-                type="submit"
-                leftIcon={<LuRotateCcw />}
-                variant="secondary"
-                isDisabled={!canUpdate || statusFetcher.state !== "idle"}
-                isLoading={
-                  statusFetcher.state !== "idle" &&
-                  statusFetcher.formData?.get("value") === "Draft"
-                }
-              >
-                Reopen
-              </Button>
-            </statusFetcher.Form>
-          )}
+          <statusFetcher.Form method="post" action={path.to.updatePriceList}>
+            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="field" value="status" />
+            <input type="hidden" name="value" value="Archived" />
+            <Button
+              type="submit"
+              leftIcon={<LuArchive />}
+              variant="secondary"
+              isDisabled={
+                status === "Archived" ||
+                !canUpdate ||
+                statusFetcher.state !== "idle"
+              }
+              isLoading={
+                statusFetcher.state !== "idle" &&
+                statusFetcher.formData?.get("value") === "Archived"
+              }
+            >
+              Archive
+            </Button>
+          </statusFetcher.Form>
+
+          <statusFetcher.Form method="post" action={path.to.updatePriceList}>
+            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="field" value="status" />
+            <input type="hidden" name="value" value="Draft" />
+            <Button
+              type="submit"
+              leftIcon={<LuRotateCcw />}
+              variant={
+                status === "Expired" || status === "Archived"
+                  ? "primary"
+                  : "secondary"
+              }
+              isDisabled={
+                (status !== "Expired" && status !== "Archived") ||
+                !canUpdate ||
+                statusFetcher.state !== "idle"
+              }
+              isLoading={
+                statusFetcher.state !== "idle" &&
+                statusFetcher.formData?.get("value") === "Draft" &&
+                (status === "Expired" || status === "Archived")
+              }
+            >
+              Reopen
+            </Button>
+          </statusFetcher.Form>
         </HStack>
       </div>
       {deleteModal.isOpen && (

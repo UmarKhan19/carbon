@@ -12,16 +12,12 @@ import {
 import { useMemo, useState } from "react";
 import { LuChevronRight, LuCirclePlus, LuSearch, LuTag } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
-import { Enumerable } from "~/components/Enumerable";
 import Hyperlink from "~/components/Hyperlink";
 import { LevelLine } from "~/components/TreeView/TreeView";
 import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
-import type { PriceListDetail } from "../types";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import type { PriceListDetail, PriceListStatusType } from "../types";
+import PriceListStatus from "./PriceListStatus";
 
 type PriceListItemRow = {
   id: string;
@@ -73,10 +69,6 @@ export type PriceListExplorerProps = {
   priceListId: string;
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function deduplicateById<T extends { id: string }>(items: T[]): T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -85,10 +77,6 @@ function deduplicateById<T extends { id: string }>(items: T[]): T[] {
     return true;
   });
 }
-
-// ---------------------------------------------------------------------------
-// Section (collapsible header + children)
-// ---------------------------------------------------------------------------
 
 const MAX_AUTO_EXPAND = 20;
 
@@ -144,10 +132,6 @@ function Section({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Row — Hyperlink with "Open" button on hover
-// ---------------------------------------------------------------------------
-
 function ExplorerRow({
   to,
   label,
@@ -180,10 +164,6 @@ function EmptyRow({ label }: { label: string }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
-
 export function PriceListExplorer({
   items,
   assignments,
@@ -207,7 +187,6 @@ export function PriceListExplorer({
   const permissionModule = isSales ? "sales" : "purchasing";
   const canCreate = permissions.can("create", permissionModule);
 
-  // ---- Items (specific items vs item groups) ----
   const filteredSpecificItems = useMemo(
     () =>
       items.filter((item) => {
@@ -231,7 +210,6 @@ export function PriceListExplorer({
     [items, q]
   );
 
-  // ---- Customers (assigned + defaults, deduplicated) ----
   const customers = useMemo(() => {
     const result: { id: string; name: string; link: string }[] = [];
     const seenIds = new Set<string>();
@@ -261,7 +239,6 @@ export function PriceListExplorer({
     return result.filter((e) => !q || e.name.toLowerCase().includes(q));
   }, [assignments, defaultCustomers, q]);
 
-  // ---- Customer Types (from assignments only) ----
   const customerTypes = useMemo(() => {
     const result: { id: string; name: string; link: string }[] = [];
     const seenIds = new Set<string>();
@@ -284,7 +261,6 @@ export function PriceListExplorer({
     return result.filter((e) => !q || e.name.toLowerCase().includes(q));
   }, [assignments, q]);
 
-  // ---- Suppliers (assigned + defaults, deduplicated) ----
   const suppliers = useMemo(() => {
     const result: { id: string; name: string; link: string }[] = [];
     const seenIds = new Set<string>();
@@ -314,7 +290,6 @@ export function PriceListExplorer({
     return result.filter((e) => !q || e.name.toLowerCase().includes(q));
   }, [assignments, defaultSuppliers, q]);
 
-  // ---- Supplier Types (from assignments only) ----
   const supplierTypes = useMemo(() => {
     const result: { id: string; name: string; link: string }[] = [];
     const seenIds = new Set<string>();
@@ -337,7 +312,6 @@ export function PriceListExplorer({
     return result.filter((e) => !q || e.name.toLowerCase().includes(q));
   }, [assignments, q]);
 
-  // ---- Sales Orders (deduplicated) ----
   const uniqueSalesOrders = useMemo(
     () =>
       deduplicateById(
@@ -351,7 +325,6 @@ export function PriceListExplorer({
     [salesOrders, q]
   );
 
-  // ---- Purchase Orders (deduplicated) ----
   const uniquePurchaseOrders = useMemo(
     () =>
       deduplicateById(
@@ -365,7 +338,6 @@ export function PriceListExplorer({
     [purchaseOrders, q]
   );
 
-  // ---- Versions ----
   const filteredVersions = useMemo(
     () =>
       versions.filter((v) => {
@@ -394,7 +366,6 @@ export function PriceListExplorer({
       </HStack>
       <div className="flex-1 overflow-y-auto">
         <VStack className="w-full p-2" spacing={0}>
-          {/* Versions — at the top so users always see lineage first */}
           <Section title="Versions" count={filteredVersions.length}>
             {filteredVersions.length === 0 ? (
               <EmptyRow label="versions" />
@@ -414,16 +385,16 @@ export function PriceListExplorer({
                   />
                   <LuTag className="size-4 text-muted-foreground flex-shrink-0 mr-2" />
                   <span className="truncate flex-grow">v{version.version}</span>
-                  <Enumerable
-                    value={version.status}
-                    className="text-xs flex-shrink-0"
-                  />
+                  <span className="flex-shrink-0">
+                    <PriceListStatus
+                      status={version.status as PriceListStatusType}
+                    />
+                  </span>
                 </Link>
               ))
             )}
           </Section>
 
-          {/* Specific Items */}
           <Section
             title="Items"
             count={filteredSpecificItems.length}
@@ -447,7 +418,6 @@ export function PriceListExplorer({
             )}
           </Section>
 
-          {/* Item Groups */}
           {filteredItemGroups.length > 0 && (
             <Section
               title="Item Groups"
@@ -469,7 +439,6 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {/* Customers — Sales price lists */}
           {isSales && (
             <Section title="Customers" count={customers.length}>
               {customers.length === 0 ? (
@@ -487,7 +456,6 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {/* Customer Types — Sales price lists */}
           {isSales && customerTypes.length > 0 && (
             <Section title="Customer Types" count={customerTypes.length}>
               {customerTypes.map((entity) => (
@@ -501,7 +469,6 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {/* Suppliers — Purchase price lists */}
           {!isSales && (
             <Section title="Suppliers" count={suppliers.length}>
               {suppliers.length === 0 ? (
@@ -519,7 +486,6 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {/* Supplier Types — Purchase price lists */}
           {!isSales && supplierTypes.length > 0 && (
             <Section title="Supplier Types" count={supplierTypes.length}>
               {supplierTypes.map((entity) => (
@@ -533,7 +499,6 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {/* Sales Orders */}
           {isSales && uniqueSalesOrders.length > 0 && (
             <Section title="Sales Orders" count={uniqueSalesOrders.length}>
               {uniqueSalesOrders.map((order) => (
@@ -547,7 +512,6 @@ export function PriceListExplorer({
             </Section>
           )}
 
-          {/* Purchase Orders */}
           {!isSales && uniquePurchaseOrders.length > 0 && (
             <Section
               title="Purchase Orders"
@@ -568,10 +532,6 @@ export function PriceListExplorer({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Skeleton
-// ---------------------------------------------------------------------------
 
 export const PriceListExplorerSkeleton = () => (
   <div className="p-2 space-y-2">

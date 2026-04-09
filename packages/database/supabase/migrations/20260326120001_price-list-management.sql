@@ -127,6 +127,9 @@ CREATE TABLE "priceListItem" (
   CONSTRAINT "priceListItem_updatedBy_fkey"
     FOREIGN KEY ("updatedBy") REFERENCES "user"("id")
     ON DELETE RESTRICT ON UPDATE CASCADE,
+  -- Each priceListItem row targets EITHER a specific item OR an item posting
+  -- group — never both, never neither. Rules (priceListRule) are where you
+  -- express "applies to all items"; item-level pricing is always scoped.
   CONSTRAINT "priceListItem_target_check" CHECK (
     ("itemId" IS NOT NULL AND "itemPostingGroupId" IS NULL)
     OR ("itemId" IS NULL AND "itemPostingGroupId" IS NOT NULL)

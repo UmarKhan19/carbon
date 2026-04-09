@@ -13,7 +13,8 @@ const alertVariants = cva(
         default: "bg-background text-foreground",
         success:
           "bg-gradient-to-tr via-card to-card hover:to-muted/30 hover:via-muted/30 border-emerald-600/30 from-emerald-600/10 text-emerald-600 [&>svg]:text-emerald-600 dark:text-foreground",
-        warning: "",
+        warning:
+          "bg-gradient-to-tr via-card to-card hover:to-muted/30 hover:via-muted/30 border-amber-500/30 from-amber-500/10 text-amber-700 [&>svg]:text-amber-600 dark:text-amber-400 dark:[&>svg]:text-amber-400",
         destructive:
           "bg-gradient-to-tr via-card to-card hover:to-muted/30 hover:via-muted/30 border-red-500/30 from-red-500/10 text-destructive [&>svg]:text-destructive dark:text-foreground  dark:[&>svg]:text-red-500"
       }

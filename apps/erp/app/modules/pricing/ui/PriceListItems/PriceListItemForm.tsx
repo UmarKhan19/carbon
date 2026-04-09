@@ -16,17 +16,20 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
-  Tabs,
-  TabsList,
-  TabsTrigger,
   VStack
 } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useMemo, useState } from "react";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuBoxes,
+  LuEllipsisVertical,
+  LuPackage,
+  LuTrash
+} from "react-icons/lu";
 import type { z } from "zod";
 import { EditableNumber } from "~/components/Editable";
 import {
+  ChoiceCardGroup,
   Hidden,
   Item,
   ItemPostingGroup,
@@ -49,6 +52,8 @@ type PriceBreakRow = {
   quantity: number;
   unitPrice: number;
 };
+
+type ItemScope = "item" | "category";
 
 type PriceListItemFormProps = {
   initialValues: z.infer<typeof priceListItemValidator>;
@@ -86,7 +91,7 @@ const PriceListItemForm = ({
   const [priceBreaks, setPriceBreaks] = useState<PriceBreakRow[]>(
     initialBreaks ?? []
   );
-  const [itemScope, setItemScope] = useState<"item" | "category">(
+  const [itemScope, setItemScope] = useState<ItemScope>(
     initialValues.itemPostingGroupId ? "category" : "item"
   );
 
@@ -183,20 +188,25 @@ const PriceListItemForm = ({
                 )}
               />
               <VStack spacing={4}>
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Applies To</label>
-                  <Tabs
-                    value={itemScope}
-                    onValueChange={(v) =>
-                      setItemScope(v as "item" | "category")
+                <ChoiceCardGroup<ItemScope>
+                  label="Applies To"
+                  value={itemScope}
+                  onChange={setItemScope}
+                  options={[
+                    {
+                      value: "item",
+                      title: "Specific Item",
+                      description: "Target one item by SKU.",
+                      icon: <LuPackage />
+                    },
+                    {
+                      value: "category",
+                      title: "Item Group",
+                      description: "Target an item posting group.",
+                      icon: <LuBoxes />
                     }
-                  >
-                    <TabsList className="grid grid-cols-2 w-full">
-                      <TabsTrigger value="item">Specific Item</TabsTrigger>
-                      <TabsTrigger value="category">Item Group</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
+                  ]}
+                />
 
                 {itemScope === "item" ? (
                   <>

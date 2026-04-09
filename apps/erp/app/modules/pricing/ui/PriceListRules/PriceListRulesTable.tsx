@@ -11,7 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   HStack,
-  IconButton
+  IconButton,
+  Status
 } from "@carbon/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
@@ -150,9 +151,9 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
         header: "Active",
         cell: ({ row }) =>
           row.original.active ? (
-            <Badge variant="default">Active</Badge>
+            <Status color="green">Active</Status>
           ) : (
-            <Badge variant="secondary">Inactive</Badge>
+            <Status color="gray">Inactive</Status>
           )
       }
     ],

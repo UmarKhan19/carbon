@@ -17,7 +17,7 @@ import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
 import type { PriceListDetail } from "../types";
 
-export function PriceListDescription() {
+export function PriceListNotes() {
   const { id } = useParams();
   const { carbon } = useCarbon();
   const { id: userId } = useUser();
@@ -67,7 +67,7 @@ export function PriceListDescription() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Description</CardTitle>
+        <CardTitle>Notes</CardTitle>
       </CardHeader>
       <CardContent>
         {canEdit ? (
