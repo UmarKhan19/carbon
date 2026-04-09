@@ -139,14 +139,14 @@ const PriceListRuleForm = ({
 
                 <BooleanField name="active" label="Active" />
 
+                <p className="text-sm font-medium text-muted-foreground pt-2">
+                  Scope (optional)
+                </p>
+
                 <div className="grid grid-cols-2 gap-3 w-full">
                   <DatePicker name="validFrom" label="Valid From" />
                   <DatePicker name="validTo" label="Valid To" />
                 </div>
-
-                <p className="text-sm font-medium text-muted-foreground pt-2">
-                  Scope
-                </p>
 
                 <div className="grid grid-cols-2 gap-3 w-full">
                   <Number name="minQuantity" label="Min Qty" />
