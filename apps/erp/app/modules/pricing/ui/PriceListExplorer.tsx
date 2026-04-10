@@ -58,6 +58,7 @@ export type PriceListExplorerProps = {
   priceListId: string;
 };
 
+/** Remove duplicate entries by ID (e.g. same sales order appearing on multiple lines) */
 function deduplicateById<T extends { id: string }>(items: T[]): T[] {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -67,8 +68,10 @@ function deduplicateById<T extends { id: string }>(items: T[]): T[] {
   });
 }
 
+/** Sections with fewer items than this auto-expand on load */
 const MAX_AUTO_EXPAND = 20;
 
+/** Collapsible section in the explorer sidebar with optional "add" button */
 function Section({
   title,
   count,
@@ -192,6 +195,7 @@ export function PriceListExplorer({
     [items, q]
   );
 
+  // Merge assigned customers with customers using this as their default price list
   const customers = useMemo(() => {
     const result: { id: string; name: string; link: string }[] = [];
     const seenIds = new Set<string>();

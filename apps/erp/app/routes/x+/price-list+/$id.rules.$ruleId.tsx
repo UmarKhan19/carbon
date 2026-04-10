@@ -4,8 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
-import { useRouteData } from "~/hooks";
-import type { PriceListDetail } from "~/modules/pricing";
+
 import {
   getPriceListLockState,
   getPriceListRule,
@@ -93,10 +92,6 @@ export default function EditPriceListRuleRoute() {
 
   if (!id) throw new Error("Price list ID not found");
 
-  const routeData = useRouteData<{ priceList: PriceListDetail }>(
-    path.to.priceList(id)
-  );
-
   return (
     <PriceListRuleForm
       initialValues={{
@@ -115,7 +110,6 @@ export default function EditPriceListRuleRoute() {
         validTo: rule.validTo ?? undefined,
         active: rule.active
       }}
-      priceListType={routeData?.priceList?.type}
       onClose={() => navigate(path.to.priceListRules(id))}
     />
   );

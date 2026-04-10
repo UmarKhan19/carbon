@@ -33,7 +33,6 @@ import {
   Hidden,
   Item,
   ItemPostingGroup,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: consistent with codebase
   Number,
   NumberControlled,
   Select,
@@ -48,6 +47,17 @@ import {
   pricingMethods
 } from "../../pricing.models";
 
+const pricingMethodLabels: Record<(typeof pricingMethods)[number], string> = {
+  Fixed: "Fixed Price",
+  Formula: "Formula (Cost-Based)",
+  "Price Breaks": "Price Breaks"
+};
+
+const formulaBaseLabels: Record<(typeof formulaBases)[number], string> = {
+  cost: "Item Cost (Unit Cost)",
+  salePrice: "Item Sale Price"
+};
+
 type PriceBreakRow = {
   quantity: number;
   unitPrice: number;
@@ -58,14 +68,12 @@ type ItemScope = "item" | "category";
 type PriceListItemFormProps = {
   initialValues: z.infer<typeof priceListItemValidator>;
   initialBreaks?: PriceBreakRow[];
-  priceListType?: string;
   onClose: () => void;
 };
 
 const PriceListItemForm = ({
   initialValues,
   initialBreaks,
-  priceListType,
   onClose
 }: PriceListItemFormProps) => {
   const permissions = usePermissions();
@@ -248,16 +256,13 @@ const PriceListItemForm = ({
                   name="pricingMethod"
                   label="Pricing Method"
                   options={pricingMethods.map((m) => ({
-                    label:
-                      m === "Fixed"
-                        ? "Fixed Price"
-                        : m === "Formula"
-                          ? "Formula (Cost-Based)"
-                          : "Price Breaks",
+                    label: pricingMethodLabels[m],
                     value: m
                   }))}
                   onChange={(v) =>
-                    setPricingMethod((v?.value as string) ?? "Fixed")
+                    setPricingMethod(
+                      (v?.value as (typeof pricingMethods)[number]) ?? "Fixed"
+                    )
                   }
                 />
 
@@ -282,10 +287,7 @@ const PriceListItemForm = ({
                       name="formulaBase"
                       label="Base Price From"
                       options={formulaBases.map((b) => ({
-                        label:
-                          b === "cost"
-                            ? "Item Cost (Unit Cost)"
-                            : "Item Sale Price",
+                        label: formulaBaseLabels[b],
                         value: b
                       }))}
                       onChange={(v) =>

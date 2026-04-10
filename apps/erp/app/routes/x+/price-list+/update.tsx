@@ -5,6 +5,7 @@ import {
   getPriceListLockState,
   syncPriceListAssignments
 } from "~/modules/pricing";
+import { getDatabaseClient } from "~/services/database.server";
 
 // Fields that affect pricing and are blocked when the list is Active.
 // Name, description, and status are NOT in this list — name/description
@@ -46,10 +47,13 @@ export async function action({ request }: ActionFunctionArgs) {
     const customerIds = formData.getAll("customerIds") as string[];
     const customerTypeIds = formData.getAll("customerTypeIds") as string[];
 
-    const result = await syncPriceListAssignments(id, companyId, userId, {
-      customerIds,
-      customerTypeIds
-    });
+    const result = await syncPriceListAssignments(
+      getDatabaseClient(),
+      id,
+      companyId,
+      userId,
+      { customerIds, customerTypeIds }
+    );
 
     if (result.error) {
       return { error: { message: result.error.message }, data: null };

@@ -23,7 +23,6 @@ import {
   Input,
   Item,
   ItemPostingGroup,
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: consistent with codebase
   Number,
   Select,
   Submit
@@ -37,7 +36,6 @@ import {
 
 type PriceListRuleFormProps = {
   initialValues: z.infer<typeof priceListRuleValidator>;
-  priceListType?: string;
   onClose: () => void;
 };
 
@@ -45,7 +43,6 @@ type ItemScope = "all" | "item" | "category";
 
 const PriceListRuleForm = ({
   initialValues,
-  priceListType,
   onClose
 }: PriceListRuleFormProps) => {
   const permissions = usePermissions();
@@ -107,7 +104,8 @@ const PriceListRuleForm = ({
                   }))}
                   onChange={(v) =>
                     setAmountType(
-                      (v?.value as "Percentage" | "Fixed") ?? "Percentage"
+                      (v?.value as (typeof priceListRuleAmountTypes)[number]) ??
+                        "Percentage"
                     )
                   }
                 />

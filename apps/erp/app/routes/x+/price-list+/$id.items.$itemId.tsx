@@ -4,17 +4,19 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
-import { useRouteData } from "~/hooks";
-import type { PriceListDetail } from "~/modules/pricing";
+
 import {
+  type formulaBases,
   getPriceListItem,
   getPriceListItemBreaks,
   getPriceListLockState,
   priceListItemValidator,
+  type pricingMethods,
   updatePriceListItem,
   upsertPriceListItemBreaks
 } from "~/modules/pricing";
 import { PriceListItemForm } from "~/modules/pricing/ui/PriceListItems";
+import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -92,6 +94,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         unitPrice: number;
       }>;
       await upsertPriceListItemBreaks(
+        getDatabaseClient(),
         itemId,
         companyId,
         userId,
@@ -118,10 +121,6 @@ export default function EditPriceListItemRoute() {
 
   if (!id) throw new Error("Price list ID not found");
 
-  const routeData = useRouteData<{ priceList: PriceListDetail }>(
-    path.to.priceList(id)
-  );
-
   return (
     <PriceListItemForm
       initialValues={{
@@ -131,8 +130,10 @@ export default function EditPriceListItemRoute() {
         itemPostingGroupId: item.itemPostingGroupId ?? undefined,
         unitPrice: item.unitPrice,
         unitOfMeasureCode: item.unitOfMeasureCode ?? undefined,
-        pricingMethod: item.pricingMethod,
-        formulaBase: item.formulaBase ?? undefined,
+        pricingMethod: item.pricingMethod as (typeof pricingMethods)[number],
+        formulaBase:
+          (item.formulaBase as (typeof formulaBases)[number] | undefined) ??
+          undefined,
         markupPercent: item.markupPercent ?? undefined,
         minMarginPercent: item.minMarginPercent ?? undefined
       }}
@@ -140,7 +141,6 @@ export default function EditPriceListItemRoute() {
         quantity: b.minQuantity,
         unitPrice: b.unitPrice
       }))}
-      priceListType={routeData?.priceList?.type}
       onClose={() => navigate(path.to.priceListItems(id))}
     />
   );

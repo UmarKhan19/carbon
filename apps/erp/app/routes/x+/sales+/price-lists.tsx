@@ -1,13 +1,8 @@
-import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, useLoaderData } from "react-router";
-import {
-  getOverlapIdsForPriceLists,
-  getPriceLists,
-  updatePriceListSequence
-} from "~/modules/pricing";
+import { getOverlapIdsForPriceLists, getPriceLists } from "~/modules/pricing";
 import { PriceListsTable } from "~/modules/pricing/ui/PriceLists";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -51,29 +46,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     priceLists: priceLists.data ?? [],
     overlapIds: Array.from(overlapIds)
   };
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
-    update: "sales"
-  });
-
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-
-  if (intent === "reorder") {
-    const updates = JSON.parse(formData.get("updates") as string) as Record<
-      string,
-      number
-    >;
-
-    for (const [id, sequence] of Object.entries(updates)) {
-      await updatePriceListSequence(client, id, sequence, userId);
-    }
-  }
-
-  return null;
 }
 
 export default function SalesPriceListsRoute() {

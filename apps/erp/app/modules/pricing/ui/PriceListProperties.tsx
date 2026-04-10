@@ -198,40 +198,48 @@ const PriceListProperties = () => {
           </HStack>
         </HStack>
 
-        <ValidatedForm
-          defaultValues={{ name: priceList?.name ?? undefined }}
-          validator={z.object({ name: z.string().min(1) })}
-          className="w-full"
-        >
-          <InputControlled
-            label="Name"
-            name="name"
-            size="sm"
-            inline
-            isReadOnly={!canUpdate}
-            value={priceList?.name ?? ""}
-            onBlur={(e) => onUpdate("name", e.target.value ?? null)}
-          />
-        </ValidatedForm>
+        <VStack spacing={1} className="pt-2">
+          <ValidatedForm
+            defaultValues={{ name: priceList?.name ?? undefined }}
+            validator={z.object({ name: z.string().min(1) })}
+            className="w-full -mt-2"
+          >
+            <span className="text-sm">
+              <InputControlled
+                label=""
+                name="name"
+                size="sm"
+                inline
+                isReadOnly={!canUpdate}
+                value={priceList?.name ?? ""}
+                onBlur={(e) => onUpdate("name", e.target.value ?? null)}
+              />
+            </span>
+          </ValidatedForm>
+
+          <ValidatedForm
+            defaultValues={{
+              description: priceList?.description ?? undefined
+            }}
+            validator={z.object({
+              description: zfd.text(z.string().optional())
+            })}
+            className="w-full -mt-2"
+          >
+            <span className="text-xs text-muted-foreground">
+              <InputControlled
+                label=""
+                name="description"
+                size="sm"
+                inline
+                isReadOnly={!canUpdate}
+                value={priceList?.description ?? ""}
+                onBlur={(e) => onUpdate("description", e.target.value ?? null)}
+              />
+            </span>
+          </ValidatedForm>
+        </VStack>
       </VStack>
-
-      <div className="border-b border-border" />
-
-      <ValidatedForm
-        defaultValues={{ description: priceList?.description ?? undefined }}
-        validator={z.object({ description: zfd.text(z.string().optional()) })}
-        className="w-full"
-      >
-        <InputControlled
-          label="Description"
-          name="description"
-          size="sm"
-          inline
-          isReadOnly={!canUpdate}
-          value={priceList?.description ?? ""}
-          onBlur={(e) => onUpdate("description", e.target.value ?? null)}
-        />
-      </ValidatedForm>
 
       <div className="border-b border-border" />
 

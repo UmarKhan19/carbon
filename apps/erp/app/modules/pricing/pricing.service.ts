@@ -1,8 +1,8 @@
 import type { Database } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import { lookupPriceFromBreaks } from "~/modules/shared";
-import { getDatabaseClient } from "~/services/database.server";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
@@ -12,10 +12,6 @@ import type {
   priceListRuleValidator,
   priceListValidator
 } from "./pricing.models";
-
-// ============================================================
-// Price Lists — Dropdown List
-// ============================================================
 
 export async function getPriceListsList(
   client: SupabaseClient<Database>,
@@ -29,10 +25,6 @@ export async function getPriceListsList(
     .in("status", ["Active", "Draft"])
     .order("name");
 }
-
-// ============================================================
-// Price Lists — CRUD
-// ============================================================
 
 export async function getPriceLists(
   client: SupabaseClient<Database>,
@@ -183,10 +175,6 @@ export async function deletePriceList(
   return client.from("priceList").delete().eq("id", id);
 }
 
-// ============================================================
-// Price List Items — CRUD
-// ============================================================
-
 export async function getPriceListItems(
   client: SupabaseClient<Database>,
   priceListId: string
@@ -265,10 +253,6 @@ export async function deletePriceListItem(
   return client.from("priceListItem").delete().eq("id", id);
 }
 
-// ============================================================
-// Price List Item Breaks
-// ============================================================
-
 export async function getPriceListItemBreaks(
   client: SupabaseClient<Database>,
   priceListItemId: string
@@ -281,12 +265,12 @@ export async function getPriceListItemBreaks(
 }
 
 export async function upsertPriceListItemBreaks(
+  db: Kysely<KyselyDatabase>,
   priceListItemId: string,
   companyId: string,
   userId: string,
   breaks: Array<{ minQuantity: number; unitPrice: number }>
 ) {
-  const db = getDatabaseClient();
   await db.transaction().execute(async (trx) => {
     await trx
       .deleteFrom("priceListItemBreak")
@@ -309,10 +293,6 @@ export async function upsertPriceListItemBreaks(
       .execute();
   });
 }
-
-// ============================================================
-// Price List Rules — CRUD
-// ============================================================
 
 export async function getPriceListRules(
   client: SupabaseClient<Database>,
@@ -390,10 +370,6 @@ export async function deletePriceListRule(
   return client.from("priceListRule").delete().eq("id", id);
 }
 
-// ============================================================
-// Price List Assignments — CRUD
-// ============================================================
-
 export async function getPriceListAssignments(
   client: SupabaseClient<Database>,
   priceListId: string
@@ -434,6 +410,7 @@ export async function deletePriceListAssignment(
 }
 
 export async function syncPriceListAssignments(
+  db: Kysely<KyselyDatabase>,
   priceListId: string,
   companyId: string,
   userId: string,
@@ -442,7 +419,6 @@ export async function syncPriceListAssignments(
     customerTypeIds?: string[];
   }
 ): Promise<{ error: { message: string } | null }> {
-  const db = getDatabaseClient();
   try {
     await db.transaction().execute(async (trx) => {
       await trx
@@ -491,10 +467,6 @@ export async function syncPriceListAssignments(
     };
   }
 }
-
-// ============================================================
-// Version Management
-// ============================================================
 
 export async function createPriceListVersion(
   client: SupabaseClient<Database>,
@@ -587,10 +559,6 @@ export async function archiveSiblingVersions(
     .eq("status", "Active")
     .neq("id", priceListId);
 }
-
-// ------------------------------------------------------------
-// Copy all children from one price list to another
-// ------------------------------------------------------------
 
 async function copyPriceListChildren(
   client: SupabaseClient<Database>,
@@ -695,10 +663,6 @@ async function copyPriceListChildren(
   }
 }
 
-// ------------------------------------------------------------
-// Duplicate Price List (new name, version 1, source untouched)
-// ------------------------------------------------------------
-
 export async function duplicatePriceList(
   client: SupabaseClient<Database>,
   priceListId: string,
@@ -785,30 +749,6 @@ export async function getPriceListVersions(
   return { data: data ?? [], error };
 }
 
-// ============================================================
-// Sequence Management (drag-to-reorder)
-// ============================================================
-
-export async function updatePriceListSequence(
-  client: SupabaseClient<Database>,
-  id: string,
-  sequence: number,
-  userId: string
-) {
-  return client
-    .from("priceList")
-    .update({
-      sequence,
-      updatedBy: userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", id);
-}
-
-// ============================================================
-// Price Resolution Helpers (DB queries for the resolver)
-// ============================================================
-
 export async function getActivePriceListsForCustomer(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -886,10 +826,6 @@ export async function getPriceListItemsForResolution(
   return { data: null, error: null, matchType: null };
 }
 
-// ============================================================
-// Structured Rule Evaluation (replaces json-rules-engine)
-// ============================================================
-
 export async function getApplicableRules(
   client: SupabaseClient<Database>,
   priceListId: string,
@@ -930,10 +866,6 @@ export async function getApplicableRules(
   return { data: matched, error: null };
 }
 
-// ============================================================
-// Cross-Entity Lookups (for surfacing on detail pages)
-// ============================================================
-
 export async function getSalesOrdersByPriceList(
   client: SupabaseClient<Database>,
   priceListId: string
@@ -966,10 +898,6 @@ export async function getPriceListsForItem(
     .eq("itemId", itemId)
     .order("createdAt", { ascending: false });
 }
-
-// ============================================================
-// Price Resolution — Types
-// ============================================================
 
 export type AssignmentType = "direct" | "type" | "global";
 
@@ -1008,10 +936,6 @@ export type PriceResolutionResult = {
   priceType: "Gross" | "Net" | "Discounted";
   trace: PriceTraceStep[];
 };
-
-// ============================================================
-// Price Resolution — Pure Helpers (testable without DB)
-// ============================================================
 
 /**
  * Lower score = higher specificity = wins.
@@ -1109,10 +1033,6 @@ export function applyPriceRules(
   return { finalPrice, appendedTrace };
 }
 
-// ============================================================
-// Price Resolution — DB-aware helpers
-// ============================================================
-
 async function computeFormulaPrice(
   client: SupabaseClient<Database>,
   itemId: string,
@@ -1177,10 +1097,6 @@ function getAssignmentType(
 
   return "global";
 }
-
-// ============================================================
-// Price Resolution — Main entry point
-// ============================================================
 
 export async function resolvePrice(
   client: SupabaseClient<Database>,

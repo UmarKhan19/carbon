@@ -4,8 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useNavigate, useParams } from "react-router";
-import { useRouteData } from "~/hooks";
-import type { PriceListDetail } from "~/modules/pricing";
+
 import {
   createPriceListItem,
   getPriceListLockState,
@@ -13,6 +12,7 @@ import {
   upsertPriceListItemBreaks
 } from "~/modules/pricing";
 import { PriceListItemForm } from "~/modules/pricing/ui/PriceListItems";
+import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -83,6 +83,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }>;
       if (breaks.length > 0) {
         await upsertPriceListItemBreaks(
+          getDatabaseClient(),
           result.data.id,
           companyId,
           userId,
@@ -109,10 +110,6 @@ export default function NewPriceListItemRoute() {
 
   if (!id) throw new Error("Price list ID not found");
 
-  const routeData = useRouteData<{ priceList: PriceListDetail }>(
-    path.to.priceList(id)
-  );
-
   return (
     <PriceListItemForm
       initialValues={{
@@ -120,7 +117,6 @@ export default function NewPriceListItemRoute() {
         unitPrice: 0,
         pricingMethod: "Fixed"
       }}
-      priceListType={routeData?.priceList?.type}
       onClose={() => navigate(path.to.priceListItems(id))}
     />
   );

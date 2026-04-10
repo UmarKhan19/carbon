@@ -56,7 +56,7 @@ import Location from "./Location";
 import MaterialType from "./MaterialType";
 import Part from "./Part";
 import PaymentTerm from "./PaymentTerm";
-import PriceList from "./PriceList";
+
 import Procedure from "./Procedure";
 import Process from "./Process";
 import Processes from "./Processes";
@@ -74,7 +74,7 @@ import SupplierProcess from "./SupplierProcess";
 import SupplierStatus from "./SupplierStatus";
 import Suppliers from "./Suppliers";
 import SupplierType from "./SupplierType";
-import SupplierTypes from "./SupplierTypes";
+
 import Tags from "./Tags";
 import Tool from "./Tool";
 import UnitHint from "./UnitHint";
@@ -131,7 +131,6 @@ export {
   NumberControlled,
   Part,
   Password,
-  PriceList,
   PaymentTerm,
   PhoneInput,
   Procedure,
@@ -155,7 +154,6 @@ export {
   Suppliers,
   SupplierStatus,
   SupplierType,
-  SupplierTypes,
   Tags,
   TextArea,
   TimePicker,
