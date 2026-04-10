@@ -139,7 +139,7 @@ const StockTransferHeader = () => {
                 href={path.to.file.stockTransfer(id)}
                 rel="noreferrer"
               >
-                Pick List
+                <Trans>Pick List</Trans>
               </a>
             </Button>
             <statusFetcher.Form
@@ -161,7 +161,7 @@ const StockTransferHeader = () => {
                   statusFetcher.formData?.get("status") === "Released"
                 }
               >
-                Release
+                <Trans>Release</Trans>
               </Button>
             </statusFetcher.Form>
 
@@ -186,7 +186,7 @@ const StockTransferHeader = () => {
                   statusFetcher.formData?.get("status") === "Completed"
                 }
               >
-                Complete
+                <Trans>Complete</Trans>
               </Button>
             </statusFetcher.Form>
             <statusFetcher.Form
@@ -208,7 +208,7 @@ const StockTransferHeader = () => {
                   statusFetcher.formData?.get("status") === "Draft"
                 }
               >
-                Reopen
+                <Trans>Reopen</Trans>
               </Button>
             </statusFetcher.Form>
           </HStack>
@@ -223,7 +223,7 @@ const StockTransferHeader = () => {
           action={path.to.deleteStockTransfer(id)}
           isOpen={deleteModal.isOpen}
           name={routeData?.stockTransfer?.stockTransferId ?? "stockTransfer"}
-          text={`Are you sure you want to delete ${routeData?.stockTransfer?.stockTransferId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.stockTransfer?.stockTransferId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}

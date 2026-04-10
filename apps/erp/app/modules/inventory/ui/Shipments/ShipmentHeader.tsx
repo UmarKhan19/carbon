@@ -163,7 +163,7 @@ const ShipmentHeader = () => {
                 onClick={() => navigateToTrackingLabels(false)}
                 variant="primary"
               >
-                Tracking Labels
+                <Trans>Tracking Labels</Trans>
               </SplitButton>
             )}
 
@@ -173,7 +173,7 @@ const ShipmentHeader = () => {
                 href={path.to.file.shipment(shipmentId)}
                 rel="noreferrer"
               >
-                Packing Slip
+                <Trans>Packing Slip</Trans>
               </a>
             </Button>
 
@@ -197,7 +197,7 @@ const ShipmentHeader = () => {
                         variant="secondary"
                         isLoading
                       >
-                        Loading...
+                        <Trans>Loading...</Trans>
                       </Button>
                     }
                   >
@@ -214,7 +214,7 @@ const ShipmentHeader = () => {
                               asChild
                             >
                               <Link to={path.to.salesInvoice(invoices[0].id!)}>
-                                Invoice
+                                <Trans>Invoice</Trans>
                               </Link>
                             </Button>
                           ) : (
@@ -225,7 +225,7 @@ const ShipmentHeader = () => {
                                   rightIcon={<LuChevronDown />}
                                   variant={"secondary"}
                                 >
-                                  Invoice
+                                  <Trans>Invoice</Trans>
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
@@ -268,7 +268,7 @@ const ShipmentHeader = () => {
                               invoice(routeData?.shipment);
                             }}
                           >
-                            Invoice
+                            <Trans>Invoice</Trans>
                           </Button>
                         );
                       }}
@@ -283,7 +283,7 @@ const ShipmentHeader = () => {
                         variant="secondary"
                         isLoading
                       >
-                        Loading...
+                        <Trans>Loading...</Trans>
                       </Button>
                     }
                   >
@@ -315,7 +315,7 @@ const ShipmentHeader = () => {
                               asChild
                             >
                               <Link to={path.to.salesInvoice(invoices[0].id!)}>
-                                Invoice
+                                <Trans>Invoice</Trans>
                               </Link>
                             </Button>
                           );
@@ -328,7 +328,7 @@ const ShipmentHeader = () => {
                                   rightIcon={<LuChevronDown />}
                                   variant="secondary"
                                 >
-                                  Invoices
+                                  <Trans>Invoices</Trans>
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
@@ -369,7 +369,7 @@ const ShipmentHeader = () => {
               }
               leftIcon={<LuCheckCheck />}
             >
-              Post
+              <Trans>Post</Trans>
             </Button>
             {(isPosted || isVoided) && (
               <Button
@@ -378,7 +378,7 @@ const ShipmentHeader = () => {
                 isDisabled={isVoided || !permissions.is("employee")}
                 leftIcon={<LuTicketX />}
               >
-                Void
+                <Trans>Void</Trans>
               </Button>
             )}
           </HStack>
@@ -392,7 +392,7 @@ const ShipmentHeader = () => {
           action={path.to.deleteShipment(shipmentId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.shipment?.shipmentId ?? "shipment"}
-          text={`Are you sure you want to delete ${routeData?.shipment?.shipmentId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.shipment?.shipmentId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}
@@ -425,7 +425,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<RiProgress8Line />} asChild>
           <Link to={path.to.salesOrderDetails(sourceDocumentId!)}>
-            Sales Order
+            <Trans>Sales Order</Trans>
           </Link>
         </Button>
       );
@@ -434,7 +434,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuShoppingCart />} asChild>
           <Link to={path.to.purchaseOrderDetails(sourceDocumentId!)}>
-            Purchase Order
+            <Trans>Purchase Order</Trans>
           </Link>
         </Button>
       );
@@ -443,7 +443,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuTruck />} asChild>
           <Link to={path.to.warehouseTransferDetails(sourceDocumentId!)}>
-            Warehouse Transfer
+            <Trans>Warehouse Transfer</Trans>
           </Link>
         </Button>
       );

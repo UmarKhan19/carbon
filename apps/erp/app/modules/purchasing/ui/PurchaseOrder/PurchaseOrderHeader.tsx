@@ -181,7 +181,9 @@ const PurchaseOrderHeader = () => {
               </Badge>
             )}
             {settings?.supplierApproval && !isSupplierApproved && (
-              <Status color="red">Unapproved Supplier</Status>
+              <Status color="red">
+                <Trans>Unapproved Supplier</Trans>
+              </Status>
             )}
           </HStack>
           <HStack>
@@ -553,7 +555,7 @@ const PurchaseOrderHeader = () => {
           action={path.to.deletePurchaseOrder(orderId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.purchaseOrder?.purchaseOrderId ?? "purchase order"}
-          text={`Are you sure you want to delete ${routeData?.purchaseOrder?.purchaseOrderId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.purchaseOrder?.purchaseOrderId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}

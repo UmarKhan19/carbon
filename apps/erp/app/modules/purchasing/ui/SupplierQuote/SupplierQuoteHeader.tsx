@@ -172,7 +172,9 @@ const SupplierQuoteHeader = () => {
               </Badge>
             )}
             {settings?.supplierApproval && !isSupplierApproved && (
-              <Status color="red">Unapproved Supplier</Status>
+              <Status color="red">
+                <Trans>Unapproved Supplier</Trans>
+              </Status>
             )}
           </HStack>
           <HStack>
@@ -349,7 +351,7 @@ const SupplierQuoteHeader = () => {
           action={path.to.deleteSupplierQuote(id)}
           isOpen={deleteModal.isOpen}
           name={routeData?.quote?.supplierQuoteId ?? "supplier quote"}
-          text={`Are you sure you want to delete ${routeData?.quote?.supplierQuoteId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.quote?.supplierQuoteId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}
@@ -448,9 +450,11 @@ function SupplierQuoteFinalizeModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Finalize {quote?.supplierQuoteId}</ModalTitle>
+          <ModalTitle>
+            <Trans>Finalize</Trans> {quote?.supplierQuoteId}
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to finalize the supplier quote?
+            <Trans>Are you sure you want to finalize the supplier quote?</Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
@@ -462,7 +466,9 @@ function SupplierQuoteFinalizeModal({
                   <Trans>Lines need prices or lead times</Trans>
                 </AlertTitle>
                 <AlertDescription>
-                  The following line items are missing prices or lead times:
+                  <Trans>
+                    The following line items are missing prices or lead times:
+                  </Trans>
                   <ul className="list-disc py-2 pl-4">
                     {warningLineReadableIds.map((readableId) => (
                       <li key={readableId}>{readableId}</li>
@@ -528,7 +534,7 @@ function ShareQuoteModal({
             <Trans>Share Quote</Trans>
           </ModalTitle>
           <ModalDescription>
-            Copy this link to share the quote with a supplier
+            <Trans>Copy this link to share the quote with a supplier</Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>

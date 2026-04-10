@@ -377,7 +377,7 @@ const { data, error } = await carbon
 
 ## Translations
 
-In order to run `npx linguito translate --llm` you must first run:
+In order to run `npm run translate` you must first run:
 
 ```bash
 brew install ollama

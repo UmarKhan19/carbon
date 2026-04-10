@@ -16,7 +16,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useEffect } from "react";
 import {
@@ -93,7 +93,7 @@ const ProcedureHeader = () => {
                 onClick={deleteDisclosure.onOpen}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete Procedure
+                <Trans>Delete Procedure</Trans>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -110,7 +110,7 @@ const ProcedureHeader = () => {
                     leftIcon={<LuGitPullRequestArrow />}
                     rightIcon={<LuChevronDown />}
                   >
-                    Versions
+                    <Trans>Versions</Trans>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -118,7 +118,7 @@ const ProcedureHeader = () => {
                     <>
                       <DropdownMenuItem onClick={newVersionDisclosure.onOpen}>
                         <DropdownMenuIcon icon={<LuCirclePlus />} />
-                        New Version
+                        <Trans>New Version</Trans>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
@@ -187,7 +187,7 @@ const ProcedureHeader = () => {
           action={path.to.deleteProcedure(id)}
           isOpen={deleteDisclosure.isOpen}
           name={routeData?.procedure?.name ?? "procedure"}
-          text={`Are you sure you want to delete ${routeData?.procedure?.name}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.procedure?.name}? This cannot be undone.`}
           onCancel={() => {
             deleteDisclosure.onClose();
           }}

@@ -129,7 +129,7 @@ const ReceiptHeader = () => {
                 onClick={() => navigateToTrackingLabels(false)}
                 variant={isPosted ? "primary" : "secondary"}
               >
-                Tracking Labels
+                <Trans>Tracking Labels</Trans>
               </SplitButton>
             )}
             <SourceDocumentLink
@@ -145,7 +145,7 @@ const ReceiptHeader = () => {
               isDisabled={!canPost || isPosted || !permissions.is("employee")}
               leftIcon={<LuCheckCheck />}
             >
-              Post
+              <Trans>Post</Trans>
             </Button>
           </HStack>
         </HStack>
@@ -157,7 +157,7 @@ const ReceiptHeader = () => {
           action={path.to.deleteReceipt(receiptId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.receipt?.receiptId ?? "receipt"}
-          text={`Are you sure you want to delete ${routeData?.receipt?.receiptId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.receipt?.receiptId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}
@@ -190,7 +190,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuShoppingCart />} asChild>
           <Link to={path.to.purchaseOrderDetails(sourceDocumentId!)}>
-            Purchase Order
+            <Trans>Purchase Order</Trans>
           </Link>
         </Button>
       );
@@ -199,7 +199,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuCreditCard />} asChild>
           <Link to={path.to.purchaseInvoice(sourceDocumentId!)}>
-            Purchase Invoice
+            <Trans>Purchase Invoice</Trans>
           </Link>
         </Button>
       );
@@ -208,7 +208,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuTruck />} asChild>
           <Link to={path.to.warehouseTransferDetails(sourceDocumentId!)}>
-            Warehouse Transfer
+            <Trans>Warehouse Transfer</Trans>
           </Link>
         </Button>
       );

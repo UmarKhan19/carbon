@@ -63,6 +63,26 @@ const ItemPreview = (
   return <span>{item.label}</span>;
 };
 
+const useTranslatedItemType = () => {
+  const { t } = useLingui();
+  return (type: MethodItemType | "Item") => {
+    switch (type) {
+      case "Item":
+        return t`Item`;
+      case "Part":
+        return t`Part`;
+      case "Material":
+        return t`Material`;
+      case "Tool":
+        return t`Tool`;
+      case "Consumable":
+        return t`Consumable`;
+      default:
+        return type;
+    }
+  };
+};
+
 const Item = ({
   name,
   label,
@@ -77,6 +97,7 @@ const Item = ({
   ...props
 }: ItemSelectProps) => {
   const { t } = useLingui();
+  const translateItemType = useTranslatedItemType();
   const [items] = useItems();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -167,7 +188,7 @@ const Item = ({
             isOptional={isOptional}
             onConfigure={onConfigure}
           >
-            {type === "Item" ? "Item" : type}
+            {translateItemType(type)}
           </FormLabel>
         )}
         <input
@@ -281,7 +302,7 @@ const Item = ({
                         className="flex items-center gap-2"
                       >
                         <MethodItemTypeIcon type={itemType} />
-                        <span>{itemType}</span>
+                        <span>{translateItemType(itemType)}</span>
                       </DropdownMenuRadioItem>
                     ))}
                 </DropdownMenuRadioGroup>
@@ -326,7 +347,7 @@ const Item = ({
                       }, 0);
                     }}
                   >
-                    {itemType}
+                    {translateItemType(itemType)}
                   </Button>
                 ))}
               </div>

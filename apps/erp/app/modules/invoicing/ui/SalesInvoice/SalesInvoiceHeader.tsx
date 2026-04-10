@@ -15,7 +15,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -211,7 +211,7 @@ const SalesInvoiceHeader = () => {
                 <Link
                   to={path.to.salesOrderDetails(relatedDocs.salesOrders[0].id)}
                 >
-                  Sales Order
+                  <Trans>Sales Order</Trans>
                 </Link>
               </Button>
             )}
@@ -220,7 +220,7 @@ const SalesInvoiceHeader = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="secondary" leftIcon={<RiProgress8Line />}>
-                    Sales Orders
+                    <Trans>Sales Orders</Trans>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -247,9 +247,11 @@ const SalesInvoiceHeader = () => {
                       ) : undefined
                     }
                   >
-                    {relatedDocs.shipments.length === 1
-                      ? "Shipment"
-                      : "Shipments"}
+                    {relatedDocs.shipments.length === 1 ? (
+                      <Trans>Shipment</Trans>
+                    ) : (
+                      <Trans>Shipments</Trans>
+                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -276,7 +278,7 @@ const SalesInvoiceHeader = () => {
                   variant="secondary"
                   rightIcon={<LuChevronDown />}
                 >
-                  Preview
+                  <Trans>Preview</Trans>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -287,7 +289,7 @@ const SalesInvoiceHeader = () => {
                     rel="noreferrer"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    PDF
+                    <Trans>PDF</Trans>
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -308,7 +310,7 @@ const SalesInvoiceHeader = () => {
                 !permissions.can("update", "invoicing")
               }
             >
-              Post
+              <Trans>Post</Trans>
             </Button>
             {isPosted && (
               <Button
@@ -317,7 +319,7 @@ const SalesInvoiceHeader = () => {
                 onClick={voidModal.onOpen}
                 isDisabled={isVoided || !permissions.can("update", "invoicing")}
               >
-                Void
+                <Trans>Void</Trans>
               </Button>
             )}
             <DropdownMenu>
@@ -331,7 +333,7 @@ const SalesInvoiceHeader = () => {
                   leftIcon={<LuDollarSign />}
                   rightIcon={<LuChevronDown />}
                 >
-                  Payment
+                  <Trans>Payment</Trans>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>

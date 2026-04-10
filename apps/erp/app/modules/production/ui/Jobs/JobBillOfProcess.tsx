@@ -294,7 +294,9 @@ function makeItem(
               </Link>
             </TooltipTrigger>
             <TooltipContent>
-              <span>Create Issue</span>
+              <span>
+                <Trans>Create Issue</Trans>
+              </span>
             </TooltipContent>
           </Tooltip>
         </HStack>
@@ -730,7 +732,7 @@ const JobBillOfProcess = ({
     const tabs = [
       {
         id: 0,
-        label: "Details",
+        label: t`Details`,
         content: (
           <div className="flex w-full flex-col pr-2 py-2">
             <motion.div
@@ -768,7 +770,7 @@ const JobBillOfProcess = ({
       },
       {
         id: 1,
-        label: "Instructions",
+        label: t`Instructions`,
         disabled:
           item.id in temporaryItems || item.data.operationType === "Outside",
         content: (
@@ -810,7 +812,9 @@ const JobBillOfProcess = ({
           item.id in temporaryItems || item.data.operationType === "Outside",
         label: (
           <span className="flex items-center gap-2">
-            <span>Params</span>
+            <span>
+              <Trans>Params</Trans>
+            </span>
             {parameters.length > 0 && <Count count={parameters.length} />}
           </span>
         ),
@@ -833,7 +837,9 @@ const JobBillOfProcess = ({
           item.id in temporaryItems || item.data.operationType === "Outside",
         label: (
           <span className="flex items-center gap-2">
-            <span>Steps</span>
+            <span>
+              <Trans>Steps</Trans>
+            </span>
             {steps.length > 0 && <Count count={steps.length} />}
           </span>
         ),
@@ -857,7 +863,9 @@ const JobBillOfProcess = ({
           item.id in temporaryItems || item.data.operationType === "Outside",
         label: (
           <span className="flex items-center gap-2">
-            <span>Tools</span>
+            <span>
+              <Trans>Tools</Trans>
+            </span>
             {tools.length > 0 && <Count count={tools.length} />}
           </span>
         ),
@@ -878,7 +886,7 @@ const JobBillOfProcess = ({
         id: 5,
         disabled:
           item.id in temporaryItems || item.data.operationType === "Outside",
-        label: "Events",
+        label: t`Events`,
         content: (
           <div className="flex w-full flex-col pr-2 py-6 min-h-[300px]">
             <motion.div
@@ -905,7 +913,7 @@ const JobBillOfProcess = ({
         id: 6,
         disabled:
           item.id in temporaryItems || item.data.operationType === "Outside",
-        label: "Chat",
+        label: t`Chat`,
         content: <OperationChat jobOperationId={item.id} />
       }
     ];
@@ -1027,7 +1035,7 @@ const JobBillOfProcess = ({
             }
             onClick={onAddItem}
           >
-            Add Operation
+            <Trans>Add Operation</Trans>
           </Button>
         </CardAction>
       </HStack>

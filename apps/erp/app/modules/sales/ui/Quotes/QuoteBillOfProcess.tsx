@@ -335,6 +335,8 @@ const QuoteBillOfProcess = ({
     }, {} as OrderState);
   });
 
+  const { t } = useLingui();
+
   const operationsById = new Map<
     string,
     Operation & { quoteOperationTool: OperationTool[] }
@@ -410,7 +412,7 @@ const QuoteBillOfProcess = ({
     }
 
     if (!result?.data) {
-      throw new Error("Failed to upload image");
+      throw new Error(t`Failed to upload image`);
     }
 
     return getPrivateUrl(result.data.path);
@@ -537,7 +539,7 @@ const QuoteBillOfProcess = ({
     const tabs = [
       {
         id: 0,
-        label: "Details",
+        label: t`Details`,
         content: (
           <div className="flex w-full flex-col pr-2 py-2">
             <motion.div
@@ -579,7 +581,9 @@ const QuoteBillOfProcess = ({
           item.data.operationType === "Outside",
         label: (
           <span className="flex items-center gap-2">
-            Instructions
+            <span>
+              <Trans>Instructions</Trans>
+            </span>
             {hasProcedure && (
               <Tooltip>
                 <TooltipTrigger>
@@ -588,7 +592,11 @@ const QuoteBillOfProcess = ({
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="opacity-100">
-                  <p>Instructions are inherited from the procedure.</p>
+                  <p>
+                    <Trans>
+                      Instructions are inherited from the procedure.
+                    </Trans>
+                  </p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -637,7 +645,9 @@ const QuoteBillOfProcess = ({
           item.data.operationType === "Outside",
         label: (
           <span className="flex items-center gap-2">
-            <span>Parameters</span>
+            <span>
+              <Trans>Parameters</Trans>
+            </span>
             {hasProcedure && (
               <Tooltip>
                 <TooltipTrigger>
@@ -646,7 +656,9 @@ const QuoteBillOfProcess = ({
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="opacity-100">
-                  <p>Parameters are inherited from the procedure.</p>
+                  <p>
+                    <Trans>Parameters are inherited from the procedure.</Trans>
+                  </p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -676,7 +688,9 @@ const QuoteBillOfProcess = ({
           item.data.operationType === "Outside",
         label: (
           <span className="flex items-center gap-2">
-            <span>Steps</span>
+            <span>
+              <Trans>Steps</Trans>
+            </span>
             {hasProcedure && (
               <Tooltip>
                 <TooltipTrigger>
@@ -685,7 +699,9 @@ const QuoteBillOfProcess = ({
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="opacity-100">
-                  <p>Attributes are inherited from the procedure.</p>
+                  <p>
+                    <Trans>Attributes are inherited from the procedure.</Trans>
+                  </p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -714,7 +730,9 @@ const QuoteBillOfProcess = ({
           item.id in temporaryItems || item.data.operationType === "Outside",
         label: (
           <span className="flex items-center gap-2">
-            <span>Tools</span>
+            <span>
+              <Trans>Tools</Trans>
+            </span>
             {tools.length > 0 && <Count count={tools.length} />}
           </span>
         ),
@@ -850,7 +868,7 @@ const QuoteBillOfProcess = ({
             }
             onClick={onAddItem}
           >
-            Add Operation
+            <Trans>Add Operation</Trans>
           </Button>
         </CardAction>
       </HStack>

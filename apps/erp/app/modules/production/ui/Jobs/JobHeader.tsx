@@ -667,13 +667,17 @@ export function JobStartModal({
         }
       >
         <ModalHeader>
-          <ModalTitle>Release Job {job?.jobId}</ModalTitle>
+          <ModalTitle>
+            <Trans>Release Job</Trans> {job?.jobId}
+          </ModalTitle>
         </ModalHeader>
         {loading ? (
           <ModalBody>
             <div className="flex flex-col h-[118px] w-full items-center justify-center gap-2">
               <Spinner className="size-8" />
-              <p className="text-sm">Validating job...</p>
+              <p className="text-sm">
+                <Trans>Validating job...</Trans>
+              </p>
             </div>
           </ModalBody>
         ) : (
@@ -683,9 +687,11 @@ export function JobStartModal({
                 {eachAssemblyHasAnOperation &&
                   eachOutsideOperationHasASupplier && (
                     <p className="text-sm">
-                      Are you sure you want to release this job? It will become
-                      available to the shop floor, and drive purchasing and
-                      production.
+                      <Trans>
+                        Are you sure you want to release this job? It will
+                        become available to the shop floor, and drive purchasing
+                        and production.
+                      </Trans>
                     </p>
                   )}
                 {hasOutsideOperations && eachOutsideOperationHasASupplier && (
@@ -696,9 +702,12 @@ export function JobStartModal({
                         <Trans>Purchase orders required</Trans>
                       </AlertTitle>
                       <AlertDescription>
-                        A new purchase order will be created for each supplier.
-                        Alternatively, you can choose an existing draft purchase
-                        order for the supplier to add the outside operations to.
+                        <Trans>
+                          A new purchase order will be created for each
+                          supplier. Alternatively, you can choose an existing
+                          draft purchase order for the supplier to add the
+                          outside operations to.
+                        </Trans>
                       </AlertDescription>
                     </Alert>
                     {Object.entries(selectedPurchaseOrdersBySupplierId).map(
@@ -751,9 +760,11 @@ export function JobStartModal({
                       <Trans>Missing Operations</Trans>
                     </AlertTitle>
                     <AlertDescription>
-                      There are Bills of Processes associated with this job that
-                      have no operations. Please assign an operation to each
-                      make method before releasing it.
+                      <Trans>
+                        There are Bills of Processes associated with this job
+                        that have no operations. Please assign an operation to
+                        each make method before releasing it.
+                      </Trans>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -764,9 +775,11 @@ export function JobStartModal({
                       <Trans>Missing Suppliers</Trans>
                     </AlertTitle>
                     <AlertDescription>
-                      There are outside operations associated with this job that
-                      have no suppliers. Please assign a supplier to each
-                      outside operation before releasing it.
+                      <Trans>
+                        There are outside operations associated with this job
+                        that have no suppliers. Please assign a supplier to each
+                        outside operation before releasing it.
+                      </Trans>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -775,7 +788,7 @@ export function JobStartModal({
 
             <ModalFooter>
               <Button variant="secondary" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <fetcher.Form
                 onSubmit={onClose}
@@ -800,7 +813,7 @@ export function JobStartModal({
                   }
                   type="submit"
                 >
-                  Release Job
+                  <Trans>Release Job</Trans>
                 </Button>
               </fetcher.Form>
             </ModalFooter>
@@ -833,15 +846,19 @@ function JobCancelModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Cancel {job?.jobId}</ModalTitle>
+          <ModalTitle>
+            <Trans>Cancel</Trans> {job?.jobId}
+          </ModalTitle>
         </ModalHeader>
         <ModalBody>
-          Are you sure you want to cancel this job? It will no longer be
-          available on the shop floor.
+          <Trans>
+            Are you sure you want to cancel this job? It will no longer be
+            available on the shop floor.
+          </Trans>
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Don't Cancel
+            <Trans>Don't Cancel</Trans>
           </Button>
           <fetcher.Form
             onSubmit={onClose}
@@ -850,7 +867,7 @@ function JobCancelModal({
           >
             <input type="hidden" name="status" value="Cancelled" />
             <Button variant="destructive" type="submit">
-              Cancel Job
+              <Trans>Cancel Job</Trans>
             </Button>
           </fetcher.Form>
         </ModalFooter>
@@ -995,13 +1012,13 @@ function JobCompleteModal({
             <ModalHeader>
               <ModalTitle>
                 {makeToOrder
-                  ? `Complete Job`
-                  : `Receive ${job.jobId} to Inventory`}
+                  ? t`Complete Job`
+                  : t`Receive ${job.jobId} to Inventory`}
               </ModalTitle>
               <ModalDescription>
                 {makeToOrder
-                  ? `This job will no longer be available on the shop floor.`
-                  : "This job will be received to inventory. It will no longer be available on the shop floor."}
+                  ? t`This job will no longer be available on the shop floor.`
+                  : t`This job will be received to inventory. It will no longer be available on the shop floor.`}
               </ModalDescription>
             </ModalHeader>
             <Hidden name="salesOrderId" />
@@ -1053,10 +1070,10 @@ function JobCompleteModal({
                         <Trans>Leftover Parts Detected</Trans>
                       </AlertTitle>
                       <AlertDescription>
-                        You completed {leftoverQuantity} more{" "}
-                        {leftoverQuantity === 1 ? "part" : "parts"} than the
-                        ordered quantity of {job.quantity}. What would you like
-                        to do with the extra parts?
+                        {t`You completed ${leftoverQuantity} more 
+                        ${leftoverQuantity === 1 ? "part" : "parts"} than the
+                        ordered quantity of ${job.quantity}. What would you like
+                        to do with the extra parts?`}
                       </AlertDescription>
                     </Alert>
 
@@ -1071,9 +1088,11 @@ function JobCompleteModal({
                           className="h-auto py-3"
                         >
                           <VStack spacing={1}>
-                            <span>Ship to Customer</span>
+                            <span>
+                              <Trans>Ship to Customer</Trans>
+                            </span>
                             <span className="text-xs opacity-70">
-                              Include extra parts in shipment
+                              <Trans>Include extra parts in shipment</Trans>
                             </span>
                           </VStack>
                         </Button>
@@ -1087,9 +1106,11 @@ function JobCompleteModal({
                         className="h-auto py-3"
                       >
                         <VStack spacing={1}>
-                          <span>Receive to Inventory</span>
+                          <span>
+                            <Trans>Receive to Inventory</Trans>
+                          </span>
                           <span className="text-xs opacity-70">
-                            Add to stock for future use
+                            <Trans>Add to stock for future use</Trans>
                           </span>
                         </VStack>
                       </Button>
@@ -1103,9 +1124,11 @@ function JobCompleteModal({
                           className="h-auto py-3"
                         >
                           <VStack spacing={1}>
-                            <span>Split</span>
+                            <span>
+                              <Trans>Split</Trans>
+                            </span>
                             <span className="text-xs opacity-70">
-                              Ship some, stock some
+                              <Trans>Ship some, stock some</Trans>
                             </span>
                           </VStack>
                         </Button>
@@ -1119,9 +1142,11 @@ function JobCompleteModal({
                         className="h-auto py-3"
                       >
                         <VStack spacing={1}>
-                          <span>Discard</span>
+                          <span>
+                            <Trans>Discard</Trans>
+                          </span>
                           <span className="text-xs opacity-70">
-                            No action needed
+                            <Trans>No action needed</Trans>
                           </span>
                         </VStack>
                       </Button>
@@ -1172,11 +1197,11 @@ function JobCompleteModal({
             </ModalBody>
             <ModalFooter>
               <Button variant="secondary" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
 
               <Button type="submit" isDisabled={hasLeftover && !leftoverAction}>
-                Complete Job
+                <Trans>Complete Job</Trans>
               </Button>
             </ModalFooter>
           </ValidatedForm>

@@ -92,15 +92,14 @@ const QualityDocumentHeader = () => {
   let submitButtonLabel: string;
   let submitButtonTooltip: string;
   if (isApprovalRequired) {
-    submitButtonLabel = "Submit for approval";
-    submitButtonTooltip =
-      "Sends this document for approval before it can go active.";
+    submitButtonLabel = t`Submit for approval`;
+    submitButtonTooltip = t`Sends this document for approval before it can go active.`;
   } else if (isArchived) {
-    submitButtonLabel = "Reactivate";
-    submitButtonTooltip = "Makes this document active again.";
+    submitButtonLabel = t`Reactivate`;
+    submitButtonTooltip = t`Makes this document active again.`;
   } else {
-    submitButtonLabel = "Publish";
-    submitButtonTooltip = "Makes this document active and visible.";
+    submitButtonLabel = t`Publish`;
+    submitButtonTooltip = t`Makes this document active and visible.`;
   }
 
   const submitForActivation = () => {
@@ -294,7 +293,7 @@ const QualityDocumentHeader = () => {
           action={path.to.deleteQualityDocument(id)}
           isOpen={deleteDisclosure.isOpen}
           name={routeData?.document?.name ?? "document"}
-          text={`Are you sure you want to delete ${routeData?.document?.name}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.document?.name}? This cannot be undone.`}
           onCancel={() => {
             deleteDisclosure.onClose();
           }}

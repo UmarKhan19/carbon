@@ -231,7 +231,9 @@ const SupplierHeader = () => {
           <CardContent>
             <CardAttributes>
               <CardAttribute>
-                <CardAttributeLabel>Status</CardAttributeLabel>
+                <CardAttributeLabel>
+                  <Trans>Status</Trans>
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {routeData?.supplier?.status ? (
                     <SupplierStatusIndicator
@@ -243,13 +245,17 @@ const SupplierHeader = () => {
                 </CardAttributeValue>
               </CardAttribute>
               <CardAttribute>
-                <CardAttributeLabel>Type</CardAttributeLabel>
+                <CardAttributeLabel>
+                  <Trans>Type</Trans>
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {supplierType ? <Enumerable value={supplierType!} /> : "-"}
                 </CardAttributeValue>
               </CardAttribute>
               <CardAttribute>
-                <CardAttributeLabel>Account Manager</CardAttributeLabel>
+                <CardAttributeLabel>
+                  <Trans>Account Manager</Trans>
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {routeData?.supplier?.accountManagerId ? (
                     <EmployeeAvatar
@@ -264,7 +270,9 @@ const SupplierHeader = () => {
                 status === "Active" && (
                   <>
                     <CardAttribute>
-                      <CardAttributeLabel>Approved By</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Approved By</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         <EmployeeAvatar
                           employeeId={routeData.decision.decisionBy}
@@ -272,7 +280,9 @@ const SupplierHeader = () => {
                       </CardAttributeValue>
                     </CardAttribute>
                     <CardAttribute>
-                      <CardAttributeLabel>Approval Date</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Approval Date</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         {formatDate(routeData.decision.decisionAt)}
                       </CardAttributeValue>
@@ -283,7 +293,9 @@ const SupplierHeader = () => {
                 status === "Rejected" && (
                   <>
                     <CardAttribute>
-                      <CardAttributeLabel>Rejected By</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Rejected By</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         <EmployeeAvatar
                           employeeId={routeData.decision.decisionBy}
@@ -291,7 +303,9 @@ const SupplierHeader = () => {
                       </CardAttributeValue>
                     </CardAttribute>
                     <CardAttribute>
-                      <CardAttributeLabel>Rejected Date</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Rejected Date</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         {formatDate(routeData.decision.decisionAt)}
                       </CardAttributeValue>
@@ -329,7 +343,7 @@ const SupplierHeader = () => {
           action={path.to.deleteSupplier(supplierId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.supplier?.name!}
-          text={`Are you sure you want to delete ${routeData?.supplier?.name!}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.supplier?.name!}? This cannot be undone.`}
           onCancel={deleteModal.onClose}
           onSubmit={deleteModal.onClose}
         />
@@ -349,7 +363,9 @@ const SupplierHeader = () => {
               </ModalTitle>
             </ModalHeader>
             <ModalBody>
-              Are you sure you want to deactivate {routeData?.supplier?.name}?
+              <Trans>
+                Are you sure you want to deactivate {routeData?.supplier?.name}?
+              </Trans>
             </ModalBody>
             <ModalFooter>
               <Button variant="secondary" onClick={makeInactiveModal.onClose}>

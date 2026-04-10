@@ -258,11 +258,11 @@ function VirtualizedCommand({
     return [
       ...filtered,
       {
-        label: t`Create`,
+        label: t`New`,
         value: "create"
       }
     ];
-  }, [options, search, showCreateOptionOnEmpty]);
+  }, [options, search, showCreateOptionOnEmpty, t]);
 
   const virtualizer = useVirtualizer({
     count: filteredOptions.length,
@@ -336,10 +336,7 @@ function VirtualizedCommand({
                   {isCreateOption ? (
                     <>
                       <LuCirclePlus className="mr-1.5" />
-                      <span>Create</span>
-                      <span className="font-bold line-clamp-1">
-                        {search.trim() === "" ? label : search}
-                      </span>
+                      <span>{t`Create ${search.trim() === "" ? label : search}`}</span>
                     </>
                   ) : (
                     <>

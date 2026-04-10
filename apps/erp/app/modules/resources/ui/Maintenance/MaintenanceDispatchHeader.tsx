@@ -158,7 +158,7 @@ const MaintenanceDispatchHeader = () => {
           action={path.to.deleteMaintenanceDispatch(dispatchId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.dispatch?.maintenanceDispatchId!}
-          text={`Are you sure you want to delete this maintenance dispatch? This cannot be undone.`}
+          text={t`Are you sure you want to delete this maintenance dispatch? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}

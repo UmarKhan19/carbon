@@ -214,7 +214,7 @@ function VirtualizedCommand({
       : [
           ...filtered,
           {
-            label: t`Create`,
+            label: t`New`,
             value: "create"
           }
         ];
@@ -287,9 +287,8 @@ function VirtualizedCommand({
                 >
                   {isCreateOption ? (
                     <div className="flex items-center min-w-0 flex-1">
-                      <span>Create</span>
-                      <span className="ml-1 font-bold truncate">
-                        {search.trim() === "" ? label : search}
+                      <span>
+                        {t`Create ${search.trim() === "" ? label : search}`}
                       </span>
                     </div>
                   ) : item.helper ? (

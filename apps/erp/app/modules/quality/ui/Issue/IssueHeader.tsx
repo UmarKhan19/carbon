@@ -109,7 +109,7 @@ const IssueHeader = () => {
                   <DropdownMenuItem key={s.supplierId} asChild>
                     <Link to={path.to.externalScar(s.externalLinkId)}>
                       <DropdownMenuIcon icon={<LuExternalLink />} />
-                      {supplier?.name} SCAR
+                      {supplier?.name} <Trans>SCAR</Trans>
                     </Link>
                   </DropdownMenuItem>
                 );
@@ -121,7 +121,7 @@ const IssueHeader = () => {
                   rel="noreferrer"
                 >
                   <DropdownMenuIcon icon={<LuFile />} />
-                  Report
+                  <Trans>Report</Trans>
                 </a>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -188,7 +188,7 @@ const IssueHeader = () => {
           action={path.to.deleteIssue(id)}
           isOpen={deleteIssueModal.isOpen}
           name={routeData?.nonConformance?.nonConformanceId!}
-          text={`Are you sure you want to delete ${routeData?.nonConformance
+          text={t`Are you sure you want to delete ${routeData?.nonConformance
             ?.nonConformanceId!}? This cannot be undone.`}
           onCancel={() => {
             deleteIssueModal.onClose();

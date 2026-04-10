@@ -93,7 +93,7 @@ const TrainingHeader = () => {
           action={path.to.deleteTraining(id)}
           isOpen={deleteDisclosure.isOpen}
           name={routeData?.training?.name ?? "training"}
-          text={`Are you sure you want to delete ${routeData?.training?.name}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.training?.name}? This cannot be undone.`}
           onCancel={() => {
             deleteDisclosure.onClose();
           }}

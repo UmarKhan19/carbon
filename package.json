@@ -17,7 +17,8 @@
     "ts-morph": "^22.0.0",
     "tsx": "^4.13.2",
     "turbo": "^2.6.3",
-    "typescript": "5.8"
+    "typescript": "5.8",
+    "vite-plugin-babel-macros": "^1.0.6"
   },
   "lint-staged": {
     "(apps|packages)/**/*.{js,ts,jsx,tsx}": [
@@ -67,7 +68,7 @@
     "generate:types": "tsx scripts/generate-db-types.ts",
     "lint": "turbo run lint",
     "lingui:check": "npm run lingui:extract && npm run lingui:compile",
-    "lingui:compile": "lingui compile --namespace es",
+    "lingui:compile": "lingui compile",
     "lingui:extract": "lingui extract --clean",
     "novu:sync": "npx novu@latest sync --bridge-url https://app.carbon.ms/api/novu --secret-key $NOVU_SECRET_KEY --api-url https://api.novu.co",
     "postdb:build": "run-s generate:types generate:swagger",
@@ -77,6 +78,7 @@
     "setup": "turbo run setup",
     "test": "turbo run test",
     "tool:new": "tsx scripts/create-tool.ts",
+    "translate": "npx linguito translate --llm",
     "agent:new": "tsx scripts/create-agent.ts",
     "types": "turbo run types",
     "typecheck": "turbo run typecheck --filter='*'",

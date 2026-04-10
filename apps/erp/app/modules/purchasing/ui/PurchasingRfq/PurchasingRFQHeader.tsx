@@ -322,7 +322,7 @@ const PurchasingRFQHeader = () => {
           action={path.to.cancelPurchasingRfq(rfqId)}
           isOpen={cancelReasonModal.isOpen}
           name={routeData?.rfqSummary?.rfqId!}
-          text={`Are you sure you want to cancel ${routeData?.rfqSummary
+          text={t`Are you sure you want to cancel ${routeData?.rfqSummary
             ?.rfqId!}? This will also cancel all related supplier quotes.`}
           deleteText="Cancel"
           onCancel={() => {
@@ -338,7 +338,7 @@ const PurchasingRFQHeader = () => {
           action={path.to.deletePurchasingRfq(rfqId)}
           isOpen={deleteRFQModal.isOpen}
           name={routeData?.rfqSummary?.rfqId!}
-          text={`Are you sure you want to delete ${routeData?.rfqSummary
+          text={t`Are you sure you want to delete ${routeData?.rfqSummary
             ?.rfqId!}? This cannot be undone.`}
           onCancel={() => {
             deleteRFQModal.onClose();
@@ -377,8 +377,10 @@ function RequiresSuppliersAlert({ onClose }: { onClose: () => void }) {
               <Trans>RFQ has no suppliers</Trans>
             </AlertTitle>
             <AlertDescription>
-              In order to send this RFQ to suppliers, you must first add
-              suppliers to the RFQ.
+              <Trans>
+                In order to send this RFQ to suppliers, you must first add
+                suppliers to the RFQ.
+              </Trans>
             </AlertDescription>
           </Alert>
         </ModalBody>
