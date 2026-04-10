@@ -17,7 +17,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -102,6 +102,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function ProductionSettingsRoute() {
+  const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const toggleFetcher = useFetcher<typeof action>();
@@ -176,7 +177,7 @@ export default function ProductionSettingsRoute() {
                   </Label>
                   <Users
                     name="inventoryJobCompletedNotificationGroup"
-                    label="Who should receive notifications when an inventory job is completed?"
+                    label={t`Who should receive notifications when an inventory job is completed?`}
                     type="employee"
                   />
                 </div>
@@ -186,7 +187,7 @@ export default function ProductionSettingsRoute() {
                   </Label>
                   <Users
                     name="salesJobCompletedNotificationGroup"
-                    label="Who should receive notifications when a sales job is completed?"
+                    label={t`Who should receive notifications when a sales job is completed?`}
                     type="employee"
                   />
                 </div>

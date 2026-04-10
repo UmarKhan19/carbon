@@ -101,7 +101,7 @@ export default function OnboardingUser() {
           <VStack spacing={4}>
             <Input autoFocus name="firstName" label={t`First Name`} />
             <Input name="lastName" label={t`Last Name`} />
-            {/* <TextArea name="about" label="About" /> */}
+            {/* <TextArea name="about" label={t`About`} /> */}
           </VStack>
         </CardContent>
         <CardFooter>

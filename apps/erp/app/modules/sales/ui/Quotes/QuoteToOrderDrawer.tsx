@@ -1024,6 +1024,7 @@ function ShippingDetailsForm() {
 }
 
 function NotificationOptionsForm({ quote }: { quote: Quotation }) {
+  const { t } = useLingui();
   const [isExpanded, setIsExpanded] = useState(true);
   const integrations = useIntegrations();
   const canEmail = integrations.has("resend");
@@ -1052,7 +1053,7 @@ function NotificationOptionsForm({ quote }: { quote: Quotation }) {
       {isExpanded && (
         <VStack spacing={4}>
           <SelectControlled
-            label="Send Via"
+            label={t`Send Via`}
             name="notification"
             options={[
               { label: "None", value: "None" },
@@ -1069,7 +1070,7 @@ function NotificationOptionsForm({ quote }: { quote: Quotation }) {
                 name="customerContact"
                 customer={quote.customerId ?? undefined}
               />
-              <EmailRecipients name="cc" label="CC" type="employee" />
+              <EmailRecipients name="cc" label={t`CC`} type="employee" />
             </>
           )}
         </VStack>

@@ -292,7 +292,7 @@ const CustomerAccountsTable = memo(
           defaultColumnVisibility={defaultColumnVisibility}
           primaryAction={
             permissions.can("create", "users") && (
-              <New label="Customer" to={`new?${params.toString()}`} />
+              <New label={t`Customer`} to={`new?${params.toString()}`} />
             )
           }
           renderActions={renderActions}

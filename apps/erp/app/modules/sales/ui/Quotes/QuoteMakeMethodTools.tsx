@@ -29,7 +29,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuChevronRight,
@@ -60,6 +60,7 @@ import type { Quotation, QuotationLine, QuoteMethod } from "../../types";
 import { QuoteLineMethodForm } from "./QuoteLineMethodForm";
 
 const QuoteMakeMethodTools = () => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { quoteId, lineId, methodId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
@@ -328,7 +329,7 @@ const QuoteMakeMethodTools = () => {
                         )}
                         <Item
                           name="sourceId"
-                          label="Source Method"
+                          label={t`Source Method`}
                           type={(line?.itemType ?? "Part") as "Part"}
                           blacklist={configurableItemIds}
                           includeInactive={includeInactive === true}
@@ -374,7 +375,7 @@ const QuoteMakeMethodTools = () => {
                       )}
                       <Item
                         name="sourceId"
-                        label="Source Method"
+                        label={t`Source Method`}
                         type={(line?.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
@@ -476,7 +477,7 @@ const QuoteMakeMethodTools = () => {
                   </Alert>
                   <Item
                     name="itemId"
-                    label="Target Method"
+                    label={t`Target Method`}
                     type={(line?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
                     onChange={(value) => {
@@ -493,7 +494,7 @@ const QuoteMakeMethodTools = () => {
                   <SelectControlled
                     name="targetId"
                     options={makeMethods}
-                    label="Version"
+                    label={t`Version`}
                     value={selectedMakeMethod ?? undefined}
                     onChange={(value) => {
                       if (value) {
@@ -556,7 +557,7 @@ const QuoteMakeMethodTools = () => {
               <ModalBody>
                 <Item
                   name="sourceId"
-                  label="Item"
+                  label={t`Item`}
                   type={(line?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}

@@ -1,4 +1,5 @@
 import { cn, VStack } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { ComponentProps } from "react";
 import { LuCircleDashed } from "react-icons/lu";
 
@@ -14,7 +15,7 @@ export default function Empty({
     >
       <LuCircleDashed className="size-8 text-muted-foreground" />
       <h3 className="text-xs text-muted-foreground">
-        Looks empty here&nbsp;&nbsp;👀
+        <Trans>Looks empty here</Trans>&nbsp;&nbsp;👀
       </h3>
       {children}
     </VStack>

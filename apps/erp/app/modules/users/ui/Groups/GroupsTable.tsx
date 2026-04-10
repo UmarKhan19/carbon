@@ -137,7 +137,7 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "users") && (
-          <New label="Group" to={`new?${params.toString()}`} />
+          <New label={t`Group`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}

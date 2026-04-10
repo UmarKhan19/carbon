@@ -101,7 +101,7 @@ const DepartmentsTable = memo(({ data, count }: DepartmentsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "people") && (
-          <New label="Department" to={`new?${params.toString()}`} />
+          <New label={t`Department`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}

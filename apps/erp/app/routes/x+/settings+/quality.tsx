@@ -15,7 +15,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -107,6 +107,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function QualitySettingsRoute() {
+  const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
@@ -160,7 +161,7 @@ export default function QualitySettingsRoute() {
                   </Label>
                   <Users
                     name="gaugeCalibrationExpiredNotificationGroup"
-                    label="Who should receive notifications when a gauge goes out of calibration?"
+                    label={t`Who should receive notifications when a gauge goes out of calibration?`}
                     type="employee"
                   />
                 </div>

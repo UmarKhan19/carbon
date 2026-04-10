@@ -18,7 +18,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import {
@@ -56,6 +56,7 @@ const SalesInvoicePostModal = ({
   customerContactId,
   defaultCc = []
 }: SalesInvoicePostModalProps) => {
+  const { t } = useLingui();
   const hasLinesToShip = linesToShip.length > 0;
   const integrations = useIntegrations();
   const canEmail = integrations.has("resend");
@@ -143,7 +144,7 @@ const SalesInvoicePostModal = ({
 
               {canEmail && (
                 <SelectControlled
-                  label="Send Via"
+                  label={t`Send Via`}
                   name="notification"
                   options={[
                     {
@@ -168,7 +169,7 @@ const SalesInvoicePostModal = ({
                     name="customerContact"
                     customer={customerId ?? undefined}
                   />
-                  <EmailRecipients name="cc" label="CC" type="employee" />
+                  <EmailRecipients name="cc" label={t`CC`} type="employee" />
                 </>
               )}
             </VStack>

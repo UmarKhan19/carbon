@@ -178,6 +178,17 @@ export default function MaintenanceDashboard() {
   const selectedKpiData =
     MaintenanceKPIs.find((k) => k.key === selectedKpi) || MaintenanceKPIs[0];
 
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      mttr: t`Mean Time To Repair`,
+      mtbf: t`Mean Time Between Failures`,
+      sparePartCost: t`Spare Part Cost`,
+      worstPerformingMachines: t`Worst Performing Machines`,
+      sparePartConsumption: t`Spare Part Consumption`
+    }),
+    [t]
+  );
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   useEffect(() => {
     kpiFetcher.load(
@@ -327,7 +338,7 @@ export default function MaintenanceDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label.replace(/ /g, "_")}_${startDate}_to_${endDate}${
+    return `${(kpiLabels[selectedKpiData.key] ?? "").replace(/ /g, "_")}_${startDate}_to_${endDate}${
       workCenterId === "all"
         ? ""
         : `_${workCenters.find((wc) => wc.value === workCenterId)?.label}`
@@ -335,7 +346,8 @@ export default function MaintenanceDashboard() {
   }, [
     dateRange?.start,
     dateRange?.end,
-    selectedKpiData.label,
+    kpiLabels,
+    selectedKpiData.key,
     workCenterId,
     workCenters
   ]);
@@ -442,7 +454,7 @@ export default function MaintenanceDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedKpiData.label}</span>
+                    <span>{kpiLabels[selectedKpiData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -452,7 +464,7 @@ export default function MaintenanceDashboard() {
                   >
                     {MaintenanceKPIs.map((kpi) => (
                       <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                        {kpi.label}
+                        {kpiLabels[kpi.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>

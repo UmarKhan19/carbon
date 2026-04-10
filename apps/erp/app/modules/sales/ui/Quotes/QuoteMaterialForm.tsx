@@ -221,7 +221,7 @@ const QuoteMaterialForm = ({
               />
               <InputControlled
                 name="description"
-                label="Description"
+                label={t`Description`}
                 value={itemData.description}
                 onChange={(newValue) => {
                   setItemData((d) => ({ ...d, description: newValue }));
@@ -229,7 +229,7 @@ const QuoteMaterialForm = ({
               />
               <Select
                 name="quoteOperationId"
-                label="Operation"
+                label={t`Operation`}
                 isClearable
                 options={operations.map((o) => ({
                   value: o.id!,
@@ -239,13 +239,13 @@ const QuoteMaterialForm = ({
 
               <DefaultMethodType
                 name="methodType"
-                label="Method Type"
+                label={t`Method Type`}
                 value={itemData.methodType}
                 replenishmentSystem="Buy and Make"
               />
               <NumberControlled
                 name="quantity"
-                label="Quantity per Parent"
+                label={t`Quantity per Parent`}
                 value={itemData.quantity}
                 onChange={onQuantityChange}
               />
@@ -262,7 +262,7 @@ const QuoteMaterialForm = ({
               {itemData.methodType !== "Make to Order" && (
                 <NumberControlled
                   name="unitCost"
-                  label="Unit Cost"
+                  label={t`Unit Cost`}
                   value={itemData.unitCost}
                   minValue={0}
                 />

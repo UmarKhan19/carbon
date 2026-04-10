@@ -21,7 +21,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -161,6 +161,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function ResourcesSettingsRoute() {
+  const { t } = useLingui();
   const { company, companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const [maintenanceGenerateInAdvance, setMaintenanceGenerateInAdvance] =
@@ -229,7 +230,7 @@ export default function ResourcesSettingsRoute() {
                   </Label>
                   <Users
                     name="maintenanceDispatchNotificationGroup"
-                    label="Who should receive notifications for maintenance-related dispatches?"
+                    label={t`Who should receive notifications for maintenance-related dispatches?`}
                     type="employee"
                   />
                 </div>
@@ -239,7 +240,7 @@ export default function ResourcesSettingsRoute() {
                   </Label>
                   <Users
                     name="qualityDispatchNotificationGroup"
-                    label="Who should receive notifications for quality-related dispatches?"
+                    label={t`Who should receive notifications for quality-related dispatches?`}
                     type="employee"
                   />
                 </div>
@@ -249,7 +250,7 @@ export default function ResourcesSettingsRoute() {
                   </Label>
                   <Users
                     name="operationsDispatchNotificationGroup"
-                    label="Who should receive notifications for operations-related dispatches?"
+                    label={t`Who should receive notifications for operations-related dispatches?`}
                     type="employee"
                   />
                 </div>
@@ -259,7 +260,7 @@ export default function ResourcesSettingsRoute() {
                   </Label>
                   <Users
                     name="otherDispatchNotificationGroup"
-                    label="Who should receive notifications for other dispatches?"
+                    label={t`Who should receive notifications for other dispatches?`}
                     type="employee"
                   />
                 </div>
@@ -318,7 +319,7 @@ export default function ResourcesSettingsRoute() {
                   <div className="flex flex-col gap-2">
                     <Number
                       name="maintenanceAdvanceDays"
-                      label="Days in advance to generate dispatches"
+                      label={t`Days in advance to generate dispatches`}
                       minValue={1}
                       maxValue={365}
                     />
@@ -369,7 +370,7 @@ export default function ResourcesSettingsRoute() {
                   </Label>
                   <Users
                     name="suggestionNotificationGroup"
-                    label="Who should receive notifications when a new suggestion is submitted?"
+                    label={t`Who should receive notifications when a new suggestion is submitted?`}
                     type="employee"
                   />
                 </div>

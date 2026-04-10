@@ -173,7 +173,7 @@ const AttributeCategoriesTable = memo(
           count={count ?? 0}
           primaryAction={
             permissions.can("update", "people") && (
-              <New label="Category" to={`new?${params.toString()}`} />
+              <New label={t`Category`} to={`new?${params.toString()}`} />
             )
           }
           renderContextMenu={renderContextMenu}

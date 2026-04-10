@@ -85,7 +85,7 @@ const Sort = ({ columnAccessors }: SortProps) => {
                 <Reorder.Item key={sort} value={sort} className="rounded-lg">
                   <HStack>
                     <IconButton
-                      aria-label="Drag handle"
+                      aria-label={t`Drag handle`}
                       icon={<LuGripVertical />}
                       variant="ghost"
                     />

@@ -295,6 +295,19 @@ export default function QualityDashboard() {
   const selectedChartData =
     QualityKPIs.find((c) => c.key === selectedChart) || QualityKPIs[0];
 
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      weeklyTracking: t`Issue Trend`,
+      statusDistribution: t`Status Distribution`,
+      paretoByType: t`Pareto by Type`,
+      ncrsByType: t`NCRs by Type`,
+      sourceAnalysis: t`Source Analysis`,
+      supplierQuality: t`Supplier Quality`,
+      weeksOpen: t`Weeks Open`
+    }),
+    [t]
+  );
+
   const typeOptions = useMemo(() => {
     return [
       { label: t`All Types`, value: "all" },
@@ -340,8 +353,8 @@ export default function QualityDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedChartData.label.replace(/ /g, "_")}_${startDate}_to_${endDate}.csv`;
-  }, [dateRange, selectedChartData.label]);
+    return `${(kpiLabels[selectedChartData.key] ?? "").replace(/ /g, "_")}_${startDate}_to_${endDate}.csv`;
+  }, [dateRange, kpiLabels, selectedChartData.key]);
 
   // Chart data from fetcher
   const chartData = kpiFetcher.data?.data ?? [];
@@ -465,7 +478,7 @@ export default function QualityDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedChartData.label}</span>
+                    <span>{kpiLabels[selectedChartData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -475,7 +488,7 @@ export default function QualityDashboard() {
                   >
                     {QualityKPIs.map((chart) => (
                       <DropdownMenuRadioItem key={chart.key} value={chart.key}>
-                        {chart.label}
+                        {kpiLabels[chart.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>

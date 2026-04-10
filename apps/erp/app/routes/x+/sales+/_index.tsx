@@ -237,6 +237,17 @@ export default function SalesDashboard() {
 
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
 
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      quoteCount: t`Quotes`,
+      rfqCount: t`RFQs`,
+      salesFunnel: t`Sales Funnel`,
+      salesOrderCount: t`Sales Orders`,
+      salesOrderRevenue: t`Sales Revenue`
+    }),
+    [t]
+  );
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     kpiFetcher.load(
@@ -352,7 +363,7 @@ export default function SalesDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label}_${startDate}_to_${endDate}${
+    return `${kpiLabels[selectedKpiData.key]}_${startDate}_to_${endDate}${
       customerId === "all"
         ? ""
         : `_${customers.find((c) => c.id === customerId)?.name}`
@@ -360,7 +371,8 @@ export default function SalesDashboard() {
   }, [
     dateRange?.start,
     dateRange?.end,
-    selectedKpiData.label,
+    kpiLabels,
+    selectedKpiData.key,
     customerId,
     customers
   ]);
@@ -467,7 +479,7 @@ export default function SalesDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedKpiData.label}</span>
+                    <span>{kpiLabels[selectedKpiData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -477,7 +489,7 @@ export default function SalesDashboard() {
                   >
                     {KPIs.map((kpi) => (
                       <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                        {kpi.label}
+                        {kpiLabels[kpi.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>

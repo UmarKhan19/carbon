@@ -143,6 +143,24 @@ export default function ProductionDashboard() {
 
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
 
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      utilization: t`Work Center Utilization`,
+      estimatesVsActuals: t`Estimates vs Actuals`,
+      completionTime: t`Completion Time`
+    }),
+    [t]
+  );
+
+  const kpiEmptyMessages: Record<string, string> = useMemo(
+    () => ({
+      utilization: t`No work center utilization data within range`,
+      estimatesVsActuals: t`No completed jobs within range`,
+      completionTime: t`No completed jobs within range`
+    }),
+    [t]
+  );
+
   const totalTimeInInterval = useMemo(() => {
     if (!dateRange) return 0;
     return dateRange.end.compare(dateRange.start) * 24 * 60 * 60 * 1000;
@@ -277,8 +295,8 @@ export default function ProductionDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label}_${startDate}_to_${endDate}.csv`;
-  }, [dateRange, selectedKpiData.label]);
+    return `${kpiLabels[selectedKpiData.key]}_${startDate}_to_${endDate}.csv`;
+  }, [dateRange, kpiLabels, selectedKpiData.key]);
 
   const yAxisWidth = useMemo(() => {
     return (
@@ -357,7 +375,7 @@ export default function ProductionDashboard() {
                       rightIcon={<LuChevronDown />}
                       className="hover:bg-background/80"
                     >
-                      <span>{selectedKpiData.label}</span>
+                      <span>{kpiLabels[selectedKpiData.key]}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="bottom" align="start">
@@ -368,7 +386,7 @@ export default function ProductionDashboard() {
                     >
                       {KPIs.map((kpi) => (
                         <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                          {kpi.label}
+                          {kpiLabels[kpi.key]}
                         </DropdownMenuRadioItem>
                       ))}
                     </DropdownMenuRadioGroup>
@@ -433,7 +451,7 @@ export default function ProductionDashboard() {
               <div className="flex flex-col items-center justify-center h-full">
                 <Empty className="py-8">
                   <p className="text-sm text-muted-foreground">
-                    {selectedKpiData.emptyMessage}
+                    {kpiEmptyMessages[selectedKpiData.key]}
                   </p>
                 </Empty>
               </div>

@@ -1021,7 +1021,7 @@ function AttributesForm({
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               <SelectControlled
                 name="type"
-                label="Type"
+                label={t`Type`}
                 options={typeOptions}
                 value={type}
                 onChange={(option) => {
@@ -1030,7 +1030,7 @@ function AttributesForm({
                   }
                 }}
               />
-              <Input name="name" label="Name" />
+              <Input name="name" label={t`Name`} />
             </div>
 
             <VStack spacing={2} className="w-full col-span-2">
@@ -1050,7 +1050,7 @@ function AttributesForm({
               <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
                 <UnitOfMeasure
                   name="unitOfMeasureCode"
-                  label="Unit of Measure"
+                  label={t`Unit of Measure`}
                 />
 
                 <ToggleGroup
@@ -1072,7 +1072,7 @@ function AttributesForm({
                 {numericControls.includes("min") && (
                   <Number
                     name="minValue"
-                    label="Minimum"
+                    label={t`Minimum`}
                     formatOptions={{
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 10
@@ -1082,7 +1082,7 @@ function AttributesForm({
                 {numericControls.includes("max") && (
                   <Number
                     name="maxValue"
-                    label="Maximum"
+                    label={t`Maximum`}
                     formatOptions={{
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 10
@@ -1092,7 +1092,7 @@ function AttributesForm({
               </div>
             )}
             {type === "List" && (
-              <ArrayInput name="listValues" label="List Options" />
+              <ArrayInput name="listValues" label={t`List Options`} />
             )}
 
             <Submit
@@ -1288,7 +1288,7 @@ function AttributesListItem({
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               <SelectControlled
                 name="type"
-                label="Type"
+                label={t`Type`}
                 options={typeOptions}
                 onChange={(option) => {
                   if (option) {
@@ -1296,7 +1296,7 @@ function AttributesListItem({
                   }
                 }}
               />
-              <Input name="name" label="Name" />
+              <Input name="name" label={t`Name`} />
             </div>
 
             <VStack spacing={2} className="w-full col-span-2">
@@ -1316,7 +1316,7 @@ function AttributesListItem({
               <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
                 <UnitOfMeasure
                   name="unitOfMeasureCode"
-                  label="Unit of Measure"
+                  label={t`Unit of Measure`}
                 />
 
                 <ToggleGroup
@@ -1338,7 +1338,7 @@ function AttributesListItem({
                 {numericControls.includes("min") && (
                   <Number
                     name="minValue"
-                    label="Minimum"
+                    label={t`Minimum`}
                     formatOptions={{
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 10
@@ -1348,7 +1348,7 @@ function AttributesListItem({
                 {numericControls.includes("max") && (
                   <Number
                     name="maxValue"
-                    label="Maximum"
+                    label={t`Maximum`}
                     formatOptions={{
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 10
@@ -1358,7 +1358,7 @@ function AttributesListItem({
               </div>
             )}
             {type === "List" && (
-              <ArrayInput name="listValues" label="List Options" />
+              <ArrayInput name="listValues" label={t`List Options`} />
             )}
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
@@ -1516,6 +1516,7 @@ function ParametersForm({
   parameters: OperationParameter[];
   temporaryItems: TemporaryItems;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof newQuoteOperationParameterAction>();
 
   if (isDisabled && temporaryItems[operationId]) {
@@ -1554,10 +1555,10 @@ function ParametersForm({
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               <Input
                 name="key"
-                label="Key"
+                label={t`Key`}
                 autoFocus={parameters.length === 0}
               />
-              <Input name="value" label="Value" />
+              <Input name="value" label={t`Value`} />
             </div>
             <Submit
               leftIcon={<LuCirclePlus />}
@@ -1642,8 +1643,8 @@ function ParametersListItem({
           <Hidden name="operationId" />
           <VStack spacing={4}>
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-              <Input name="key" label="Key" />
-              <Input name="value" label="Value" />
+              <Input name="key" label={t`Key`} />
+              <Input name="value" label={t`Value`} />
             </div>
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
@@ -1949,14 +1950,14 @@ function OperationForm({
       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
         <Process
           name="processId"
-          label="Process"
+          label={t`Process`}
           onChange={(value) => {
             onProcessChange(value?.value as string);
           }}
         />
         <Select
           name="operationOrder"
-          label="Operation Order"
+          label={t`Operation Order`}
           placeholder={t`Operation Order`}
           options={methodOperationOrders.map((o) => ({
             value: o,
@@ -1965,7 +1966,7 @@ function OperationForm({
         />
         <SelectControlled
           name="operationType"
-          label="Operation Type"
+          label={t`Operation Type`}
           placeholder={t`Operation Type`}
           options={operationTypes.map((o) => ({
             value: o,
@@ -1985,7 +1986,7 @@ function OperationForm({
 
         <InputControlled
           name="description"
-          label="Description"
+          label={t`Description`}
           value={processData.description}
           onChange={(newValue) => {
             setProcessData((d) => ({ ...d, description: newValue }));
@@ -1997,7 +1998,7 @@ function OperationForm({
           <>
             <SupplierProcess
               name="operationSupplierProcessId"
-              label="Supplier"
+              label={t`Supplier`}
               processId={processData.processId}
               isOptional
               onChange={(value) => {
@@ -2008,7 +2009,7 @@ function OperationForm({
             />
             <NumberControlled
               name="operationMinimumCost"
-              label="Minimum Cost"
+              label={t`Minimum Cost`}
               minValue={0}
               value={processData.operationMinimumCost}
               formatOptions={{
@@ -2024,7 +2025,7 @@ function OperationForm({
             />
             <NumberControlled
               name="operationUnitCost"
-              label="Unit Cost"
+              label={t`Unit Cost`}
               minValue={0}
               value={processData.operationUnitCost}
               formatOptions={{
@@ -2040,7 +2041,7 @@ function OperationForm({
             />
             <NumberControlled
               name="operationLeadTime"
-              label="Lead Time"
+              label={t`Lead Time`}
               minValue={0}
               value={processData.operationLeadTime}
               onChange={(newValue) =>
@@ -2054,7 +2055,7 @@ function OperationForm({
         ) : (
           <WorkCenter
             name="workCenterId"
-            label="Work Center"
+            label={t`Work Center`}
             isOptional
             processId={processData.processId}
             onChange={(value) => {
@@ -2108,7 +2109,7 @@ function OperationForm({
             >
               <UnitHint
                 name="setupHint"
-                label="Setup"
+                label={t`Setup`}
                 value={processData.setupUnitHint}
                 onChange={(hint) => {
                   setProcessData((d) => ({
@@ -2121,7 +2122,7 @@ function OperationForm({
               />
               <NumberControlled
                 name="setupTime"
-                label="Setup Time"
+                label={t`Setup Time`}
                 minValue={0}
                 value={processData.setupTime}
                 onChange={(newValue) =>
@@ -2133,7 +2134,7 @@ function OperationForm({
               />
               <StandardFactor
                 name="setupUnit"
-                label="Setup Unit"
+                label={t`Setup Unit`}
                 hint={processData.setupUnitHint}
                 value={processData.setupUnit}
                 onChange={(newValue) => {
@@ -2185,7 +2186,7 @@ function OperationForm({
             >
               <UnitHint
                 name="laborHint"
-                label="Labor"
+                label={t`Labor`}
                 value={processData.laborUnitHint}
                 onChange={(hint) => {
                   setProcessData((d) => ({
@@ -2198,7 +2199,7 @@ function OperationForm({
               />
               <NumberControlled
                 name="laborTime"
-                label="Labor Time"
+                label={t`Labor Time`}
                 minValue={0}
                 value={processData.laborTime}
                 onChange={(newValue) =>
@@ -2210,7 +2211,7 @@ function OperationForm({
               />
               <StandardFactor
                 name="laborUnit"
-                label="Labor Unit"
+                label={t`Labor Unit`}
                 hint={processData.laborUnitHint}
                 value={processData.laborUnit}
                 onChange={(newValue) => {
@@ -2265,7 +2266,7 @@ function OperationForm({
             >
               <UnitHint
                 name="machineHint"
-                label="Machine"
+                label={t`Machine`}
                 value={processData.machineUnitHint}
                 onChange={(hint) => {
                   setProcessData((d) => ({
@@ -2278,7 +2279,7 @@ function OperationForm({
               />
               <NumberControlled
                 name="machineTime"
-                label="Machine Time"
+                label={t`Machine Time`}
                 minValue={0}
                 value={processData.machineTime}
                 onChange={(newValue) =>
@@ -2290,7 +2291,7 @@ function OperationForm({
               />
               <StandardFactor
                 name="machineUnit"
-                label="Machine Unit"
+                label={t`Machine Unit`}
                 hint={processData.machineUnitHint}
                 value={processData.machineUnit}
                 onChange={(newValue) => {
@@ -2337,7 +2338,7 @@ function OperationForm({
             >
               <NumberControlled
                 name="laborRate"
-                label="Labor Rate"
+                label={t`Labor Rate`}
                 minValue={0}
                 value={processData.laborRate}
                 formatOptions={{
@@ -2353,7 +2354,7 @@ function OperationForm({
               />
               <NumberControlled
                 name="machineRate"
-                label="Machine Rate"
+                label={t`Machine Rate`}
                 minValue={0}
                 value={processData.machineRate}
                 formatOptions={{
@@ -2369,7 +2370,7 @@ function OperationForm({
               />
               <NumberControlled
                 name="overheadRate"
-                label="Overhead Rate"
+                label={t`Overhead Rate`}
                 minValue={0}
                 value={processData.overheadRate}
                 formatOptions={{
@@ -2428,7 +2429,7 @@ function OperationForm({
             >
               <Procedure
                 name="procedureId"
-                label="Procedure"
+                label={t`Procedure`}
                 processId={processData.processId}
                 value={processData.procedureId}
                 onChange={(value) => {
@@ -2519,8 +2520,8 @@ function ToolsListItem({
           <Hidden name="operationId" />
           <VStack spacing={4}>
             <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-              <Tool name="toolId" label="Tool" autoFocus />
-              <Number name="quantity" label="Quantity" />
+              <Tool name="toolId" label={t`Tool`} autoFocus />
+              <Number name="quantity" label={t`Quantity`} />
             </div>
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
@@ -2614,6 +2615,7 @@ function ToolsForm({
   tools: OperationTool[];
   temporaryItems: TemporaryItems;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof newQuoteOperationToolAction>();
 
   if (isDisabled && temporaryItems[operationId]) {
@@ -2650,8 +2652,8 @@ function ToolsForm({
           <Hidden name="operationId" />
           <VStack spacing={4}>
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-              <Tool name="toolId" label="Tool" autoFocus />
-              <Number name="quantity" label="Quantity" />
+              <Tool name="toolId" label={t`Tool`} autoFocus />
+              <Number name="quantity" label={t`Quantity`} />
             </div>
 
             <Submit

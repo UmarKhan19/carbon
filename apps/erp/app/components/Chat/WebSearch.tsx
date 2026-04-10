@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ComponentProps } from "react";
 import { useEffect, useState } from "react";
@@ -169,6 +169,7 @@ const WebSearchSourceAvatar = ({
 };
 
 export function WebSearchButton() {
+  const { t } = useLingui();
   const { isWebSearch, setIsWebSearch } = useChatStore();
 
   return (
@@ -177,7 +178,7 @@ export function WebSearchButton() {
       variant={isWebSearch ? "primary" : "ghost"}
       icon={<LuGlobe />}
       onClick={() => setIsWebSearch(!isWebSearch)}
-      aria-label="Web Search"
+      aria-label={t`Web Search`}
     />
   );
 }

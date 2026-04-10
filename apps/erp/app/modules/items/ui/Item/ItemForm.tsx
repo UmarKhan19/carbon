@@ -78,7 +78,11 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
       label: (
         <span className="flex items-center gap-2">
           <ReplenishmentSystemIcon type={itemReplenishmentSystem} />
-          {itemReplenishmentSystem}
+          {itemReplenishmentSystem === "Buy"
+            ? t`Buy`
+            : itemReplenishmentSystem === "Make"
+              ? t`Make`
+              : t`Buy and Make`}
         </span>
       ),
       value: itemReplenishmentSystem

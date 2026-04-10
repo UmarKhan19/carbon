@@ -17,6 +17,7 @@ import {
   VStack
 } from "@carbon/react";
 import { updateSubscriptionQuantityForCompany } from "@carbon/stripe/stripe.server";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuCheck, LuCopy, LuRefreshCw } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -117,6 +118,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewOperatorRoute() {
+  const { t } = useLingui();
   const { defaults } = useUser();
   const navigate = useNavigate();
   const formFetcher = useFetcher<Result>();
@@ -150,10 +152,10 @@ export default function NewOperatorRoute() {
           <ModalBody>
             <VStack spacing={4}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                <Input name="firstName" label="First Name" />
-                <Input name="lastName" label="Last Name" />
+                <Input name="firstName" label={t`First Name`} />
+                <Input name="lastName" label={t`Last Name`} />
               </div>
-              <Location name="locationId" label="Location" />
+              <Location name="locationId" label={t`Location`} />
               <div className="space-y-2 w-full">
                 <Label htmlFor="pin">PIN</Label>
                 <HStack>
@@ -172,7 +174,7 @@ export default function NewOperatorRoute() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    aria-label="Copy PIN"
+                    aria-label={t`Copy PIN`}
                     icon={
                       copied ? (
                         <LuCheck className="text-emerald-500" />
@@ -190,7 +192,7 @@ export default function NewOperatorRoute() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    aria-label="Generate new PIN"
+                    aria-label={t`Generate new PIN`}
                     icon={<LuRefreshCw />}
                     onClick={() => {
                       const newPin = generatePin();

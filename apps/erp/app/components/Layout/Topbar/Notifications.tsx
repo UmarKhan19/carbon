@@ -468,7 +468,7 @@ const Notifications = () => {
             className="absolute right-[11px] top-1.5"
           >
             <IconButton
-              aria-label="Settings"
+              aria-label={t`Settings`}
               icon={<LuSettings />}
               variant="ghost"
               isIcon

@@ -166,7 +166,15 @@ function makeItem(
               </Badge>
             </TooltipTrigger>
             <TooltipContent>
-              {material.item.itemTrackingType} Tracking
+              {material.item.itemTrackingType === "Inventory" ? (
+                <Trans>Inventory Tracking</Trans>
+              ) : material.item.itemTrackingType === "Non-Inventory" ? (
+                <Trans>Non-Inventory Tracking</Trans>
+              ) : material.item.itemTrackingType === "Serial" ? (
+                <Trans>Serial Tracking</Trans>
+              ) : (
+                <Trans>Batch Tracking</Trans>
+              )}
             </TooltipContent>
           </Tooltip>
         )}
@@ -177,7 +185,15 @@ function makeItem(
               <MethodIcon type={material.methodType} isKit={material.kit} />
             </Badge>
           </TooltipTrigger>
-          <TooltipContent>{material.methodType}</TooltipContent>
+          <TooltipContent>
+            {material.methodType === "Purchase to Order" ? (
+              <Trans>Purchase to Order</Trans>
+            ) : material.methodType === "Pull from Inventory" ? (
+              <Trans>Pull from Inventory</Trans>
+            ) : (
+              <Trans>Make to Order</Trans>
+            )}
+          </TooltipContent>
         </Tooltip>
 
         <Badge variant="secondary">{material.quantity}</Badge>
@@ -188,7 +204,15 @@ function makeItem(
               <MethodItemTypeIcon type={material.itemType} />
             </Badge>
           </TooltipTrigger>
-          <TooltipContent>{material.itemType}</TooltipContent>
+          <TooltipContent>
+            {material.itemType === "Consumable" ? (
+              <Trans>Consumable</Trans>
+            ) : material.itemType === "Material" ? (
+              <Trans>Material</Trans>
+            ) : (
+              <Trans>Part</Trans>
+            )}
+          </TooltipContent>
         </Tooltip>
       </HStack>
     ),
@@ -825,7 +849,7 @@ function MaterialForm({
 
         <NumberControlled
           name="quantity"
-          label="Quantity"
+          label={t`Quantity`}
           value={itemData.quantity}
           onChange={onQuantityChange}
         />
@@ -841,7 +865,7 @@ function MaterialForm({
         />
         <InputControlled
           name="description"
-          label="Description"
+          label={t`Description`}
           value={itemData.description}
           onChange={(newValue) => {
             setItemData((d) => ({ ...d, description: newValue }));
@@ -851,7 +875,7 @@ function MaterialForm({
         {itemData.methodType !== "Make to Order" && (
           <NumberControlled
             name="unitCost"
-            label="Unit Cost"
+            label={t`Unit Cost`}
             value={itemData.unitCost}
             minValue={0}
             formatOptions={{
@@ -886,7 +910,11 @@ function MaterialForm({
           <HStack>
             <Badge variant="secondary">
               <MethodIcon type={itemData.methodType} className="size-3 mr-1" />
-              {itemData.methodType}
+              {itemData.methodType === "Purchase to Order"
+                ? t`Purchase to Order`
+                : itemData.methodType === "Pull from Inventory"
+                  ? t`Pull from Inventory`
+                  : t`Make to Order`}
             </Badge>
             <LuArrowLeft
               className={cn(
@@ -927,7 +955,7 @@ function MaterialForm({
         >
           <DefaultMethodType
             name="methodType"
-            label="Method Type"
+            label={t`Method Type`}
             value={itemData.methodType}
             onChange={(value) => {
               setItemData((d) => ({
@@ -939,7 +967,7 @@ function MaterialForm({
           />
           <Shelf
             name="shelfId"
-            label="Shelf"
+            label={t`Shelf`}
             locationId={locationId}
             itemId={itemData.itemId}
           />
@@ -993,7 +1021,7 @@ function MaterialForm({
         >
           <Select
             name="quoteOperationId"
-            label="Operation"
+            label={t`Operation`}
             isClearable
             options={quoteOperations.map((o) => ({
               value: o.id!,
@@ -1033,7 +1061,7 @@ function MaterialForm({
                   size="sm"
                   rightIcon={<LuChevronDown />}
                 >
-                  {itemData.kit ? "Kit" : "Subassembly"}
+                  {itemData.kit ? t`Kit` : t`Subassembly`}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>

@@ -1,5 +1,4 @@
 import {
-  Button,
   Checkbox,
   Combobox,
   HStack,
@@ -16,11 +15,10 @@ import {
   LuCheck,
   LuMapPin,
   LuPencil,
-  LuPlus,
   LuTrash
 } from "react-icons/lu";
-import { Link, useNavigate } from "react-router";
-import { Hyperlink, Table } from "~/components";
+import { useNavigate } from "react-router";
+import { Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
 import { ConfirmDelete } from "~/components/Modals";
@@ -123,11 +121,11 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
             window.location.href = getLocationPath(selected);
           }}
         />
-        <Button asChild leftIcon={<LuPlus />}>
-          <Link to={`${path.to.newShelf}?location=${locationId}`}>
-            New Shelf
-          </Link>
-        </Button>
+
+        <New
+          label={t`Shelf`}
+          to={`${path.to.newShelf}?location=${locationId}`}
+        />
       </div>
     );
   }, [locationId, locations]);

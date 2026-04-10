@@ -15,7 +15,7 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -84,6 +84,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function SalesSettingsRoute() {
+  const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
@@ -132,7 +133,7 @@ export default function SalesSettingsRoute() {
                 <div className="flex flex-col gap-2">
                   <Select
                     name="productLabelSize"
-                    label="Product Label Size"
+                    label={t`Product Label Size`}
                     options={labelSizes.map((size) => ({
                       value: size.id,
                       label: size.name

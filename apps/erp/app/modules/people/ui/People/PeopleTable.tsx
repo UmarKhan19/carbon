@@ -230,7 +230,7 @@ const PeopleTable = memo(
           primaryAction={
             permissions.can("create", "users") && (
               <New
-                label="Employee"
+                label={t`Employee`}
                 to={`${path.to.newEmployee}?${params.toString()}`}
               />
             )

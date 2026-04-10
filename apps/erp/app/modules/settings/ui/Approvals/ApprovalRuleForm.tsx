@@ -135,7 +135,7 @@ const ApprovalRuleForm = ({
               />
               {/* <FormNumber
                 name="escalationDays"
-                label="Escalation Days"
+                label={t`Escalation Days`}
                 helperText="Automatically escalate approval requests after this many days. Leave empty to disable escalation."
               /> */}
             </VStack>

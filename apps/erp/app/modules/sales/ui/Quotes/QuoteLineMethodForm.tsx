@@ -62,7 +62,7 @@ export function QuoteLineMethodForm() {
       <VStack spacing={4} className="w-full">
         <Combobox
           name="quoteId"
-          label="Quote"
+          label={t`Quote`}
           options={quoteOptions}
           placeholder={t`Select a quote`}
           onChange={(newValue) => {
@@ -74,7 +74,7 @@ export function QuoteLineMethodForm() {
         />
         <SelectControlled
           name="quoteLineId"
-          label="Quote Line"
+          label={t`Quote Line`}
           options={quoteLineOptions}
           placeholder={t`Select a quote line`}
           isReadOnly={!quote}

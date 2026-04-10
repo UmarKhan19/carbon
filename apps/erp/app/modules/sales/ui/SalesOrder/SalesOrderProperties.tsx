@@ -10,7 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo } from "react";
 import { LuCopy, LuInfo, LuLink, LuRefreshCcw } from "react-icons/lu";
@@ -130,7 +130,7 @@ const SalesOrderProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
@@ -216,7 +216,7 @@ const SalesOrderProperties = () => {
       >
         <InputControlled
           name="customerReference"
-          label="Customer PO"
+          label={t`Customer PO`}
           value={routeData?.salesOrder?.customerReference ?? ""}
           size="sm"
           inline
@@ -259,7 +259,7 @@ const SalesOrderProperties = () => {
       >
         <CustomerContact
           name="customerContactId"
-          label="Purchasing Contact"
+          label={t`Purchasing Contact`}
           customer={routeData?.salesOrder?.customerId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -283,7 +283,7 @@ const SalesOrderProperties = () => {
       >
         <CustomerContact
           name="customerEngineeringContactId"
-          label="Engineering Contact"
+          label={t`Engineering Contact`}
           customer={routeData?.salesOrder?.customerId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -309,7 +309,7 @@ const SalesOrderProperties = () => {
       >
         <DatePicker
           name="orderDate"
-          label="Order Date"
+          label={t`Order Date`}
           inline
           onChange={(date) => {
             onUpdate("orderDate", date);
@@ -329,7 +329,7 @@ const SalesOrderProperties = () => {
       >
         <DatePicker
           name="receiptRequestedDate"
-          label="Requested Date"
+          label={t`Requested Date`}
           inline
           onChange={(date) => {
             onUpdate("receiptRequestedDate", date);
@@ -348,7 +348,7 @@ const SalesOrderProperties = () => {
       >
         <DatePicker
           name="receiptPromisedDate"
-          label="Promised Date"
+          label={t`Promised Date`}
           inline
           onChange={(date) => {
             onUpdate("receiptPromisedDate", date);
@@ -364,7 +364,7 @@ const SalesOrderProperties = () => {
         className="w-full"
       >
         <Location
-          label="Sales Order Location"
+          label={t`Sales Order Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -385,7 +385,7 @@ const SalesOrderProperties = () => {
       >
         <Employee
           name="salesPersonId"
-          label="Sales Person"
+          label={t`Sales Person`}
           inline
           isReadOnly={isDisabled}
           onChange={(value) => {
@@ -407,7 +407,7 @@ const SalesOrderProperties = () => {
       >
         <Currency
           name="currencyCode"
-          label="Currency"
+          label={t`Currency`}
           inline
           value={routeData?.salesOrder?.currencyCode ?? ""}
           isReadOnly={isDisabled}

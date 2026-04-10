@@ -215,7 +215,7 @@ const AttributeCategoryDetail = ({
             )}
           </DrawerBody>
           <DrawerFooter>
-            <New to={`new?${params.toString()}`} label="Attribute" />
+            <New to={`new?${params.toString()}`} label={t`Attribute`} />
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

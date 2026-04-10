@@ -144,7 +144,7 @@ const Feedback = () => {
                 </Button>
                 <File
                   accept="image/*"
-                  aria-label="Attach File"
+                  aria-label={t`Attach File`}
                   className="px-2"
                   isDisabled={!!attachment}
                   variant="secondary"

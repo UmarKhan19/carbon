@@ -86,6 +86,7 @@ export function SalesOrderLineJobs({
   jobs,
   itemReplenishment
 }: SalesOrderLineJobsProps) {
+  const { t } = useLingui();
   const { orderId, lineId } = useParams();
   if (!orderId) throw new Error("orderId not found");
   if (!lineId) throw new Error("lineId not found");
@@ -212,11 +213,15 @@ export function SalesOrderLineJobs({
                 <Hidden name="quoteLineId" />
                 <Hidden name="unitOfMeasureCode" />
                 <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 md:grid-cols-2">
-                  <SequenceOrCustomId name="jobId" label="Job ID" table="job" />
-                  <Location name="locationId" label="Location" />
+                  <SequenceOrCustomId
+                    name="jobId"
+                    label={t`Job ID`}
+                    table="job"
+                  />
+                  <Location name="locationId" label={t`Location`} />
                   <NumberControlled
                     name="quantity"
-                    label="Quantity"
+                    label={t`Quantity`}
                     value={quantities.quantity}
                     onChange={(value) => {
                       setQuantities((prev) => ({
@@ -229,7 +234,7 @@ export function SalesOrderLineJobs({
                   />
                   <NumberControlled
                     name="scrapQuantity"
-                    label="Scrap Quantity"
+                    label={t`Scrap Quantity`}
                     value={quantities.scrapQuantity}
                     onChange={(value) =>
                       setQuantities((prev) => ({
@@ -239,10 +244,10 @@ export function SalesOrderLineJobs({
                     }
                     minValue={0}
                   />
-                  <DatePicker name="dueDate" label="Due Date" />
+                  <DatePicker name="dueDate" label={t`Due Date`} />
                   <Select
                     name="deadlineType"
-                    label="Deadline Type"
+                    label={t`Deadline Type`}
                     options={deadlineTypes.map((d) => ({
                       value: d,
                       label: (

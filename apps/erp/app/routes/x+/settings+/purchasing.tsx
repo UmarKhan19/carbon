@@ -24,7 +24,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -320,6 +320,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PurchasingSettingsRoute() {
+  const { t } = useLingui();
   const { companySettings, terms, apBillingAddress } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
@@ -534,16 +535,16 @@ export default function PurchasingSettingsRoute() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 w-full">
-                  <Input name="name" label="Name" />
-                  <Input name="email" label="Email" />
-                  <Input name="addressLine1" label="Address Line 1" />
-                  <Input name="addressLine2" label="Address Line 2" />
-                  <Input name="city" label="City" />
-                  <Input name="state" label="State / Province" />
-                  <Input name="postalCode" label="Postal Code" />
+                  <Input name="name" label={t`Name`} />
+                  <Input name="email" label={t`Email`} />
+                  <Input name="addressLine1" label={t`Address Line 1`} />
+                  <Input name="addressLine2" label={t`Address Line 2`} />
+                  <Input name="city" label={t`City`} />
+                  <Input name="state" label={t`State / Province`} />
+                  <Input name="postalCode" label={t`Postal Code`} />
                   <Country name="countryCode" />
-                  <Input name="phone" label="Phone" />
-                  <Input name="fax" label="Fax" />
+                  <Input name="phone" label={t`Phone`} />
+                  <Input name="fax" label={t`Fax`} />
                 </div>
               </CardContent>
               <CardFooter>
@@ -593,7 +594,7 @@ export default function PurchasingSettingsRoute() {
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <Select
                   name="purchasePriceUpdateTiming"
-                  label="Update prices on"
+                  label={t`Update prices on`}
                   options={purchasePriceUpdateTimingTypes.map((type) => ({
                     label: type,
                     value: type
@@ -691,7 +692,7 @@ export default function PurchasingSettingsRoute() {
                   </Label>
                   <Users
                     name="supplierQuoteNotificationGroup"
-                    label="Who should receive notifications when a supplier quote is submitted?"
+                    label={t`Who should receive notifications when a supplier quote is submitted?`}
                     type="employee"
                   />
                 </div>
@@ -736,7 +737,7 @@ export default function PurchasingSettingsRoute() {
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <EmailRecipients
                   name="defaultSupplierCc"
-                  label="Default CC Recipients"
+                  label={t`Default CC Recipients`}
                 />
               </div>
             </CardContent>

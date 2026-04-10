@@ -82,6 +82,9 @@ const InventoryTable = memo(
     const [params] = useUrlParams();
     const { t } = useLingui();
 
+    const translateReplenishment = (v: string) =>
+      v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`;
+
     const locations = useLocations();
     const unitOfMeasures = useUnitOfMeasure();
 
@@ -187,13 +190,17 @@ const InventoryTable = memo(
         {
           accessorKey: "replenishmentSystem",
           header: t`Replenishment`,
-          cell: (item) => <Enumerable value={item.getValue<string>()} />,
+          cell: (item) => (
+            <Enumerable
+              value={translateReplenishment(item.getValue<string>())}
+            />
+          ),
           meta: {
             filter: {
               type: "static",
               options: itemReplenishmentSystems.map((type) => ({
                 value: type,
-                label: <Enumerable value={type} />
+                label: <Enumerable value={translateReplenishment(type)} />
               }))
             },
             icon: <LuLoaderCircle />

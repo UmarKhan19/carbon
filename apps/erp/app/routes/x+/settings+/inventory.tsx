@@ -14,7 +14,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -94,6 +94,7 @@ const outputLabels: Record<(typeof kanbanOutputTypes)[number], string> = {
 };
 
 export default function InventorySettingsRoute() {
+  const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
@@ -141,7 +142,7 @@ export default function InventorySettingsRoute() {
                 <div className="flex flex-col gap-2">
                   <Select
                     name="kanbanOutput"
-                    label="Output"
+                    label={t`Output`}
                     options={kanbanOutputTypes.map((type) => ({
                       value: type,
                       label: outputLabels[type]

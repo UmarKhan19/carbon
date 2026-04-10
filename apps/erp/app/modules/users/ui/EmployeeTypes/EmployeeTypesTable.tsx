@@ -88,7 +88,7 @@ const EmployeeTypesTable = memo(({ data, count }: EmployeeTypesTableProps) => {
       count={count}
       primaryAction={
         permissions.can("create", "users") && (
-          <New label="Employee Type" to={`new?${params.toString()}`} />
+          <New label={t`Employee Type`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}

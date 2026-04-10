@@ -36,6 +36,7 @@ import {
 import { Editor } from "@carbon/react/Editor";
 import { useMode } from "@carbon/remix";
 import { formatDate } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import type { Dispatch, SetStateAction } from "react";
@@ -796,6 +797,7 @@ const Quote = ({
   };
 }) => {
   const { company, quote, quoteLinePrices } = data;
+  const { t } = useLingui();
   const { locale } = useLocale();
   const { id } = useParams();
   if (!id) throw new Error("Could not find external quote id");
@@ -963,12 +965,12 @@ const Quote = ({
                 <div className="space-y-4 py-4">
                   <Input
                     name="digitalSupplierQuoteSubmittedBy"
-                    label="Your Name"
+                    label={t`Your Name`}
                     placeholder="Enter your name"
                   />
                   <Input
                     name="digitalSupplierQuoteSubmittedByEmail"
-                    label="Your Email"
+                    label={t`Your Email`}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -1019,16 +1021,16 @@ const Quote = ({
                 <div className="space-y-4 py-4">
                   <TextArea
                     name="note"
-                    label="Reason for declining (Optional)"
+                    label={t`Reason for declining (Optional)`}
                   />
                   <Input
                     name="digitalSupplierQuoteSubmittedBy"
-                    label="Your Name"
+                    label={t`Your Name`}
                     placeholder="Enter your name"
                   />
                   <Input
                     name="digitalSupplierQuoteSubmittedByEmail"
-                    label="Your Email"
+                    label={t`Your Email`}
                     placeholder="Enter your email"
                   />
                 </div>

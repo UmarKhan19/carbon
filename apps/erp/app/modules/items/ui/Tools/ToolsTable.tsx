@@ -77,6 +77,23 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
   const navigate = useNavigate();
   const permissions = usePermissions();
 
+  const translateReplenishment = (v: string) =>
+    v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`;
+  const translateMethodType = (v: string) =>
+    v === "Purchase to Order"
+      ? t`Purchase to Order`
+      : v === "Pull from Inventory"
+        ? t`Pull from Inventory`
+        : t`Make to Order`;
+  const translateTrackingType = (v: string) =>
+    v === "Inventory"
+      ? t`Inventory`
+      : v === "Non-Inventory"
+        ? t`Non-Inventory`
+        : v === "Serial"
+          ? t`Serial`
+          : t`Batch`;
+
   const deleteItemModal = useDisclosure();
   const [selectedItem, setSelectedItem] = useState<Tool | null>(null);
 
@@ -150,7 +167,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
         cell: (item) => (
           <Badge variant="secondary">
             <TrackingTypeIcon type={item.getValue<string>()} className="mr-2" />
-            <span>{item.getValue<string>()}</span>
+            <span>{translateTrackingType(item.getValue<string>())}</span>
           </Badge>
         ),
         meta: {
@@ -161,7 +178,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
               label: (
                 <Badge variant="secondary">
                   <TrackingTypeIcon type={type} className="mr-2" />
-                  <span>{type}</span>
+                  <span>{translateTrackingType(type)}</span>
                 </Badge>
               )
             }))
@@ -176,7 +193,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
         cell: (item) => (
           <Badge variant="secondary">
             <MethodIcon type={item.getValue<string>()} className="mr-2" />
-            <span>{item.getValue<string>()}</span>
+            <span>{translateMethodType(item.getValue<string>())}</span>
           </Badge>
         ),
         meta: {
@@ -187,7 +204,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
               label: (
                 <Badge variant="secondary">
                   <MethodIcon type={value} className="mr-2" />
-                  <span>{value}</span>
+                  <span>{translateMethodType(value)}</span>
                 </Badge>
               )
             }))
@@ -204,7 +221,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
               type={item.getValue<string>()}
               className="mr-2"
             />
-            <span>{item.getValue<string>()}</span>
+            <span>{translateReplenishment(item.getValue<string>())}</span>
           </Badge>
         ),
         meta: {
@@ -215,7 +232,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
               label: (
                 <Badge variant="secondary">
                   <ReplenishmentSystemIcon type={type} className="mr-2" />
-                  <span>{type}</span>
+                  <span>{translateReplenishment(type)}</span>
                 </Badge>
               )
             }))
@@ -412,7 +429,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
                       }
                     >
                       <DropdownMenuIcon icon={<MethodIcon type={type} />} />
-                      <span>{type}</span>
+                      <span>{translateMethodType(type)}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>
@@ -434,7 +451,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
                       <DropdownMenuIcon
                         icon={<TrackingTypeIcon type={type} />}
                       />
-                      <span>{type}</span>
+                      <span>{translateTrackingType(type)}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuSubContent>

@@ -10,7 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo } from "react";
 import { LuCopy, LuInfo, LuLink, LuRefreshCcw } from "react-icons/lu";
@@ -124,7 +124,7 @@ const PurchaseInvoiceProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
@@ -211,7 +211,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <InputControlled
           name="supplierReference"
-          label="Supplier Ref. Number"
+          label={t`Supplier Ref. Number`}
           value={routeData?.purchaseInvoice?.supplierReference ?? ""}
           size="sm"
           inline
@@ -234,7 +234,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <Supplier
           name="invoiceSupplierId"
-          label="Invoice Supplier"
+          label={t`Invoice Supplier`}
           inline
           isReadOnly={isDisabled}
           onlyApproved={settings?.supplierApproval ?? false}
@@ -257,7 +257,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <SupplierLocation
           name="invoiceSupplierLocationId"
-          label="Invoice Supplier Location"
+          label={t`Invoice Supplier Location`}
           supplier={routeData?.purchaseInvoice?.invoiceSupplierId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -281,7 +281,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <SupplierContact
           name="invoiceSupplierContactId"
-          label="Invoice Supplier Contact"
+          label={t`Invoice Supplier Contact`}
           supplier={routeData?.purchaseInvoice?.invoiceSupplierId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -304,7 +304,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <DatePicker
           name="dateIssued"
-          label="Date Issued"
+          label={t`Date Issued`}
           inline
           isDisabled={isDisabled}
           onChange={(date) => {
@@ -324,7 +324,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <DatePicker
           name="dateDue"
-          label="Date Due"
+          label={t`Date Due`}
           inline
           isDisabled={isDisabled}
           onChange={(date) => {
@@ -344,7 +344,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <DatePicker
           name="datePaid"
-          label="Date Paid"
+          label={t`Date Paid`}
           inline
           isDisabled={isDisabled}
           onChange={(date) => {
@@ -361,7 +361,7 @@ const PurchaseInvoiceProperties = () => {
         className="w-full"
       >
         <Location
-          label="Location"
+          label={t`Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -385,7 +385,7 @@ const PurchaseInvoiceProperties = () => {
         className="w-full"
       >
         <PaymentTerm
-          label="Payment Term"
+          label={t`Payment Term`}
           name="paymentTermId"
           inline
           isReadOnly={isDisabled}
@@ -408,7 +408,7 @@ const PurchaseInvoiceProperties = () => {
       >
         <Currency
           name="currencyCode"
-          label="Currency"
+          label={t`Currency`}
           inline
           value={routeData?.purchaseInvoice?.currencyCode ?? ""}
           isReadOnly={isDisabled}

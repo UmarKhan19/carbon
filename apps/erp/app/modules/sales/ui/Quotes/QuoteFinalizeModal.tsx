@@ -15,7 +15,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import type { FetcherWithComponents } from "react-router";
@@ -57,6 +57,7 @@ const QuotationFinalizeModal = ({
   defaultCc = [],
   pricing
 }: QuotationFinalizeModalProps) => {
+  const { t } = useLingui();
   const { quoteId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
 
@@ -187,7 +188,7 @@ const QuotationFinalizeModal = ({
               )}
               {canEmail && (
                 <SelectControlled
-                  label="Send Via"
+                  label={t`Send Via`}
                   name="notification"
                   options={[
                     {
@@ -211,7 +212,7 @@ const QuotationFinalizeModal = ({
                     name="customerContact"
                     customer={quote?.customerId ?? undefined}
                   />
-                  <EmailRecipients name="cc" label="CC" type="employee" />
+                  <EmailRecipients name="cc" label={t`CC`} type="employee" />
                 </>
               )}
             </VStack>

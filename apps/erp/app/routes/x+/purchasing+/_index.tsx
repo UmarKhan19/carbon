@@ -293,6 +293,17 @@ export default function PurchaseDashboard() {
 
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
 
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      supplierQuoteCount: t`Supplier Quotes`,
+      purchaseOrderCount: t`Purchase Orders`,
+      purchaseInvoiceCount: t`Purchase Invoices`,
+      purchaseOrderAmount: t`Purchase Order Amount`,
+      purchaseInvoiceAmount: t`Purchase Invoice Amount`
+    }),
+    [t]
+  );
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     kpiFetcher.load(
@@ -375,8 +386,8 @@ export default function PurchaseDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label}_${startDate}_to_${endDate}.csv`;
-  }, [dateRange, selectedKpiData.label]);
+    return `${kpiLabels[selectedKpiData.key]}_${startDate}_to_${endDate}.csv`;
+  }, [dateRange, kpiLabels, selectedKpiData.key]);
 
   return (
     <div className="flex flex-col gap-4 w-full p-4 h-[calc(100dvh-var(--header-height))] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-muted-foreground">
@@ -480,7 +491,7 @@ export default function PurchaseDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedKpiData.label}</span>
+                    <span>{kpiLabels[selectedKpiData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -490,7 +501,7 @@ export default function PurchaseDashboard() {
                   >
                     {KPIs.map((kpi) => (
                       <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                        {kpi.label}
+                        {kpiLabels[kpi.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>

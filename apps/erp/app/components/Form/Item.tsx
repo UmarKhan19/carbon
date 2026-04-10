@@ -198,7 +198,19 @@ const Item = ({
               onChange(newValue?.replace(/"/g, '\\"') ?? "");
             }}
             isClearable={isOptional && !props.isReadOnly}
-            label={label === "Item" ? "Item" : label}
+            label={
+              label === "Item"
+                ? t`Item`
+                : label === "Part"
+                  ? t`Part`
+                  : label === "Material"
+                    ? t`Material`
+                    : label === "Tool"
+                      ? t`Tool`
+                      : label === "Consumable"
+                        ? t`Consumable`
+                        : undefined
+            }
             itemHeight={44}
             onCreateOption={(option) => {
               if (type === "Item") {

@@ -143,7 +143,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "people") && (
-          <New label="Shift" to={`new?${params.toString()}`} />
+          <New label={t`Shift`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}

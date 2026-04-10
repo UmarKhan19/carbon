@@ -104,7 +104,7 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "people") && (
-          <New label="Holiday" to={`new?${params.toString()}`} />
+          <New label={t`Holiday`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}

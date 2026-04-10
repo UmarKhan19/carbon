@@ -917,7 +917,11 @@ function MaterialForm({
           <HStack>
             <Badge variant="secondary">
               <MethodIcon type={itemData.methodType} className="size-3 mr-1" />
-              {itemData.methodType}
+              {itemData.methodType === "Purchase to Order"
+                ? t`Purchase to Order`
+                : itemData.methodType === "Pull from Inventory"
+                  ? t`Pull from Inventory`
+                  : t`Make to Order`}
             </Badge>
             <LuArrowLeft
               className={cn(
@@ -1100,7 +1104,7 @@ function MaterialForm({
                   size="sm"
                   rightIcon={<LuChevronDown />}
                 >
-                  {itemData.kit ? "Kit" : "Subassembly"}
+                  {itemData.kit ? t`Kit` : t`Subassembly`}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -1114,9 +1118,11 @@ function MaterialForm({
                   }}
                 >
                   <DropdownMenuRadioItem value="Subassembly">
-                    Subassembly
+                    <Trans>Subassembly</Trans>
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Kit">Kit</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="Kit">
+                    <Trans>Kit</Trans>
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1129,7 +1135,7 @@ function MaterialForm({
               isDisabled={isReadOnly || methodMaterialFetcher.state !== "idle"}
               isLoading={methodMaterialFetcher.state === "submitting"}
             >
-              Save
+              <Trans>Save</Trans>
             </Submit>
           </div>
         </motion.div>
@@ -1227,7 +1233,15 @@ function makeItem(
               </Badge>
             </TooltipTrigger>
             <TooltipContent>
-              {material.item.itemTrackingType} Tracking
+              {material.item.itemTrackingType === "Inventory" ? (
+                <Trans>Inventory Tracking</Trans>
+              ) : material.item.itemTrackingType === "Non-Inventory" ? (
+                <Trans>Non-Inventory Tracking</Trans>
+              ) : material.item.itemTrackingType === "Serial" ? (
+                <Trans>Serial Tracking</Trans>
+              ) : (
+                <Trans>Batch Tracking</Trans>
+              )}
             </TooltipContent>
           </Tooltip>
         )}
@@ -1238,7 +1252,15 @@ function makeItem(
               <MethodIcon type={material.methodType} isKit={material.kit} />
             </Badge>
           </TooltipTrigger>
-          <TooltipContent>{material.methodType}</TooltipContent>
+          <TooltipContent>
+            {material.methodType === "Purchase to Order" ? (
+              <Trans>Purchase to Order</Trans>
+            ) : material.methodType === "Pull from Inventory" ? (
+              <Trans>Pull from Inventory</Trans>
+            ) : (
+              <Trans>Make to Order</Trans>
+            )}
+          </TooltipContent>
         </Tooltip>
 
         {replenishmentSystem === "Buy and Make" && (
@@ -1260,7 +1282,15 @@ function makeItem(
               <MethodItemTypeIcon type={material.itemType} />
             </Badge>
           </TooltipTrigger>
-          <TooltipContent>{material.itemType}</TooltipContent>
+          <TooltipContent>
+            {material.itemType === "Consumable" ? (
+              <Trans>Consumable</Trans>
+            ) : material.itemType === "Material" ? (
+              <Trans>Material</Trans>
+            ) : (
+              <Trans>Part</Trans>
+            )}
+          </TooltipContent>
         </Tooltip>
       </HStack>
     ),

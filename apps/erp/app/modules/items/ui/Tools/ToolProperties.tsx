@@ -315,7 +315,13 @@ const ToolProperties = () => {
           inline={(value) => (
             <Badge variant="secondary">
               <ReplenishmentSystemIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>
+                {value === "Buy"
+                  ? t`Buy`
+                  : value === "Make"
+                    ? t`Make`
+                    : t`Buy and Make`}
+              </span>
             </Badge>
           )}
           options={itemReplenishmentSystems.map((system) => ({
@@ -323,7 +329,11 @@ const ToolProperties = () => {
             label: (
               <span className="flex items-center gap-2">
                 <ReplenishmentSystemIcon type={system} />
-                {system}
+                {system === "Buy"
+                  ? t`Buy`
+                  : system === "Make"
+                    ? t`Make`
+                    : t`Buy and Make`}
               </span>
             )
           }))}
@@ -349,7 +359,15 @@ const ToolProperties = () => {
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>
+                {value === "Inventory"
+                  ? t`Inventory`
+                  : value === "Non-Inventory"
+                    ? t`Non-Inventory`
+                    : value === "Serial"
+                      ? t`Serial`
+                      : t`Batch`}
+              </span>
             </Badge>
           )}
           options={itemTrackingTypes.map((type) => ({
@@ -357,7 +375,13 @@ const ToolProperties = () => {
             label: (
               <span className="flex items-center gap-2">
                 <TrackingTypeIcon type={type} />
-                {type}
+                {type === "Inventory"
+                  ? t`Inventory`
+                  : type === "Non-Inventory"
+                    ? t`Non-Inventory`
+                    : type === "Serial"
+                      ? t`Serial`
+                      : t`Batch`}
               </span>
             )
           }))}
@@ -383,7 +407,13 @@ const ToolProperties = () => {
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>
+                {value === "Purchase to Order"
+                  ? t`Purchase to Order`
+                  : value === "Pull from Inventory"
+                    ? t`Pull from Inventory`
+                    : t`Make to Order`}
+              </span>
             </Badge>
           )}
           options={methodType
@@ -398,7 +428,11 @@ const ToolProperties = () => {
               label: (
                 <span className="flex items-center gap-2">
                   <MethodIcon type={type} />
-                  {type}
+                  {type === "Purchase to Order"
+                    ? t`Purchase to Order`
+                    : type === "Pull from Inventory"
+                      ? t`Pull from Inventory`
+                      : t`Make to Order`}
                 </span>
               )
             }))}

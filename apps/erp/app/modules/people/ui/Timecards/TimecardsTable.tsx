@@ -210,7 +210,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "people") && (
-          <New label="Timecard" to={`new?${params.toString()}`} />
+          <New label={t`Timecard`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}
