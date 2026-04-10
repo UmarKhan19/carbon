@@ -1034,7 +1034,7 @@ export async function getJobMaterialsByMethodId(
 ) {
   return client
     .from("jobMaterial")
-    .select("*")
+    .select("*, item(replenishmentSystem)")
     .eq("jobMakeMethodId", jobMakeMethodId)
     .order("order", { ascending: true });
 }
@@ -3072,4 +3072,28 @@ export async function upsertDemandProjections(
     data: hasError ? null : toUpsert,
     error: hasError ? results.find((r) => r.error)?.error : null
   };
+}
+
+/**
+ * Trigger a job scheduling task via Inngest.
+ * Supports both initial scheduling and rescheduling.
+ */
+export async function triggerJobSchedule(
+  jobId: string,
+  companyId: string,
+  userId: string,
+  mode: "initial" | "reschedule" = "reschedule",
+  direction: "backward" | "forward" = "backward"
+) {
+  const { trigger } = await import("@carbon/jobs");
+
+  await trigger("schedule-job", {
+    jobId,
+    companyId,
+    userId,
+    mode,
+    direction
+  });
+
+  return { success: true };
 }

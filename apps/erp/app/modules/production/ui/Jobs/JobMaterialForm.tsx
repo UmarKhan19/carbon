@@ -69,13 +69,15 @@ const JobMaterialForm = ({
     unitCost: number;
     unitOfMeasureCode: string;
     quantity: number;
+    itemReplenishmentSystem: string;
   }>({
     itemId: initialValues.itemId ?? "",
     methodType: initialValues.methodType ?? "Pull from Inventory",
     description: initialValues.description ?? "",
     unitCost: initialValues.unitCost ?? 0,
     unitOfMeasureCode: initialValues.unitOfMeasureCode ?? "EA",
-    quantity: initialValues.quantity ?? 1
+    quantity: initialValues.quantity ?? 1,
+    itemReplenishmentSystem: "Buy"
   });
 
   const onTypeChange = (value: MethodItemType | "Item") => {
@@ -87,7 +89,8 @@ const JobMaterialForm = ({
       quantity: 1,
       description: "",
       unitCost: 0,
-      unitOfMeasureCode: "EA"
+      unitOfMeasureCode: "EA",
+      itemReplenishmentSystem: "Buy"
     });
   };
 
@@ -98,7 +101,7 @@ const JobMaterialForm = ({
       carbon
         .from("item")
         .select(
-          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType"
+          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, replenishmentSystem"
         )
         .eq("id", itemId)
         .single(),
@@ -116,7 +119,8 @@ const JobMaterialForm = ({
       description: item.data?.name ?? "",
       unitCost: itemCost.data?.unitCost ?? 0,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Purchase to Order"
+      methodType: item.data?.defaultMethodType ?? "Purchase to Order",
+      itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
 
     if (item.data?.type) {
@@ -207,7 +211,7 @@ const JobMaterialForm = ({
                 name="methodType"
                 label={t`Method Type`}
                 value={itemData.methodType}
-                replenishmentSystem="Buy and Make"
+                replenishmentSystem={itemData.itemReplenishmentSystem}
               />
               <Number name="quantity" label={t`Quantity per Parent`} />
               <UnitOfMeasure

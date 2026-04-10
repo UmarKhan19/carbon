@@ -1,9 +1,8 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
-import { tasks } from "npm:@trigger.dev/sdk@3.0.0/v3";
 import { z } from "npm:zod@^3.24.1";
-import type { notifyTask } from "../../../../jobs/trigger/notify.ts";
 
 import { corsHeaders } from "../lib/headers.ts";
+import { sendInngestEvent } from "../lib/inngest.ts";
 
 const recipientValidator = z.discriminatedUnion("type", [
   z.object({
@@ -54,7 +53,7 @@ serve(async (req: Request) => {
 
     switch (type) {
       case "notify": {
-        await tasks.trigger<typeof notifyTask>("notify", {
+        await sendInngestEvent("carbon/notify", {
           companyId: data.companyId,
           documentId: data.documentId,
           event: data.event,
@@ -75,7 +74,7 @@ serve(async (req: Request) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
-      }
+      },
     );
   } catch (err) {
     console.error(err);

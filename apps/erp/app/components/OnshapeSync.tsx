@@ -297,7 +297,7 @@ export const OnshapeSync = ({
 
             <div className="flex w-full items-center justify-between gap-2">
               <span className="text-xs text-muted-foreground">
-                <Trans>Element:</Trans>
+                <Trans>Assembly:</Trans>
               </span>
               <div className="w-[180px]">
                 <Combobox

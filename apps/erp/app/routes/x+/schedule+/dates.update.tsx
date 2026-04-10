@@ -2,7 +2,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { scheduleJobUpdateValidator } from "~/modules/production/production.models";
-import { triggerJobReschedule } from "~/modules/production/production.server";
+import { triggerJobSchedule } from "~/modules/production/production.service";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, userId, companyId } = await requirePermissions(request, {
@@ -51,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Trigger background job rescheduling
   try {
-    await triggerJobReschedule(validation.data.id, companyId, userId);
+    await triggerJobSchedule(validation.data.id, companyId, userId);
   } catch (rescheduleError) {
     // Log error but don't fail the request - reschedule can retry
     console.error("Failed to trigger job reschedule:", rescheduleError);

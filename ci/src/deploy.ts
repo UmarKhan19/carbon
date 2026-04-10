@@ -64,9 +64,8 @@ export type Workspace = {
   stripe_bypass_company_ids: string | null;
   stripe_secret_key: string | null;
   stripe_webhook_secret: string | null;
-  trigger_api_url: string | null;
-  trigger_project_id: string | null;
-  trigger_secret_key: string | null;
+  inngest_signing_key: string | null;
+  inngest_event_key: string | null;
   url_erp: string | null;
   url_mes: string | null;
   xero_client_id: string | null;
@@ -146,9 +145,8 @@ async function deploy(): Promise<void> {
         stripe_bypass_company_ids,
         stripe_secret_key,
         stripe_webhook_secret,
-        trigger_api_url,
-        trigger_project_id,
-        trigger_secret_key,
+        inngest_signing_key,
+        inngest_event_key,
         redis_url,
         url_erp,
         url_mes,
@@ -225,18 +223,13 @@ async function deploy(): Promise<void> {
         continue;
       }
 
-      if (!trigger_api_url) {
-        console.log(`🔴🍳 Missing Trigger api url for ${workspace.id}`);
+      if (!inngest_signing_key) {
+        console.log(`🔴🍳 Missing Inngest signing key for ${workspace.id}`);
         continue;
       }
 
-      if (!trigger_project_id) {
-        console.log(`🔴🍳 Missing Trigger project id for ${workspace.id}`);
-        continue;
-      }
-
-      if (!trigger_secret_key) {
-        console.log(`🔴🍳 Missing Trigger secret key for ${workspace.id}`);
+      if (!inngest_event_key) {
+        console.log(`🔴🍳 Missing Inngest event key for ${workspace.id}`);
         continue;
       }
 
@@ -275,6 +268,8 @@ async function deploy(): Promise<void> {
           DOMAIN: domain_name,
           EXCHANGE_RATES_API_KEY: exchange_rates_api_key ?? undefined,
           GOOGLE_PLACES_API_KEY: google_places_api_key ?? undefined,
+          INNGEST_EVENT_KEY: inngest_event_key,
+          INNGEST_SIGNING_KEY: inngest_signing_key,
           JIRA_CLIENT_ID: jira_client_id ?? undefined,
           JIRA_CLIENT_SECRET: jira_client_secret ?? undefined,
           JIRA_OAUTH_REDIRECT_URL: jira_oauth_redirect_url ?? undefined,
@@ -305,9 +300,6 @@ async function deploy(): Promise<void> {
           SUPABASE_DB_URL: database_connection_pooler_url,
           SUPABASE_SERVICE_ROLE_KEY: service_role_key,
           SUPABASE_URL: database_url,
-          TRIGGER_API_URL: trigger_api_url,
-          TRIGGER_PROJECT_ID: trigger_project_id,
-          TRIGGER_SECRET_KEY: trigger_secret_key,
           URL_ERP: url_erp,
           URL_MES: url_mes,
           VERCEL_ENV: "production",

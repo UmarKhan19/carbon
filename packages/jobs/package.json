@@ -3,10 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./inngest": "./src/inngest/index.ts",
+    "./events": "./src/events.ts",
+    "./worker": "./src/inngest/worker.ts"
+  },
   "scripts": {
-    "dev:jobs": "npx --yes trigger.dev@4.0.6 dev",
-    "deploy": "trigger deploy",
-    "typecheck": "tsgo --noEmit"
+    "dev:jobs": "npx inngest-cli@latest dev -u http://localhost:3000/api/inngest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.60",
@@ -22,10 +28,8 @@
     "@slack/web-api": "~7.10.0",
     "@supabase/functions-js": "2.1.5",
     "@supabase/supabase-js": "2.80.0",
-    "@trigger.dev/sdk": "4.0.6",
     "ai": "^5.0.88",
-    "cookie": "1.1.1",
-    "dompurify": "3.3.3",
+    "inngest": "^3.52.7",
     "kysely": "^0.28.10",
     "nanoid": "^5.1.7",
     "react-pdf": "10.4.1",
@@ -37,6 +41,7 @@
   },
   "devDependencies": {
     "@carbon/config": "*",
+    "tsx": "^4.7.0",
     "typescript": "^5.2.2"
   }
 }

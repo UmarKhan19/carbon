@@ -1174,6 +1174,20 @@ const Quote = ({ data }: { data: QuoteData }) => {
             setSelectedLines={setSelectedLines}
           />
 
+          {Object.keys(quote?.externalNotes ?? {}).length > 0 && (
+            <div className="mt-6 mb-2">
+              <Heading size="h4" className="mb-2">
+                <Trans>Notes</Trans>
+              </Heading>
+              <div
+                className="prose dark:prose-invert text-muted-foreground"
+                dangerouslySetInnerHTML={{
+                  __html: generateHTML(quote.externalNotes as JSONContent)
+                }}
+              />
+            </div>
+          )}
+
           <VStack spacing={2} className="mt-8">
             {shippingMethod && (
               <HStack className="justify-between text-sm text-muted-foreground w-full">

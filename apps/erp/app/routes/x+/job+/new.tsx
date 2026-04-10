@@ -3,10 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { recalculateTask } from "@carbon/jobs/trigger/recalculate";
+import { trigger } from "@carbon/jobs";
 import { parseDate } from "@internationalized/date";
 import { msg } from "@lingui/core/macro";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { useUrlParams, useUser } from "~/hooks";
@@ -157,7 +156,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  await tasks.trigger<typeof recalculateTask>("recalculate", {
+  await trigger("recalculate", {
     type: "jobRequirements",
     id,
     companyId,

@@ -81,6 +81,7 @@ import type { Job } from "../../types";
 type Material = z.infer<typeof jobMaterialValidator> & {
   requiresBatchTracking: boolean;
   requiresSerialTracking: boolean;
+  item?: { replenishmentSystem: string | null } | null;
 };
 
 type Operation = z.infer<typeof jobOperationValidator>;
@@ -699,6 +700,7 @@ function MaterialForm({
     requiresBatchTracking: boolean;
     requiresSerialTracking: boolean;
     shelfId?: string;
+    itemReplenishmentSystem: string;
   }>({
     itemId: item.data.itemId ?? "",
     methodType: item.data.methodType ?? "Pull from Inventory",
@@ -710,7 +712,8 @@ function MaterialForm({
     kit: item.data.kit ?? false,
     requiresBatchTracking: item.data.requiresBatchTracking ?? false,
     requiresSerialTracking: item.data.requiresSerialTracking ?? false,
-    shelfId: item.data.shelfId ?? undefined
+    shelfId: item.data.shelfId ?? undefined,
+    itemReplenishmentSystem: item.data.item?.replenishmentSystem ?? "Buy"
   });
 
   const onTypeChange = (value: MethodItemType | "Item") => {
@@ -728,7 +731,8 @@ function MaterialForm({
       kit: false,
       requiresBatchTracking: false,
       requiresSerialTracking: false,
-      shelfId: ""
+      shelfId: "",
+      itemReplenishmentSystem: "Buy"
     });
   };
 
@@ -743,7 +747,7 @@ function MaterialForm({
       carbon
         .from("item")
         .select(
-          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, itemTrackingType"
+          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, itemTrackingType, replenishmentSystem"
         )
         .eq("id", itemId)
         .eq("companyId", company.id)
@@ -772,7 +776,8 @@ function MaterialForm({
       methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
       requiresBatchTracking: item.data?.itemTrackingType === "Batch",
       requiresSerialTracking: item.data?.itemTrackingType === "Serial",
-      shelfId: pickMethod.data?.defaultShelfId ?? ""
+      shelfId: pickMethod.data?.defaultShelfId ?? "",
+      itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
 
     if (item.data?.type) {
@@ -952,7 +957,7 @@ function MaterialForm({
                 methodType: value?.value as MethodType
               }));
             }}
-            replenishmentSystem="Buy and Make"
+            replenishmentSystem={itemData.itemReplenishmentSystem}
           />
           <Shelf
             name="shelfId"

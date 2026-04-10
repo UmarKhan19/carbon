@@ -1,8 +1,8 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { assign } from "~/modules/shared/shared.server";
@@ -56,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const notificationEvent = getNotificationEvent(table);
       if (notificationEvent) {
         try {
-          await tasks.trigger("notify", {
+          await trigger("notify", {
             companyId,
             documentId: id,
             event: notificationEvent,
