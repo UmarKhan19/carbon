@@ -1,0 +1,1140 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-09 13:22-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: de\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:73
+msgid "A receipt is a record of a part received from a supplier or transferred from another location."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:85
+msgid "A shipment is a record of a part shipped to a customer or transferred to another location."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:57
+msgid "A warehouse transfer is an inter-company movement of inventory between two locations"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:207
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:606
+msgid "Actions"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:454
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:88
+msgid "Active"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:464
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:98
+msgid "Active Statuses"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/useInventoryNavigation.tsx:22
+msgid "Activity"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:350
+msgid "Add Line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:190
+msgid "Add Property"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:307
+msgid "Adjustment Type"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:132
+msgid "Are you sure you want to complete this stock transfer?"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:164
+msgid "Are you sure you want to post this receipt?"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:160
+msgid "Are you sure you want to post this shipment?"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:51
+msgid "Are you sure you want to void this shipment? This action will reverse all inventory transactions and cannot be undone."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:174
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:204
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:115
+msgid "Assignee"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:295
+msgid "Auto Release"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:314
+msgid "Auto release must be enabled to start a job automatically"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:307
+msgid "Auto Start Job"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:321
+msgid "Auto-generated QR Code"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:303
+msgid "Automatically release the job when the kanban is scanned"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:313
+msgid "Automatically start the job when the kanban is scanned"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:486
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:843
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntityStatus.tsx:14
+msgid "Available"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:819
+msgid "Batch number"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:336
+msgid "Batch Number"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:122
+msgid "Batch Properties"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:394
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:361
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:331
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:195
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelfForm.tsx:94
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:191
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:85
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:165
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:183
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:283
+msgid "Cancel"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:44
+msgid "Cancelled"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:66
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:66
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:65
+msgid "Carbon client is not available"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1131
+msgid "Carbon client not available"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:106
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:62
+msgid "Carrier"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:90
+msgid "Carrier Account"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1290
+msgid "Close"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:356
+msgid "Comment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:129
+msgid "Complete Stock Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:32
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:38
+msgid "Completed"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:132
+msgid "Completed At"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:319
+msgid "Completion Barcode"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:83
+msgid "Configure"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntityStatus.tsx:32
+msgid "Consumed"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:264
+msgid "Conversion Factor"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:679
+msgid "Copied link to clipboard"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TraceabilityGraph.tsx:407
+msgid "Copy"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:190
+msgid "Create a new kanban card for scan-based replenishment."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:76
+msgid "Create audit trail entries"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:337
+msgid "Create Kanban"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:431
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
+msgid "Created"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:495
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:250
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:263
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:157
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:148
+msgid "Created At"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:478
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:233
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:246
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:140
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:131
+msgid "Created By"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:55
+msgid "Created shipping method"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:100
+msgid "Created stock transfer line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:221
+msgid "Customer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryDetails.tsx:74
+msgid "Daily Usage"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:160
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:376
+msgid "Data Type"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:141
+msgid "Days"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryDetails.tsx:62
+msgid "Days Remaining"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:451
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:215
+msgid "Delete"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:518
+msgid "Delete file"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:213
+msgid "Delete Line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:114
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:317
+msgid "Delete Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:350
+msgid "Delete receipt line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:157
+msgid "Delete Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:107
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:145
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:332
+msgid "Delete Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:374
+msgid "Delete shipment line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:125
+msgid "Delete Shipping Method"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:122
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:227
+msgid "Delete Stock Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:217
+msgid "Delete Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:274
+msgid "Delete Transfer Line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:99
+msgid "Delete Warehouse Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:265
+msgid "Demand Forecast"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/useInventoryNavigation.tsx:15
+msgid "Details"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:366
+msgid "Dimension"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptStatus.tsx:14
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentStatus.tsx:23
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:14
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:14
+msgid "Draft"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:445
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:208
+msgid "Edit"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:185
+msgid "Edit Kanban"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:139
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:202
+msgid "Edit Line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:302
+msgid "Edit Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelfForm.tsx:72
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:146
+msgid "Edit Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:317
+msgid "Edit Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:96
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:113
+msgid "Edit Shipping Method"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:212
+msgid "Edit Stock Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:203
+msgid "Edit Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:130
+msgid "Edit Transfer Line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:43
+msgid "Entity"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:120
+msgid "Expected Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:87
+msgid "Expected Receipt Date"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:120
+msgid "External"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:111
+msgid "External Notes"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:225
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:238
+msgid "External Ref."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:119
+msgid "External Reference"
+msgstr ""
+
+#. placeholder {0}: fetcher.data.error.message
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:58
+msgid "Failed to create shipping method: {0}"
+msgstr ""
+
+#. placeholder {0}: fetcher.data.error.message
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:103
+msgid "Failed to create stock transfer line: {0}"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:93
+msgid "Failed to load item details"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:82
+msgid "Failed to update batch property"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:58
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferNotes.tsx:43
+msgid "Failed to upload image"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:332
+msgid "Finish"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:80
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:85
+msgid "From Location"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:174
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:159
+msgid "From Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:349
+msgid "Grade"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:26
+msgid "In Progress"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:491
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:853
+msgid "Incoming"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:117
+msgid "Internal"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:111
+msgid "Internal Notes"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:536
+msgid "Inventory"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:291
+msgid "Inventory Adjustment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:209
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:164
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentStatus.tsx:15
+msgid "Invoiced"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:219
+msgid "Invoiced Statuses"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:205
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:95
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:143
+msgid "Item"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:97
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:369
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:699
+msgid "Item ID"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:403
+msgid "Item Type"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:641
+msgid "Kanban"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:647
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:56
+msgid "Kanbans"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:153
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:371
+msgid "Label"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:150
+msgid "Lead Time"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:330
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
+msgid "Line options"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TraceabilityGraph.tsx:391
+msgid "Link"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:180
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:389
+msgid "List Options"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:299
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:276
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:85
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelfForm.tsx:84
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:73
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:122
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:73
+msgid "Location"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:70
+msgid "Make tracked entities available again"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:24
+msgid "Manage"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:172
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:168
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:142
+msgid "Missing Information"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:96
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:127
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:101
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:80
+msgid "More options"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:530
+msgid "MRP runs automatically every 3 hours, but you can run it manually here."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelfForm.tsx:80
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:59
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:103
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:46
+msgid "Name"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:325
+msgid "Negative Adjustment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:239
+msgid "New Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:185
+msgid "New Kanban"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:139
+msgid "New Line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:70
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:247
+msgid "New Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelfForm.tsx:72
+msgid "New Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:82
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:180
+msgid "New Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:96
+msgid "New Shipping Method"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:53
+msgid "New Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:130
+msgid "New Transfer Line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:93
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:169
+msgid "Notes"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:269
+msgid "Number of inventory units per purchase unit"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:126
+msgid "On Hand"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntityStatus.tsx:26
+msgid "On Hold"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:235
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:245
+msgid "On Jobs"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:225
+msgid "On Purchase Order"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:255
+msgid "On Sales Order"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:412
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:751
+msgid "On Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:438
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:96
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:191
+msgid "Open menu"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptStatus.tsx:20
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentStatus.tsx:29
+msgid "Pending"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:321
+msgid "Positive Adjustment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:161
+msgid "Post Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:157
+msgid "Post Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptStatus.tsx:26
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentStatus.tsx:35
+msgid "Posted"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:149
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:179
+msgid "Posted By"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:166
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:196
+msgid "Posting Date"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:230
+msgid "Print Label"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:247
+msgid "Purchase Unit of Measure"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:62
+msgid "Quantities"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:170
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:342
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:214
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1009
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:167
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:679
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:84
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:153
+msgid "Quantity"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryDetails.tsx:50
+msgid "Quantity on Hand"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryDetails.tsx:116
+msgid "Quantity on Jobs"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryDetails.tsx:86
+msgid "Quantity on Purchase Order"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryDetails.tsx:101
+msgid "Quantity on Sales Order"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:70
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:342
+msgid "Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:82
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:60
+msgid "Receipt ID"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:223
+msgid "Receipt Lines"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:346
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:27
+msgid "Receipts"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:79
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:101
+msgid "Reference"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:438
+msgid "Release"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:20
+msgid "Released"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1340
+msgid "Remove item"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:409
+msgid "Reorder"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:159
+msgid "Reorder Policy"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:378
+msgid "Reorder Qty."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:189
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:396
+msgid "Replenishment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:222
+msgid "Replenishment System"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:417
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:848
+msgid "Required"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntityStatus.tsx:20
+msgid "Reserved"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:67
+msgid "Reverse all inventory adjustments"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:400
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelfForm.tsx:91
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:125
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:189
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:96
+msgid "Save"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:995
+msgid "Search"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesFields.tsx:125
+msgid "Select an option"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:336
+msgid "Serial Number"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:70
+msgid "Serial/Batch #"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:310
+msgid "Set Quantity"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:292
+msgid "Shape"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:166
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:303
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:283
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:430
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:374
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:704
+msgid "Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:143
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:175
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:86
+msgid "Shelves"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:82
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:357
+msgid "Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:119
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:60
+msgid "Shipment ID"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:225
+msgid "Shipment Lines"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:361
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:33
+msgid "Shipments"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:157
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:141
+msgid "Shipping Method"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:147
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:93
+msgid "Shipping Methods"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:108
+msgid "Shipping Notes"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:94
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:72
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:131
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:72
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:114
+msgid "Source Document"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:110
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:87
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:147
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:87
+msgid "Source Document ID"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:342
+msgid "Split receipt line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:366
+msgid "Split shipment line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:458
+msgid "Start"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:130
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:140
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:95
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:95
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:65
+msgid "Status"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:143
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:158
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:109
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:79
+msgid "Statuses"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:61
+msgid "Stock Transfer ID"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:329
+msgid "Stock Transfer Lines"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferNotes.tsx:75
+msgid "Stock Transfer Notes"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:106
+msgid "Stock Transfer Wizard"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:274
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:39
+msgid "Stock Transfers"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:312
+msgid "Substance"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:240
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:413
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:191
+msgid "Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:429
+msgid "Tags"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:216
+msgid "The quantity of the item to be reordered on scan-based replenishment."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:81
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:93
+msgid "To Location"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:32
+msgid "To Receive"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:180
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:165
+msgid "To Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:26
+msgid "To Ship"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:20
+msgid "To Ship and Receive"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:75
+msgid "Traceability"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:53
+msgid "Track"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:153
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:69
+msgid "Tracked Entities"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:173
+msgid "Tracking ID"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:154
+msgid "Tracking Number"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:77
+msgid "Tracking URL"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:84
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:109
+msgid "Transfer Date"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:894
+msgid "Transfer From"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:68
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:75
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:53
+msgid "Transfer ID"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:70
+msgid "Transfer Lines"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:871
+msgid "Transfer To"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:383
+msgid "Type"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:352
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:275
+msgid "Unit of Measure"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:157
+msgid "Update Inventory"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:335
+msgid "Update Kanban"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:224
+msgid "Update Quantity"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:73
+msgid "Update source document quantities"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:189
+msgid "Update the kanban information for scan-based replenishment."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:431
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
+msgid "Updated"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:523
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:275
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:288
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:182
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:173
+msgid "Updated At"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:506
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:258
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:271
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:165
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:156
+msgid "Updated By"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:205
+msgid "Usage/Day (30d)"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:215
+msgid "Usage/Day (90d)"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:302
+msgid "View Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:317
+msgid "View Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:211
+msgid "View Stock Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:139
+msgid "View Traceability Graph"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:203
+msgid "View Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:48
+msgid "Void Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentStatus.tsx:41
+msgid "Voided"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:64
+msgid "Voiding this shipment will:"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:53
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:243
+msgid "Warehouse Transfer"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:45
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:249
+msgid "Warehouse Transfers"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:61
+msgid "Warning"
+msgstr ""

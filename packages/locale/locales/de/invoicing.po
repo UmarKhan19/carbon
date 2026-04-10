@@ -1,0 +1,466 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-09 13:22-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: de\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:168
+msgid "A purchase invoice is a document that specifies the products or services purchased by a customer and the corresponding cost."
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:170
+msgid "A sales invoice is a document that specifies the products or services sold to a customer and the corresponding cost."
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:333
+msgid "A sales invoice line contains invoice details for a particular item"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:118
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:135
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:122
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:139
+msgid "Add Line Item"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:501
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:511
+msgid "Add Shipping"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:518
+msgid "Add-On"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:611
+msgid "Add-On Cost"
+msgstr ""
+
+#. placeholder {0}: routeData?.purchaseInvoice?.invoiceId
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:374
+msgid "Are you sure you want to delete {0}? This cannot be undone."
+msgstr ""
+
+#. placeholder {0}: line.itemReadableId
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/DeletePurchaseInvoiceLine.tsx:23
+msgid "Are you sure you want to delete the line: {0}? This cannot be undone."
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/DeleteSalesInvoiceLine.tsx:28
+msgid "Are you sure you want to delete the line: {itemReadableId}? This cannot be undone."
+msgstr ""
+
+#. placeholder {0}: selectedPurchaseInvoice.invoiceId!
+#. placeholder {0}: selectedSalesInvoice.invoiceId!
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:336
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:327
+msgid "Are you sure you want to permanently delete {0}?"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:52
+msgid "Are you sure you want to void this sales invoice? This action will reverse all financial transactions and cannot be undone."
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:160
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:154
+msgid "Assignee"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:202
+msgid "Batch items require a sales order"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:154
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:179
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:78
+msgid "Cancel"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:94
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:92
+msgid "Carbon client not found"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:527
+msgid "Collapse Costs"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:155
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:154
+msgid "Copy"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:234
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:228
+msgid "Created At"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:217
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:211
+msgid "Created By"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:259
+msgid "Currency"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:82
+msgid "Customer"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:203
+msgid "Customer Invoice Number"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:116
+msgid "Customer PO"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:242
+msgid "Date Issued"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:291
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:285
+msgid "Delete"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:232
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:234
+msgid "Delete Line"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:218
+msgid "Delete Purchase Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:376
+msgid "Description"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:185
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:241
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:179
+msgid "Due Date"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:278
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:272
+msgid "Edit"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:479
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:489
+msgid "Edit Shipping"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:124
+msgid "Error fetching customer data"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:126
+msgid "Error fetching supplier data"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:528
+msgid "Expand Costs"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:280
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:275
+msgid "Extended Price"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:208
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:99
+msgid "Invoice Customer"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:228
+msgid "Invoice Customer Contact"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:214
+msgid "Invoice Customer Location"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:192
+msgid "Invoice ID"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:68
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:62
+msgid "Invoice Number"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:105
+msgid "Invoice Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:144
+msgid "Invoice Total"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:177
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:171
+msgid "Issued Date"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:121
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:118
+msgid "Item"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:134
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:133
+msgid "Link"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:270
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:449
+msgid "Location"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:356
+msgid "Make items cannot be invoiced directly. Change method to Pick to continue."
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:395
+msgid "Method"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:197
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:194
+msgid "More options"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:141
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:145
+msgid "New Line Item"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:165
+msgid "New Sales Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:303
+msgid "New Sales Invoice Line"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:621
+msgid "Non-Taxable Add-On Cost"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:150
+msgid "Order Total"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:193
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:187
+msgid "Paid Date"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:320
+msgid "Payment"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:209
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:203
+msgid "Payment Method"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:246
+msgid "Payment Terms"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:305
+msgid "Post"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:87
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:97
+msgid "Post Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:201
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:195
+msgid "Posting Date"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:320
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:417
+msgid "Purchase Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:326
+msgid "Purchase Invoices"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:240
+msgid "Purchase Order"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:257
+msgid "Purchase Orders"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:215
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:420
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:224
+msgid "Quantity"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:248
+msgid "Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:276
+msgid "Receipts"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:452
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:445
+msgid "Refresh"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:163
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:313
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:427
+msgid "Sales Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:317
+msgid "Sales Invoices"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:122
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:280
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:559
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:283
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:637
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:125
+msgid "Save"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:203
+msgid "Serial items require a sales order"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:102
+msgid "Serial or Batch Tracking Required"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:455
+msgid "Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:110
+msgid "Shipment Location"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:94
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:92
+msgid "Shipping"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:593
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:100
+msgid "Shipping Cost"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:116
+msgid "Shipping Method"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:130
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:124
+msgid "Status"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:144
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:138
+msgid "Statuses"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:88
+msgid "Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:122
+msgid "Supplier Ref."
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:327
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:490
+msgid "Tax"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:482
+msgid "Tax & Additional Costs"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:572
+msgid "Tax Amount"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:549
+msgid "Tax Percent"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:183
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:180
+msgid "Toggle Explorer"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:352
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:356
+msgid "Toggle Properties"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:316
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:311
+msgid "Total"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:228
+msgid "Unapproved Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:246
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:432
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:241
+msgid "Unit Price"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:259
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:253
+msgid "Updated At"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:242
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:236
+msgid "Updated By"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:249
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:251
+msgid "View Item Master"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:49
+msgid "Void Sales Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:62
+msgid "Warning"
+msgstr ""

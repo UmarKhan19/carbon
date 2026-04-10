@@ -1,4 +1,15 @@
-export const supportedLanguages = ["en", "pl"] as const;
+export const supportedLanguages = [
+  "en",
+  "fr",
+  "de",
+  "es",
+  "it",
+  "ja",
+  "pl",
+  "pt",
+  "ru",
+  "zh"
+] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
 export const defaultLanguage: SupportedLanguage = "en";
 export const localeCookieName = "locale";
@@ -8,6 +19,8 @@ export const resolveLanguage = (
 ): SupportedLanguage => {
   if (!locale) return defaultLanguage;
   const normalized = locale.toLowerCase().split("-")[0];
-  if (normalized === "pl") return "pl";
-  return "en";
+  if (supportedLanguages.includes(normalized as SupportedLanguage)) {
+    return normalized as SupportedLanguage;
+  }
+  return defaultLanguage;
 };

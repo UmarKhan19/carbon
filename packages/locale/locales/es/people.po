@@ -1,0 +1,486 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-09 13:22-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: es\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:49
+msgid "Abilities"
+msgstr "Habilidades"
+
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:159
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:165
+msgid "Active"
+msgstr "Activo"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:186
+#. placeholder {0}: selectedCategory?.name
+msgid "Are you sure you want to deactivate the {0} attribute category?"
+msgstr "¿Estás seguro de que deseas desactivar la categoría de atributo {0}?"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:227
+#. placeholder {0}: selectedAttribute?.name
+msgid "Are you sure you want to deactivate the {0} attribute?"
+msgstr "¿Estás seguro de que deseas desactivar el atributo {0}?"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:65
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:73
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:180
+#: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:44
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:41
+msgid "Attributes"
+msgstr "Atributos"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:85
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:133
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:114
+#: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:82
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:99
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:117
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:52
+msgid "Category"
+msgstr "Categoría"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:70
+msgid "Category Name"
+msgstr "Nombre de Categoría"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:98
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:97
+msgid "Clock In"
+msgstr "Entrada"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:104
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:106
+msgid "Clock Out"
+msgstr "Salida"
+
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:38
+msgid "Configure"
+msgstr "Configurar"
+
+#: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:76
+msgid "Contacts"
+msgstr "Contactos"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:53
+msgid "Created department"
+msgstr "Departamento creado"
+
+#: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:42
+msgid "Currently training for"
+msgstr "Actualmente en capacitación para"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:114
+msgid "Data Type"
+msgstr "Tipo de Dato"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:117
+msgid "Data type cannot be changed"
+msgstr "El tipo de dato no se puede cambiar"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:72
+#: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:62
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:86
+msgid "Date"
+msgstr "Fecha"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:78
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:99
+msgid "Days"
+msgstr "Días"
+
+#: apps/erp/app/modules/people/ui/Person/PersonDaysOff.tsx:11
+msgid "Days Off"
+msgstr "Días libres"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:134
+msgid "Delete Attribute"
+msgstr "Eliminar Atributo"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:159
+msgid "Delete Category"
+msgstr "Eliminar Categoría"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentsTable.tsx:89
+msgid "Delete Department"
+msgstr "Eliminar Departamento"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:92
+msgid "Delete Holiday"
+msgstr "Eliminar Día Festivo"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:131
+msgid "Delete Shift"
+msgstr "Eliminar Turno"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:198
+msgid "Delete Timecard"
+msgstr "Eliminar Tarjeta de Tiempo"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentsTable.tsx:39
+#: apps/erp/app/modules/people/ui/Person/PersonPreview.tsx:55
+msgid "Department"
+msgstr "Departamento"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:100
+msgid "Department Name"
+msgstr "Nombre del Departamento"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentsTable.tsx:108
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:46
+msgid "Departments"
+msgstr "Departamentos"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:185
+msgid "Drag handle"
+msgstr "Tirador de arrastre"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:115
+msgid "Duration"
+msgstr "Duración"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:86
+msgid "Edit"
+msgstr "Editar"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:126
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:100
+msgid "Edit Attribute"
+msgstr "Editar Atributo"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:59
+msgid "Edit Attribute Category"
+msgstr "Editar Categoría de Atributo"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:151
+msgid "Edit Category"
+msgstr "Editar Categoría"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:90
+#: apps/erp/app/modules/people/ui/Departments/DepartmentsTable.tsx:77
+msgid "Edit Department"
+msgstr "Editar Departamento"
+
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:214
+msgid "Edit Employee"
+msgstr "Editar Empleado"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:62
+#: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:82
+msgid "Edit Holiday"
+msgstr "Editar Festivo"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:65
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:121
+msgid "Edit Shift"
+msgstr "Editar Turno"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:82
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:186
+msgid "Edit Timecard"
+msgstr "Editar Tarjeta de Tiempo"
+
+#: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:35
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:129
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:92
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:65
+msgid "Employee"
+msgstr "Empleado"
+
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:137
+msgid "Employee Type"
+msgstr "Tipo de Empleado"
+
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:239
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:23
+msgid "Employees"
+msgstr "Empleados"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:74
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:76
+msgid "End Time"
+msgstr "Hora de Finalización"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
+msgid "Failed to create department: {0}"
+msgstr "Error al crear departamento: {0}"
+
+#: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:19
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:113
+msgid "First Name"
+msgstr "Nombre"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:85
+msgid "Friday"
+msgstr "Viernes"
+
+#: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:41
+msgid "Fully trained for"
+msgstr "Completamente capacitado para"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:35
+msgid "Holiday"
+msgstr "Día festivo"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:71
+msgid "Holiday Name"
+msgstr "Nombre del Día Festivo"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:111
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:51
+msgid "Holidays"
+msgstr "Días festivos"
+
+#: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:59
+msgid "Home Phone"
+msgstr "Teléfono de Casa"
+
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:166
+msgid "Inactive"
+msgstr "Inactivo"
+
+#: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
+#: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
+msgid "Job"
+msgstr "Trabajo"
+
+#: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:27
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:121
+msgid "Last Name"
+msgstr "Apellido"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:122
+msgid "List Options"
+msgstr "Opciones de Lista"
+
+#: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:45
+#: apps/erp/app/modules/people/ui/Person/PersonPreview.tsx:63
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:72
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:84
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:154
+msgid "Location"
+msgstr "Ubicación"
+
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:20
+msgid "Manage"
+msgstr "Gestionar"
+
+#: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:53
+#: apps/erp/app/modules/people/ui/Person/PersonPreview.tsx:71
+msgid "Manager"
+msgstr "Gerente"
+
+#: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:43
+msgid "Mobile Phone"
+msgstr "Teléfono Móvil"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:81
+msgid "Monday"
+msgstr "Lunes"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:109
+msgid "Name"
+msgstr "Nombre"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:131
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:102
+msgid "New Attribute"
+msgstr "Nuevo Atributo"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:61
+msgid "New Attribute Category"
+msgstr "Nueva Categoría de Atributo"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:92
+msgid "New Department"
+msgstr "Nuevo Departamento"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:64
+msgid "New Holiday"
+msgstr "Nuevo Día Festivo"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:65
+msgid "New Shift"
+msgstr "Nuevo Turno"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:84
+msgid "New Timecard"
+msgstr "Nuevo Registro de Tiempo"
+
+#: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:119
+msgid "No abilities added"
+msgstr "Sin habilidades añadidas"
+
+#: apps/erp/app/modules/people/ui/Person/PersonDaysOff.tsx:16
+msgid "No days off scheduled"
+msgstr "Sin días libres programados"
+
+#: apps/erp/app/modules/people/ui/Person/PersonOvertime.tsx:16
+msgid "No overtime scheduled"
+msgstr "Sin horas extra programadas"
+
+#: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:43
+msgid "Not started training for"
+msgstr "Sin comenzar el entrenamiento para"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:108
+msgid "Note"
+msgstr "Nota"
+
+#: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:28
+msgid "Notes"
+msgstr "Notas"
+
+#: apps/erp/app/modules/people/ui/Person/PersonOvertime.tsx:11
+msgid "Overtime"
+msgstr "Horas extras"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:103
+msgid "Parent Department"
+msgstr "Departamento Principal"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:98
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:107
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:163
+msgid "Private"
+msgstr "Privado"
+
+#: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:18
+msgid "Profile"
+msgstr "Perfil"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:98
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:106
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:161
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:74
+msgid "Public"
+msgstr "Público"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:86
+msgid "Saturday"
+msgstr "Sábado"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:82
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:136
+#: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:111
+#: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:79
+#: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:59
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:96
+#: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:114
+msgid "Save"
+msgstr "Guardar"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:125
+msgid "Self Managed"
+msgstr "Autogestionado"
+
+#: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
+msgid "Shift"
+msgstr "Turno"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:71
+msgid "Shift Name"
+msgstr "Nombre del Turno"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:150
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:56
+msgid "Shifts"
+msgstr "Turnos"
+
+#: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:42
+#: apps/erp/app/modules/people/ui/Person/PersonPreview.tsx:79
+msgid "Start Date"
+msgstr "Fecha de Inicio"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:73
+#: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:68
+msgid "Start Time"
+msgstr "Hora de Inicio"
+
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:126
+msgid "Status"
+msgstr "Estado"
+
+#: apps/erp/app/modules/people/ui/Departments/DepartmentsTable.tsx:50
+msgid "Sub-Departments"
+msgstr "Sub-Departamentos"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:87
+msgid "Sunday"
+msgstr "Domingo"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:84
+msgid "Thursday"
+msgstr "Jueves"
+
+#: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:35
+#: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:220
+#: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:29
+msgid "Timecards"
+msgstr "Tarjetas de tiempo"
+
+#: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:41
+msgid "Title"
+msgstr "Título"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:82
+msgid "Tuesday"
+msgstr "Martes"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:206
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:98
+msgid "User"
+msgstr "Usuario"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:126
+msgid "Users can update this value for themselves"
+msgstr "Los usuarios pueden actualizar este valor por sí mismos"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:143
+msgid "View Attributes"
+msgstr "Ver Atributos"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:110
+msgid "Visibilities"
+msgstr "Visibilidades"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:93
+msgid "Visibility"
+msgstr "Visibilidad"
+
+#: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:75
+msgid "Visible on a user's public profile"
+msgstr "Visible en el perfil público de un usuario"
+
+#: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:83
+msgid "Wednesday"
+msgstr "Miércoles"
+
+#: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:51
+msgid "Work Phone"
+msgstr "Teléfono de trabajo"
+
+#: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:45
+msgid "Year"
+msgstr "Año"

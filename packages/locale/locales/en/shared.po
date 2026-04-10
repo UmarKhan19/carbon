@@ -1,0 +1,2986 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-06 02:39+0530\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: file.name
+#: apps/erp/app/components/Documents.tsx:110
+msgid "{0} deleted successfully"
+msgstr "{0} deleted successfully"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:192
+msgid "/month/user"
+msgstr "/month/user"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:46
+#: apps/erp/app/routes/onboarding+/plan.tsx:59
+msgid "5 User Minimum"
+msgstr "5 User Minimum"
+
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:173
+msgid "5MB file limit"
+msgstr "5MB file limit"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:151
+msgid "A name is required to save a view"
+msgstr "A name is required to save a view"
+
+#: apps/erp/app/components/AvatarMenu.tsx:210
+msgid "About"
+msgstr "About"
+
+#: apps/erp/app/components/AvatarMenu.tsx:170
+#: apps/erp/app/routes/x+/account+/_layout.tsx:29
+msgid "Account Settings"
+msgstr "Account Settings"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:489
+msgid "Accounts Payable Billing Address"
+msgstr "Accounts Payable Billing Address"
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:393
+msgid "Accounts Receivable Billing Address"
+msgstr "Accounts Receivable Billing Address"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:348
+msgid "Actions"
+msgstr "Actions"
+
+#: apps/erp/app/routes/x+/resources+/processes.activate.$processId.tsx:95
+msgid "Activate"
+msgstr "Activate"
+
+#: apps/erp/app/routes/x+/resources+/processes.activate.$processId.tsx:93
+msgid "Activate {name}"
+msgstr "Activate {name}"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:338
+#: apps/erp/app/components/Contact.tsx:57
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:711
+#: apps/erp/app/routes/x+/settings+/billing.tsx:346
+msgid "Active"
+msgstr "Active"
+
+#: apps/erp/app/routes/x+/production+/_index.tsx:298
+msgid "Active Jobs"
+msgstr "Active Jobs"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:388
+msgid "Active Supplier Quotes"
+msgstr "Active Supplier Quotes"
+
+#: apps/erp/app/routes/x+/inventory+/quantities+/$itemId.activity.tsx:124
+msgid "Activity"
+msgstr "Activity"
+
+#: apps/erp/app/components/New.tsx:43
+#: apps/erp/app/components/New.tsx:43
+msgid "Add"
+msgstr "Add"
+
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:70
+msgid "Add a column below to sort the view"
+msgstr "Add a column below to sort the view"
+
+#: apps/erp/app/routes/x+/maintenance+/$dispatchId.comments.tsx:114
+msgid "Add a comment..."
+msgstr "Add a comment..."
+
+#: apps/erp/app/components/Chat/PromptInput.tsx:173
+msgid "Add attachments"
+msgstr "Add attachments"
+
+#: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:196
+msgid "Add Company"
+msgstr "Add Company"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:443
+msgid "Add Entry"
+msgstr "Add Entry"
+
+#: apps/erp/app/components/RichText.tsx:81
+msgid "Add Note"
+msgstr "Add Note"
+
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:151
+msgid "Address Line 1"
+msgstr "Address Line 1"
+
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:197
+msgid "Address Line 2"
+msgstr "Address Line 2"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:250
+msgid "AI Tokens"
+msgstr "AI Tokens"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:281
+msgid "All"
+msgstr "All"
+
+#: apps/erp/app/routes/x+/settings+/audit-logs.details.tsx:65
+msgid "All Audit Logs"
+msgstr "All Audit Logs"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:220
+msgid "All Customers"
+msgstr "All Customers"
+
+#: apps/erp/app/components/Form/Item.tsx:255
+msgid "All Items"
+msgstr "All Items"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:278
+msgid "All Suppliers"
+msgstr "All Suppliers"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:300
+msgid "All Types"
+msgstr "All Types"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:162
+msgid "All Work Centers"
+msgstr "All Work Centers"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:48
+#: apps/erp/app/routes/onboarding+/plan.tsx:62
+msgid "API and Webhooks"
+msgstr "API and Webhooks"
+
+#: apps/erp/app/components/Layout/Topbar/HelpMenu.tsx:30
+msgid "API Docs"
+msgstr "API Docs"
+
+#: apps/erp/app/components/AvatarMenu.tsx:98
+msgid "API Documentation"
+msgstr "API Documentation"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+msgid "Archive"
+msgstr "Archive"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
+msgid "Archive all"
+msgstr "Archive all"
+
+#: apps/erp/app/routes/x+/resources+/processes.activate.$processId.tsx:94
+msgid "Are you sure you want to activate the process: {name}? It will appear in dropdowns again."
+msgstr "Are you sure you want to activate the process: {name}? It will appear in dropdowns again."
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:431
+msgid "Are you sure you want to deactivate the {label} configuration rule?"
+msgstr "Are you sure you want to deactivate the {label} configuration rule?"
+
+#: apps/erp/app/routes/x+/resources+/processes.deactivate.$processId.tsx:81
+#: apps/erp/app/routes/x+/resources+/processes.delete.$processId.tsx:91
+msgid "Are you sure you want to deactivate the process: {name}? It will no longer appear in dropdowns."
+msgstr "Are you sure you want to deactivate the process: {name}? It will no longer appear in dropdowns."
+
+#. placeholder {0}: account.name
+#. placeholder {1}: account.number
+#: apps/erp/app/routes/x+/accounting+/charts.delete.$accountId.tsx:70
+msgid "Are you sure you want to delete the account: {0} ({1})? This cannot be undone."
+msgstr "Are you sure you want to delete the account: {0} ({1})? This cannot be undone."
+
+#. placeholder {0}: apiKey.name
+#: apps/erp/app/routes/x+/settings+/api-keys.delete.$id.tsx:56
+msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the API key: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/resources+/contractors.delete.$supplierId.tsx:81
+msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
+msgstr "Are you sure you want to delete the contractor: {name}? This cannot be undone."
+
+#. placeholder {0}: customerPart?.customer?.name ?? ""
+#: apps/erp/app/routes/x+/part+/$itemId.sales.customer-parts.delete.$customerPartToItemId.tsx:85
+msgid "Are you sure you want to delete the customer part for {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the customer part for {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/sales+/customer-portals.delete.$id.tsx:84
+msgid "Are you sure you want to delete the customer portal for: {customerName}? This cannot be undone."
+msgstr "Are you sure you want to delete the customer portal for: {customerName}? This cannot be undone."
+
+#. placeholder {0}: customerStatus.name
+#: apps/erp/app/routes/x+/sales+/customer-statuses.delete.$customerStatusId.tsx:80
+msgid "Are you sure you want to delete the customer status: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the customer status: {0}? This cannot be undone."
+
+#. placeholder {0}: customerType.name
+#: apps/erp/app/routes/x+/sales+/customer-types.delete.$customerTypeId.tsx:92
+msgid "Are you sure you want to delete the customer type: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the customer type: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/people+/departments.delete.$departmentId.tsx:81
+msgid "Are you sure you want to delete the department: {name}? This cannot be undone."
+msgstr "Are you sure you want to delete the department: {name}? This cannot be undone."
+
+#. placeholder {0}: employeeType.name
+#: apps/erp/app/routes/x+/users+/employee-types.delete.$employeeTypeId.tsx:85
+msgid "Are you sure you want to delete the employee type: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the employee type: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/resources+/failure-modes.delete.$failureModeId.tsx:83
+msgid "Are you sure you want to delete the failure mode: {name}? This cannot be undone."
+msgstr "Are you sure you want to delete the failure mode: {name}? This cannot be undone."
+
+#. placeholder {0}: gaugeType.name
+#: apps/erp/app/routes/x+/quality+/gauge-types.delete.$id.tsx:76
+msgid "Are you sure you want to delete the gauge type: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the gauge type: {0}? This cannot be undone."
+
+#. placeholder {0}: group.name
+#: apps/erp/app/routes/x+/users+/groups.delete.$groupId.tsx:73
+msgid "Are you sure you want to delete the group: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the group: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/people+/holidays.delete.$holidayId.tsx:78
+msgid "Are you sure you want to delete the holiday: {name}? This cannot be undone."
+msgstr "Are you sure you want to delete the holiday: {name}? This cannot be undone."
+
+#. placeholder {0}: nonConformanceType.name
+#: apps/erp/app/routes/x+/quality+/issue-types.delete.$id.tsx:79
+msgid "Are you sure you want to delete the issue type: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the issue type: {0}? This cannot be undone."
+
+#. placeholder {0}: itemPostingGroup.name
+#: apps/erp/app/routes/x+/items+/groups.delete.$groupId.tsx:94
+msgid "Are you sure you want to delete the item group: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the item group: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/resources+/locations.delete.$locationId.tsx:94
+msgid "Are you sure you want to delete the location: {name}? This cannot be undone."
+msgstr "Are you sure you want to delete the location: {name}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/resources+/scheduled-maintenance.delete.$scheduleId.tsx:86
+msgid "Are you sure you want to delete the maintenance schedule: {name}? This cannot be undone."
+msgstr "Are you sure you want to delete the maintenance schedule: {name}? This cannot be undone."
+
+#. placeholder {0}: materialDimension.name
+#: apps/erp/app/routes/x+/items+/dimensions.delete.$id.tsx:81
+msgid "Are you sure you want to delete the material dimension: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the material dimension: {0}? This cannot be undone."
+
+#. placeholder {0}: materialFinish.name
+#: apps/erp/app/routes/x+/items+/finishes.delete.$id.tsx:78
+msgid "Are you sure you want to delete the material finish: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the material finish: {0}? This cannot be undone."
+
+#. placeholder {0}: materialForm.name
+#: apps/erp/app/routes/x+/items+/forms.delete.$formId.tsx:78
+msgid "Are you sure you want to delete the material form: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the material form: {0}? This cannot be undone."
+
+#. placeholder {0}: materialGrade.name
+#: apps/erp/app/routes/x+/items+/grades.delete.$id.tsx:78
+msgid "Are you sure you want to delete the material grade: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the material grade: {0}? This cannot be undone."
+
+#. placeholder {0}: materialSubstance.name
+#: apps/erp/app/routes/x+/items+/substances.delete.$substanceId.tsx:84
+msgid "Are you sure you want to delete the material substance: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the material substance: {0}? This cannot be undone."
+
+#. placeholder {0}: materialType.name
+#: apps/erp/app/routes/x+/items+/types.delete.$id.tsx:78
+msgid "Are you sure you want to delete the material type: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the material type: {0}? This cannot be undone."
+
+#. placeholder {0}: noQuoteReason.name
+#: apps/erp/app/routes/x+/sales+/no-quote-reasons.delete.$id.tsx:82
+msgid "Are you sure you want to delete the no quote reason: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the no quote reason: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/resources+/partners.delete.$supplierId.tsx:78
+msgid "Are you sure you want to delete the partner: {name}? This cannot be undone."
+msgstr "Are you sure you want to delete the partner: {name}? This cannot be undone."
+
+#. placeholder {0}: paymentTerm.name
+#: apps/erp/app/routes/x+/accounting+/payment-terms.delete.$paymentTermId.tsx:92
+msgid "Are you sure you want to delete the payment term: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the payment term: {0}? This cannot be undone."
+
+#. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
+#. placeholder {1}: purchaseInvoiceLine.description ?? ""
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.delete.tsx:100
+msgid "Are you sure you want to delete the purchase invoice line for {0} {1}? This cannot be undone."
+msgstr "Are you sure you want to delete the purchase invoice line for {0} {1}? This cannot be undone."
+
+#. placeholder {0}: salesInvoiceLine.quantity ?? 0
+#. placeholder {1}: salesInvoiceLine.description ?? ""
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.delete.tsx:100
+msgid "Are you sure you want to delete the sales invoice line for {0} {1}? This cannot be undone."
+msgstr "Are you sure you want to delete the sales invoice line for {0} {1}? This cannot be undone."
+
+#. placeholder {0}: salesOrderLine.saleQuantity ?? 0
+#. placeholder {1}: salesOrderLine.description ?? ""
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.delete.tsx:93
+msgid "Are you sure you want to delete the sales order line for {0} {1}? This cannot be undone."
+msgstr "Are you sure you want to delete the sales order line for {0} {1}? This cannot be undone."
+
+#. placeholder {0}: scrapReason.name
+#: apps/erp/app/routes/x+/production+/scrap-reasons.delete.$scrapReasonId.tsx:82
+msgid "Are you sure you want to delete the scrap reason: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the scrap reason: {0}? This cannot be undone."
+
+#. placeholder {0}: shelf.name
+#: apps/erp/app/routes/x+/inventory+/shelves.delete.$shelfId.tsx:106
+msgid "Are you sure you want to delete the shelf: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the shelf: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/people+/shifts.delete.$shiftId.tsx:76
+msgid "Are you sure you want to delete the shift: {name} from {locationName}? This cannot be undone."
+msgstr "Are you sure you want to delete the shift: {name} from {locationName}? This cannot be undone."
+
+#. placeholder {0}: shippingMethod.name
+#: apps/erp/app/routes/x+/inventory+/shipping-methods.delete.$shippingMethodId.tsx:94
+msgid "Are you sure you want to delete the shipping method: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the shipping method: {0}? This cannot be undone."
+
+#. placeholder {0}: supplierType.name
+#: apps/erp/app/routes/x+/purchasing+/supplier-types.delete.$supplierTypeId.tsx:93
+msgid "Are you sure you want to delete the supplier type: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the supplier type: {0}? This cannot be undone."
+
+#. placeholder {0}: unitOfMeasure.name
+#: apps/erp/app/routes/x+/items+/uom.delete.$uomId.tsx:88
+msgid "Are you sure you want to delete the unit of measure: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the unit of measure: {0}? This cannot be undone."
+
+#. placeholder {0}: selectedView.name
+#: apps/erp/app/components/Layout/Navigation/GroupedContentSidebar.tsx:162
+msgid "Are you sure you want to delete the view \"{0}\"?"
+msgstr "Are you sure you want to delete the view \"{0}\"?"
+
+#. placeholder {0}: webhook.name
+#: apps/erp/app/routes/x+/settings+/webhooks.delete.$id.tsx:76
+msgid "Are you sure you want to delete the webhook: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the webhook: {0}? This cannot be undone."
+
+#: apps/erp/app/routes/x+/inventory+/kanbans.delete.$id.tsx:73
+msgid "Are you sure you want to delete this kanban card? This cannot be undone."
+msgstr "Are you sure you want to delete this kanban card? This cannot be undone."
+
+#: apps/erp/app/routes/x+/resources+/maintenance.delete.$dispatchId.tsx:85
+msgid "Are you sure you want to delete this maintenance dispatch? This cannot be undone."
+msgstr "Are you sure you want to delete this maintenance dispatch? This cannot be undone."
+
+#: apps/erp/app/routes/x+/resources+/suggestions.delete.$suggestionId.tsx:66
+msgid "Are you sure you want to delete this suggestion? This action cannot be undone."
+msgstr "Are you sure you want to delete this suggestion? This action cannot be undone."
+
+#: apps/erp/app/routes/x+/people+/timecard.delete.$entryId.tsx:76
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:763
+msgid "Are you sure you want to delete this timecard? This cannot be undone."
+msgstr "Are you sure you want to delete this timecard? This cannot be undone."
+
+#: apps/erp/app/routes/x+/supplier+/$supplierId.processes.delete.$id.tsx:67
+msgid "Are you sure you want to permanently delete the supplier process?"
+msgstr "Are you sure you want to permanently delete the supplier process?"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:286
+msgid "As the company owner, you can transfer ownership to another employee. This will give them full access to billing and administrative settings."
+msgstr "As the company owner, you can transfer ownership to another employee. This will give them full access to billing and administrative settings."
+
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:100
+msgid "Ascending"
+msgstr "Ascending"
+
+#. js-lingui-explicit-id
+#: apps/erp/app/components/Chat/ChatInput.tsx:189
+msgid "Ask anything"
+msgstr "Ask anything"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:136
+msgid "Assigned"
+msgstr "Assigned"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:698
+#: apps/erp/app/routes/x+/quality+/_index.tsx:902
+#: apps/erp/app/routes/x+/resources+/_index.tsx:664
+#: apps/erp/app/routes/x+/sales+/_index.tsx:687
+msgid "Assigned to Me"
+msgstr "Assigned to Me"
+
+#: apps/erp/app/components/Assignee.tsx:98
+msgid "Assignee"
+msgstr "Assignee"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:261
+msgid "Assignment"
+msgstr "Assignment"
+
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:212
+msgid "Attach File"
+msgstr "Attach File"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:154
+msgid "Audit logging is not enabled"
+msgstr "Audit logging is not enabled"
+
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:174
+msgid "Audit Logs"
+msgstr "Audit Logs"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:442
+msgid "Avg Days to Close"
+msgstr "Avg Days to Close"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:272
+msgid "Back"
+msgstr "Back"
+
+#: apps/erp/app/components/Chat/ChatNavigation.tsx:25
+msgid "Back to home"
+msgstr "Back to home"
+
+#: apps/erp/app/routes/x+/traceability+/graph.tsx:277
+msgid "Back to traceability"
+msgstr "Back to traceability"
+
+#. js-lingui-explicit-id
+#: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:241
+msgid "Base Currency"
+msgstr "Base Currency"
+
+#: apps/erp/app/routes/onboarding+/company.tsx:217
+msgid "Base Currency"
+msgstr "Base Currency"
+
+#: apps/erp/app/routes/x+/settings+/company.tsx:95
+msgid "Basic Information"
+msgstr "Basic Information"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:201
+#: apps/erp/app/routes/x+/settings+/people.tsx:242
+msgid "Beta"
+msgstr "Beta"
+
+#: apps/erp/app/components/OnshapeSync.tsx:398
+msgid "Bill of Materials"
+msgstr "Bill of Materials"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:192
+msgid "Billing"
+msgstr "Billing"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:532
+#: apps/erp/app/routes/x+/settings+/sales.tsx:436
+msgid "Billing Address"
+msgstr "Billing Address"
+
+#. placeholder {0}: workCenter.blockingDispatchReadableId
+#: apps/erp/app/routes/x+/production+/_index.tsx:845
+msgid "Blocked by {0}"
+msgstr "Blocked by {0}"
+
+#: apps/erp/app/components/OnshapeSync.tsx:232
+msgid "BOM synced successfully"
+msgstr "BOM synced successfully"
+
+#: apps/erp/app/components/Breadcrumb.tsx:25
+msgid "Breadcrumb"
+msgstr "Breadcrumb"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:249
+msgid "Bulk Import"
+msgstr "Bulk Import"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:155
+msgid "by {byUser}"
+msgstr "by {byUser}"
+
+#: apps/erp/app/routes/x+/part+/$itemId.details.tsx:342
+#: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:204
+#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:402
+#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.make.$methodId.tsx:137
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:287
+#: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:190
+#: apps/erp/app/routes/x+/tool+/$itemId.details.tsx:277
+#: apps/erp/app/routes/x+/tool+/$itemId.make.$makeMethodId.tsx:161
+msgid "CAD Model"
+msgstr "CAD Model"
+
+#: apps/erp/app/routes/x+/settings+/quality.tsx:159
+msgid "Calibration Expiration Notifications"
+msgstr "Calibration Expiration Notifications"
+
+#: apps/erp/app/components/Form/ConversionFactor.tsx:311
+#: apps/erp/app/components/Form/Item.tsx:329
+#: apps/erp/app/components/Layout/Topbar/Feedback.tsx:135
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:200
+#: apps/erp/app/components/Modals/ConfirmDelete/ConfirmDelete.tsx:60
+#: apps/erp/app/components/Table/components/TableHeader.tsx:209
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:613
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:695
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:367
+msgid "Cancel"
+msgstr "Cancel"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:587
+msgid "Canceled"
+msgstr "Canceled"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:358
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: apps/erp/app/components/Documents.tsx:193
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
+msgid "Carbon client not available"
+msgstr "Carbon client not available"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:35
+#: apps/erp/app/components/ItemThumnailUpload.tsx:73
+msgid "Carbon client not found"
+msgstr "Carbon client not found"
+
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:212
+msgid "Carbon column"
+msgstr "Carbon column"
+
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:454
+msgid "Carbon Value"
+msgstr "Carbon Value"
+
+#: apps/erp/app/components/Form/Item.tsx:238
+msgid "Change the item type (e.g. Part, Material, Tool, etc.)"
+msgstr "Change the item type (e.g. Part, Material, Tool, etc.)"
+
+#: apps/erp/app/components/Form/Item.tsx:220
+msgid "Change Type"
+msgstr "Change Type"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:264
+msgid "Changes"
+msgstr "Changes"
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:414
+msgid "Changing this will overwrite the existing method"
+msgstr "Changing this will overwrite the existing method"
+
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:287
+msgid "Choose another file"
+msgstr "Choose another file"
+
+#: apps/erp/app/routes/onboarding+/theme.tsx:123
+msgid "Choose your style"
+msgstr "Choose your style"
+
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:201
+msgid "City"
+msgstr "City"
+
+#: apps/erp/app/components/Layout/Topbar/Feedback.tsx:143
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:208
+#: apps/erp/app/components/Select.tsx:73
+msgid "Clear"
+msgstr "Clear"
+
+#: apps/erp/app/components/Table/components/Filter/Filter.tsx:126
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:535
+msgid "Clear Filters"
+msgstr "Clear Filters"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:351
+msgid "Clear search"
+msgstr "Clear search"
+
+#: apps/erp/app/components/Selectors/UserSelect/components/Input.tsx:65
+msgid "Clear search query"
+msgstr "Clear search query"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:464
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:523
+msgid "Clock In"
+msgstr "Clock In"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:453
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:526
+msgid "Clock Out"
+msgstr "Clock Out"
+
+#. placeholder {0}: formatTime(openEntry.clockIn)
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:472
+msgid "Clocked in since {0}"
+msgstr "Clocked in since {0}"
+
+#: apps/erp/app/components/Layout/Topbar/Search.tsx:395
+#: apps/erp/app/components/TrainingPanel.tsx:45
+msgid "Close"
+msgstr "Close"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:36
+#: apps/erp/app/routes/onboarding+/plan.tsx:61
+msgid "Cloud-Hosted"
+msgstr "Cloud-Hosted"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:773
+msgid "Collapse all"
+msgstr "Collapse all"
+
+#: apps/erp/app/components/Table/components/Columns.tsx:58
+msgid "Column visibility and order"
+msgstr "Column visibility and order"
+
+#: apps/erp/app/components/Table/components/Columns.tsx:50
+#: apps/erp/app/components/Table/components/Columns.tsx:51
+msgid "Columns"
+msgstr "Columns"
+
+#: apps/erp/app/routes/x+/maintenance+/$dispatchId.comments.tsx:105
+msgid "Comments"
+msgstr "Comments"
+
+#: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:155
+#: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:94
+msgid "Companies"
+msgstr "Companies"
+
+#: apps/erp/app/routes/x+/settings+/company.tsx:90
+msgid "Company"
+msgstr "Company"
+
+#. js-lingui-explicit-id
+#: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:233
+msgid "Company Name"
+msgstr "Company Name"
+
+#: apps/erp/app/routes/onboarding+/company.tsx:214
+msgid "Company Name"
+msgstr "Company Name"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:99
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:289
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:151
+msgid "Completed"
+msgstr "Completed"
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:163
+msgid "Completed Job Notifications"
+msgstr "Completed Job Notifications"
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:527
+msgid "Configurator"
+msgstr "Configurator"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:335
+msgid "Configure {label}"
+msgstr "Configure {label}"
+
+#: apps/erp/app/routes/x+/settings+/quality.tsx:195
+msgid "Configure defaults for the quality dashboard."
+msgstr "Configure defaults for the quality dashboard."
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:301
+msgid "Configure how preventative maintenance dispatches are automatically generated from maintenance schedules."
+msgstr "Configure how preventative maintenance dispatches are automatically generated from maintenance schedules."
+
+#: apps/erp/app/routes/x+/settings+/quality.tsx:150
+msgid "Configure notifications for when gauges go out of calibration."
+msgstr "Configure notifications for when gauges go out of calibration."
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:166
+msgid "Configure notifications for when jobs are completed."
+msgstr "Configure notifications for when jobs are completed."
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:217
+msgid "Configure notifications for when maintenance dispatches are created from the shop floor. Notifications are routed based on the failure mode type."
+msgstr "Configure notifications for when maintenance dispatches are created from the shop floor. Notifications are routed based on the failure mode type."
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:358
+msgid "Configure notifications for when new suggestions are submitted."
+msgstr "Configure notifications for when new suggestions are submitted."
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:212
+msgid "Configure the content displayed on job traveler PDFs."
+msgstr "Configure the content displayed on job traveler PDFs."
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:586
+msgid "Configure when purchased item prices should be updated from supplier transactions."
+msgstr "Configure when purchased item prices should be updated from supplier transactions."
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:680
+msgid "Configure who should receive notifications when a supplier submits a quote."
+msgstr "Configure who should receive notifications when a supplier submits a quote."
+
+#: apps/erp/app/components/Form/ConversionFactor.tsx:314
+msgid "Confirm"
+msgstr "Confirm"
+
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:263
+msgid "Confirm Import"
+msgstr "Confirm Import"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:170
+msgid "Console Mode"
+msgstr "Console Mode"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:268
+msgid "Console mode has been enabled. Use this PIN to identify yourself at MES terminals."
+msgstr "Console mode has been enabled. Use this PIN to identify yourself at MES terminals."
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:186
+msgid "Console mode is disabled"
+msgstr "Console mode is disabled"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:184
+msgid "Console mode is enabled"
+msgstr "Console mode is enabled"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:388
+msgid "Contained"
+msgstr "Contained"
+
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:117
+msgid "Copied!"
+msgstr "Copied!"
+
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:117
+msgid "Copy response"
+msgstr "Copy response"
+
+#: apps/erp/app/components/Form/Country.tsx:15
+msgid "Country"
+msgstr "Country"
+
+#: apps/erp/app/components/Chat/ChatWidgets.tsx:44
+#: apps/erp/app/components/Form/Item.tsx:339
+#: apps/erp/app/components/Layout/Topbar/Topbar.tsx:37
+msgid "Create"
+msgstr "Create"
+
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:548
+msgid "Create Work Center"
+msgstr "Create Work Center"
+
+#: apps/erp/app/components/Documents.tsx:284
+msgid "Created"
+msgstr "Created"
+
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:209
+msgid "CSV column"
+msgstr "CSV column"
+
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:54
+msgid "CSV file must have at least 2 rows."
+msgstr "CSV file must have at least 2 rows."
+
+#: apps/erp/app/components/Form/SequenceOrCustomId.tsx:60
+msgid "Custom {label}"
+msgstr "Custom {label}"
+
+#: apps/erp/app/components/Form/Customer.tsx:49
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:86
+#: apps/erp/app/routes/x+/issue+/$id.tsx:152
+#: apps/erp/app/routes/x+/sales+/_index.tsx:640
+#: apps/erp/app/routes/x+/sales+/_index.tsx:712
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:788
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:470
+msgid "Customer"
+msgstr "Customer"
+
+#: apps/erp/app/components/Form/CustomerContact.tsx:69
+msgid "Customer Contact"
+msgstr "Customer Contact"
+
+#: apps/erp/app/components/Form/CustomerLocation.tsx:84
+msgid "Customer Location"
+msgstr "Customer Location"
+
+#: apps/erp/app/routes/x+/part+/$itemId.sales.customer-parts.delete.$customerPartToItemId.tsx:84
+msgid "Customer Part"
+msgstr "Customer Part"
+
+#: apps/erp/app/components/Form/CustomerStatus.tsx:37
+msgid "Customer Status"
+msgstr "Customer Status"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:153
+msgid "Customers"
+msgstr "Customers"
+
+#: apps/erp/app/routes/onboarding+/theme.tsx:173
+msgid "Dark"
+msgstr "Dark"
+
+#: apps/erp/app/components/AvatarMenu.tsx:108
+msgid "Dark Mode"
+msgstr "Dark Mode"
+
+#: apps/erp/app/components/AvatarMenu.tsx:90
+#: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:91
+#: apps/erp/app/routes/x+/settings+/quality.tsx:192
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:520
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:543
+msgid "Date"
+msgstr "Date"
+
+#: apps/erp/app/routes/x+/resources+/processes.deactivate.$processId.tsx:82
+#: apps/erp/app/routes/x+/resources+/processes.delete.$processId.tsx:92
+msgid "Deactivate"
+msgstr "Deactivate"
+
+#: apps/erp/app/routes/x+/resources+/processes.deactivate.$processId.tsx:80
+#: apps/erp/app/routes/x+/resources+/processes.delete.$processId.tsx:90
+msgid "Deactivate {name}"
+msgstr "Deactivate {name}"
+
+#: apps/erp/app/routes/x+/settings+/labels.tsx:124
+msgid "Define the default size of the product label. Used for tracking items in inventory."
+msgstr "Define the default size of the product label. Used for tracking items in inventory."
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:452
+msgid "Define the terms and conditions for purchase orders"
+msgstr "Define the terms and conditions for purchase orders"
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:355
+msgid "Define the terms and conditions for quotes and sales orders"
+msgstr "Define the terms and conditions for quotes and sales orders"
+
+#: apps/erp/app/components/Documents.tsx:347
+#: apps/erp/app/components/Documents.tsx:420
+#: apps/erp/app/components/RichText.tsx:51
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:742
+msgid "Delete"
+msgstr "Delete"
+
+#: apps/erp/app/components/Modals/ConfirmDelete/ConfirmDelete.tsx:53
+msgid "Delete {name}"
+msgstr "Delete {name}"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:246
+msgid "Delete Assignment"
+msgstr "Delete Assignment"
+
+#: apps/erp/app/components/Chat/ChatHistory.tsx:128
+msgid "Delete chat"
+msgstr "Delete chat"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:358
+msgid "Delete Rule"
+msgstr "Delete Rule"
+
+#: apps/erp/app/components/Layout/Navigation/GroupedContentSidebar.tsx:268
+msgid "Delete View"
+msgstr "Delete View"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:202
+msgid "Description (optional)"
+msgstr "Description (optional)"
+
+#: apps/erp/app/routes/x+/issue+/$id.details.tsx:135
+msgid "Description of Issue"
+msgstr "Description of Issue"
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:484
+msgid "Digital Quotes"
+msgstr "Digital Quotes"
+
+#: apps/erp/app/components/TrainingPanel.tsx:65
+msgid "Dismiss"
+msgstr "Dismiss"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:718
+msgid "Dispatch"
+msgstr "Dispatch"
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:784
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:466
+msgid "Display Settings"
+msgstr "Display Settings"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:645
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:796
+#: apps/erp/app/routes/x+/sales+/_index.tsx:634
+#: apps/erp/app/routes/x+/sales+/_index.tsx:706
+msgid "Document"
+msgstr "Document"
+
+#: apps/erp/app/components/OnshapeSync.tsx:259
+msgid "Document:"
+msgstr "Document:"
+
+#: apps/erp/app/hooks/useModules.tsx:94
+msgid "Documents"
+msgstr "Documents"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:290
+msgid "Done"
+msgstr "Done"
+
+#: apps/erp/app/components/Documents.tsx:329
+#: apps/erp/app/components/Documents.tsx:413
+msgid "Download"
+msgstr "Download"
+
+#: apps/erp/app/components/Table/components/Download.tsx:41
+#: apps/erp/app/components/Table/components/Download.tsx:42
+#: apps/erp/app/components/Table/components/Download.tsx:51
+msgid "Download CSV"
+msgstr "Download CSV"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:460
+#: apps/erp/app/routes/x+/settings+/sales.tsx:363
+msgid "Draft"
+msgstr "Draft"
+
+#: apps/erp/app/components/Layout/Navigation/GroupedContentSidebar.tsx:249
+#: apps/erp/app/components/Table/components/Columns.tsx:120
+msgid "Drag handle"
+msgstr "Drag handle"
+
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:170
+msgid "Drop your file here, or click to browse."
+msgstr "Drop your file here, or click to browse."
+
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
+#: apps/erp/app/routes/x+/production+/_index.tsx:940
+msgid "Due {0}"
+msgstr "Due {0}"
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:789
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:471
+msgid "Due Date"
+msgstr "Due Date"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:529
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:790
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:472
+msgid "Duration"
+msgstr "Duration"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:357
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:730
+msgid "Edit"
+msgstr "Edit"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:232
+msgid "Edit Assignment"
+msgstr "Edit Assignment"
+
+#: apps/erp/app/components/Table/components/Columns.tsx:66
+msgid "Edit column visibility"
+msgstr "Edit column visibility"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:315
+#: apps/erp/app/components/Table/components/TableHeader.tsx:326
+msgid "Edit View"
+msgstr "Edit View"
+
+#: apps/erp/app/components/OnshapeSync.tsx:300
+msgid "Element:"
+msgstr "Element:"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:726
+#: apps/erp/app/routes/x+/settings+/sales.tsx:596
+msgid "Emails"
+msgstr "Emails"
+
+#: apps/erp/app/components/Form/Employee.tsx:59
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:109
+msgid "Employee"
+msgstr "Employee"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:157
+msgid "Enable audit logging in settings to start tracking changes to your data."
+msgstr "Enable audit logging in settings to start tracking changes to your data."
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:487
+msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
+msgstr "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:166
+msgid "Enable in Settings"
+msgstr "Enable in Settings"
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:552
+msgid "Enable notifications when an RFQ is marked as ready for quote."
+msgstr "Enable notifications when an RFQ is marked as ready for quote."
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:173
+msgid "Enable shared workstation mode for MES terminals. Operators identify themselves via PIN before performing work."
+msgstr "Enable shared workstation mode for MES terminals. Operators identify themselves via PIN before performing work."
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:220
+msgid "Enable timecard tracking for work shifts."
+msgstr "Enable timecard tracking for work shifts."
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:197
+msgid "Enable to allow shared workstation mode."
+msgstr "Enable to allow shared workstation mode."
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:160
+msgid "Enable to generate IDs and descriptions for raw materials."
+msgstr "Enable to generate IDs and descriptions for raw materials."
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:231
+msgid "Enable to include work instructions on job traveler PDFs."
+msgstr "Enable to include work instructions on job traveler PDFs."
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:781
+msgid "Enable to show part thumbnails on purchase order PDFs."
+msgstr "Enable to show part thumbnails on purchase order PDFs."
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:653
+msgid "Enable to show part thumbnails on sales PDFs."
+msgstr "Enable to show part thumbnails on sales PDFs."
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:238
+msgid "Enable to start tracking work shifts."
+msgstr "Enable to start tracking work shifts."
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:197
+msgid "Enable to use metric units for material dimensions."
+msgstr "Enable to use metric units for material dimensions."
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:340
+msgid "Enter or scan serial number"
+msgstr "Enter or scan serial number"
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:248
+msgid "Entity is {status}"
+msgstr "Entity is {status}"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:35
+#: apps/erp/app/routes/onboarding+/plan.tsx:60
+msgid "ERP, MES, QMS"
+msgstr "ERP, MES, QMS"
+
+#: apps/erp/app/components/Documents.tsx:106
+msgid "Error deleting file"
+msgstr "Error deleting file"
+
+#: apps/erp/app/components/Documents.tsx:136
+#: apps/erp/app/components/Documents.tsx:183
+msgid "Error downloading file"
+msgstr "Error downloading file"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:673
+msgid "Error loading assigned dispatches"
+msgstr "Error loading assigned dispatches"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:707
+#: apps/erp/app/routes/x+/sales+/_index.tsx:696
+msgid "Error loading assigned documents"
+msgstr "Error loading assigned documents"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:917
+msgid "Error loading assigned issues"
+msgstr "Error loading assigned issues"
+
+#: apps/erp/app/routes/x+/job+/$jobId.tsx:100
+msgid "Error loading job tree."
+msgstr "Error loading job tree."
+
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:230
+msgid "Error loading make method"
+msgstr "Error loading make method"
+
+#: apps/erp/app/components/Documents.tsx:154
+msgid "Error removing model from {sourceDocument}"
+msgstr "Error removing model from {sourceDocument}"
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:264
+msgid "Error validating serial number"
+msgstr "Error validating serial number"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:47
+msgid "Everything from Starter"
+msgstr "Everything from Starter"
+
+#: apps/erp/app/components/Form/ExchangeRate.tsx:54
+#: apps/erp/app/components/Form/ExchangeRate.tsx:76
+msgid "Exchange Rate"
+msgstr "Exchange Rate"
+
+#: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:97
+msgid "Expand"
+msgstr "Expand"
+
+#. placeholder {0}: item.label
+#: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:89
+msgid "Expand {0}"
+msgstr "Expand {0}"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:768
+msgid "Expand all"
+msgstr "Expand all"
+
+#: apps/erp/app/routes/x+/production+/_index.tsx:402
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:533
+#: apps/erp/app/routes/x+/quality+/_index.tsx:517
+#: apps/erp/app/routes/x+/resources+/_index.tsx:495
+#: apps/erp/app/routes/x+/sales+/_index.tsx:520
+msgid "Export CSV"
+msgstr "Export CSV"
+
+#: apps/erp/app/hooks/useGooglePlaces.tsx:217
+msgid "Failed to fetch place details"
+msgstr "Failed to fetch place details"
+
+#: apps/erp/app/hooks/useGooglePlaces.tsx:110
+msgid "Failed to fetch suggestions"
+msgstr "Failed to fetch suggestions"
+
+#: apps/erp/app/components/OnshapeSync.tsx:73
+msgid "Failed to load item data"
+msgstr "Failed to load item data"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:62
+msgid "Failed to remove model thumbnail"
+msgstr "Failed to remove model thumbnail"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:49
+msgid "Failed to remove thumbnail"
+msgstr "Failed to remove thumbnail"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:149
+msgid "Failed to resize image"
+msgstr "Failed to resize image"
+
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:62
+msgid "Failed to retrieve CSV column data."
+msgstr "Failed to retrieve CSV column data."
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:224
+msgid "Failed to save configuration rule"
+msgstr "Failed to save configuration rule"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:139
+msgid "Failed to update thumbnail path"
+msgstr "Failed to update thumbnail path"
+
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:93
+msgid "Failed to upload CSV file."
+msgstr "Failed to upload CSV file."
+
+#. placeholder {0}: file.name
+#: apps/erp/app/components/Documents.tsx:208
+msgid "Failed to upload file: {0}"
+msgstr "Failed to upload file: {0}"
+
+#: apps/erp/app/components/Layout/Topbar/Feedback.tsx:73
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:96
+msgid "Failed to upload image"
+msgstr "Failed to upload image"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:127
+msgid "Failed to upload thumbnail"
+msgstr "Failed to upload thumbnail"
+
+#: apps/erp/app/components/Layout/Topbar/Feedback.tsx:89
+msgid "Feedback"
+msgstr "Feedback"
+
+#: apps/erp/app/components/OnshapeSync.tsx:369
+msgid "Fetch"
+msgstr "Fetch"
+
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:193
+msgid "Field Mapping"
+msgstr "Field Mapping"
+
+#: apps/erp/app/components/Layout/Topbar/Feedback.tsx:60
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:82
+msgid "File size exceeds 10MB limit"
+msgstr "File size exceeds 10MB limit"
+
+#: apps/erp/app/components/Documents.tsx:255
+msgid "Files"
+msgstr "Files"
+
+#: apps/erp/app/components/Table/components/Filter/Filter.tsx:156
+msgid "Filter"
+msgstr "Filter"
+
+#: apps/erp/app/hooks/useModules.tsx:70
+msgid "Finance"
+msgstr "Finance"
+
+#: apps/erp/app/routes/onboarding+/user.tsx:102
+msgid "First Name"
+msgstr "First Name"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:44
+msgid "For growing businesses that need support"
+msgstr "For growing businesses that need support"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:57
+msgid "For US companies handling ITAR data"
+msgstr "For US companies handling ITAR data"
+
+#: apps/erp/app/components/TimeCardWarning.tsx:107
+msgid "Forgot to Clock Out?"
+msgstr "Forgot to Clock Out?"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:118
+msgid "Frequency"
+msgstr "Frequency"
+
+#: apps/erp/app/routes/x+/settings+/quality.tsx:147
+msgid "Gauge Calibration Notifications"
+msgstr "Gauge Calibration Notifications"
+
+#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:118
+msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
+msgstr "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:138
+msgid "Generate material IDs and descriptions based on the properties of the material."
+msgstr "Generate material IDs and descriptions based on the properties of the material."
+
+#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:147
+msgid "Generate new PIN"
+msgstr "Generate new PIN"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:151
+msgid "Generated IDs are disabled"
+msgstr "Generated IDs are disabled"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:149
+msgid "Generated IDs are enabled"
+msgstr "Generated IDs are enabled"
+
+#: apps/erp/app/routes/onboarding+/_index.tsx:53
+msgid "Get Started"
+msgstr "Get Started"
+
+#. placeholder {0}: user.firstName
+#: apps/erp/app/components/Greeting.tsx:24
+msgid "Good afternoon, {0}"
+msgstr "Good afternoon, {0}"
+
+#. placeholder {0}: user.firstName
+#: apps/erp/app/components/Greeting.tsx:26
+msgid "Good evening, {0}"
+msgstr "Good evening, {0}"
+
+#. placeholder {0}: user.firstName
+#: apps/erp/app/components/Greeting.tsx:22
+msgid "Good morning, {0}"
+msgstr "Good morning, {0}"
+
+#: apps/erp/app/hooks/useGooglePlaces.tsx:50
+#: apps/erp/app/hooks/useGooglePlaces.tsx:185
+msgid "Google Places API key not configured"
+msgstr "Google Places API key not configured"
+
+#: apps/erp/app/components/Layout/Topbar/HelpMenu.tsx:21
+msgid "Help"
+msgstr "Help"
+
+#: apps/erp/app/components/Table/components/Columns.tsx:69
+msgid "Hide, pin and reorder columns"
+msgstr "Hide, pin and reorder columns"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:203
+msgid "History"
+msgstr "History"
+
+#: apps/erp/app/components/TimeCardWarning.tsx:140
+msgid "I'm Still Working"
+msgstr "I'm Still Working"
+
+#: apps/erp/app/components/Layout/Topbar/Feedback.tsx:112
+msgid "Ideas, suggestions or problems with this page?"
+msgstr "Ideas, suggestions or problems with this page?"
+
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:138
+msgid "Ideas, suggestions or problems?"
+msgstr "Ideas, suggestions or problems?"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:156
+msgid "IDs and descriptions are generated for raw materials."
+msgstr "IDs and descriptions are generated for raw materials."
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:49
+#: apps/erp/app/routes/onboarding+/plan.tsx:63
+msgid "Implementation Support"
+msgstr "Implementation Support"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:260
+msgid "Import {label} CSV"
+msgstr "Import {label} CSV"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:128
+msgid "In Process Only"
+msgstr "In Process Only"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:450
+msgid "in selected period"
+msgstr "in selected period"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:338
+#: apps/erp/app/components/Contact.tsx:63
+#: apps/erp/app/routes/x+/production+/_index.tsx:868
+#: apps/erp/app/routes/x+/settings+/billing.tsx:352
+msgid "Inactive"
+msgstr "Inactive"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
+msgid "Inbox"
+msgstr "Inbox"
+
+#: apps/erp/app/routes/x+/traceability+/_index.tsx:44
+msgid "Invalid tracking number"
+msgstr "Invalid tracking number"
+
+#: apps/erp/app/components/Form/ConversionFactor.tsx:264
+#: apps/erp/app/components/Form/ConversionFactor.tsx:289
+#: apps/erp/app/hooks/useModules.tsx:52
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:117
+msgid "Inventory"
+msgstr "Inventory"
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:175
+msgid "Inventory Job Notifications"
+msgstr "Inventory Job Notifications"
+
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:141
+msgid "is"
+msgstr "is"
+
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:143
+msgid "is any of"
+msgstr "is any of"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:46
+#: apps/erp/app/routes/x+/quality+/_index.tsx:956
+msgid "Issue"
+msgstr "Issue"
+
+#: apps/erp/app/routes/x+/settings+/quality.tsx:202
+msgid "Issue Target"
+msgstr "Issue Target"
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:242
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:238
+msgid "Issues"
+msgstr "Issues"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:103
+msgid "Item"
+msgstr "Item"
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:254
+msgid "Item {scannedItem} is not the same as the item {expectedItem}"
+msgstr "Item {scannedItem} is not the same as the item {expectedItem}"
+
+#: apps/erp/app/hooks/useModules.tsx:46
+#: apps/erp/app/routes/x+/issue+/$id.tsx:104
+#: apps/erp/app/routes/x+/settings+/items.tsx:130
+msgid "Items"
+msgstr "Items"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:233
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
+msgid "Job"
+msgstr "Job"
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:257
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:253
+msgid "Job Materials"
+msgstr "Job Materials"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:110
+msgid "Job Operation"
+msgstr "Job Operation"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:111
+msgid "Job Operations"
+msgstr "Job Operations"
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:209
+msgid "Job Traveler"
+msgstr "Job Traveler"
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:229
+msgid "Job traveler PDFs include work instructions."
+msgstr "Job traveler PDFs include work instructions."
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:248
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:220
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:244
+msgid "Jobs"
+msgstr "Jobs"
+
+#: apps/erp/app/routes/x+/production+/_index.tsx:327
+msgid "Jobs Assigned to Me"
+msgstr "Jobs Assigned to Me"
+
+#: apps/erp/app/routes/x+/inventory+/kanbans.delete.$id.tsx:72
+msgid "Kanban for {kanbanName}"
+msgstr "Kanban for {kanbanName}"
+
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:130
+msgid "Kanban Output"
+msgstr "Kanban Output"
+
+#: apps/erp/app/routes/x+/settings+/labels.tsx:107
+msgid "Labels"
+msgstr "Labels"
+
+#: apps/erp/app/routes/onboarding+/user.tsx:103
+msgid "Last Name"
+msgstr "Last Name"
+
+#. placeholder {0}: formatDateTime(lastSyncedAt)
+#: apps/erp/app/components/OnshapeSync.tsx:353
+msgid "Last synced: {0}"
+msgstr "Last synced: {0}"
+
+#: apps/erp/app/components/Form/ExchangeRate.tsx:62
+#: apps/erp/app/components/Form/ExchangeRate.tsx:84
+msgid "Last updated: {formattedDate}"
+msgstr "Last updated: {formattedDate}"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:623
+msgid "Lead Time Updates"
+msgstr "Lead Time Updates"
+
+#. js-lingui-explicit-id
+#: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:222
+msgid "Let's set up your new company"
+msgstr "Let's set up your new company"
+
+#: apps/erp/app/routes/onboarding+/user.tsx:96
+msgid "Let's setup your account"
+msgstr "Let's setup your account"
+
+#: apps/erp/app/routes/onboarding+/theme.tsx:152
+msgid "Light"
+msgstr "Light"
+
+#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:34
+msgid "Light Mode"
+msgstr "Light Mode"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:665
+msgid "Live reloading"
+msgstr "Live reloading"
+
+#: apps/erp/app/components/Chat/Loader.tsx:18
+msgid "Loader"
+msgstr "Loader"
+
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:167
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:164
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:175
+#: apps/erp/app/components/Table/components/Filter/Filter.tsx:173
+#: apps/erp/app/routes/x+/quality+/_index.tsx:909
+msgid "Loading..."
+msgstr "Loading..."
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:765
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:450
+msgid "Location"
+msgstr "Location"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:349
+msgid "Lock"
+msgstr "Lock"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:82
+msgid "Logos"
+msgstr "Logos"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:62
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:263
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:259
+msgid "Maintenance"
+msgstr "Maintenance"
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:214
+msgid "Maintenance Dispatch Notifications"
+msgstr "Maintenance Dispatch Notifications"
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:298
+msgid "Maintenance Scheduling"
+msgstr "Maintenance Scheduling"
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:228
+msgid "Maintenance Type"
+msgstr "Maintenance Type"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:275
+msgid "Manage Ownership"
+msgstr "Manage Ownership"
+
+#: apps/erp/app/components/AvatarMenu.tsx:179
+#: apps/erp/app/routes/x+/settings+/billing.tsx:199
+#: apps/erp/app/routes/x+/settings+/billing.tsx:265
+msgid "Manage Subscription"
+msgstr "Manage Subscription"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:202
+msgid "Manage your subscription and billing information"
+msgstr "Manage your subscription and billing information"
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:162
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:158
+msgid "Manufacturing"
+msgstr "Manufacturing"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:165
+msgid "Mark as read"
+msgstr "Mark as read"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:196
+msgid "Mark Complete"
+msgstr "Mark Complete"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:106
+msgid "Mark Dark Mode"
+msgstr "Mark Dark Mode"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:91
+msgid "Mark Light Mode"
+msgstr "Mark Light Mode"
+
+#: apps/erp/app/components/SortableList.tsx:130
+msgid "Mark to delete"
+msgstr "Mark to delete"
+
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:145
+msgid "matches"
+msgstr "matches"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:195
+msgid "Material dimensions use metric units."
+msgstr "Material dimensions use metric units."
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:135
+msgid "Material IDs"
+msgstr "Material IDs"
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:269
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:265
+msgid "Method Materials"
+msgstr "Method Materials"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:177
+msgid "Metric"
+msgstr "Metric"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:190
+msgid "Metric units are disabled"
+msgstr "Metric units are disabled"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:188
+msgid "Metric units are enabled"
+msgstr "Metric units are enabled"
+
+#: apps/erp/app/components/Documents.tsx:119
+msgid "Model data is missing"
+msgstr "Model data is missing"
+
+#: apps/erp/app/components/Documents.tsx:164
+msgid "Model removed from {sourceDocument}"
+msgstr "Model removed from {sourceDocument}"
+
+#: apps/erp/app/components/PermissionMatrix.tsx:49
+msgid "Module"
+msgstr "Module"
+
+#: apps/erp/app/components/Documents.tsx:320
+#: apps/erp/app/components/Documents.tsx:406
+#: apps/erp/app/routes/x+/production+/_index.tsx:391
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:522
+#: apps/erp/app/routes/x+/quality+/_index.tsx:506
+#: apps/erp/app/routes/x+/resources+/_index.tsx:484
+#: apps/erp/app/routes/x+/sales+/_index.tsx:509
+msgid "More"
+msgstr "More"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:722
+msgid "More options"
+msgstr "More options"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:194
+msgid "My Saved View"
+msgstr "My Saved View"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ParameterPanel.ee.tsx:47
+#: apps/erp/app/components/Documents.tsx:278
+msgid "Name"
+msgstr "Name"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:809
+#: apps/erp/app/components/Layout/Topbar/Search.tsx:383
+msgid "Navigate"
+msgstr "Navigate"
+
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:69
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:226
+msgid "Negative feedback"
+msgstr "Negative feedback"
+
+#: apps/erp/app/components/Documents.tsx:269
+#: apps/erp/app/components/Grid/Grid.tsx:408
+msgid "New"
+msgstr "New"
+
+#: apps/erp/app/components/Chat/ChatHistory.tsx:117
+msgid "New chat"
+msgstr "New chat"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:302
+msgid "New Owner"
+msgstr "New Owner"
+
+#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:125
+msgid "New PIN"
+msgstr "New PIN"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:298
+msgid "New record created"
+msgstr "New record created"
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:440
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:282
+#: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:150
+#: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:193
+#: apps/erp/app/routes/onboarding+/company.tsx:235
+#: apps/erp/app/routes/onboarding+/theme.tsx:236
+#: apps/erp/app/routes/onboarding+/user.tsx:121
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:497
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:503
+msgid "Next"
+msgstr "Next"
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:749
+msgid "Next Date"
+msgstr "Next Date"
+
+#: apps/erp/app/components/Form/SequenceOrCustomId.tsx:43
+msgid "Next Sequence"
+msgstr "Next Sequence"
+
+#: apps/erp/app/hooks/useCustomColumns.tsx:46
+msgid "No"
+msgstr "No"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:215
+msgid "No active plan"
+msgstr "No active plan"
+
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:167
+msgid "No addresses found"
+msgstr "No addresses found"
+
+#: apps/erp/app/components/Table/components/Filter/Filter.tsx:175
+msgid "No available filters"
+msgstr "No available filters"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:302
+msgid "No changes recorded"
+msgstr "No changes recorded"
+
+#: apps/erp/app/components/Chat/ChatHistory.tsx:99
+msgid "No chat history"
+msgstr "No chat history"
+
+#: apps/erp/app/components/Chat/ChatHistory.tsx:97
+msgid "No chats found"
+msgstr "No chats found"
+
+#: apps/erp/app/routes/x+/maintenance+/$dispatchId.comments.tsx:138
+msgid "No comments yet. Be the first to add a comment."
+msgstr "No comments yet. Be the first to add a comment."
+
+#: apps/erp/app/components/Form/ConversionFactor.tsx:117
+msgid "No conversion is required"
+msgstr "No conversion is required"
+
+#: apps/erp/app/components/Grid/Grid.tsx:394
+msgid "No Data"
+msgstr "No Data"
+
+#: apps/erp/app/components/Table/Table.tsx:937
+msgid "No data exists"
+msgstr "No data exists"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:343
+msgid "No employees found"
+msgstr "No employees found"
+
+#: apps/erp/app/components/Documents.tsx:435
+msgid "No files"
+msgstr "No files"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:167
+msgid "No image"
+msgstr "No image"
+
+#: apps/erp/app/components/Layout/Topbar/Search/SearchEmptyState.tsx:46
+msgid "No matches for \"{query}\". Try a different search term."
+msgstr "No matches for \"{query}\". Try a different search term."
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
+msgid "No new notifications"
+msgstr "No new notifications"
+
+#: apps/erp/app/components/RichText.tsx:63
+msgid "No notes"
+msgstr "No notes"
+
+#: apps/erp/app/components/Assignee.tsx:169
+msgid "No option found."
+msgstr "No option found."
+
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:177
+msgid "No options found."
+msgstr "No options found."
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:319
+msgid "No other employees found. Add employees to enable ownership transfer."
+msgstr "No other employees found. Add employees to enable ownership transfer."
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
+msgid "No outstanding trainings"
+msgstr "No outstanding trainings"
+
+#: apps/erp/app/components/OnshapeSync.tsx:464
+msgid "No part ID"
+msgstr "No part ID"
+
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:532
+msgid "No results"
+msgstr "No results"
+
+#: apps/erp/app/components/Layout/Topbar/Search/SearchEmptyState.tsx:43
+#: apps/erp/app/components/Table/Table.tsx:925
+msgid "No results found"
+msgstr "No results found"
+
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:67
+msgid "No sorts applied to this view"
+msgstr "No sorts applied to this view"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:625
+msgid "No time entries for this week"
+msgstr "No time entries for this week"
+
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:544
+msgid "No work centers exist"
+msgstr "No work centers exist"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:119
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:318
+msgid "Not Required"
+msgstr "Not Required"
+
+#: apps/erp/app/routes/x+/person+/$personId.notes.tsx:46
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:189
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:188
+#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:295
+#: apps/erp/app/routes/x+/quote+/$quoteId.details.tsx:182
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.details.tsx:186
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.details.tsx:179
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:208
+#: apps/erp/app/routes/x+/sales-order+/$orderId.details.tsx:207
+#: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:156
+#: apps/erp/app/routes/x+/sales-rfq+/$rfqId.details.tsx:130
+msgid "Notes"
+msgstr "Notes"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
+msgid "Nothing in the archive"
+msgstr "Nothing in the archive"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:690
+#: apps/erp/app/routes/x+/settings+/sales.tsx:513
+#: apps/erp/app/routes/x+/settings+/sales.tsx:561
+msgid "Notifications"
+msgstr "Notifications"
+
+#: apps/erp/app/routes/onboarding+/company.tsx:208
+msgid "Now let's set up your company"
+msgstr "Now let's set up your company"
+
+#: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:166
+msgid "of"
+msgstr "of"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:415
+msgid "Open Actions"
+msgstr "Open Actions"
+
+#: apps/erp/app/components/Chat/ChatHistory.tsx:73
+msgid "Open chat history"
+msgstr "Open chat history"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:350
+msgid "Open Dispatches"
+msgstr "Open Dispatches"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:361
+msgid "Open Issues"
+msgstr "Open Issues"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:446
+msgid "Open Purchase Invoices"
+msgstr "Open Purchase Invoices"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:417
+msgid "Open Purchase Orders"
+msgstr "Open Purchase Orders"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:404
+msgid "Open Quotes"
+msgstr "Open Quotes"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:408
+msgid "Open Reactive"
+msgstr "Open Reactive"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:375
+msgid "Open RFQs"
+msgstr "Open RFQs"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:433
+msgid "Open Sales Orders"
+msgstr "Open Sales Orders"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:379
+msgid "Open Scheduled"
+msgstr "Open Scheduled"
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:248
+msgid "Operations Type"
+msgstr "Operations Type"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:192
+msgid "Operators can use shared workstations with PIN authentication."
+msgstr "Operators can use shared workstations with PIN authentication."
+
+#: apps/erp/app/components/Layout/Navigation/GroupedContentSidebar.tsx:258
+msgid "Options"
+msgstr "Options"
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:258
+msgid "Other Type"
+msgstr "Other Type"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:113
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:309
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:181
+msgid "Overdue"
+msgstr "Overdue"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ParameterPanel.ee.tsx:42
+msgid "Parameters"
+msgstr "Parameters"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:38
+msgid "Part"
+msgstr "Part"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:777
+msgid "Part thumbnails are shown on purchase order PDFs."
+msgstr "Part thumbnails are shown on purchase order PDFs."
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:651
+msgid "Part thumbnails are shown on sales PDFs."
+msgstr "Part thumbnails are shown on sales PDFs."
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:759
+#: apps/erp/app/routes/x+/settings+/sales.tsx:630
+msgid "PDFs"
+msgstr "PDFs"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:106
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:299
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:166
+msgid "Pending"
+msgstr "Pending"
+
+#: apps/erp/app/hooks/useModules.tsx:82
+#: apps/erp/app/routes/x+/settings+/people.tsx:164
+msgid "People"
+msgstr "People"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:33
+msgid "Perfect for low-cost evaluation"
+msgstr "Perfect for low-cost evaluation"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:128
+msgid "Period"
+msgstr "Period"
+
+#: apps/erp/app/components/PermissionMatrix.tsx:15
+msgid "Permissions"
+msgstr "Permissions"
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:375
+msgid "Pick"
+msgstr "Pick"
+
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:119
+msgid "Pick a column to sort by"
+msgstr "Pick a column to sort by"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:212
+msgid "Plan"
+msgstr "Plan"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:171
+msgid "Please contact your administrator to enable audit logging."
+msgstr "Please contact your administrator to enable audit logging."
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:390
+msgid "Please fill out all required fields"
+msgstr "Please fill out all required fields"
+
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:143
+msgid "Please upload a CSV file of your data"
+msgstr "Please upload a CSV file of your data"
+
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:55
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:184
+msgid "Positive feedback"
+msgstr "Positive feedback"
+
+#: apps/erp/app/routes/x+/maintenance+/$dispatchId.comments.tsx:127
+msgid "Post Comment"
+msgstr "Post Comment"
+
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:212
+msgid "Postal Code"
+msgstr "Postal Code"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:482
+msgid "Prev"
+msgstr "Prev"
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:425
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:293
+#: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:136
+#: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:177
+#: apps/erp/app/routes/onboarding+/company.tsx:231
+#: apps/erp/app/routes/onboarding+/theme.tsx:225
+#: apps/erp/app/routes/onboarding+/user.tsx:117
+msgid "Previous"
+msgstr "Previous"
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:724
+msgid "Previous Date"
+msgstr "Previous Date"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:962
+msgid "Priority"
+msgstr "Priority"
+
+#: apps/erp/app/components/AvatarMenu.tsx:200
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
+#: apps/erp/app/routes/x+/person+/$personId.attributes.$categoryId.tsx:62
+msgid "Private"
+msgstr "Private"
+
+#: apps/erp/app/routes/x+/settings+/labels.tsx:121
+msgid "Product Label Size"
+msgstr "Product Label Size"
+
+#: apps/erp/app/hooks/useModules.tsx:40
+#: apps/erp/app/routes/x+/settings+/production.tsx:145
+msgid "Production"
+msgstr "Production"
+
+#: apps/erp/app/routes/x+/account+/profile.tsx:150
+#: apps/erp/app/routes/x+/person+/$personId.details.tsx:40
+msgid "Profile"
+msgstr "Profile"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:196
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:791
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:473
+msgid "Progress"
+msgstr "Progress"
+
+#: apps/erp/app/routes/x+/person+/$personId.attributes.$categoryId.tsx:62
+msgid "Public"
+msgstr "Public"
+
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.delete.tsx:99
+msgid "Purchase Invoice Line"
+msgstr "Purchase Invoice Line"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:70
+#: apps/erp/app/routes/x+/issue+/$id.tsx:117
+msgid "Purchase Order"
+msgstr "Purchase Order"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:118
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:276
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:272
+msgid "Purchase Orders"
+msgstr "Purchase Orders"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:583
+msgid "Purchase Price Updates"
+msgstr "Purchase Price Updates"
+
+#: apps/erp/app/components/Form/ConversionFactor.tsx:251
+#: apps/erp/app/components/Form/ConversionFactor.tsx:302
+msgid "Purchased"
+msgstr "Purchased"
+
+#: apps/erp/app/hooks/useModules.tsx:58
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:442
+msgid "Purchasing"
+msgstr "Purchasing"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:449
+msgid "Purchasing Terms & Conditions"
+msgstr "Purchasing Terms & Conditions"
+
+#: apps/erp/app/hooks/useModules.tsx:64
+#: apps/erp/app/routes/x+/settings+/quality.tsx:130
+msgid "Quality"
+msgstr "Quality"
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:238
+msgid "Quality Type"
+msgstr "Quality Type"
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:792
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:474
+msgid "Quantity"
+msgstr "Quantity"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:96
+msgid "Quote"
+msgstr "Quote"
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:757
+msgid "Quote Markups"
+msgstr "Quote Markups"
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:300
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:296
+msgid "Quote Materials"
+msgstr "Quote Materials"
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:294
+#: apps/erp/app/routes/x+/sales+/_index.tsx:160
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:290
+msgid "Quotes"
+msgstr "Quotes"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:138
+msgid "Receipt"
+msgstr "Receipt"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:139
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:285
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:281
+msgid "Receipts"
+msgstr "Receipts"
+
+#: apps/erp/app/components/Layout/Topbar/Search.tsx:223
+msgid "Recent"
+msgstr "Recent"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:635
+#: apps/erp/app/routes/x+/quality+/_index.tsx:882
+#: apps/erp/app/routes/x+/resources+/_index.tsx:644
+#: apps/erp/app/routes/x+/sales+/_index.tsx:624
+msgid "Recently Created"
+msgstr "Recently Created"
+
+#: apps/erp/app/components/Chat/RecordButton.tsx:210
+msgid "Record"
+msgstr "Record"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:300
+msgid "Record deleted"
+msgstr "Record deleted"
+
+#: apps/erp/app/components/OnshapeSync.tsx:385
+msgid "Refresh"
+msgstr "Refresh"
+
+#: apps/erp/app/components/Form/ExchangeRate.tsx:99
+msgid "Refresh exchange rate"
+msgstr "Refresh exchange rate"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:280
+msgid "Remember this PIN. You will need it to exit console mode on MES terminals."
+msgstr "Remember this PIN. You will need it to exit console mode on MES terminals."
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:179
+#: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:115
+msgid "Remove"
+msgstr "Remove"
+
+#. placeholder {0}: item.label
+#: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:107
+msgid "Remove {0}"
+msgstr "Remove {0}"
+
+#: apps/erp/app/components/Chat/PromptInput.tsx:99
+msgid "Remove attachment"
+msgstr "Remove attachment"
+
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:212
+#: apps/erp/app/components/Table/components/Filter/Filter.tsx:134
+msgid "Remove filter"
+msgstr "Remove filter"
+
+#: apps/erp/app/components/Table/Table.tsx:928
+msgid "Remove Filters"
+msgstr "Remove Filters"
+
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:224
+msgid "Remove negative feedback"
+msgstr "Remove negative feedback"
+
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:182
+msgid "Remove positive feedback"
+msgstr "Remove positive feedback"
+
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:103
+msgid "Remove sort by column"
+msgstr "Remove sort by column"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:647
+msgid "Require approval before suppliers can be set to Active"
+msgstr "Require approval before suppliers can be set to Active"
+
+#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:165
+msgid "Reset PIN"
+msgstr "Reset PIN"
+
+#. placeholder {0}: operator.firstName
+#. placeholder {1}: operator.lastName
+#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:109
+msgid "Reset PIN for {0} {1}"
+msgstr "Reset PIN for {0} {1}"
+
+#: apps/erp/app/hooks/useModules.tsx:88
+#: apps/erp/app/routes/x+/settings+/resources.tsx:186
+msgid "Resources"
+msgstr "Resources"
+
+#: apps/erp/app/components/Layout/Topbar/Search.tsx:285
+msgid "Results"
+msgstr "Results"
+
+#: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:61
+msgid "Results per page"
+msgstr "Results per page"
+
+#: apps/erp/app/components/Chat/messages/MessageActions.tsx:143
+msgid "Retry response"
+msgstr "Retry response"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:91
+#: apps/erp/app/routes/x+/settings+/sales.tsx:549
+msgid "RFQ"
+msgstr "RFQ"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:154
+msgid "RFQs"
+msgstr "RFQs"
+
+#: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:56
+msgid "rows"
+msgstr "rows"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:405
+msgid "Run Test"
+msgstr "Run Test"
+
+#: apps/erp/app/hooks/useModules.tsx:34
+#: apps/erp/app/routes/x+/settings+/sales.tsx:346
+msgid "Sales"
+msgstr "Sales"
+
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.delete.tsx:99
+msgid "Sales Invoice Line"
+msgstr "Sales Invoice Line"
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:185
+msgid "Sales Job Notifications"
+msgstr "Sales Job Notifications"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:101
+#: apps/erp/app/routes/x+/issue+/$id.tsx:124
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:794
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:476
+msgid "Sales Order"
+msgstr "Sales Order"
+
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.delete.tsx:92
+msgid "Sales Order Line"
+msgstr "Sales Order Line"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:125
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:310
+#: apps/erp/app/routes/x+/sales+/_index.tsx:166
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:306
+msgid "Sales Orders"
+msgstr "Sales Orders"
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:352
+msgid "Sales Terms & Conditions"
+msgstr "Sales Terms & Conditions"
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:437
+#: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:251
+#: apps/erp/app/components/OnshapeSync.tsx:406
+#: apps/erp/app/components/Table/components/TableHeader.tsx:212
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:606
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:688
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:155
+#: apps/erp/app/routes/x+/settings+/labels.tsx:146
+#: apps/erp/app/routes/x+/settings+/production.tsx:200
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:558
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:613
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:709
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:751
+#: apps/erp/app/routes/x+/settings+/quality.tsx:174
+#: apps/erp/app/routes/x+/settings+/quality.tsx:219
+#: apps/erp/app/routes/x+/settings+/resources.tsx:277
+#: apps/erp/app/routes/x+/settings+/resources.tsx:337
+#: apps/erp/app/routes/x+/settings+/resources.tsx:386
+#: apps/erp/app/routes/x+/settings+/sales.tsx:462
+#: apps/erp/app/routes/x+/settings+/sales.tsx:531
+#: apps/erp/app/routes/x+/settings+/sales.tsx:579
+#: apps/erp/app/routes/x+/settings+/sales.tsx:621
+#: apps/erp/app/routes/x+/settings+/sales.tsx:809
+msgid "Save"
+msgstr "Save"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:415
+msgid "Save & Close"
+msgstr "Save & Close"
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:435
+msgid "Save and Overwrite"
+msgstr "Save and Overwrite"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:315
+#: apps/erp/app/components/Table/components/TableHeader.tsx:328
+msgid "Save View"
+msgstr "Save View"
+
+#: apps/erp/app/routes/x+/traceability+/_index.tsx:81
+msgid "Scan or enter a tracking number"
+msgstr "Scan or enter a tracking number"
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:315
+msgid "Scan the tracking ID for this line"
+msgstr "Scan the tracking ID for this line"
+
+#: apps/erp/app/components/Chat/ChatWidgets.tsx:33
+#: apps/erp/app/components/Layout/Topbar/Search.tsx:459
+#: apps/erp/app/components/Table/components/TableHeader.tsx:297
+msgid "Search"
+msgstr "Search"
+
+#: apps/erp/app/components/Layout/Topbar/Search.tsx:202
+msgid "Search across your workspace..."
+msgstr "Search across your workspace..."
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:262
+msgid "Search employees..."
+msgstr "Search employees..."
+
+#: apps/erp/app/components/Chat/ChatHistory.tsx:84
+msgid "Search history"
+msgstr "Search history"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:882
+msgid "Search Job"
+msgstr "Search Job"
+
+#. js-lingui-explicit-id
+#: apps/erp/app/components/Chat/ChatInput.tsx:185
+msgid "Search the web"
+msgstr "Search the web"
+
+#: apps/erp/app/components/Assignee.tsx:167
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:170
+#: apps/erp/app/components/Table/components/Filter/Filter.tsx:168
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:175
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:360
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:171
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:356
+msgid "Search..."
+msgstr "Search..."
+
+#: apps/erp/app/components/Form/Customer.tsx:50
+#: apps/erp/app/components/Form/CustomerLocation.tsx:85
+#: apps/erp/app/components/Layout/Topbar/Search.tsx:389
+msgid "Select"
+msgstr "Select"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:303
+msgid "Select a new owner"
+msgstr "Select a new owner"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:152
+msgid "Select a plan"
+msgstr "Select a plan"
+
+#. placeholder {0}: plans[0].stripeTrialPeriodDays
+#: apps/erp/app/routes/onboarding+/plan.tsx:155
+msgid "Select a plan to get started. You won't be charged for the first {0} days. Switch or cancel anytime."
+msgstr "Select a plan to get started. You won't be charged for the first {0} days. Switch or cancel anytime."
+
+#: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:187
+msgid "Select an option"
+msgstr "Select an option"
+
+#: apps/erp/app/components/Form/CustomerContact.tsx:67
+#: apps/erp/app/components/Form/SupplierContact.tsx:89
+msgid "Select Contact"
+msgstr "Select Contact"
+
+#: apps/erp/app/components/Form/Employee.tsx:60
+msgid "Select Employee"
+msgstr "Select Employee"
+
+#: apps/erp/app/components/Form/Item.tsx:298
+msgid "Select Item Type"
+msgstr "Select Item Type"
+
+#: apps/erp/app/components/Table/components/IndeterminateCheckbox.tsx:33
+msgid "Select Row"
+msgstr "Select Row"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:37
+msgid "Self-Onboarding with Carbon Academy"
+msgstr "Self-Onboarding with Carbon Academy"
+
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:221
+msgid "Send"
+msgstr "Send"
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:244
+msgid "Serial number not found"
+msgstr "Serial number not found"
+
+#: apps/erp/app/components/TimeCardWarning.tsx:147
+msgid "Set Clock Out"
+msgstr "Set Clock Out"
+
+#: apps/erp/app/components/TimeCardWarning.tsx:128
+msgid "Set clock-out time"
+msgstr "Set clock-out time"
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:760
+msgid "Set default markup percentages for each cost category on new quote lines"
+msgstr "Set default markup percentages for each cost category on new quote lines"
+
+#: apps/erp/app/hooks/useModules.tsx:106
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:756
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:441
+msgid "Settings"
+msgstr "Settings"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:131
+msgid "Shipment"
+msgstr "Shipment"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:132
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:316
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:312
+msgid "Shipments"
+msgstr "Shipments"
+
+#: apps/erp/app/hooks/useModules.tsx:27
+msgid "Shop Floor"
+msgstr "Shop Floor"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:287
+msgid "Shortcuts"
+msgstr "Shortcuts"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:134
+msgid "Show Durations"
+msgstr "Show Durations"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:644
+msgid "Show parent items"
+msgstr "Show parent items"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:762
+msgid "Show part thumbnails on purchase orders."
+msgstr "Show part thumbnails on purchase orders."
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:633
+msgid "Show part thumbnails on quotes, sales orders, sales invoices, and shipments."
+msgstr "Show part thumbnails on quotes, sales orders, sales invoices, and shipments."
+
+#: apps/erp/app/components/OnshapeSync.tsx:246
+msgid "Show sync options"
+msgstr "Show sync options"
+
+#: apps/erp/app/components/AvatarMenu.tsx:218
+msgid "Sign Out"
+msgstr "Sign Out"
+
+#: apps/erp/app/components/AvatarMenu.tsx:85
+msgid "Signed in as {name}"
+msgstr "Signed in as {name}"
+
+#: apps/erp/app/components/Documents.tsx:281
+msgid "Size"
+msgstr "Size"
+
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:49
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:50
+msgid "Sort"
+msgstr "Sort"
+
+#: apps/erp/app/components/Table/Table.tsx:1021
+msgid "Sort Ascending"
+msgstr "Sort Ascending"
+
+#: apps/erp/app/components/Table/components/Sort/Sort.tsx:58
+msgid "Sort by"
+msgstr "Sort by"
+
+#: apps/erp/app/components/Table/Table.tsx:1032
+msgid "Sort Descending"
+msgstr "Sort Descending"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:724
+msgid "Source"
+msgstr "Source"
+
+#: apps/erp/app/components/Chat/WebSearch.tsx:97
+msgid "Sources"
+msgstr "Sources"
+
+#. placeholder {0}: plan.stripeTrialPeriodDays
+#: apps/erp/app/routes/onboarding+/plan.tsx:221
+msgid "Start {0} Day Free Trial"
+msgstr "Start {0} Day Free Trial"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:253
+msgid "Start Learning"
+msgstr "Start Learning"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:222
+msgid "Start Now"
+msgstr "Start Now"
+
+#: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:160
+msgid "Started"
+msgstr "Started"
+
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:207
+msgid "State / Province"
+msgstr "State / Province"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:648
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:799
+#: apps/erp/app/routes/x+/quality+/_index.tsx:959
+#: apps/erp/app/routes/x+/resources+/_index.tsx:721
+#: apps/erp/app/routes/x+/sales+/_index.tsx:637
+#: apps/erp/app/routes/x+/sales+/_index.tsx:709
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:793
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:475
+#: apps/erp/app/routes/x+/settings+/billing.tsx:220
+msgid "Status"
+msgstr "Status"
+
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:133
+msgid "Style of kanban output to show in the Kanban table"
+msgstr "Style of kanban output to show in the Kanban table"
+
+#: apps/erp/app/components/Chat/PromptInput.tsx:632
+msgid "Submit"
+msgstr "Submit"
+
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:159
+msgid "Submit anonymously"
+msgstr "Submit anonymously"
+
+#: apps/erp/app/components/Chat/SuggestedActions.tsx:115
+msgid "Suggested Actions"
+msgstr "Suggested Actions"
+
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:117
+msgid "Suggestion"
+msgstr "Suggestion"
+
+#: apps/erp/app/routes/x+/settings+/resources.tsx:355
+#: apps/erp/app/routes/x+/settings+/resources.tsx:368
+msgid "Suggestion Notifications"
+msgstr "Suggestion Notifications"
+
+#: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:78
+#: apps/erp/app/routes/x+/issue+/$id.tsx:159
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:651
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:802
+msgid "Supplier"
+msgstr "Supplier"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:644
+msgid "Supplier Approval Required"
+msgstr "Supplier Approval Required"
+
+#: apps/erp/app/components/Form/SupplierContact.tsx:91
+msgid "Supplier Contact"
+msgstr "Supplier Contact"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:677
+msgid "Supplier Quote Notifications"
+msgstr "Supplier Quote Notifications"
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:325
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:321
+msgid "Supplier Quotes"
+msgstr "Supplier Quotes"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:160
+msgid "Suppliers"
+msgstr "Suppliers"
+
+#: apps/erp/app/components/Form/ConversionFactor.tsx:224
+msgid "Switch"
+msgstr "Switch"
+
+#: apps/erp/app/components/OnshapeSync.tsx:387
+msgid "Sync"
+msgstr "Sync"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:237
+#: apps/erp/app/components/EmployeeAvatar.tsx:29
+msgid "System"
+msgstr "System"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:242
+msgid "Table actions"
+msgstr "Table actions"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:238
+msgid "Talk to Sales"
+msgstr "Talk to Sales"
+
+#: apps/erp/app/routes/x+/settings+/quality.tsx:206
+msgid "Target number of open issues shown as a reference line on the Issue Trend chart."
+msgstr "Target number of open issues shown as a reference line on the Issue Trend chart."
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:241
+msgid "Tasks"
+msgstr "Tasks"
+
+#: apps/erp/app/components/AvatarMenu.tsx:188
+msgid "Terms and Privacy"
+msgstr "Terms and Privacy"
+
+#: apps/erp/app/components/AvatarMenu.tsx:194
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
+#: apps/erp/app/components/Configurator/ConfigurationEditor/ParameterPanel.ee.tsx:50
+msgid "Test Value"
+msgstr "Test Value"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:492
+msgid "The billing address used on purchase orders and other purchasing documents."
+msgstr "The billing address used on purchase orders and other purchasing documents."
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:396
+msgid "The billing address used on quotes, sales orders, invoices, and other sales documents."
+msgstr "The billing address used on quotes, sales orders, invoices, and other sales documents."
+
+#: apps/erp/app/routes/onboarding+/_index.tsx:44
+msgid "The operating system for manufacturing"
+msgstr "The operating system for manufacturing"
+
+#: apps/erp/app/components/AvatarMenu.tsx:136
+msgid "Theme Color"
+msgstr "Theme Color"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:729
+msgid "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
+msgstr "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
+
+#: apps/erp/app/routes/x+/settings+/sales.tsx:599
+msgid "These email addresses will be automatically CC'd on all quote emails sent to customers."
+msgstr "These email addresses will be automatically CC'd on all quote emails sent to customers."
+
+#: apps/erp/app/routes/x+/settings+/company.tsx:98
+msgid "This information will be used on document headers"
+msgstr "This information will be used on document headers"
+
+#: apps/erp/app/routes/x+/account+/profile.tsx:153
+msgid "This information will be visible to all users, so be careful what you share."
+msgstr "This information will be visible to all users, so be careful what you share."
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:795
+#: apps/erp/app/routes/x+/schedule+/operations.tsx:477
+msgid "Thumbnail"
+msgstr "Thumbnail"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:67
+msgid "Thumbnail removed"
+msgstr "Thumbnail removed"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:145
+msgid "Thumbnail uploaded"
+msgstr "Thumbnail uploaded"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:770
+#: apps/erp/app/routes/x+/settings+/sales.tsx:644
+msgid "Thumbnails are included"
+msgstr "Thumbnails are included"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:772
+#: apps/erp/app/routes/x+/settings+/sales.tsx:646
+msgid "Thumbnails are not included"
+msgstr "Thumbnails are not included"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:430
+#: apps/erp/app/routes/x+/settings+/people.tsx:217
+msgid "Timecards"
+msgstr "Timecards"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:230
+msgid "Timecards are disabled"
+msgstr "Timecards are disabled"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:228
+msgid "Timecards are enabled"
+msgstr "Timecards are enabled"
+
+#: apps/erp/app/routes/x+/schedule+/dates.tsx:718
+msgid "Today"
+msgstr "Today"
+
+#: apps/erp/app/components/Form/SequenceOrCustomId.tsx:75
+msgid "Toggle"
+msgstr "Toggle"
+
+#: apps/erp/app/components/Assignee.tsx:154
+msgid "Toggle Assignee"
+msgstr "Toggle Assignee"
+
+#: apps/erp/app/components/Table/components/Columns.tsx:129
+#: apps/erp/app/components/Table/components/Columns.tsx:173
+msgid "Toggle column"
+msgstr "Toggle column"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:779
+msgid "Toggle durations"
+msgstr "Toggle durations"
+
+#: apps/erp/app/components/Gantt/Gantt.tsx:857
+msgid "Toggle level"
+msgstr "Toggle level"
+
+#: apps/erp/app/components/Layout/Navigation/GroupedContentSidebar.tsx:123
+msgid "Toggle views"
+msgstr "Toggle views"
+
+#: apps/erp/app/routes/x+/quality+/_index.tsx:626
+msgid "Total"
+msgstr "Total"
+
+#: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:756
+msgid "Total:"
+msgstr "Total:"
+
+#: apps/erp/app/routes/x+/traceability+/graph.tsx:267
+msgid "Traceability"
+msgstr "Traceability"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:136
+msgid "Track every change to your orders, invoices, customers, and more."
+msgstr "Track every change to your orders, invoices, customers, and more."
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:146
+msgid "Tracked Entities"
+msgstr "Tracked Entities"
+
+#: apps/erp/app/routes/x+/issue+/$id.tsx:145
+msgid "Tracked Entity"
+msgstr "Tracked Entity"
+
+#: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:226
+msgid "Tracked entity already picked"
+msgstr "Tracked entity already picked"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:104
+msgid "Training"
+msgstr "Training"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:264
+msgid "Training Assignments"
+msgstr "Training Assignments"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+msgid "Trainings"
+msgstr "Trainings"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:329
+msgid "Transfer Ownership"
+msgstr "Transfer Ownership"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:278
+msgid "Transfer ownership of this company to another user"
+msgstr "Transfer ownership of this company to another user"
+
+#: apps/erp/app/components/Layout/Topbar/Search/SearchEmptyState.tsx:60
+msgid "Type to search across your workspace"
+msgstr "Type to search across your workspace"
+
+#: apps/erp/app/components/Assignee.tsx:88
+#: apps/erp/app/components/Assignee.tsx:110
+#: apps/erp/app/components/Assignee.tsx:147
+#: apps/erp/app/components/Form/Employee.tsx:44
+msgid "Unassigned"
+msgstr "Unassigned"
+
+#: apps/erp/app/routes/x+/settings+/billing.tsx:364
+msgid "Unknown"
+msgstr "Unknown"
+
+#: apps/erp/app/routes/x+/people+/shifts.delete.$shiftId.tsx:71
+msgid "unknown location"
+msgstr "unknown location"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:50
+#: apps/erp/app/routes/onboarding+/plan.tsx:64
+msgid "Unlimited Functional Support"
+msgstr "Unlimited Functional Support"
+
+#: apps/erp/app/components/Documents.tsx:160
+msgid "Unsupported source document type: {sourceDocument}"
+msgstr "Unsupported source document type: {sourceDocument}"
+
+#: apps/erp/app/components/Table/components/TableHeader.tsx:212
+msgid "Update"
+msgstr "Update"
+
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:626
+msgid "Update part lead times from posted purchase receipts."
+msgstr "Update part lead times from posted purchase receipts."
+
+#: apps/erp/app/components/TimeCardWarning.tsx:68
+msgid "Updated successfully"
+msgstr "Updated successfully"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:143
+msgid "Upgrade to Business"
+msgstr "Upgrade to Business"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:133
+msgid "Upgrade to unlock audit history"
+msgstr "Upgrade to unlock audit history"
+
+#: apps/erp/app/components/ItemThumnailUpload.tsx:189
+msgid "Upload"
+msgstr "Upload"
+
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:139
+msgid "Upload CSV"
+msgstr "Upload CSV"
+
+#. placeholder {0}: file.name
+#: apps/erp/app/components/Documents.tsx:214
+msgid "Uploaded: {0}"
+msgstr "Uploaded: {0}"
+
+#. placeholder {0}: file.name
+#: apps/erp/app/components/Documents.tsx:199
+#: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:77
+#: apps/erp/app/components/ItemThumnailUpload.tsx:78
+msgid "Uploading {0}"
+msgstr "Uploading {0}"
+
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:78
+msgid "Uploading {fileName}"
+msgstr "Uploading {fileName}"
+
+#: apps/erp/app/routes/x+/settings+/items.tsx:180
+msgid "Use metric system for default material dimensions."
+msgstr "Use metric system for default material dimensions."
+
+#: apps/erp/app/routes/x+/part+/$itemId.tsx:165
+#: apps/erp/app/routes/x+/tool+/$itemId.tsx:161
+msgid "Used In"
+msgstr "Used In"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:94
+msgid "Used in the navigation and on documents like sales orders"
+msgstr "Used in the navigation and on documents like sales orders"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:109
+msgid "Used in the navigation in dark mode"
+msgstr "Used in the navigation in dark mode"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:123
+msgid "Used on the home screen and digital quotes"
+msgstr "Used on the home screen and digital quotes"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:136
+msgid "Used on the home screen in dark mode"
+msgstr "Used on the home screen in dark mode"
+
+#: apps/erp/app/hooks/useModules.tsx:100
+#: apps/erp/app/routes/x+/settings+/billing.tsx:233
+msgid "Users"
+msgstr "Users"
+
+#: apps/erp/app/components/OnshapeSync.tsx:280
+msgid "Version:"
+msgstr "Version:"
+
+#: apps/erp/app/components/Documents.tsx:339
+#: apps/erp/app/routes/x+/quality+/_index.tsx:377
+#: apps/erp/app/routes/x+/quality+/_index.tsx:404
+#: apps/erp/app/routes/x+/quality+/_index.tsx:431
+msgid "View"
+msgstr "View"
+
+#: apps/erp/app/routes/x+/production+/_index.tsx:316
+msgid "View Active Jobs"
+msgstr "View Active Jobs"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:406
+msgid "View Active Quotes"
+msgstr "View Active Quotes"
+
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:179
+msgid "View All"
+msgstr "View All"
+
+#: apps/erp/app/routes/x+/production+/_index.tsx:342
+msgid "View Assigned Jobs"
+msgstr "View Assigned Jobs"
+
+#: apps/erp/app/components/TrainingPanel.tsx:73
+msgid "View in Academy"
+msgstr "View in Academy"
+
+#: apps/erp/app/routes/x+/production+/_index.tsx:853
+msgid "View maintenance dispatch"
+msgstr "View maintenance dispatch"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:368
+msgid "View Open"
+msgstr "View Open"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:464
+msgid "View Open Invoices"
+msgstr "View Open Invoices"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:451
+msgid "View Open Orders"
+msgstr "View Open Orders"
+
+#: apps/erp/app/routes/x+/purchasing+/_index.tsx:435
+msgid "View Open POs"
+msgstr "View Open POs"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:422
+msgid "View Open Quotes"
+msgstr "View Open Quotes"
+
+#: apps/erp/app/routes/x+/sales+/_index.tsx:393
+msgid "View Open RFQs"
+msgstr "View Open RFQs"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:426
+msgid "View Reactive"
+msgstr "View Reactive"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:397
+msgid "View Scheduled"
+msgstr "View Scheduled"
+
+#: apps/erp/app/routes/x+/resources+/assignments.tsx:225
+msgid "View Status"
+msgstr "View Status"
+
+#: apps/erp/app/components/Chat/ChatWidgets.tsx:55
+msgid "Voice"
+msgstr "Voice"
+
+#: apps/erp/app/components/TrainingPanel.tsx:81
+msgid "Watch full video"
+msgstr "Watch full video"
+
+#: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:200
+msgid "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
+msgstr "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
+
+#: apps/erp/app/routes/onboarding+/company.tsx:216
+msgid "Website"
+msgstr "Website"
+
+#: apps/erp/app/routes/onboarding+/_index.tsx:36
+msgid "Welcome to Carbon"
+msgstr "Welcome to Carbon"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:133
+msgid "Wordmark Dark Mode"
+msgstr "Wordmark Dark Mode"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:120
+msgid "Wordmark Light Mode"
+msgstr "Wordmark Light Mode"
+
+#: apps/erp/app/routes/x+/resources+/_index.tsx:727
+msgid "Work Center"
+msgstr "Work Center"
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:222
+msgid "Work instructions are included"
+msgstr "Work instructions are included"
+
+#: apps/erp/app/routes/x+/settings+/production.tsx:224
+msgid "Work instructions are not included"
+msgstr "Work instructions are not included"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:236
+msgid "Work shift tracking is active."
+msgstr "Work shift tracking is active."
+
+#: apps/erp/app/hooks/useCustomColumns.tsx:45
+msgid "Yes"
+msgstr "Yes"
+
+#: apps/erp/app/routes/onboarding+/theme.tsx:126
+msgid "You can change the UI style any time through the theme setting"
+msgstr "You can change the UI style any time through the theme setting"
+
+#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
+#: apps/erp/app/components/TimeCardWarning.tsx:119
+msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
+msgstr "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
+
+#: apps/erp/app/components/TimeCardWarning.tsx:110
+msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
+msgstr "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
+
+#: apps/erp/app/routes/x+/settings+/people.tsx:262
+msgid "Your Console PIN"
+msgstr "Your Console PIN"
+
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:136
+msgid "yourself"
+msgstr "yourself"

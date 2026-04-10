@@ -1,0 +1,1290 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-09 13:22-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: zh\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:128
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:121
+msgid "Account Manager"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:543
+msgid "Accumulation Period:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierApprovalModal.tsx:74
+msgid "Add any notes about your decision..."
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContacts.tsx:80
+msgid "Add Contractor"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderExplorer.tsx:124
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderExplorer.tsx:141
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQExplorer.tsx:106
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQExplorer.tsx:125
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteExplorer.tsx:108
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteExplorer.tsx:125
+msgid "Add Line Item"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocations.tsx:63
+msgid "Add Partner"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderSummary.tsx:494
+msgid "Add Shipping"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:410
+msgid "Add Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:326
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:214
+msgid "Approve"
+msgstr ""
+
+#. placeholder {0}: line.description
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/DeletePurchasingRFQLine.tsx:23
+msgid "Are you sure you want to delete the line: {0}? This cannot be undone."
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/DeletePurchaseOrderLine.tsx:28
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/DeleteSupplierQuoteLine.tsx:27
+msgid "Are you sure you want to delete the line: {itemReadableId}? This cannot be undone."
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:211
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:138
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:132
+msgid "Assignee"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:197
+msgid "Back"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:87
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:320
+msgid "Buyer"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:129
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:116
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:506
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/FinalizeRFQModal.tsx:153
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:265
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierApprovalModal.tsx:79
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:120
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:356
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocationForm.tsx:105
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcessForm.tsx:142
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:288
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:102
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:301
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:478
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:183
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypeForm.tsx:100
+msgid "Cancel"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:767
+msgid "Cannot place order - no supplier associated with this item"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:370
+msgid "Cannot send RFQ"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:292
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:144
+msgid "Carbon client not available"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:73
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:80
+msgid "Carbon client not found"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:122
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:109
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:170
+msgid "CC"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:760
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:544
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:87
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:178
+msgid "Close"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:264
+msgid "Compare and Order"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:221
+msgid "Compare at quantity:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:274
+msgid "Compare Quotes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:203
+msgid "Compare Supplier Quotes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:70
+msgid "Configure"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/FinalizeRFQModal.tsx:137
+msgid "Contact (optional)"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContacts.tsx:101
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:36
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:296
+msgid "Contacts"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
+msgid "Conversion"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:514
+msgid "Conversion:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:168
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:183
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:152
+msgid "Copy"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContacts.tsx:68
+msgid "Create Account"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:293
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:189
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:211
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:180
+msgid "Created At"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:276
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:155
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:194
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:163
+msgid "Created By"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:174
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:429
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:139
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:162
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:184
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:313
+msgid "Currency"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:145
+msgid "Customer"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:366
+msgid "Deactivate"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:348
+msgid "Deactivate Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:425
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:243
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:159
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:322
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:234
+msgid "Delete"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContacts.tsx:52
+msgid "Delete Contact"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderExplorer.tsx:248
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQExplorer.tsx:222
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:194
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteExplorer.tsx:236
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:231
+msgid "Delete Line"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocations.tsx:51
+msgid "Delete Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:111
+msgid "Delete Process"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:173
+msgid "Delete Purchase Order"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:380
+msgid "Delete Purchase Orders"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:126
+msgid "Delete RFQ"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:169
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:263
+msgid "Delete Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:164
+msgid "Delete Supplier Quote"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypesTable.tsx:78
+msgid "Delete Supplier Type"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:133
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:389
+msgid "Delivery Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:122
+msgid "Delivery Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:236
+msgid "Description"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:30
+msgid "Details"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:199
+msgid "Digital Quote"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:152
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:315
+msgid "Download"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:138
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:260
+msgid "Drop Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:270
+msgid "Drop Shipment Statuses"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:637
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:85
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:130
+msgid "Due Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:397
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderSummary.tsx:132
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:232
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:223
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSummary.tsx:134
+msgid "Edit"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContacts.tsx:42
+msgid "Edit Contact"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocations.tsx:42
+msgid "Edit Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:96
+msgid "Edit Process"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderSummary.tsx:472
+msgid "Edit Shipping"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:252
+msgid "Edit Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:78
+msgid "Edit supplier process"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypesTable.tsx:66
+msgid "Edit Supplier Type"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:106
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:93
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:97
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:82
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:135
+msgid "Email"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/FinalizeRFQModal.tsx:100
+msgid "Email notifications not configured"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:255
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:107
+msgid "Error downloading file"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:93
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:100
+msgid "Error fetching supplier data"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:154
+msgid "Expiration Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineNotes.tsx:138
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionNotes.tsx:131
+msgid "External"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLinePricing.tsx:141
+msgid "Failed to insert supplier quote line"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:111
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:138
+msgid "Failed to load item details"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:110
+msgid "Failed to load supplier part details"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLinePricing.tsx:130
+msgid "Failed to update supplier quote line"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineNotes.tsx:71
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionNotes.tsx:70
+msgid "Failed to upload image"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:104
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:178
+msgid "Fax"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:77
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:234
+msgid "Files"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:119
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:247
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:202
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:236
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:251
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:237
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:490
+msgid "Finalize"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:98
+msgid "First Name"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:102
+msgid "Home Phone"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineNotes.tsx:135
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionNotes.tsx:128
+msgid "Internal"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:427
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:480
+msgid "Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:87
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierPaymentForm.tsx:65
+msgid "Invoice Contact"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:82
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierPaymentForm.tsx:60
+msgid "Invoice Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:77
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierPaymentForm.tsx:55
+msgid "Invoice Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:83
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:50
+msgid "Invoices"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:528
+msgid "Item"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:295
+msgid "Item ID"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:697
+msgid "Job"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:99
+msgid "Last Name"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:356
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:127
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:784
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:315
+msgid "Lead Time"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:497
+msgid "Lead Time:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:520
+msgid "Line Item Comparison"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:462
+msgid "Lines need prices or lead times"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:147
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:162
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:132
+msgid "Link"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:150
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:171
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:572
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:172
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:107
+msgid "Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocations.tsx:84
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:44
+msgid "Locations"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:583
+msgid "Lot Size:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:200
+msgid "Make Inactive"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:23
+msgid "Manage"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:235
+msgid "Mark as Planned"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:531
+msgid "Maximum Inventory:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:599
+msgid "Maximum Order:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:122
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcessForm.tsx:120
+msgid "Minimum Cost"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:591
+msgid "Minimum Order:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:101
+msgid "Mobile Phone"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderExplorer.tsx:229
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQExplorer.tsx:203
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:187
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:143
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:308
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteExplorer.tsx:219
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:221
+msgid "More"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:153
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:109
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:154
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:147
+msgid "More options"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:114
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocationForm.tsx:94
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:68
+msgid "Name"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:354
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:379
+msgid "New"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:442
+msgid "New Invoice"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderExplorer.tsx:147
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQExplorer.tsx:131
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteExplorer.tsx:131
+msgid "New Line Item"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:660
+msgid "New PO"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:372
+msgid "New Receipt"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:276
+msgid "New Shipment"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:267
+msgid "No"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:254
+msgid "No Active Quotes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:337
+msgid "No files"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:173
+msgid "No files uploaded"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:505
+msgid "No pricing for selected quantity"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:798
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:329
+msgid "No pricing options found"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:102
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:89
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:78
+msgid "None"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:110
+msgid "Notes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierApprovalModal.tsx:73
+msgid "Notes (optional)"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:387
+msgid "OK"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:402
+msgid "On Hand"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:707
+msgid "Operation"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:776
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:316
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:335
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:254
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:260
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:278
+msgid "Order"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:327
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:152
+msgid "Order Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:518
+msgid "Order Parts"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:201
+msgid "Order Total"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:323
+msgid "Ordering"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:78
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:44
+msgid "Orders"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:295
+msgid "Orders submitted"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:215
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:251
+msgid "Part"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:69
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:52
+msgid "Payment"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:93
+msgid "Payment Complete"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:245
+msgid "Payment Method"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierPaymentForm.tsx:69
+msgid "Payment Term"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:91
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierPaymentForm.tsx:47
+msgid "Payment Terms"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:206
+msgid "PDF"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:170
+msgid "Phone"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:59
+msgid "Plan"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:580
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:62
+msgid "Planning"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:613
+msgid "PO"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:87
+msgid "PO Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:195
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:137
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:186
+msgid "Preview"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLinePricing.tsx:154
+msgid "Prices"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:70
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcessForm.tsx:117
+msgid "Process"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:59
+msgid "Processes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:132
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:168
+msgid "Promised Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:452
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderSummary.tsx:411
+msgid "Purchase Order"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:144
+msgid "Purchase Order ID"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:406
+msgid "Purchase Order Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:457
+msgid "Purchase Orders"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:629
+msgid "Purchase Qty"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:242
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:293
+msgid "Purchase Unit of Measure"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:492
+msgid "Purchase Unit:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:135
+msgid "Purchasing Contact"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:413
+msgid "Qty to Order"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:450
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:269
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:775
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:322
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:306
+msgid "Quantity"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:67
+msgid "Quote Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:175
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:294
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:146
+msgid "Quoted Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:72
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:38
+msgid "Quotes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:568
+msgid "Recalculate"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:369
+msgid "Receipt Promised Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:348
+msgid "Receipt Requested Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:355
+msgid "Receipts"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:407
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:411
+msgid "Receive"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:86
+msgid "Receiving Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:469
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:351
+msgid "Refresh"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:338
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:225
+msgid "Reject"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:717
+msgid "Remove order"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:529
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:297
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:325
+msgid "Reopen"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:525
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:565
+msgid "Reorder Point:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:372
+msgid "Reorder Policy"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:476
+msgid "Reorder Policy:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:571
+msgid "Reorder Quantity:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:189
+msgid "Request Approval"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:131
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:160
+msgid "Requested Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:437
+msgid "Required Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:265
+#: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:175
+msgid "RFQ"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:84
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:260
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:122
+msgid "RFQ Date"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:377
+msgid "RFQ has no suppliers"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:79
+msgid "RFQ ID"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:297
+msgid "RFQ Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:52
+msgid "RFQ Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:269
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:32
+msgid "RFQs"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:66
+msgid "Risks"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:551
+msgid "Safety Stock:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:160
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:205
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:633
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:99
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:101
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:286
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:117
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:151
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocationForm.tsx:102
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierPaymentForm.tsx:76
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcessForm.tsx:139
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierShippingForm.tsx:90
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:245
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:339
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypeForm.tsx:97
+msgid "Save"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:396
+msgid "Select"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:67
+msgid "Select Quantities"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:118
+msgid "Select Supplier Status"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:124
+msgid "Select Supplier Type"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:105
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:218
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:186
+msgid "Send"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/FinalizeRFQModal.tsx:86
+msgid "Send RFQ to Suppliers"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:98
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:85
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:74
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:127
+msgid "Send Via"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:151
+msgid "Share"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:131
+msgid "Share Link"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:528
+msgid "Share Quote"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:589
+msgid "Shelf"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:311
+msgid "Ship"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:259
+msgid "Shipments"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:104
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:522
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierShippingForm.tsx:53
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:781
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:312
+msgid "Shipping"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierShippingForm.tsx:71
+msgid "Shipping Contact"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:112
+msgid "Shipping Cost"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierShippingForm.tsx:66
+msgid "Shipping Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:128
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:229
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierShippingForm.tsx:77
+msgid "Shipping Method"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierShippingForm.tsx:61
+msgid "Shipping Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:275
+msgid "Short Description"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcessForm.tsx:129
+msgid "Standard Lead Time"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:621
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:124
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:102
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:105
+msgid "Status"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:138
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:116
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:117
+msgid "Statuses"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:338
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:336
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:151
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:107
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcessForm.tsx:113
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:307
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:157
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:87
+msgid "Supplier"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:459
+msgid "Supplier added and selected"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:166
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:170
+msgid "Supplier Contact"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:161
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:164
+msgid "Supplier Location"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:157
+msgid "Supplier Order Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:281
+msgid "Supplier Part Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:153
+msgid "Supplier Processes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:235
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:257
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSummary.tsx:318
+msgid "Supplier Quote"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:150
+msgid "Supplier Quote ID"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:261
+msgid "Supplier Quotes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:144
+msgid "Supplier Ref."
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:261
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:160
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:207
+msgid "Supplier Ref. Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:123
+msgid "Supplier Reference"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:117
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:82
+msgid "Supplier Status"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:123
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypeForm.tsx:90
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypesTable.tsx:31
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypesTable.tsx:94
+msgid "Supplier Type"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:304
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypesTable.tsx:100
+msgid "Supplier Types"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:391
+msgid "Supplier updated"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:485
+msgid "Supplier:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:326
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:83
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:221
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:66
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:292
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:312
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:26
+msgid "Suppliers"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:313
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:138
+msgid "Tags"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:540
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:787
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:318
+msgid "Tax"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:140
+msgid "Tax ID"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:604
+msgid "Tax Percent"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:257
+msgid "There are no active supplier quotes to compare for this RFQ."
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:100
+msgid "Title"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:139
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:95
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:133
+msgid "Toggle Explorer"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:534
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:302
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:331
+msgid "Toggle Properties"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:790
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:321
+msgid "Total Price"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:475
+msgid "Total:"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:135
+msgid "Tracking Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:429
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderForm.tsx:187
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:100
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:226
+msgid "Type"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:73
+msgid "Types"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:341
+msgid "Unit"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:478
+msgid "Unit of Measure"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:347
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:505
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:778
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:309
+msgid "Unit Price"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:318
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:214
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:236
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:205
+msgid "Updated At"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:301
+#: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:197
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:219
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:188
+msgid "Updated By"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
+msgid "VAT Number"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContacts.tsx:43
+msgid "View Contact"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderExplorer.tsx:262
+#: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteExplorer.tsx:249
+msgid "View Item Master"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/SupplierTypes/SupplierTypesTable.tsx:57
+msgid "View Suppliers"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:142
+#: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:186
+msgid "Website"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:103
+msgid "Work Phone"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:266
+msgid "Yes"
+msgstr ""
+
+#: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContacts.tsx:110
+msgid "You haven't created any contacts yet."
+msgstr ""

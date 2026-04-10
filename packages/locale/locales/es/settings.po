@@ -1,0 +1,723 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-09 13:22-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: es\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
+#. placeholder {0}: rule.escalationDays
+msgid "{0} days"
+msgstr "{0} días"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:88
+msgid "{scopeCount} permissions"
+msgstr "{scopeCount} permisos"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:94
+msgid "1 day"
+msgstr "1 día"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:459
+msgid "Actions"
+msgstr "Acciones"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:130
+msgid "Active"
+msgstr "Activo"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:82
+msgid "All changes to auditable entities are being recorded."
+msgstr "Todos los cambios en entidades auditables se están registrando."
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:121
+msgid "All members of selected groups and selected individuals will be able to approve requests"
+msgstr "Todos los miembros de los grupos seleccionados e individuos seleccionados podrán aprobar solicitudes"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:209
+msgid "API Docs"
+msgstr "Documentación de API"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:176
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:189
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:203
+msgid "API Key"
+msgstr "Clave API"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:124
+msgid "API Keys"
+msgstr "Claves API"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:41
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:130
+msgid "Approval Rules"
+msgstr "Reglas de Aprobación"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:105
+msgid "Archived Logs"
+msgstr "Registros Archivados"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:231
+#. placeholder {0}: selectedCustomField?.name
+msgid "Are you sure you want to delete the {0} field?"
+msgstr "¿Estás seguro de que deseas eliminar el campo {0}?"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:150
+msgid "Are you sure you want to delete this approval rule? This cannot be undone."
+msgstr "¿Está seguro de que desea eliminar esta regla de aprobación? Esto no se puede deshacer."
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:295
+msgid "Audit Log"
+msgstr "Registro de Auditoría"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:61
+msgid "Audit Logging"
+msgstr "Registro de Auditoría"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:77
+msgid "Audit logging is disabled"
+msgstr "El registro de auditoría está deshabilitado"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:75
+msgid "Audit logging is enabled"
+msgstr "El registro de auditoría está habilitado"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:89
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:136
+msgid "Audit Logs"
+msgstr "Registros de Auditoría"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:34
+msgid "Base Currency"
+msgstr "Moneda Base"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:46
+msgid "Billing"
+msgstr "Facturación"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:133
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:153
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:144
+#: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:119
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:139
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
+msgid "Change"
+msgstr "Cambiar"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:240
+msgid "Changed By"
+msgstr "Cambiado por"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:257
+msgid "Changes"
+msgstr "Cambios"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:238
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:502
+msgid "Close"
+msgstr "Cerrar"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:84
+msgid "Coming soon"
+msgstr "Próximamente"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:37
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:40
+msgid "Company"
+msgstr "Empresa"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:28
+msgid "Company Name"
+msgstr "Nombre de la Empresa"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:195
+msgid "Copy API Key"
+msgstr "Copiar clave API"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:215
+msgid "Copy MCP Command"
+msgstr "Copiar comando MCP"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:149
+msgid "Create Rule"
+msgstr "Crear Regla"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:153
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:111
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:152
+msgid "Created At"
+msgstr "Creado en"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:114
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:106
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:135
+msgid "Created By"
+msgstr "Creado por"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:51
+msgid "Created webhook"
+msgstr "Webhook creado"
+
+#: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:81
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:53
+msgid "Current"
+msgstr "Actual"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:221
+msgid "Custom Field"
+msgstr "Campo Personalizado"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:128
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:142
+msgid "Custom Fields"
+msgstr "Campos Personalizados"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:113
+msgid "Data Type"
+msgstr "Tipo de Dato"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:116
+msgid "Data type cannot be changed"
+msgstr "El tipo de dato no se puede cambiar"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:78
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:126
+msgid "Default Approver"
+msgstr "Aprobador Predeterminado"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:184
+msgid "Delete API Key"
+msgstr "Eliminar clave API"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:159
+msgid "Delete Custom Field"
+msgstr "Eliminar Campo Personalizado"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:126
+msgid "Delete Rule"
+msgstr "Eliminar Regla"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:183
+msgid "Delete Webhook"
+msgstr "Eliminar Webhook"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:101
+msgid "Details"
+msgstr "Detalles"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:90
+msgid "Disabled"
+msgstr "Deshabilitado"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:139
+msgid "Download"
+msgstr "Descargar"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:195
+msgid "Drag handle"
+msgstr "Tirador de arrastre"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:82
+msgid "Edit"
+msgstr "Editar"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:107
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:173
+msgid "Edit API Key"
+msgstr "Editar Clave API"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:87
+msgid "Edit Approval Rule"
+msgstr "Editar Regla de Aprobación"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:99
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:154
+msgid "Edit Custom Field"
+msgstr "Editar Campo Personalizado"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:114
+msgid "Edit Rule"
+msgstr "Editar Regla"
+
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:99
+msgid "Edit Sequence"
+msgstr "Editar Secuencia"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:83
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:172
+msgid "Edit Webhook"
+msgstr "Editar Webhook"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:39
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:133
+msgid "Enable this rule to automatically require approval for matching documents"
+msgstr "Habilita esta regla para requerir automáticamente aprobación para documentos coincidentes"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:86
+msgid "Enable to start tracking changes to your data."
+msgstr "Habilita para comenzar a rastrear cambios en tus datos."
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:88
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:132
+msgid "Enabled"
+msgstr "Habilitado"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:207
+msgid "Entities"
+msgstr "Entidades"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:173
+msgid "Entity"
+msgstr "Entidad"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:91
+msgid "Escalation"
+msgstr "Escalada"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
+msgid "Expired"
+msgstr "Expirado"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:131
+msgid "Expires"
+msgstr "Expira"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:121
+msgid "Expires At (optional)"
+msgstr "Expira en (opcional)"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:53
+#. placeholder {0}: fetcher.data.error.message
+msgid "Failed to create webhook: {0}"
+msgstr "Error al crear webhook: {0}"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:158
+msgid "Failed to remove image: {errorMessage}"
+msgstr "Error al eliminar la imagen: {errorMessage}"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:122
+msgid "Failed to resize image: {errorMessage}"
+msgstr "Error al redimensionar la imagen: {errorMessage}"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:138
+msgid "Failed to upload logo: {errorMessage}"
+msgstr "Error al cargar el logo: {errorMessage}"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:38
+msgid "Fax Number"
+msgstr "Número de Fax"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:61
+msgid "Fields"
+msgstr "Campos"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:80
+#. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
+msgid "File size exceeds {maxSizeMB}MB limit. Current size: {0}MB"
+msgstr "El tamaño del archivo excede el límite de {maxSizeMB}MB. Tamaño actual: {0}MB"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:70
+msgid "File type not supported. Please use JPG, PNG, WebP, or GIF."
+msgstr "Tipo de archivo no compatible. Por favor, usa JPG, PNG, WebP o GIF."
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:416
+msgid "How it works"
+msgstr "Cómo funciona"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:125
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:496
+msgid "Install"
+msgstr "Instalar"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:79
+msgid "Installed"
+msgstr "Instalado"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:367
+msgid "Integration not found"
+msgstr "Integración no encontrada"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:148
+msgid "Integrations"
+msgstr "Integraciones"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:71
+msgid "Inventory"
+msgstr "Inventario"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:77
+msgid "Items"
+msgstr "Artículos"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:64
+msgid "Key"
+msgstr "Clave"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:54
+msgid "Labels"
+msgstr "Etiquetas"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:126
+msgid "List Options"
+msgstr "Opciones de Lista"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:162
+msgid "Logo removed successfully"
+msgstr "Logo eliminado exitosamente"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:143
+msgid "Logo uploaded successfully"
+msgstr "Logo cargado exitosamente"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:60
+msgid "Logos"
+msgstr "Logos"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:108
+#. placeholder {0}: auditConfig.retentionDays
+msgid "Logs older than {0} days are automatically archived."
+msgstr "Los registros más antiguos que {0} días se archivan automáticamente."
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:209
+msgid "MCP Command"
+msgstr "Comando MCP"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:54
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:108
+msgid "Minimum Amount"
+msgstr "Cantidad Mínima"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:47
+msgid "Module"
+msgstr "Módulo"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:68
+msgid "Modules"
+msgstr "Módulos"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:99
+msgid "More options"
+msgstr "Más opciones"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:117
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:54
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:108
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:35
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:118
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:71
+msgid "Name"
+msgstr "Nombre"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:137
+msgid "Never"
+msgstr "Nunca"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:109
+msgid "New API Key"
+msgstr "Nueva Clave API"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:89
+msgid "New Approval Rule"
+msgstr "Nueva Regla de Aprobación"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:101
+msgid "New Custom Field"
+msgstr "Nuevo Campo Personalizado"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:103
+msgid "New Field"
+msgstr "Nuevo Campo"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:63
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:108
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:149
+msgid "New Rule"
+msgstr "Nueva Regla"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:85
+msgid "New Webhook"
+msgstr "Nuevo Webhook"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:88
+msgid "No Access"
+msgstr "Sin acceso"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:146
+#. placeholder {0}: auditConfig.retentionDays
+msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
+msgstr "No hay registros archivados aún. Los registros más antiguos de {0} días se archivarán automáticamente y estarán disponibles para descargar aquí."
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:72
+msgid "No groups assigned"
+msgstr "No hay grupos asignados"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:236
+msgid "No logo uploaded"
+msgstr "Sin logo cargado"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:83
+msgid "Not set"
+msgstr "No establecido"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:96
+msgid "Notifications"
+msgstr "Notificaciones"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:212
+msgid "Operation"
+msgstr "Operación"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:83
+msgid "People"
+msgstr "Personas"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:37
+msgid "Phone Number"
+msgstr "Número de Teléfono"
+
+#: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:75
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:45
+msgid "Prefix"
+msgstr "Prefijo"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:95
+msgid "Production"
+msgstr "Producción"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:397
+msgid "Published by Carbon"
+msgstr "Publicado por Carbon"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:147
+msgid "Purchase Order approval rule"
+msgstr "Regla de aprobación de orden de compra"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:51
+msgid "Purchase Orders"
+msgstr "Órdenes de Compra"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:89
+msgid "Purchasing"
+msgstr "Compras"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:101
+msgid "Quality"
+msgstr "Calidad"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:148
+msgid "Quality Document approval rule"
+msgstr "Regla de aprobación de documento de calidad"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:93
+msgid "Quality Documents"
+msgstr "Documentos de Calidad"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:98
+msgid "Rate Limit"
+msgstr "Límite de Velocidad"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:211
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:247
+msgid "Remove"
+msgstr "Eliminar"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:141
+msgid "Require approval before suppliers can be set to Active"
+msgstr "Requerir aprobación antes de que los proveedores puedan establecerse como Activos"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:54
+msgid "Require approval for purchase orders based on amount thresholds"
+msgstr "Requerir aprobación para órdenes de compra basadas en umbrales de cantidad"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:96
+msgid "Require approval for quality documents in your workflow"
+msgstr "Requerir aprobación para documentos de calidad en su flujo de trabajo"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:113
+msgid "Resources"
+msgstr "Recursos"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:107
+msgid "Sales"
+msgstr "Ventas"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:130
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:43
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:141
+#: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:116
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:136
+msgid "Save"
+msgstr "Guardar"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:79
+msgid "Scopes"
+msgstr "Alcances"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:63
+msgid "Search"
+msgstr "Buscar"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:127
+msgid "Select a default approver"
+msgstr "Selecciona un aprobador predeterminado"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:120
+msgid "Select groups or individuals"
+msgstr "Seleccionar grupos o individuos"
+
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:113
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:154
+msgid "Sequences"
+msgstr "Secuencias"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:426
+msgid "Setup Instructions"
+msgstr "Instrucciones de configuración"
+
+#: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:88
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:61
+msgid "Size"
+msgstr "Tamaño"
+
+#: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:95
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:69
+msgid "Step"
+msgstr "Paso"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:122
+msgid "Success"
+msgstr "Éxito"
+
+#: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:99
+#: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:77
+msgid "Suffix"
+msgstr "Sufijo"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:138
+msgid "Suppliers"
+msgstr "Proveedores"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:121
+msgid "System"
+msgstr "Sistema"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:32
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:93
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:93
+msgid "Table"
+msgstr "Tabla"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:29
+msgid "Tax ID"
+msgstr "ID Fiscal"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:125
+msgid "The endpoint that receives a POST request with the updated data when the table is updated"
+msgstr "El endpoint que recibe una solicitud POST con los datos actualizados cuando la tabla se actualiza"
+
+#: apps/erp/app/modules/settings/ui/Theme/ThemeForm.tsx:45
+msgid "Theme"
+msgstr "Tema"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:133
+msgid "These custom fields will only be available for entities with the same tags"
+msgstr "Estos campos personalizados solo estarán disponibles para entidades con las mismas etiquetas"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:119
+msgid "This is a unique identifier for the webhook"
+msgstr "Este es un identificador único para el webhook"
+
+#: apps/erp/app/modules/settings/ui/Theme/ThemeForm.tsx:48
+msgid "This updates the theme for all users of the application"
+msgstr "Esto actualiza el tema para todos los usuarios de la aplicación"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:64
+msgid "Track changes to key business entities including invoices, orders, customers, suppliers, and more."
+msgstr "Realiza un seguimiento de los cambios en entidades comerciales clave, incluidas facturas, pedidos, clientes, proveedores y más."
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:92
+msgid "Track every change to your orders, invoices, customers, suppliers, and more."
+msgstr "Realiza un seguimiento de cada cambio en tus pedidos, facturas, clientes, proveedores y más."
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:116
+msgid "Uninstall"
+msgstr "Desinstalar"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:492
+msgid "Update"
+msgstr "Actualizar"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:147
+msgid "Update Rule"
+msgstr "Actualizar Regla"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:100
+msgid "Upgrade to Business"
+msgstr "Actualizar a Business"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
+msgid "Upload"
+msgstr "Subir"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:30
+msgid "VAT Number"
+msgstr "Número de IVA"
+
+#: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:113
+msgid "View Custom Fields"
+msgstr "Ver Campos Personalizados"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:208
+msgid "Webhook"
+msgstr "Webhook"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:322
+msgid "Webhook Documentation"
+msgstr "Documentación de Webhook"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:124
+msgid "Webhook URL"
+msgstr "URL de Webhook"
+
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:160
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:222
+msgid "Webhooks"
+msgstr "Webhooks"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:217
+msgid "Webhooks Docs"
+msgstr "Documentación de Webhooks"
+
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:40
+msgid "Website"
+msgstr "Sitio web"
+
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:274
+msgid "When"
+msgstr "Cuándo"
+
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:62
+#: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:118
+msgid "Who Can Approve"
+msgstr "Quién Puede Aprobar"
+
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:184
+msgid "You can only see this key once. Store it safely."
+msgstr "Solo puedes ver esta clave una vez. Guárdala de forma segura."

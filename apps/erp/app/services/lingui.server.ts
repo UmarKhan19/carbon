@@ -1,9 +1,12 @@
 import { resolveLanguage, type SupportedLanguage } from "@carbon/locale";
 import type { Messages } from "@lingui/core";
 
-const catalogLoaders = import.meta.glob("../locales/*/*.mjs", {
-  import: "messages"
-}) as Record<string, () => Promise<Messages>>;
+const catalogLoaders = import.meta.glob(
+  "../../../../packages/locale/locales/*/*.mjs",
+  {
+    import: "messages"
+  }
+) as Record<string, () => Promise<Messages>>;
 
 type LinguiNamespace =
   | "account"
@@ -76,7 +79,7 @@ async function loadCatalog(
   language: SupportedLanguage,
   namespace: LinguiNamespace
 ) {
-  const catalogPath = `../locales/${language}/${namespace}.mjs`;
+  const catalogPath = `../../../../packages/locale/locales/${language}/${namespace}.mjs`;
   const load = catalogLoaders[catalogPath];
   if (!load) {
     return {};

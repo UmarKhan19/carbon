@@ -1,0 +1,1785 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-06 02:39+0530\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: attachment.name
+#. placeholder {0}: file.name
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:322
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:96
+msgid "{0} deleted successfully"
+msgstr "{0} deleted successfully"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:95
+msgid "A customer is a business or person who buys your parts or services."
+msgstr "A customer is a business or person who buys your parts or services."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:137
+msgid "A quote is a set of prices for specific parts and quantities."
+msgstr "A quote is a set of prices for specific parts and quantities."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:312
+msgid "A quote line contains pricing and lead times for a particular part"
+msgstr "A quote line contains pricing and lead times for a particular part"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:142
+msgid "A sales order contains information about the agreement between the company and a specific customer for parts and services."
+msgstr "A sales order contains information about the agreement between the company and a specific customer for parts and services."
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:266
+msgid "A sales order line contains order details for a particular item"
+msgstr "A sales order line contains order details for a particular item"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:126
+msgid "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote."
+msgstr "A sales request for quote (RFQ) is a customer inquiry for pricing on a set of parts and quantities. It may result in a quote."
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:129
+#: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:148
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:127
+msgid "Account Manager"
+msgstr "Account Manager"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:586
+msgid "Add Item"
+msgstr "Add Item"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:184
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:201
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:204
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:221
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQExplorer.tsx:148
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQExplorer.tsx:165
+msgid "Add Line Item"
+msgstr "Add Line Item"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:943
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:270
+msgid "Add Shipping"
+msgstr "Add Shipping"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:477
+msgid "Add-On"
+msgstr "Add-On"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:529
+msgid "Add-On Cost"
+msgstr "Add-On Cost"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:245
+msgid "All jobs completed"
+msgstr "All jobs completed"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:709
+msgid "An item cannot be added to itself."
+msgstr "An item cannot be added to itself."
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:123
+msgid "Are you sure you want to confirm this sales order? Confirming the order will affect on order quantities used to calculate supply and demand."
+msgstr "Are you sure you want to confirm this sales order? Confirming the order will affect on order quantities used to calculate supply and demand."
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:469
+msgid "Are you sure you want to convert the RFQ to a quote?"
+msgstr "Are you sure you want to convert the RFQ to a quote?"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:619
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:153
+msgid "Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs."
+msgstr "Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs."
+
+#. placeholder {0}: tool.readableIdWithRevision
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2593
+msgid "Are you sure you want to delete {0} from this operation? This cannot be undone."
+msgstr "Are you sure you want to delete {0} from this operation? This cannot be undone."
+
+#. placeholder {0}: routeData?.customer?.name!
+#. placeholder {0}: routeData?.quote ?.quoteId!
+#. placeholder {0}: routeData?.rfqSummary ?.rfqId!
+#: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:204
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:340
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:404
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:331
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:639
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:617
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:297
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:272
+msgid "Are you sure you want to delete {0}? This cannot be undone."
+msgstr "Are you sure you want to delete {0}? This cannot be undone."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1711
+msgid "Are you sure you want to delete the {key} parameter from this operation? This cannot be undone."
+msgstr "Are you sure you want to delete the {key} parameter from this operation? This cannot be undone."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1495
+msgid "Are you sure you want to delete the {name} attribute from this operation? This cannot be undone."
+msgstr "Are you sure you want to delete the {name} attribute from this operation? This cannot be undone."
+
+#. placeholder {0}: line.customerPartId
+#. placeholder {0}: line.itemReadableId
+#: apps/erp/app/modules/sales/ui/SalesOrder/DeleteSalesOrderLine.tsx:23
+#: apps/erp/app/modules/sales/ui/SalesRFQ/DeleteSalesRFQLine.tsx:23
+msgid "Are you sure you want to delete the line: {0}? This cannot be undone."
+msgstr "Are you sure you want to delete the line: {0}? This cannot be undone."
+
+#: apps/erp/app/modules/sales/ui/Quotes/DeleteQuoteLine.tsx:28
+msgid "Are you sure you want to delete the line: {itemReadableId}? This cannot be undone."
+msgstr "Are you sure you want to delete the line: {itemReadableId}? This cannot be undone."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteFinalizeModal.tsx:154
+msgid "Are you sure you want to finalize the quote?"
+msgstr "Are you sure you want to finalize the quote?"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:179
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:380
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:134
+msgid "Assignee"
+msgstr "Assignee"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:956
+msgid "Backflush"
+msgstr "Backflush"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:575
+msgid "Bill of Material"
+msgstr "Bill of Material"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:838
+msgid "Bill of Process"
+msgstr "Bill of Process"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:886
+msgid "Bill To"
+msgstr "Bill To"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:487
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:527
+msgid "BoM"
+msgstr "BoM"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:507
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:547
+msgid "BoM + BoP"
+msgstr "BoM + BoP"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:466
+msgid "Bucket"
+msgstr "Bucket"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:121
+#: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:100
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:101
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:101
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:101
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:101
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1365
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteFinalizeModal.tsx:221
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:308
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:487
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:499
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:488
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:404
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:524
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:576
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:165
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:411
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:260
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:384
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:527
+msgid "Cancel"
+msgstr "Cancel"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1526
+msgid "Cannot add parameters to unsaved operation"
+msgstr "Cannot add parameters to unsaved operation"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:976
+msgid "Cannot add steps to unsaved operation"
+msgstr "Cannot add steps to unsaved operation"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2624
+msgid "Cannot add tools to unsaved operation"
+msgstr "Cannot add tools to unsaved operation"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:402
+msgid "Cannot convert RFQ to quote"
+msgstr "Cannot convert RFQ to quote"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:299
+msgid "Cannot move to parts bucket without item ID"
+msgstr "Cannot move to parts bucket without item ID"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:258
+msgid "Cannot upload to parts bucket without item ID"
+msgstr "Cannot upload to parts bucket without item ID"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:380
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:253
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:294
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:112
+msgid "Carbon client not available"
+msgstr "Carbon client not available"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:80
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:81
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:73
+msgid "Carbon client not found"
+msgstr "Carbon client not found"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:158
+msgid "CC"
+msgstr "CC"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:574
+msgid "Close"
+msgstr "Close"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:486
+msgid "Collapse Costs"
+msgstr "Collapse Costs"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:506
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:68
+msgid "Configure"
+msgstr "Configure"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:550
+msgid "Configure Item"
+msgstr "Configure Item"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:410
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:530
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:168
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:387
+msgid "Confirm"
+msgstr "Confirm"
+
+#. placeholder {0}: salesOrder?.salesOrderId
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:121
+msgid "Confirm {0}"
+msgstr "Confirm {0}"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:90
+msgid "Contact"
+msgstr "Contact"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContacts.tsx:90
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:38
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:310
+msgid "Contacts"
+msgstr "Contacts"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:352
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:531
+msgid "Convert"
+msgstr "Convert"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:197
+msgid "Convert Line to Job"
+msgstr "Convert Line to Job"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:297
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:618
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:152
+msgid "Convert Lines to Jobs"
+msgstr "Convert Lines to Jobs"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:466
+msgid "Convert to Quote"
+msgstr "Convert to Quote"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteProperties.tsx:157
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderProperties.tsx:161
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQProperties.tsx:137
+msgid "Copy"
+msgstr "Copy"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:150
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:462
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:520
+msgid "Copy Quote"
+msgstr "Copy Quote"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:561
+msgid "Copy this link to share the quote with a customer"
+msgstr "Copy this link to share the quote with a customer"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineCosting.tsx:62
+msgid "Costing"
+msgstr "Costing"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:200
+msgid "Create a new production job to fulfill the sales order"
+msgstr "Create a new production job to fulfill the sales order"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:469
+msgid "Create a quote with a new quote ID"
+msgstr "Create a quote with a new quote ID"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:620
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:147
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:154
+msgid "Create Jobs"
+msgstr "Create Jobs"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:159
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:460
+msgid "Create Quote Revision"
+msgstr "Create Quote Revision"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:518
+msgid "Create Revision"
+msgstr "Create Revision"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:123
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:469
+msgid "Created"
+msgstr "Created"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:217
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:243
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:496
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:185
+msgid "Created At"
+msgstr "Created At"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:200
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:226
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:479
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:151
+msgid "Created By"
+msgstr "Created By"
+
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:47
+msgid "Created customer portal"
+msgstr "Created customer portal"
+
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:47
+msgid "Created customer status"
+msgstr "Created customer status"
+
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:47
+msgid "Created customer type"
+msgstr "Created customer type"
+
+#. placeholder {0}: createdCustomer?.name ?? t`Customer`
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:61
+msgid "Created customer: {0}"
+msgstr "Created customer: {0}"
+
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:47
+msgid "Created no quote reason"
+msgstr "Created no quote reason"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:255
+msgid "Creating part..."
+msgstr "Creating part..."
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:140
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:168
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:211
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:231
+msgid "Currency"
+msgstr "Currency"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:61
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:91
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:36
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:326
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:164
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:97
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:939
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:171
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:144
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:137
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:156
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:73
+msgid "Customer"
+msgstr "Customer"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:927
+msgid "Customer Details"
+msgstr "Customer Details"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:187
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:189
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:173
+msgid "Customer Location"
+msgstr "Customer Location"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:88
+msgid "Customer Overview"
+msgstr "Customer Overview"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:429
+msgid "Customer Part Number"
+msgstr "Customer Part Number"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:441
+msgid "Customer Part Revision"
+msgstr "Customer Part Revision"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:956
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:353
+msgid "Customer PO"
+msgstr "Customer PO"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:174
+msgid "Customer PO Number"
+msgstr "Customer PO Number"
+
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:84
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:121
+msgid "Customer Portal"
+msgstr "Customer Portal"
+
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:127
+msgid "Customer Portals"
+msgstr "Customer Portals"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:171
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:143
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:949
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:159
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:109
+msgid "Customer RFQ"
+msgstr "Customer RFQ"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:119
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:37
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:99
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:84
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:91
+msgid "Customer Status"
+msgstr "Customer Status"
+
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:105
+msgid "Customer Statuses"
+msgstr "Customer Statuses"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:124
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:84
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:91
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:31
+msgid "Customer Type"
+msgstr "Customer Type"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:323
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:94
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:100
+msgid "Customer Types"
+msgstr "Customer Types"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:306
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:332
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:29
+msgid "Customers"
+msgstr "Customers"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineShipments.tsx:97
+msgid "Date"
+msgstr "Date"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:169
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:527
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:649
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:1137
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:295
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:575
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:237
+msgid "Delete"
+msgstr "Delete"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:117
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:277
+msgid "Delete Customer"
+msgstr "Delete Customer"
+
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:83
+msgid "Delete Customer Status"
+msgstr "Delete Customer Status"
+
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:78
+msgid "Delete Customer Type"
+msgstr "Delete Customer Type"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:569
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:336
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:346
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:291
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQExplorer.tsx:324
+msgid "Delete Line"
+msgstr "Delete Line"
+
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:105
+msgid "Delete Portal"
+msgstr "Delete Portal"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:171
+msgid "Delete Quote"
+msgstr "Delete Quote"
+
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:69
+msgid "Delete Reason"
+msgstr "Delete Reason"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:116
+msgid "Delete RFQ"
+msgstr "Delete RFQ"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:318
+msgid "Delete Sales Order"
+msgstr "Delete Sales Order"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:32
+msgid "Details"
+msgstr "Details"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:209
+msgid "Digital Quote"
+msgstr "Digital Quote"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:423
+msgid "Discount"
+msgstr "Discount"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:162
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:520
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:613
+msgid "Download"
+msgstr "Download"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1380
+msgid "Drag handle"
+msgstr "Drag handle"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:137
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:457
+msgid "Drop Shipment"
+msgstr "Drop Shipment"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:473
+msgid "Drop Shipment Statuses"
+msgstr "Drop Shipment Statuses"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:201
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:193
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:184
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:125
+msgid "Due Date"
+msgstr "Due Date"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:89
+#: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:80
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:83
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:266
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:83
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:83
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:83
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:284
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:494
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:550
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:415
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:226
+msgid "Edit"
+msgstr "Edit"
+
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:71
+msgid "Edit Customer Status"
+msgstr "Edit Customer Status"
+
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:66
+msgid "Edit Customer Type"
+msgstr "Edit Customer Type"
+
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:93
+msgid "Edit Portal"
+msgstr "Edit Portal"
+
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:57
+msgid "Edit Reason"
+msgstr "Edit Reason"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:924
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:251
+msgid "Edit Shipping"
+msgstr "Edit Shipping"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:98
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:142
+msgid "Email"
+msgstr "Email"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:181
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:184
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:168
+msgid "Engineering Contact"
+msgstr "Engineering Contact"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:230
+msgid "Enter PO number"
+msgstr "Enter PO number"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:343
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:176
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:203
+msgid "Error downloading file"
+msgstr "Error downloading file"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:103
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:104
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:94
+msgid "Error fetching customer data"
+msgstr "Error fetching customer data"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:354
+msgid "Error moving file"
+msgstr "Error moving file"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:136
+msgid "Error removing model from quote line"
+msgstr "Error removing model from quote line"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:131
+msgid "Error removing model from RFQ line"
+msgstr "Error removing model from RFQ line"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:146
+msgid "Error removing model from sales invoice line"
+msgstr "Error removing model from sales invoice line"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:141
+msgid "Error removing model from sales order line"
+msgstr "Error removing model from sales order line"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:197
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:165
+msgid "Estimator"
+msgstr "Estimator"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:487
+msgid "Expand Costs"
+msgstr "Expand Costs"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:206
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:201
+msgid "Expiration Date"
+msgstr "Expiration Date"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:472
+msgid "Export"
+msgstr "Export"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:305
+msgid "Export Lines to CSV"
+msgstr "Export Lines to CSV"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:532
+msgid "Extended Price"
+msgstr "Extended Price"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:132
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityNotes.tsx:127
+msgid "External"
+msgstr "External"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:122
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityNotes.tsx:117
+msgid "External Notes"
+msgstr "External Notes"
+
+#. placeholder {0}: fetcher.data.error.message
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:50
+msgid "Failed to create customer portal: {0}"
+msgstr "Failed to create customer portal: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:50
+msgid "Failed to create customer status: {0}"
+msgstr "Failed to create customer status: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:50
+msgid "Failed to create customer type: {0}"
+msgstr "Failed to create customer type: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:64
+msgid "Failed to create customer: {0}"
+msgstr "Failed to create customer: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:50
+msgid "Failed to create no quote reason: {0}"
+msgstr "Failed to create no quote reason: {0}"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:343
+msgid "Failed to delete file from old location"
+msgstr "Failed to delete file from old location"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:319
+msgid "Failed to download file for moving"
+msgstr "Failed to download file for moving"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:158
+msgid "Failed to initialize Carbon client"
+msgstr "Failed to initialize Carbon client"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:525
+msgid "Failed to insert quote line"
+msgstr "Failed to insert quote line"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:237
+msgid "Failed to load configuration parameters"
+msgstr "Failed to load configuration parameters"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:144
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:166
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:102
+msgid "Failed to load customer part details"
+msgstr "Failed to load customer part details"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:726
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:201
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMaterialForm.tsx:114
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:156
+msgid "Failed to load item details"
+msgstr "Failed to load item details"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:382
+msgid "Failed to load job operations"
+msgstr "Failed to load job operations"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:176
+msgid "Failed to remove purchase order"
+msgstr "Failed to remove purchase order"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:452
+msgid "Failed to update category markups"
+msgstr "Failed to update category markups"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:411
+msgid "Failed to update item cost"
+msgstr "Failed to update item cost"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:145
+msgid "Failed to update opportunity with purchase order"
+msgstr "Failed to update opportunity with purchase order"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:234
+msgid "Failed to update quote line"
+msgstr "Failed to update quote line"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:333
+msgid "Failed to upload file to new location"
+msgstr "Failed to upload file to new location"
+
+#. placeholder {0}: file.name
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:396
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:273
+msgid "Failed to upload file: {0}"
+msgstr "Failed to upload file: {0}"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:68
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityNotes.tsx:66
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:946
+msgid "Failed to upload image"
+msgstr "Failed to upload image"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:105
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:184
+msgid "Fax"
+msgstr "Fax"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:432
+msgid "Fees"
+msgstr "Fees"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:307
+msgid "File is already in the selected bucket"
+msgstr "File is already in the selected bucket"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:99
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:441
+msgid "Files"
+msgstr "Files"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteFinalizeModal.tsx:224
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:241
+msgid "Finalize"
+msgstr "Finalize"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:874
+msgid "Finish To"
+msgstr "Finish To"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:99
+msgid "First Name"
+msgstr "First Name"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:295
+msgid "Get Method"
+msgstr "Get Method"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:73
+msgid "History"
+msgstr "History"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:103
+msgid "Home Phone"
+msgstr "Home Phone"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:515
+msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
+msgstr "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:495
+msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
+msgstr "In order to convert this RFQ to a quote, all lines must have an internal part number."
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:412
+msgid "In order to convert this RFQ to a quote, it must be associated with a customer."
+msgstr "In order to convert this RFQ to a quote, it must be associated with a customer."
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:481
+msgid "In order to convert this RFQ to a quote, it must have a customer."
+msgstr "In order to convert this RFQ to a quote, it must have a customer."
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:129
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityNotes.tsx:124
+msgid "Internal"
+msgstr "Internal"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:122
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityNotes.tsx:117
+msgid "Internal Notes"
+msgstr "Internal Notes"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:575
+msgid "Invoice"
+msgstr "Invoice"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:65
+#: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:79
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:81
+msgid "Invoice Contact"
+msgstr "Invoice Contact"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:55
+#: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:69
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:71
+msgid "Invoice Customer"
+msgstr "Invoice Customer"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:60
+#: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:74
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:76
+msgid "Invoice Location"
+msgstr "Invoice Location"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:290
+msgid "Invoiced Amount:"
+msgstr "Invoiced Amount:"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:92
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:523
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:53
+msgid "Invoices"
+msgstr "Invoices"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:638
+msgid "Item"
+msgstr "Item"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:291
+msgid "Job"
+msgstr "Job"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:121
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:199
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:289
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:483
+msgid "Jobs"
+msgstr "Jobs"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:250
+msgid "Jobs in progress"
+msgstr "Jobs in progress"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:137
+msgid "Jobs Required"
+msgstr "Jobs Required"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1053
+msgid "Kit"
+msgstr "Kit"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:100
+msgid "Last Name"
+msgstr "Last Name"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:436
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:621
+msgid "Lead Time"
+msgstr "Lead Time"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:415
+msgid "Line Status"
+msgstr "Line Status"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:492
+msgid "Lines need internal part numbers"
+msgstr "Lines need internal part numbers"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteFinalizeModal.tsx:163
+msgid "Lines need prices or lead times"
+msgstr "Lines need prices or lead times"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteProperties.tsx:137
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderProperties.tsx:140
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQProperties.tsx:117
+msgid "Link"
+msgstr "Link"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:419
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:426
+msgid "Loading..."
+msgstr "Loading..."
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:108
+#: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:81
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:209
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:399
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:149
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:420
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:168
+msgid "Location"
+msgstr "Location"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerLocations.tsx:71
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:46
+msgid "Locations"
+msgstr "Locations"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:285
+msgid "Lost"
+msgstr "Lost"
+
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:26
+msgid "Manage"
+msgstr "Manage"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:391
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:344
+msgid "Method"
+msgstr "Method"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteFinalizeModal.tsx:179
+msgid "Missing Shipping Costs"
+msgstr "Missing Shipping Costs"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:102
+msgid "Mobile Phone"
+msgstr "Mobile Phone"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:159
+msgid "Model data is missing"
+msgstr "Model data is missing"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:150
+msgid "Model removed from line"
+msgstr "Model removed from line"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:325
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:281
+msgid "More"
+msgstr "More"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:102
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:134
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:275
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:99
+msgid "More options"
+msgstr "More options"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:618
+msgid "Move to"
+msgstr "Move to"
+
+#. placeholder {0}: file.name
+#. placeholder {1}: targetBucket === "parts" ? "Parts" : "Opportunity"
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:348
+msgid "Moved {0} to {1} bucket"
+msgstr "Moved {0} to {1} bucket"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:115
+#: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:89
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:74
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:117
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:460
+msgid "Name"
+msgstr "Name"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:89
+#: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:80
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:83
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:83
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:83
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:83
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:440
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:711
+msgid "New"
+msgstr "New"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:90
+msgid "New Customer"
+msgstr "New Customer"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:538
+msgid "New Invoice"
+msgstr "New Invoice"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:207
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:227
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQExplorer.tsx:171
+msgid "New Line Item"
+msgstr "New Line Item"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:133
+msgid "New Quote"
+msgstr "New Quote"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:286
+msgid "New Quote Line"
+msgstr "New Quote Line"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:122
+msgid "New RFQ"
+msgstr "New RFQ"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:137
+msgid "New Sales Order"
+msgstr "New Sales Order"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:234
+msgid "New Sales Order Line"
+msgstr "New Sales Order Line"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:468
+msgid "New Shipment"
+msgstr "New Shipment"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:149
+msgid "Next Sequence"
+msgstr "Next Sequence"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:469
+msgid "No"
+msgstr "No"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:664
+msgid "No files"
+msgstr "No files"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:183
+msgid "No files uploaded"
+msgstr "No files uploaded"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:222
+msgid "No Quote"
+msgstr "No Quote"
+
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:84
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:91
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:470
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:366
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:377
+msgid "No Quote Reason"
+msgstr "No Quote Reason"
+
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:71
+msgid "No Quotes"
+msgstr "No Quotes"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:537
+msgid "Non-Taxable Add-On Cost"
+msgstr "Non-Taxable Add-On Cost"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:138
+msgid "None"
+msgstr "None"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:255
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:277
+msgid "Not enough jobs to cover quantity"
+msgstr "Not enough jobs to cover quantity"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:111
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:118
+msgid "Notes"
+msgstr "Notes"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:1045
+msgid "Notification"
+msgstr "Notification"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:421
+msgid "OK"
+msgstr "OK"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:491
+msgid "Open"
+msgstr "Open"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1470
+msgid "Open menu"
+msgstr "Open menu"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1960
+msgid "Operation Order"
+msgstr "Operation Order"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1969
+msgid "Operation Type"
+msgstr "Operation Type"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:635
+msgid "Opportunity"
+msgstr "Opportunity"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:361
+msgid "Order Date"
+msgstr "Order Date"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:369
+msgid "Order Total"
+msgstr "Order Total"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:177
+msgid "Ordered"
+msgstr "Ordered"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:86
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:97
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:47
+msgid "Orders"
+msgstr "Orders"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:298
+msgid "Overwrite the quote method with the source method"
+msgstr "Overwrite the quote method with the source method"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:448
+msgid "Overwrite the target manufacturing method with the quote method"
+msgstr "Overwrite the target manufacturing method with the quote method"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:303
+msgid "Paid Amount:"
+msgstr "Paid Amount:"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:374
+msgid "Part"
+msgstr "Part"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:54
+#: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:61
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:63
+msgid "Payment"
+msgstr "Payment"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:442
+msgid "Payment Method"
+msgstr "Payment Method"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:69
+#: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:83
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:896
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:85
+msgid "Payment Term"
+msgstr "Payment Term"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:47
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:874
+msgid "Payment Terms"
+msgstr "Payment Terms"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:220
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:363
+msgid "PDF"
+msgstr "PDF"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:176
+msgid "Phone"
+msgstr "Phone"
+
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:56
+msgid "Portal Link"
+msgstr "Portal Link"
+
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:60
+msgid "Portals"
+msgstr "Portals"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:195
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:352
+msgid "Preview"
+msgstr "Preview"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:546
+msgid "Pricing"
+msgstr "Pricing"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:220
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:388
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:131
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:397
+msgid "Promised Date"
+msgstr "Promised Date"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:881
+msgid "Pull From"
+msgstr "Pull From"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:180
+msgid "Purchase order removed successfully"
+msgstr "Purchase order removed successfully"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:174
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:178
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:162
+msgid "Purchasing Contact"
+msgstr "Purchasing Contact"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:477
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:417
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:611
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:365
+msgid "Quantity"
+msgstr "Quantity"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:133
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:318
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:852
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:176
+msgid "Quote"
+msgstr "Quote"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:200
+msgid "Quote Accepted By"
+msgstr "Quote Accepted By"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:205
+msgid "Quote Accepted By Email"
+msgstr "Quote Accepted By Email"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:157
+msgid "Quote ID"
+msgstr "Quote ID"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:346
+msgid "Quote is linked to a Sales Order. Delete the sales order to reopen."
+msgstr "Quote is linked to a Sales Order. Delete the sales order to reopen."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:283
+msgid "Quote Line"
+msgstr "Quote Line"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:198
+msgid "Quote Location"
+msgstr "Quote Location"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:70
+msgid "Quote Number"
+msgstr "Quote Number"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:80
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:100
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:323
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:41
+msgid "Quotes"
+msgstr "Quotes"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:143
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:157
+msgid "Ready for Quote"
+msgstr "Ready for Quote"
+
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:31
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:85
+msgid "Reason"
+msgstr "Reason"
+
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:91
+msgid "Reasons"
+msgstr "Reasons"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteProperties.tsx:446
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderProperties.tsx:450
+msgid "Refresh"
+msgstr "Refresh"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:332
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:342
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:603
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:245
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:255
+msgid "Reopen"
+msgstr "Reopen"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:115
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:1011
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:213
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:130
+msgid "Requested Date"
+msgstr "Requested Date"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:122
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:259
+msgid "RFQ"
+msgstr "RFQ"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:179
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:117
+msgid "RFQ Date"
+msgstr "RFQ Date"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:409
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:478
+msgid "RFQ has no customer"
+msgstr "RFQ has no customer"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:148
+msgid "RFQ ID"
+msgstr "RFQ ID"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:259
+msgid "RFQ is linked to a Quote. Delete the quote to reopen."
+msgstr "RFQ is linked to a Quote. Delete the quote to reopen."
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:187
+msgid "RFQ Location"
+msgstr "RFQ Location"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:58
+msgid "RFQ Number"
+msgstr "RFQ Number"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:74
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:263
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:35
+msgid "RFQs"
+msgstr "RFQs"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:68
+msgid "Risks"
+msgstr "Risks"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:136
+msgid "Sales Contact"
+msgstr "Sales Contact"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:225
+msgid "Sales Location"
+msgstr "Sales Location"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:135
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:603
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:168
+msgid "Sales Order"
+msgstr "Sales Order"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:164
+msgid "Sales Order ID"
+msgstr "Sales Order ID"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:117
+msgid "Sales Order Number"
+msgstr "Sales Order Number"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:607
+msgid "Sales Orders"
+msgstr "Sales Orders"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:194
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:151
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:227
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:188
+msgid "Sales Person"
+msgstr "Sales Person"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:118
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:166
+#: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:97
+#: apps/erp/app/modules/sales/ui/Customer/CustomerPaymentForm.tsx:76
+#: apps/erp/app/modules/sales/ui/Customer/CustomerShippingForm.tsx:90
+#: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:98
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:98
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:98
+#: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:98
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1066
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1371
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2460
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:263
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:520
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMaterialForm.tsx:275
+#: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:89
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:122
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:284
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:558
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:91
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:159
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:202
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:387
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:337
+msgid "Save"
+msgstr "Save"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:445
+msgid "Save Method"
+msgstr "Save Method"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:467
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:369
+msgid "Search"
+msgstr "Search"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:450
+msgid "Search related items..."
+msgstr "Search related items..."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBoMExplorer.tsx:170
+msgid "Search..."
+msgstr "Search..."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineMethodForm.tsx:67
+msgid "Select a quote"
+msgstr "Select a quote"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineMethodForm.tsx:79
+msgid "Select a quote line"
+msgstr "Select a quote line"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:369
+msgid "Select a reason for why the quote was not created."
+msgstr "Select a reason for why the quote was not created."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:553
+msgid "Select an item to configure"
+msgstr "Select an item to configure"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:120
+msgid "Select Customer Status"
+msgstr "Select Customer Status"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:125
+msgid "Select Customer Type"
+msgstr "Select Customer Type"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:134
+msgid "Send Via"
+msgstr "Send Via"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:185
+msgid "Share"
+msgstr "Share"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:558
+msgid "Share Quote"
+msgstr "Share Quote"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:412
+msgid "Shelf"
+msgstr "Shelf"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:506
+msgid "Ship"
+msgstr "Ship"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineShipments.tsx:94
+msgid "Shipment"
+msgstr "Shipment"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:132
+msgid "Shipment Date"
+msgstr "Shipment Date"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:106
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:121
+msgid "Shipment Location"
+msgstr "Shipment Location"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:451
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineShipments.tsx:65
+msgid "Shipments"
+msgstr "Shipments"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerShippingForm.tsx:53
+#: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:61
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:88
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:427
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:617
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:991
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:101
+msgid "Shipping"
+msgstr "Shipping"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerShippingForm.tsx:71
+msgid "Shipping Contact"
+msgstr "Shipping Contact"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:96
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:520
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:109
+msgid "Shipping Cost"
+msgstr "Shipping Cost"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerShippingForm.tsx:61
+msgid "Shipping Customer"
+msgstr "Shipping Customer"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerShippingForm.tsx:66
+msgid "Shipping Location"
+msgstr "Shipping Location"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerShippingForm.tsx:77
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:112
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:1003
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:127
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:405
+msgid "Shipping Method"
+msgstr "Shipping Method"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:243
+msgid "Shipping:"
+msgstr "Shipping:"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:385
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:329
+msgid "Short Description"
+msgstr "Short Description"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:120
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:463
+msgid "Size"
+msgstr "Size"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:128
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:88
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:115
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:154
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:90
+msgid "Status"
+msgstr "Status"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:100
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:137
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:193
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:103
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:78
+msgid "Statuses"
+msgstr "Statuses"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1050
+msgid "Subassembly"
+msgstr "Subassembly"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:439
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:590
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:214
+msgid "Subtotal:"
+msgstr "Subtotal:"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:447
+msgid "Successfully copied quote"
+msgstr "Successfully copied quote"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:446
+msgid "Successfully created a new revision"
+msgstr "Successfully created a new revision"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:172
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:144
+msgid "Tags"
+msgstr "Tags"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:306
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:260
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:447
+msgid "Tax"
+msgstr "Tax"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:439
+msgid "Tax & Additional Costs"
+msgstr "Tax & Additional Costs"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:155
+msgid "Tax ID"
+msgstr "Tax ID"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:144
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:455
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:508
+msgid "Tax Percent"
+msgstr "Tax Percent"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:227
+msgid "Tax:"
+msgstr "Tax:"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:214
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:221
+msgid "The date the customer expects to receive the goods"
+msgstr "The date the customer expects to receive the goods"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:481
+msgid "The quote has been created"
+msgstr "The quote has been created"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:467
+msgid "The quote will be copied with a revision suffix"
+msgstr "The quote will be copied with a revision suffix"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:140
+msgid "This sales order has lines that require jobs to be created"
+msgstr "This sales order has lines that require jobs to be created"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:471
+msgid "This will overwrite the existing manufacturing method and the latest versions of all subassemblies."
+msgstr "This will overwrite the existing manufacturing method and the latest versions of all subassemblies."
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:323
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:369
+msgid "This will overwrite the existing quote method"
+msgstr "This will overwrite the existing quote method"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:101
+msgid "Title"
+msgstr "Title"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:112
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:261
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:85
+msgid "Toggle Explorer"
+msgstr "Toggle Explorer"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:357
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:608
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:268
+msgid "Toggle Properties"
+msgstr "Toggle Properties"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:633
+msgid "Total"
+msgstr "Total"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:624
+msgid "Total Price"
+msgstr "Total Price"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:276
+msgid "Total:"
+msgstr "Total:"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:134
+msgid "Tracking Number"
+msgstr "Tracking Number"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:140
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:106
+msgid "Type"
+msgstr "Type"
+
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:84
+msgid "Types"
+msgstr "Types"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:368
+msgid "Unit of Measure"
+msgstr "Unit of Measure"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:420
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:614
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:373
+msgid "Unit Price"
+msgstr "Unit Price"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:242
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:268
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:521
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:210
+msgid "Updated At"
+msgstr "Updated At"
+
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:225
+#: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:251
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:504
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:193
+msgid "Updated By"
+msgstr "Updated By"
+
+#. placeholder {0}: file.name
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:398
+msgid "Uploaded: {0}"
+msgstr "Uploaded: {0}"
+
+#. placeholder {0}: file.name
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:386
+msgid "Uploading {0}"
+msgstr "Uploading {0}"
+
+#: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:501
+msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
+msgstr "Upon clicking Convert, parts will be created with the following internal part numbers:"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156
+msgid "VAT Number"
+msgstr "VAT Number"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:183
+msgid "via Digital Quote"
+msgstr "via Digital Quote"
+
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:514
+msgid "View"
+msgstr "View"
+
+#: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:61
+#: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:57
+msgid "View Customers"
+msgstr "View Customers"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBoMExplorer.tsx:350
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:460
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:346
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:363
+msgid "View Item Master"
+msgstr "View Item Master"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:157
+#: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:192
+msgid "Website"
+msgstr "Website"
+
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:259
+msgid "Won"
+msgstr "Won"
+
+#: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:104
+msgid "Work Phone"
+msgstr "Work Phone"
+
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:465
+msgid "Yes"
+msgstr "Yes"

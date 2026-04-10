@@ -10,4 +10,3 @@ api/index.js*
 api/_assets*
 
 .trigger
-app/locales/**/*.mjs
