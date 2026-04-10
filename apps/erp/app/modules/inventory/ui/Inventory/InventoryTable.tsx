@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
@@ -92,6 +92,7 @@ const InventoryTable = memo(
     const materialSubstanceId = filters.getFilter("materialSubstanceId")?.[0];
     const materialFormId = filters.getFilter("materialFormId")?.[0];
     const numberFormatter = useNumberFormatter();
+    const formatNumber = numberFormatter.format.bind(numberFormatter);
 
     const columns = useMemo<ColumnDef<InventoryItem>[]>(() => {
       return [
@@ -131,30 +132,33 @@ const InventoryTable = memo(
             row.original.itemTrackingType === "Non-Inventory" ? (
               <TrackingTypeIcon type="Non-Inventory" />
             ) : (
-              numberFormatter.format(row.original.quantityOnHand)
+              formatNumber(row.original.quantityOnHand)
             ),
           meta: {
             icon: <LuPackage />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
 
         {
           accessorKey: "daysRemaining",
           header: t`Days`,
-          cell: ({ row }) => numberFormatter.format(row.original.daysRemaining),
+          cell: ({ row }) => formatNumber(row.original.daysRemaining),
           meta: {
             icon: <LuClock />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "leadTime",
           header: t`Lead Time`,
-          cell: ({ row }) => numberFormatter.format(row.original.leadTime),
+          cell: ({ row }) => formatNumber(row.original.leadTime),
           meta: {
             icon: <LuClock />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
@@ -210,71 +214,73 @@ const InventoryTable = memo(
         {
           accessorKey: "usageLast30Days",
           header: t`Usage/Day (30d)`,
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.usageLast30Days),
+          cell: ({ row }) => formatNumber(row.original.usageLast30Days),
           meta: {
             icon: <LuCalculator />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "usageLast90Days",
           header: t`Usage/Day (90d)`,
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.usageLast90Days),
+          cell: ({ row }) => formatNumber(row.original.usageLast90Days),
           meta: {
             icon: <LuCalculator />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnPurchaseOrder",
           header: t`On Purchase Order`,
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnPurchaseOrder),
+          cell: ({ row }) => formatNumber(row.original.quantityOnPurchaseOrder),
           meta: {
             icon: <LuMoveUp className="text-emerald-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnProductionOrder",
           header: t`On Jobs`,
           cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnProductionOrder),
+            formatNumber(row.original.quantityOnProductionOrder),
           meta: {
             icon: <LuMoveUp className="text-emerald-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnProductionDemand",
           header: t`On Jobs`,
           cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnProductionDemand),
+            formatNumber(row.original.quantityOnProductionDemand),
           meta: {
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnSalesOrder",
           header: t`On Sales Order`,
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnSalesOrder),
+          cell: ({ row }) => formatNumber(row.original.quantityOnSalesOrder),
           meta: {
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "demandForecast",
           header: t`Demand Forecast`,
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.demandForecast),
+          cell: ({ row }) => formatNumber(row.original.demandForecast),
           meta: {
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
@@ -477,7 +483,7 @@ const InventoryTable = memo(
       forms,
       materialFormId,
       materialSubstanceId,
-      numberFormatter,
+      formatNumber,
       params,
       substances,
       tags,
@@ -530,7 +536,7 @@ const InventoryTable = memo(
                     isDisabled={mrpFetcher.state !== "idle"}
                     isLoading={mrpFetcher.state !== "idle"}
                   >
-                    Recalculate
+                    <Trans>Recalculate</Trans>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>

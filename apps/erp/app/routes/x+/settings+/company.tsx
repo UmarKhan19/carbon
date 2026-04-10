@@ -12,6 +12,7 @@ import {
   ScrollArea,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -26,7 +27,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Company",
+  breadcrumb: msg`Company`,
   to: path.to.company
 };
 

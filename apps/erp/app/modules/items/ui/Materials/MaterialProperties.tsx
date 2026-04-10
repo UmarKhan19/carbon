@@ -59,6 +59,20 @@ import { FileBadge } from "../Item";
 
 const MaterialProperties = () => {
   const { t } = useLingui();
+  const translateMethodType = (v: string) =>
+    v === "Purchase to Order"
+      ? t`Purchase to Order`
+      : v === "Pull from Inventory"
+        ? t`Pull from Inventory`
+        : t`Make to Order`;
+  const translateTrackingType = (v: string) =>
+    v === "Inventory"
+      ? t`Inventory`
+      : v === "Non-Inventory"
+        ? t`Non-Inventory`
+        : v === "Serial"
+          ? t`Serial`
+          : t`Batch`;
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -424,7 +438,7 @@ const MaterialProperties = () => {
             inline={(value) => (
               <Badge variant="secondary">
                 <TrackingTypeIcon type={value} className="mr-2" />
-                <span>{value}</span>
+                <span>{translateTrackingType(value)}</span>
               </Badge>
             )}
             options={itemTrackingTypes.map((type) => ({
@@ -432,7 +446,7 @@ const MaterialProperties = () => {
               label: (
                 <span className="flex items-center gap-2">
                   <TrackingTypeIcon type={type} />
-                  {type}
+                  {translateTrackingType(type)}
                 </span>
               )
             }))}
@@ -458,7 +472,7 @@ const MaterialProperties = () => {
             inline={(value) => (
               <Badge variant="secondary">
                 <MethodIcon type={value} className="mr-2" />
-                <span>{value}</span>
+                <span>{translateMethodType(value)}</span>
               </Badge>
             )}
             options={methodType
@@ -468,7 +482,7 @@ const MaterialProperties = () => {
                 label: (
                   <span className="flex items-center gap-2">
                     <MethodIcon type={type} />
-                    {type}
+                    {translateMethodType(type)}
                   </span>
                 )
               }))}

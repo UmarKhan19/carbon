@@ -13,6 +13,7 @@ import {
 import { Button, Heading, ScrollArea, VStack } from "@carbon/react";
 import { usePlan } from "@carbon/remix";
 import { Edition, Plan } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { LuHistory } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -23,7 +24,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Audit Log",
+  breadcrumb: msg`Audit Log`,
   to: path.to.auditLog
 };
 

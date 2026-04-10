@@ -9,6 +9,7 @@ import {
   MenuItem,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
@@ -43,7 +44,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Assignments",
+  breadcrumb: msg`Assignments`,
   to: path.to.trainingAssignments
 };
 

@@ -13,6 +13,7 @@ import {
   TabsTrigger
 } from "@carbon/react";
 import { useRouteData } from "@carbon/remix";
+import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense, useState } from "react";
 import { LuSearch } from "react-icons/lu";
@@ -46,7 +47,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Tools",
+  breadcrumb: msg`Tools`,
   to: path.to.tools,
   module: "items"
 };

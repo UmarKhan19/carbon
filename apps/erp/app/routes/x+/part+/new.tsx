@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { modelThumbnailTask } from "@carbon/jobs/trigger/model-thumbnail";
+import { msg } from "@lingui/core/macro";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
@@ -13,7 +14,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Parts",
+  breadcrumb: msg`Parts`,
   to: path.to.parts,
   module: "items"
 };

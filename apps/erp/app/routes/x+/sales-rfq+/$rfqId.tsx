@@ -7,6 +7,7 @@ import { VStack } from "@carbon/react";
 import { supportedModelTypes } from "@carbon/utils";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { DndContext } from "@dnd-kit/core";
+import { msg } from "@lingui/core/macro";
 import type { FileObject } from "@supabase/storage-js";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams, useSubmit } from "react-router";
@@ -28,7 +29,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "RFQs",
+  breadcrumb: msg`RFQs`,
   to: path.to.salesRfqs
 };
 

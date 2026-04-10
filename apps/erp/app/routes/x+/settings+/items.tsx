@@ -14,6 +14,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -28,7 +29,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Items",
+  breadcrumb: msg`Items`,
   to: path.to.itemsSettings
 };
 

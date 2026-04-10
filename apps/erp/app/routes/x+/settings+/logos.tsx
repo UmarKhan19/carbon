@@ -10,6 +10,7 @@ import {
   ScrollArea,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { LuMoon, LuSun } from "react-icons/lu";
 import type { ActionFunctionArgs } from "react-router";
@@ -28,7 +29,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Logos",
+  breadcrumb: msg`Logos`,
   to: path.to.logos
 };
 

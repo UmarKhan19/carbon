@@ -1,5 +1,6 @@
 import { assertIsPost } from "@carbon/auth";
 import { validationError, validator } from "@carbon/form";
+import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { themeValidator } from "~/modules/settings";
@@ -8,7 +9,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Theme",
+  breadcrumb: msg`Theme`,
   to: path.to.theme
 };
 

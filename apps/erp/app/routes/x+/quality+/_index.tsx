@@ -33,6 +33,7 @@ import {
   ChartTooltipContent
 } from "@carbon/react/Chart";
 import { today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -76,7 +77,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Dashboard",
+  breadcrumb: msg`Dashboard`,
   to: path.to.quality
 };
 

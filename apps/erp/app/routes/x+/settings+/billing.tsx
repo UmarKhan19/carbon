@@ -24,6 +24,7 @@ import {
 import { useEdition } from "@carbon/remix";
 import { getBillingPortalRedirectUrl } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -34,7 +35,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Payment",
+  breadcrumb: msg`Payment`,
   to: path.to.billing
 };
 

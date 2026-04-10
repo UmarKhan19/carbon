@@ -1,4 +1,5 @@
 import { Heading, VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import type { MetaFunction } from "react-router";
 import { Outlet } from "react-router";
@@ -10,7 +11,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Account",
+  breadcrumb: msg`Account`,
   to: path.to.profile,
   module: "account"
 };

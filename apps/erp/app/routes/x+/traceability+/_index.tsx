@@ -1,5 +1,6 @@
 import { useCarbon } from "@carbon/auth";
 import { Button, cn, toast, useMount } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import type { ComponentProps } from "react";
 import { forwardRef, useState } from "react";
@@ -9,7 +10,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Traceability",
+  breadcrumb: msg`Traceability`,
   to: path.to.traceability,
   module: "inventory"
 };

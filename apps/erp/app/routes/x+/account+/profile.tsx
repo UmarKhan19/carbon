@@ -11,6 +11,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getPreferenceHeaders } from "@carbon/remix";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
@@ -31,7 +32,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Profile",
+  breadcrumb: msg`Profile`,
   to: path.to.profile
 };
 

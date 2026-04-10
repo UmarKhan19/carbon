@@ -483,12 +483,14 @@ const ProductionPlanningTable = ({
                     isDisabled={mrpFetcher.state !== "idle"}
                     isLoading={mrpFetcher.state !== "idle"}
                   >
-                    Recalculate
+                    <Trans>Recalculate</Trans>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  MRP runs automatically every 3 hours, but you can run it
-                  manually here.
+                  <Trans>
+                    MRP runs automatically every 3 hours, but you can run it
+                    manually here.
+                  </Trans>
                 </TooltipContent>
               </Tooltip>
             </mrpFetcher.Form>

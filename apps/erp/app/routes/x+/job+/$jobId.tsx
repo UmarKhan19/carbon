@@ -1,6 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Suspense, useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
@@ -32,7 +33,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Jobs",
+  breadcrumb: msg`Jobs`,
   to: path.to.jobs,
   module: "production"
 };

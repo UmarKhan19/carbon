@@ -17,6 +17,7 @@ import {
   ToggleGroupItem,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import {
@@ -36,7 +37,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Detail",
+  breadcrumb: msg`Detail`,
   to: path.to.trainingAssignments
 };
 

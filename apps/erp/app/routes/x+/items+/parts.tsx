@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import { getParts } from "~/modules/items";
@@ -13,7 +14,7 @@ import { getGenericQueryFilters } from "~/utils/query";
 import { useRealtime } from "../../../hooks";
 
 export const handle: Handle = {
-  breadcrumb: "Parts",
+  breadcrumb: msg`Parts`,
   to: path.to.parts
 };
 

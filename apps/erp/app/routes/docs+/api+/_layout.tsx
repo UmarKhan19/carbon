@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { useState } from "react";
 import { LuEye, LuEyeOff, LuSettings2, LuTable2 } from "react-icons/lu";
 import type { MetaFunction } from "react-router";
@@ -29,7 +30,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "API Docs",
+  breadcrumb: msg`API Docs`,
   to: path.to.apiIntroduction,
   module: "api"
 };

@@ -10,7 +10,7 @@ import {
   SplitButton
 } from "@carbon/react";
 import { useOptimisticLocation } from "@carbon/remix";
-import { Trans } from "@lingui/react/macro";
+import { useLingui } from "@lingui/react/macro";
 import { LuChevronDown, LuCircle, LuCreditCard } from "react-icons/lu";
 import {
   RiProgress2Line,
@@ -70,9 +70,17 @@ const SupplierInteractionState = ({
   linkedQuotes = [],
   siblingQuotes = []
 }: SupplierInteractionStateProps) => {
+  const { t } = useLingui();
   const { pathname } = useOptimisticLocation();
   const navigate = useNavigate();
   const [suppliers] = useSuppliers();
+
+  const stateLabels: Record<string, string> = {
+    RFQ: t`RFQ`,
+    Quote: t`Quote`,
+    Order: t`Order`,
+    Invoice: t`Invoice`
+  };
 
   // Determine if we're in "RFQ mode" (viewing from purchasing RFQ) or "interaction mode" (viewing from quote/order)
   const isRfqMode = currentRfq !== undefined && currentRfq !== null;
@@ -153,7 +161,7 @@ const SupplierInteractionState = ({
                     onClick: () => navigate(item.path)
                   }))}
                 >
-                  RFQ
+                  {stateLabels.RFQ}
                 </SplitButton>
               );
             } else {
@@ -171,9 +179,7 @@ const SupplierInteractionState = ({
                   variant="ghost"
                   asChild
                 >
-                  <Link to={firstPath}>
-                    <Trans>RFQ</Trans>
-                  </Link>
+                  <Link to={firstPath}>{stateLabels.RFQ}</Link>
                 </Button>
               );
             }
@@ -233,7 +239,7 @@ const SupplierInteractionState = ({
                       rightIcon={<LuChevronDown className="h-3 w-3" />}
                       variant="ghost"
                     >
-                      Quote
+                      {stateLabels.Quote}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
@@ -268,7 +274,7 @@ const SupplierInteractionState = ({
                   variant="ghost"
                   asChild
                 >
-                  <Link to={quoteItems[0]?.path}>Quote</Link>
+                  <Link to={quoteItems[0]?.path}>{stateLabels.Quote}</Link>
                 </Button>
               );
             }
@@ -313,7 +319,7 @@ const SupplierInteractionState = ({
                     onClick: () => navigate(item.path)
                   }))}
                 >
-                  <Trans>Order</Trans>
+                  {stateLabels.Order}
                 </SplitButton>
               );
             } else {
@@ -331,9 +337,7 @@ const SupplierInteractionState = ({
                   variant="ghost"
                   asChild
                 >
-                  <Link to={firstPath}>
-                    <Trans>Order</Trans>
-                  </Link>
+                  <Link to={firstPath}>{stateLabels.Order}</Link>
                 </Button>
               );
             }
@@ -347,7 +351,7 @@ const SupplierInteractionState = ({
               isDisabled
               leftIcon={<Icon className="opacity-50" />}
             >
-              {state}
+              {stateLabels[state]}
             </Button>
           );
         })}

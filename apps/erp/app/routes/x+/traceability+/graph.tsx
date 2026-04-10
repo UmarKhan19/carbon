@@ -8,6 +8,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useUrlParams } from "@carbon/remix";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { ParentSize } from "@visx/responsive";
 import { useEffect, useMemo, useState } from "react";
@@ -31,7 +32,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Traceability",
+  breadcrumb: msg`Traceability`,
   to: path.to.traceability,
   module: "inventory"
 };

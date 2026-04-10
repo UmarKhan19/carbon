@@ -16,6 +16,7 @@ import {
 import { useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { themes } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { BiMoon, BiSun } from "react-icons/bi";
@@ -38,7 +39,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Theme",
+  breadcrumb: msg`Theme`,
   to: path.to.theme
 };
 

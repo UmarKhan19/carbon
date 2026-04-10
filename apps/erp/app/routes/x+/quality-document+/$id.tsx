@@ -5,6 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { Database } from "@carbon/database";
 import { validationError, validator } from "@carbon/form";
 import { NotificationEvent } from "@carbon/notifications";
+import { msg } from "@lingui/core/macro";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -97,7 +98,7 @@ async function getQualityDocumentApprovalContext(
 }
 
 export const handle: Handle = {
-  breadcrumb: "Policy & Procedure",
+  breadcrumb: msg`Policy & Procedure`,
   to: path.to.qualityDocuments,
   module: "quality"
 };

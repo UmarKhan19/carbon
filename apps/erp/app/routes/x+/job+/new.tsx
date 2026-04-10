@@ -5,6 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { recalculateTask } from "@carbon/jobs/trigger/recalculate";
 import { parseDate } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -25,7 +26,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Jobs",
+  breadcrumb: msg`Jobs`,
   to: path.to.jobs,
   module: "production"
 };

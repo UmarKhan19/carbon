@@ -61,8 +61,11 @@ const Breadcrumbs = () => {
   const matches = useMatches();
 
   const translateBreadcrumb = (value: unknown): ReactNode => {
-    if (typeof value !== "string") return value as ReactNode;
-    return i18n._(value);
+    if (typeof value === "object" && value !== null && "id" in value) {
+      return i18n._(value as { id: string; message?: string });
+    }
+    if (typeof value === "string") return i18n._(value);
+    return value as ReactNode;
   };
 
   const breadcrumbs = matches

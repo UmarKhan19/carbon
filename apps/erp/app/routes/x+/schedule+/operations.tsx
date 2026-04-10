@@ -26,6 +26,7 @@ import {
   parseAbsolute,
   toZoned
 } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuCirclePlus, LuSettings2, LuTriangleAlert } from "react-icons/lu";
@@ -60,7 +61,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Schedule",
+  breadcrumb: msg`Schedule`,
   to: path.to.scheduleOperation,
   module: "schedule"
 };
