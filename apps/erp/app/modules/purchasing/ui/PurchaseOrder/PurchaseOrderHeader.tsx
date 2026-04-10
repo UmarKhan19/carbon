@@ -278,7 +278,7 @@ const PurchaseOrderHeader = () => {
     <>
       <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px]">
         <HStack className="w-full justify-between min-w-0">
-          <HStack className="min-w-0">
+          <HStack className="min-w-0 flex-1">
             <IconButton
               aria-label="Toggle Explorer"
               icon={<LuPanelLeft />}
@@ -287,9 +287,9 @@ const PurchaseOrderHeader = () => {
             />
             <Link
               to={path.to.purchaseOrderDetails(orderId)}
-              className="min-w-0"
+              className="min-w-0 flex-1 block"
             >
-              <Heading size="h4" className="flex items-center gap-2 truncate">
+              <Heading size="h4" className="truncate">
                 {routeData?.purchaseOrder?.purchaseOrderId}
               </Heading>
             </Link>

@@ -2,6 +2,7 @@ import { HStack, IconButton } from "@carbon/react";
 import { LuSquarePen } from "react-icons/lu";
 import { usePermissions, useUser } from "~/hooks";
 import AvatarMenu from "../../AvatarMenu";
+import { MobilePrimaryNavigation } from "../Navigation";
 import Breadcrumbs from "./Breadcrumbs";
 import CompanySwitcher from "./CompanySwitcher";
 import CreateMenu from "./CreateMenu";
@@ -19,9 +20,12 @@ const Topbar = () => {
       <div className="flex-1 hidden md:block">
         <Breadcrumbs />
       </div>
-      <div className="flex-1 md:hidden">
-        <CompanySwitcher />
-      </div>
+      <HStack spacing={1} className="flex-1 md:hidden min-w-0">
+        <MobilePrimaryNavigation />
+        <div className="min-w-0 flex-1">
+          <CompanySwitcher />
+        </div>
+      </HStack>
       <div className="flex justify-center">
         {permissions.is("employee") ? <Search /> : <div />}
       </div>

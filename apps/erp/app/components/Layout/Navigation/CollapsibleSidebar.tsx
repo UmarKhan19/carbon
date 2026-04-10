@@ -73,7 +73,9 @@ export const CollapsibleSidebarTrigger = forwardRef<
       {...props}
       aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
       icon={<LuPanelLeft />}
-      className={cn("-ml-1", className)}
+      // Hidden on mobile: mobile users navigate via the Topbar hamburger menu
+      // which shows both the module switcher and the current module's sub-nav.
+      className={cn("-ml-1 hidden md:inline-flex", className)}
     />
   );
 });
@@ -88,6 +90,7 @@ export const CollapsibleSidebar = ({
   width = 180
 }: PropsWithChildren<{ width?: number }>) => {
   const { isOpen } = useCollapsibleSidebar();
+  const isMobile = useIsMobile();
   const shouldReduceMotion = useReducedMotion();
 
   const variants = useMemo(() => {
@@ -102,6 +105,14 @@ export const CollapsibleSidebar = ({
       }
     };
   }, [width]);
+
+  // On mobile, the sub-nav is surfaced through the Topbar hamburger drawer
+  // (MobilePrimaryNavigation reads it from useUIStore). Render a zero-size
+  // placeholder here so the parent `grid-cols-[auto_1fr]` layout keeps its
+  // grid structure intact.
+  if (isMobile) {
+    return <div className="w-0 h-0" />;
+  }
 
   return (
     <motion.div

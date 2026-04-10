@@ -22,6 +22,7 @@ import {
 import { Link, useSubmit } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
 import { useOptimisticLocation } from "~/hooks";
+import { useUIStore } from "~/stores/ui";
 import type { RouteGroup } from "~/types";
 import { path } from "~/utils/path";
 import { CollapsibleSidebar } from "./CollapsibleSidebar";
@@ -59,6 +60,14 @@ const GroupedContentSidebar = ({
     to: string;
     sortOrder: number;
   } | null>(null);
+
+  const setMobileSubNavGroups = useUIStore(
+    (state) => state.setMobileSubNavGroups
+  );
+  useEffect(() => {
+    setMobileSubNavGroups(groups);
+    return () => setMobileSubNavGroups(null);
+  }, [groups, setMobileSubNavGroups]);
 
   const toggleViews = (routeName: string) => {
     setExpandedViews((prev) => ({

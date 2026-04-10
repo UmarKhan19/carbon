@@ -1,6 +1,8 @@
 import { Button, VStack } from "@carbon/react";
+import { useEffect } from "react";
 import { Link } from "react-router";
 import { useOptimisticLocation, useUrlParams } from "~/hooks";
+import { useUIStore } from "~/stores/ui";
 import type { Route } from "~/types";
 import { CollapsibleSidebar } from "./CollapsibleSidebar";
 
@@ -8,6 +10,14 @@ const ContentSidebar = ({ links }: { links: Route[] }) => {
   const location = useOptimisticLocation();
   const [params] = useUrlParams();
   const filter = params.get("q") ?? undefined;
+
+  const setMobileSubNavLinks = useUIStore(
+    (state) => state.setMobileSubNavLinks
+  );
+  useEffect(() => {
+    setMobileSubNavLinks(links);
+    return () => setMobileSubNavLinks(null);
+  }, [links, setMobileSubNavLinks]);
 
   return (
     <CollapsibleSidebar>

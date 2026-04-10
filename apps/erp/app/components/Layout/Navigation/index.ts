@@ -7,6 +7,7 @@ import ContentSidebar from "./ContentSidebar";
 import DetailSidebar from "./DetailSidebar";
 import DetailsTopbar from "./DetailsTopbar";
 import GroupedContentSidebar from "./GroupedContentSidebar";
+import MobilePrimaryNavigation from "./MobilePrimaryNavigation";
 import PrimaryNavigation from "./PrimaryNavigation";
 
 export {
@@ -17,5 +18,6 @@ export {
   DetailSidebar,
   DetailsTopbar,
   GroupedContentSidebar,
+  MobilePrimaryNavigation,
   PrimaryNavigation
 };
