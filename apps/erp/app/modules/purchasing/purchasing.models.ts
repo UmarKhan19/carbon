@@ -209,14 +209,7 @@ export const purchaseOrderLineValidator = z
     shelfId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
-    supplierUnitPrice: zfd.numeric(z.number().optional()),
-    priceListId: zfd.text(z.string().optional()),
-    // Resolver trace stored as JSON string in a hidden form field;
-    // preprocess parses it back into an object before insert.
-    priceTrace: z.preprocess(
-      (v) => (typeof v === "string" && v.length > 0 ? JSON.parse(v) : v),
-      z.any().optional()
-    )
+    supplierUnitPrice: zfd.numeric(z.number().optional())
   })
   .refine(
     (data) =>
@@ -319,7 +312,6 @@ export const supplierValidator = z.object({
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
   purchasingContactId: zfd.text(z.string().optional()),
-  priceListId: zfd.text(z.string().optional()),
   taxId: zfd.text(z.string().optional()),
   vatNumber: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())

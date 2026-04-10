@@ -76,7 +76,6 @@ export const customerValidator = z.object({
   ),
   vatNumber: zfd.text(z.string().optional()),
   salesContactId: zfd.text(z.string().optional()),
-  priceListId: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });

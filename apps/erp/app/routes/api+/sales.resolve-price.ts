@@ -17,10 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const result = await resolvePrice(client, companyId, {
-    ...payload.data,
-    listType: "Sales"
-  });
+  const result = await resolvePrice(client, companyId, payload.data);
 
   return data(result);
 }
