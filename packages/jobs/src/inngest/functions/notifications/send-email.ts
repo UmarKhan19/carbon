@@ -36,21 +36,75 @@ export const sendEmailFunction = inngest.createFunction(
         };
       });
 
-    const parsedMetadata = ResendConfig.schema.safeParse(integrationMetadata);
+    // Legacy installs predate the provider field — default them to Resend so
+    // existing configs keep working without any migration step on the caller.
+    const metadataWithProvider =
+      integrationMetadata && typeof integrationMetadata === "object"
+        ? {
+            provider: "resend",
+            ...(integrationMetadata as Record<string, unknown>)
+          }
+        : integrationMetadata;
 
-    console.info(parsedMetadata.data?.fromEmail ?? "No email found");
+    const parsedMetadata = ResendConfig.schema.safeParse(metadataWithProvider);
 
     if (!parsedMetadata.success || !integrationActive) {
       return { success: false, message: "Invalid or inactive integration" };
     }
 
+    const data = parsedMetadata.data as {
+      provider: "resend" | "smtp";
+      fromEmail: string;
+      apiKey?: string;
+      host?: string;
+      port?: number;
+      username?: string;
+      password?: string;
+      secure?: boolean;
+    };
+
+    const fromAddress = `${companyName} <${data.fromEmail}>`;
+
+    if (data.provider === "smtp") {
+      const result = await step.run("send-email", async () => {
+        const nodemailer = await import("nodemailer");
+        const transporter = nodemailer.createTransport({
+          host: data.host!,
+          port: data.port!,
+          secure: data.secure ?? true,
+          auth: {
+            user: data.username!,
+            pass: data.password!
+          }
+        });
+
+        console.info(`SMTP Email Job`);
+        return transporter.sendMail({
+          from: fromAddress,
+          to: payload.to,
+          cc: payload.cc,
+          replyTo: payload.from,
+          subject: payload.subject,
+          html: payload.html,
+          text: payload.text,
+          attachments: payload.attachments?.map(
+            (a: { filename: string; content: string }) => ({
+              filename: a.filename,
+              content: a.content,
+              encoding: "base64" as const
+            })
+          )
+        });
+      });
+
+      return { success: true, result };
+    }
+
     const result = await step.run("send-email", async () => {
-      const resend = new Resend(parsedMetadata.data.apiKey);
+      const resend = new Resend(data.apiKey!);
 
       const email = {
-        from: `${companyName} <${
-          parsedMetadata.data.fromEmail ?? "onboarding@resend.dev"
-        }>`,
+        from: fromAddress,
         to: payload.to,
         cc: payload.cc,
         reply_to: payload.from,

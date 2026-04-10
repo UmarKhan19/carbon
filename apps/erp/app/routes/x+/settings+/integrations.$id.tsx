@@ -221,9 +221,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (!integration) throw new Error("Integration not found");
 
-  const validation = await validator(integration.schema).validate(
-    await request.formData()
-  );
+  const validation = await validator(
+    // integration.schema is a union across all integrations (incl. a
+    // discriminated union for Email). Cast to a generic ZodType so the
+    // validator signature accepts it.
+    integration.schema as unknown as Parameters<typeof validator>[0]
+  ).validate(await request.formData());
 
   if (validation.error) {
     return validationError(validation.error);
