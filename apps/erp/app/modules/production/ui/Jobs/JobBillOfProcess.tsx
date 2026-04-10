@@ -2421,7 +2421,9 @@ function OperationForm({
             >
               <HStack>
                 <TimeTypeIcon type="Setup" />
-                <Label>Setup</Label>
+                <Label>
+                  <Trans>Setup</Trans>
+                </Label>
               </HStack>
               <HStack>
                 {(processData.setupTime ?? 0) > 0 && (
@@ -2433,7 +2435,7 @@ function OperationForm({
                 <IconButton
                   icon={<LuChevronRight />}
                   aria-label={
-                    setupDisclosure.isOpen ? "Collapse Setup" : "Expand Setup"
+                    setupDisclosure.isOpen ? t`Collapse Setup` : t`Expand Setup`
                   }
                   variant="ghost"
                   size="md"
@@ -2499,7 +2501,9 @@ function OperationForm({
             >
               <HStack>
                 <TimeTypeIcon type="Labor" />
-                <Label>Labor</Label>
+                <Label>
+                  <Trans>Labor</Trans>
+                </Label>
               </HStack>
               <HStack>
                 {(processData.laborTime ?? 0) > 0 && (
@@ -2511,7 +2515,7 @@ function OperationForm({
                 <IconButton
                   icon={<LuChevronRight />}
                   aria-label={
-                    laborDisclosure.isOpen ? "Collapse Labor" : "Expand Labor"
+                    laborDisclosure.isOpen ? t`Collapse Labor` : t`Expand Labor`
                   }
                   variant="ghost"
                   size="md"
@@ -2577,7 +2581,9 @@ function OperationForm({
             >
               <HStack>
                 <TimeTypeIcon type="Machine" />
-                <Label>Machine</Label>
+                <Label>
+                  <Trans>Machine</Trans>
+                </Label>
               </HStack>
               <HStack>
                 {(processData.machineTime ?? 0) > 0 && (
@@ -2590,8 +2596,8 @@ function OperationForm({
                   icon={<LuChevronRight />}
                   aria-label={
                     machineDisclosure.isOpen
-                      ? "Collapse Machine"
-                      : "Expand Machine"
+                      ? t`Collapse Machine`
+                      : t`Expand Machine`
                   }
                   variant="ghost"
                   size="md"

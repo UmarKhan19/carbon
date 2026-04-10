@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { CommandEmpty } from "cmdk";
 import type { ComponentPropsWithoutRef } from "react";
@@ -75,6 +76,7 @@ const CreatableMultiSelect = forwardRef<
     },
     ref
   ) => {
+    const { t } = useLingui();
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
 
@@ -158,7 +160,7 @@ const CreatableMultiSelect = forwardRef<
                     </div>
                   ) : (
                     <span className="text-muted-foreground">
-                      {placeholder ?? "Search..."}
+                      {placeholder ?? t`Search...`}
                     </span>
                   )}
 
@@ -227,6 +229,7 @@ function VirtualizedCommand({
   setSearch,
   showCreateOptionOnEmpty = false
 }: VirtualizedCommandProps) {
+  const { t } = useLingui();
   const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredOptions = useMemo(() => {
@@ -255,7 +258,7 @@ function VirtualizedCommand({
     return [
       ...filtered,
       {
-        label: `Create`,
+        label: t`Create`,
         value: "create"
       }
     ];
@@ -275,7 +278,7 @@ function VirtualizedCommand({
       <CommandInput
         value={search}
         onValueChange={setSearch}
-        placeholder="Search..."
+        placeholder={t`Search...`}
         className="h-9"
       />
       <div
@@ -285,7 +288,7 @@ function VirtualizedCommand({
           height: `${Math.min(filteredOptions.length, 6) * itemHeight + 4}px`
         }}
       >
-        <CommandEmpty>No option found.</CommandEmpty>
+        <CommandEmpty>{t`No option found.`}</CommandEmpty>
         <CommandGroup
           style={{
             height: `${virtualizer.getTotalSize()}px`,

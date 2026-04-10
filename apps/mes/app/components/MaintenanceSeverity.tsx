@@ -1,4 +1,5 @@
 import { Badge, cn } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import {
   LuSettings,
   LuSquareUser,
@@ -24,7 +25,7 @@ function MaintenanceSeverity({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuSettings />
-          {severity}
+          <Trans>Preventive</Trans>
         </Badge>
       );
     case "Operator Performed":
@@ -34,7 +35,7 @@ function MaintenanceSeverity({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuSquareUser />
-          {severity}
+          <Trans>Operator Performed</Trans>
         </Badge>
       );
     case "Support Required":
@@ -44,7 +45,7 @@ function MaintenanceSeverity({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuWrench />
-          {severity}
+          <Trans>Support Required</Trans>
         </Badge>
       );
     case "OEM Required":
@@ -54,7 +55,7 @@ function MaintenanceSeverity({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuTriangleAlert />
-          {severity}
+          <Trans>OEM Required</Trans>
         </Badge>
       );
     default:

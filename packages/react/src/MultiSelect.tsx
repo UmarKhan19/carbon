@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useId, useMemo, useRef, useState } from "react";
@@ -64,6 +65,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
     },
     ref
   ) => {
+    const { t } = useLingui();
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
 
@@ -173,7 +175,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                     </div>
                   ) : (
                     <span className="text-muted-foreground">
-                      {placeholder ?? "Select"}
+                      {placeholder ?? t`Select`}
                     </span>
                   )}
 
@@ -233,6 +235,7 @@ function VirtualizedCommand({
   search,
   setSearch
 }: VirtualizedCommandProps) {
+  const { t } = useLingui();
   const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredOptions = useMemo(() => {
@@ -262,10 +265,10 @@ function VirtualizedCommand({
       <CommandInput
         value={search}
         onValueChange={setSearch}
-        placeholder="Search..."
+        placeholder={t`Search...`}
         className="h-9"
       />
-      <CommandEmpty>No option found.</CommandEmpty>
+      <CommandEmpty>{t`No option found.`}</CommandEmpty>
       <div
         ref={parentRef}
         className="overflow-auto pt-1"

@@ -1,0 +1,1322 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-04-10 10:17-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: pl\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. placeholder {0}: attribute.name
+#. placeholder {1}: activeStep + 1
+#: apps/mes/app/components/JobOperation/components/Step.tsx:434
+msgid "{0} - Set {1}"
+msgstr "{0} - Zestaw {1}"
+
+#. placeholder {0}: employeeIds.length
+#: apps/mes/app/components/Kanban/components/ItemCard.tsx:261
+msgid "{0} Active"
+msgstr "{0} Aktywnych"
+
+#. placeholder {0}: batch.quantity
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:147
+msgid "{0} available"
+msgstr "{0} dostępnych"
+
+#. placeholder {0}: operation.quantityComplete
+#. placeholder {0}: serialIndex + 1
+#. placeholder {1}: operation.operationQuantity
+#. placeholder {1}: operation.targetQuantity
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:631
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:834
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1747
+msgid "{0} of {1}"
+msgstr "{0} z {1}"
+
+#. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
+#. placeholder {1}: attributes.length
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:855
+msgid "{0} of {1} complete"
+msgstr "{0} z {1} ukończono"
+
+#. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
+#. placeholder {1}: attributes.length
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1769
+msgid "{0} of {1} completed"
+msgstr "{0} z {1} ukończonych"
+
+#. placeholder {0}: item.quantityScrapped
+#: apps/mes/app/components/Kanban/components/ItemCard.tsx:278
+msgid "{0} Scrapped"
+msgstr "{0} Odrzuconych"
+
+#: apps/mes/app/components/AppSidebar.tsx:552
+msgid "About"
+msgstr "O programie"
+
+#: apps/mes/app/components/AppSidebar.tsx:406
+msgid "Account Settings"
+msgstr "Ustawienia konta"
+
+#: apps/mes/app/components/AppSidebar.tsx:199
+#: apps/mes/app/routes/x+/active.tsx:68
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:405
+#: apps/mes/app/routes/x+/timecard.tsx:411
+msgid "Active"
+msgstr "Aktywne"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:986
+msgid "Actual"
+msgstr "Rzeczywiste"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:427
+msgid "Add"
+msgstr "Dodaj"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:663
+msgid "Add & Issue"
+msgstr "Dodaj i wydaj"
+
+#: apps/mes/app/components/AdjustInventory.tsx:112
+#: apps/mes/app/components/AdjustInventory.tsx:116
+#: apps/mes/app/components/AdjustInventory.tsx:136
+#: apps/mes/app/components/AdjustInventory.tsx:179
+msgid "Add Inventory"
+msgstr "Dodaj zapasy"
+
+#: apps/mes/app/components/PinInOverlay.tsx:514
+msgid "Add New Operator"
+msgstr "Dodaj nowego operatora"
+
+#: apps/mes/app/components/PinInOverlay.tsx:417
+#: apps/mes/app/components/PinInOverlay.tsx:615
+msgid "Add Operator"
+msgstr "Dodaj operatora"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:301
+msgid "Add Spare Part"
+msgstr "Dodaj część zamienną"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:411
+msgid "All"
+msgstr "Wszystkie"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:84
+msgid "Are you sure you want to close out this operation? This will end all active production events for this operation."
+msgstr "Czy na pewno chcesz zamknąć tę operację? Spowoduje to zakończenie wszystkich aktywnych zdarzeń produkcyjnych dla tej operacji."
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2302
+msgid "Are you sure you want to delete this step?"
+msgstr "Czy na pewno chcesz usunąć ten krok?"
+
+#: apps/mes/app/routes/x+/timecard.tsx:478
+msgid "Are you sure you want to delete this timecard? This cannot be undone."
+msgstr "Czy na pewno chcesz usunąć tę kartę czasu pracy? Tej operacji nie można cofnąć."
+
+#: apps/mes/app/components/EndShift.tsx:85
+msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
+msgstr "Czy na pewno chcesz zakończyć wszystkie zdarzenia produkcyjne? Spowoduje to zakończenie wszystkich aktywnych operacji bez ich ukończenia."
+
+#: apps/mes/app/components/AppSidebar.tsx:194
+#: apps/mes/app/routes/x+/maintenance.tsx:358
+msgid "Assigned"
+msgstr "Przypisane"
+
+#: apps/mes/app/routes/x+/assigned.tsx:88
+#: apps/mes/app/routes/x+/maintenance.tsx:427
+msgid "Assigned to Me"
+msgstr "Przypisane do mnie"
+
+#: apps/mes/app/routes/x+/operations.tsx:386
+msgid "Assignee"
+msgstr "Przypisany"
+
+#: apps/mes/app/components/Feedback.tsx:149
+msgid "Attach File"
+msgstr "Załącz plik"
+
+#: apps/mes/app/routes/_public+/login.tsx:185
+msgid "Authentication Error"
+msgstr "Błąd uwierzytelniania"
+
+#. placeholder {0}: batch.readableId
+#. placeholder {1}: batch.quantity
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:146
+msgid "Batch {0} ({1} available)"
+msgstr "Partia {0} ({1} dostępnych)"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:182
+msgid "Batch is not available"
+msgstr "Partia jest niedostępna"
+
+#. placeholder {0}: index + 1
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:497
+msgid "Batch Number {0}"
+msgstr "Numer partii {0}"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:175
+msgid "Batch number is required"
+msgstr "Numer partii jest wymagany"
+
+#. placeholder {0}: column.blockingDispatchReadableId
+#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:128
+msgid "Blocked by {0}"
+msgstr "Zablokowane przez {0}"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:435
+msgid "Blocking"
+msgstr "Blokujące"
+
+#: apps/mes/app/routes/_public+/login.tsx:243
+msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
+msgstr "Logując się, akceptujesz <0>Regulamin</0> i <1>Politykę prywatności.</1>"
+
+#: apps/mes/app/components/AdjustInventory.tsx:176
+#: apps/mes/app/components/EndShift.tsx:134
+#: apps/mes/app/components/Feedback.tsx:137
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:253
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:135
+#: apps/mes/app/components/JobOperation/components/Step.tsx:554
+#: apps/mes/app/components/JobOperation/components/Step.tsx:602
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:653
+#: apps/mes/app/components/PinInOverlay.tsx:606
+#: apps/mes/app/components/Suggestion.tsx:195
+#: apps/mes/app/routes/x+/timecard.tsx:396
+#: apps/mes/app/routes/x+/timecard.tsx:485
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: apps/mes/app/routes/_public+/login.tsx:159
+msgid "Carbon Logo"
+msgstr "Logo Carbon"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:470
+msgid "Chat"
+msgstr "Czat"
+
+#: apps/mes/app/routes/_public+/login.tsx:167
+msgid "Check your email"
+msgstr "Sprawdź swoją skrzynkę e-mail"
+
+#: apps/mes/app/components/Feedback.tsx:145
+#: apps/mes/app/components/Suggestion.tsx:203
+msgid "Clear"
+msgstr "Wyczyść"
+
+#: apps/mes/app/components/Filter/Filter.tsx:121
+#: apps/mes/app/routes/x+/operations.tsx:477
+msgid "Clear Filters"
+msgstr "Wyczyść filtry"
+
+#: apps/mes/app/routes/x+/active.tsx:100
+#: apps/mes/app/routes/x+/assigned.tsx:134
+#: apps/mes/app/routes/x+/maintenance.tsx:285
+#: apps/mes/app/routes/x+/recent.tsx:100
+msgid "Clear Search"
+msgstr "Wyczyść wyszukiwanie"
+
+#: apps/mes/app/components/TimeCardButton.tsx:88
+#: apps/mes/app/components/TimeCardButton.tsx:94
+#: apps/mes/app/routes/x+/timecard.tsx:262
+#: apps/mes/app/routes/x+/timecard.tsx:312
+msgid "Clock In"
+msgstr "Rozpocznij zmianę"
+
+#: apps/mes/app/components/TimeCardButton.tsx:71
+#: apps/mes/app/components/TimeCardButton.tsx:77
+#: apps/mes/app/routes/x+/timecard.tsx:251
+#: apps/mes/app/routes/x+/timecard.tsx:313
+msgid "Clock Out"
+msgstr "Zakończ zmianę"
+
+#. placeholder {0}: formatTime(openEntry.clockIn)
+#: apps/mes/app/routes/x+/timecard.tsx:270
+msgid "Clocked in since {0}"
+msgstr "Zalogowany od {0}"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:98
+msgid "Close"
+msgstr "Zamknij"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:98
+msgid "Close Anyways"
+msgstr "Zamknij mimo to"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2058
+msgid "Close Out"
+msgstr "Zamknij"
+
+#. placeholder {0}: operation.itemReadableId
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:74
+msgid "Close out {0}"
+msgstr "Zamknij {0}"
+
+#. placeholder {0}: active.data.current.column.title
+#. placeholder {1}: overColumnPosition + 1
+#. placeholder {2}: columnOrder.length
+#: apps/mes/app/components/Kanban/Kanban.tsx:113
+msgid "Column {0} was dropped into position {1} of {2}"
+msgstr "Kolumna {0} została upuszczona na pozycję {1} z {2}"
+
+#. placeholder {0}: active.data.current.column.title
+#. placeholder {1}: over.data.current.column.title
+#. placeholder {2}: overIndex + 1
+#. placeholder {3}: columnOrder.length
+#: apps/mes/app/components/Kanban/Kanban.tsx:97
+msgid "Column {0} was moved over {1} at position {2} of {3}"
+msgstr "Kolumna {0} została przeniesiona nad {1} na pozycję {2} z {3}"
+
+#. placeholder {0}: column.title
+#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:71
+msgid "Column: {0}"
+msgstr "Kolumna: {0}"
+
+#: apps/mes/app/components/AppSidebar.tsx:414
+msgid "Company"
+msgstr "Firma"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:188
+msgid "Complete"
+msgstr "Ukończ"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:625
+msgid "Completed"
+msgstr "Ukończone"
+
+#: apps/mes/app/components/AppSidebar.tsx:347
+msgid "Console"
+msgstr "Konsola"
+
+#: apps/mes/app/components/AppSidebar.tsx:519
+msgid "Console Mode"
+msgstr "Tryb konsoli"
+
+#: apps/mes/app/components/PinInOverlay.tsx:567
+msgid "Copy PIN"
+msgstr "Kopiuj PIN"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1931
+#: apps/mes/app/routes/x+/operations.tsx:426
+msgid "Customer"
+msgstr "Klient"
+
+#: apps/mes/app/components/AppSidebar.tsx:483
+msgid "Dark Mode"
+msgstr "Tryb ciemny"
+
+#: apps/mes/app/routes/x+/timecard.tsx:311
+msgid "Date"
+msgstr "Data"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1958
+msgid "Deadline"
+msgstr "Termin"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1087
+msgid "Default Shelf"
+msgstr "Domyślna półka"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:611
+#: apps/mes/app/routes/x+/timecard.tsx:443
+#: apps/mes/app/routes/x+/timecard.tsx:497
+msgid "Delete"
+msgstr "Usuń"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2301
+msgid "Delete Step"
+msgstr "Usuń krok"
+
+#. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString()
+#: apps/mes/app/routes/x+/timecard.tsx:474
+msgid "Delete Timecard ({0})"
+msgstr "Usuń kartę czasu pracy ({0})"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1945
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:282
+#: apps/mes/app/routes/x+/operations.tsx:427
+msgid "Description"
+msgstr "Opis"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:454
+msgid "Details"
+msgstr "Szczegóły"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:223
+msgid "Dispatch not found"
+msgstr "Nie znaleziono zlecenia"
+
+#: apps/mes/app/routes/x+/operations.tsx:420
+msgid "Display"
+msgstr "Wyświetlanie"
+
+#: apps/mes/app/components/MaintenanceOeeImpact.tsx:28
+#: apps/mes/app/routes/x+/maintenance.tsx:369
+msgid "Down"
+msgstr "Awaria"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1426
+msgid "Download"
+msgstr "Pobierz"
+
+#: apps/mes/app/components/FileDropzone.tsx:29
+msgid "Drag and drop a file here, or click to select a file"
+msgstr "Przeciągnij i upuść plik tutaj lub kliknij, aby wybrać plik"
+
+#. placeholder {0}: active.data.current?.type
+#: apps/mes/app/components/Kanban/Kanban.tsx:122
+msgid "Dragging {0} cancelled."
+msgstr "Przeciąganie {0} anulowane."
+
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:574
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:666
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1977
+#: apps/mes/app/components/Kanban/components/ItemCard.tsx:229
+#: apps/mes/app/components/OperationsList.tsx:187
+msgid "Due {0}"
+msgstr "Termin {0}"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:646
+#: apps/mes/app/routes/x+/operations.tsx:428
+msgid "Due Date"
+msgstr "Termin realizacji"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:180
+msgid "Duplicate batch number"
+msgstr "Zduplikowany numer partii"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:165
+msgid "Duplicate serial number"
+msgstr "Zduplikowany numer seryjny"
+
+#: apps/mes/app/routes/x+/operations.tsx:429
+#: apps/mes/app/routes/x+/timecard.tsx:314
+msgid "Duration"
+msgstr "Czas trwania"
+
+#: apps/mes/app/routes/x+/timecard.tsx:431
+msgid "Edit"
+msgstr "Edytuj"
+
+#: apps/mes/app/routes/_public+/login.tsx:223
+msgid "Email Address"
+msgstr "Adres e-mail"
+
+#: apps/mes/app/components/EndShift.tsx:72
+#: apps/mes/app/components/EndShift.tsx:74
+#: apps/mes/app/components/EndShift.tsx:83
+#: apps/mes/app/components/EndShift.tsx:147
+msgid "End Operations"
+msgstr "Zakończ operacje"
+
+#: apps/mes/app/components/PinInOverlay.tsx:524
+msgid "Enter first name"
+msgstr "Wprowadź imię"
+
+#: apps/mes/app/components/PinInOverlay.tsx:534
+msgid "Enter last name"
+msgstr "Wprowadź nazwisko"
+
+#. placeholder {0}: selectedPerson.name
+#: apps/mes/app/components/PinInOverlay.tsx:352
+msgid "Enter PIN for {0}"
+msgstr "Wprowadź PIN dla {0}"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:985
+msgid "Estimated"
+msgstr "Szacowane"
+
+#: apps/mes/app/components/PinInOverlay.tsx:593
+msgid "Failed to add operator"
+msgstr "Nie udało się dodać operatora"
+
+#: apps/mes/app/components/AdjustInventory.tsx:94
+msgid "Failed to complete inventory adjustment"
+msgstr "Nie udało się zakończyć korekty zapasów"
+
+#: apps/mes/app/components/EndShift.tsx:48
+msgid "Failed to end operations"
+msgstr "Nie udało się zakończyć operacji"
+
+#: apps/mes/app/components/EndShift.tsx:64
+msgid "Failed to fetch active operations"
+msgstr "Nie udało się pobrać aktywnych operacji"
+
+#: apps/mes/app/components/AdjustInventory.tsx:63
+msgid "Failed to fetch shelves"
+msgstr "Nie udało się pobrać półek"
+
+#. placeholder {0}: fileUpload.name
+#: apps/mes/app/components/JobOperation/components/Step.tsx:385
+msgid "Failed to upload file: {0}"
+msgstr "Nie udało się przesłać pliku: {0}"
+
+#: apps/mes/app/components/Feedback.tsx:74
+#: apps/mes/app/components/Suggestion.tsx:94
+msgid "Failed to upload image"
+msgstr "Nie udało się przesłać obrazu"
+
+#: apps/mes/app/components/Feedback.tsx:91
+msgid "Feedback"
+msgstr "Opinia"
+
+#: apps/mes/app/components/Feedback.tsx:61
+#: apps/mes/app/components/Suggestion.tsx:80
+msgid "File size exceeds 10MB limit"
+msgstr "Rozmiar pliku przekracza limit 10 MB"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1360
+msgid "Files"
+msgstr "Pliki"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1362
+msgid "Files related to the job and the opportunity line."
+msgstr "Pliki powiązane ze zleceniem i pozycją zapytania."
+
+#: apps/mes/app/components/Filter/Filter.tsx:151
+msgid "Filter"
+msgstr "Filtr"
+
+#: apps/mes/app/components/PinInOverlay.tsx:520
+msgid "First Name"
+msgstr "Imię"
+
+#: apps/mes/app/components/TimeCardWarning.tsx:106
+msgid "Forgot to Clock Out?"
+msgstr "Zapomniałeś zakończyć zmianę?"
+
+#: apps/mes/app/components/PinInOverlay.tsx:581
+msgid "Generate new PIN"
+msgstr "Wygeneruj nowy PIN"
+
+#: apps/mes/app/components/Feedback.tsx:161
+msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
+msgstr "Masz problem techniczny? Skontaktuj się z <0>Wsparciem Carbon.</0>"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:192
+msgid "I understand and want to complete without issuing"
+msgstr "Rozumiem i chcę ukończyć bez wydania"
+
+#: apps/mes/app/components/TimeCardWarning.tsx:134
+msgid "I'm Still Working"
+msgstr "Nadal pracuję"
+
+#: apps/mes/app/components/Feedback.tsx:114
+msgid "Ideas, suggestions or problems with this page?"
+msgstr "Pomysły, sugestie lub problemy z tą stroną?"
+
+#: apps/mes/app/components/Suggestion.tsx:137
+msgid "Ideas, suggestions or problems?"
+msgstr "Pomysły, sugestie lub problemy?"
+
+#: apps/mes/app/components/MaintenanceOeeImpact.tsx:48
+#: apps/mes/app/routes/x+/maintenance.tsx:371
+msgid "Impact"
+msgstr "Wpływ"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:359
+msgid "In Progress"
+msgstr "W toku"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:201
+msgid "Insufficient quantity"
+msgstr "Niewystarczająca ilość"
+
+#: apps/mes/app/components/AdjustInventory.tsx:89
+msgid "Inventory adjustment completed"
+msgstr "Korekta zapasów zakończona"
+
+#: apps/mes/app/components/AppSidebar.tsx:266
+msgid "Inventory Adjustments"
+msgstr "Korekty zapasów"
+
+#: apps/mes/app/components/Filter/ActiveFilters.tsx:138
+msgid "is"
+msgstr "jest"
+
+#: apps/mes/app/components/Filter/ActiveFilters.tsx:138
+msgid "is any of"
+msgstr "jest jednym z"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1168
+msgid "Issue"
+msgstr "Wydaj"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:949
+msgid "Issue Material"
+msgstr "Wydaj materiał"
+
+#: apps/mes/app/components/AdjustInventory.tsx:150
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1911
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:310
+msgid "Item"
+msgstr "Pozycja"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:511
+msgid "Item Master"
+msgstr "Kartoteka pozycji"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1920
+msgid "Job"
+msgstr "Zlecenie"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:502
+msgid "Job Details"
+msgstr "Szczegóły zlecenia"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:496
+msgid "Job Traveler"
+msgstr "Karta obiegowa zlecenia"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1070
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1238
+msgid "Kit"
+msgstr "Zestaw"
+
+#: apps/mes/app/components/JobOperation/components/Controls.tsx:179
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2106
+msgid "Labor"
+msgstr "Robocizna"
+
+#: apps/mes/app/components/PinInOverlay.tsx:530
+msgid "Last Name"
+msgstr "Nazwisko"
+
+#: apps/mes/app/routes/_public+/_layout.tsx:30
+msgid "Let's build something"
+msgstr "Zbudujmy coś"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:321
+msgid "Loading item details..."
+msgstr "Ładowanie szczegółów pozycji..."
+
+#: apps/mes/app/components/Filter/ActiveFilters.tsx:166
+#: apps/mes/app/components/Filter/Filter.tsx:167
+msgid "Loading..."
+msgstr "Ładowanie..."
+
+#: apps/mes/app/components/AppSidebar.tsx:454
+msgid "Location"
+msgstr "Lokalizacja"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:97
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2048
+msgid "Log Completed"
+msgstr "Rejestruj ukończone"
+
+#. placeholder {0}: operation.itemReadableId
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:73
+msgid "Log completed for {0}"
+msgstr "Rejestruj ukończone dla {0}"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:96
+msgid "Log Rework"
+msgstr "Rejestruj poprawki"
+
+#. placeholder {0}: operation.itemReadableId
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:72
+msgid "Log rework for {0}"
+msgstr "Rejestruj poprawki dla {0}"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:95
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2031
+msgid "Log Scrap"
+msgstr "Rejestruj odpad"
+
+#. placeholder {0}: operation.itemReadableId
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:71
+msgid "Log scrap for {0}"
+msgstr "Rejestruj odpad dla {0}"
+
+#: apps/mes/app/components/JobOperation/components/Controls.tsx:193
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2137
+msgid "Machine"
+msgstr "Maszyna"
+
+#: apps/mes/app/components/AppSidebar.tsx:210
+#: apps/mes/app/routes/x+/maintenance.tsx:399
+msgid "Maintenance"
+msgstr "Utrzymanie ruchu"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:539
+msgid "Maintenance Completed"
+msgstr "Utrzymanie ruchu zakończone"
+
+#: apps/mes/app/components/AdjustInventory.tsx:138
+msgid "Manually add items to inventory"
+msgstr "Ręcznie dodaj pozycje do zapasów"
+
+#: apps/mes/app/components/AdjustInventory.tsx:138
+msgid "Manually remove items from inventory"
+msgstr "Ręcznie usuń pozycje z zapasów"
+
+#: apps/mes/app/components/Filter/ActiveFilters.tsx:138
+msgid "matches"
+msgstr "pasuje do"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:937
+msgid "Materials"
+msgstr "Materiały"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:818
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1731
+msgid "Maximum number of records reached"
+msgstr "Osiągnięto maksymalną liczbę rekordów"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:459
+msgid "Model"
+msgstr "Model"
+
+#: apps/mes/app/routes/x+/timecard.tsx:421
+msgid "More options"
+msgstr "Więcej opcji"
+
+#. placeholder {0}: column.title
+#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:147
+msgid "Move column: {0}"
+msgstr "Przenieś kolumnę: {0}"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:115
+msgid "Must be < {maxValue} {unitOfMeasureCode}"
+msgstr "Musi być < {maxValue} {unitOfMeasureCode}"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:113
+msgid "Must be > {minValue} {unitOfMeasureCode}"
+msgstr "Musi być > {minValue} {unitOfMeasureCode}"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:111
+msgid "Must be between {minValue} and {maxValue} {unitOfMeasureCode}"
+msgstr "Musi być pomiędzy {minValue} a {maxValue} {unitOfMeasureCode}"
+
+#: apps/mes/app/components/TimeCardButton.tsx:101
+#: apps/mes/app/components/TimeCardButton.tsx:110
+#: apps/mes/app/routes/x+/timecard.tsx:241
+msgid "My Hours"
+msgstr "Moje godziny"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1373
+msgid "Name"
+msgstr "Nazwa"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:829
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1742
+msgid "New Record"
+msgstr "Nowy rekord"
+
+#: apps/mes/app/routes/x+/timecard.tsx:292
+#: apps/mes/app/routes/x+/timecard.tsx:295
+msgid "Next"
+msgstr "Następny"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:473
+msgid "No active maintenance dispatches"
+msgstr "Brak aktywnych zleceń utrzymania ruchu"
+
+#: apps/mes/app/components/EndShift.tsx:96
+#: apps/mes/app/routes/x+/active.tsx:108
+msgid "No active operations"
+msgstr "Brak aktywnych operacji"
+
+#: apps/mes/app/routes/x+/assigned.tsx:142
+msgid "No assigned operations"
+msgstr "Brak przypisanych operacji"
+
+#: apps/mes/app/components/Filter/Filter.tsx:167
+msgid "No available filters"
+msgstr "Brak dostępnych filtrów"
+
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:73
+msgid "No available serial numbers found"
+msgstr "Nie znaleziono dostępnych numerów seryjnych"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:511
+msgid "No dispatches assigned to you"
+msgstr "Brak zleceń przypisanych do Ciebie"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1385
+msgid "No files"
+msgstr "Brak plików"
+
+#: apps/mes/app/components/MaintenanceOeeImpact.tsx:58
+#: apps/mes/app/routes/x+/maintenance.tsx:258
+#: apps/mes/app/routes/x+/maintenance.tsx:372
+msgid "No Impact"
+msgstr "Brak wpływu"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:492
+msgid "No maintenance scheduled for today"
+msgstr "Brak zaplanowanego utrzymania ruchu na dziś"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:997
+msgid "No materials"
+msgstr "Brak materiałów"
+
+#: apps/mes/app/components/PinInOverlay.tsx:285
+msgid "No operators"
+msgstr "Brak operatorów"
+
+#: apps/mes/app/components/Filter/ActiveFilters.tsx:166
+msgid "No options found."
+msgstr "Nie znaleziono opcji."
+
+#: apps/mes/app/routes/x+/recent.tsx:108
+msgid "No recent operations"
+msgstr "Brak ostatnich operacji"
+
+#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/routes/x+/operations.tsx:475
+msgid "No results"
+msgstr "Brak wyników"
+
+#: apps/mes/app/routes/x+/active.tsx:98
+#: apps/mes/app/routes/x+/assigned.tsx:132
+#: apps/mes/app/routes/x+/recent.tsx:98
+msgid "No results exist"
+msgstr "Brak wyników"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:469
+#: apps/mes/app/routes/x+/maintenance.tsx:488
+#: apps/mes/app/routes/x+/maintenance.tsx:507
+#: apps/mes/app/routes/x+/maintenance.tsx:526
+msgid "No results found"
+msgstr "Nie znaleziono wyników"
+
+#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:141
+msgid "No scheduled time"
+msgstr "Brak zaplanowanego czasu"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1561
+msgid "No serial numbers"
+msgstr "Brak numerów seryjnych"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:471
+msgid "No spare parts added yet"
+msgstr "Nie dodano jeszcze części zamiennych"
+
+#: apps/mes/app/routes/x+/timecard.tsx:325
+msgid "No time entries for this week"
+msgstr "Brak wpisów czasu pracy w tym tygodniu"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:530
+msgid "No work centers are blocked"
+msgstr "Żadne gniazda produkcyjne nie są zablokowane"
+
+#: apps/mes/app/routes/x+/operations.tsx:485
+msgid "No work centers exist"
+msgstr "Brak gniazd produkcyjnych"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:232
+msgid "Notes"
+msgstr "Notatki"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:365
+msgid "OEE Impact"
+msgstr "Wpływ na OEE"
+
+#: apps/mes/app/components/MaintenanceSeverity.tsx:58
+msgid "OEM Required"
+msgstr "Wymagany OEM"
+
+#. placeholder {0}: batch.quantity
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:183
+msgid "Only {0} available"
+msgstr "Tylko {0} dostępnych"
+
+#: apps/mes/app/routes/_index.tsx:16
+msgid "Oops. You shouldn't see this page. Eventually it will be a landing page."
+msgstr "Ups. Nie powinieneś widzieć tej strony. Docelowo będzie to strona główna."
+
+#: apps/mes/app/routes/x+/maintenance.tsx:357
+msgid "Open"
+msgstr "Otwarte"
+
+#: apps/mes/app/components/AppSidebar.tsx:222
+msgid "Operations"
+msgstr "Operacje"
+
+#: apps/mes/app/components/EndShift.tsx:44
+msgid "Operations ended"
+msgstr "Operacje zakończone"
+
+#: apps/mes/app/components/MaintenanceSeverity.tsx:38
+msgid "Operator Performed"
+msgstr "Wykonane przez operatora"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1652
+msgid "Parameters"
+msgstr "Parametry"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:983
+msgid "Part"
+msgstr "Część"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:539
+msgid "Passed Inspection"
+msgstr "Inspekcja zaliczona"
+
+#: apps/mes/app/components/JobOperation/components/Controls.tsx:313
+msgid "Pause"
+msgstr "Pauza"
+
+#. placeholder {0}: startColumn?.title
+#. placeholder {1}: startIndex + 1
+#. placeholder {2}: columnOrder.length
+#: apps/mes/app/components/Kanban/Kanban.tsx:84
+msgid "Picked up Column {0} at position: {1} of {2}"
+msgstr "Podniesiono kolumnę {0} na pozycji: {1} z {2}"
+
+#: apps/mes/app/components/PinInOverlay.tsx:541
+msgid "PIN"
+msgstr "PIN"
+
+#: apps/mes/app/components/PinInOverlay.tsx:432
+msgid "Pin Out"
+msgstr "Wyloguj PIN"
+
+#: apps/mes/app/components/MaintenanceOeeImpact.tsx:38
+#: apps/mes/app/routes/x+/maintenance.tsx:370
+msgid "Planned"
+msgstr "Planowane"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:213
+msgid "Please record all steps for this operation before closing."
+msgstr "Zarejestruj wszystkie kroki dla tej operacji przed zamknięciem."
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:191
+msgid "Please select an item"
+msgstr "Wybierz pozycję"
+
+#: apps/mes/app/routes/x+/timecard.tsx:278
+msgid "Prev"
+msgstr "Poprzedni"
+
+#: apps/mes/app/components/MaintenanceSeverity.tsx:28
+msgid "Preventive"
+msgstr "Prewencyjne"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:341
+msgid "Priority"
+msgstr "Priorytet"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:468
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:512
+msgid "Procedure"
+msgstr "Procedura"
+
+#: apps/mes/app/routes/x+/operations.tsx:358
+msgid "Process"
+msgstr "Proces"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:903
+msgid "Process Parameters"
+msgstr "Parametry procesu"
+
+#: apps/mes/app/routes/x+/operations.tsx:359
+msgid "Processes"
+msgstr "Procesy"
+
+#: apps/mes/app/routes/x+/operations.tsx:430
+msgid "Progress"
+msgstr "Postęp"
+
+#: apps/mes/app/components/AdjustInventory.tsx:156
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:221
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2167
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:331
+msgid "Quantity"
+msgstr "Ilość"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:176
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:258
+msgid "Quantity must be greater than 0"
+msgstr "Ilość musi być większa od 0"
+
+#: apps/mes/app/components/AppSidebar.tsx:205
+#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/routes/x+/recent.tsx:68
+msgid "Recent"
+msgstr "Ostatnie"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:205
+#: apps/mes/app/components/JobOperation/components/Step.tsx:565
+msgid "Record"
+msgstr "Rejestruj"
+
+#. placeholder {0}: activeStep + 1
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:788
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1708
+msgid "Record {0}"
+msgstr "Rekord {0}"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:509
+msgid "Remove"
+msgstr "Usuń"
+
+#: apps/mes/app/components/Filter/ActiveFilters.tsx:196
+#: apps/mes/app/components/Filter/Filter.tsx:129
+msgid "Remove filter"
+msgstr "Usuń filtr"
+
+#: apps/mes/app/components/AdjustInventory.tsx:112
+#: apps/mes/app/components/AdjustInventory.tsx:116
+#: apps/mes/app/components/AdjustInventory.tsx:136
+#: apps/mes/app/components/AdjustInventory.tsx:179
+msgid "Remove Inventory"
+msgstr "Usuń zapasy"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:456
+msgid "Remove part"
+msgstr "Usuń część"
+
+#: apps/mes/app/routes/x+/operations.tsx:432
+msgid "Sales Order"
+msgstr "Zamówienie sprzedaży"
+
+#: apps/mes/app/routes/x+/timecard.tsx:389
+msgid "Save"
+msgstr "Zapisz"
+
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:61
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1540
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:359
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:479
+msgid "Scan"
+msgstr "Skanuj"
+
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:104
+msgid "Scan or enter serial number"
+msgstr "Skanuj lub wprowadź numer seryjny"
+
+#: apps/mes/app/components/AppSidebar.tsx:189
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:449
+#: apps/mes/app/routes/x+/operations.tsx:403
+msgid "Schedule"
+msgstr "Harmonogram"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:231
+#: apps/mes/app/components/JobOperation/components/ScrapReason.tsx:20
+msgid "Scrap Reason"
+msgstr "Przyczyna odrzutu"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:637
+msgid "Scrapped"
+msgstr "Odrzucone"
+
+#: apps/mes/app/routes/x+/active.tsx:81
+#: apps/mes/app/routes/x+/assigned.tsx:101
+#: apps/mes/app/routes/x+/maintenance.tsx:447
+#: apps/mes/app/routes/x+/operations.tsx:409
+#: apps/mes/app/routes/x+/recent.tsx:81
+msgid "Search"
+msgstr "Szukaj"
+
+#: apps/mes/app/components/PinInOverlay.tsx:269
+msgid "Search operators..."
+msgstr "Szukaj operatorów..."
+
+#: apps/mes/app/components/Filter/ActiveFilters.tsx:162
+#: apps/mes/app/components/Filter/Filter.tsx:163
+msgid "Search..."
+msgstr "Szukaj..."
+
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:65
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:90
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1605
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:363
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:483
+msgid "Select"
+msgstr "Wybierz"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:83
+msgid "Select a completion quantity"
+msgstr "Wybierz ilość ukończoną"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:82
+msgid "Select a rework quantity"
+msgstr "Wybierz ilość do poprawki"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:81
+msgid "Select a scrap quantity and reason"
+msgstr "Wybierz ilość odrzutu i przyczynę"
+
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:53
+msgid "Select a serial number to continue with this operation"
+msgstr "Wybierz numer seryjny, aby kontynuować tę operację"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:303
+msgid "Select an item and specify the quantity to issue"
+msgstr "Wybierz pozycję i określ ilość do wydania"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:312
+msgid "Select an item..."
+msgstr "Wybierz pozycję..."
+
+#. placeholder {0}: index + 1
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:587
+msgid "Select Batch {0}"
+msgstr "Wybierz partię {0}"
+
+#. placeholder {0}: index + 1
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:435
+msgid "Select Serial {0}"
+msgstr "Wybierz numer seryjny {0}"
+
+#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:51
+msgid "Select Serial Number"
+msgstr "Wybierz numer seryjny"
+
+#: apps/mes/app/components/Feedback.tsx:157
+#: apps/mes/app/components/JobOperation/components/Chat.tsx:222
+#: apps/mes/app/components/Suggestion.tsx:215
+msgid "Send"
+msgstr "Wyślij"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1549
+msgid "Serial"
+msgstr "Seryjny"
+
+#. placeholder {0}: sn.readableId
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:128
+msgid "Serial {0}"
+msgstr "Seryjny {0}"
+
+#. placeholder {0}: index + 1
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:377
+msgid "Serial Number {0}"
+msgstr "Numer seryjny {0}"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:167
+msgid "Serial number is not available"
+msgstr "Numer seryjny jest niedostępny"
+
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:161
+msgid "Serial number is required"
+msgstr "Numer seryjny jest wymagany"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1522
+msgid "Serial Numbers"
+msgstr "Numery seryjne"
+
+#: apps/mes/app/components/TimeCardWarning.tsx:141
+msgid "Set Clock Out"
+msgstr "Ustaw zakończenie zmiany"
+
+#: apps/mes/app/components/TimeCardWarning.tsx:122
+msgid "Set clock-out time"
+msgstr "Ustaw czas zakończenia zmiany"
+
+#: apps/mes/app/components/JobOperation/components/Controls.tsx:165
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2075
+msgid "Setup"
+msgstr "Ustawienie"
+
+#: apps/mes/app/components/PinInOverlay.tsx:587
+msgid "Share this PIN with the operator so they can pin in at the terminal."
+msgstr "Udostępnij ten PIN operatorowi, aby mógł się zalogować na terminalu."
+
+#: apps/mes/app/components/AdjustInventory.tsx:158
+msgid "Shelf"
+msgstr "Półka"
+
+#: apps/mes/app/routes/_public+/login.tsx:233
+msgid "Sign in with Email"
+msgstr "Zaloguj się przez e-mail"
+
+#: apps/mes/app/routes/_public+/login.tsx:200
+msgid "Sign in with Google"
+msgstr "Zaloguj się przez Google"
+
+#: apps/mes/app/routes/_public+/login.tsx:213
+msgid "Sign in with Outlook"
+msgstr "Zaloguj się przez Outlook"
+
+#: apps/mes/app/components/AppSidebar.tsx:559
+msgid "Sign Out"
+msgstr "Wyloguj się"
+
+#: apps/mes/app/components/AppSidebar.tsx:400
+msgid "Signed in as {stationName}"
+msgstr "Zalogowany jako {stationName}"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1374
+msgid "Size"
+msgstr "Rozmiar"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:984
+msgid "Source"
+msgstr "Źródło"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:420
+msgid "Spare Parts"
+msgstr "Części zamienne"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:483
+msgid "Spare Parts Used"
+msgstr "Użyte części zamienne"
+
+#: apps/mes/app/components/JobOperation/components/Controls.tsx:326
+msgid "Start"
+msgstr "Start"
+
+#: apps/mes/app/components/PinInOverlay.tsx:333
+msgid "Station User"
+msgstr "Użytkownik stacji"
+
+#: apps/mes/app/components/AppSidebar.tsx:394
+msgid "Station: {stationName}"
+msgstr "Stacja: {stationName}"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:352
+#: apps/mes/app/routes/x+/operations.tsx:431
+msgid "Status"
+msgstr "Status"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:353
+msgid "Statuses"
+msgstr "Statusy"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:735
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:841
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1650
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1755
+msgid "Steps"
+msgstr "Kroki"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:211
+msgid "Steps are missing"
+msgstr "Brakuje kroków"
+
+#: apps/mes/app/components/Suggestion.tsx:157
+msgid "Submit anonymously"
+msgstr "Wyślij anonimowo"
+
+#: apps/mes/app/components/Suggestion.tsx:114
+#: apps/mes/app/components/Suggestion.tsx:116
+msgid "Suggestion"
+msgstr "Sugestia"
+
+#: apps/mes/app/components/MaintenanceSeverity.tsx:48
+msgid "Support Required"
+msgstr "Wymagane wsparcie"
+
+#: apps/mes/app/components/AppSidebar.tsx:390
+msgid "Switch Operator"
+msgstr "Zmień operatora"
+
+#: apps/mes/app/routes/x+/operations.tsx:375
+msgid "Tag"
+msgstr "Tag"
+
+#. placeholder {0}: operation.operationQuantity
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:203
+msgid "The completed quantity for this operation is less than the required quantity of {0}."
+msgstr "Ukończona ilość dla tej operacji jest mniejsza niż wymagana ilość {0}."
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:180
+msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
+msgstr "Na liście materiałowej znajdują się materiały śledzone seryjnie lub partiami, które nie zostały w pełni wydane. Ukończenie bez wydania może skutkować nieprawidłowymi rekordami śledzenia."
+
+#: apps/mes/app/routes/x+/operations.tsx:433
+msgid "Thumbnail"
+msgstr "Miniatura"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:382
+msgid "Time Entries"
+msgstr "Wpisy czasu pracy"
+
+#. placeholder {0}: formatDuration(totalDuration)
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:304
+msgid "Time Worked: {0}"
+msgstr "Przepracowany czas: {0}"
+
+#: apps/mes/app/routes/x+/maintenance.tsx:419
+msgid "Today"
+msgstr "Dzisiaj"
+
+#: apps/mes/app/components/AppSidebar.tsx:277
+msgid "Tools"
+msgstr "Narzędzia"
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:238
+msgid "Total Quantity"
+msgstr "Ilość całkowita"
+
+#. placeholder {0}: formatDuration(totalDuration)
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:542
+msgid "Total time: {0}"
+msgstr "Czas całkowity: {0}"
+
+#. placeholder {0}: formatTotalHours(entries)
+#: apps/mes/app/routes/x+/timecard.tsx:457
+msgid "Total: {0}"
+msgstr "Razem: {0}"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1537
+msgid "Tracking Labels"
+msgstr "Etykiety śledzenia"
+
+#: apps/mes/app/components/JobOperation/components/Chat.tsx:211
+msgid "Type a message..."
+msgstr "Wpisz wiadomość..."
+
+#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:178
+msgid "Unissued serial/batch materials"
+msgstr "Niewydane materiały seryjne/partyjne"
+
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:262
+msgid "Unknown"
+msgstr "Nieznane"
+
+#: apps/mes/app/components/JobOperation/components/Step.tsx:154
+msgid "Update"
+msgstr "Aktualizuj"
+
+#: apps/mes/app/components/TimeCardWarning.tsx:68
+msgid "Updated successfully"
+msgstr "Zaktualizowano pomyślnie"
+
+#. placeholder {0}: fileUpload.name
+#: apps/mes/app/components/JobOperation/components/Step.tsx:387
+msgid "Uploaded: {0}"
+msgstr "Przesłano: {0}"
+
+#. placeholder {0}: fileUpload.name
+#: apps/mes/app/components/JobOperation/components/Step.tsx:373
+msgid "Uploading {0}"
+msgstr "Przesyłanie {0}"
+
+#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:132
+msgid "View maintenance dispatch"
+msgstr "Wyświetl zlecenie utrzymania ruchu"
+
+#: apps/mes/app/routes/_public+/login.tsx:169
+msgid "We've sent you a magic link to sign in to your account."
+msgstr "Wysłaliśmy Ci link do logowania na Twoje konto."
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1086
+msgid "WIP"
+msgstr "WIP"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1885
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:256
+#: apps/mes/app/routes/x+/maintenance.tsx:328
+#: apps/mes/app/routes/x+/operations.tsx:347
+msgid "Work Center"
+msgstr "Gniazdo produkcyjne"
+
+#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
+#: apps/mes/app/components/TimeCardWarning.tsx:115
+msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
+msgstr "Zalogowałeś się o {0}. Możesz edytować czas zakończenia zmiany poniżej lub potwierdzić, że nadal pracujesz."
+
+#: apps/mes/app/components/TimeCardWarning.tsx:108
+msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
+msgstr "Jesteś zalogowany od {hoursElapsed} godzin. Czy zapomniałeś zakończyć zmianę?"

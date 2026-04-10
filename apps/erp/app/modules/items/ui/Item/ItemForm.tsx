@@ -57,11 +57,20 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
   const { t } = useLingui();
   const fetcher = useFetcher<{}>();
 
+  const translateItemTrackingType = (v: string) =>
+    v === "Inventory"
+      ? t`Inventory`
+      : v === "Non-Inventory"
+        ? t`Non-Inventory`
+        : v === "Serial"
+          ? t`Serial`
+          : t`Batch`;
+
   const itemTrackingTypeOptions = itemTrackingTypes.map((itemTrackingType) => ({
     label: (
       <span className="flex items-center gap-2">
         <TrackingTypeIcon type={itemTrackingType} />
-        {itemTrackingType}
+        {translateItemTrackingType(itemTrackingType)}
       </span>
     ),
     value: itemTrackingType

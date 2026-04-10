@@ -1,5 +1,6 @@
 import type { Database } from "@carbon/database";
 import { Badge, cn } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import {
   LuCalendar,
   LuCircleCheck,
@@ -24,7 +25,7 @@ function MaintenanceOeeImpact({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuCircleX className="h-3 w-3" />
-          Down
+          <Trans>Down</Trans>
         </Badge>
       );
     case "Planned":
@@ -34,7 +35,7 @@ function MaintenanceOeeImpact({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuCalendar className="h-3 w-3" />
-          Planned
+          <Trans>Planned</Trans>
         </Badge>
       );
     case "Impact":
@@ -44,7 +45,7 @@ function MaintenanceOeeImpact({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuTriangleAlert className="h-3 w-3" />
-          Impact
+          <Trans>Impact</Trans>
         </Badge>
       );
     case "No Impact":
@@ -54,7 +55,7 @@ function MaintenanceOeeImpact({
           className={cn(className, "inline-flex items-center gap-1")}
         >
           <LuCircleCheck className="h-3 w-3" />
-          No Impact
+          <Trans>No Impact</Trans>
         </Badge>
       );
     default:

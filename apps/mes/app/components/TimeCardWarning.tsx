@@ -13,6 +13,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { path } from "~/utils/path";
@@ -29,6 +30,7 @@ type TimeCardWarningProps = {
 };
 
 export function TimeCardWarning({ openClockEntry }: TimeCardWarningProps) {
+  const { t } = useLingui();
   const [showClockWarning, setShowClockWarning] = useState(false);
   const [editClockOut, setEditClockOut] = useState("");
   const fetcher = useFetcher();
@@ -63,7 +65,7 @@ export function TimeCardWarning({ openClockEntry }: TimeCardWarningProps) {
   useEffect(() => {
     if (fetcher.data && fetcher.state === "idle") {
       if ((fetcher.data as { success?: boolean }).success) {
-        toast.success("Updated successfully");
+        toast.success(t`Updated successfully`);
         setShowClockWarning(false);
       }
     }
@@ -101,23 +103,29 @@ export function TimeCardWarning({ openClockEntry }: TimeCardWarningProps) {
       >
         <ModalContent>
           <ModalHeader>
-            <ModalTitle>Forgot to Clock Out?</ModalTitle>
+            <ModalTitle>
+              <Trans>Forgot to Clock Out?</Trans>
+            </ModalTitle>
             <ModalDescription>
-              You&apos;ve been clocked in for {hoursElapsed} hours. Did you
-              forget to clock out?
+              <Trans>
+                You've been clocked in for {hoursElapsed} hours. Did you forget
+                to clock out?
+              </Trans>
             </ModalDescription>
           </ModalHeader>
           <ModalBody>
             <VStack spacing={4}>
               <p className="text-sm text-muted-foreground">
-                You clocked in at{" "}
-                {new Date(openClockEntry.clockIn).toLocaleString()}. You can
-                edit your clock-out time below or acknowledge that you&apos;re
-                still working.
+                <Trans>
+                  You clocked in at{" "}
+                  {new Date(openClockEntry.clockIn).toLocaleString()}. You can
+                  edit your clock-out time below or acknowledge that you're
+                  still working.
+                </Trans>
               </p>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">
-                  Set clock-out time
+                  <Trans>Set clock-out time</Trans>
                 </label>
                 <Input
                   type="datetime-local"
@@ -129,14 +137,14 @@ export function TimeCardWarning({ openClockEntry }: TimeCardWarningProps) {
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={handleClockAcknowledge}>
-              I&apos;m Still Working
+              <Trans>I'm Still Working</Trans>
             </Button>
             <Button
               onClick={handleEditClockOut}
               isDisabled={!editClockOut || fetcher.state !== "idle"}
               isLoading={fetcher.state !== "idle"}
             >
-              Set Clock Out
+              <Trans>Set Clock Out</Trans>
             </Button>
           </ModalFooter>
         </ModalContent>

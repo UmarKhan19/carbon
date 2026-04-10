@@ -4,6 +4,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { LuClock, LuPlay, LuSquare } from "react-icons/lu";
 import { Link, useFetcher, useLocation } from "react-router";
@@ -24,6 +25,7 @@ function formatElapsed(since: string) {
 }
 
 export function TimeCardButton({ openClockEntry }: TimeCardButtonProps) {
+  const { t } = useLingui();
   const fetcher = useFetcher();
   const { isMobile, setOpenMobile } = useSidebar();
   const { pathname } = useLocation();
@@ -66,13 +68,15 @@ export function TimeCardButton({ openClockEntry }: TimeCardButtonProps) {
       {isClockedIn ? (
         <SidebarMenuItem>
           <SidebarMenuButton
-            tooltip="Clock Out"
+            tooltip={t`Clock Out`}
             onClick={handleClockOut}
             disabled={fetcher.state !== "idle"}
             className="font-medium"
           >
             <LuSquare className="size-4" />
-            <span>Clock Out</span>
+            <span>
+              <Trans>Clock Out</Trans>
+            </span>
             {openClockEntry && (
               <Badge variant="red" className="ml-auto">
                 {formatElapsed(openClockEntry.clockIn)}
@@ -83,20 +87,22 @@ export function TimeCardButton({ openClockEntry }: TimeCardButtonProps) {
       ) : (
         <SidebarMenuItem>
           <SidebarMenuButton
-            tooltip="Clock In"
+            tooltip={t`Clock In`}
             onClick={handleClockIn}
             disabled={fetcher.state !== "idle"}
             className="font-medium"
           >
             <LuPlay className="size-4" />
-            <span>Clock In</span>
+            <span>
+              <Trans>Clock In</Trans>
+            </span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       )}
 
       <SidebarMenuItem>
         <SidebarMenuButton
-          tooltip="My Hours"
+          tooltip={t`My Hours`}
           isActive={isOnTimeCardPage}
           asChild
         >
@@ -105,7 +111,9 @@ export function TimeCardButton({ openClockEntry }: TimeCardButtonProps) {
             onClick={() => isMobile && setOpenMobile(false)}
           >
             <LuClock />
-            <span>My Hours</span>
+            <span>
+              <Trans>My Hours</Trans>
+            </span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
