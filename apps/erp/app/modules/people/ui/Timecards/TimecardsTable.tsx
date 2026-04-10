@@ -1,7 +1,14 @@
-import { Avatar, Badge, HStack, MenuIcon, MenuItem } from "@carbon/react";
+import {
+  Avatar,
+  Badge,
+  HStack,
+  MenuIcon,
+  MenuItem,
+  useInterval
+} from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   LuCalendar,
   LuClock,
@@ -60,10 +67,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
   const [, setTick] = useState(0);
 
   // Re-render every minute to update duration for active timecards
-  useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 60000);
-    return () => clearInterval(interval);
-  }, []);
+  useInterval(() => setTick((t) => t + 1), 60000);
 
   const columns = useMemo<ColumnDef<TimeCardEntry>[]>(
     () => [
