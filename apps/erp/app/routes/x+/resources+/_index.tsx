@@ -176,7 +176,7 @@ export default function MaintenanceDashboard() {
   const selectedKpiData =
     MaintenanceKPIs.find((k) => k.key === selectedKpi) || MaintenanceKPIs[0];
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ignore
   useEffect(() => {
     kpiFetcher.load(
       `${path.to.api.resourcesKpi(

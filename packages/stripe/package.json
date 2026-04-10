@@ -7,14 +7,7 @@
     "@carbon/kv": "*",
     "@carbon/lib": "*",
     "@supabase/supabase-js": "2.80.0",
-    "@trigger.dev/sdk": "4.0.6",
-    "cookie": "1.1.1",
-    "dompurify": "3.3.3",
-    "nanoid": "5.1.7",
-    "react-pdf": "10.4.1",
-    "sst": "4.6.9",
-    "stripe": "^18.3.0",
-    "supabase": "2.84.5"
+    "stripe": "^18.3.0"
   },
   "type": "module",
   "devDependencies": {

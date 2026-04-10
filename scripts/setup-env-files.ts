@@ -45,4 +45,8 @@ if (existsSync(PACKAGES_DIR)) {
   });
 }
 
+// Copy root .env into supabase/functions/.env so edge functions get all env vars
+// Must be a copy (not symlink) because edge functions run inside Docker
+const supabaseFunctionsEnv = join(PACKAGES_DIR, "database", "supabase", "functions", ".env");
+createSymlink(supabaseFunctionsEnv, ROOT_ENV_PATH);
 console.log("Environment file setup complete!");

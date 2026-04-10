@@ -1,6 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { syncIssueFromLinearSchema } from "@carbon/jobs/trigger/linear";
-import { tasks } from "@trigger.dev/sdk";
+import { syncIssueFromLinearSchema, trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { getIntegration } from "../../modules/settings";
@@ -66,7 +65,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   try {
-    await tasks.trigger("sync-issue-from-linear", parsed.data);
+    await trigger("sync-issue-from-linear", parsed.data);
     return { success: true };
   } catch (err) {
     console.error("Linear webhook: failed to trigger task", err);

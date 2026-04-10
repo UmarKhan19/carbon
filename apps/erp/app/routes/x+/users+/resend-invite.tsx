@@ -4,9 +4,9 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { InviteEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
+import { batchTrigger } from "@carbon/jobs";
 import { sendEmail } from "@carbon/lib/resend.server";
 import { render } from "@react-email/components";
-import { tasks } from "@trigger.dev/sdk";
 import { nanoid } from "nanoid";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -95,14 +95,18 @@ export async function action({ request }: ActionFunctionArgs) {
       await flash(request, success("Successfully resent invite"))
     );
   } else {
+    const location = request.headers.get("x-vercel-ip-city") ?? "Unknown";
+    const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
     try {
-      await tasks.batchTrigger(
+      await batchTrigger(
         "user-admin",
         users.map((id) => ({
           payload: {
             id,
-            type: "resend",
-            companyId
+            type: "resend" as const,
+            companyId,
+            location,
+            ip
           }
         }))
       );

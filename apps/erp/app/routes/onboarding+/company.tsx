@@ -4,6 +4,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { setCompanyId } from "@carbon/auth/company.server";
 import { updateCompanySession } from "@carbon/auth/session.server";
 import { ValidatedForm, validationError, validator } from "@carbon/form";
+import { trigger } from "@carbon/jobs";
 import {
   Button,
   Card,
@@ -16,7 +17,6 @@ import {
 } from "@carbon/react";
 import { Edition } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { Link, redirect, useLoaderData } from "react-router";
 import {
@@ -124,7 +124,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (CarbonEdition === Edition.Cloud) {
-      tasks.trigger("onboard", {
+      trigger("onboard", {
         type: "lead",
         companyId,
         userId

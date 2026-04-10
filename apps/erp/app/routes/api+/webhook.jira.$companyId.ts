@@ -1,6 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { syncIssueFromJiraSchema } from "@carbon/jobs/trigger/jira";
-import { tasks } from "@trigger.dev/sdk";
+import { syncIssueFromJiraSchema, trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { getIntegration } from "../../modules/settings";
@@ -62,7 +61,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   try {
-    await tasks.trigger("sync-issue-from-jira", parsed.data);
+    await trigger("sync-issue-from-jira", parsed.data);
     return { success: true };
   } catch (err) {
     console.error(err);

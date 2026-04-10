@@ -31,7 +31,7 @@ import {
   getProviderIntegration,
   ProviderID
 } from "@carbon/ee/accounting";
-import { tasks } from "@trigger.dev/sdk/v3";
+import { trigger } from "@carbon/jobs";
 import crypto from "crypto";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -264,21 +264,13 @@ export async function action({ request }: ActionFunctionArgs) {
           console.dir(payload, { depth: null });
 
           // Trigger the background job using Trigger.dev
-          const handle = await tasks.trigger(
-            "sync-external-accounting",
-            payload,
-            {
-              tags: [ProviderID.XERO, payload.syncType],
-              concurrencyKey: `sync-external-accounting:${companyId}`
-            }
-          );
+          await trigger("sync-external-accounting", payload);
 
           console.log(
-            `Triggered accounting sync job ${handle.id} for ${entities.length} entities`
+            `Triggered accounting sync job for ${entities.length} entities`
           );
 
           syncJobs.push({
-            id: handle.id,
             companyId,
             tenantId,
             entityCount: entities.length

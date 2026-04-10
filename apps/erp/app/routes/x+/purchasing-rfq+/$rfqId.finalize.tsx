@@ -2,10 +2,9 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { trigger } from "@carbon/jobs";
 import { tiptapToHTML } from "@carbon/utils";
 import type { JSONContent } from "@tiptap/react";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
@@ -294,7 +293,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         htmlParts.push(`<br><br>${emailSignature.replace(/\n/g, "<br>")}`);
 
-        await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
+        await trigger("send-email-resend", {
           to: [user.data.email, email.contactEmail],
           from: user.data.email,
           subject: emailSubject,

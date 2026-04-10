@@ -27,7 +27,7 @@ const PLANS = {
     price: 33,
     userMinimum: 0,
     talkToSales: false,
-    description: "Perfect for tech-forward businesses and small teams",
+    description: "Perfect for low-cost evaluation",
     features: [
       "ERP, MES, QMS",
       "Cloud-Hosted",
@@ -153,7 +153,7 @@ export default function OnboardingPlan() {
           </CardHeader>
         </div>
 
-        <CardContent className="flex-1">
+        <div className="flex-1">
           <div
             className={cn(
               "grid gap-6",
@@ -256,7 +256,7 @@ export default function OnboardingPlan() {
                 );
               })}
           </div>
-        </CardContent>
+        </div>
       </div>
       <div className="fixed top-0 left-2 z-10">
         <Form method="post" action={path.to.logout}>

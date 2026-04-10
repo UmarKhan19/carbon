@@ -2,8 +2,8 @@ import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import invariant from "tiny-invariant";
@@ -71,7 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const newAssignee = validation.data.assignee;
   if (newAssignee && newAssignee !== previousAssignee) {
     try {
-      await tasks.trigger("notify", {
+      await trigger("notify", {
         companyId,
         documentId: riskId,
         event: NotificationEvent.RiskAssignment,

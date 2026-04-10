@@ -3,12 +3,12 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
+import { batchTrigger } from "@carbon/jobs";
 import {
   parseDate,
   parseDateTime,
   toCalendarDateTime
 } from "@internationalized/date";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getDefaultShelfForJob } from "~/modules/inventory";
@@ -177,7 +177,7 @@ export async function action({ request }: ActionFunctionArgs) {
     jobIds.push(id);
   }
 
-  await tasks.batchTrigger(
+  await batchTrigger(
     "recalculate",
     jobIds.map((id) => ({
       payload: {
