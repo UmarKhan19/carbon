@@ -1,7 +1,7 @@
 import { Avatar, Badge, HStack, MenuIcon, MenuItem } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuCalendar,
   LuClock,
@@ -44,8 +44,9 @@ function formatTime(dateStr: string) {
   });
 }
 
-function formatDuration(clockInStr: string, clockOutStr: string) {
-  const ms = new Date(clockOutStr).getTime() - new Date(clockInStr).getTime();
+function formatDuration(clockInStr: string, clockOutStr: string | null) {
+  const end = clockOutStr ? new Date(clockOutStr).getTime() : Date.now();
+  const ms = end - new Date(clockInStr).getTime();
   const hours = Math.floor(ms / 3600000);
   const minutes = Math.floor((ms % 3600000) / 60000);
   return `${hours}h ${minutes}m`;
@@ -56,6 +57,13 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
   const permissions = usePermissions();
   const [params] = useUrlParams();
   const locations = useLocations();
+  const [, setTick] = useState(0);
+
+  // Re-render every minute to update duration for active timecards
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const columns = useMemo<ColumnDef<TimeCardEntry>[]>(
     () => [
@@ -112,7 +120,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
         id: "duration",
         header: "Duration",
         cell: ({ row }) => {
-          if (!row.original.clockIn || !row.original.clockOut) return "—";
+          if (!row.original.clockIn) return "—";
           return formatDuration(row.original.clockIn, row.original.clockOut);
         },
         meta: {
