@@ -164,6 +164,7 @@ export interface DialogContentProps
   extends ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
     VariantProps<typeof sheetVariants> {
   overlay?: boolean;
+  overlayClassName?: string;
   container?: HTMLElement;
 }
 
@@ -176,6 +177,7 @@ const DrawerContent = forwardRef<
       position,
       size,
       overlay = true,
+      overlayClassName,
       container,
       className,
       children,
@@ -186,7 +188,7 @@ const DrawerContent = forwardRef<
     <ClientOnly fallback={null}>
       {() => (
         <DrawerPortal position={position} container={container}>
-          {overlay && <DrawerOverlay />}
+          {overlay && <DrawerOverlay className={overlayClassName} />}
           <DialogPrimitive.Content
             ref={ref}
             className={cn(sheetVariants({ position, size }), className)}

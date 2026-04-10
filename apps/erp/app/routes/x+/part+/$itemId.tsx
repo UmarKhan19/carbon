@@ -15,7 +15,10 @@ import {
 import { useRouteData } from "@carbon/remix";
 import { Suspense, useState } from "react";
 import { LuSearch } from "react-icons/lu";
-import type { LoaderFunctionArgs } from "react-router";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction
+} from "react-router";
 import {
   Await,
   Outlet,
@@ -23,7 +26,7 @@ import {
   useLoaderData,
   useParams
 } from "react-router";
-import { ResizablePanels } from "~/components/Layout";
+import { PanelProvider, ResizablePanels } from "~/components/Layout";
 import { flattenTree } from "~/components/TreeView";
 import type { ItemFile, PartSummary } from "~/modules/items";
 import {
@@ -48,6 +51,21 @@ export const handle: Handle = {
   breadcrumb: "Parts",
   to: path.to.parts,
   module: "items"
+};
+
+// Avoid re-running this loader (and re-creating the deferred `methodTree`
+// promise) when navigating between sub-tabs of the same item. Re-creating
+// the promise causes <Await> to remount <BoMExplorer>, which resets the
+// tree's internal expand/collapse state.
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentParams,
+  nextParams,
+  formMethod,
+  defaultShouldRevalidate
+}) => {
+  if (formMethod && formMethod !== "GET") return defaultShouldRevalidate;
+  if (currentParams.itemId === nextParams.itemId) return false;
+  return defaultShouldRevalidate;
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -142,78 +160,226 @@ export default function PartRoute() {
   const [filterText, setFilterText] = useState("");
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
-      <PartHeader />
-      <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
-        <div className="flex flex-grow overflow-hidden">
-          <ResizablePanels
-            explorer={
-              <div className="flex flex-col h-full">
-                {isManufactured ? (
-                  <Tabs
-                    defaultValue="manufacturing"
-                    className="flex flex-col h-full"
-                  >
-                    <div className="px-2 pt-2 flex-shrink-0">
-                      <TabsList className="grid grid-cols-2 w-full">
-                        <TabsTrigger value="manufacturing">
-                          Manufacturing
-                        </TabsTrigger>
-                        <TabsTrigger value="used-in">Used In</TabsTrigger>
-                      </TabsList>
-                    </div>
-                    <HStack className="w-full justify-between flex-shrink-0 p-2 pb-0">
-                      <InputGroup size="sm" className="flex flex-grow">
-                        <InputLeftElement>
-                          <LuSearch className="h-4 w-4" />
-                        </InputLeftElement>
-                        <Input
-                          placeholder="Search..."
-                          value={filterText}
-                          onChange={(e) => setFilterText(e.target.value)}
-                        />
-                      </InputGroup>
-                      <Suspense fallback={null}>
-                        <Await resolve={methodTree}>
-                          {(resolved) =>
-                            resolved ? (
-                              <BoMActions
-                                makeMethodId={resolved.makeMethod.id}
-                              />
-                            ) : null
-                          }
-                        </Await>
-                      </Suspense>
-                    </HStack>
-                    <div className="flex-1 overflow-y-auto">
-                      <TabsContent value="manufacturing">
-                        <Suspense
-                          fallback={
-                            <div className="flex w-full items-center justify-center p-4">
-                              <Spinner className="h-6 w-6" />
-                            </div>
-                          }
-                        >
+    <PanelProvider>
+      <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
+        <PartHeader />
+        <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
+          <div className="flex flex-grow overflow-hidden">
+            <ResizablePanels
+              defaultExplorerSize={30}
+              explorer={
+                <div className="flex flex-col h-full">
+                  {isManufactured ? (
+                    <Tabs
+                      defaultValue="manufacturing"
+                      className="flex flex-col h-full"
+                    >
+                      <div className="px-2 pt-2 flex-shrink-0">
+                        <TabsList className="grid grid-cols-2 w-full">
+                          <TabsTrigger value="manufacturing">
+                            Manufacturing
+                          </TabsTrigger>
+                          <TabsTrigger value="used-in">Used In</TabsTrigger>
+                        </TabsList>
+                      </div>
+                      <HStack className="w-full justify-between flex-shrink-0 p-2 pb-0">
+                        <InputGroup size="sm" className="flex flex-grow">
+                          <InputLeftElement>
+                            <LuSearch className="h-4 w-4" />
+                          </InputLeftElement>
+                          <Input
+                            placeholder="Search..."
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
+                          />
+                        </InputGroup>
+                        <Suspense fallback={null}>
                           <Await resolve={methodTree}>
                             {(resolved) =>
                               resolved ? (
-                                <div className="w-full p-2">
-                                  <BoMExplorer
-                                    itemType="Part"
-                                    makeMethod={resolved.makeMethod}
-                                    // @ts-ignore
-                                    methods={resolved.methods}
-                                    methodId={resolved.makeMethod.id}
-                                    filterText={filterText}
-                                    hideSearch
-                                  />
-                                </div>
+                                <BoMActions
+                                  makeMethodId={resolved.makeMethod.id}
+                                />
                               ) : null
                             }
                           </Await>
                         </Suspense>
-                      </TabsContent>
-                      <TabsContent value="used-in">
+                      </HStack>
+                      <div className="flex-1 overflow-y-auto">
+                        <TabsContent value="manufacturing">
+                          <Suspense
+                            fallback={
+                              <div className="flex w-full items-center justify-center p-4">
+                                <Spinner className="h-6 w-6" />
+                              </div>
+                            }
+                          >
+                            <Await resolve={methodTree}>
+                              {(resolved) =>
+                                resolved ? (
+                                  <div className="w-full p-2">
+                                    <BoMExplorer
+                                      itemType="Part"
+                                      makeMethod={resolved.makeMethod}
+                                      // @ts-ignore
+                                      methods={resolved.methods}
+                                      methodId={resolved.makeMethod.id}
+                                      filterText={filterText}
+                                      hideSearch
+                                    />
+                                  </div>
+                                ) : null
+                              }
+                            </Await>
+                          </Suspense>
+                        </TabsContent>
+                        <TabsContent value="used-in">
+                          <Suspense fallback={<UsedInSkeleton />}>
+                            <Await resolve={usedIn}>
+                              {(resolvedUsedIn) => {
+                                const {
+                                  issues,
+                                  jobMaterials,
+                                  jobs,
+                                  maintenanceDispatchItems,
+                                  methodMaterials,
+                                  purchaseOrderLines,
+                                  receiptLines,
+                                  quoteLines,
+                                  quoteMaterials,
+                                  salesOrderLines,
+                                  shipmentLines,
+                                  supplierQuotes
+                                } = resolvedUsedIn;
+
+                                const tree: UsedInNode[] = [
+                                  {
+                                    key: "issues",
+                                    name: "Issues",
+                                    module: "quality",
+                                    children: issues
+                                  },
+                                  {
+                                    key: "jobs",
+                                    name: "Jobs",
+                                    module: "production",
+                                    children: jobs.map((job) => ({
+                                      ...job,
+                                      methodType: "Make"
+                                    }))
+                                  },
+                                  {
+                                    key: "jobMaterials",
+                                    name: "Job Materials",
+                                    module: "production",
+                                    children: jobMaterials
+                                  },
+                                  {
+                                    key: "maintenanceDispatchItems",
+                                    name: "Maintenance",
+                                    module: "resources",
+                                    children: maintenanceDispatchItems
+                                  },
+                                  {
+                                    key: "methodMaterials",
+                                    name: "Method Materials",
+                                    module: "parts",
+                                    // @ts-expect-error
+                                    children: methodMaterials
+                                  },
+                                  {
+                                    key: "purchaseOrderLines",
+                                    name: "Purchase Orders",
+                                    module: "purchasing",
+                                    children: purchaseOrderLines.map((po) => ({
+                                      ...po,
+                                      methodType: "Purchase to Order"
+                                    }))
+                                  },
+                                  {
+                                    key: "receiptLines",
+                                    name: "Receipts",
+                                    module: "inventory",
+                                    children: receiptLines.map((receipt) => ({
+                                      ...receipt,
+                                      methodType: "Pull from Inventory"
+                                    }))
+                                  },
+                                  {
+                                    key: "quoteLines",
+                                    name: "Quotes",
+                                    module: "sales",
+                                    children: quoteLines
+                                  },
+                                  {
+                                    key: "quoteMaterials",
+                                    name: "Quote Materials",
+                                    module: "sales",
+                                    children: quoteMaterials?.map((qm) => ({
+                                      ...qm,
+                                      documentReadableId:
+                                        qm.documentReadableId ?? ""
+                                    }))
+                                  },
+                                  {
+                                    key: "salesOrderLines",
+                                    name: "Sales Orders",
+                                    module: "sales",
+                                    children: salesOrderLines
+                                  },
+                                  {
+                                    key: "shipmentLines",
+                                    name: "Shipments",
+                                    module: "inventory",
+                                    children: shipmentLines.map((shipment) => ({
+                                      ...shipment,
+                                      methodType: "Shipment"
+                                    }))
+                                  },
+                                  {
+                                    key: "supplierQuotes",
+                                    name: "Supplier Quotes",
+                                    module: "purchasing",
+                                    children: supplierQuotes
+                                  }
+                                ];
+
+                                return (
+                                  <UsedInTree
+                                    tree={tree}
+                                    revisions={partData.partSummary?.revisions}
+                                    itemReadableId={
+                                      partData.partSummary?.readableId ?? ""
+                                    }
+                                    itemReadableIdWithRevision={
+                                      partData.partSummary
+                                        ?.readableIdWithRevision ?? ""
+                                    }
+                                    filterText={filterText}
+                                    hideSearch
+                                  />
+                                );
+                              }}
+                            </Await>
+                          </Suspense>
+                        </TabsContent>
+                      </div>
+                    </Tabs>
+                  ) : (
+                    <>
+                      <HStack className="w-full justify-between flex-shrink-0 p-2 pb-0">
+                        <InputGroup size="sm" className="flex flex-grow">
+                          <InputLeftElement>
+                            <LuSearch className="h-4 w-4" />
+                          </InputLeftElement>
+                          <Input
+                            placeholder="Search..."
+                            value={filterText}
+                            onChange={(e) => setFilterText(e.target.value)}
+                          />
+                        </InputGroup>
+                      </HStack>
+                      <div className="flex-1 overflow-y-auto">
                         <Suspense fallback={<UsedInSkeleton />}>
                           <Await resolve={usedIn}>
                             {(resolvedUsedIn) => {
@@ -342,166 +508,21 @@ export default function PartRoute() {
                             }}
                           </Await>
                         </Suspense>
-                      </TabsContent>
-                    </div>
-                  </Tabs>
-                ) : (
-                  <>
-                    <HStack className="w-full justify-between flex-shrink-0 p-2 pb-0">
-                      <InputGroup size="sm" className="flex flex-grow">
-                        <InputLeftElement>
-                          <LuSearch className="h-4 w-4" />
-                        </InputLeftElement>
-                        <Input
-                          placeholder="Search..."
-                          value={filterText}
-                          onChange={(e) => setFilterText(e.target.value)}
-                        />
-                      </InputGroup>
-                    </HStack>
-                    <div className="flex-1 overflow-y-auto">
-                      <Suspense fallback={<UsedInSkeleton />}>
-                        <Await resolve={usedIn}>
-                          {(resolvedUsedIn) => {
-                            const {
-                              issues,
-                              jobMaterials,
-                              jobs,
-                              maintenanceDispatchItems,
-                              methodMaterials,
-                              purchaseOrderLines,
-                              receiptLines,
-                              quoteLines,
-                              quoteMaterials,
-                              salesOrderLines,
-                              shipmentLines,
-                              supplierQuotes
-                            } = resolvedUsedIn;
-
-                            const tree: UsedInNode[] = [
-                              {
-                                key: "issues",
-                                name: "Issues",
-                                module: "quality",
-                                children: issues
-                              },
-                              {
-                                key: "jobs",
-                                name: "Jobs",
-                                module: "production",
-                                children: jobs.map((job) => ({
-                                  ...job,
-                                  methodType: "Make"
-                                }))
-                              },
-                              {
-                                key: "jobMaterials",
-                                name: "Job Materials",
-                                module: "production",
-                                children: jobMaterials
-                              },
-                              {
-                                key: "maintenanceDispatchItems",
-                                name: "Maintenance",
-                                module: "resources",
-                                children: maintenanceDispatchItems
-                              },
-                              {
-                                key: "methodMaterials",
-                                name: "Method Materials",
-                                module: "parts",
-                                // @ts-expect-error
-                                children: methodMaterials
-                              },
-                              {
-                                key: "purchaseOrderLines",
-                                name: "Purchase Orders",
-                                module: "purchasing",
-                                children: purchaseOrderLines.map((po) => ({
-                                  ...po,
-                                  methodType: "Purchase to Order"
-                                }))
-                              },
-                              {
-                                key: "receiptLines",
-                                name: "Receipts",
-                                module: "inventory",
-                                children: receiptLines.map((receipt) => ({
-                                  ...receipt,
-                                  methodType: "Pull from Inventory"
-                                }))
-                              },
-                              {
-                                key: "quoteLines",
-                                name: "Quotes",
-                                module: "sales",
-                                children: quoteLines
-                              },
-                              {
-                                key: "quoteMaterials",
-                                name: "Quote Materials",
-                                module: "sales",
-                                children: quoteMaterials?.map((qm) => ({
-                                  ...qm,
-                                  documentReadableId:
-                                    qm.documentReadableId ?? ""
-                                }))
-                              },
-                              {
-                                key: "salesOrderLines",
-                                name: "Sales Orders",
-                                module: "sales",
-                                children: salesOrderLines
-                              },
-                              {
-                                key: "shipmentLines",
-                                name: "Shipments",
-                                module: "inventory",
-                                children: shipmentLines.map((shipment) => ({
-                                  ...shipment,
-                                  methodType: "Shipment"
-                                }))
-                              },
-                              {
-                                key: "supplierQuotes",
-                                name: "Supplier Quotes",
-                                module: "purchasing",
-                                children: supplierQuotes
-                              }
-                            ];
-
-                            return (
-                              <UsedInTree
-                                tree={tree}
-                                revisions={partData.partSummary?.revisions}
-                                itemReadableId={
-                                  partData.partSummary?.readableId ?? ""
-                                }
-                                itemReadableIdWithRevision={
-                                  partData.partSummary
-                                    ?.readableIdWithRevision ?? ""
-                                }
-                                filterText={filterText}
-                                hideSearch
-                              />
-                            );
-                          }}
-                        </Await>
-                      </Suspense>
-                    </div>
-                  </>
-                )}
-              </div>
-            }
-            content={
-              <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
-                <Outlet />
-              </div>
-            }
-            properties={<PartProperties />}
-          />
+                      </div>
+                    </>
+                  )}
+                </div>
+              }
+              content={
+                <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
+                  <Outlet />
+                </div>
+              }
+              properties={<PartProperties />}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </PanelProvider>
   );
 }

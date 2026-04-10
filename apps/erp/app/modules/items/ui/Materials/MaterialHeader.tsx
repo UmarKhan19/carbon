@@ -12,10 +12,15 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuEllipsisVertical,
+  LuPanelLeft,
+  LuPanelRight,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
-import { DetailsTopbar } from "~/components/Layout";
+import { DetailsTopbar, usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
@@ -27,6 +32,7 @@ const MaterialHeader = () => {
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
+  const { toggleExplorer, toggleProperties } = usePanels();
   const { company } = useUser();
   const permissions = usePermissions();
   const deleteModal = useDisclosure();
@@ -46,6 +52,12 @@ const MaterialHeader = () => {
       <div className="flex flex-shrink-0 items-center justify-between px-4 py-2 bg-card border-b border-border h-[50px] overflow-x-auto scrollbar-hide dark:border-none dark:shadow-[inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)]">
         <VStack spacing={0} className="flex-grow">
           <HStack>
+            <IconButton
+              aria-label="Toggle Explorer"
+              icon={<LuPanelLeft />}
+              onClick={toggleExplorer}
+              variant="ghost"
+            />
             <Link to={path.to.materialDetails(itemId)}>
               <Heading size="h4" className="flex items-center gap-2">
                 {/* <ModuleIcon icon={<MethodItemTypeIcon type="Material" />} /> */}
@@ -84,9 +96,15 @@ const MaterialHeader = () => {
             </DropdownMenu>
           </HStack>
         </VStack>
-        <VStack spacing={0} className="flex-shrink justify-center items-end">
+        <HStack spacing={1} className="flex-shrink items-center">
           <DetailsTopbar links={links} />
-        </VStack>
+          <IconButton
+            aria-label="Toggle Properties"
+            icon={<LuPanelRight />}
+            onClick={toggleProperties}
+            variant="ghost"
+          />
+        </HStack>
         {deleteModal.isOpen && (
           <ConfirmDelete
             action={path.to.deleteItem(itemId)}

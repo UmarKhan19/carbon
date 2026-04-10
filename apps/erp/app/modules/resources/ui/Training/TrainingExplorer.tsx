@@ -410,7 +410,7 @@ function TrainingQuestionItem({
             <DropdownMenuTrigger asChild>
               <IconButton
                 aria-label="More"
-                className="opacity-0 group-hover:opacity-100 group-active:opacity-100 data-[state=open]:opacity-100"
+                className="md:opacity-0 md:group-hover:opacity-100 group-active:opacity-100 data-[state=open]:opacity-100"
                 icon={<LuEllipsisVertical />}
                 variant="solid"
                 onClick={(e) => e.stopPropagation()}
