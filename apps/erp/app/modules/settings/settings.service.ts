@@ -1040,3 +1040,141 @@ export async function upsertWebhook(
   }
   return client.from("webhook").update(sanitize(webhook)).eq("id", webhook.id);
 }
+
+// Company template export/import edge function wrappers. Heavy lifting
+// lives in packages/database/supabase/functions/{export,import}-company.
+
+export async function exportCompanyTemplate(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; userId: string; label?: string }
+) {
+  return client.functions.invoke("export-company", {
+    body: args,
+    region: FunctionRegion.UsEast1
+  });
+}
+
+export async function importCompanyTemplate(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; userId: string; filePath: string }
+) {
+  return client.functions.invoke("import-company", {
+    body: args,
+    region: FunctionRegion.UsEast1
+  });
+}
+
+export async function finalizeCompanyTemplateImport(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; importRunId: string }
+) {
+  return client.functions.invoke("finalize-import", {
+    body: args,
+    region: FunctionRegion.UsEast1
+  });
+}
+
+export async function revertCompanyTemplateImport(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; importRunId: string }
+) {
+  return client.functions.invoke("revert-import", {
+    body: args,
+    region: FunctionRegion.UsEast1
+  });
+}
+
+export async function listCompanyTemplateExports(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client.storage.from(companyId).list("exports", {
+    limit: 25,
+    sortBy: { column: "created_at", order: "desc" }
+  });
+}
+
+export async function getCompanyTemplateSignedUrl(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  filePath: string
+) {
+  return client.storage.from(companyId).createSignedUrl(filePath, 60 * 60);
+}
+
+export async function deleteCompanyTemplateExport(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  filePath: string
+) {
+  return client.storage.from(companyId).remove([filePath]);
+}
+
+/**
+ * Extract the real error message from a Supabase Functions error.
+ *
+ * `supabase-js` throws `FunctionsHttpError` with a generic
+ * "Edge Function returned a non-2xx status code" message and stashes
+ * the actual Response on `error.context`. We parse the JSON body and
+ * return its `message` field so the UI surfaces the underlying pg
+ * error, not the opaque wrapper.
+ */
+export async function extractEdgeFunctionError(err: unknown): Promise<string> {
+  if (err && typeof err === "object" && "context" in err) {
+    const ctx = (err as { context?: unknown }).context;
+    if (ctx instanceof Response) {
+      try {
+        const body = await ctx.clone().json();
+        if (body && typeof body === "object" && "message" in body) {
+          const msg = (body as { message?: unknown }).message;
+          if (typeof msg === "string" && msg.length > 0) return msg;
+        }
+      } catch {
+        try {
+          const text = await (ctx as Response).clone().text();
+          if (text) return text;
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  }
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
+
+/**
+ * Load modelUpload rows created by the given import run that still
+ * need a thumbnail rendered. Used to fan out `carbon/model-thumbnail`
+ * Inngest events after an import commits so the target company's
+ * models get previews without waiting for someone to re-upload them.
+ */
+export async function getCompanyTemplateImportedModels(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; importRunId: string }
+) {
+  // The importer writes an externalIntegrationMapping row per fresh
+  // INSERT with metadata.importRunId = <this run>. For modelUpload,
+  // entityId is the target row's id. We then join against modelUpload
+  // to filter out any rows that already have a thumbnail (either from
+  // a prior render or because the source already had one).
+  const mappings = await client
+    .from("externalIntegrationMapping")
+    .select("entityId")
+    .eq("integration", "company-template")
+    .eq("entityType", "modelUpload")
+    .eq("companyId", args.companyId)
+    .filter("metadata->>importRunId", "eq", args.importRunId);
+
+  if (mappings.error) return mappings;
+
+  const ids = (mappings.data ?? []).map((m) => m.entityId);
+  if (ids.length === 0) return { data: [], error: null };
+
+  return client
+    .from("modelUpload")
+    .select("id, thumbnailPath, modelPath")
+    .in("id", ids)
+    .not("modelPath", "is", null)
+    .is("thumbnailPath", null);
+}

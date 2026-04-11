@@ -454,6 +454,9 @@ export const path = {
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
+    dataManagement: `${x}/settings/data-management`,
+    dataManagementExport: `${x}/settings/data-management/export`,
+    dataManagementImport: `${x}/settings/data-management/import`,
     completeTrainingAssignment: (id: string) =>
       generatePath(`${share}/training/${id}`),
     configurationParameter: (itemId: string) =>

@@ -78,6 +78,15 @@ import {
   updateSequence,
   updateIntegrationMetadata,
   upsertWebhook,
+  exportCompanyTemplate,
+  importCompanyTemplate,
+  finalizeCompanyTemplateImport,
+  revertCompanyTemplateImport,
+  listCompanyTemplateExports,
+  getCompanyTemplateSignedUrl,
+  deleteCompanyTemplateExport,
+  extractEdgeFunctionError,
+  getCompanyTemplateImportedModels,
 } from "~/modules/settings/settings.service";
 import {
   accountsPayableBillingAddressValidator,
@@ -1108,5 +1117,148 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
       const result = await upsertWebhook(ctx.client, { ...params.webhook, companyId: ctx.companyId, createdBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: settings_upsertWebhook"),
+  );
+
+  server.registerTool(
+    "settings_exportCompanyTemplate",
+    {
+      description: "export company template",
+      inputSchema: {
+      args: z.object({
+    label: z.string().optional()
+  }),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await exportCompanyTemplate(ctx.client, { ...params.args, companyId: ctx.companyId, userId: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: settings_exportCompanyTemplate"),
+  );
+
+  server.registerTool(
+    "settings_importCompanyTemplate",
+    {
+      description: "import company template",
+      inputSchema: {
+      args: z.object({
+    filePath: z.string()
+  }),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await importCompanyTemplate(ctx.client, { ...params.args, companyId: ctx.companyId, userId: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: settings_importCompanyTemplate"),
+  );
+
+  server.registerTool(
+    "settings_finalizeCompanyTemplateImport",
+    {
+      description: "finalize company template import",
+      inputSchema: {
+      args: z.object({
+    importRunId: z.string()
+  }),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await finalizeCompanyTemplateImport(ctx.client, { ...params.args, companyId: ctx.companyId });
+      return toMcpResult(result);
+    }, "Failed: settings_finalizeCompanyTemplateImport"),
+  );
+
+  server.registerTool(
+    "settings_revertCompanyTemplateImport",
+    {
+      description: "revert company template import",
+      inputSchema: {
+      args: z.object({
+    importRunId: z.string()
+  }),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await revertCompanyTemplateImport(ctx.client, { ...params.args, companyId: ctx.companyId });
+      return toMcpResult(result);
+    }, "Failed: settings_revertCompanyTemplateImport"),
+  );
+
+  server.registerTool(
+    "settings_listCompanyTemplateExports",
+    {
+      description: "list company template exports",
+      inputSchema: {},
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await listCompanyTemplateExports(ctx.client, ctx.companyId);
+      return toMcpResult(result);
+    }, "Failed: settings_listCompanyTemplateExports"),
+  );
+
+  server.registerTool(
+    "settings_getCompanyTemplateSignedUrl",
+    {
+      description: "get company template signed url",
+      inputSchema: {
+      filePath: z.string(),
+    },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getCompanyTemplateSignedUrl(ctx.client, ctx.companyId, params.filePath);
+      return toMcpResult(result);
+    }, "Failed: settings_getCompanyTemplateSignedUrl"),
+  );
+
+  server.registerTool(
+    "settings_deleteCompanyTemplateExport",
+    {
+      description: "delete company template export",
+      inputSchema: {
+      filePath: z.string(),
+    },
+      annotations: DESTRUCTIVE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await deleteCompanyTemplateExport(ctx.client, ctx.companyId, params.filePath);
+      return toMcpResult(result);
+    }, "Failed: settings_deleteCompanyTemplateExport"),
+  );
+
+  server.registerTool(
+    "settings_extractEdgeFunctionError",
+    {
+      description: "extract edge function error",
+      inputSchema: {
+      err: z.any(),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await extractEdgeFunctionError(ctx.client, params.err);
+      return toMcpResult(result);
+    }, "Failed: settings_extractEdgeFunctionError"),
+  );
+
+  server.registerTool(
+    "settings_getCompanyTemplateImportedModels",
+    {
+      description: "get company template imported models",
+      inputSchema: {
+      args: z.object({
+    importRunId: z.string()
+  }),
+    },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getCompanyTemplateImportedModels(ctx.client, { ...params.args, companyId: ctx.companyId });
+      return toMcpResult(result);
+    }, "Failed: settings_getCompanyTemplateImportedModels"),
   );
 };

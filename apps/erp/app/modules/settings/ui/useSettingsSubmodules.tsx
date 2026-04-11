@@ -5,6 +5,7 @@ import {
   LuClipboardCheck,
   LuCreditCard,
   LuCrown,
+  LuDatabase,
   LuFactory,
   LuHistory,
   LuImage,
@@ -137,6 +138,13 @@ const settingsRoutes: AuthenticatedRouteGroup<{
         to: path.to.customFields,
         role: "employee",
         icon: <LuLayoutDashboard />
+      },
+      {
+        name: "Data Management",
+        to: path.to.dataManagement,
+        role: "employee",
+        icon: <LuDatabase />,
+        requiresOwnership: true
       },
       {
         name: "Integrations",

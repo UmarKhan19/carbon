@@ -40,7 +40,10 @@ type QueueJob = {
 export const eventQueueFunction = inngest.createFunction(
   {
     id: "event-queue",
-    retries: 2
+    retries: 2,
+    singleton: {
+      mode: "skip"
+    }
   },
   { cron: "* * * * *" }, // Every minute
   async ({ step }) => {

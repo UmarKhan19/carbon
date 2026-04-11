@@ -8,20 +8,13 @@ export const modelThumbnailFunction = inngest.createFunction(
   async ({ event, step }) => {
     const { modelId, companyId } = event.data;
 
-    const isLocal =
-      VERCEL_URL === undefined || VERCEL_URL.includes("localhost");
-
     const getModelUrl = (id: string) => {
-      const domain = isLocal ? "http://localhost:3000" : VERCEL_URL;
+      const domain =
+        VERCEL_URL === undefined || VERCEL_URL.includes("localhost")
+          ? "http://localhost:3000"
+          : VERCEL_URL;
       return `${domain}/file/model/${id}`;
     };
-
-    if (isLocal) {
-      console.log("Skipping model-thumbnail task on local", {
-        payload: event.data
-      });
-      return;
-    }
 
     await step.run("generate-and-upload-thumbnail", async () => {
       console.log("Starting model-thumbnail task", { payload: event.data });
