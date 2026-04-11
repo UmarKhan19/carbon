@@ -6,7 +6,7 @@ import type {
 } from "@carbon/ee";
 import { integrations as availableIntegrations } from "@carbon/ee";
 import {
-  Boolean,
+  ChoiceCardGroup,
   Array as FormArray,
   Input,
   Number as NumberInput,
@@ -19,7 +19,6 @@ import {
 import {
   Badge,
   Button,
-  cn,
   Drawer,
   DrawerBody,
   DrawerContent,
@@ -28,13 +27,13 @@ import {
   Heading,
   HStack,
   ScrollArea,
+  Switch,
   toast,
   VStack
 } from "@carbon/react";
 import { SUPPORT_EMAIL } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useMemo, useState } from "react";
-import { LuCheck } from "react-icons/lu";
 import { useParams } from "react-router";
 import { Processes } from "~/components/Form";
 import { MethodIcon, TrackingTypeIcon } from "~/components/Icons";
@@ -100,11 +99,7 @@ function IntegrationActionButton({
 /**
  * Helper to normalize option to consistent format
  */
-function normalizeOption(option: IntegrationSettingOption): {
-  value: string;
-  label: string;
-  description?: string;
-} {
+function normalizeOption(option: IntegrationSettingOption) {
   if (typeof option === "string") {
     return { value: option, label: option };
   }
@@ -190,21 +185,7 @@ function SettingFieldInner({ setting }: { setting: IntegrationSetting }) {
       return <CardSelector setting={setting} />;
 
     case "switch":
-      return (
-        <div className="flex items-center justify-between gap-4 w-full py-2">
-          <div className="flex flex-col flex-1">
-            <span className="text-sm font-medium">{setting.label}</span>
-            {setting.description && (
-              <span className="text-xs text-muted-foreground">
-                {setting.description}
-              </span>
-            )}
-          </div>
-          <div className="shrink-0">
-            <Boolean name={setting.name} />
-          </div>
-        </div>
-      );
+      return <SwitchField setting={setting} />;
 
     case "processes":
       return (
@@ -231,36 +212,40 @@ function SettingFieldInner({ setting }: { setting: IntegrationSetting }) {
       );
 
     case "options": {
-      const options =
-        setting.listOptions?.map((option) => {
-          const normalized = normalizeOption(option);
-          let icon: JSX.Element | null = null;
+      const listOptions = setting.listOptions ?? [];
 
-          // Legacy icon support for specific field names
-          if (setting.name === "methodType") {
-            icon = <MethodIcon type={normalized.value} />;
-          } else if (setting.name === "trackingType") {
-            icon = <TrackingTypeIcon type={normalized.value} />;
-          }
+      // Small static enums render as Choice cards (the same affordance as
+      // the explicit `cards` type). Long / dynamically-loaded lists keep
+      // the dropdown so things like Xero account pickers stay usable.
+      if (
+        listOptions.length > 0 &&
+        listOptions.length <= CHOICE_CARD_MAX_OPTIONS
+      ) {
+        return <CardSelector setting={setting} />;
+      }
 
-          // Build a simpler label that works well with Radix Select
-          const label = (
-            <span key={normalized.value} className="flex items-center gap-2">
-              {icon}
-              <span className="font-medium">{normalized.label}</span>
-              {normalized.description && (
-                <span className="text-muted-foreground text-xs">
-                  — {normalized.description}
-                </span>
-              )}
-            </span>
-          );
+      const options = listOptions.map((option) => {
+        const normalized = normalizeOption(option);
+        const icon = getOptionIcon(setting.name, normalized.value);
 
-          return {
-            label,
-            value: normalized.value
-          };
-        }) ?? [];
+        // Build a simpler label that works well with Radix Select
+        const label = (
+          <span key={normalized.value} className="flex items-center gap-2">
+            {icon}
+            <span className="font-medium">{normalized.label}</span>
+            {normalized.description && (
+              <span className="text-muted-foreground text-xs">
+                — {normalized.description}
+              </span>
+            )}
+          </span>
+        );
+
+        return {
+          label,
+          value: normalized.value
+        };
+      });
 
       return (
         <div className="w-full">
@@ -280,9 +265,14 @@ function SettingFieldInner({ setting }: { setting: IntegrationSetting }) {
 }
 
 /**
- * Visual card-based selector for required, mutually-exclusive options.
- * Used for fields like a "provider" / "delivery method" choice where a
- * dropdown would be clunkier than clickable cards.
+ * Card-style picker for mutually-exclusive options. Wraps the shared
+ * `ChoiceCardGroup` and binds it into the surrounding ValidatedForm via
+ * `useControlField` + a hidden input so the value gets serialized on submit.
+ *
+ * Used for both the explicit `cards` setting type and for small (≤5) static
+ * `options` lists, so the integration form picks the right affordance based
+ * on payload size — Choice cards for tight enums, dropdowns for long /
+ * dynamically-loaded lists (e.g. Xero account codes).
  */
 function CardSelector({ setting }: { setting: IntegrationSetting }) {
   const [value, setValue] = useControlField<string>(setting.name);
@@ -292,7 +282,7 @@ function CardSelector({ setting }: { setting: IntegrationSetting }) {
   return (
     <div className="w-full">
       {setting.label && (
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-0.5 pb-2">
           <div className="text-sm font-medium text-foreground">
             {setting.label}
           </div>
@@ -303,58 +293,89 @@ function CardSelector({ setting }: { setting: IntegrationSetting }) {
           )}
         </div>
       )}
-      <div
-        role="radiogroup"
-        aria-label={setting.label}
-        className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2"
-      >
-        {options.map((option) => {
-          const isSelected = current === option.value;
-          return (
-            <button
-              key={option.value}
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              onClick={() => setValue(option.value)}
-              className={cn(
-                "group relative flex flex-col gap-1 rounded-lg border p-3 text-left transition-all",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-                isSelected
-                  ? "border-foreground/60 bg-foreground/[0.03]"
-                  : "border-border hover:border-foreground/30"
-              )}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-medium text-foreground truncate">
-                  {option.label}
-                </div>
-                <span
-                  className={cn(
-                    "inline-flex size-[1.125rem] shrink-0 items-center justify-center rounded-full transition-colors",
-                    isSelected
-                      ? "bg-foreground text-background"
-                      : "border border-muted-foreground/30"
-                  )}
-                  aria-hidden
-                >
-                  {isSelected && <LuCheck className="size-3 stroke-[3]" />}
-                </span>
-              </div>
-              {option.description && (
-                <p className="text-xs leading-snug text-muted-foreground">
-                  {option.description}
-                </p>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <ChoiceCardGroup
+        value={current}
+        onChange={setValue}
+        options={options.map((option) => ({
+          value: option.value,
+          title: option.label,
+          description: option.description,
+          icon: getOptionIcon(setting.name, option.value) ?? option.icon
+        }))}
+      />
       {/* Hidden input keeps the value in form data on submit */}
       <input type="hidden" name={setting.name} value={current} />
     </div>
   );
 }
+
+/**
+ * Boolean toggle bound to the surrounding ValidatedForm.
+ *
+ * We deliberately don't reuse `@carbon/form`'s `Boolean`, because that one
+ * leans on Radix's built-in hidden checkbox — which only posts a value when
+ * *checked*, so an unchecked switch sends nothing and any `.default(true)`
+ * in the Zod schema quietly reasserts `true` on save. Users then can't turn
+ * the field off (e.g. the Email integration's "Use TLS" switch stayed stuck
+ * on).
+ *
+ * Instead, we drive the `Switch` as a controlled component via
+ * `useControlField` and emit our own hidden input that *always* contains
+ * either `"true"` or `"false"`, so the posted form data is unambiguous.
+ * Schemas consuming these fields need to preprocess the string into a
+ * boolean (see `packages/ee/src/email/config.tsx`).
+ */
+function SwitchField({ setting }: { setting: IntegrationSetting }) {
+  const [value, setValue] = useControlField<boolean>(setting.name);
+  const checked = value === true;
+
+  return (
+    <div className="flex items-center justify-between gap-4 w-full py-2">
+      <div className="flex flex-col flex-1">
+        <span className="text-sm font-medium">{setting.label}</span>
+        {setting.description && (
+          <span className="text-xs text-muted-foreground">
+            {setting.description}
+          </span>
+        )}
+      </div>
+      <div className="shrink-0">
+        <Switch
+          checked={checked}
+          onCheckedChange={setValue}
+          aria-label={setting.label}
+        />
+        <input
+          type="hidden"
+          name={setting.name}
+          value={checked ? "true" : "false"}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Legacy icon support for specific field names that historically rendered
+ * a leading glyph in the Select dropdown. Returns null when there's no
+ * registered icon so ChoiceCardGroup just omits the icon slot.
+ */
+function getOptionIcon(
+  settingName: string,
+  optionValue: string
+): JSX.Element | null {
+  if (settingName === "methodType") {
+    return <MethodIcon type={optionValue} />;
+  }
+  if (settingName === "trackingType") {
+    return <TrackingTypeIcon type={optionValue} />;
+  }
+
+  return null;
+}
+
+/** Threshold for switching `options` from a Select dropdown to ChoiceCardGroup. */
+const CHOICE_CARD_MAX_OPTIONS = 5;
 
 /**
  * Wrapper that hides an entire group when every setting in it is gated

@@ -8,7 +8,7 @@ import { inngest } from "./inngest/client.ts";
  */
 const taskToEvent = {
   notify: "carbon/notify",
-  "send-email-resend": "carbon/send-email",
+  "send-email": "carbon/send-email",
   "model-thumbnail": "carbon/model-thumbnail",
   "update-permissions": "carbon/update-permissions",
   recalculate: "carbon/recalculate",

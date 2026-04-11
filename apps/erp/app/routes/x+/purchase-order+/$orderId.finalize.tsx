@@ -332,7 +332,7 @@ export async function action(args: ActionFunctionArgs) {
           const text = await renderAsync(emailTemplate, { plainText: true });
 
           await Promise.all([
-            trigger("send-email-resend", {
+            trigger("send-email", {
               to: [buyer.data.email, supplier.data.contact.email],
               cc: ccSelections?.length ? ccSelections : undefined,
               from: buyer.data.email,

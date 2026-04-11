@@ -16,6 +16,7 @@ export type IntegrationSettingOption =
   | {
       value: string;
       label: string;
+      icon?: React.ReactNode;
       description?: string;
     };
 

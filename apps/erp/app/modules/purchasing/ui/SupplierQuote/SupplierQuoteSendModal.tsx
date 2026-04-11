@@ -45,7 +45,7 @@ const SupplierQuoteSendModal = ({
 }: SupplierQuoteSendModalProps) => {
   const { t } = useLingui();
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
 
   const [notificationType, setNotificationType] = useState(
     canEmail ? "Email" : "Share"

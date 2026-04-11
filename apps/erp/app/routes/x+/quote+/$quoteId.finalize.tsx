@@ -191,7 +191,7 @@ export async function action(args: ActionFunctionArgs) {
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [user.data.email, customerContact.data.contact!.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: user.data.email,

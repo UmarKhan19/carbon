@@ -8,6 +8,7 @@ import {
   ProviderID,
   type XeroProvider
 } from "@carbon/ee/accounting";
+import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
@@ -244,6 +245,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // Build metadata, transforming owner settings into syncConfig structure
   const metadata = buildIntegrationMetadata(existingMetadata, d);
 
+  const wasInstalled = existing.data?.active === true;
+
   const update = await upsertCompanyIntegration(client, {
     id: integrationId,
     active: true,
@@ -257,6 +260,39 @@ export async function action({ request, params }: ActionFunctionArgs) {
       path.to.integrations,
       await flash(request, error(update.error, "Failed to install integration"))
     );
+  }
+
+  // Fire `onInstall` on the transition from uninstalled → installed.
+  // Prefer the server-hooks registry (used by integrations whose install
+  // logic needs server-only modules, e.g. Xero), fall back to any inline
+  // hook defined via `defineIntegration({ onInstall })`. Run it best-effort:
+  // the row is already persisted, so a hook failure shouldn't roll that
+  // back — just surface it as a flashed error and let the user retry.
+  if (!wasInstalled) {
+    const serverHooks = getIntegrationServerHooks(integrationId);
+    const onInstall = (serverHooks?.onInstall ?? integration.onInstall) as
+      | ((companyId: string) => void | Promise<void>)
+      | undefined;
+    if (onInstall) {
+      try {
+        await onInstall(companyId);
+      } catch (hookError) {
+        console.error(
+          `onInstall hook failed for integration '${integrationId}'`,
+          hookError
+        );
+        throw redirect(
+          path.to.integrations,
+          await flash(
+            request,
+            error(
+              hookError,
+              `Installed ${integration.name}, but setup hook failed`
+            )
+          )
+        );
+      }
+    }
   }
 
   throw redirect(

@@ -1,11 +1,11 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { Resend as ResendConfig } from "@carbon/ee";
+import { Email as EmailConfig } from "@carbon/ee";
 import { Resend } from "resend";
 import { inngest } from "../../client";
 
 export const sendEmailFunction = inngest.createFunction(
   {
-    id: "send-email-resend",
+    id: "send-email",
     retries: 3
   },
   { event: "carbon/send-email" },
@@ -25,7 +25,7 @@ export const sendEmailFunction = inngest.createFunction(
             .from("companyIntegration")
             .select("active, metadata")
             .eq("companyId", payload.companyId)
-            .eq("id", "resend")
+            .eq("id", "email")
             .maybeSingle()
         ]);
 
@@ -46,7 +46,7 @@ export const sendEmailFunction = inngest.createFunction(
           }
         : integrationMetadata;
 
-    const parsedMetadata = ResendConfig.schema.safeParse(metadataWithProvider);
+    const parsedMetadata = EmailConfig.schema.safeParse(metadataWithProvider);
 
     if (!parsedMetadata.success || !integrationActive) {
       return { success: false, message: "Invalid or inactive integration" };
@@ -71,7 +71,7 @@ export const sendEmailFunction = inngest.createFunction(
         const transporter = nodemailer.createTransport({
           host: data.host!,
           port: data.port!,
-          secure: data.secure ?? true,
+          secure: data.secure === true,
           auth: {
             user: data.username!,
             pass: data.password!

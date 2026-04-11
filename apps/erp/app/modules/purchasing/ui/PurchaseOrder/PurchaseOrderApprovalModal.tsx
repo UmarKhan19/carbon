@@ -47,7 +47,7 @@ const PurchaseOrderApprovalModal = ({
 
   const { t } = useLingui();
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
   const isApproving = decision === "Approved";
 
   const [notificationType, setNotificationType] = useState(

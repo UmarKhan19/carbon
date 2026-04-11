@@ -270,7 +270,7 @@ export async function sendSalesOrderEmail(args: {
   const html = await renderAsync(emailTemplate);
   const text = await renderAsync(emailTemplate, { plainText: true });
 
-  await trigger("send-email-resend", {
+  await trigger("send-email", {
     to: [seller.data.email, customer.data.contact.email!],
     cc: ccSelections?.length ? ccSelections : undefined,
     from: seller.data.email,

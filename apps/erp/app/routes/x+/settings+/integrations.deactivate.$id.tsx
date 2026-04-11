@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { integrations as availableIntegrations } from "@carbon/ee";
 import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
+import { redis } from "@carbon/kv";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { deactivateIntegration } from "~/modules/settings/settings.server";
@@ -41,6 +42,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const hooks = getIntegrationServerHooks(integrationId);
   if (hooks?.onUninstall) {
     await hooks.onUninstall(companyId);
+  }
+
+  try {
+    // Prune integration health cache
+    const key = `integrations:${companyId}:${integration.id}:health`;
+    await redis.del(key);
+  } catch {
+    // ignore error here
   }
 
   throw redirect(

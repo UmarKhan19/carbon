@@ -61,7 +61,7 @@ const PurchasingRFQHeader = () => {
 
   const permissions = usePermissions();
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
   const finalizeFetcher = useFetcher<{ error: string | null }>();
 
   const routeData = useRouteData<{
