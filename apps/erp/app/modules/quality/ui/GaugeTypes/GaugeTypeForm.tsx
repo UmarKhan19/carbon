@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -34,6 +35,7 @@ const GaugeTypeForm = ({
   type = "drawer",
   onClose
 }: GaugeTypeFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -42,11 +44,13 @@ const GaugeTypeForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created gauge type`);
+      toast.success(t`Created gauge type`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(`Failed to create gauge type: ${fetcher.data.error.message}`);
+      toast.error(
+        t`Failed to create gauge type: ${fetcher.data.error.message}`
+      );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -76,22 +80,24 @@ const GaugeTypeForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Gauge Type
+                {isEditing ? t`Edit Gauge Type` : t`New Gauge Type`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Gauge Type" />
+                <Input name="name" label={t`Gauge Type`} />
                 <CustomFormFields table="gaugeType" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

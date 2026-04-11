@@ -42,6 +42,7 @@ import {
   formatRelativeTime
 } from "@carbon/utils";
 import { now, toCalendarDateTime } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
@@ -122,6 +123,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function ProductionDashboard() {
+  const { t } = useLingui();
   const { activeJobs, assignedJobs, events, workCenters } =
     useLoaderData<typeof loader>();
 
@@ -140,6 +142,24 @@ export default function ProductionDashboard() {
   });
 
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
+
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      utilization: t`Work Center Utilization`,
+      estimatesVsActuals: t`Estimates vs Actuals`,
+      completionTime: t`Completion Time`
+    }),
+    [t]
+  );
+
+  const kpiEmptyMessages: Record<string, string> = useMemo(
+    () => ({
+      utilization: t`No work center utilization data within range`,
+      estimatesVsActuals: t`No completed jobs within range`,
+      completionTime: t`No completed jobs within range`
+    }),
+    [t]
+  );
 
   const totalTimeInInterval = useMemo(() => {
     if (!dateRange) return 0;
@@ -275,8 +295,8 @@ export default function ProductionDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label}_${startDate}_to_${endDate}.csv`;
-  }, [dateRange, selectedKpiData.label]);
+    return `${kpiLabels[selectedKpiData.key]}_${startDate}_to_${endDate}.csv`;
+  }, [dateRange, kpiLabels, selectedKpiData.key]);
 
   const yAxisWidth = useMemo(() => {
     return (
@@ -292,7 +312,9 @@ export default function ProductionDashboard() {
         <Card className="col-span-3">
           <CardHeader className="flex-row gap-2">
             <LuCirclePlay className="text-muted-foreground" />
-            <CardTitle>Active Jobs</CardTitle>
+            <CardTitle>
+              <Trans>Active Jobs</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -309,7 +331,7 @@ export default function ProductionDashboard() {
                     ","
                   )}`}
                 >
-                  View Active Jobs
+                  <Trans>View Active Jobs</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -319,7 +341,9 @@ export default function ProductionDashboard() {
         <Card className="col-span-3">
           <CardHeader className="flex-row gap-2">
             <LuInbox className="text-muted-foreground" />
-            <CardTitle>Jobs Assigned to Me</CardTitle>
+            <CardTitle>
+              <Trans>Jobs Assigned to Me</Trans>
+            </CardTitle>
           </CardHeader>
 
           <CardContent>
@@ -333,7 +357,7 @@ export default function ProductionDashboard() {
                 asChild
               >
                 <Link to={`${path.to.jobs}?filter=assignee:eq:${user.id}`}>
-                  View Assigned Jobs
+                  <Trans>View Assigned Jobs</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -351,7 +375,7 @@ export default function ProductionDashboard() {
                       rightIcon={<LuChevronDown />}
                       className="hover:bg-background/80"
                     >
-                      <span>{selectedKpiData.label}</span>
+                      <span>{kpiLabels[selectedKpiData.key]}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="bottom" align="start">
@@ -362,7 +386,7 @@ export default function ProductionDashboard() {
                     >
                       {KPIs.map((kpi) => (
                         <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                          {kpi.label}
+                          {kpiLabels[kpi.key]}
                         </DropdownMenuRadioItem>
                       ))}
                     </DropdownMenuRadioGroup>
@@ -382,7 +406,7 @@ export default function ProductionDashboard() {
                   <IconButton
                     variant="secondary"
                     icon={<LuEllipsisVertical />}
-                    aria-label="More"
+                    aria-label={t`More`}
                   />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -393,7 +417,7 @@ export default function ProductionDashboard() {
                       className="flex flex-row items-center gap-2"
                     >
                       <DropdownMenuIcon icon={<LuFile />} />
-                      Export CSV
+                      <Trans>Export CSV</Trans>
                     </CSVLink>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -427,7 +451,7 @@ export default function ProductionDashboard() {
               <div className="flex flex-col items-center justify-center h-full">
                 <Empty className="py-8">
                   <p className="text-sm text-muted-foreground">
-                    {selectedKpiData.emptyMessage}
+                    {kpiEmptyMessages[selectedKpiData.key]}
                   </p>
                 </Empty>
               </div>
@@ -623,6 +647,7 @@ function WorkCenterCards({
   events: ActiveProductionEvent[];
   workCenters: WorkCenterWithBlocking[];
 }) {
+  const { t } = useLingui();
   const [events, setEvents] = useState<ActiveProductionEvent[]>(initialEvents);
   const [jobOperationMetaData, setJobOperationMetaData] = useState<
     Record<string, JobOperationMetaData>
@@ -835,12 +860,16 @@ function WorkCenterCards({
                         className="inline-flex items-center gap-1 text-xs font-normal"
                       >
                         <span>
-                          Blocked by {workCenter.blockingDispatchReadableId}
+                          <Trans>
+                            Blocked by {workCenter.blockingDispatchReadableId}
+                          </Trans>
                         </span>
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>View maintenance dispatch</p>
+                      <p>
+                        <Trans>View maintenance dispatch</Trans>
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -854,7 +883,7 @@ function WorkCenterCards({
             <CardContent className="flex items-start justify-start p-6 pt-3 border-t">
               {!hasEvents ? (
                 <p className="text-muted-foreground text-center w-full h-full flex flex-col gap-2 items-center justify-center text-sm">
-                  Inactive
+                  <Trans>Inactive</Trans>
                 </p>
               ) : (
                 <div className="flex flex-col gap-2 items-start justify-start text-sm">
@@ -926,7 +955,7 @@ function WorkCenterCards({
                             {["ASAP", "No Deadline"].includes(deadlineType)
                               ? deadlineType
                               : dueDate
-                                ? `Due ${formatRelativeTime(
+                                ? t`Due ${formatRelativeTime(
                                     convertDateStringToIsoString(dueDate)
                                   )}`
                                 : "–"}

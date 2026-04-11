@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Outlet, redirect } from "react-router";
 import { GroupedContentSidebar } from "~/components/Layout";
@@ -16,7 +17,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Finance",
+  breadcrumb: msg`Finance`,
   to: path.to.currencies,
   module: "accounting"
 };

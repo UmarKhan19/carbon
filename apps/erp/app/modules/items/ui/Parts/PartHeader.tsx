@@ -12,6 +12,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
@@ -23,6 +24,7 @@ import type { PartSummary } from "../../types";
 import { usePartNavigation } from "./usePartNavigation";
 
 const PartHeader = () => {
+  const { t } = useLingui();
   const links = usePartNavigation();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
@@ -56,7 +58,7 @@ const PartHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   size="sm"
                   variant="secondary"
@@ -74,7 +76,7 @@ const PartHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Part
+                  <Trans>Delete Part</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -88,7 +90,7 @@ const PartHeader = () => {
             action={path.to.deleteItem(itemId)}
             isOpen={deleteModal.isOpen}
             name={routeData?.partSummary?.readableIdWithRevision ?? "part"}
-            text={`Are you sure you want to delete ${routeData?.partSummary?.readableIdWithRevision}? This cannot be undone.`}
+            text={t`Are you sure you want to delete ${routeData?.partSummary?.readableIdWithRevision}? This cannot be undone.`}
             onCancel={() => {
               deleteModal.onClose();
             }}

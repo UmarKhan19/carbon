@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
 import { Hyperlink, Table } from "~/components";
@@ -14,6 +15,7 @@ type MethodOperationsTableProps = {
 
 const MethodOperationsTable = memo(
   ({ data, count }: MethodOperationsTableProps) => {
+    const { t } = useLingui();
     const parts = useParts();
     const tools = useTools();
 
@@ -23,7 +25,7 @@ const MethodOperationsTable = memo(
       return [
         {
           accessorKey: "description",
-          header: "Description",
+          header: t`Description`,
           cell: ({ row }) => (
             <Hyperlink
               to={getPathToMakeMethod(
@@ -42,7 +44,7 @@ const MethodOperationsTable = memo(
         },
         {
           accessorKey: "makeMethod.item.readableIdWithRevision",
-          header: "Item ID",
+          header: t`Item ID`,
           cell: ({ row }) => {
             // @ts-ignore
             return row.original.makeMethod?.item?.readableIdWithRevision;
@@ -59,7 +61,7 @@ const MethodOperationsTable = memo(
         },
         {
           accessorKey: "operationType",
-          header: "Operation Type",
+          header: t`Operation Type`,
           cell: (item) => (
             <Enumerable value={item.getValue<string>() ?? null} />
           ),
@@ -75,34 +77,34 @@ const MethodOperationsTable = memo(
         },
         {
           accessorKey: "setupTime",
-          header: "Setup Time",
+          header: t`Setup Time`,
           cell: ({ row }) => {
             return `${row.original.setupTime} ${row.original.setupUnit}`;
           }
         },
         {
           accessorKey: "laborTime",
-          header: "Labor Time",
+          header: t`Labor Time`,
           cell: ({ row }) => {
             return `${row.original.laborTime} ${row.original.laborUnit}`;
           }
         },
         {
           accessorKey: "machineTime",
-          header: "Machine Time",
+          header: t`Machine Time`,
           cell: ({ row }) => {
             return `${row.original.machineTime} ${row.original.machineUnit}`;
           }
         }
       ];
-    }, [items]);
+    }, [items, t]);
 
     return (
       <Table<MethodOperation>
         count={count}
         columns={columns}
         data={data}
-        title="Method Operations"
+        title={t`Method Operations`}
       />
     );
   }

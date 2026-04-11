@@ -16,6 +16,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate, getItemReadableId } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
@@ -130,7 +131,7 @@ const LineItems = ({
                         className="text-muted-foreground flex-shrink-0"
                       >
                         <Link to={path.to.supplierQuoteLine(id, line.id!)}>
-                          Edit
+                          <Trans>Edit</Trans>
                         </Link>
                       </Button>
                     </HStack>
@@ -313,7 +314,9 @@ const SupplierQuoteSummary = () => {
         <HStack className="justify-between items-center">
           <div className="flex flex-col gap-1">
             <CardTitle>{routeData?.quote.supplierQuoteId}</CardTitle>
-            <CardDescription>Supplier Quote</CardDescription>
+            <CardDescription>
+              <Trans>Supplier Quote</Trans>
+            </CardDescription>
           </div>
           <div className="flex flex-col gap-1 items-end">
             <SupplierAvatar supplierId={routeData?.quote.supplierId ?? null} />

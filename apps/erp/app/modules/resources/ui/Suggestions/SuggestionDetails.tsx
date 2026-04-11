@@ -15,6 +15,7 @@ import {
 import { formatDate } from "@carbon/utils";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useState } from "react";
 import { useFetcher, useNavigate } from "react-router";
 import z from "zod";
@@ -38,6 +39,7 @@ export default function SuggestionDetails({
   suggestion,
   tags
 }: SuggestionDetailsProps) {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
   const fetcher = useFetcher();
@@ -77,12 +79,16 @@ export default function SuggestionDetails({
     >
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Suggestion</DrawerTitle>
+          <DrawerTitle>
+            <Trans>Suggestion</Trans>
+          </DrawerTitle>
         </DrawerHeader>
         <DrawerBody>
           <VStack spacing={4}>
             <VStack spacing={2} className="w-full">
-              <h3 className="text-xs text-muted-foreground">Emoji</h3>
+              <h3 className="text-xs text-muted-foreground">
+                <Trans>Emoji</Trans>
+              </h3>
               <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
                 <PopoverTrigger asChild>
                   <button
@@ -111,14 +117,18 @@ export default function SuggestionDetails({
             </VStack>
 
             <VStack spacing={2} className="w-full">
-              <h3 className="text-xs text-muted-foreground">Suggestion</h3>
+              <h3 className="text-xs text-muted-foreground">
+                <Trans>Suggestion</Trans>
+              </h3>
               <div className="whitespace-pre-wrap text-sm">
                 {suggestion.suggestion}
               </div>
             </VStack>
 
             <VStack spacing={2} className="w-full">
-              <h3 className="text-xs text-muted-foreground">Submitted By</h3>
+              <h3 className="text-xs text-muted-foreground">
+                <Trans>Submitted By</Trans>
+              </h3>
               <HStack spacing={2}>
                 <Avatar
                   size="sm"
@@ -130,25 +140,31 @@ export default function SuggestionDetails({
             </VStack>
 
             <VStack spacing={2} className="w-full">
-              <h3 className="text-xs text-muted-foreground">Date</h3>
+              <h3 className="text-xs text-muted-foreground">
+                <Trans>Date</Trans>
+              </h3>
               <span>{formatDate(suggestion.createdAt)}</span>
             </VStack>
 
             <VStack spacing={2} className="w-full">
-              <h3 className="text-xs text-muted-foreground">Path</h3>
+              <h3 className="text-xs text-muted-foreground">
+                <Trans>Path</Trans>
+              </h3>
               <span className="text-sm font-mono">{suggestion.path}</span>
             </VStack>
 
             {suggestion.attachmentPath && (
               <VStack spacing={2} className="w-full">
-                <h3 className="text-xs text-muted-foreground">Attachment</h3>
+                <h3 className="text-xs text-muted-foreground">
+                  <Trans>Attachment</Trans>
+                </h3>
                 <a
                   href={`/file/preview/private/${suggestion.attachmentPath}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary underline text-sm"
                 >
-                  View Attachment
+                  <Trans>View Attachment</Trans>
                 </a>
               </VStack>
             )}
@@ -164,7 +180,7 @@ export default function SuggestionDetails({
             >
               <Tags
                 availableTags={tags}
-                label="Tags"
+                label={t`Tags`}
                 name="tags"
                 table="suggestion"
                 inline

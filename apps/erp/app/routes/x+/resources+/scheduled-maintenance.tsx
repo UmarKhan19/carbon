@@ -2,7 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { data, Outlet, useLoaderData } from "react-router";
 import type { MaintenanceSchedule } from "~/modules/resources";
@@ -16,7 +16,7 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Scheduled Maintenances",
+  breadcrumb: msg`Scheduled Maintenances`,
   to: path.to.maintenanceSchedules
 };
 

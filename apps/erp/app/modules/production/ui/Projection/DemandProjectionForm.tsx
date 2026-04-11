@@ -11,6 +11,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
+import { useLingui } from "@lingui/react/macro";
 import { useFetcher, useLoaderData } from "react-router";
 import type { z } from "zod";
 import { Hidden, Item, Location, Number, Submit } from "~/components/Form";
@@ -35,6 +36,7 @@ const DemandProjectionsForm = ({
   onClose
 }: DemandProjectionsFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const fetcher = useFetcher<{ id: string }>();
   const loaderData = useLoaderData<LoaderData>();
   const periods = loaderData?.periods ?? [];
@@ -103,14 +105,14 @@ const DemandProjectionsForm = ({
             <VStack spacing={4}>
               <Item
                 name="itemId"
-                label="Item"
+                label={t`Item`}
                 type="Part"
                 replenishmentSystem="Make"
                 isReadOnly={isEditing}
               />
               <Location
                 name="locationId"
-                label="Location"
+                label={t`Location`}
                 isReadOnly={isEditing}
               />
 

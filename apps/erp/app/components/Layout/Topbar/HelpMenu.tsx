@@ -6,17 +6,19 @@ import {
   DropdownMenuTrigger,
   IconButton
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { LuCircleHelp, LuFiles } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
 
 const HelpMenu = () => {
+  const { t } = useLingui();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <IconButton
           className="hidden sm:flex"
-          aria-label="Help"
+          aria-label={t`Help`}
           icon={<LuCircleHelp />}
           variant="ghost"
         />
@@ -25,7 +27,7 @@ const HelpMenu = () => {
         <DropdownMenuItem asChild>
           <Link to={path.to.apiIntroduction}>
             <DropdownMenuIcon icon={<LuFiles />} />
-            API Docs
+            <Trans>API Docs</Trans>
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

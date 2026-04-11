@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -34,6 +35,7 @@ const NoQuoteReasonForm = ({
   type = "drawer",
   onClose
 }: NoQuoteReasonFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -42,13 +44,13 @@ const NoQuoteReasonForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created no quote reason`);
+      toast.success(t`Created no quote reason`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create no quote reason: ${fetcher.data.error.message}`
+        t`Failed to create no quote reason: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -78,22 +80,25 @@ const NoQuoteReasonForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} No Quote Reason
+                {isEditing ? <Trans>Edit</Trans> : <Trans>New</Trans>}{" "}
+                <Trans>No Quote Reason</Trans>
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="No Quote Reason" />
+                <Input name="name" label={t`No Quote Reason`} />
                 <CustomFormFields table="noQuoteReason" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

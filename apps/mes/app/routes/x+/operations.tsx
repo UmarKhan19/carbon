@@ -25,6 +25,7 @@ import {
   parseAbsolute,
   toZoned
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuSettings2, LuTriangleAlert } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
@@ -306,6 +307,7 @@ const defaultDisplaySettings: DisplaySettings = {
 const DISPLAY_SETTINGS_KEY = "kanban-schedule-display-settings";
 
 function KanbanSchedule() {
+  const { t } = useLingui();
   const {
     columns,
     items: initialItems,
@@ -342,7 +344,7 @@ function KanbanSchedule() {
     return [
       {
         accessorKey: "workCenterId",
-        header: "Work Center",
+        header: t`Work Center`,
         filter: {
           type: "static",
           options: workCenters.map((col) => ({
@@ -353,8 +355,8 @@ function KanbanSchedule() {
       },
       {
         accessorKey: "processId",
-        header: "Process",
-        pluralHeader: "Processes",
+        header: t`Process`,
+        pluralHeader: t`Processes`,
         filter: {
           type: "static",
           options: processes
@@ -370,7 +372,7 @@ function KanbanSchedule() {
       },
       {
         accessorKey: "tag",
-        header: "Tag",
+        header: t`Tag`,
         filter: {
           type: "static",
           options: availableTags.map((tag) => ({
@@ -381,7 +383,7 @@ function KanbanSchedule() {
       },
       {
         accessorKey: "assignee",
-        header: "Assignee",
+        header: t`Assignee`,
         filter: {
           type: "static",
           options: people.map((person) => ({
@@ -398,13 +400,15 @@ function KanbanSchedule() {
       <header className="sticky top-0 z-10 flex h-[var(--header-height)] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b bg-background">
         <div className="flex items-center gap-2 px-2">
           <SidebarTrigger />
-          <Heading size="h4">Schedule</Heading>
+          <Heading size="h4">
+            <Trans>Schedule</Trans>
+          </Heading>
         </div>
       </header>
       <div className="flex flex-col h-full max-h-full overflow-auto relative">
         <HStack className="px-4 py-2 justify-between bg-card border-b border-border">
           <HStack>
-            <SearchFilter param="search" size="sm" placeholder="Search" />
+            <SearchFilter param="search" size="sm" placeholder={t`Search`} />
             <Filter filters={filters} />
           </HStack>
 
@@ -415,20 +419,20 @@ function KanbanSchedule() {
                 variant="secondary"
                 className="border-dashed border-border"
               >
-                Display
+                <Trans>Display</Trans>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-48">
               <VStack>
                 {[
-                  { key: "showCustomer", label: "Customer" },
-                  { key: "showDescription", label: "Description" },
-                  { key: "showDueDate", label: "Due Date" },
-                  { key: "showDuration", label: "Duration" },
-                  { key: "showProgress", label: "Progress" },
-                  { key: "showStatus", label: "Status" },
-                  { key: "showSalesOrder", label: "Sales Order" },
-                  { key: "showThumbnail", label: "Thumbnail" }
+                  { key: "showCustomer", label: t`Customer` },
+                  { key: "showDescription", label: t`Description` },
+                  { key: "showDueDate", label: t`Due Date` },
+                  { key: "showDuration", label: t`Duration` },
+                  { key: "showProgress", label: t`Progress` },
+                  { key: "showStatus", label: t`Status` },
+                  { key: "showSalesOrder", label: t`Sales Order` },
+                  { key: "showThumbnail", label: t`Thumbnail` }
                 ].map(({ key, label }) => (
                   <Switch
                     key={key}
@@ -470,9 +474,11 @@ function KanbanSchedule() {
                   <LuTriangleAlert className="h-6 w-6" />
                 </div>
                 <span className="text-xs font-mono font-light text-foreground uppercase">
-                  No results
+                  <Trans>No results</Trans>
                 </span>
-                <Button onClick={clearFilters}>Clear Filters</Button>
+                <Button onClick={clearFilters}>
+                  <Trans>Clear Filters</Trans>
+                </Button>
               </div>
             ) : (
               <div className="flex flex-col w-full h-full items-center justify-center gap-4">
@@ -480,7 +486,7 @@ function KanbanSchedule() {
                   <LuTriangleAlert className="h-6 w-6" />
                 </div>
                 <span className="text-xs font-mono font-light text-foreground uppercase">
-                  No work centers exist
+                  <Trans>No work centers exist</Trans>
                 </span>
               </div>
             )}

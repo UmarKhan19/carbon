@@ -7,6 +7,7 @@ import { validationError, validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
@@ -47,7 +48,7 @@ import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
 
 export const handle: Handle = {
-  breadcrumb: "Orders",
+  breadcrumb: msg`Orders`,
   to: path.to.purchaseOrders,
   module: "purchasing"
 };

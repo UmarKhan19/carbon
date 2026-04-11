@@ -1,4 +1,5 @@
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import type { MetaFunction } from "react-router";
 import { Outlet } from "react-router";
 import {
@@ -14,7 +15,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Documents",
+  breadcrumb: msg`Documents`,
   to: path.to.documents,
   module: "documents"
 };

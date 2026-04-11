@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import { CustomFormFields, Hidden, Number, Submit } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
@@ -17,6 +18,7 @@ type ItemSalePriceFormProps = {
 
 const ItemSalePriceForm = ({ initialValues }: ItemSalePriceFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { company } = useUser();
 
   return (
@@ -27,14 +29,16 @@ const ItemSalePriceForm = ({ initialValues }: ItemSalePriceFormProps) => {
         defaultValues={initialValues}
       >
         <CardHeader>
-          <CardTitle>Sale Price</CardTitle>
+          <CardTitle>
+            <Trans>Sale Price</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="itemId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="unitSalePrice"
-              label="Unit Sale Price"
+              label={t`Unit Sale Price`}
               minValue={0}
               formatOptions={{
                 style: "currency",
@@ -43,7 +47,7 @@ const ItemSalePriceForm = ({ initialValues }: ItemSalePriceFormProps) => {
             />
             {/* <Currency
               name="currencyCode"
-              label="Currency"
+              label={t`Currency`}
               onChange={(newValue) => {
                 if (newValue) setCurrency(newValue?.value);
               }}
@@ -51,20 +55,22 @@ const ItemSalePriceForm = ({ initialValues }: ItemSalePriceFormProps) => {
 
             <UnitOfMeasure
               name="salesUnitOfMeasureCode"
-              label="Sales Unit of Measure"
+              label={t`Sales Unit of Measure`}
             />
 
-            <Boolean name="salesBlocked" label="Sales Blocked" />
-            <Boolean name="priceIncludesTax" label="Price Includes Tax" />
+            <Boolean name="salesBlocked" label={t`Sales Blocked`} />
+            <Boolean name="priceIncludesTax" label={t`Price Includes Tax`} />
             <Boolean
               name="allowInvoiceDiscount"
-              label="Allow Invoice Discount"
+              label={t`Allow Invoice Discount`}
             /> */}
             <CustomFormFields table="partUnitSalePrice" />
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "parts")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "parts")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

@@ -18,6 +18,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import type { z } from "zod";
@@ -59,6 +60,7 @@ const PurchaseInvoiceLineForm = ({
   type,
   onClose
 }: PurchaseInvoiceLineFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
 
@@ -402,7 +404,7 @@ const PurchaseInvoiceLineForm = ({
                       <NumberControlled
                         minValue={itemData.minimumOrderQuantity}
                         name="quantity"
-                        label="Quantity"
+                        label={t`Quantity`}
                         value={itemData.quantity}
                         onChange={(value) => {
                           const exchangeRate =
@@ -422,7 +424,7 @@ const PurchaseInvoiceLineForm = ({
 
                       <UnitOfMeasure
                         name="purchaseUnitOfMeasureCode"
-                        label="Unit of Measure"
+                        label={t`Unit of Measure`}
                         value={itemData.purchaseUom}
                         onChange={(newValue) => {
                           if (newValue) {
@@ -448,7 +450,7 @@ const PurchaseInvoiceLineForm = ({
 
                       <NumberControlled
                         name="supplierUnitPrice"
-                        label="Supplier Unit Price"
+                        label={t`Supplier Unit Price`}
                         value={itemData.supplierUnitPrice}
                         formatOptions={{
                           style: "currency",
@@ -465,7 +467,7 @@ const PurchaseInvoiceLineForm = ({
                       />
                       <NumberControlled
                         name="supplierShippingCost"
-                        label="Shipping"
+                        label={t`Shipping`}
                         value={itemData.supplierShippingCost}
                         minValue={0}
                         formatOptions={{
@@ -484,7 +486,7 @@ const PurchaseInvoiceLineForm = ({
 
                       <NumberControlled
                         name="supplierTaxAmount"
-                        label="Tax"
+                        label={t`Tax`}
                         value={itemData.taxAmount}
                         formatOptions={{
                           style: "currency",
@@ -506,13 +508,13 @@ const PurchaseInvoiceLineForm = ({
 
                       <Location
                         name="locationId"
-                        label="Location"
+                        label={t`Location`}
                         value={locationId}
                         onChange={onLocationChange}
                       />
                       <Shelf
                         name="shelfId"
-                        label="Shelf"
+                        label={t`Shelf`}
                         locationId={locationId}
                         value={itemData.shelfId ?? undefined}
                         onChange={(newValue) => {
@@ -528,7 +530,7 @@ const PurchaseInvoiceLineForm = ({
                   )}
                   <NumberControlled
                     name="taxPercent"
-                    label="Tax Percent"
+                    label={t`Tax Percent`}
                     value={itemData.taxPercent}
                     minValue={0}
                     maxValue={1}
@@ -555,7 +557,7 @@ const PurchaseInvoiceLineForm = ({
             </ModalCardBody>
             <ModalCardFooter>
               <Submit isDisabled={isDisabled} withBlocker={false}>
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </ModalCardFooter>
           </ValidatedForm>

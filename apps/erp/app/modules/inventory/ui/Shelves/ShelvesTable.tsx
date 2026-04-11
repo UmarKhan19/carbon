@@ -1,5 +1,4 @@
 import {
-  Button,
   Checkbox,
   Combobox,
   HStack,
@@ -8,6 +7,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -15,11 +15,10 @@ import {
   LuCheck,
   LuMapPin,
   LuPencil,
-  LuPlus,
   LuTrash
 } from "react-icons/lu";
-import { Link, useNavigate } from "react-router";
-import { Hyperlink, Table } from "~/components";
+import { useNavigate } from "react-router";
+import { Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
 import { ConfirmDelete } from "~/components/Modals";
@@ -43,6 +42,7 @@ type ShelvesTableProps = {
 
 const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
   const [params] = useUrlParams();
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const locations = useLocations();
@@ -54,7 +54,7 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
     return [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <HStack className="py-1">
             <Hyperlink to={`${path.to.shelf(row.original.id!)}?${params}`}>
@@ -68,7 +68,7 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
       },
       {
         accessorKey: "locationId",
-        header: "Location",
+        header: t`Location`,
         cell: ({ row }) => {
           const location = locations.find(
             (l) => l.value === row.original.locationId
@@ -83,7 +83,7 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
       },
       {
         accessorKey: "active",
-        header: "Active",
+        header: t`Active`,
         cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
         meta: {
           filter: {
@@ -93,12 +93,12 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
               { value: "false", label: "Inactive" }
             ]
           },
-          pluralHeader: "Active Statuses",
+          pluralHeader: t`Active Statuses`,
           icon: <LuCheck />
         }
       }
     ];
-  }, [locations, params]);
+  }, [locations, params, t]);
 
   const defaultColumnVisibility = {
     active: false
@@ -121,11 +121,11 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
             window.location.href = getLocationPath(selected);
           }}
         />
-        <Button asChild leftIcon={<LuPlus />}>
-          <Link to={`${path.to.newShelf}?location=${locationId}`}>
-            New Shelf
-          </Link>
-        </Button>
+
+        <New
+          label={t`Shelf`}
+          to={`${path.to.newShelf}?location=${locationId}`}
+        />
       </div>
     );
   }, [locationId, locations]);
@@ -141,7 +141,7 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Shelf
+            <Trans>Edit Shelf</Trans>
           </MenuItem>
           <MenuItem
             disabled={!permissions.can("delete", "inventory")}
@@ -152,7 +152,7 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Shelf
+            <Trans>Delete Shelf</Trans>
           </MenuItem>
         </>
       );
@@ -170,7 +170,7 @@ const ShelvesTable = memo(({ data, count, locationId }: ShelvesTableProps) => {
         defaultColumnPinning={defaultColumnPinning}
         primaryAction={actions}
         renderContextMenu={renderContextMenu}
-        title="Shelves"
+        title={t`Shelves`}
         table="shelf"
         withSavedView
       />

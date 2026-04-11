@@ -8,11 +8,13 @@ import {
   TooltipProvider
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+import { useLingui } from "@lingui/react/macro";
 import { LuMoon, LuRefreshCw, LuSun } from "react-icons/lu";
 import { Outlet, useFetcher, useRevalidator } from "react-router";
 import type { action } from "~/root";
 
 export default function ExternalLayout() {
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof action>();
   const mode = useMode();
   const revalidator = useRevalidator();
@@ -23,7 +25,7 @@ export default function ExternalLayout() {
         <div className="absolute top-4 right-4">
           <HStack>
             <IconButton
-              aria-label="Refresh"
+              aria-label={t`Refresh`}
               variant="ghost"
               size="sm"
               icon={<LuRefreshCw />}
@@ -32,7 +34,7 @@ export default function ExternalLayout() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="Toggle dark/light mode"
+                  aria-label={t`Toggle dark/light mode`}
                   variant="ghost"
                   size="sm"
                   icon={mode === "dark" ? <LuMoon /> : <LuSun />}

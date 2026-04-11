@@ -1,5 +1,6 @@
 import { Checkbox, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -43,6 +44,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
   useRealtime("receipt", `id=in.(${data.map((d) => d.id).join(",")})`);
 
   const [params] = useUrlParams();
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
 
@@ -55,7 +57,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
     const result: ColumnDef<(typeof rows)[number]>[] = [
       {
         accessorKey: "receiptId",
-        header: "Receipt ID",
+        header: t`Receipt ID`,
         cell: ({ row }) => (
           <Hyperlink to={path.to.receiptDetails(row.original.id!)}>
             {row.original.receiptId}
@@ -67,7 +69,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         accessorKey: "sourceDocument",
-        header: "Source Document",
+        header: t`Source Document`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />,
         meta: {
           filter: {
@@ -82,7 +84,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         accessorKey: "sourceDocumentReadableId",
-        header: "Source Document ID",
+        header: t`Source Document ID`,
         cell: ({ row }) => {
           if (!row.original.sourceDocumentId) return null;
           switch (row.original.sourceDocument) {
@@ -125,7 +127,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
 
       {
         accessorKey: "status",
-        header: "Status",
+        header: t`Status`,
         cell: (item) => {
           const status = item.getValue<(typeof receiptStatusType)[number]>();
           return <ReceiptStatus status={status} />;
@@ -138,13 +140,13 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
               label: <ReceiptStatus status={type} />
             }))
           },
-          pluralHeader: "Statuses",
+          pluralHeader: t`Statuses`,
           icon: <LuClock />
         }
       },
       {
         id: "postedBy",
-        header: "Posted By",
+        header: t`Posted By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.postedBy} />
         ),
@@ -161,7 +163,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         accessorKey: "postingDate",
-        header: "Posting Date",
+        header: t`Posting Date`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -169,7 +171,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         accessorKey: "assignee",
-        header: "Assignee",
+        header: t`Assignee`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -186,7 +188,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         id: "supplierId",
-        header: "Supplier",
+        header: t`Supplier`,
         cell: ({ row }) => {
           return <SupplierAvatar supplierId={row.original.supplierId} />;
         },
@@ -204,7 +206,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
 
       {
         accessorKey: "invoiced",
-        header: "Invoiced",
+        header: t`Invoiced`,
         cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
         meta: {
           filter: {
@@ -214,13 +216,13 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
               { value: "false", label: "No" }
             ]
           },
-          pluralHeader: "Invoiced Statuses",
+          pluralHeader: t`Invoiced Statuses`,
           icon: <LuCheck />
         }
       },
       {
         accessorKey: "externalDocumentId",
-        header: "External Ref.",
+        header: t`External Ref.`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuHash />
@@ -228,7 +230,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -245,7 +247,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -253,7 +255,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t`Updated By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -270,7 +272,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t`Updated At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -279,7 +281,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
     ];
 
     return [...result, ...customColumns];
-  }, [people, suppliers, customColumns]);
+  }, [people, suppliers, customColumns, t]);
 
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null);
   const deleteReceiptModal = useDisclosure();
@@ -297,7 +299,7 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            {row.postingDate ? "View Receipt" : "Edit Receipt"}
+            {row.postingDate ? t`View Receipt` : t`Edit Receipt`}
           </MenuItem>
           <MenuItem
             disabled={
@@ -312,12 +314,12 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Receipt
+            <Trans>Delete Receipt</Trans>
           </MenuItem>
         </>
       );
     },
-    [deleteReceiptModal, navigate, params, permissions]
+    [deleteReceiptModal, navigate, params, permissions, t]
   );
 
   return (
@@ -337,11 +339,11 @@ const ReceiptsTable = memo(({ data, count }: ReceiptsTableProps) => {
         }}
         primaryAction={
           permissions.can("create", "inventory") && (
-            <New label="Receipt" to={path.to.newReceipt} />
+            <New label={t`Receipt`} to={path.to.newReceipt} />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Receipts"
+        title={t`Receipts`}
         table="receipt"
         withSavedView
       />

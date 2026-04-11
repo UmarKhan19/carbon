@@ -32,6 +32,8 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -60,7 +62,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Sales",
+  breadcrumb: msg`Sales`,
   to: path.to.salesSettings
 };
 
@@ -250,6 +252,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function SalesSettingsRoute() {
+  const { t } = useLingui();
   const { companySettings, terms, arBillingAddress } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
@@ -341,18 +344,26 @@ export default function SalesSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Sales</Heading>
+        <Heading size="h3">
+          <Trans>Sales</Trans>
+        </Heading>
         <Card>
           <HStack className="justify-between items-start">
             <CardHeader>
-              <CardTitle>Sales Terms &amp; Conditions</CardTitle>
+              <CardTitle>
+                <Trans>Sales Terms &amp; Conditions</Trans>
+              </CardTitle>
               <CardDescription>
-                Define the terms and conditions for quotes and sales orders
+                <Trans>
+                  Define the terms and conditions for quotes and sales orders
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardAction className="py-6">
               {salesTermsStatus === "draft" ? (
-                <Badge variant="secondary">Draft</Badge>
+                <Badge variant="secondary">
+                  <Trans>Draft</Trans>
+                </Badge>
               ) : (
                 <LuCircleCheck className="w-4 h-4 text-emerald-500" />
               )}
@@ -380,10 +391,14 @@ export default function SalesSettingsRoute() {
           <CardHeader>
             <HStack className="justify-between items-center">
               <div>
-                <CardTitle>Accounts Receivable Billing Address</CardTitle>
+                <CardTitle>
+                  <Trans>Accounts Receivable Billing Address</Trans>
+                </CardTitle>
                 <CardDescription>
-                  The billing address used on quotes, sales orders, invoices,
-                  and other sales documents.
+                  <Trans>
+                    The billing address used on quotes, sales orders, invoices,
+                    and other sales documents.
+                  </Trans>
                 </CardDescription>
               </div>
               <Switch
@@ -419,20 +434,22 @@ export default function SalesSettingsRoute() {
                 value="accountsReceivableBillingAddress"
               />
               <CardHeader>
-                <CardTitle>Billing Address</CardTitle>
+                <CardTitle>
+                  <Trans>Billing Address</Trans>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 w-full">
-                  <Input name="name" label="Name" />
-                  <Input name="email" label="Email" />
-                  <Input name="addressLine1" label="Address Line 1" />
-                  <Input name="addressLine2" label="Address Line 2" />
-                  <Input name="city" label="City" />
-                  <Input name="state" label="State / Province" />
-                  <Input name="postalCode" label="Postal Code" />
+                  <Input name="name" label={t`Name`} />
+                  <Input name="email" label={t`Email`} />
+                  <Input name="addressLine1" label={t`Address Line 1`} />
+                  <Input name="addressLine2" label={t`Address Line 2`} />
+                  <Input name="city" label={t`City`} />
+                  <Input name="state" label={t`State / Province`} />
+                  <Input name="postalCode" label={t`Postal Code`} />
                   <Country name="countryCode" />
-                  <Input name="phone" label="Phone" />
-                  <Input name="fax" label="Fax" />
+                  <Input name="phone" label={t`Phone`} />
+                  <Input name="fax" label={t`Fax`} />
                 </div>
               </CardContent>
               <CardFooter>
@@ -444,7 +461,7 @@ export default function SalesSettingsRoute() {
                       "accountsReceivableBillingAddress"
                   }
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </CardFooter>
             </ValidatedForm>
@@ -466,12 +483,14 @@ export default function SalesSettingsRoute() {
             <input type="hidden" name="intent" value="digitalQuote" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Digital Quotes
+                <Trans>Digital Quotes</Trans>
               </CardTitle>
               <CardDescription>
-                Enable digital quotes for your company. This will allow you to
-                send digital quotes to your customers, and allow them to accept
-                them online.
+                <Trans>
+                  Enable digital quotes for your company. This will allow you to
+                  send digital quotes to your customers, and allow them to
+                  accept them online.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -492,10 +511,12 @@ export default function SalesSettingsRoute() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label>Notifications</Label>
+                  <Label>
+                    <Trans>Notifications</Trans>
+                  </Label>
                   <Users
                     name="digitalQuoteNotificationGroup"
-                    label="Who should receive notifications when a digital quote is accepted or expired?"
+                    label={t`Who should receive notifications when a digital quote is accepted or expired?`}
                     type="employee"
                   />
                 </div>
@@ -509,7 +530,7 @@ export default function SalesSettingsRoute() {
                   fetcher.formData?.get("intent") === "digitalQuote"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -526,18 +547,24 @@ export default function SalesSettingsRoute() {
           >
             <input type="hidden" name="intent" value="rfq" />
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">RFQ</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Trans>RFQ</Trans>
+              </CardTitle>
               <CardDescription>
-                Enable notifications when an RFQ is marked as ready for quote.
+                <Trans>
+                  Enable notifications when an RFQ is marked as ready for quote.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <div className="flex flex-col gap-2">
-                  <Label>Notifications</Label>
+                  <Label>
+                    <Trans>Notifications</Trans>
+                  </Label>
                   <Users
                     name="rfqReadyNotificationGroup"
-                    label="Who should receive notifications when a RFQ is marked ready for quote?"
+                    label={t`Who should receive notifications when a RFQ is marked ready for quote?`}
                     type="employee"
                   />
                 </div>
@@ -551,7 +578,7 @@ export default function SalesSettingsRoute() {
                   fetcher.formData?.get("intent") === "rfq"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -567,17 +594,21 @@ export default function SalesSettingsRoute() {
           >
             <input type="hidden" name="intent" value="emails" />
             <CardHeader>
-              <CardTitle>Emails</CardTitle>
+              <CardTitle>
+                <Trans>Emails</Trans>
+              </CardTitle>
               <CardDescription>
-                These email addresses will be automatically CC'd on all quote
-                emails sent to customers.
+                <Trans>
+                  These email addresses will be automatically CC'd on all quote
+                  emails sent to customers.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <EmailRecipients
                   name="defaultCustomerCc"
-                  label="Default CC Recipients"
+                  label={t`Default CC Recipients`}
                 />
               </div>
             </CardContent>
@@ -589,7 +620,7 @@ export default function SalesSettingsRoute() {
                   fetcher.formData?.get("intent") === "defaultCustomerCc"
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </CardFooter>
           </ValidatedForm>
@@ -597,24 +628,32 @@ export default function SalesSettingsRoute() {
 
         <Card>
           <CardHeader>
-            <CardTitle>PDFs</CardTitle>
+            <CardTitle>
+              <Trans>PDFs</Trans>
+            </CardTitle>
             <CardDescription>
-              Show part thumbnails on quotes, sales orders, sales invoices, and
-              shipments.
+              <Trans>
+                Show part thumbnails on quotes, sales orders, sales invoices,
+                and shipments.
+              </Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {companySettings.includeThumbnailsOnSalesPdfs
-                    ? "Thumbnails are included"
-                    : "Thumbnails are not included"}
+                  {companySettings.includeThumbnailsOnSalesPdfs ? (
+                    <Trans>Thumbnails are included</Trans>
+                  ) : (
+                    <Trans>Thumbnails are not included</Trans>
+                  )}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {companySettings.includeThumbnailsOnSalesPdfs
-                    ? "Part thumbnails are shown on sales PDFs."
-                    : "Enable to show part thumbnails on sales PDFs."}
+                  {companySettings.includeThumbnailsOnSalesPdfs ? (
+                    <Trans>Part thumbnails are shown on sales PDFs.</Trans>
+                  ) : (
+                    <Trans>Enable to show part thumbnails on sales PDFs.</Trans>
+                  )}
                 </span>
               </VStack>
               <Switch
@@ -716,10 +755,14 @@ function CategoryMarkupsCard({
       >
         <input type="hidden" name="intent" value="categoryMarkups" />
         <CardHeader>
-          <CardTitle>Quote Markups</CardTitle>
+          <CardTitle>
+            <Trans>Quote Markups</Trans>
+          </CardTitle>
           <CardDescription>
-            Set default markup percentages for each cost category on new quote
-            lines
+            <Trans>
+              Set default markup percentages for each cost category on new quote
+              lines
+            </Trans>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -765,7 +808,7 @@ function CategoryMarkupsCard({
               fetcher.formData?.get("intent") === "categoryMarkups"
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

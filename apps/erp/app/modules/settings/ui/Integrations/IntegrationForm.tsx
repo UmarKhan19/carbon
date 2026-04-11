@@ -32,6 +32,7 @@ import {
   VStack
 } from "@carbon/react";
 import { SUPPORT_EMAIL } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useMemo, useState } from "react";
 import { LuCheck } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -470,6 +471,7 @@ export function IntegrationForm({
   onClose,
   dynamicOptions = {}
 }: IntegrationFormProps) {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const isDisabled = !permissions.can("update", "settings");
   const {
@@ -555,7 +557,7 @@ export function IntegrationForm({
   }
 
   if (!integration) {
-    toast.error("Integration not found");
+    toast.error(t`Integration not found`);
     return null;
   }
 
@@ -590,13 +592,15 @@ export function IntegrationForm({
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Badge variant="secondary">{integration.category}</Badge>
                     <span aria-hidden>•</span>
-                    <span>Published by Carbon</span>
+                    <span>
+                      <Trans>Published by Carbon</Trans>
+                    </span>
                   </div>
                 </div>
               </div>
               {installed && connectedOrgName && (
                 <div className="text-sm text-muted-foreground">
-                  Connected to{" "}
+                  <Trans>Connected to</Trans>{" "}
                   <span className="font-medium text-foreground">
                     {connectedOrgName}
                   </span>
@@ -615,7 +619,7 @@ export function IntegrationForm({
                 {integration.setupInstructions && (
                   <div className="flex flex-col gap-2">
                     <div className="text-[0.6875rem] font-semibold uppercase tracking-wider text-foreground/70">
-                      Setup instructions
+                      <Trans>Setup instructions</Trans>
                     </div>
                     {/* @ts-expect-error TS2339 */}
                     <integration.setupInstructions companyId={companyId} />
@@ -648,7 +652,7 @@ export function IntegrationForm({
                   integration.actions.length > 0 && (
                     <div className="flex w-full flex-col gap-3 border-t border-border pt-4">
                       <div className="text-[0.6875rem] font-semibold uppercase tracking-wider text-foreground/70">
-                        Actions
+                        <Trans>Actions</Trans>
                       </div>
                       <VStack spacing={2} className="w-full">
                         {/* @ts-expect-error TS7006 */}
@@ -682,14 +686,18 @@ export function IntegrationForm({
             <HStack>
               {integration.settings.length > 0 ? (
                 installed ? (
-                  <Submit isDisabled={isDisabled}>Update</Submit>
+                  <Submit isDisabled={isDisabled}>
+                    <Trans>Update</Trans>
+                  </Submit>
                 ) : (
-                  <Submit isDisabled={isDisabled}>Install</Submit>
+                  <Submit isDisabled={isDisabled}>
+                    <Trans>Install</Trans>
+                  </Submit>
                 )
               ) : null}
 
               <Button variant="solid" onClick={onClose}>
-                Close
+                <Trans>Close</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

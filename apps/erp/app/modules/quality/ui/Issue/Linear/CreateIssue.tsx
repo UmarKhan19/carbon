@@ -8,6 +8,7 @@ import {
   ValidatedForm
 } from "@carbon/form";
 import { Button, ModalFooter, VStack } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useId, useMemo, useState } from "react";
 import z from "zod";
 import { useAsyncFetcher } from "~/hooks/useAsyncFetcher";
@@ -27,6 +28,7 @@ const createIssueValidator = z.object({
 });
 
 export const CreateIssue = (props: Props) => {
+  const { t } = useLingui();
   const id = useId();
   const [team, setTeam] = useState<string | undefined>();
 
@@ -58,24 +60,29 @@ export const CreateIssue = (props: Props) => {
         <Hidden name="actionId" value={props.task.id} />
         <Select
           isLoading={isSearching}
-          label="Linear Team"
+          label={t`Linear Team`}
           name="teamId"
-          placeholder="Select a team"
+          placeholder={t`Select a team`}
           value={team}
           onChange={(e) => setTeam(e?.value)}
           options={teamOptions}
         />
-        <Input label="Title" name="title" placeholder="Issue title" required />
+        <Input
+          label={t`Title`}
+          name="title"
+          placeholder={t`Issue title`}
+          required
+        />
         <TextArea
-          label="Description"
+          label={t`Description`}
           name="description"
-          placeholder="Issue description"
+          placeholder={t`Issue description`}
           required
         />
         <Select
-          label="Assign To"
+          label={t`Assign To`}
           name="assignee"
-          placeholder="Select a assignee"
+          placeholder={t`Select a assignee`}
           isOptional
           options={membersOptions}
         />
@@ -87,9 +94,11 @@ export const CreateIssue = (props: Props) => {
             props.onClose();
           }}
         >
-          Cancel
+          <Trans>Cancel</Trans>
         </Button>
-        <Submit>Create</Submit>
+        <Submit>
+          <Trans>Create</Trans>
+        </Submit>
       </ModalFooter>
     </ValidatedForm>
   );

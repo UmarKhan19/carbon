@@ -9,6 +9,7 @@ import {
   VStack
 } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useState } from "react";
 import { LuFile, LuPaperclip } from "react-icons/lu";
@@ -187,9 +188,11 @@ function TypedForm(
               </div>
             </div>
             <HStack className="justify-end w-full self-center">
-              <Submit type="submit">Save</Submit>
+              <Submit type="submit">
+                <Trans>Save</Trans>
+              </Submit>
               <Button variant="ghost" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </div>
@@ -741,6 +744,7 @@ function FileAttributeForm({
   onSubmit: (value: string | boolean | number) => void;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const { company } = useUser();
   const [file, setFile] = useState<File | null>(null);
@@ -753,7 +757,7 @@ function FileAttributeForm({
     const fileUpload = acceptedFiles[0];
 
     setFile(fileUpload);
-    toast.info(`Uploading ${fileUpload.name}`);
+    toast.info(t`Uploading ${fileUpload.name}`);
 
     const fileName = `${company.id}/person/${userId}/${fileUpload.name}`;
 
@@ -765,9 +769,9 @@ function FileAttributeForm({
       });
 
     if (upload.error) {
-      toast.error(`Failed to upload file: ${fileUpload.name}`);
+      toast.error(t`Failed to upload file: ${fileUpload.name}`);
     } else if (upload.data?.path) {
-      toast.success(`Uploaded: ${fileUpload.name}`);
+      toast.success(t`Uploaded: ${fileUpload.name}`);
       setFilePath(upload.data.path);
     }
   };
@@ -817,10 +821,10 @@ function FileAttributeForm({
         </div>
         <HStack className="justify-end w-full self-center">
           <Submit type="submit" isDisabled={!filePath}>
-            Save
+            <Trans>Save</Trans>
           </Submit>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
         </HStack>
       </div>
@@ -864,7 +868,7 @@ function UpdateRemoveButtons({
           <Hidden name="userAttributeId" />
           <Hidden name="userAttributeValueId" />
           <Button isDisabled={!canRemove} variant="ghost" type="submit">
-            Remove
+            <Trans>Remove</Trans>
           </Button>
         </ValidatedForm>
       )}

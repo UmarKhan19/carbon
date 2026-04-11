@@ -26,6 +26,7 @@ import {
   toast,
   useMount
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { LuChevronDown, LuChevronUp, LuTriangleAlert } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -113,6 +114,7 @@ function useMaterialsWithFilter(materialFormFilterId?: string | null) {
 }
 
 function ParameterField({ parameter }: ParameterFieldProps) {
+  const { t } = useLingui();
   const { formData, setFormData } = useConfigurator();
   const materials = useMaterialsWithFilter(parameter.materialFormFilterId);
 
@@ -182,7 +184,7 @@ function ParameterField({ parameter }: ParameterFieldProps) {
             onValueChange={handleChange}
           >
             <SelectTrigger id={parameter.key}>
-              <SelectValue placeholder="Select an option" />
+              <SelectValue placeholder={t`Select an option`} />
             </SelectTrigger>
             <SelectContent>
               {parameter.listOptions?.map((option) => (
@@ -331,6 +333,7 @@ function ConfiguratorFormContent({
   onSubmit,
   onGroupChange
 }: ConfiguratorFormProps) {
+  const { t } = useLingui();
   const {
     currentStep,
     totalSteps,
@@ -384,7 +387,7 @@ function ConfiguratorFormContent({
       if (result.success) {
         onSubmit(result.data);
       } else {
-        toast.error("Please fill out all required fields");
+        toast.error(t`Please fill out all required fields`);
       }
     } else {
       nextStep();
@@ -408,7 +411,7 @@ function ConfiguratorFormContent({
         <Alert variant="destructive">
           <LuTriangleAlert className="h-4 w-4" />
           <AlertTitle>
-            Changing this will overwrite the existing method
+            <Trans>Changing this will overwrite the existing method</Trans>
           </AlertTitle>
         </Alert>
       )}
@@ -419,7 +422,7 @@ function ConfiguratorFormContent({
           onClick={previousStep}
           disabled={currentStep === 0}
         >
-          Previous
+          <Trans>Previous</Trans>
         </Button>
 
         <Button
@@ -427,7 +430,15 @@ function ConfiguratorFormContent({
           disabled={!isStepValid}
           variant={isLastStep && destructive ? "destructive" : "primary"}
         >
-          {isLastStep ? (destructive ? "Save and Overwrite" : "Save") : "Next"}
+          {isLastStep ? (
+            destructive ? (
+              <Trans>Save and Overwrite</Trans>
+            ) : (
+              <Trans>Save</Trans>
+            )
+          ) : (
+            <Trans>Next</Trans>
+          )}
         </Button>
       </div>
     </form>
@@ -489,6 +500,7 @@ function ConfiguratorModal({
   initialValues,
   destructive
 }: ConfiguratorModalProps) {
+  const { t } = useLingui();
   const validGroups = useMemo(
     () =>
       groups.filter((group) =>
@@ -512,7 +524,7 @@ function ConfiguratorModal({
     >
       <ModalContent size="large">
         <ModalHeader>
-          <ModalTitle>{currentGroup?.name ?? "Configurator"}</ModalTitle>
+          <ModalTitle>{currentGroup?.name ?? t`Configurator`}</ModalTitle>
         </ModalHeader>
         <ModalBody>
           <ConfiguratorForm

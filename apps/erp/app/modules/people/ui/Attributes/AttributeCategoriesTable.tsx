@@ -6,6 +6,7 @@ import {
   MenuItem,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { BiAddToQueue } from "react-icons/bi";
@@ -25,6 +26,7 @@ type AttributeCategoriesTableProps = {
 
 const AttributeCategoriesTable = memo(
   ({ data, count }: AttributeCategoriesTableProps) => {
+    const { t } = useLingui();
     const navigate = useNavigate();
     const [params] = useUrlParams();
     const permissions = usePermissions();
@@ -47,7 +49,7 @@ const AttributeCategoriesTable = memo(
       return [
         {
           accessorKey: "name",
-          header: "Category",
+          header: t`Category`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id} className="flex items-center gap-2">
               {row.original.emoji ? (
@@ -60,7 +62,7 @@ const AttributeCategoriesTable = memo(
           )
         },
         {
-          header: "Attributes",
+          header: t`Attributes`,
           cell: ({ row }) => (
             <HStack className="text-xs text-muted-foreground">
               <LuListChecks />
@@ -68,7 +70,7 @@ const AttributeCategoriesTable = memo(
                 {Array.isArray(row.original.userAttribute)
                   ? (row.original.userAttribute?.length ?? 0)
                   : 0}{" "}
-                Attributes
+                <Trans>Attributes</Trans>
               </span>
               <Button
                 variant="secondary"
@@ -81,19 +83,19 @@ const AttributeCategoriesTable = memo(
                   );
                 }}
               >
-                Edit
+                <Trans>Edit</Trans>
               </Button>
             </HStack>
           )
         },
         {
           accessorKey: "public",
-          header: "Visibility",
+          header: t`Visibility`,
           cell: (item) => {
             const isPublic = item.getValue<boolean>()?.toString() === "true";
             return (
               <Badge variant={isPublic ? undefined : "outline"}>
-                {isPublic ? "Public" : "Private"}
+                {isPublic ? <Trans>Public</Trans> : <Trans>Private</Trans>}
               </Badge>
             );
           },
@@ -101,15 +103,15 @@ const AttributeCategoriesTable = memo(
             filter: {
               type: "static",
               options: [
-                { label: "Public", value: "true" },
-                { label: "Private", value: "false" }
+                { label: t`Public`, value: "true" },
+                { label: t`Private`, value: "false" }
               ]
             },
-            pluralHeader: "Visibilities"
+            pluralHeader: t`Visibilities`
           }
         }
       ];
-    }, [navigate, params]);
+    }, [navigate, params, t]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
     const renderContextMenu = useCallback(
@@ -126,7 +128,7 @@ const AttributeCategoriesTable = memo(
               }}
             >
               <MenuIcon icon={<BiAddToQueue />} />
-              New Attribute
+              <Trans>New Attribute</Trans>
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -138,7 +140,7 @@ const AttributeCategoriesTable = memo(
               }}
             >
               <MenuIcon icon={<BsListUl />} />
-              View Attributes
+              <Trans>View Attributes</Trans>
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -146,7 +148,7 @@ const AttributeCategoriesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Category
+              <Trans>Edit Category</Trans>
             </MenuItem>
             <MenuItem
               destructive
@@ -154,7 +156,7 @@ const AttributeCategoriesTable = memo(
               onClick={() => onDelete(row)}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Category
+              <Trans>Delete Category</Trans>
             </MenuItem>
           </>
         );
@@ -171,17 +173,17 @@ const AttributeCategoriesTable = memo(
           count={count ?? 0}
           primaryAction={
             permissions.can("update", "people") && (
-              <New label="Category" to={`new?${params.toString()}`} />
+              <New label={t`Category`} to={`new?${params.toString()}`} />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Attributes"
+          title={t`Attributes`}
         />
         {selectedCategory && selectedCategory.id && (
           <ConfirmDelete
             action={path.to.deleteAttributeCategory(selectedCategory.id)}
             name={selectedCategory?.name ?? ""}
-            text={`Are you sure you want to deactivate the ${selectedCategory?.name} attribute category?`}
+            text={t`Are you sure you want to deactivate the ${selectedCategory?.name} attribute category?`}
             isOpen={deleteModal.isOpen}
             onCancel={onDeleteCancel}
             onSubmit={onDeleteCancel}

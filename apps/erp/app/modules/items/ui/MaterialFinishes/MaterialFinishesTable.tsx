@@ -1,4 +1,5 @@
 import { Badge, Copy, MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -24,6 +25,7 @@ type MaterialFinishesTableProps = {
 
 const MaterialFinishesTable = memo(
   ({ data, count }: MaterialFinishesTableProps) => {
+    const { t } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -35,7 +37,7 @@ const MaterialFinishesTable = memo(
       const defaultColumns: ColumnDef<(typeof rows)[number]>[] = [
         {
           accessorKey: "substanceName",
-          header: "Substance",
+          header: t`Substance`,
           cell: ({ row }) => <Enumerable value={row.original.substanceName} />,
           meta: {
             icon: <LuGlassWater />,
@@ -50,7 +52,7 @@ const MaterialFinishesTable = memo(
         },
         {
           accessorKey: "name",
-          header: "Finish",
+          header: t`Finish`,
           cell: ({ row }) =>
             row.original.companyId === null ? (
               row.original.name
@@ -70,7 +72,7 @@ const MaterialFinishesTable = memo(
 
         {
           accessorKey: "id",
-          header: "ID",
+          header: t`ID`,
           cell: ({ row }) => (
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs">{row.original.id}</span>
@@ -83,12 +85,16 @@ const MaterialFinishesTable = memo(
         },
         {
           accessorKey: "companyId",
-          header: "Standard",
+          header: t`Standard`,
           cell: ({ row }) => {
             return row.original.companyId === null ? (
-              <Badge variant="outline">Standard</Badge>
+              <Badge variant="outline">
+                <Trans>Standard</Trans>
+              </Badge>
             ) : (
-              <Badge variant="blue">Custom</Badge>
+              <Badge variant="blue">
+                <Trans>Custom</Trans>
+              </Badge>
             );
           },
           meta: {
@@ -97,7 +103,7 @@ const MaterialFinishesTable = memo(
         }
       ];
       return [...defaultColumns];
-    }, [params, substances]);
+    }, [params, substances, t]);
 
     const renderContextMenu = useCallback(
       (row: (typeof rows)[number]) => {
@@ -114,7 +120,7 @@ const MaterialFinishesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Material Finish
+              <Trans>Edit Material Finish</Trans>
             </MenuItem>
             <MenuItem
               disabled={
@@ -130,7 +136,7 @@ const MaterialFinishesTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Material Finish
+              <Trans>Delete Material Finish</Trans>
             </MenuItem>
           </>
         );
@@ -146,13 +152,13 @@ const MaterialFinishesTable = memo(
         primaryAction={
           permissions.can("create", "parts") && (
             <New
-              label="Material Finish"
+              label={t`Material Finish`}
               to={`${path.to.newMaterialFinish}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Material Finishes"
+        title={t`Material Finishes`}
       />
     );
   }

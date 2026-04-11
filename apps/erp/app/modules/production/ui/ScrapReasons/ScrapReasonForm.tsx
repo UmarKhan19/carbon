@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -35,6 +36,7 @@ const ScrapReasonForm = ({
   onClose
 }: ScrapReasonFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
   useEffect(() => {
@@ -42,13 +44,13 @@ const ScrapReasonForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created scrap reason`);
+      toast.success(t`Created scrap reason`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
         `Failed to create scrap reason: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -85,13 +87,15 @@ const ScrapReasonForm = ({
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Scrap Reason" />
+                <Input name="name" label={t`Scrap Reason`} />
                 <CustomFormFields table="scrapReason" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
                   Cancel
                 </Button>

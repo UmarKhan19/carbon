@@ -1,4 +1,5 @@
 import { Badge } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 
 export function ItemWithRevision({
   item
@@ -16,7 +17,7 @@ export function ItemWithRevision({
       <span>{readableId}</span>
       {revision && revision !== "0" && (
         <Badge variant="outline" className="font-mono">
-          Rev {revision}
+          <Trans>Rev {revision}</Trans>
         </Badge>
       )}
     </div>

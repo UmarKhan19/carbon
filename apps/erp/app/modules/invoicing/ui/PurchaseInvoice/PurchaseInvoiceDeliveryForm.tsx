@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -40,6 +41,7 @@ const PurchaseInvoiceDeliveryForm = forwardRef<
   PurchaseInvoiceDeliveryFormRef,
   PurchaseInvoiceDeliveryFormProps
 >(({ initialValues, currencyCode, defaultCollapsed = false }, ref) => {
+  const { t } = useLingui();
   const { invoiceId } = useParams();
   if (!invoiceId) {
     throw new Error("invoiceId not found");
@@ -89,14 +91,16 @@ const PurchaseInvoiceDeliveryForm = forwardRef<
         isDisabled={!isEditable}
       >
         <CardHeader>
-          <CardTitle>Shipping</CardTitle>
+          <CardTitle>
+            <Trans>Shipping</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="supplierShippingCost"
-              label="Shipping Cost"
+              label={t`Shipping Cost`}
               minValue={0}
               formatOptions={{
                 style: "currency",
@@ -106,17 +110,20 @@ const PurchaseInvoiceDeliveryForm = forwardRef<
             />
             <Location
               name="locationId"
-              label="Delivery Location"
+              label={t`Delivery Location`}
               isReadOnly={isSupplier}
               isClearable
             />
-            <ShippingMethod name="shippingMethodId" label="Shipping Method" />
+            <ShippingMethod
+              name="shippingMethodId"
+              label={t`Shipping Method`}
+            />
             <CustomFormFields table="purchaseInvoiceDelivery" />
           </div>
         </CardContent>
         <CardFooter>
           <Submit isDisabled={!permissions.can("update", "invoicing")}>
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

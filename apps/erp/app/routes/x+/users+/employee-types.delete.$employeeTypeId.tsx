@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -70,6 +71,7 @@ export default function DeleteEmployeeTypeRoute() {
   const { employeeTypeId } = useParams();
   const { employeeType } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!employeeType) return null;
   if (!employeeTypeId) throw new Error("employeeTypeId is not found");
@@ -80,7 +82,7 @@ export default function DeleteEmployeeTypeRoute() {
     <ConfirmDelete
       action={path.to.deleteEmployeeType(employeeTypeId)}
       name={employeeType.name}
-      text={`Are you sure you want to delete the employee type: ${employeeType.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the employee type: ${employeeType.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

@@ -12,6 +12,7 @@ import {
   useDebounce,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useId, useState } from "react";
 import z from "zod";
 import { JiraIssueStatusBadge } from "~/components/Icons";
@@ -50,6 +51,7 @@ interface JiraSearchIssue {
 }
 
 export const LinkIssue = (props: Props) => {
+  const { t } = useLingui();
   const id = useId();
   const [issueId, setIssueId] = useState<string | undefined>();
 
@@ -86,7 +88,7 @@ export const LinkIssue = (props: Props) => {
             type="search"
             className="w-full"
             autoComplete="off"
-            placeholder="Search by Jira issue title..."
+            placeholder={t`Search by Jira issue title...`}
             onChange={onSearch}
             disabled={isSearching}
           />
@@ -162,9 +164,11 @@ export const LinkIssue = (props: Props) => {
             props.onClose();
           }}
         >
-          Cancel
+          <Trans>Cancel</Trans>
         </Button>
-        <Submit>Save</Submit>
+        <Submit>
+          <Trans>Save</Trans>
+        </Submit>
       </ModalFooter>
     </ValidatedForm>
   );

@@ -19,6 +19,7 @@ import {
   useDisclosure,
   useMount
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -66,6 +67,7 @@ const defaultColumnVisibility = {
 
 const WorkCentersTable = memo(
   ({ data, count, locations }: WorkCentersTableProps) => {
+    const { t } = useLingui();
     const navigate = useNavigate();
     const [params] = useUrlParams();
     const [people] = usePeople();
@@ -101,7 +103,7 @@ const WorkCentersTable = memo(
       const defaultColumns: ColumnDef<WorkCenter>[] = [
         {
           accessorKey: "name",
-          header: "Work Center",
+          header: t`Work Center`,
           cell: ({ row }) => (
             <HStack>
               {((row.original.processes as any[]) ?? []).length > 0 ? (
@@ -127,7 +129,7 @@ const WorkCentersTable = memo(
         },
         {
           id: "processes",
-          header: "Processes",
+          header: t`Processes`,
           cell: ({ row }) => (
             <span className="flex gap-2 items-center flex-wrap py-2">
               {((row.original.processes ?? []) as Array<string>).map((p) => {
@@ -157,7 +159,7 @@ const WorkCentersTable = memo(
         },
         {
           accessorKey: "locationName",
-          header: "Location",
+          header: t`Location`,
           cell: (item) => <Enumerable value={item.getValue<string>()} />,
           meta: {
             icon: <LuBuilding2 />,
@@ -172,7 +174,7 @@ const WorkCentersTable = memo(
         },
         {
           accessorKey: "active",
-          header: "Active",
+          header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
           meta: {
             filter: {
@@ -182,13 +184,13 @@ const WorkCentersTable = memo(
                 { value: "false", label: "Inactive" }
               ]
             },
-            pluralHeader: "Active Statuses",
+            pluralHeader: t`Active Statuses`,
             icon: <LuCheck />
           }
         },
         {
           accessorKey: "description",
-          header: "Description",
+          header: t`Description`,
           cell: ({ row }) => (
             <span className="max-w-[300px] line-clamp-1">
               {row.original.description}
@@ -200,7 +202,7 @@ const WorkCentersTable = memo(
         },
         {
           accessorKey: "laborRate",
-          header: "Labor Rate",
+          header: t`Labor Rate`,
           cell: ({ row }) => (
             <span>{formatter.format(row.original.laborRate ?? 0)}</span>
           ),
@@ -210,7 +212,7 @@ const WorkCentersTable = memo(
         },
         {
           accessorKey: "machineRate",
-          header: "Machine Rate",
+          header: t`Machine Rate`,
           cell: ({ row }) => (
             <span>{formatter.format(row.original.machineRate ?? 0)}</span>
           ),
@@ -220,7 +222,7 @@ const WorkCentersTable = memo(
         },
         {
           accessorKey: "overheadRate",
-          header: "Overhead Rate",
+          header: t`Overhead Rate`,
           cell: ({ row }) => (
             <span>{formatter.format(row.original.overheadRate ?? 0)}</span>
           ),
@@ -230,7 +232,7 @@ const WorkCentersTable = memo(
         },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -247,7 +249,7 @@ const WorkCentersTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -276,7 +278,7 @@ const WorkCentersTable = memo(
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Work Center
+            <Trans>Edit Work Center</Trans>
           </MenuItem>
           {row.active ? (
             <MenuItem
@@ -285,7 +287,7 @@ const WorkCentersTable = memo(
               onClick={() => onDelete(row)}
             >
               <MenuIcon icon={<LuTrash />} />
-              Deactivate Work Center
+              <Trans>Deactivate Work Center</Trans>
             </MenuItem>
           ) : (
             <MenuItem
@@ -293,7 +295,7 @@ const WorkCentersTable = memo(
               onClick={() => onActivate(row)}
             >
               <MenuIcon icon={<LuCheck />} />
-              Activate Work Center
+              <Trans>Activate Work Center</Trans>
             </MenuItem>
           )}
         </>
@@ -317,11 +319,11 @@ const WorkCentersTable = memo(
           ]}
           primaryAction={
             permissions.can("update", "resources") && (
-              <New label="Work Center" to={`new?${params.toString()}`} />
+              <New label={t`Work Center`} to={`new?${params.toString()}`} />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Work Centers"
+          title={t`Work Centers`}
           table="workCenter"
           withSavedView
         />
@@ -429,7 +431,9 @@ function DeleteWorkCenterModal({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Deactivate {workCenter.name}</ModalTitle>
+          <ModalTitle>
+            <Trans>Deactivate {workCenter.name}</Trans>
+          </ModalTitle>
         </ModalHeader>
 
         <ModalBody>
@@ -437,7 +441,9 @@ function DeleteWorkCenterModal({
             <Alert variant="destructive">
               <LuTriangleAlert className="h-4 w-4" />
               <AlertTitle>
-                Theses jobs have operations assigned to this work center:
+                <Trans>
+                  These jobs have operations assigned to this work center:
+                </Trans>
               </AlertTitle>
               <AlertDescription>
                 <ul className="list-disc pl-4 mt-2 space-y-1">
@@ -461,7 +467,7 @@ function DeleteWorkCenterModal({
 
         <ModalFooter>
           <Button variant="secondary" onClick={onCancel}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <fetcher.Form
             method="post"
@@ -476,7 +482,7 @@ function DeleteWorkCenterModal({
               }
               type="submit"
             >
-              Deactivate
+              <Trans>Deactivate</Trans>
             </Button>
           </fetcher.Form>
         </ModalFooter>

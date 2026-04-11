@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
@@ -35,6 +36,7 @@ const QuoteShipmentForm = forwardRef<
   QuoteShipmentFormRef,
   QuoteShipmentFormProps
 >(({ initialValues, defaultCollapsed = false }, ref) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<{}>();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
@@ -82,14 +84,16 @@ const QuoteShipmentForm = forwardRef<
         isDisabled={isLocked}
       >
         <CardHeader>
-          <CardTitle>Shipping</CardTitle>
+          <CardTitle>
+            <Trans>Shipping</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="shippingCost"
-              label="Shipping Cost"
+              label={t`Shipping Cost`}
               formatOptions={{
                 style: "currency",
                 currency: company?.baseCurrencyCode
@@ -99,20 +103,23 @@ const QuoteShipmentForm = forwardRef<
             />
             <Location
               name="locationId"
-              label="Shipment Location"
+              label={t`Shipment Location`}
               isReadOnly={isCustomer}
               isClearable
             />
-            <ShippingMethod name="shippingMethodId" label="Shipping Method" />
+            <ShippingMethod
+              name="shippingMethodId"
+              label={t`Shipping Method`}
+            />
 
-            <DatePicker name="receiptRequestedDate" label="Requested Date" />
+            <DatePicker name="receiptRequestedDate" label={t`Requested Date`} />
           </div>
         </CardContent>
         <CardFooter>
           <Submit
             isDisabled={!permissions.can("update", "sales") || !isEditable}
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

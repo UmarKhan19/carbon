@@ -12,6 +12,7 @@ import {
 import { useUrlParams } from "@carbon/remix";
 import { formatTimeAgo } from "@carbon/utils";
 
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuMenu, LuSearch, LuTrash } from "react-icons/lu";
 
@@ -42,6 +43,7 @@ export function ChatHistory({
   chats: Chat[];
   isLoading: boolean;
 }) {
+  const { t } = useLingui();
   const [, setParams] = useUrlParams();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,7 +70,7 @@ export function ChatHistory({
         <IconButton
           variant="secondary"
           icon={<LuMenu />}
-          aria-label="Open chat history"
+          aria-label={t`Open chat history`}
         />
       </PopoverTrigger>
       <PopoverContent className="w-[380px] p-0" align="end">
@@ -79,7 +81,7 @@ export function ChatHistory({
               size={14}
             />
             <Input
-              placeholder="Search history"
+              placeholder={t`Search history`}
               className="pl-9"
               onChange={(e) => debouncedSearch(e.target.value)}
             />
@@ -91,7 +93,11 @@ export function ChatHistory({
             ) : chats?.length === 0 ? (
               <div className="flex items-center justify-center py-8">
                 <div className="text-sm text-muted-foreground">
-                  {searchQuery ? "No chats found" : "No chat history"}
+                  {searchQuery ? (
+                    <Trans>No chats found</Trans>
+                  ) : (
+                    <Trans>No chat history</Trans>
+                  )}
                 </div>
               </div>
             ) : (
@@ -108,7 +114,7 @@ export function ChatHistory({
                     >
                       <div className="flex flex-col gap-1">
                         <div className="text-sm font-medium line-clamp-1">
-                          {chat.title || "New chat"}
+                          {chat.title || t`New chat`}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {formatTimeAgo(chat.updatedAt.toISOString())}
@@ -119,7 +125,7 @@ export function ChatHistory({
                       type="button"
                       onClick={(e) => handleDeleteChat(e, chat.id)}
                       className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-destructive/10 rounded-sm"
-                      title="Delete chat"
+                      title={t`Delete chat`}
                     >
                       <LuTrash
                         size={14}

@@ -11,6 +11,7 @@ import {
   useDebounce
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
+import { useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { usePermissions, useUser } from "~/hooks";
@@ -34,6 +35,7 @@ export function IssueContent({
     company: { id: companyId }
   } = useUser();
   const { carbon } = useCarbon();
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const [content, setContent] = useState(initialContent ?? {});
@@ -45,7 +47,7 @@ export function IssueContent({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 

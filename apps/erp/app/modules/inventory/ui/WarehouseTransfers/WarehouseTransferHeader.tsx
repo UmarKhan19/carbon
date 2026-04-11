@@ -14,6 +14,7 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
   LuCheckCheck,
@@ -45,6 +46,7 @@ type WarehouseTransferHeaderProps = {
 const WarehouseTransferHeader = ({
   warehouseTransfer
 }: WarehouseTransferHeaderProps) => {
+  const { t } = useLingui();
   const { company } = useUser();
   const permissions = usePermissions();
   const statusFetcher = useFetcher<typeof statusAction>();
@@ -75,7 +77,7 @@ const WarehouseTransferHeader = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -94,7 +96,7 @@ const WarehouseTransferHeader = ({
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Warehouse Transfer
+                  <Trans>Delete Warehouse Transfer</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -123,7 +125,7 @@ const WarehouseTransferHeader = ({
                     "To Ship and Receive"
                 }
               >
-                Confirm
+                <Trans>Confirm</Trans>
               </Button>
             </statusFetcher.Form>
 
@@ -148,7 +150,7 @@ const WarehouseTransferHeader = ({
                   statusFetcher.formData?.get("status") === "Cancelled"
                 }
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </statusFetcher.Form>
 
@@ -160,7 +162,7 @@ const WarehouseTransferHeader = ({
                     variant="secondary"
                     rightIcon={<LuChevronDown />}
                   >
-                    Shipments
+                    <Trans>Shipments</Trans>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -175,7 +177,7 @@ const WarehouseTransferHeader = ({
                     }}
                   >
                     <DropdownMenuIcon icon={<LuCirclePlus />} />
-                    New Shipment
+                    <Trans>New Shipment</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {shipments.map((shipment) => (
@@ -210,7 +212,7 @@ const WarehouseTransferHeader = ({
                   ship(warehouseTransfer);
                 }}
               >
-                Ship
+                <Trans>Ship</Trans>
               </Button>
             )}
             {receipts.length > 0 ? (
@@ -227,7 +229,7 @@ const WarehouseTransferHeader = ({
                     }
                     rightIcon={<LuChevronDown />}
                   >
-                    Receipts
+                    <Trans>Receipts</Trans>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -242,7 +244,7 @@ const WarehouseTransferHeader = ({
                     }}
                   >
                     <DropdownMenuIcon icon={<LuCirclePlus />} />
-                    New Receipt
+                    <Trans>New Receipt</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {receipts.map((receipt) => (
@@ -277,7 +279,7 @@ const WarehouseTransferHeader = ({
                   receive(warehouseTransfer);
                 }}
               >
-                Receive
+                <Trans>Receive</Trans>
               </Button>
             )}
             <statusFetcher.Form
@@ -299,7 +301,7 @@ const WarehouseTransferHeader = ({
                   statusFetcher.formData?.get("status") === "Draft"
                 }
               >
-                Reopen
+                <Trans>Reopen</Trans>
               </Button>
             </statusFetcher.Form>
           </HStack>
@@ -310,7 +312,7 @@ const WarehouseTransferHeader = ({
           action={path.to.deleteWarehouseTransfer(warehouseTransfer.id)}
           isOpen={deleteModal.isOpen}
           name={warehouseTransfer.transferId ?? "warehouse transfer"}
-          text={`Are you sure you want to delete ${warehouseTransfer.transferId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${warehouseTransfer.transferId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}
@@ -329,6 +331,7 @@ export default WarehouseTransferHeader;
 export const useWarehouseTransferRelatedDocuments = (
   warehouseTransferId: string
 ) => {
+  const { t } = useLingui();
   const [receipts, setReceipts] = useState<
     Pick<Receipt, "id" | "receiptId" | "status">[]
   >([]);
@@ -374,13 +377,13 @@ export const useWarehouseTransferRelatedDocuments = (
       ]);
 
       if (receipts.error) {
-        toast.error("Failed to load receipts");
+        toast.error(t`Failed to load receipts`);
       } else {
         setReceipts(receipts.data);
       }
 
       if (shipments.error) {
-        toast.error("Failed to load shipments");
+        toast.error(t`Failed to load shipments`);
       } else {
         setShipments(shipments.data);
       }

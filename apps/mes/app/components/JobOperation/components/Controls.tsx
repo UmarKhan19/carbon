@@ -9,6 +9,7 @@ import {
   TooltipTrigger
 } from "@carbon/react";
 import { getLocalTimeZone } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ComponentProps, ReactNode } from "react";
 import { useMemo } from "react";
 import { FaPause, FaPlay } from "react-icons/fa6";
@@ -161,7 +162,9 @@ export function WorkTypeToggle({
           aria-label="Toggle setup"
         >
           <LuTimer className="size-6 pt-1" />
-          <span className="text-xxs">Setup</span>
+          <span className="text-xxs">
+            <Trans>Setup</Trans>
+          </span>
           {active.setup && (
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full" />
           )}
@@ -175,7 +178,9 @@ export function WorkTypeToggle({
           aria-label="Toggle labor"
         >
           <LuHardHat className="size-6 pt-1" />
-          <span className="text-xxs">Labor</span>
+          <span className="text-xxs">
+            <Trans>Labor</Trans>
+          </span>
           {active.labor && (
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full" />
           )}
@@ -189,7 +194,9 @@ export function WorkTypeToggle({
           aria-label="Toggle machine"
         >
           <LuHammer className="size-6 pt-1" />
-          <span className="text-xxs">Machine</span>
+          <span className="text-xxs">
+            <Trans>Machine</Trans>
+          </span>
           {active.machine && (
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full" />
           )}
@@ -305,10 +312,11 @@ export function StartStopButton({
 }
 
 export function PauseButton({ className, ...props }: ComponentProps<"button">) {
+  const { t } = useLingui();
   return (
     <ButtonWithTooltip
       {...props}
-      tooltip="Pause"
+      tooltip={t`Pause`}
       className="group size-24 tall:size-32 flex flex-row items-center gap-2 justify-center bg-red-500 rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:bg-red-600 hover:scale-105 transition-all text-accent disabled:bg-muted disabled:text-muted-foreground/80 text-4xl border-b-4 border-red-700 active:border-b-0 active:translate-y-1 disabled:bg-gray-500 disabled:hover:bg-gray-600 disabled:border-gray-700 disabled:text-white"
     >
       <FaPause className="group-hover:scale-110" />
@@ -317,10 +325,11 @@ export function PauseButton({ className, ...props }: ComponentProps<"button">) {
 }
 
 export function PlayButton({ className, ...props }: ComponentProps<"button">) {
+  const { t } = useLingui();
   return (
     <ButtonWithTooltip
       {...props}
-      tooltip="Start"
+      tooltip={t`Start`}
       className="group size-24 tall:size-32 flex flex-row items-center gap-2 justify-center bg-emerald-500 rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:bg-emerald-600 hover:scale-105 transition-all text-accent disabled:bg-muted disabled:text-muted-foreground/80 text-4xl border-b-4 border-emerald-700 active:border-b-0 active:translate-y-1 disabled:bg-gray-500 disabled:hover:bg-gray-600 disabled:border-gray-700 disabled:text-white"
     >
       <FaPlay className="group-hover:scale-110" />

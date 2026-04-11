@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -18,6 +19,7 @@ type ItemGroupsTableProps = {
 const ItemGroupsTable = memo(({ data, count }: ItemGroupsTableProps) => {
   const [params] = useUrlParams();
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const rows = useMemo(() => data, [data]);
@@ -27,7 +29,7 @@ const ItemGroupsTable = memo(({ data, count }: ItemGroupsTableProps) => {
     const defaultColumns: ColumnDef<(typeof rows)[number]>[] = [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <Enumerable
             value={row.original.name}
@@ -44,12 +46,12 @@ const ItemGroupsTable = memo(({ data, count }: ItemGroupsTableProps) => {
       },
       {
         accessorKey: "description",
-        header: "Description",
+        header: t`Description`,
         cell: (item) => item.getValue()
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [navigate, params, customColumns]);
+  }, [navigate, params, customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: (typeof rows)[number]) => {
@@ -92,13 +94,13 @@ const ItemGroupsTable = memo(({ data, count }: ItemGroupsTableProps) => {
       primaryAction={
         permissions.can("create", "parts") && (
           <New
-            label="Group"
+            label={t`Group`}
             to={`${path.to.newItemPostingGroup}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Item Groups"
+      title={t`Item Groups`}
     />
   );
 });

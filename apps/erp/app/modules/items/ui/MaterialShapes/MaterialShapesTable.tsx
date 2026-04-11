@@ -1,4 +1,5 @@
 import { Badge, Copy, MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -24,6 +25,7 @@ type MaterialShapesTableProps = {
 
 const MaterialShapesTable = memo(
   ({ data, count }: MaterialShapesTableProps) => {
+    const { t } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -35,7 +37,7 @@ const MaterialShapesTable = memo(
       const defaultColumns: ColumnDef<(typeof rows)[number]>[] = [
         {
           accessorKey: "name",
-          header: "Name",
+          header: t`Name`,
           cell: ({ row }) =>
             row.original.companyId === null ? (
               <Enumerable value={row.original.name} />
@@ -54,7 +56,7 @@ const MaterialShapesTable = memo(
         },
         {
           accessorKey: "code",
-          header: "Code",
+          header: t`Code`,
           cell: ({ row }) => row.original.code,
           meta: {
             icon: <LuCode />
@@ -62,7 +64,7 @@ const MaterialShapesTable = memo(
         },
         {
           accessorKey: "id",
-          header: "ID",
+          header: t`ID`,
           cell: ({ row }) => (
             <div className="flex items-center gap-2">
               <span className="font-mono text-xs">{row.original.id}</span>
@@ -75,12 +77,16 @@ const MaterialShapesTable = memo(
         },
         {
           accessorKey: "companyId",
-          header: "Standard",
+          header: t`Standard`,
           cell: ({ row }) => {
             return row.original.companyId === null ? (
-              <Badge variant="outline">Standard</Badge>
+              <Badge variant="outline">
+                <Trans>Standard</Trans>
+              </Badge>
             ) : (
-              <Badge variant="blue">Custom</Badge>
+              <Badge variant="blue">
+                <Trans>Custom</Trans>
+              </Badge>
             );
           },
           meta: {
@@ -89,7 +95,7 @@ const MaterialShapesTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [params, customColumns]);
+    }, [params, customColumns, t]);
 
     const renderContextMenu = useCallback(
       (row: (typeof rows)[number]) => {
@@ -106,7 +112,7 @@ const MaterialShapesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Material Shape
+              <Trans>Edit Material Shape</Trans>
             </MenuItem>
             <MenuItem
               disabled={
@@ -120,7 +126,7 @@ const MaterialShapesTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Material Shape
+              <Trans>Delete Material Shape</Trans>
             </MenuItem>
           </>
         );
@@ -136,13 +142,13 @@ const MaterialShapesTable = memo(
         primaryAction={
           permissions.can("create", "parts") && (
             <New
-              label="Material Shape"
+              label={t`Material Shape`}
               to={`${path.to.newMaterialForm}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Material Shapes"
+        title={t`Material Shapes`}
       />
     );
   }

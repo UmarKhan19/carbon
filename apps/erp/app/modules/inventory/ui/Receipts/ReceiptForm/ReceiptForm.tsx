@@ -9,6 +9,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import {
   Combobox,
@@ -40,6 +41,7 @@ const formId = "receipt-form";
 
 const ReceiptForm = ({ initialValues, status }: ReceiptFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const {
     locationId,
     sourceDocuments,
@@ -65,11 +67,10 @@ const ReceiptForm = ({ initialValues, status }: ReceiptFormProps) => {
           style={{ width: "100%" }}
         >
           <CardHeader>
-            <CardTitle>{isEditing ? "Receipt" : "New Receipt"}</CardTitle>
+            <CardTitle>{isEditing ? t`Receipt` : t`New Receipt`}</CardTitle>
             {!isEditing && (
               <CardDescription>
-                A receipt is a record of a part received from a supplier or
-                transferred from another location.
+                {t`A receipt is a record of a part received from a supplier or transferred from another location.`}
               </CardDescription>
             )}
           </CardHeader>
@@ -78,10 +79,10 @@ const ReceiptForm = ({ initialValues, status }: ReceiptFormProps) => {
             <Hidden name="supplierId" value={supplierId ?? ""} />
             <VStack spacing={4} className="min-h-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 w-full">
-                <Input name="receiptId" label="Receipt ID" isReadOnly />
+                <Input name="receiptId" label={t`Receipt ID`} isReadOnly />
                 <Location
                   name="locationId"
-                  label="Location"
+                  label={t`Location`}
                   value={locationId ?? undefined}
                   onChange={(newValue) => {
                     if (newValue) setLocationId(newValue.value as string);
@@ -90,7 +91,7 @@ const ReceiptForm = ({ initialValues, status }: ReceiptFormProps) => {
                 />
                 <Select
                   name="sourceDocument"
-                  label="Source Document"
+                  label={t`Source Document`}
                   options={receiptSourceDocumentType.map((v) => ({
                     label: v,
                     value: v
@@ -106,7 +107,7 @@ const ReceiptForm = ({ initialValues, status }: ReceiptFormProps) => {
                 />
                 <Combobox
                   name="sourceDocumentId"
-                  label="Source Document ID"
+                  label={t`Source Document ID`}
                   options={sourceDocuments.map((d) => ({
                     label: d.name,
                     value: d.id
@@ -115,7 +116,7 @@ const ReceiptForm = ({ initialValues, status }: ReceiptFormProps) => {
                 />
                 <Input
                   name="externalDocumentId"
-                  label="External Reference"
+                  label={t`External Reference`}
                   isDisabled={isPosted}
                 />
                 <CustomFormFields table="receipt" />

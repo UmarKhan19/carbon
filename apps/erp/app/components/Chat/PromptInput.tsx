@@ -14,6 +14,7 @@ import {
   Textarea,
   useIsomorphicLayoutEffect
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ChatStatus, FileUIPart } from "ai";
 import { nanoid } from "nanoid";
 import type {
@@ -72,6 +73,7 @@ export function PromptInputAttachment({
   className,
   ...props
 }: PromptInputAttachmentProps) {
+  const { t } = useLingui();
   const attachments = usePromptInputAttachments();
 
   return (
@@ -94,7 +96,7 @@ export function PromptInputAttachment({
         </div>
       )}
       <IconButton
-        aria-label="Remove attachment"
+        aria-label={t`Remove attachment`}
         icon={<LuX />}
         className="-right-1.5 -top-1.5 absolute h-6 w-6 rounded-full opacity-0 group-hover:opacity-100"
         onClick={() => attachments.remove(data.id)}
@@ -162,12 +164,13 @@ export type PromptInputActionAddAttachmentsProps = ComponentProps<
 export const PromptInputActionAddAttachments = ({
   ...props
 }: PromptInputActionAddAttachmentsProps) => {
+  const { t } = useLingui();
   const attachments = usePromptInputAttachments();
 
   return (
     // @ts-expect-error
     <IconButton
-      aria-label="Add attachments"
+      aria-label={t`Add attachments`}
       variant="ghost"
       type="button"
       {...props}
@@ -606,6 +609,7 @@ export const PromptInputSubmit = ({
   children,
   ...props
 }: PromptInputSubmitProps) => {
+  const { t } = useLingui();
   let Icon = <LuArrowUp />;
 
   if (status === "streaming") {
@@ -625,7 +629,7 @@ export const PromptInputSubmit = ({
     </Button>
   ) : (
     <IconButton
-      aria-label="Submit"
+      aria-label={t`Submit`}
       icon={Icon}
       isRound
       type="submit"

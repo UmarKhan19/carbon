@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -63,17 +64,18 @@ export default function DeleteHolidayRoute() {
   const { holidayId } = useParams();
   const { holiday } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!holiday) return null;
   if (!holidayId) throw new Error("holidayId is not found");
 
   const onCancel = () => navigate(path.to.holidays);
-
+  const name = holiday.name;
   return (
     <ConfirmDelete
       action={path.to.deleteHoliday(holidayId)}
-      name={holiday.name}
-      text={`Are you sure you want to delete the holiday: ${holiday.name}? This cannot be undone.`}
+      name={name}
+      text={t`Are you sure you want to delete the holiday: ${name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

@@ -16,6 +16,7 @@ import {
   Switch
 } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuCalendar,
@@ -45,6 +46,7 @@ function PropertyField({
   isReadOnly,
   onChange
 }: PropertyFieldProps) {
+  const { t } = useLingui();
   const [localTextValue, setLocalTextValue] = useState((value as string) || "");
 
   useEffect(() => {
@@ -120,7 +122,7 @@ function PropertyField({
             onValueChange={(val) => onChange(val)}
           >
             <SelectTrigger id={property.id}>
-              <SelectValue placeholder="Select an option" />
+              <SelectValue placeholder={t`Select an option`} />
             </SelectTrigger>
             <SelectContent>
               {property.listOptions?.map((option) => (

@@ -31,6 +31,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuChevronDown,
@@ -85,6 +86,7 @@ const QuoteLinePricing = ({
   exchangeRate: number;
   getLineCosts: (quantity: number) => Costs;
 }) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const hasCalculatedCost = line.methodType !== "Pull from Inventory";
@@ -229,10 +231,10 @@ const QuoteLinePricing = ({
 
       if (costUpdate?.error) {
         console.error(costUpdate.error);
-        toast.error("Failed to update quote line");
+        toast.error(t`Failed to update quote line`);
       }
     },
-    [additionalCharges, lineId, carbon]
+    [additionalCharges, lineId, carbon, t]
   );
 
   const onUpdateChargeAmount = useCallback(
@@ -406,10 +408,10 @@ const QuoteLinePricing = ({
 
       if (costUpdate?.error) {
         console.error(costUpdate.error);
-        toast.error("Failed to update item cost");
+        toast.error(t`Failed to update item cost`);
       }
     },
-    [carbon, line.itemId]
+    [carbon, line.itemId, t]
   );
 
   const onUpdateCategoryMarkup = useCallback(
@@ -447,7 +449,7 @@ const QuoteLinePricing = ({
 
       if (priceUpdate?.error) {
         console.error(priceUpdate.error);
-        toast.error("Failed to update category markups");
+        toast.error(t`Failed to update category markups`);
       }
     },
     [
@@ -456,7 +458,8 @@ const QuoteLinePricing = ({
       lineId,
       costsByQuantity,
       quantities,
-      computeUnitPriceFromMarkups
+      computeUnitPriceFromMarkups,
+      t
     ]
   );
 
@@ -519,7 +522,7 @@ const QuoteLinePricing = ({
 
         if (insert?.error) {
           console.error(insert.error);
-          toast.error("Failed to insert quote line");
+          toast.error(t`Failed to insert quote line`);
         }
       }
     },
@@ -530,7 +533,8 @@ const QuoteLinePricing = ({
       lineId,
       exchangeRate,
       userId,
-      carbon
+      carbon,
+      t
     ]
   );
 
@@ -538,7 +542,9 @@ const QuoteLinePricing = ({
     <Card>
       <HStack className="justify-between">
         <CardHeader>
-          <CardTitle>Pricing</CardTitle>
+          <CardTitle>
+            <Trans>Pricing</Trans>
+          </CardTitle>
         </CardHeader>
         {isEditable && (
           <CardAction>
@@ -1128,7 +1134,7 @@ const QuoteLinePricing = ({
                             />
                             <Button
                               type="submit"
-                              aria-label="Delete"
+                              aria-label={t`Delete`}
                               size="sm"
                               variant="secondary"
                               isDisabled={

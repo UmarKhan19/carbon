@@ -16,6 +16,7 @@ import {
   useDebounce,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Reorder } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { AiOutlineNumber } from "react-icons/ai";
@@ -40,6 +41,7 @@ const AttributeCategoryDetail = ({
   attributeCategory,
   onClose
 }: AttributeCategoryDetailProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const sortOrderFetcher = useFetcher<{}>();
 
@@ -121,7 +123,7 @@ const AttributeCategoryDetail = ({
         <MenuItem asChild>
           <Link to={attributeId}>
             <MenuIcon icon={<LuPencil />} />
-            Edit Attribute
+            <Trans>Edit Attribute</Trans>
           </Link>
         </MenuItem>
         <MenuItem
@@ -129,7 +131,7 @@ const AttributeCategoryDetail = ({
           onClick={() => onDelete(attributeMap[attributeId])}
         >
           <MenuIcon icon={<LuTrash />} />
-          Delete Attribute
+          <Trans>Delete Attribute</Trans>
         </MenuItem>
       </>
     );
@@ -155,7 +157,11 @@ const AttributeCategoryDetail = ({
               <Badge
                 variant={attributeCategory.public ? "default" : "secondary"}
               >
-                {attributeCategory.public ? "Public" : "Private"}
+                {attributeCategory.public ? (
+                  <Trans>Public</Trans>
+                ) : (
+                  <Trans>Private</Trans>
+                )}
               </Badge>
             </DrawerDescription>
           </DrawerHeader>
@@ -176,7 +182,7 @@ const AttributeCategoryDetail = ({
                     >
                       <HStack>
                         <IconButton
-                          aria-label="Drag handle"
+                          aria-label={t`Drag handle`}
                           icon={<LuGripVertical />}
                           variant="ghost"
                         />
@@ -197,7 +203,7 @@ const AttributeCategoryDetail = ({
                           {
                             // @ts-ignore
                             attributeMap[sortId]?.attributeDataType?.label ??
-                              "Unknown"
+                              t`Unknown`
                           }
                         </Button>
                         <ActionMenu>{renderContextMenu(sortId)}</ActionMenu>
@@ -209,7 +215,7 @@ const AttributeCategoryDetail = ({
             )}
           </DrawerBody>
           <DrawerFooter>
-            <New to={`new?${params.toString()}`} label="Attribute" />
+            <New to={`new?${params.toString()}`} label={t`Attribute`} />
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -218,7 +224,7 @@ const AttributeCategoryDetail = ({
           isOpen={deleteModal.isOpen}
           action={path.to.deleteAttribute(selectedAttribute.id)}
           name={selectedAttribute?.name ?? ""}
-          text={`Are you sure you want to deactivate the ${selectedAttribute?.name} attribute?`}
+          text={t`Are you sure you want to deactivate the ${selectedAttribute?.name} attribute?`}
           onCancel={onDeleteCancel}
         />
       )}

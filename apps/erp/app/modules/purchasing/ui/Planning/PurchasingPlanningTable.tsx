@@ -17,6 +17,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -75,6 +76,7 @@ type PlanningTableProps = {
 
 const PlanningTable = memo(
   ({ data, count, locationId, periods }: PlanningTableProps) => {
+    const { t } = useLingui();
     const permissions = usePermissions();
 
     const dateFormatter = useDateFormatter({
@@ -290,7 +292,7 @@ const PlanningTable = memo(
       return [
         {
           accessorKey: "readableIdWithRevision",
-          header: "Item ID",
+          header: t`Item ID`,
           cell: ({ row }) => (
             <HStack
               className="py-1 cursor-pointer"
@@ -331,7 +333,7 @@ const PlanningTable = memo(
         },
         {
           accessorKey: "preferredSupplierId",
-          header: "Supplier",
+          header: t`Supplier`,
           cell: ({ row }) => {
             const supplierId = suppliersMap[row.original.id];
             if (!supplierId) return <Status color="red">No Supplier</Status>;
@@ -351,7 +353,7 @@ const PlanningTable = memo(
         },
         {
           accessorKey: "leadTime",
-          header: "Lead Time",
+          header: t`Lead Time`,
           cell: ({ row }) => {
             const leadTime = row.original.leadTime;
             const weeks = Math.ceil(leadTime / 7);
@@ -367,7 +369,7 @@ const PlanningTable = memo(
         },
         {
           accessorKey: "reorderingPolicy",
-          header: "Reorder Policy",
+          header: t`Reorder Policy`,
           cell: ({ row }) => {
             return (
               <HStack>
@@ -397,7 +399,7 @@ const PlanningTable = memo(
         },
         {
           accessorKey: "quantityOnHand",
-          header: "On Hand",
+          header: t`On Hand`,
           cell: ({ row }) =>
             numberFormatter.format(row.original.quantityOnHand),
           meta: {
@@ -408,7 +410,7 @@ const PlanningTable = memo(
         ...periodColumns,
         {
           accessorKey: "quantityToOrder",
-          header: "Qty to Order",
+          header: t`Qty to Order`,
           cell: ({ row }) => {
             const value = row.original.quantityToOrder;
             if (value === undefined || value === 0) return "-";
@@ -424,7 +426,7 @@ const PlanningTable = memo(
         },
         {
           accessorKey: "type",
-          header: "Type",
+          header: t`Type`,
           cell: ({ row }) =>
             row.original.type && (
               <HStack>
@@ -513,7 +515,7 @@ const PlanningTable = memo(
               disabled={bulkUpdateFetcher.state !== "idle"}
             >
               <DropdownMenuIcon icon={<LuSquareChartGantt />} />
-              Order Parts
+              <Trans>Order Parts</Trans>
             </DropdownMenuItem>
           </DropdownMenuContent>
         );
@@ -563,7 +565,7 @@ const PlanningTable = memo(
                       isDisabled={mrpFetcher.state !== "idle"}
                       isLoading={mrpFetcher.state !== "idle"}
                     >
-                      Recalculate
+                      <Trans>Recalculate</Trans>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -575,7 +577,7 @@ const PlanningTable = memo(
             </div>
           }
           renderActions={renderActions}
-          title="Planning"
+          title={t`Planning`}
           table="planning"
           withSavedView
           withSelectableRows

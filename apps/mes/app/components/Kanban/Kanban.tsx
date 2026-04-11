@@ -14,6 +14,7 @@ import {
   useSensors
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BoardContainer, ColumnCard } from "./components/ColumnCard";
@@ -41,6 +42,7 @@ const Kanban = ({
   progressByItemId,
   ...displaySettings
 }: KanbanProps) => {
+  const { t } = useLingui();
   const [columnOrder, setColumnOrder] = useState<string[]>(() => {
     // Get stored column order from localStorage
     const storedOrder = localStorage.getItem(COLUMN_ORDER_KEY);
@@ -79,7 +81,7 @@ const Kanban = ({
       if (active.data.current?.type === "column") {
         const startIndex = columnOrder.findIndex((id) => id === active.id);
         const startColumn = columns.find((col) => col.id === active.id);
-        return `Picked up Column ${startColumn?.title} at position: ${
+        return t`Picked up Column ${startColumn?.title} at position: ${
           startIndex + 1
         } of ${columnOrder.length}`;
       }
@@ -92,7 +94,7 @@ const Kanban = ({
         over.data.current?.type === "column"
       ) {
         const overIndex = columnOrder.findIndex((id) => id === over.id);
-        return `Column ${active.data.current.column.title} was moved over ${
+        return t`Column ${active.data.current.column.title} was moved over ${
           over.data.current.column.title
         } at position ${overIndex + 1} of ${columnOrder.length}`;
       }
@@ -108,7 +110,7 @@ const Kanban = ({
           (id) => id === over.id
         );
 
-        return `Column ${
+        return t`Column ${
           active.data.current.column.title
         } was dropped into position ${overColumnPosition + 1} of ${
           columnOrder.length
@@ -117,7 +119,7 @@ const Kanban = ({
     },
     onDragCancel({ active }) {
       if (!hasDraggableData(active)) return;
-      return `Dragging ${active.data.current?.type} cancelled.`;
+      return t`Dragging ${active.data.current?.type} cancelled.`;
     }
   };
 

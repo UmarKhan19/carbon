@@ -3,21 +3,20 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import { getProductionProjections } from "~/modules/production";
 import DemandProjectionsTable from "~/modules/production/ui/Projection/DemandProjectionTable";
-
 import { getLocationsList } from "~/modules/resources";
 import { getOrCreatePeriods } from "~/modules/shared/shared.server";
 import { getUserDefaults } from "~/modules/users/users.server";
-
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Projections",
+  breadcrumb: msg`Projections`,
   to: path.to.demandProjections
 };
 

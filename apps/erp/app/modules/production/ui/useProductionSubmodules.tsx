@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuChartLine,
   LuCirclePlay,
@@ -11,62 +12,63 @@ import { useSavedViews } from "~/hooks/useSavedViews";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
-const productionRoutes: AuthenticatedRouteGroup[] = [
-  {
-    name: "Production",
-    routes: [
-      {
-        name: "Jobs",
-        to: path.to.jobs,
-        icon: <LuCirclePlay />,
-        table: "job"
-      },
-      {
-        name: "Procedures",
-        to: path.to.procedures,
-        icon: <LuListChecks />,
-        table: "procedure",
-        role: "employee"
-      }
-    ]
-  },
-  {
-    name: "Plan",
-    routes: [
-      {
-        name: "Planning",
-        to: path.to.productionPlanning,
-        icon: <LuSquareChartGantt />,
-        table: "production-planning"
-      },
-      {
-        name: "Projections",
-        to: path.to.demandProjections,
-        icon: <LuChartLine />,
-        table: "demand-projection"
-      },
-      {
-        name: "Schedule",
-        to: path.to.scheduleDates,
-        icon: <LuSquareKanban />
-      }
-    ]
-  },
-  {
-    name: "Configure",
-    routes: [
-      {
-        name: "Scrap Reasons",
-        to: path.to.scrapReasons,
-        role: "employee",
-        icon: <LuTrash />
-      }
-    ]
-  }
-];
-
 export default function useProductionSubmodules() {
+  const { t } = useLingui();
   const permissions = usePermissions();
+
+  const productionRoutes: AuthenticatedRouteGroup[] = [
+    {
+      name: t`Production`,
+      routes: [
+        {
+          name: t`Jobs`,
+          to: path.to.jobs,
+          icon: <LuCirclePlay />,
+          table: "job"
+        },
+        {
+          name: t`Procedures`,
+          to: path.to.procedures,
+          icon: <LuListChecks />,
+          table: "procedure",
+          role: "employee"
+        }
+      ]
+    },
+    {
+      name: t`Plan`,
+      routes: [
+        {
+          name: t`Planning`,
+          to: path.to.productionPlanning,
+          icon: <LuSquareChartGantt />,
+          table: "production-planning"
+        },
+        {
+          name: t`Projections`,
+          to: path.to.demandProjections,
+          icon: <LuChartLine />,
+          table: "demand-projection"
+        },
+        {
+          name: t`Schedule`,
+          to: path.to.scheduleDates,
+          icon: <LuSquareKanban />
+        }
+      ]
+    },
+    {
+      name: t`Configure`,
+      routes: [
+        {
+          name: t`Scrap Reasons`,
+          to: path.to.scrapReasons,
+          role: "employee",
+          icon: <LuTrash />
+        }
+      ]
+    }
+  ];
   const { addSavedViewsToRoutes } = useSavedViews();
 
   return {

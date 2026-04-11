@@ -1,4 +1,5 @@
 import { Button, Checkbox, cn, HStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
 import { LuEllipsisVertical } from "react-icons/lu";
@@ -15,6 +16,7 @@ type ChartOfAccountsTableProps = {
 };
 
 const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
+  const { t } = useLingui();
   useRealtime("journal");
 
   const customColumns = useCustomColumns<Chart>("journal");
@@ -23,7 +25,7 @@ const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
     const defaultColumns: ColumnDef<Chart>[] = [
       {
         accessorKey: "number",
-        header: "Number",
+        header: t`Number`,
         cell: ({ row }) => {
           const isPosting = row.original.type === "Posting";
 
@@ -42,7 +44,7 @@ const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
                   isIcon
                   variant="ghost"
                   className="absolute right-[-3px] top-[-3px] outline-none border-none active:outline-none focus-visible:outline-none"
-                  aria-label="Edit account"
+                  aria-label={t`Edit account`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ReactRouterLink to={`${row.original.id}`}>
@@ -56,7 +58,7 @@ const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
       },
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => {
           const isPosting = row.original.type === "Posting";
           return (
@@ -71,7 +73,7 @@ const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
       },
       {
         accessorKey: "netChange",
-        header: "Net Change",
+        header: t`Net Change`,
         cell: ({ row }) => {
           const hasValue = ["Posting", "End Total", "Total"].includes(
             row.original.type
@@ -81,7 +83,7 @@ const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
       },
       {
         accessorKey: "balanceAtDate",
-        header: "Balance at Date",
+        header: t`Balance at Date`,
         cell: ({ row }) => {
           const hasValue = ["Posting", "End Total", "Total"].includes(
             row.original.type
@@ -91,7 +93,7 @@ const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
       },
       {
         accessorKey: "balance",
-        header: "Balance",
+        header: t`Balance`,
         cell: ({ row }) => {
           const hasValue = ["Posting", "End Total", "Total"].includes(
             row.original.type
@@ -101,38 +103,38 @@ const ChartOfAccountsTable = memo(({ data }: ChartOfAccountsTableProps) => {
       },
       {
         accessorKey: "incomeBalance",
-        header: "Income/Balance",
+        header: t`Income/Balance`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />
       },
       {
         accessorKey: "type",
-        header: "Account Type",
+        header: t`Account Type`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />
       },
       {
         accessorKey: "totaling",
-        header: "Totaling",
+        header: t`Totaling`,
         cell: ({ row }) => row.original.totaling ?? ""
       },
       {
         accessorKey: "accountCategory",
-        header: "Account Category",
+        header: t`Account Category`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />
       },
       {
         accessorKey: "accountSubCategory",
-        header: "Account Subcategory",
+        header: t`Account Subcategory`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />
       },
       {
         accessorKey: "directPosting",
-        header: "Direct Posting",
+        header: t`Direct Posting`,
         cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />
       }
     ];
 
     return [...defaultColumns, ...customColumns];
-  }, [customColumns]);
+  }, [customColumns, t]);
 
   return <Grid<Chart> data={data} columns={columns} withSimpleSorting />;
 });

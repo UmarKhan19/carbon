@@ -22,6 +22,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuTrash } from "react-icons/lu";
@@ -60,6 +61,7 @@ const PurchasingRFQLineForm = ({
   type,
   onClose
 }: PurchasingRFQLineFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { company } = useUser();
   const { carbon } = useCarbon();
@@ -106,7 +108,7 @@ const PurchasingRFQLineForm = ({
       .single();
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -182,14 +184,14 @@ const PurchasingRFQLineForm = ({
                         <DropdownMenuTrigger asChild>
                           <IconButton
                             icon={<BsThreeDotsVertical />}
-                            aria-label="More"
+                            aria-label={t`More`}
                             variant="ghost"
                           />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={deleteDisclosure.onOpen}>
                             <DropdownMenuIcon icon={<LuTrash />} />
-                            Delete Line
+                            <Trans>Delete Line</Trans>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -210,7 +212,7 @@ const PurchasingRFQLineForm = ({
                       <Item
                         autoFocus
                         name="itemId"
-                        label="Part"
+                        label={t`Part`}
                         type={itemType}
                         value={itemData.itemId}
                         includeInactive
@@ -231,13 +233,13 @@ const PurchasingRFQLineForm = ({
                       />
                       <InputControlled
                         name="description"
-                        label="Description"
+                        label={t`Description`}
                         value={itemData.description}
                         isReadOnly={!!itemData.itemId}
                       />
                       <UnitOfMeasure
                         name="purchaseUnitOfMeasureCode"
-                        label="Purchase Unit of Measure"
+                        label={t`Purchase Unit of Measure`}
                         value={itemData.purchaseUom}
                         onChange={(newValue) =>
                           setItemData((d) => ({
@@ -264,7 +266,7 @@ const PurchasingRFQLineForm = ({
                     <div className="flex gap-y-4">
                       <ArrayNumeric
                         name="quantity"
-                        label="Quantity"
+                        label={t`Quantity`}
                         defaults={[1, 25, 50, 100]}
                         isDisabled={isLocked}
                       />
@@ -281,7 +283,7 @@ const PurchasingRFQLineForm = ({
                       : !permissions.can("create", "purchasing"))
                   }
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </ModalCardFooter>
             </ValidatedForm>

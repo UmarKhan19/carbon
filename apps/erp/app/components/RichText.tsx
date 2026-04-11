@@ -2,6 +2,7 @@ import { ValidatedForm } from "@carbon/form";
 import { Button, HStack, VStack } from "@carbon/react";
 import { HTML } from "@carbon/react/HTML";
 import { formatTimeAgo } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { Fragment } from "react";
 import { Form } from "react-router";
 import { Avatar } from "~/components";
@@ -47,7 +48,7 @@ const RichText = ({ documentId, notes }: RichTextProps) => {
                     {user.id === note.user.id && (
                       <Form method="post" action={path.to.deleteNote(note.id)}>
                         <Button type="submit" variant="link" size="md">
-                          Delete
+                          <Trans>Delete</Trans>
                         </Button>
                       </Form>
                     )}
@@ -59,7 +60,7 @@ const RichText = ({ documentId, notes }: RichTextProps) => {
         </div>
       ) : (
         <div className="text-muted-foreground p-4 w-full text-center">
-          No notes
+          <Trans>No notes</Trans>
         </div>
       )}
 
@@ -76,7 +77,9 @@ const RichText = ({ documentId, notes }: RichTextProps) => {
               <RichTextForm name="note" className="min-h-[160px]" />
             </div>
             <div className="flex justify-end w-full">
-              <Submit withBlocker={false}>Add Note</Submit>
+              <Submit withBlocker={false}>
+                <Trans>Add Note</Trans>
+              </Submit>
             </div>
           </VStack>
         </ValidatedForm>

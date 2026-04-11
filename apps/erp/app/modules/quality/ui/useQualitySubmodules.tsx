@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuCircleGauge,
   LuDraftingCompass,
@@ -15,93 +16,89 @@ import { useSavedViews } from "~/hooks/useSavedViews";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
-const qualityRoutes: AuthenticatedRouteGroup[] = [
-  {
-    name: "Issues",
-    routes: [
-      {
-        name: "Actions",
-        to: path.to.qualityActions,
-        icon: <LuListChecks />,
-        table: "nonConformanceActionTask"
-      },
-
-      {
-        name: "Issues",
-        to: path.to.issues,
-        icon: <LuShieldX />,
-        table: "nonConformance"
-      },
-      {
-        name: "Risks",
-        to: path.to.risks,
-        icon: <LuShieldAlert />,
-        table: "riskRegister"
-      }
-      // {
-      //   name: "Inspections",
-      //   to: "#",
-      //   icon: <LuSearchCheck />,
-      //   table: "inspection",
-      // },
-    ]
-  },
-  {
-    name: "Calibrations",
-    routes: [
-      {
-        name: "Gauges",
-        to: path.to.gauges,
-        icon: <LuDraftingCompass />
-      },
-      {
-        name: "Records",
-        to: path.to.calibrations,
-        icon: <LuCircleGauge />
-      }
-    ]
-  },
-  {
-    name: "Document Control",
-    routes: [
-      {
-        name: "Quality Documents",
-        to: path.to.qualityDocuments,
-        icon: <LuFileText />,
-        table: "qualityDocument"
-      }
-    ]
-  },
-  {
-    name: "Configure",
-    routes: [
-      {
-        name: "Action Types",
-        to: path.to.requiredActions,
-        icon: <LuSquareCheck />
-      },
-
-      {
-        name: "Gauge Types",
-        to: path.to.gaugeTypes,
-        icon: <LuShapes />
-      },
-      {
-        name: "Issue Types",
-        to: path.to.issueTypes,
-        icon: <LuOctagonX />
-      },
-      {
-        name: "Issue Workflows",
-        to: path.to.issueWorkflows,
-        icon: <LuWorkflow />
-      }
-    ]
-  }
-];
 export default function useQualitySubmodules() {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { addSavedViewsToRoutes } = useSavedViews();
+
+  const qualityRoutes: AuthenticatedRouteGroup[] = [
+    {
+      name: t`Issues`,
+      routes: [
+        {
+          name: t`Actions`,
+          to: path.to.qualityActions,
+          icon: <LuListChecks />,
+          table: "nonConformanceActionTask"
+        },
+
+        {
+          name: t`Issues`,
+          to: path.to.issues,
+          icon: <LuShieldX />,
+          table: "nonConformance"
+        },
+        {
+          name: t`Risks`,
+          to: path.to.risks,
+          icon: <LuShieldAlert />,
+          table: "riskRegister"
+        }
+      ]
+    },
+    {
+      name: t`Calibrations`,
+      routes: [
+        {
+          name: t`Gauges`,
+          to: path.to.gauges,
+          icon: <LuDraftingCompass />
+        },
+        {
+          name: t`Records`,
+          to: path.to.calibrations,
+          icon: <LuCircleGauge />
+        }
+      ]
+    },
+    {
+      name: t`Document Control`,
+      routes: [
+        {
+          name: t`Quality Documents`,
+          to: path.to.qualityDocuments,
+          icon: <LuFileText />,
+          table: "qualityDocument"
+        }
+      ]
+    },
+    {
+      name: t`Configure`,
+      routes: [
+        {
+          name: t`Action Types`,
+          to: path.to.requiredActions,
+          icon: <LuSquareCheck />
+        },
+
+        {
+          name: t`Gauge Types`,
+          to: path.to.gaugeTypes,
+          icon: <LuShapes />
+        },
+        {
+          name: t`Issue Types`,
+          to: path.to.issueTypes,
+          icon: <LuOctagonX />
+        },
+        {
+          name: t`Issue Workflows`,
+          to: path.to.issueWorkflows,
+          icon: <LuWorkflow />
+        }
+      ]
+    }
+  ];
 
   return {
     groups: qualityRoutes

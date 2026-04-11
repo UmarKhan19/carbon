@@ -18,6 +18,7 @@ import {
   Spinner,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuBraces,
@@ -53,6 +54,7 @@ type JobBoMExplorerProps = {
 const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { t } = useLingui();
   const location = useOptimisticLocation();
   const [filterText, setFilterText] = useState("");
   const { jobId, methodId } = useParams();
@@ -152,7 +154,7 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
                 <LuSearch className="h-4 w-4" />
               </InputLeftElement>
               <Input
-                placeholder="Search..."
+                placeholder={t`Search...`}
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
               />
@@ -161,7 +163,7 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <IconButton
-                    aria-label="Actions"
+                    aria-label={t`Actions`}
                     variant="ghost"
                     size="sm"
                     icon={<LuEllipsisVertical />}
@@ -378,6 +380,7 @@ function NodeData({ node }: { node: FlatTreeItem<JobMethod> }) {
 }
 
 function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
+  const { t } = useLingui();
   const integrations = useIntegrations();
   const onShapeState = integrations.has("onshape")
     ? // @ts-expect-error
@@ -389,7 +392,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
     <VStack className="w-full text-sm">
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Item ID
+          <Trans>Item ID</Trans>
         </span>
         <HStack className="w-full justify-between">
           <span>{node.data.itemReadableId}</span>
@@ -402,7 +405,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
               )}
             >
               <IconButton
-                aria-label="View Item Master"
+                aria-label={t`View Item Master`}
                 size="sm"
                 variant="secondary"
                 icon={<LuExternalLink />}
@@ -413,7 +416,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Description
+          <Trans>Description</Trans>
         </span>
         <HStack className="w-full justify-between">
           <span>{node.data.description}</span>
@@ -422,7 +425,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Quantity
+          <Trans>Quantity</Trans>
         </span>
         <HStack className="w-full justify-between">
           <span>{node.data.quantity}</span>
@@ -430,7 +433,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Method
+          <Trans>Method</Trans>
         </span>
         <HStack className="w-full">
           <MethodIcon type={node.data.methodType} />
@@ -439,7 +442,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Item Type
+          <Trans>Item Type</Trans>
         </span>
         <HStack className="w-full">
           <MethodItemTypeIcon type={node.data.itemType} />
@@ -449,7 +452,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
       {node.data.methodType === "Make to Order" && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
-            Make Method Version
+            <Trans>Make Method Version</Trans>
           </span>
           <HStack className="w-full">
             <Badge variant="outline">V{node.data.version}</Badge>
@@ -459,7 +462,7 @@ function NodePreview({ node }: { node: FlatTreeItem<JobMethod> }) {
       {onShapeState && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
-            Onshape Status
+            <Trans>Onshape Status</Trans>
           </span>
           <HStack className="w-full">
             <OnshapeStatus status={onShapeState} />

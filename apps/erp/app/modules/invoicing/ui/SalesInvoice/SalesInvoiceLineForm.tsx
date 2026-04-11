@@ -24,6 +24,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { LuChevronRight, LuCircleAlert, LuPlus, LuTruck } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -70,6 +71,7 @@ const SalesInvoiceLineForm = ({
   isSalesOrderLine = false,
   onClose
 }: SalesInvoiceLineFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
 
@@ -197,8 +199,8 @@ const SalesInvoiceLineForm = ({
         if (trackingType === "Batch" || trackingType === "Serial") {
           const errorMessage =
             trackingType === "Batch"
-              ? "Batch items require a sales order"
-              : "Serial items require a sales order";
+              ? t`Batch items require a sales order`
+              : t`Serial items require a sales order`;
           toast.error(errorMessage);
           setItemData({
             itemId: "",
@@ -295,9 +297,11 @@ const SalesInvoiceLineForm = ({
                   isEditing && !itemData?.itemId && "text-muted-foreground"
                 )}
               >
-                {isEditing
-                  ? (getItemReadableId(items, itemData?.itemId) ?? "...")
-                  : "New Sales Invoice Line"}
+                {isEditing ? (
+                  (getItemReadableId(items, itemData?.itemId) ?? "...")
+                ) : (
+                  <Trans>New Sales Invoice Line</Trans>
+                )}
               </ModalCardTitle>
               <ModalCardDescription>
                 {isEditing ? (
@@ -320,13 +324,13 @@ const SalesInvoiceLineForm = ({
                       {initialValues?.taxPercent > 0 ? (
                         <Badge variant="red">
                           {percentFormatter.format(initialValues?.taxPercent)}{" "}
-                          Tax
+                          {t`Tax`}
                         </Badge>
                       ) : null}
                     </div>
                   </div>
                 ) : (
-                  "A sales invoice line contains invoice details for a particular item"
+                  t`A sales invoice line contains invoice details for a particular item`
                 )}
               </ModalCardDescription>
             </ModalCardHeader>
@@ -349,8 +353,10 @@ const SalesInvoiceLineForm = ({
                   <Alert variant="destructive" className="mb-4">
                     <LuCircleAlert className="w-4 h-4" />
                     <AlertTitle>
-                      Make items cannot be invoiced directly. Change method to
-                      Pick to continue.
+                      <Trans>
+                        Make items cannot be invoiced directly. Change method to
+                        Pick to continue.
+                      </Trans>
                     </AlertTitle>
                   </Alert>
                 )}
@@ -367,7 +373,7 @@ const SalesInvoiceLineForm = ({
                   />
 
                   <FormControl className="col-span-2">
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t`Description`}</FormLabel>
                     <Input
                       value={itemData.description}
                       onChange={(e) =>
@@ -386,7 +392,7 @@ const SalesInvoiceLineForm = ({
                       <div className="space-y-2">
                         <SelectControlled
                           name="methodType"
-                          label="Method"
+                          label={t`Method`}
                           options={
                             methodType.map((m) => ({
                               label: (
@@ -411,7 +417,7 @@ const SalesInvoiceLineForm = ({
 
                       <NumberControlled
                         name="quantity"
-                        label="Quantity"
+                        label={t`Quantity`}
                         value={itemData.quantity}
                         onChange={(value) => {
                           setItemData((d) => ({
@@ -423,7 +429,7 @@ const SalesInvoiceLineForm = ({
 
                       <NumberControlled
                         name="unitPrice"
-                        label="Unit Price"
+                        label={t`Unit Price`}
                         value={itemData.unitPrice}
                         formatOptions={{
                           style: "currency",
@@ -440,13 +446,13 @@ const SalesInvoiceLineForm = ({
                       />
                       <Location
                         name="locationId"
-                        label="Location"
+                        label={t`Location`}
                         value={locationId}
                         onChange={onLocationChange}
                       />
                       <Shelf
                         name="shelfId"
-                        label="Shelf"
+                        label={t`Shelf`}
                         locationId={locationId}
                         value={itemData.shelfId ?? undefined}
                         onChange={(newValue) => {
@@ -472,14 +478,16 @@ const SalesInvoiceLineForm = ({
                         className="w-full justify-between cursor-pointer"
                         onClick={costsDisclosure.onToggle}
                       >
-                        <Label>Tax &amp; Additional Costs</Label>
+                        <Label>
+                          <Trans>Tax & Additional Costs</Trans>
+                        </Label>
                         <HStack>
                           {(itemData.taxPercent ?? 0) > 0 && (
                             <Badge variant="red">
                               {percentFormatter.format(
                                 itemData.taxPercent ?? 0
                               )}{" "}
-                              Tax
+                              <Trans>Tax</Trans>
                             </Badge>
                           )}
                           {(itemData.shippingCost ?? 0) > 0 && (
@@ -507,7 +515,7 @@ const SalesInvoiceLineForm = ({
                                     (initialValues?.addOnCost ?? 0) +
                                       (initialValues?.nonTaxableAddOnCost ?? 0)
                                   )}{" "}
-                                  Add-On
+                                  <Trans>Add-On</Trans>
                                 </span>
                               </Badge>
                             ))}
@@ -516,8 +524,8 @@ const SalesInvoiceLineForm = ({
                             icon={<LuChevronRight />}
                             aria-label={
                               costsDisclosure.isOpen
-                                ? "Collapse Costs"
-                                : "Expand Costs"
+                                ? t`Collapse Costs`
+                                : t`Expand Costs`
                             }
                             variant="ghost"
                             size="md"
@@ -538,7 +546,7 @@ const SalesInvoiceLineForm = ({
                       >
                         <NumberControlled
                           name="taxPercent"
-                          label="Tax Percent"
+                          label={t`Tax Percent`}
                           value={itemData.taxPercent}
                           minValue={0}
                           maxValue={1}
@@ -561,7 +569,7 @@ const SalesInvoiceLineForm = ({
                         />
                         <NumberControlled
                           name="taxAmount"
-                          label="Tax Amount"
+                          label={t`Tax Amount`}
                           value={itemData.taxAmount}
                           formatOptions={{
                             style: "currency",
@@ -582,7 +590,7 @@ const SalesInvoiceLineForm = ({
                         />
                         <NumberControlled
                           name="shippingCost"
-                          label="Shipping Cost"
+                          label={t`Shipping Cost`}
                           value={itemData.shippingCost}
                           minValue={0}
                           formatOptions={{
@@ -600,7 +608,7 @@ const SalesInvoiceLineForm = ({
                         />
                         <Number
                           name="addOnCost"
-                          label="Add-On Cost"
+                          label={t`Add-On Cost`}
                           formatOptions={{
                             style: "currency",
                             currency:
@@ -610,7 +618,7 @@ const SalesInvoiceLineForm = ({
                         />
                         <Number
                           name="nonTaxableAddOnCost"
-                          label="Non-Taxable Add-On Cost"
+                          label={t`Non-Taxable Add-On Cost`}
                           formatOptions={{
                             style: "currency",
                             currency:
@@ -626,7 +634,7 @@ const SalesInvoiceLineForm = ({
             </ModalCardBody>
             <ModalCardFooter>
               <Submit isDisabled={isDisabled} withBlocker={false}>
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </ModalCardFooter>
           </ValidatedForm>

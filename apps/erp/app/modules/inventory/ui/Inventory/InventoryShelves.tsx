@@ -35,6 +35,7 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useMemo, useState } from "react";
 import {
@@ -73,6 +74,7 @@ const InventoryShelves = ({
   shelves
 }: InventoryShelvesProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const adjustmentModal = useDisclosure();
 
   const unitOfMeasures = useUnitOfMeasure();
@@ -137,7 +139,9 @@ const InventoryShelves = ({
       <Card className="w-full">
         <HStack className="w-full justify-between">
           <CardHeader>
-            <CardTitle>Shelves</CardTitle>
+            <CardTitle>
+              <Trans>Shelves</Trans>
+            </CardTitle>
             <CardDescription>
               <Enumerable
                 value={
@@ -150,7 +154,7 @@ const InventoryShelves = ({
           </CardHeader>
           <CardAction>
             <Button onClick={() => openAdjustmentModal()}>
-              Update Inventory
+              <Trans>Update Inventory</Trans>
             </Button>
           </CardAction>
         </HStack>
@@ -158,10 +162,16 @@ const InventoryShelves = ({
           <Table className="table-fixed">
             <Thead>
               <Tr>
-                <Th>Shelf</Th>
+                <Th>
+                  <Trans>Shelf</Trans>
+                </Th>
 
-                <Th>Quantity</Th>
-                <Th>Tracking ID</Th>
+                <Th>
+                  <Trans>Quantity</Trans>
+                </Th>
+                <Th>
+                  <Trans>Tracking ID</Trans>
+                </Th>
                 <Th className="flex flex-shrink-0 justify-end" />
               </Tr>
             </Thead>
@@ -194,7 +204,7 @@ const InventoryShelves = ({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <IconButton
-                            aria-label="Actions"
+                            aria-label={t`Actions`}
                             variant="ghost"
                             icon={<LuEllipsisVertical />}
                           />
@@ -211,13 +221,13 @@ const InventoryShelves = ({
                             }
                           >
                             <DropdownMenuIcon icon={<LuPencil />} />
-                            Update Quantity
+                            <Trans>Update Quantity</Trans>
                           </DropdownMenuItem>
                           {item.trackedEntityId && (
                             <DropdownMenuSub>
                               <DropdownMenuSubTrigger>
                                 <LuPrinter className="mr-2 h-4 w-4" />
-                                Print Label
+                                <Trans>Print Label</Trans>
                               </DropdownMenuSubTrigger>
                               <DropdownMenuPortal>
                                 <DropdownMenuSubContent>
@@ -277,25 +287,27 @@ const InventoryShelves = ({
               onSubmit={adjustmentModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Inventory Adjustment</ModalTitle>
+                <ModalTitle>
+                  <Trans>Inventory Adjustment</Trans>
+                </ModalTitle>
               </ModalHeader>
               <ModalBody>
                 <Hidden name="itemId" />
                 {isEditing && <Hidden name="originalShelfId" />}
 
                 <VStack spacing={2}>
-                  <Location name="locationId" label="Location" isReadOnly />
+                  <Location name="locationId" label={t`Location`} isReadOnly />
                   <Shelf
                     name="shelfId"
                     locationId={pickMethod.locationId}
-                    label="Shelf"
+                    label={t`Shelf`}
                   />
                   <Select
                     name="adjustmentType"
-                    label="Adjustment Type"
+                    label={t`Adjustment Type`}
                     options={
                       isEditing && (isSerial || isBatch)
-                        ? [{ label: "Set Quantity", value: "Set Quantity" }]
+                        ? [{ label: t`Set Quantity`, value: "Set Quantity" }]
                         : [
                             ...(isSerial
                               ? []
@@ -306,11 +318,11 @@ const InventoryShelves = ({
                                   }
                                 ]),
                             {
-                              label: "Positive Adjustment",
+                              label: t`Positive Adjustment`,
                               value: "Positive Adjmt."
                             },
                             {
-                              label: "Negative Adjustment",
+                              label: t`Negative Adjustment`,
                               value: "Negative Adjmt."
                             }
                           ]
@@ -321,13 +333,13 @@ const InventoryShelves = ({
                       <Hidden name="trackedEntityId" />
                       <Input
                         name="readableId"
-                        label={isSerial ? "Serial Number" : "Batch Number"}
+                        label={isSerial ? t`Serial Number` : t`Batch Number`}
                       />
                     </>
                   )}
                   <NumberControlled
                     name="quantity"
-                    label="Quantity"
+                    label={t`Quantity`}
                     minValue={0}
                     maxValue={isSerial && isEditing ? 1 : undefined}
                     value={isSerial && !isEditing ? 1 : quantity}
@@ -337,16 +349,16 @@ const InventoryShelves = ({
 
                   <Input
                     name="unitOfMeasure"
-                    label="Unit of Measure"
+                    label={t`Unit of Measure`}
                     value={itemUnitOfMeasure?.label ?? ""}
                     isReadOnly
                   />
-                  <TextArea name="comment" label="Comment" />
+                  <TextArea name="comment" label={t`Comment`} />
                 </VStack>
               </ModalBody>
               <ModalFooter>
                 <Button onClick={adjustmentModal.onClose} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   withBlocker={false}

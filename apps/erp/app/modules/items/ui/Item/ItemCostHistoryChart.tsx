@@ -34,6 +34,7 @@ import {
 } from "@carbon/react/Chart";
 import type { CalendarDate } from "@internationalized/date";
 import { today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useDateFormatter } from "@react-aria/i18n";
 import { useMemo } from "react";
 import { CSVLink } from "react-csv";
@@ -53,17 +54,6 @@ import type { ItemCostHistory } from "~/modules/items";
 import { useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
 
-const chartConfig = {
-  cost: {
-    color: "hsl(var(--chart-1))",
-    label: "Unit Cost"
-  },
-  weightedAverage: {
-    color: "hsl(var(--chart-2))",
-    label: "Weighted Average"
-  }
-} satisfies ChartConfig;
-
 export function ItemCostHistoryChart({
   readableId,
   itemCostHistory
@@ -71,6 +61,18 @@ export function ItemCostHistoryChart({
   readableId: string;
   itemCostHistory: ItemCostHistory;
 }) {
+  const { t } = useLingui();
+
+  const chartConfig = {
+    cost: {
+      color: "hsl(var(--chart-1))",
+      label: t`Unit Cost`
+    },
+    weightedAverage: {
+      color: "hsl(var(--chart-2))",
+      label: t`Weighted Average`
+    }
+  } satisfies ChartConfig;
   const chartData = useMemo(() => {
     // Generate array of dates for the last year
     const todayDate = today("UTC");
@@ -161,7 +163,9 @@ export function ItemCostHistoryChart({
       <Tabs defaultValue="chart">
         <HStack className="w-full justify-between">
           <CardHeader>
-            <CardTitle>Cost History</CardTitle>
+            <CardTitle>
+              <Trans>Cost History</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction className="flex-row-reverse items-center gap-2">
             <DropdownMenu>
@@ -169,7 +173,7 @@ export function ItemCostHistoryChart({
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label="More"
+                  aria-label={t`More`}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -258,36 +262,44 @@ export function ItemCostHistoryChart({
               <Table>
                 <Thead>
                   <Tr>
-                    <Th>Posting Date</Th>
+                    <Th>
+                      <Trans>Posting Date</Trans>
+                    </Th>
                     <Th>
                       <div className="flex flex-row items-center gap-2">
-                        Nominal Cost{" "}
+                        <Trans>Nominal Cost</Trans>{" "}
                         <Tooltip>
                           <TooltipTrigger>
                             <LuInfo />
                           </TooltipTrigger>
                           <TooltipContent>
-                            The unit price of the item at the time of the
-                            purchase
+                            <Trans>
+                              The unit price of the item at the time of the
+                              purchase
+                            </Trans>
                           </TooltipContent>
                         </Tooltip>
                       </div>
                     </Th>
                     <Th>
                       <div className="flex flex-row items-center gap-2">
-                        Actual Cost{" "}
+                        <Trans>Actual Cost</Trans>{" "}
                         <Tooltip>
                           <TooltipTrigger>
                             <LuInfo />
                           </TooltipTrigger>
                           <TooltipContent>
-                            Includes tax and shipping costs
+                            <Trans>Includes tax and shipping costs</Trans>
                           </TooltipContent>
                         </Tooltip>
                       </div>
                     </Th>
-                    <Th>Quantity</Th>
-                    <Th>Supplier</Th>
+                    <Th>
+                      <Trans>Quantity</Trans>
+                    </Th>
+                    <Th>
+                      <Trans>Supplier</Trans>
+                    </Th>
                   </Tr>
                 </Thead>
                 <Tbody>
@@ -314,7 +326,7 @@ export function ItemCostHistoryChart({
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    View Purchase Invoice
+                                    <Trans>View Purchase Invoice</Trans>
                                   </TooltipContent>
                                 </Tooltip>
                               )}
@@ -333,7 +345,9 @@ export function ItemCostHistoryChart({
               </Table>
             ) : (
               <div className="flex flex-col items-center justify-center h-full">
-                <p>No cost history found</p>
+                <p>
+                  <Trans>No cost history found</Trans>
+                </p>
               </div>
             )}
           </TabsContent>

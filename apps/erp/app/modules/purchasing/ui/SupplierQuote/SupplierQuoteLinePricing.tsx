@@ -16,6 +16,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Enumerable } from "~/components/Enumerable";
@@ -42,6 +43,7 @@ const SupplierQuoteLinePricing = ({
   pricesByQuantity: Record<number, SupplierQuoteLinePrice>;
   exchangeRate?: number;
 }) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const quantities = line.quantity ?? [1];
@@ -125,7 +127,7 @@ const SupplierQuoteLinePricing = ({
 
         if (update?.error) {
           console.error(update.error);
-          toast.error("Failed to update supplier quote line");
+          toast.error(t`Failed to update supplier quote line`);
         }
       } else {
         const insert = await carbon?.from("supplierQuoteLinePrice").insert({
@@ -136,11 +138,11 @@ const SupplierQuoteLinePricing = ({
 
         if (insert?.error) {
           console.error(insert.error);
-          toast.error("Failed to insert supplier quote line");
+          toast.error(t`Failed to insert supplier quote line`);
         }
       }
     },
-    [editableFields.prices, id, lineId, exchangeRate, userId, carbon]
+    [editableFields.prices, id, lineId, exchangeRate, userId, carbon, t]
   );
 
   const unitOfMeasures = useUnitOfMeasure();
@@ -148,7 +150,9 @@ const SupplierQuoteLinePricing = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Prices</CardTitle>
+        <CardTitle>
+          <Trans>Prices</Trans>
+        </CardTitle>
       </CardHeader>
 
       <CardContent>

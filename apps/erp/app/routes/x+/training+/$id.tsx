@@ -5,6 +5,7 @@ import type { JSONContent } from "@carbon/react";
 import { generateHTML, Input, toast, useDebounce } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
@@ -29,7 +30,7 @@ import type { Handle } from "~/utils/handle";
 import { getPrivateUrl, path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Training",
+  breadcrumb: msg`Training`,
   to: path.to.trainings,
   module: "resources"
 };

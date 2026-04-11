@@ -7,6 +7,7 @@ import {
   CardTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import { Select, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
@@ -21,6 +22,7 @@ type FiscalYearSettingsFormProps = {
 const FiscalYearSettingsForm = ({
   initialValues
 }: FiscalYearSettingsFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   return (
     <Card>
@@ -31,21 +33,23 @@ const FiscalYearSettingsForm = ({
         validator={fiscalYearSettingsValidator}
       >
         <CardHeader>
-          <CardTitle>Fiscal Year Settings</CardTitle>
+          <CardTitle>
+            <Trans>Fiscal Year Settings</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <VStack spacing={4} className="my-4 w-full max-w-[440px]">
             <Select
               name="startMonth"
-              label="Start of Fiscal Year"
+              label={t`Start of Fiscal Year`}
               options={months.map((month) => ({ label: month, value: month }))}
-              helperText="This is the month your fiscal year starts."
+              helperText={t`This is the month your fiscal year starts.`}
             />
             <Select
               name="taxStartMonth"
-              label="Start of Tax Year"
+              label={t`Start of Tax Year`}
               options={months.map((month) => ({ label: month, value: month }))}
-              helperText="This is the month your tax year starts."
+              helperText={t`This is the month your tax year starts.`}
             />
           </VStack>
         </CardContent>
@@ -56,7 +60,7 @@ const FiscalYearSettingsForm = ({
               !permissions.is("employee")
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

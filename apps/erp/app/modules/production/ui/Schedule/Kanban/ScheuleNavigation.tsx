@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import {
   LuCalendar,
   LuCalendarDays,
@@ -99,14 +100,18 @@ export function ScheduleNavigation() {
           value={currentValue}
           onValueChange={navigateToView}
         >
-          <DropdownMenuLabel>Operations</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <Trans>Operations</Trans>
+          </DropdownMenuLabel>
           <DropdownMenuRadioItem value="operations">
             <DropdownMenuIcon icon={getViewIcon("operations")} />
             {getViewLabel("operations")}
           </DropdownMenuRadioItem>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuLabel>Jobs</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <Trans>Jobs</Trans>
+            </DropdownMenuLabel>
             <DropdownMenuRadioItem value="week">
               <DropdownMenuIcon icon={getViewIcon("week")} />
               {getViewLabel("week")}

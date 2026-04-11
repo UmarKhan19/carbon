@@ -29,6 +29,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useState } from "react";
 import {
   LuCheckCheck,
@@ -59,6 +60,7 @@ const SupplierHeader = () => {
 
   if (!supplierId) throw new Error("Could not find supplierId");
   const fetcher = useFetcher<typeof action>();
+  const { t } = useLingui();
   const requestApprovalFetcher = useFetcher();
   const permissions = usePermissions();
   const { company } = useUser();
@@ -149,7 +151,7 @@ const SupplierHeader = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
-                      aria-label="More options"
+                      aria-label={t`More options`}
                       icon={<LuEllipsisVertical />}
                       variant="secondary"
                       size="sm"
@@ -164,7 +166,7 @@ const SupplierHeader = () => {
                       onClick={deleteModal.onOpen}
                     >
                       <DropdownMenuIcon icon={<LuTrash />} />
-                      Delete Supplier
+                      <Trans>Delete Supplier</Trans>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -184,7 +186,7 @@ const SupplierHeader = () => {
                     isLoading={requestApprovalFetcher.state !== "idle"}
                     onClick={submitRequestApproval}
                   >
-                    Request Approval
+                    <Trans>Request Approval</Trans>
                   </Button>
                 )}
               {status === "Active" && canApprove && (
@@ -195,7 +197,7 @@ const SupplierHeader = () => {
                   isDisabled={makeInactiveFetcher.state !== "idle"}
                   onClick={makeInactiveModal.onOpen}
                 >
-                  Make Inactive
+                  <Trans>Make Inactive</Trans>
                 </Button>
               )}
               {isPending && hasApprovalRequest && (
@@ -209,7 +211,7 @@ const SupplierHeader = () => {
                     }
                     onClick={() => setApprovalDecision("Approved")}
                   >
-                    Approve
+                    <Trans>Approve</Trans>
                   </Button>
                   <Button
                     leftIcon={<LuX />}
@@ -220,7 +222,7 @@ const SupplierHeader = () => {
                     }
                     onClick={() => setApprovalDecision("Rejected")}
                   >
-                    Reject
+                    <Trans>Reject</Trans>
                   </Button>
                 </>
               )}
@@ -229,7 +231,9 @@ const SupplierHeader = () => {
           <CardContent>
             <CardAttributes>
               <CardAttribute>
-                <CardAttributeLabel>Status</CardAttributeLabel>
+                <CardAttributeLabel>
+                  <Trans>Status</Trans>
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {routeData?.supplier?.status ? (
                     <SupplierStatusIndicator
@@ -241,13 +245,17 @@ const SupplierHeader = () => {
                 </CardAttributeValue>
               </CardAttribute>
               <CardAttribute>
-                <CardAttributeLabel>Type</CardAttributeLabel>
+                <CardAttributeLabel>
+                  <Trans>Type</Trans>
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {supplierType ? <Enumerable value={supplierType!} /> : "-"}
                 </CardAttributeValue>
               </CardAttribute>
               <CardAttribute>
-                <CardAttributeLabel>Account Manager</CardAttributeLabel>
+                <CardAttributeLabel>
+                  <Trans>Account Manager</Trans>
+                </CardAttributeLabel>
                 <CardAttributeValue>
                   {routeData?.supplier?.accountManagerId ? (
                     <EmployeeAvatar
@@ -262,7 +270,9 @@ const SupplierHeader = () => {
                 status === "Active" && (
                   <>
                     <CardAttribute>
-                      <CardAttributeLabel>Approved By</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Approved By</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         <EmployeeAvatar
                           employeeId={routeData.decision.decisionBy}
@@ -270,7 +280,9 @@ const SupplierHeader = () => {
                       </CardAttributeValue>
                     </CardAttribute>
                     <CardAttribute>
-                      <CardAttributeLabel>Approval Date</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Approval Date</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         {formatDate(routeData.decision.decisionAt)}
                       </CardAttributeValue>
@@ -281,7 +293,9 @@ const SupplierHeader = () => {
                 status === "Rejected" && (
                   <>
                     <CardAttribute>
-                      <CardAttributeLabel>Rejected By</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Rejected By</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         <EmployeeAvatar
                           employeeId={routeData.decision.decisionBy}
@@ -289,7 +303,9 @@ const SupplierHeader = () => {
                       </CardAttributeValue>
                     </CardAttribute>
                     <CardAttribute>
-                      <CardAttributeLabel>Rejected Date</CardAttributeLabel>
+                      <CardAttributeLabel>
+                        <Trans>Rejected Date</Trans>
+                      </CardAttributeLabel>
                       <CardAttributeValue>
                         {formatDate(routeData.decision.decisionAt)}
                       </CardAttributeValue>
@@ -308,7 +324,7 @@ const SupplierHeader = () => {
                     className="w-full"
                   >
                     <Tags
-                      label="Tags"
+                      label={t`Tags`}
                       name="tags"
                       availableTags={routeData?.tags ?? []}
                       table="supplier"
@@ -327,7 +343,7 @@ const SupplierHeader = () => {
           action={path.to.deleteSupplier(supplierId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.supplier?.name!}
-          text={`Are you sure you want to delete ${routeData?.supplier?.name!}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.supplier?.name!}? This cannot be undone.`}
           onCancel={deleteModal.onClose}
           onSubmit={deleteModal.onClose}
         />
@@ -342,14 +358,18 @@ const SupplierHeader = () => {
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>
-              <ModalTitle>Deactivate Supplier</ModalTitle>
+              <ModalTitle>
+                <Trans>Deactivate Supplier</Trans>
+              </ModalTitle>
             </ModalHeader>
             <ModalBody>
-              Are you sure you want to deactivate {routeData?.supplier?.name}?
+              <Trans>
+                Are you sure you want to deactivate {routeData?.supplier?.name}?
+              </Trans>
             </ModalBody>
             <ModalFooter>
               <Button variant="secondary" onClick={makeInactiveModal.onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 isLoading={makeInactiveFetcher.state !== "idle"}
@@ -359,7 +379,7 @@ const SupplierHeader = () => {
                   makeInactiveModal.onClose();
                 }}
               >
-                Deactivate
+                <Trans>Deactivate</Trans>
               </Button>
             </ModalFooter>
           </ModalContent>

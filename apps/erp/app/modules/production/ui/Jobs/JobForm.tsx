@@ -17,6 +17,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuDiamond, LuLayers } from "react-icons/lu";
 import type { z } from "zod";
@@ -63,6 +64,7 @@ type JobFormProps = {
 
 const JobForm = ({ initialValues }: JobFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { company } = useUser();
   const { carbon } = useCarbon();
   const [type, setType] = useState<MethodItemType>(
@@ -195,7 +197,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
       ]);
 
       if (parameters.error || groups.error) {
-        toast.error("Failed to load configuration parameters");
+        toast.error(t`Failed to load configuration parameters`);
         return;
       }
 
@@ -265,11 +267,11 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                       )}
                     >
                       {isEditing ? (
-                        <Input name="jobId" label="Job ID" isReadOnly />
+                        <Input name="jobId" label={t`Job ID`} isReadOnly />
                       ) : (
                         <SequenceOrCustomId
                           name="jobId"
-                          label="Job ID"
+                          label={t`Job ID`}
                           table="job"
                         />
                       )}
@@ -289,7 +291,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                       {isEditing && (
                         <InputControlled
                           name="description"
-                          label="Short Description"
+                          label={t`Short Description`}
                           value={itemData.description}
                           isReadOnly
                         />
@@ -297,7 +299,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
 
                       <NumberControlled
                         name="quantity"
-                        label="Quantity"
+                        label={t`Quantity`}
                         value={itemData.quantity}
                         onChange={(value) =>
                           setItemData((prev) => ({
@@ -312,7 +314,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                       />
                       <NumberControlled
                         name="scrapQuantity"
-                        label="Estimated Scrap Quantity"
+                        label={t`Estimated Scrap Quantity`}
                         value={itemData.scrapQuantity}
                         onChange={(value) =>
                           setItemData((prev) => ({
@@ -337,16 +339,16 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                           }
                         }}
                       />
-                      <Location name="locationId" label="Location" />
+                      <Location name="locationId" label={t`Location`} />
 
                       <DatePicker
                         name="dueDate"
-                        label="Due Date"
+                        label={t`Due Date`}
                         isDisabled={isCustomer}
                       />
                       <Select
                         name="deadlineType"
-                        label="Deadline Type"
+                        label={t`Deadline Type`}
                         options={deadlineTypes.map((d) => ({
                           value: d,
                           label: (
@@ -361,7 +363,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                       {isEditing && (
                         <Customer
                           name="customerId"
-                          label="Customer"
+                          label={t`Customer`}
                           isOptional
                         />
                       )}
@@ -407,7 +409,9 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                   defaultValues={bulkInitialValues}
                 >
                   <CardHeader>
-                    <CardTitle>Bulk Jobs</CardTitle>
+                    <CardTitle>
+                      <Trans>Bulk Jobs</Trans>
+                    </CardTitle>
                     <CardDescription>
                       The bulk jobs form creates multiple jobs for the same item
                       across multiple due dates.
@@ -446,7 +450,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
 
                         <NumberControlled
                           name="totalQuantity"
-                          label="Total Quantity"
+                          label={t`Total Quantity`}
                           value={itemData.quantity}
                           onChange={(value) =>
                             setItemData((prev) => ({
@@ -459,7 +463,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
 
                         <NumberControlled
                           name="quantityPerJob"
-                          label="Quantity Per Job"
+                          label={t`Quantity Per Job`}
                           value={itemData.quantityPerJob}
                           onChange={(value) =>
                             setItemData((prev) => ({
@@ -472,7 +476,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
 
                         <NumberControlled
                           name="scrapQuantityPerJob"
-                          label="Scrap Quantity Per Job"
+                          label={t`Scrap Quantity Per Job`}
                           value={itemData.scrapQuantity}
                           onChange={(value) =>
                             setItemData((prev) => ({
@@ -495,23 +499,23 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                             }
                           }}
                         />
-                        <Location name="locationId" label="Location" />
+                        <Location name="locationId" label={t`Location`} />
 
                         <DatePicker
                           name="dueDateOfFirstJob"
-                          label="Due Date of First Job"
+                          label={t`Due Date of First Job`}
                           isDisabled={isCustomer}
                         />
 
                         <DatePicker
                           name="dueDateOfLastJob"
-                          label="Due Date of Last Job"
+                          label={t`Due Date of Last Job`}
                           isDisabled={isCustomer}
                         />
 
                         <Select
                           name="deadlineType"
-                          label="Deadline Type"
+                          label={t`Deadline Type`}
                           options={deadlineTypes.map((d) => ({
                             value: d,
                             label: (
@@ -525,7 +529,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
 
                         <Customer
                           name="customerId"
-                          label="Customer"
+                          label={t`Customer`}
                           isOptional
                         />
 

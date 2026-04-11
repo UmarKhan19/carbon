@@ -14,6 +14,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -27,7 +29,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Items",
+  breadcrumb: msg`Items`,
   to: path.to.itemsSettings
 };
 
@@ -125,27 +127,41 @@ export default function ItemsSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Items</Heading>
+        <Heading size="h3">
+          <Trans>Items</Trans>
+        </Heading>
         <Card>
           <CardHeader>
-            <CardTitle>Material IDs</CardTitle>
+            <CardTitle>
+              <Trans>Material IDs</Trans>
+            </CardTitle>
             <CardDescription>
-              Generate material IDs and descriptions based on the properties of
-              the material.
+              <Trans>
+                Generate material IDs and descriptions based on the properties
+                of the material.
+              </Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {companySettings.materialGeneratedIds
-                    ? "Generated IDs are enabled"
-                    : "Generated IDs are disabled"}
+                  {companySettings.materialGeneratedIds ? (
+                    <Trans>Generated IDs are enabled</Trans>
+                  ) : (
+                    <Trans>Generated IDs are disabled</Trans>
+                  )}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {companySettings.materialGeneratedIds
-                    ? "IDs and descriptions are generated for raw materials."
-                    : "Enable to generate IDs and descriptions for raw materials."}
+                  {companySettings.materialGeneratedIds ? (
+                    <Trans>
+                      IDs and descriptions are generated for raw materials.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      Enable to generate IDs and descriptions for raw materials.
+                    </Trans>
+                  )}
                 </span>
               </VStack>
               <Switch
@@ -158,23 +174,31 @@ export default function ItemsSettingsRoute() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Metric</CardTitle>
+            <CardTitle>
+              <Trans>Metric</Trans>
+            </CardTitle>
             <CardDescription>
-              Use metric system for default material dimensions.
+              <Trans>Use metric system for default material dimensions.</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {(companySettings as any).useMetric
-                    ? "Metric units are enabled"
-                    : "Metric units are disabled"}
+                  {(companySettings as any).useMetric ? (
+                    <Trans>Metric units are enabled</Trans>
+                  ) : (
+                    <Trans>Metric units are disabled</Trans>
+                  )}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {(companySettings as any).useMetric
-                    ? "Material dimensions use metric units."
-                    : "Enable to use metric units for material dimensions."}
+                  {(companySettings as any).useMetric ? (
+                    <Trans>Material dimensions use metric units.</Trans>
+                  ) : (
+                    <Trans>
+                      Enable to use metric units for material dimensions.
+                    </Trans>
+                  )}
                 </span>
               </VStack>
               <Switch

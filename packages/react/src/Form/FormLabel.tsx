@@ -1,3 +1,4 @@
+import { Trans } from "@lingui/react/macro";
 import type { ComponentPropsWithoutRef, ElementRef } from "react";
 import { forwardRef } from "react";
 import { LuSquareFunction } from "react-icons/lu";
@@ -39,7 +40,9 @@ export const FormLabel = forwardRef<
       {(isOptional || onConfigure) && (
         <div className="flex items-center gap-1">
           {isOptional && (
-            <span className="text-muted-foreground text-xxs">Optional</span>
+            <span className="text-muted-foreground text-xxs">
+              <Trans>Optional</Trans>
+            </span>
           )}
           {onConfigure && (
             <LuSquareFunction

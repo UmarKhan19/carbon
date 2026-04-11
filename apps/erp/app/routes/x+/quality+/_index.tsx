@@ -33,6 +33,8 @@ import {
   ChartTooltipContent
 } from "@carbon/react/Chart";
 import { today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
@@ -75,7 +77,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Dashboard",
+  breadcrumb: msg`Dashboard`,
   to: path.to.quality
 };
 
@@ -278,6 +280,7 @@ export default function QualityDashboard() {
     assignedToMe
   } = useLoaderData<typeof loader>();
 
+  const { t } = useLingui();
   const [selectedChart, setSelectedChart] = useState("weeklyTracking");
   const [interval, setInterval] = useState("month");
   const [issueTypeId, setIssueTypeId] = useState("all");
@@ -293,12 +296,25 @@ export default function QualityDashboard() {
   const selectedChartData =
     QualityKPIs.find((c) => c.key === selectedChart) || QualityKPIs[0];
 
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      weeklyTracking: t`Issue Trend`,
+      statusDistribution: t`Status Distribution`,
+      paretoByType: t`Pareto by Type`,
+      ncrsByType: t`NCRs by Type`,
+      sourceAnalysis: t`Source Analysis`,
+      supplierQuality: t`Supplier Quality`,
+      weeksOpen: t`Weeks Open`
+    }),
+    [t]
+  );
+
   const typeOptions = useMemo(() => {
     return [
-      { label: "All Types", value: "all" },
-      ...issueTypes.map((t) => ({ label: t.name, value: t.id }))
+      { label: t`All Types`, value: "all" },
+      ...issueTypes.map((type) => ({ label: type.name, value: type.id }))
     ];
-  }, [issueTypes]);
+  }, [issueTypes, t]);
 
   const onIntervalChange = (value: string) => {
     const end = today("UTC");
@@ -338,8 +354,8 @@ export default function QualityDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedChartData.label.replace(/ /g, "_")}_${startDate}_to_${endDate}.csv`;
-  }, [dateRange, selectedChartData.label]);
+    return `${(kpiLabels[selectedChartData.key] ?? "").replace(/ /g, "_")}_${startDate}_to_${endDate}.csv`;
+  }, [dateRange, kpiLabels, selectedChartData.key]);
 
   // Chart data from fetcher
   const chartData = kpiFetcher.data?.data ?? [];
@@ -355,7 +371,9 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuCircleAlert className="text-muted-foreground" />
-            <CardTitle>Open Issues</CardTitle>
+            <CardTitle>
+              <Trans>Open Issues</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -370,7 +388,7 @@ export default function QualityDashboard() {
                 <Link
                   to={`${path.to.issues}?filter=status:in:${OPEN_ISSUE_STATUSES.join(",")}`}
                 >
-                  View
+                  <Trans>View</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -380,7 +398,9 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuShieldCheck className="text-muted-foreground" />
-            <CardTitle>Contained</CardTitle>
+            <CardTitle>
+              <Trans>Contained</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -395,7 +415,7 @@ export default function QualityDashboard() {
                 <Link
                   to={`${path.to.issues}?filter=containmentStatus:eq:Contained`}
                 >
-                  View
+                  <Trans>View</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -405,7 +425,9 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuClipboardList className="text-muted-foreground" />
-            <CardTitle>Open Actions</CardTitle>
+            <CardTitle>
+              <Trans>Open Actions</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -420,7 +442,7 @@ export default function QualityDashboard() {
                 <Link
                   to={`${path.to.qualityActions}?filter=status:in:Pending,In Progress`}
                 >
-                  View
+                  <Trans>View</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -430,14 +452,16 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuCalendarClock className="text-muted-foreground" />
-            <CardTitle>Avg Days to Close</CardTitle>
+            <CardTitle>
+              <Trans>Avg Days to Close</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <h3 className="text-5xl font-medium tracking-tighter">
               {avgDaysToClose !== null ? avgDaysToClose : "—"}
             </h3>
             <span className="text-xs text-muted-foreground">
-              in selected period
+              <Trans>in selected period</Trans>
             </span>
           </CardContent>
         </Card>
@@ -455,7 +479,7 @@ export default function QualityDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedChartData.label}</span>
+                    <span>{kpiLabels[selectedChartData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -465,7 +489,7 @@ export default function QualityDashboard() {
                   >
                     {QualityKPIs.map((chart) => (
                       <DropdownMenuRadioItem key={chart.key} value={chart.key}>
-                        {chart.label}
+                        {kpiLabels[chart.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>
@@ -493,7 +517,7 @@ export default function QualityDashboard() {
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label="More"
+                  aria-label={t`More`}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -504,7 +528,7 @@ export default function QualityDashboard() {
                     className="flex flex-row items-center gap-2"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    Export CSV
+                    <Trans>Export CSV</Trans>
                   </CSVLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -613,7 +637,7 @@ export default function QualityDashboard() {
                                 y={(viewBox.cy ?? 0) + 20}
                                 className="fill-muted-foreground text-xs"
                               >
-                                Total
+                                {t`Total`}
                               </tspan>
                             </text>
                           );
@@ -868,7 +892,9 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuClock className="text-muted-foreground" />
-            <CardTitle>Recently Created</CardTitle>
+            <CardTitle>
+              <Trans>Recently Created</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="min-h-[200px] max-h-[360px] w-full overflow-y-auto">
@@ -886,17 +912,25 @@ export default function QualityDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuInbox className="text-muted-foreground" />
-            <CardTitle>Assigned to Me</CardTitle>
+            <CardTitle>
+              <Trans>Assigned to Me</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <Suspense
               fallback={
-                <div className="p-4 text-muted-foreground">Loading...</div>
+                <div className="p-4 text-muted-foreground">
+                  <Trans>Loading...</Trans>
+                </div>
               }
             >
               <Await
                 resolve={assignedToMe}
-                errorElement={<div>Error loading assigned issues</div>}
+                errorElement={
+                  <div>
+                    <Trans>Error loading assigned issues</Trans>
+                  </div>
+                }
               >
                 {(assignedIssues) =>
                   assignedIssues.length > 0 ? (
@@ -932,9 +966,15 @@ function IssueTable({
     <Table>
       <Thead>
         <Tr>
-          <Th>Issue</Th>
-          <Th>Status</Th>
-          <Th>Priority</Th>
+          <Th>
+            <Trans>Issue</Trans>
+          </Th>
+          <Th>
+            <Trans>Status</Trans>
+          </Th>
+          <Th>
+            <Trans>Priority</Trans>
+          </Th>
         </Tr>
       </Thead>
       <Tbody>

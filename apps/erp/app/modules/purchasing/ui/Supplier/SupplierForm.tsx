@@ -12,6 +12,7 @@ import {
   ModalCardTitle,
   toast
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -46,6 +47,7 @@ const SupplierForm = ({
   type = "card",
   onClose
 }: SupplierFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<Supplier>>();
   const settings = useSettings();
@@ -109,40 +111,45 @@ const SupplierForm = ({
                         : "grid-cols-1 md:grid-cols-2"
                   )}
                 >
-                  <Input autoFocus={!isEditing} name="name" label="Name" />
+                  <Input autoFocus={!isEditing} name="name" label={t`Name`} />
                   <SupplierStatus
                     name="supplierStatus"
-                    label="Supplier Status"
-                    placeholder="Select Supplier Status"
+                    label={t`Supplier Status`}
+                    placeholder={t`Select Supplier Status`}
                     disabled={supplierApprovalRequired}
                   />
                   <SupplierType
                     name="supplierTypeId"
-                    label="Supplier Type"
-                    placeholder="Select Supplier Type"
+                    label={t`Supplier Type`}
+                    placeholder={t`Select Supplier Type`}
                   />
-                  <Employee name="accountManagerId" label="Account Manager" />
+                  <Employee
+                    name="accountManagerId"
+                    label={t`Account Manager`}
+                  />
                   {isEditing && (
                     <>
                       <SupplierContact
                         supplier={initialValues.id}
                         name="purchasingContactId"
-                        label="Purchasing Contact"
+                        label={t`Purchasing Contact`}
                       />
                     </>
                   )}
-                  <Currency name="currencyCode" label="Currency" />
-                  <Input name="taxId" label="Tax ID" />
-                  <Input name="vatNumber" label="VAT Number" />
-                  <Input name="website" label="Website" />
+                  <Currency name="currencyCode" label={t`Currency`} />
+                  <Input name="taxId" label={t`Tax ID`} />
+                  <Input name="vatNumber" label={t`VAT Number`} />
+                  <Input name="website" label={t`Website`} />
 
-                  {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}
+                  {/* <EmailRecipients name="defaultCc" label={t`Default CC`} /> */}
                   <CustomFormFields table="supplier" />
                 </div>
               </ModalCardBody>
               <ModalCardFooter>
                 <HStack>
-                  <Submit isDisabled={isDisabled}>Save</Submit>
+                  <Submit isDisabled={isDisabled}>
+                    <Trans>Save</Trans>
+                  </Submit>
                 </HStack>
               </ModalCardFooter>
             </ValidatedForm>

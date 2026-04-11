@@ -1,5 +1,6 @@
 import { useChatActions, useChatId } from "@ai-sdk-tools/store";
 import { cn, IconButton } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { LuZap } from "react-icons/lu";
 import { useChatStore } from "./lib/store";
 
@@ -91,6 +92,7 @@ export function SuggestedActions() {
 }
 
 export function SuggestedActionsButton() {
+  const { t } = useLingui();
   const { showCommands, setShowCommands } = useChatStore();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -110,7 +112,7 @@ export function SuggestedActionsButton() {
 
   return (
     <IconButton
-      aria-label="Suggested Actions"
+      aria-label={t`Suggested Actions`}
       icon={<LuZap />}
       variant="ghost"
       type="button"

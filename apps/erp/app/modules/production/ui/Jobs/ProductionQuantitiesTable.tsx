@@ -1,5 +1,6 @@
 import { Badge, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDateTime } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -27,6 +28,7 @@ const ProductionQuantitiesTable = memo(
     scrapReasons
   }: ProductionQuantitiesTableProps) => {
     const { jobId } = useParams();
+    const { t } = useLingui();
     if (!jobId) throw new Error("Job ID is required");
     const [people] = usePeople();
 
@@ -34,7 +36,7 @@ const ProductionQuantitiesTable = memo(
       return [
         {
           accessorKey: "jobOperationId",
-          header: "Operation",
+          header: t`Operation`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               {row.original.jobOperation?.description ?? null}
@@ -52,7 +54,7 @@ const ProductionQuantitiesTable = memo(
         },
         {
           id: "item",
-          header: "Item",
+          header: t`Item`,
           cell: ({ row }) => {
             return row.original.jobOperation?.jobMakeMethod?.item
               ?.readableIdWithRevision;
@@ -60,7 +62,7 @@ const ProductionQuantitiesTable = memo(
         },
         {
           accessorKey: "createdBy",
-          header: "Employee",
+          header: t`Employee`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -76,7 +78,7 @@ const ProductionQuantitiesTable = memo(
         },
         {
           accessorKey: "type",
-          header: "Type",
+          header: t`Type`,
           cell: ({ row }) => (
             <Badge
               variant={
@@ -114,12 +116,12 @@ const ProductionQuantitiesTable = memo(
         },
         {
           accessorKey: "quantity",
-          header: "Quantity",
+          header: t`Quantity`,
           cell: ({ row }) => row.original.quantity
         },
         {
           accessorKey: "scrapReasonId",
-          header: "Scrap Reason",
+          header: t`Scrap Reason`,
           cell: ({ row }) => {
             const scrapReason = scrapReasons.find(
               (reason) => reason.id === row.original.scrapReasonId
@@ -138,7 +140,7 @@ const ProductionQuantitiesTable = memo(
         },
         {
           accessorKey: "notes",
-          header: "Notes",
+          header: t`Notes`,
           cell: ({ row }) => (
             <span className="max-w-[200px] truncate block">
               {row.original.notes}
@@ -147,11 +149,11 @@ const ProductionQuantitiesTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: ({ row }) => formatDateTime(row.original.createdAt)
         }
       ];
-    }, [operations, people, scrapReasons]);
+    }, [operations, people, scrapReasons, t]);
 
     const permissions = usePermissions();
 
@@ -209,13 +211,13 @@ const ProductionQuantitiesTable = memo(
           primaryAction={
             permissions.can("create", "production") && (
               <New
-                label="Production Quantity"
+                label={t`Production Quantity`}
                 to={`new?${params.toString()}`}
               />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Production Quantities"
+          title={t`Production Quantities`}
         />
         {deleteModal.isOpen && selectedEvent && (
           <ConfirmDelete

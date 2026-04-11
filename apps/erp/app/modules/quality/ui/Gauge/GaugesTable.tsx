@@ -1,5 +1,6 @@
 import { MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -63,6 +64,7 @@ const defaultColumnVisibility = {
 const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
   const [params] = useUrlParams();
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const deleteDisclosure = useDisclosure();
@@ -80,7 +82,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
     const defaultColumns: ColumnDef<Gauge>[] = [
       {
         accessorKey: "gaugeId",
-        header: "ID",
+        header: t`ID`,
         cell: ({ row }) => (
           <Hyperlink to={path.to.gauge(row.original.id!)}>
             <div className="flex flex-col gap-0">
@@ -99,7 +101,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         id: "supplierId",
-        header: "Manufacturer",
+        header: t`Manufacturer`,
         cell: ({ row }) => {
           return <SupplierAvatar supplierId={row.original.supplierId} />;
         },
@@ -117,7 +119,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
 
       {
         accessorKey: "gaugeTypeId",
-        header: "Type",
+        header: t`Type`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -139,7 +141,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "gaugeCalibrationStatus",
-        header: "Calibration Status",
+        header: t`Calibration Status`,
         cell: ({ row }) => (
           <GaugeCalibrationStatus
             status={row.original.gaugeCalibrationStatus}
@@ -158,7 +160,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "modelNumber",
-        header: "Model Number",
+        header: t`Model Number`,
         cell: ({ row }) => row.original.modelNumber,
         meta: {
           icon: <LuHash />
@@ -166,7 +168,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "serialNumber",
-        header: "Serial Number",
+        header: t`Serial Number`,
         cell: ({ row }) => row.original.serialNumber,
         meta: {
           icon: <LuHash />
@@ -174,7 +176,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "gaugeRole",
-        header: "Role",
+        header: t`Role`,
         cell: ({ row }) => <GaugeRole role={row.original.gaugeRole} />,
         meta: {
           icon: <LuShield />,
@@ -189,7 +191,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "gaugeStatus",
-        header: "Status",
+        header: t`Status`,
         cell: ({ row }) => <GaugeStatus status={row.original.gaugeStatus} />,
         meta: {
           icon: <LuCircleGauge />,
@@ -205,7 +207,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
 
       {
         accessorKey: "nextCalibrationDate",
-        header: "Next Calibration",
+        header: t`Next Calibration`,
         cell: ({ row }) => formatDate(row.original.nextCalibrationDate),
         meta: {
           icon: <LuCalendar />
@@ -213,7 +215,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "lastCalibrationDate",
-        header: "Last Calibration",
+        header: t`Last Calibration`,
         cell: ({ row }) => formatDate(row.original.lastCalibrationDate),
         meta: {
           icon: <LuCalendar />
@@ -221,7 +223,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "locationId",
-        header: "Location",
+        header: t`Location`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -244,7 +246,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -261,7 +263,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuFileText />
@@ -269,7 +271,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t`Updated By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -286,7 +288,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t`Updated At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuFileText />
@@ -294,7 +296,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns, locations, people, suppliers, types]);
+  }, [customColumns, locations, people, suppliers, types, t]);
 
   const renderContextMenu = useCallback(
     (row: Gauge) => {
@@ -373,13 +375,13 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
         primaryAction={
           permissions.can("create", "quality") && (
             <New
-              label="Gauge"
+              label={t`Gauge`}
               to={`${path.to.newGauge}?${params?.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Gauges"
+        title={t`Gauges`}
         table="gauge"
         withSavedView
       />
@@ -396,7 +398,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
             deleteDisclosure.onClose();
           }}
           name={selectedGauge.gaugeId ?? "gauge"}
-          text="Are you sure you want to delete this gauge?"
+          text={t`Are you sure you want to delete this gauge?`}
         />
       )}
       {deleteDisclosure.isOpen && selectedGauge && (
@@ -412,7 +414,7 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
             deleteDisclosure.onClose();
           }}
           name={selectedGauge.gaugeId ?? "gauge"}
-          text="Are you sure you want to delete this gauge?"
+          text={t`Are you sure you want to delete this gauge?`}
         />
       )}
       {activateDisclosure.isOpen && selectedGauge && (
@@ -427,9 +429,9 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
             setSelectedGauge(null);
             activateDisclosure.onClose();
           }}
-          text="Are you sure you want to activate this gauge?."
+          text={t`Are you sure you want to activate this gauge?.`}
           title={`Activate ${selectedGauge.gaugeId}`}
-          confirmText={"Activate"}
+          confirmText={t`Activate`}
         />
       )}
       {deactivateDisclosure.isOpen && selectedGauge && (
@@ -444,9 +446,9 @@ const GaugesTable = memo(({ data, types, count }: GaugesTableProps) => {
             setSelectedGauge(null);
             deactivateDisclosure.onClose();
           }}
-          text="Are you sure you want to deactivate this gauge?."
+          text={t`Are you sure you want to deactivate this gauge?.`}
           title={`Deactivate ${selectedGauge.gaugeId}`}
-          confirmText={"Deactivate"}
+          confirmText={t`Deactivate`}
         />
       )}
     </>

@@ -17,6 +17,8 @@ import {
   ToggleGroupItem,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import {
   LuCalendar,
@@ -35,7 +37,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Detail",
+  breadcrumb: msg`Detail`,
   to: path.to.trainingAssignments
 };
 
@@ -95,25 +97,29 @@ function StatusBadge({ status }: { status: string }) {
       return (
         <Badge variant="green">
           <LuCircleCheck className="mr-1" />
-          Completed
+          <Trans>Completed</Trans>
         </Badge>
       );
     case "Pending":
       return (
         <Badge variant="secondary">
           <LuClock className="mr-1" />
-          Pending
+          <Trans>Pending</Trans>
         </Badge>
       );
     case "Overdue":
       return (
         <Badge variant="red">
           <LuTriangleAlert className="mr-1" />
-          Overdue
+          <Trans>Overdue</Trans>
         </Badge>
       );
     case "Not Required":
-      return <Badge variant="outline">Not Required</Badge>;
+      return (
+        <Badge variant="outline">
+          <Trans>Not Required</Trans>
+        </Badge>
+      );
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }
@@ -152,7 +158,7 @@ function AssignmentListItem({
               <HStack spacing={1} className="text-xs text-muted-foreground">
                 <LuCalendar className="size-3" />
                 <span>
-                  Started{" "}
+                  <Trans>Started</Trans>{" "}
                   {new Date(assignment.employeeStartDate).toLocaleDateString()}
                 </span>
               </HStack>
@@ -188,7 +194,7 @@ function AssignmentListItem({
                 isLoading={isSubmitting}
                 leftIcon={<LuCircleCheck />}
               >
-                Mark Complete
+                <Trans>Mark Complete</Trans>
               </Button>
             </fetcher.Form>
           )}
@@ -199,6 +205,7 @@ function AssignmentListItem({
 }
 
 export default function TrainingAssignmentDetailRoute() {
+  const { t } = useLingui();
   const { training, assignments } = useLoaderData<typeof loader>();
   const permissions = usePermissions();
   const navigate = useNavigate();
@@ -253,7 +260,7 @@ export default function TrainingAssignmentDetailRoute() {
               <div className="relative">
                 <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search employees..."
+                  placeholder={t`Search employees...`}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-9"
@@ -272,7 +279,7 @@ export default function TrainingAssignmentDetailRoute() {
                   size="sm"
                   value="All"
                 >
-                  All <Count count={assignments.length} />
+                  <Trans>All</Trans> <Count count={assignments.length} />
                 </ToggleGroupItem>
                 <ToggleGroupItem
                   className="flex gap-1.5 items-center"
@@ -280,7 +287,7 @@ export default function TrainingAssignmentDetailRoute() {
                   value="Completed"
                 >
                   <LuCircleCheck className="mr-1 size-3" />
-                  Completed{" "}
+                  <Trans>Completed</Trans>{" "}
                   {/** biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration */}
                   <Count count={statusCounts["Completed"] || 0} />
                 </ToggleGroupItem>
@@ -290,7 +297,7 @@ export default function TrainingAssignmentDetailRoute() {
                   value="Pending"
                 >
                   <LuClock className="mr-1 size-3" />
-                  Pending{" "}
+                  <Trans>Pending</Trans>{" "}
                   {/** biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration */}
                   <Count count={statusCounts["Pending"] || 0} />
                 </ToggleGroupItem>
@@ -300,7 +307,7 @@ export default function TrainingAssignmentDetailRoute() {
                   value="Overdue"
                 >
                   <LuTriangleAlert className="mr-1 size-3" />
-                  Overdue{" "}
+                  <Trans>Overdue</Trans>{" "}
                   {/** biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration */}
                   <Count count={statusCounts["Overdue"] || 0} />
                 </ToggleGroupItem>
@@ -309,7 +316,7 @@ export default function TrainingAssignmentDetailRoute() {
                   size="sm"
                   value="Not Required"
                 >
-                  Not Required{" "}
+                  <Trans>Not Required</Trans>{" "}
                   <Count count={statusCounts["Not Required"] || 0} />
                 </ToggleGroupItem>
               </ToggleGroup>
@@ -333,14 +340,16 @@ export default function TrainingAssignmentDetailRoute() {
                     spacing={2}
                     className="w-full items-center justify-center"
                   >
-                    <Empty>No employees found</Empty>
+                    <Empty>
+                      <Trans>No employees found</Trans>
+                    </Empty>
                     {search && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setSearch("")}
                       >
-                        Clear search
+                        <Trans>Clear search</Trans>
                       </Button>
                     )}
                   </VStack>

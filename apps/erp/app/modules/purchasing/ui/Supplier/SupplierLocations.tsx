@@ -7,6 +7,7 @@ import {
   HStack,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -22,6 +23,7 @@ type SupplierLocationsProps = {
 };
 
 const SupplierLocations = ({ locations }: SupplierLocationsProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const { supplierId } = useParams();
   if (!supplierId) throw new Error("supplierId not found");
@@ -37,7 +39,7 @@ const SupplierLocations = ({ locations }: SupplierLocationsProps) => {
       const actions = [];
       if (permissions.can("update", "purchasing")) {
         actions.push({
-          label: "Edit Location",
+          label: t`Edit Location`,
           icon: <LuPencil />,
           onClick: () => {
             navigate(location.id);
@@ -46,7 +48,7 @@ const SupplierLocations = ({ locations }: SupplierLocationsProps) => {
       }
       if (permissions.can("delete", "purchasing")) {
         actions.push({
-          label: "Delete Location",
+          label: t`Delete Location`,
           icon: <LuTrash />,
           destructive: true,
           onClick: () => {
@@ -58,7 +60,7 @@ const SupplierLocations = ({ locations }: SupplierLocationsProps) => {
 
       if (permissions.can("create", "resources")) {
         actions.push({
-          label: "Add Partner",
+          label: t`Add Partner`,
           icon: <IoMdAdd />,
           onClick: () => {
             navigate(
@@ -70,7 +72,7 @@ const SupplierLocations = ({ locations }: SupplierLocationsProps) => {
 
       return actions;
     },
-    [permissions, deleteLocationModal, navigate, supplierId]
+    [permissions, deleteLocationModal, navigate, supplierId, t]
   );
 
   return (
@@ -78,7 +80,9 @@ const SupplierLocations = ({ locations }: SupplierLocationsProps) => {
       <Card>
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Locations</CardTitle>
+            <CardTitle>
+              <Trans>Locations</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>{canEdit && <New to="new" />}</CardAction>
         </HStack>

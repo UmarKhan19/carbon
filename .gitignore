@@ -14,7 +14,7 @@ dist-ssr
 server/dist
 public/dist
 vite.config.ts.timestamp*
-
+.mcp.json
 opencode.json
 
 scripts/migrations/data

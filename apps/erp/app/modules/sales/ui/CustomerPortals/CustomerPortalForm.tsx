@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -34,6 +35,7 @@ const CustomerPortalForm = ({
   type = "drawer",
   onClose
 }: CustomerPortalFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -42,13 +44,13 @@ const CustomerPortalForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created customer portal`);
+      toast.success(t`Created customer portal`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create customer portal: ${fetcher.data.error.message}`
+        t`Failed to create customer portal: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -78,22 +80,25 @@ const CustomerPortalForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Customer Portal
+                {isEditing ? <Trans>Edit</Trans> : <Trans>New</Trans>}{" "}
+                <Trans>Customer Portal</Trans>
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Customer name="customerId" label="Customer" />
+                <Customer name="customerId" label={t`Customer`} />
                 <CustomFormFields table="externalLink" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

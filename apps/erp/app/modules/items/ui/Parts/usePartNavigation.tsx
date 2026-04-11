@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuBox,
   LuChartLine,
@@ -13,6 +14,7 @@ import { path } from "~/utils/path";
 import type { PartSummary } from "../../types";
 
 export function usePartNavigation() {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
@@ -30,13 +32,13 @@ export function usePartNavigation() {
 
   return [
     {
-      name: "Details",
+      name: t`Details`,
       to: path.to.partDetails(itemId),
       icon: LuFileText,
       shortcut: "Command+Shift+d"
     },
     {
-      name: "Purchasing",
+      name: t`Purchasing`,
       to: path.to.partPurchasing(itemId),
       isDisabled: replenishment === "Make",
       role: ["employee", "supplier"],
@@ -45,7 +47,7 @@ export function usePartNavigation() {
       shortcut: "Command+Shift+p"
     },
     {
-      name: "Accounting",
+      name: t`Accounting`,
       to: path.to.partCosting(itemId),
       role: ["employee"],
       permission: "purchasing",
@@ -53,7 +55,7 @@ export function usePartNavigation() {
       shortcut: "Command+Shift+a"
     },
     {
-      name: "Planning",
+      name: t`Planning`,
       to: path.to.partPlanning(itemId),
       isDisabled: itemTrackingType === "Non-Inventory",
       role: ["employee"],
@@ -61,7 +63,7 @@ export function usePartNavigation() {
       shortcut: "Command+Shift+p"
     },
     {
-      name: "Inventory",
+      name: t`Inventory`,
       to: path.to.partInventory(itemId),
       isDisabled: itemTrackingType === "Non-Inventory",
       role: ["employee", "supplier"],
@@ -69,7 +71,7 @@ export function usePartNavigation() {
       shortcut: "Command+Shift+i"
     },
     {
-      name: "Sales",
+      name: t`Sales`,
       to: path.to.partSales(itemId),
       role: ["employee", "customer"],
       icon: LuReceipt,

@@ -100,7 +100,6 @@ import {
   recalculateJobRequirements,
   recalculateJobMakeMethodRequirements,
   runMRP,
-  triggerJobSchedule,
   updateJobBatchNumber,
   updateJobStatus,
   updateJobMaterialOrder,
@@ -139,6 +138,7 @@ import {
   upsertMaintenanceScheduleItem,
   upsertDemandForecasts,
   upsertDemandProjections,
+  triggerJobSchedule,
 } from "~/modules/production/production.service";
 import {
   productionEventValidator,
@@ -2257,22 +2257,15 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     {
       description: "trigger job schedule",
       inputSchema: {
-        jobId: z.string(),
-        mode: z.string().optional(),
-        direction: z.string().optional()
-      },
-      annotations: WRITE_ANNOTATIONS
+      jobId: z.string(),
+      mode: z.string().optional(),
+      direction: z.string().optional(),
+    },
+      annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await triggerJobSchedule(
-        ctx.client,
-        params.jobId,
-        ctx.companyId,
-        ctx.userId,
-        params.mode,
-        params.direction
-      );
+      const result = await triggerJobSchedule(ctx.client, params.jobId, ctx.companyId, ctx.userId, params.mode, params.direction);
       return toMcpResult(result);
-    }, "Failed: production_triggerJobSchedule")
+    }, "Failed: production_triggerJobSchedule"),
   );
 };
