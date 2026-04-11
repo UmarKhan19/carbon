@@ -12,7 +12,7 @@ RUN npm install --legacy-peer-deps
 
 FROM deps AS build
 ARG NODE_OPTIONS
-ENV NODE_OPTIONS=${NODE_OPTIONS:-"--max-old-space-size=4096"}
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 # Build only MES and its deps
 RUN npx turbo run build --filter=./apps/mes
 
