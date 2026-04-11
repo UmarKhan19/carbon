@@ -361,7 +361,7 @@ const PriceListProperties = () => {
 
         <VStack spacing={1}>
           <p className="text-xs text-muted-foreground font-medium">Version</p>
-          <span>v{priceList?.version ?? 1}</span>
+          <span>Version {priceList?.version ?? 1}</span>
         </VStack>
 
         <VStack spacing={1}>

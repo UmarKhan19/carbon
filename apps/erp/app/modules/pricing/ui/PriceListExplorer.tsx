@@ -265,7 +265,7 @@ export function PriceListExplorer({
       versions.filter((v) => {
         if (!q) return true;
         return (
-          `v${v.version}`.toLowerCase().includes(q) ||
+          `Version ${v.version}`.toLowerCase().includes(q) ||
           v.status.toLowerCase().includes(q)
         );
       }),
@@ -306,7 +306,9 @@ export function PriceListExplorer({
                     className="mr-2"
                   />
                   <LuTag className="size-4 text-muted-foreground flex-shrink-0 mr-2" />
-                  <span className="truncate flex-grow">v{version.version}</span>
+                  <span className="truncate flex-grow">
+                    Version {version.version}
+                  </span>
                   <span className="flex-shrink-0">
                     <PriceListStatus
                       status={version.status as PriceListStatusType}

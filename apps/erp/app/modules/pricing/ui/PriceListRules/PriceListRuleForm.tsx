@@ -178,7 +178,7 @@ const PriceListRuleForm = ({
                     {
                       value: "category",
                       title: "Item Group",
-                      description: "Target an item posting group.",
+                      description: "Target an item group.",
                       icon: <LuBoxes />
                     }
                   ]}
