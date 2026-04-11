@@ -13,7 +13,10 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { getIntegration, IntegrationForm } from "~/modules/settings";
-import { upsertCompanyIntegration } from "~/modules/settings/settings.server";
+import {
+  invalidateIntegrationHealthCache,
+  upsertCompanyIntegration
+} from "~/modules/settings/settings.server";
 import { path } from "~/utils/path";
 
 /**
@@ -294,6 +297,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
     }
   }
+
+  await invalidateIntegrationHealthCache(integrationId, companyId);
 
   throw redirect(
     path.to.integrations,

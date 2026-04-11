@@ -107,7 +107,7 @@ export const Email = defineIntegration({
       name: "secure",
       label: "Use TLS",
       description:
-        "Enable implicit TLS (port 465). Leave off for STARTTLS on port 587 — nodemailer will upgrade the connection automatically.",
+        "For implicit TLS (SMTPS) — ports 465 or 2465. Leave off for STARTTLS — ports 25, 587, 2525, or 2587.",
       type: "switch",
       required: false,
       value: false,

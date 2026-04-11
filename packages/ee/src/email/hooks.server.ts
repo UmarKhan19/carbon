@@ -50,9 +50,6 @@ export async function emailHealthcheck(
       const transporter = nodemailer.createTransport({
         host: data.host,
         port: data.port,
-        // The schema guarantees a boolean here — respect the user's
-        // choice so nodemailer uses implicit TLS (secure=true, port 465)
-        // or STARTTLS (secure=false, port 587) as configured.
         secure: data.secure,
         auth: {
           user: data.username,
