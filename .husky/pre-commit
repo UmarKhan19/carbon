@@ -6,5 +6,5 @@ npx lint-staged
 # Regenerate MCP tools if any .service.ts file was modified
 if git diff --cached --name-only | grep -q '\.service\.ts$'; then
   npx tsx scripts/generate-mcp.ts
-  git add apps/erp/app/routes/api+/mcp+/lib/tools/ llm/cache/mcp-tools-reference.md
+  git add apps/erp/app/routes/api+/mcp+/lib/tools/ apps/erp/app/routes/api+/mcp+/lib/server.ts llm/cache/mcp-tools-reference.md
 fi

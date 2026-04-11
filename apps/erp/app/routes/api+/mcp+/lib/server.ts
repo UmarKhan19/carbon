@@ -10,6 +10,7 @@ import {
   registerInvoicingTools,
   registerItemsTools,
   registerPeopleTools,
+  registerPricingTools,
   registerProductionTools,
   registerPurchasingTools,
   registerQualityTools,
@@ -30,21 +31,22 @@ Today is ${today}.
 
 ## Tool Organization
 Tools are namespaced by module — use the prefix to discover related tools:
-- accounting_* — 27 read, 8 write, 4 delete tools
-- settings_* — 26 read, 40 write, 2 delete tools
-- sales_* — 78 read, 54 write, 18 delete tools
-- quality_* — 38 read, 19 write, 11 delete tools
-- purchasing_* — 51 read, 34 write, 11 delete tools
-- resources_* — 47 read, 27 write, 20 delete tools
-- shared_* — 20 read, 20 write, 4 delete tools
-- inventory_* — 45 read, 15 write, 12 delete tools
-- users_* — 17 read, 6 write, 2 delete tools
-- people_* — 24 read, 14 write, 6 delete tools
-- production_* — 62 read, 45 write, 22 delete tools
-- documents_* — 4 read, 7 write, 3 delete tools
 - account_* — 6 read, 3 write, 1 delete tools
-- items_* — 75 read, 44 write, 17 delete tools
+- accounting_* — 27 read, 8 write, 4 delete tools
+- documents_* — 4 read, 7 write, 3 delete tools
+- inventory_* — 45 read, 15 write, 12 delete tools
 - invoicing_* — 11 read, 13 write, 4 delete tools
+- items_* — 75 read, 44 write, 17 delete tools
+- people_* — 24 read, 14 write, 6 delete tools
+- pricing_* — 19 read, 14 write, 4 delete tools
+- production_* — 62 read, 45 write, 22 delete tools
+- purchasing_* — 51 read, 34 write, 11 delete tools
+- quality_* — 38 read, 19 write, 11 delete tools
+- resources_* — 47 read, 27 write, 20 delete tools
+- sales_* — 78 read, 54 write, 18 delete tools
+- settings_* — 26 read, 40 write, 2 delete tools
+- shared_* — 20 read, 20 write, 4 delete tools
+- users_* — 17 read, 6 write, 2 delete tools
 
 ## Key Patterns
 - All monetary amounts use the company's base currency unless specified.
@@ -67,21 +69,22 @@ export function createMcpServer(ctx: McpContext): McpServer {
     },
   );
 
-  registerAccountingTools(server, ctx);
-  registerSettingsTools(server, ctx);
-  registerSalesTools(server, ctx);
-  registerQualityTools(server, ctx);
-  registerPurchasingTools(server, ctx);
-  registerResourcesTools(server, ctx);
-  registerSharedTools(server, ctx);
-  registerInventoryTools(server, ctx);
-  registerUsersTools(server, ctx);
-  registerPeopleTools(server, ctx);
-  registerProductionTools(server, ctx);
-  registerDocumentsTools(server, ctx);
   registerAccountTools(server, ctx);
-  registerItemsTools(server, ctx);
+  registerAccountingTools(server, ctx);
+  registerDocumentsTools(server, ctx);
+  registerInventoryTools(server, ctx);
   registerInvoicingTools(server, ctx);
+  registerItemsTools(server, ctx);
+  registerPeopleTools(server, ctx);
+  registerPricingTools(server, ctx);
+  registerProductionTools(server, ctx);
+  registerPurchasingTools(server, ctx);
+  registerQualityTools(server, ctx);
+  registerResourcesTools(server, ctx);
+  registerSalesTools(server, ctx);
+  registerSettingsTools(server, ctx);
+  registerSharedTools(server, ctx);
+  registerUsersTools(server, ctx);
 
   return server;
 }
