@@ -12,7 +12,7 @@ export const priceListTypes = ["Sales"] as const;
 
 export const priceListPriceTypes = ["Gross", "Net", "Discounted"] as const;
 
-export const priceListRuleTypes = ["Discount", "Surcharge"] as const;
+export const priceListRuleTypes = ["Discount", "Markup"] as const;
 
 export const priceListRuleAmountTypes = ["Percentage", "Fixed"] as const;
 

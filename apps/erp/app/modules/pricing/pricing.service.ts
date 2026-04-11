@@ -957,7 +957,7 @@ export function specificityScore(
  *
  * Discounts: best-rate-wins, non-stacking. If the price list type is
  * "Discounted", discount rules are skipped entirely.
- * Surcharges: all stack additively.
+ * Markups: all stack additively.
  * Final price is clamped to >= 0.
  */
 export function applyPriceRules(
@@ -968,7 +968,7 @@ export function applyPriceRules(
   const appendedTrace: PriceTraceStep[] = [];
   let finalPrice = basePrice;
 
-  const surchargeRules = matchedRules.filter((r) => r.ruleType === "Surcharge");
+  const surchargeRules = matchedRules.filter((r) => r.ruleType === "Markup");
 
   const discountRules =
     winningPriceType === "Discounted"
@@ -1014,14 +1014,14 @@ export function applyPriceRules(
     }
   }
 
-  // Surcharges: all stack additively
+  // Markups: all stack additively
   for (const rule of surchargeRules) {
     const adjustment =
       rule.amountType === "Percentage" ? basePrice * rule.amount : rule.amount;
 
     finalPrice += adjustment;
     appendedTrace.push({
-      step: "Surcharge",
+      step: "Markup",
       source: `Rule: ${rule.name}`,
       amount: finalPrice,
       adjustment

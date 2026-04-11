@@ -172,7 +172,7 @@ const PriceListRuleForm = ({
                     {
                       value: "item",
                       title: "Specific Item",
-                      description: "Target one item by SKU.",
+                      description: "Target one item.",
                       icon: <LuPackage />
                     },
                     {
@@ -201,7 +201,7 @@ const PriceListRuleForm = ({
                     <input type="hidden" name="itemId" value="" />
                     <ItemPostingGroup
                       name="itemPostingGroupId"
-                      label="Item Category"
+                      label="Item Group"
                     />
                   </>
                 )}

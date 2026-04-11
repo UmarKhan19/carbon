@@ -140,7 +140,7 @@ const PriceListRulesTable = ({ data }: PriceListRulesTableProps) => {
             parts.push(`Qty <= ${row.original.maxQuantity}`);
           if (row.original.customerTypeId) parts.push("Customer Type");
           if (row.original.itemId) parts.push("Item");
-          if (row.original.itemPostingGroupId) parts.push("Category");
+          if (row.original.itemPostingGroupId) parts.push("Item Group");
           return parts.length > 0 ? parts.join(", ") : "All";
         }
       },

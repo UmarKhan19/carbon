@@ -2,7 +2,7 @@
 
 CREATE TYPE "priceListStatus" AS ENUM ('Draft', 'Active', 'Expired', 'Archived');
 CREATE TYPE "priceListPriceType" AS ENUM ('Gross', 'Net', 'Discounted');
-CREATE TYPE "priceListRuleType" AS ENUM ('Discount', 'Surcharge');
+CREATE TYPE "priceListRuleType" AS ENUM ('Discount', 'Markup');
 CREATE TYPE "priceListRuleAmountType" AS ENUM ('Percentage', 'Fixed');
 
 -- priceList
@@ -386,7 +386,7 @@ ALTER TABLE "customer" ADD CONSTRAINT "customer_priceListId_fkey"
   ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- Audit trace for price resolution at order line save time.
--- Stores the resolver's trace array (Base Price → Discount → Surcharge → Final)
+-- Stores the resolver's trace array (Base Price → Discount → Markup → Final)
 -- so historical pricing decisions remain auditable even after price lists change.
 ALTER TABLE "salesOrderLine" ADD COLUMN "priceTrace" JSONB;
 

@@ -102671,7 +102671,7 @@ export default {
           type: "string",
         },
         ruleType: {
-          enum: ["Discount", "Surcharge"],
+          enum: ["Discount", "Markup"],
           format: 'public."priceListRuleType"',
           type: "string",
         },

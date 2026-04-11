@@ -203,7 +203,7 @@ const PriceListItemForm = ({
                     {
                       value: "item",
                       title: "Specific Item",
-                      description: "Target one item by SKU.",
+                      description: "Target one item.",
                       icon: <LuPackage />
                     },
                     {

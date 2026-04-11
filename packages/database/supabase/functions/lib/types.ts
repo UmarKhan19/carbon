@@ -59491,7 +59491,7 @@ export type Database = {
       periodType: "Week" | "Day" | "Month"
       priceListPriceType: "Gross" | "Net" | "Discounted"
       priceListRuleAmountType: "Percentage" | "Fixed"
-      priceListRuleType: "Discount" | "Surcharge"
+      priceListRuleType: "Discount" | "Markup"
       priceListStatus: "Draft" | "Active" | "Expired" | "Archived"
       procedureStatus: "Draft" | "Active" | "Archived"
       procedureStepType:
@@ -60679,7 +60679,7 @@ export const Constants = {
       periodType: ["Week", "Day", "Month"],
       priceListPriceType: ["Gross", "Net", "Discounted"],
       priceListRuleAmountType: ["Percentage", "Fixed"],
-      priceListRuleType: ["Discount", "Surcharge"],
+      priceListRuleType: ["Discount", "Markup"],
       priceListStatus: ["Draft", "Active", "Expired", "Archived"],
       procedureStatus: ["Draft", "Active", "Archived"],
       procedureStepType: [

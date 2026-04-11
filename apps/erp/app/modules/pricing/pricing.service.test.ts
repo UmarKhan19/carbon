@@ -148,7 +148,7 @@ describe("applyPriceRules", () => {
       100,
       [
         makeRule({
-          ruleType: "Surcharge",
+          ruleType: "Markup",
           amountType: "Percentage",
           amount: 0.2
         })
@@ -166,14 +166,14 @@ describe("applyPriceRules", () => {
         makeRule({
           id: "s1",
           name: "10% surcharge",
-          ruleType: "Surcharge",
+          ruleType: "Markup",
           amountType: "Percentage",
           amount: 0.1
         }),
         makeRule({
           id: "s2",
           name: "$5 surcharge",
-          ruleType: "Surcharge",
+          ruleType: "Markup",
           amountType: "Fixed",
           amount: 5
         })
@@ -181,7 +181,7 @@ describe("applyPriceRules", () => {
       "Net"
     );
     expect(finalPrice).toBe(115);
-    expect(appendedTrace.filter((t) => t.step === "Surcharge")).toHaveLength(2);
+    expect(appendedTrace.filter((t) => t.step === "Markup")).toHaveLength(2);
   });
 
   it("combines a discount and a surcharge", () => {
@@ -197,7 +197,7 @@ describe("applyPriceRules", () => {
         }),
         makeRule({
           id: "s1",
-          ruleType: "Surcharge",
+          ruleType: "Markup",
           amountType: "Fixed",
           amount: 20
         })
@@ -240,7 +240,7 @@ describe("applyPriceRules", () => {
         }),
         makeRule({
           id: "s1",
-          ruleType: "Surcharge",
+          ruleType: "Markup",
           amountType: "Fixed",
           amount: 15
         })
@@ -271,13 +271,13 @@ describe("applyPriceRules", () => {
         }),
         makeRule({
           id: "s1",
-          ruleType: "Surcharge",
+          ruleType: "Markup",
           amountType: "Fixed",
           amount: 5
         }),
         makeRule({
           id: "s2",
-          ruleType: "Surcharge",
+          ruleType: "Markup",
           amountType: "Fixed",
           amount: 10
         })
@@ -285,7 +285,7 @@ describe("applyPriceRules", () => {
       "Net"
     );
     expect(appendedTrace[0].step).toBe("Discount");
-    expect(appendedTrace[1].step).toBe("Surcharge");
-    expect(appendedTrace[2].step).toBe("Surcharge");
+    expect(appendedTrace[1].step).toBe("Markup");
+    expect(appendedTrace[2].step).toBe("Markup");
   });
 });
