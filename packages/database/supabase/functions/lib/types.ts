@@ -49854,14 +49854,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56750,6 +56750,33 @@ export type Database = {
     }
     Functions: {
       _xid_machine_id: { Args: never; Returns: number }
+      accountTreeBalances: {
+        Args: {
+          from_date?: string
+          p_company_group_id: string
+          to_date?: string
+        }
+        Returns: {
+          accountId: string
+          balance: number
+          balanceAtDate: number
+          netChange: number
+        }[]
+      }
+      accountTreeBalancesByCompany: {
+        Args: {
+          from_date?: string
+          p_company_group_id: string
+          p_company_id?: string
+          to_date?: string
+        }
+        Returns: {
+          accountId: string
+          balance: number
+          balanceAtDate: number
+          netChange: number
+        }[]
+      }
       attach_event_trigger:
         | {
             Args: { sync_functions?: string[]; table_name_text: string }
@@ -58698,6 +58725,39 @@ export type Database = {
       sync_verify_integration: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
+      }
+      translateTrialBalance: {
+        Args: {
+          p_company_group_id: string
+          p_company_id: string
+          p_period_end: string
+          p_period_start?: string
+          p_target_currency: string
+        }
+        Returns: {
+          accountId: string
+          exchangeRate: number
+          localBalance: number
+          translatedBalance: number
+        }[]
+      }
+      trialBalance: {
+        Args: {
+          from_date?: string
+          p_company_group_id: string
+          p_company_id?: string
+          to_date?: string
+        }
+        Returns: {
+          accountClass: Database["public"]["Enums"]["glAccountClass"]
+          accountId: string
+          accountName: string
+          accountNumber: string
+          creditBalance: number
+          debitBalance: number
+          incomeBalance: Database["public"]["Enums"]["glIncomeBalance"]
+          netChange: number
+        }[]
       }
       update_receipt_line_batch_tracking: {
         Args: {

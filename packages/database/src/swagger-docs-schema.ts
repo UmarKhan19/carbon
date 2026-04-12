@@ -65658,6 +65658,53 @@ export default {
         tags: ["(rpc) sync_insert_quote_line_make_method"],
       },
     },
+    "/rpc/accountTreeBalancesByCompany": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                from_date: {
+                  format: "date",
+                  type: "string",
+                },
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+                to_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) accountTreeBalancesByCompany"],
+      },
+    },
     "/rpc/check_operation_dependencies": {
       post: {
         parameters: [
@@ -67158,6 +67205,69 @@ export default {
         tags: ["(rpc) sync_insert_quote_material_make_method"],
       },
     },
+    "/rpc/get_company_groups_for_employee": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) get_company_groups_for_employee"],
+      },
+    },
+    "/rpc/getIntercompanyBalance": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) getIntercompanyBalance"],
+      },
+    },
     "/rpc/get_production_projections": {
       post: {
         parameters: [
@@ -68379,6 +68489,62 @@ export default {
         tags: ["(rpc) upsert_to_search_index"],
       },
     },
+    "/rpc/translateTrialBalance": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_period_end: {
+                  format: "date",
+                  type: "string",
+                },
+                p_period_start: {
+                  format: "date",
+                  type: "string",
+                },
+                p_target_currency: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: [
+                "p_company_group_id",
+                "p_company_id",
+                "p_target_currency",
+                "p_period_end",
+              ],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) translateTrialBalance"],
+      },
+    },
     "/rpc/sync_update_sales_order_exchange_rate": {
       post: {
         parameters: [
@@ -69052,6 +69218,53 @@ export default {
         tags: ["(rpc) get_radan_v1"],
       },
     },
+    "/rpc/trialBalance": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                from_date: {
+                  format: "date",
+                  type: "string",
+                },
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+                to_date: {
+                  format: "date",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) trialBalance"],
+      },
+    },
     "/rpc/sync_update_supplier_type_group": {
       post: {
         parameters: [
@@ -69095,6 +69308,41 @@ export default {
           },
         },
         tags: ["(rpc) sync_update_supplier_type_group"],
+      },
+    },
+    "/rpc/matchIntercompanyTransactions": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) matchIntercompanyTransactions"],
       },
     },
     "/rpc/sync_finish_job_operation": {
@@ -69458,6 +69706,41 @@ export default {
           },
         },
         tags: ["(rpc) xid_encode"],
+      },
+    },
+    "/rpc/get_company_groups_for_root_permission": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                permission: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["permission"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) get_company_groups_for_root_permission"],
       },
     },
     "/rpc/sync_create_supplier_org_group": {
@@ -70767,6 +71050,45 @@ export default {
           },
         },
         tags: ["(rpc) sync_add_employee_to_type_group"],
+      },
+    },
+    "/rpc/generateEliminationEntries": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_group_id: {
+                  format: "text",
+                  type: "string",
+                },
+                p_user_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_group_id", "p_user_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) generateEliminationEntries"],
       },
     },
     "/rpc/get_job_method": {
@@ -75836,8 +76158,8 @@ export default {
         id: {
           default: "public.id('je'::text)",
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "int32",
-          type: "integer",
+          format: "text",
+          type: "string",
         },
         description: {
           format: "text",
@@ -84575,7 +84897,7 @@ export default {
           type: "number",
         },
         lineCount: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
       },
@@ -85187,132 +85509,6 @@ export default {
         favorite: {
           format: "boolean",
           type: "boolean",
-        },
-      },
-      type: "object",
-    },
-    postingGroupSales: {
-      required: [
-        "id",
-        "receivablesAccount",
-        "salesAccount",
-        "salesDiscountAccount",
-        "salesCreditAccount",
-        "salesPrepaymentAccount",
-        "salesTaxPayableAccount",
-        "companyId",
-      ],
-      properties: {
-        id: {
-          default: "public.id('pgs'::text)",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        customerTypeId: {
-          description:
-            "Note:\nThis is a Foreign Key to `customerType.id`.<fk table='customerType' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        itemPostingGroupId: {
-          description:
-            "Note:\nThis is a Foreign Key to `itemPostingGroup.id`.<fk table='itemPostingGroup' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        receivablesAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesDiscountAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesCreditAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesPrepaymentAccount: {
-          format: "text",
-          type: "string",
-        },
-        salesTaxPayableAccount: {
-          format: "text",
-          type: "string",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-      },
-      type: "object",
-    },
-    accountCategories: {
-      properties: {
-        id: {
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        category: {
-          format: "text",
-          type: "string",
-        },
-        class: {
-          enum: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
-          format: 'public."glAccountClass"',
-          type: "string",
-        },
-        incomeBalance: {
-          enum: ["Balance Sheet", "Income Statement"],
-          format: 'public."glIncomeBalance"',
-          type: "string",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        customFields: {
-          format: "jsonb",
-        },
-        subCategoriesCount: {
-          format: "int64",
-          type: "integer",
         },
       },
       type: "object",
@@ -93810,8 +94006,10 @@ export default {
           type: "string",
         },
         journalId: {
-          format: "int32",
-          type: "integer",
+          description:
+            "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
+          format: "text",
+          type: "string",
         },
         accountNumber: {
           format: "text",
