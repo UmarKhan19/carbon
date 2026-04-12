@@ -6,6 +6,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -45,7 +46,7 @@ function NewShipment() {
         variant="primary"
         isLoading={fetcher.state !== "idle"}
       >
-        Add Shipment
+        <Trans>Add Shipment</Trans>
       </Button>
     </fetcher.Form>
   );
@@ -60,6 +61,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
   useRealtime("shipment", `id=in.(${data.map((d) => d.id).join(",")})`);
 
   const [params] = useUrlParams();
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
 
@@ -72,7 +74,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
     const result: ColumnDef<(typeof rows)[number]>[] = [
       {
         accessorKey: "shipmentId",
-        header: "Shipment ID",
+        header: t`Shipment ID`,
         cell: ({ row }) => (
           <Hyperlink to={path.to.shipmentDetails(row.original.id!)}>
             {row.original.shipmentId}
@@ -84,7 +86,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         accessorKey: "sourceDocument",
-        header: "Source Document",
+        header: t`Source Document`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />,
         meta: {
           filter: {
@@ -99,7 +101,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         accessorKey: "sourceDocumentReadableId",
-        header: "Source Document ID",
+        header: t`Source Document ID`,
         cell: ({ row }) => {
           if (!row.original.sourceDocumentId) return null;
           switch (row.original.sourceDocument) {
@@ -152,7 +154,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
 
       {
         accessorKey: "status",
-        header: "Status",
+        header: t`Status`,
         cell: (item) => {
           const status = item.getValue<(typeof shipmentStatusType)[number]>();
           return (
@@ -170,13 +172,13 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
               label: <ShipmentStatus status={type} />
             }))
           },
-          pluralHeader: "Statuses",
+          pluralHeader: t`Statuses`,
           icon: <LuClock />
         }
       },
       {
         accessorKey: "invoiced",
-        header: "Invoiced",
+        header: t`Invoiced`,
         cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
         meta: {
           filter: {
@@ -191,7 +193,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         id: "postedBy",
-        header: "Posted By",
+        header: t`Posted By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.postedBy} />
         ),
@@ -208,7 +210,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         accessorKey: "postingDate",
-        header: "Posting Date",
+        header: t`Posting Date`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -216,7 +218,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         accessorKey: "assignee",
-        header: "Assignee",
+        header: t`Assignee`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -233,7 +235,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         id: "customerId",
-        header: "Customer",
+        header: t`Customer`,
         cell: ({ row }) => {
           return <CustomerAvatar customerId={row.original.customerId} />;
         },
@@ -250,7 +252,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         accessorKey: "externalDocumentId",
-        header: "External Ref.",
+        header: t`External Ref.`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuHash />
@@ -258,7 +260,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -275,7 +277,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -283,7 +285,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t`Updated By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -300,7 +302,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t`Updated At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -309,7 +311,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
     ];
 
     return [...result, ...customColumns];
-  }, [people, customers, customColumns]);
+  }, [people, customers, customColumns, t]);
 
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(
     null
@@ -329,7 +331,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            {row.postingDate ? "View Shipment" : "Edit Shipment"}
+            {row.postingDate ? t`View Shipment` : t`Edit Shipment`}
           </MenuItem>
           <MenuItem
             disabled={
@@ -344,12 +346,12 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Shipment
+            <Trans>Delete Shipment</Trans>
           </MenuItem>
         </>
       );
     },
-    [deleteShipmentModal, navigate, params, permissions]
+    [deleteShipmentModal, navigate, params, permissions, t]
   );
 
   return (
@@ -371,7 +373,7 @@ const ShipmentsTable = memo(({ data, count }: ShipmentsTableProps) => {
           permissions.can("create", "inventory") && <NewShipment />
         }
         renderContextMenu={renderContextMenu}
-        title="Shipments"
+        title={t`Shipments`}
         table="shipment"
         withSavedView
       />

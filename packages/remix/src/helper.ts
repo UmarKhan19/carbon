@@ -1,11 +1,19 @@
 import type { OperatingSystemPlatform } from "@carbon/react";
+import * as cookie from "cookie";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 
 export const getPreferenceHeaders = (request: Request) => {
   const acceptLanguage = request.headers.get("accept-language");
+  const cookieHeader = request.headers.get("cookie");
+  const localeCookie = cookieHeader
+    ? cookie.parse(cookieHeader).locale
+    : undefined;
   const locales = parseAcceptLanguage(acceptLanguage, {
     validate: Intl.DateTimeFormat.supportedLocalesOf
   });
+  const [cookieLocale] = localeCookie
+    ? Intl.DateTimeFormat.supportedLocalesOf([localeCookie])
+    : [];
 
   // get whether it's a mac or pc from the headers
   const platform: OperatingSystemPlatform = request.headers
@@ -16,6 +24,6 @@ export const getPreferenceHeaders = (request: Request) => {
 
   return {
     platform,
-    locale: locales?.[0] ?? "en-US"
+    locale: cookieLocale ?? locales?.[0] ?? "en-US"
   };
 };

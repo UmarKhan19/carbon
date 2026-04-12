@@ -8,6 +8,7 @@ import {
   SelectValue
 } from "@carbon/react";
 import { useUrlParams } from "@carbon/remix";
+import { useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { SearchFilter } from "~/components";
 import type { IntegrationHealth } from "./IntegrationCard";
@@ -22,6 +23,7 @@ const IntegrationsList = ({
   integrations,
   availableIntegrations
 }: IntegrationsListProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const [filter, setFilter] = useState<"all" | "installed" | "available">(
     "all"
@@ -58,7 +60,7 @@ const IntegrationsList = ({
     <div className="flex flex-col gap-4">
       <div className="flex flex-row gap-2 pt-4 px-4">
         <div>
-          <SearchFilter param="search" size="sm" placeholder="Search" />
+          <SearchFilter param="search" size="sm" placeholder={t`Search`} />
         </div>
         <div>
           <Select

@@ -1,4 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Outlet } from "react-router";
 import {
@@ -15,7 +16,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Items",
+  breadcrumb: msg`Items`,
   to: path.to.items,
   module: "items"
 };

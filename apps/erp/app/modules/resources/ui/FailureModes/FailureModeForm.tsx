@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -44,6 +45,7 @@ const FailureModeForm = ({
   type = "drawer",
   onClose
 }: FailureModeFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -52,13 +54,13 @@ const FailureModeForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created failure mode`);
+      toast.success(t`Created failure mode`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create failure mode: ${fetcher.data.error.message}`
+        t`Failed to create failure mode: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -88,17 +90,21 @@ const FailureModeForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Failure Mode
+                {isEditing ? (
+                  <Trans>Edit Failure Mode</Trans>
+                ) : (
+                  <Trans>New Failure Mode</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="formType" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Failure Mode" />
+                <Input name="name" label={t`Failure Mode`} />
                 <Select
                   name="type"
-                  label="Type"
+                  label={t`Type`}
                   options={maintenanceFailureModeType.map((t) => ({
                     value: t,
                     label: <Enumerable value={t} />
@@ -109,9 +115,11 @@ const FailureModeForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

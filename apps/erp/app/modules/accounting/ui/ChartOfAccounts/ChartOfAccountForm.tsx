@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
@@ -43,6 +44,7 @@ const ChartOfAccountForm = ({
   open = true,
   onClose
 }: ChartOfAccountFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher();
 
@@ -64,7 +66,7 @@ const ChartOfAccountForm = ({
   useEffect(() => {
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(initialValues.id ? "Updated account" : "Created account");
+      toast.success(initialValues.id ? t`Updated account` : t`Created account`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(`Failed to save account: ${fetcher.data.error.message}`);
     }
@@ -107,7 +109,7 @@ const ChartOfAccountForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Account
+                {isEditing ? t`Edit Account` : t`New Account`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -120,7 +122,7 @@ const ChartOfAccountForm = ({
               <VStack spacing={4}>
                 <Combobox
                   name="parentId"
-                  label="Group"
+                  label={t`Group`}
                   options={groupAccounts
                     .filter((a) => a.class !== null)
                     .map((a) => ({
@@ -129,27 +131,27 @@ const ChartOfAccountForm = ({
                     }))}
                   onChange={onParentChange}
                 />
-                <Input name="number" label="Account Number" />
-                <Input name="name" label="Name" />
+                <Input name="number" label={t`Account Number`} />
+                <Input name="name" label={t`Name`} />
                 {selectedGroup && (
                   <>
                     {accountType && (
                       <div className="space-y-1">
                         <label className="text-sm font-medium text-muted-foreground">
-                          Account Type
+                          <Trans>Account Type</Trans>
                         </label>
                         <p className="text-sm">{accountType}</p>
                       </div>
                     )}
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-muted-foreground">
-                        Income/Balance
+                        <Trans>Income/Balance</Trans>
                       </label>
                       <p className="text-sm">{incomeBalance}</p>
                     </div>
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-muted-foreground">
-                        Class
+                        <Trans>Class</Trans>
                       </label>
                       <p className="text-sm">{accountClass}</p>
                     </div>
@@ -159,9 +161,11 @@ const ChartOfAccountForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose?.()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

@@ -1,7 +1,7 @@
 import * as OV from "online-3d-viewer";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "react-aria-components";
-// @ts-expect-error -- three has no declaration file in this context
+// @ts-ignore -- three has no declaration file in this context
 import * as THREE from "three";
 import { useMount } from "./hooks";
 import { IconButton } from "./IconButton";

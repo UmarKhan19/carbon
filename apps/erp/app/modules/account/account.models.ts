@@ -14,6 +14,10 @@ export const accountProfileValidator = z.object({
   about: z.string()
 });
 
+export const accountLanguageValidator = z.object({
+  locale: z.enum(["en", "pl"])
+});
+
 export const accountPasswordValidator = z
   .object({
     currentPassword: z

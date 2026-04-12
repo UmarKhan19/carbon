@@ -19,6 +19,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { Link, useParams } from "react-router";
@@ -120,7 +121,7 @@ export default function PurchaseOrderExplorer() {
                   variant="secondary"
                   onClick={newPurchaseOrderLineDisclosure.onOpen}
                 >
-                  Add Line Item
+                  <Trans>Add Line Item</Trans>
                 </Button>
               )}
             </Empty>
@@ -137,12 +138,14 @@ export default function PurchaseOrderExplorer() {
                 variant="secondary"
                 onClick={newPurchaseOrderLineDisclosure.onOpen}
               >
-                Add Line Item
+                <Trans>Add Line Item</Trans>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <HStack>
-                <span>New Line Item</span>
+                <span>
+                  <Trans>New Line Item</Trans>
+                </span>
                 <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
               </HStack>
             </TooltipContent>
@@ -174,6 +177,7 @@ function PurchaseOrderLineItem({
   isDisabled,
   onDelete
 }: PurchaseOrderLineItemProps) {
+  const { t } = useLingui();
   const [items] = useItems();
   const { orderId, lineId } = useParams();
   if (!orderId) throw new Error("Could not find orderId");
@@ -222,7 +226,7 @@ function PurchaseOrderLineItem({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More"
+                  aria-label={t`More`}
                   className="opacity-0 group-hover:opacity-100 group-active:opacity-100 data-[state=open]:opacity-100"
                   icon={<LuEllipsisVertical />}
                   variant="solid"
@@ -241,7 +245,7 @@ function PurchaseOrderLineItem({
                   }}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Line
+                  <Trans>Delete Line</Trans>
                 </DropdownMenuItem>
                 {/* @ts-expect-error */}
                 {methodItemType.includes(line?.purchaseOrderLineType ?? "") && (
@@ -255,7 +259,7 @@ function PurchaseOrderLineItem({
                       <DropdownMenuIcon
                         icon={<MethodItemTypeIcon type={"Part"} />}
                       />
-                      View Item Master
+                      <Trans>View Item Master</Trans>
                     </Link>
                   </DropdownMenuItem>
                 )}

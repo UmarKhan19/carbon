@@ -2,6 +2,7 @@ import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { useLingui } from "@lingui/react/macro";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs,
@@ -92,6 +93,7 @@ export default function DeleteShelfRoute() {
 
   const { shelf } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!shelfId) return null;
 
@@ -101,7 +103,7 @@ export default function DeleteShelfRoute() {
     <ConfirmDelete
       action={path.to.deleteShelf(shelfId)}
       name={shelf.name}
-      text={`Are you sure you want to delete the shelf: ${shelf.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the shelf: ${shelf.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

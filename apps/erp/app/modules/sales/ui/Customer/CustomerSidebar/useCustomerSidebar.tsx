@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuBuilding,
   LuContact,
@@ -23,18 +24,19 @@ type Props = {
 };
 
 export function useCustomerSidebar({ contacts, locations }: Props) {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { customerId } = useParams();
   if (!customerId) throw new Error("customerId not found");
   return [
     {
-      name: "Details",
+      name: t`Details`,
       to: path.to.customerDetails(customerId),
       icon: <LuBuilding />,
       shortcut: "Command+Shift+d"
     },
     {
-      name: "Contacts",
+      name: t`Contacts`,
       to: path.to.customerContacts(customerId),
       role: ["employee"],
       count: contacts,
@@ -42,7 +44,7 @@ export function useCustomerSidebar({ contacts, locations }: Props) {
       shortcut: "Command+Shift+c"
     },
     {
-      name: "Locations",
+      name: t`Locations`,
       to: path.to.customerLocations(customerId),
       role: ["employee", "customer"],
       count: locations,
@@ -50,52 +52,52 @@ export function useCustomerSidebar({ contacts, locations }: Props) {
       shortcut: "Command+Shift+l"
     },
     {
-      name: "Payment",
+      name: t`Payment`,
       to: path.to.customerPayment(customerId),
       role: ["employee"],
       icon: <LuCreditCard />,
       shortcut: "Command+Shift+p"
     },
     {
-      name: "Tax",
+      name: t`Tax`,
       to: path.to.customerTax(customerId),
       role: ["employee"],
       icon: <LuReceipt />,
       shortcut: "Command+Shift+t"
     },
     {
-      name: "Shipping",
+      name: t`Shipping`,
       to: path.to.customerShipping(customerId),
       role: ["employee"],
       icon: <LuTruck />,
       shortcut: "Command+Shift+s"
     },
     {
-      name: "Risks",
+      name: t`Risks`,
       to: path.to.customerRisks(customerId),
       role: ["employee"],
       icon: <LuShieldAlert />
     },
     {
-      name: "RFQs",
+      name: t`RFQs`,
       to: `${path.to.salesRfqs}?filter=customerId:eq:${customerId}`,
       role: ["employee"],
       icon: <RiProgress2Line />
     },
     {
-      name: "Quotes",
+      name: t`Quotes`,
       to: `${path.to.quotes}?filter=customerId:eq:${customerId}`,
       role: ["employee"],
       icon: <RiProgress4Line />
     },
     {
-      name: "Orders",
+      name: t`Orders`,
       to: `${path.to.salesOrders}?filter=customerId:eq:${customerId}`,
       role: ["employee"],
       icon: <RiProgress8Line />
     },
     {
-      name: "Invoices",
+      name: t`Invoices`,
       to: `${path.to.salesInvoices}?filter=customerId:eq:${customerId}`,
       icon: <LuCreditCard />
     }

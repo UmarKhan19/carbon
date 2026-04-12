@@ -4,6 +4,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
@@ -19,7 +20,7 @@ import { getCustomFields, setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
 import { getParams, path } from "~/utils/path";
 export const handle: Handle = {
-  breadcrumb: "Gauges",
+  breadcrumb: msg`Gauges`,
   to: path.to.gauges
 };
 

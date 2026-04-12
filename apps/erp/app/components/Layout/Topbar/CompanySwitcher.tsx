@@ -14,6 +14,7 @@ import {
   ScrollArea
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
 import { LuChevronsUpDown, LuHouse } from "react-icons/lu";
@@ -23,6 +24,7 @@ import type { Company } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 const CompanySwitcher = () => {
+  const { t } = useLingui();
   const routeData = useRouteData<{ company: Company; companies: Company[] }>(
     path.to.authenticatedRoot
   );
@@ -41,7 +43,7 @@ const CompanySwitcher = () => {
     const groups = new Map<string, { name: string; companies: Company[] }>();
 
     for (const c of routeData.companies) {
-      const groupName = c.companyGroupName ?? "Companies";
+      const groupName = c.companyGroupName ?? t`Companies`;
       const existing = groups.get(groupName);
       if (existing) {
         existing.companies.push(c);
@@ -129,7 +131,7 @@ const CompanySwitcher = () => {
         <DropdownMenuItem asChild>
           <Link to={path.to.authenticatedRoot}>
             <DropdownMenuIcon icon={<LuHouse />} />
-            Dashboard
+            <Trans>Dashboard</Trans>
           </Link>
         </DropdownMenuItem>
         <ScrollArea className="max-h-[300px]">

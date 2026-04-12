@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
 import { Hidden, Input, Submit, Users } from "~/components/Form";
@@ -22,6 +23,7 @@ type GroupFormProps = {
 };
 
 const GroupForm = ({ initialValues }: GroupFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
@@ -50,25 +52,29 @@ const GroupForm = ({ initialValues }: GroupFormProps) => {
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Group</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? <Trans>Edit Group</Trans> : <Trans>New Group</Trans>}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack spacing={4}>
-              <Input name="name" label="Group Name" />
+              <Input name="name" label={t`Group Name`} />
               <Users
                 name="selections"
                 selectionsMaxHeight={"calc(100vh - 330px)"}
-                label="Group Members"
+                label={t`Group Members`}
                 verbose
               />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

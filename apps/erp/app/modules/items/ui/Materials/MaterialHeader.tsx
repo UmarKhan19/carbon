@@ -12,6 +12,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
@@ -23,6 +24,7 @@ import type { Material } from "../../types";
 import { useMaterialNavigation } from "./useMaterialNavigation";
 
 const MaterialHeader = () => {
+  const { t } = useLingui();
   const links = useMaterialNavigation();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
@@ -60,7 +62,7 @@ const MaterialHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -78,7 +80,7 @@ const MaterialHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Material
+                  <Trans>Delete Material</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -94,7 +96,7 @@ const MaterialHeader = () => {
             name={
               routeData?.materialSummary?.readableIdWithRevision ?? "material"
             }
-            text={`Are you sure you want to delete ${routeData?.materialSummary?.readableIdWithRevision}? This cannot be undone.`}
+            text={t`Are you sure you want to delete ${routeData?.materialSummary?.readableIdWithRevision}? This cannot be undone.`}
             onCancel={() => {
               deleteModal.onClose();
             }}

@@ -12,6 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate, useParams } from "react-router";
 import type { z } from "zod";
@@ -36,6 +37,7 @@ import { quoteMaterialValidator } from "../../sales.models";
 type QuoteMaterialFormProps = {
   initialValues: z.infer<typeof quoteMaterialValidator> & {
     quoteMaterialMakeMethodId: string | null;
+    item?: { replenishmentSystem: string | null } | null;
   };
   operations: z.infer<typeof quoteOperationValidator>[];
 };
@@ -44,6 +46,7 @@ const QuoteMaterialForm = ({
   initialValues,
   operations
 }: QuoteMaterialFormProps) => {
+  const { t } = useLingui();
   const fetcher = useFetcher<{ id: string; methodType: MethodType }>();
   const { carbon } = useCarbon();
   const permissions = usePermissions();
@@ -65,13 +68,15 @@ const QuoteMaterialForm = ({
     unitCost: number;
     unitOfMeasureCode: string;
     quantity: number;
+    itemReplenishmentSystem: string;
   }>({
     itemId: initialValues.itemId ?? "",
     methodType: initialValues.methodType ?? "Pull from Inventory",
     description: initialValues.description ?? "",
     unitCost: initialValues.unitCost ?? 0,
     unitOfMeasureCode: initialValues.unitOfMeasureCode ?? "EA",
-    quantity: initialValues.quantity ?? 1
+    quantity: initialValues.quantity ?? 1,
+    itemReplenishmentSystem: initialValues.item?.replenishmentSystem ?? "Buy"
   });
 
   const onTypeChange = (value: MethodItemType | "Item") => {
@@ -83,7 +88,8 @@ const QuoteMaterialForm = ({
       quantity: 1,
       description: "",
       unitCost: 0,
-      unitOfMeasureCode: "EA"
+      unitOfMeasureCode: "EA",
+      itemReplenishmentSystem: "Buy"
     });
   };
 
@@ -101,7 +107,7 @@ const QuoteMaterialForm = ({
       carbon
         .from("item")
         .select(
-          "name, readableIdWithRevision, unitOfMeasureCode, defaultMethodType"
+          "name, readableIdWithRevision, unitOfMeasureCode, defaultMethodType, replenishmentSystem"
         )
         .eq("id", itemId)
         .single(),
@@ -109,7 +115,7 @@ const QuoteMaterialForm = ({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -126,7 +132,8 @@ const QuoteMaterialForm = ({
       description: item.data?.name ?? "",
       unitCost,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Purchase to Order"
+      methodType: item.data?.defaultMethodType ?? "Purchase to Order",
+      itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
   };
 
@@ -219,7 +226,7 @@ const QuoteMaterialForm = ({
               />
               <InputControlled
                 name="description"
-                label="Description"
+                label={t`Description`}
                 value={itemData.description}
                 onChange={(newValue) => {
                   setItemData((d) => ({ ...d, description: newValue }));
@@ -227,7 +234,7 @@ const QuoteMaterialForm = ({
               />
               <Select
                 name="quoteOperationId"
-                label="Operation"
+                label={t`Operation`}
                 isClearable
                 options={operations.map((o) => ({
                   value: o.id!,
@@ -237,13 +244,13 @@ const QuoteMaterialForm = ({
 
               <DefaultMethodType
                 name="methodType"
-                label="Method Type"
+                label={t`Method Type`}
                 value={itemData.methodType}
-                replenishmentSystem="Buy and Make"
+                replenishmentSystem={itemData.itemReplenishmentSystem}
               />
               <NumberControlled
                 name="quantity"
-                label="Quantity per Parent"
+                label={t`Quantity per Parent`}
                 value={itemData.quantity}
                 onChange={onQuantityChange}
               />
@@ -260,7 +267,7 @@ const QuoteMaterialForm = ({
               {itemData.methodType !== "Make to Order" && (
                 <NumberControlled
                   name="unitCost"
-                  label="Unit Cost"
+                  label={t`Unit Cost`}
                   value={itemData.unitCost}
                   minValue={0}
                 />
@@ -269,7 +276,9 @@ const QuoteMaterialForm = ({
           </VStack>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "sales")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "sales")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

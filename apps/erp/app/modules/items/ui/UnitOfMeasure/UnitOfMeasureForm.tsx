@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
@@ -41,6 +42,7 @@ const UnitOfMeasureForm = ({
   onClose
 }: UnitOfMeasureFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
   const [code, setCode] = useState<string>(initialValues.code);
 
@@ -49,13 +51,13 @@ const UnitOfMeasureForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created unit of measure`);
+      toast.success(t`Created unit of measure`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
         `Failed to create unit of measure: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -81,29 +83,31 @@ const UnitOfMeasureForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Unit of Measure
+                {isEditing ? t`Edit Unit of Measure` : t`New Unit of Measure`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Unit of Measure" />
+                <Input name="name" label={t`Unit of Measure`} />
                 <InputControlled
                   name="code"
-                  label="Code"
+                  label={t`Code`}
                   value={code}
                   onChange={(value) =>
                     setCode(value.toUpperCase().replace(/\s/g, ""))
                   }
-                  helperText="Unique, uppercase, without spaces"
+                  helperText={t`Unique, uppercase, without spaces`}
                 />
                 <CustomFormFields table="unitOfMeasure" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
                   Cancel
                 </Button>

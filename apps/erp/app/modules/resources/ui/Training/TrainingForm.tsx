@@ -10,6 +10,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
@@ -29,6 +30,7 @@ const TrainingForm = ({
   open = true,
   onClose
 }: TrainingFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -60,13 +62,17 @@ const TrainingForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Training
+                {isEditing ? (
+                  <Trans>Edit Training</Trans>
+                ) : (
+                  <Trans>New Training</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
@@ -75,7 +81,7 @@ const TrainingForm = ({
                   isLoading={fetcher.state !== "idle"}
                   isDisabled={fetcher.state !== "idle" || isDisabled}
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </HStack>
             </ModalDrawerFooter>

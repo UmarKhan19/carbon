@@ -6,6 +6,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ChangeEvent } from "react";
 import { useSubmit } from "react-router";
 import { Avatar } from "~/components";
@@ -19,13 +20,14 @@ type ProfilePhotoFormProps = {
 };
 
 const ProfilePhotoForm = ({ user }: ProfilePhotoFormProps) => {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const submit = useSubmit();
 
   const uploadImage = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && carbon) {
       let avatarFile = e.target.files[0];
-      toast.info(`Uploading ${avatarFile.name}`);
+      toast.info(t`Uploading ${avatarFile.name}`);
       const fileExtension = avatarFile.name.substring(
         avatarFile.name.lastIndexOf(".") + 1
       );
@@ -95,10 +97,10 @@ const ProfilePhotoForm = ({ user }: ProfilePhotoFormProps) => {
       }
 
       if (imageUpload.data?.path) {
-        toast.success("Photo uploaded successfully");
+        toast.success(t`Photo uploaded successfully`);
         submitAvatarUrl(imageUpload.data.path);
       } else {
-        toast.error("Upload completed but no file path returned");
+        toast.error(t`Upload completed but no file path returned`);
       }
     }
   };
@@ -116,7 +118,7 @@ const ProfilePhotoForm = ({ user }: ProfilePhotoFormProps) => {
         return;
       }
 
-      toast.success("Photo removed successfully");
+      toast.success(t`Photo removed successfully`);
       submitAvatarUrl(null);
     }
   };
@@ -145,7 +147,7 @@ const ProfilePhotoForm = ({ user }: ProfilePhotoFormProps) => {
 
       {user.avatarUrl && (
         <Button variant="secondary" onClick={deleteImage}>
-          Remove
+          <Trans>Remove</Trans>
         </Button>
       )}
       <Badge variant="outline">{maxSizeMB}MB limit</Badge>

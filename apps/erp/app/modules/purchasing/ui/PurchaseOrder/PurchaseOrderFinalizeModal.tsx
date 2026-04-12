@@ -10,6 +10,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useParams } from "react-router";
@@ -39,6 +40,7 @@ const PurchaseOrderFinalizeModal = ({
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
 
+  const { t } = useLingui();
   const integrations = useIntegrations();
   const canEmail = integrations.has("resend");
 
@@ -80,15 +82,15 @@ const PurchaseOrderFinalizeModal = ({
             <VStack spacing={4}>
               {canEmail && (
                 <SelectControlled
-                  label="Send Via"
+                  label={t`Send Via`}
                   name="notification"
                   options={[
                     {
-                      label: "None",
+                      label: t`None`,
                       value: "None"
                     },
                     {
-                      label: "Email",
+                      label: t`Email`,
                       value: "Email"
                     }
                   ]}
@@ -104,16 +106,18 @@ const PurchaseOrderFinalizeModal = ({
                     name="supplierContact"
                     supplier={purchaseOrder?.supplierId ?? undefined}
                   />
-                  <EmailRecipients name="cc" label="CC" type="employee" />
+                  <EmailRecipients name="cc" label={t`CC`} type="employee" />
                 </>
               )}
             </VStack>
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
-            <Button type="submit">Finalize</Button>
+            <Button type="submit">
+              <Trans>Finalize</Trans>
+            </Button>
           </ModalFooter>
         </ValidatedForm>
       </ModalContent>

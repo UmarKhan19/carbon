@@ -13,6 +13,7 @@ import {
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Reorder, useDragControls } from "framer-motion";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
@@ -77,6 +78,7 @@ const IssueWorkflowForm = ({
   requiredActions,
   onClose
 }: IssueWorkflowFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const [content, setContent] = useState<JSONContent>(
@@ -134,7 +136,7 @@ const IssueWorkflowForm = ({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 
@@ -179,7 +181,7 @@ const IssueWorkflowForm = ({
             </p>
           </VStack>
         </HStack>
-        <Input name="name" label="Name" />
+        <Input name="name" label={t`Name`} />
         <VStack spacing={2}>
           <label
             htmlFor="content"
@@ -212,7 +214,7 @@ const IssueWorkflowForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           <Select
             name="priority"
-            label="Priority"
+            label={t`Priority`}
             options={nonConformancePriority.map((priority) => ({
               label: (
                 <div className="flex gap-1 items-center">
@@ -225,7 +227,7 @@ const IssueWorkflowForm = ({
           />
           <Select
             name="source"
-            label="Source"
+            label={t`Source`}
             options={nonConformanceSource.map((source) => ({
               label: source,
               value: source
@@ -297,7 +299,7 @@ const IssueWorkflowForm = ({
 
         <MultiSelect
           name="approvalRequirements"
-          label="Approval Requirements"
+          label={t`Approval Requirements`}
           options={nonConformanceApprovalRequirement.map((requirement) => ({
             label: requirement,
             value: requirement
@@ -306,9 +308,11 @@ const IssueWorkflowForm = ({
 
         <HStack className="w-full justify-end">
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
-          <Submit isDisabled={isDisabled}>Save</Submit>
+          <Submit isDisabled={isDisabled}>
+            <Trans>Save</Trans>
+          </Submit>
         </HStack>
       </VStack>
     </ValidatedForm>

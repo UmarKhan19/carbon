@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo } from "react";
 import { LuCopy, LuInfo, LuLink, LuRefreshCcw } from "react-icons/lu";
@@ -35,6 +36,7 @@ import { isSalesInvoiceLocked } from "../../invoicing.models";
 import type { SalesInvoice } from "../../types";
 
 const SalesInvoiceProperties = () => {
+  const { t } = useLingui();
   const { invoiceId } = useParams();
   if (!invoiceId) throw new Error("invoiceId not found");
 
@@ -121,14 +123,14 @@ const SalesInvoiceProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -149,7 +151,7 @@ const SalesInvoiceProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -207,7 +209,7 @@ const SalesInvoiceProperties = () => {
       >
         <InputControlled
           name="customerReference"
-          label="Customer PO"
+          label={t`Customer PO`}
           value={routeData?.salesInvoice?.customerReference ?? ""}
           size="sm"
           inline
@@ -230,7 +232,7 @@ const SalesInvoiceProperties = () => {
       >
         <Customer
           name="invoiceCustomerId"
-          label="Invoice Customer"
+          label={t`Invoice Customer`}
           inline
           isReadOnly={isDisabled}
           onChange={(value) => {
@@ -252,7 +254,7 @@ const SalesInvoiceProperties = () => {
       >
         <CustomerLocation
           name="invoiceCustomerLocationId"
-          label="Invoice Customer Location"
+          label={t`Invoice Customer Location`}
           customer={routeData?.salesInvoice?.invoiceCustomerId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -276,7 +278,7 @@ const SalesInvoiceProperties = () => {
       >
         <CustomerContact
           name="invoiceCustomerContactId"
-          label="Invoice Customer Contact"
+          label={t`Invoice Customer Contact`}
           customer={routeData?.salesInvoice?.invoiceCustomerId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -299,7 +301,7 @@ const SalesInvoiceProperties = () => {
       >
         <DatePicker
           name="dateIssued"
-          label="Date Issued"
+          label={t`Date Issued`}
           inline
           onChange={(date) => {
             onUpdate("dateIssued", date);
@@ -318,7 +320,7 @@ const SalesInvoiceProperties = () => {
       >
         <DatePicker
           name="dateDue"
-          label="Date Due"
+          label={t`Date Due`}
           inline
           onChange={(date) => {
             onUpdate("dateDue", date);
@@ -337,7 +339,7 @@ const SalesInvoiceProperties = () => {
       >
         <DatePicker
           name="datePaid"
-          label="Date Paid"
+          label={t`Date Paid`}
           inline
           onChange={(date) => {
             onUpdate("datePaid", date);
@@ -353,7 +355,7 @@ const SalesInvoiceProperties = () => {
         className="w-full"
       >
         <Location
-          label="Location"
+          label={t`Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -377,7 +379,7 @@ const SalesInvoiceProperties = () => {
         className="w-full"
       >
         <PaymentTerm
-          label="Payment Term"
+          label={t`Payment Term`}
           name="paymentTermId"
           inline
           isReadOnly={isDisabled}
@@ -400,7 +402,7 @@ const SalesInvoiceProperties = () => {
       >
         <Currency
           name="currencyCode"
-          label="Currency"
+          label={t`Currency`}
           inline
           value={routeData?.salesInvoice?.currencyCode ?? ""}
           isReadOnly={isDisabled}
@@ -440,7 +442,7 @@ const SalesInvoiceProperties = () => {
               <IconButton
                 size="sm"
                 variant="secondary"
-                aria-label="Refresh"
+                aria-label={t`Refresh`}
                 icon={<LuRefreshCcw />}
                 isDisabled={isDisabled}
                 onClick={() => {

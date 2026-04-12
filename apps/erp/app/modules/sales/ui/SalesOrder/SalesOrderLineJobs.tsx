@@ -31,6 +31,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -85,6 +86,7 @@ export function SalesOrderLineJobs({
   jobs,
   itemReplenishment
 }: SalesOrderLineJobsProps) {
+  const { t } = useLingui();
   const { orderId, lineId } = useParams();
   if (!orderId) throw new Error("orderId not found");
   if (!lineId) throw new Error("lineId not found");
@@ -116,7 +118,9 @@ export function SalesOrderLineJobs({
       <Card>
         <HStack className="w-full justify-between">
           <CardHeader>
-            <CardTitle>Jobs</CardTitle>
+            <CardTitle>
+              <Trans>Jobs</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>
             {hasJobs && (
@@ -190,9 +194,13 @@ export function SalesOrderLineJobs({
               onSubmit={newJobDisclosure.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Convert Line to Job</ModalTitle>
+                <ModalTitle>
+                  <Trans>Convert Line to Job</Trans>
+                </ModalTitle>
                 <ModalDescription>
-                  Create a new production job to fulfill the sales order
+                  <Trans>
+                    Create a new production job to fulfill the sales order
+                  </Trans>
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
@@ -205,11 +213,15 @@ export function SalesOrderLineJobs({
                 <Hidden name="quoteLineId" />
                 <Hidden name="unitOfMeasureCode" />
                 <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 md:grid-cols-2">
-                  <SequenceOrCustomId name="jobId" label="Job ID" table="job" />
-                  <Location name="locationId" label="Location" />
+                  <SequenceOrCustomId
+                    name="jobId"
+                    label={t`Job ID`}
+                    table="job"
+                  />
+                  <Location name="locationId" label={t`Location`} />
                   <NumberControlled
                     name="quantity"
-                    label="Quantity"
+                    label={t`Quantity`}
                     value={quantities.quantity}
                     onChange={(value) => {
                       setQuantities((prev) => ({
@@ -222,7 +234,7 @@ export function SalesOrderLineJobs({
                   />
                   <NumberControlled
                     name="scrapQuantity"
-                    label="Scrap Quantity"
+                    label={t`Scrap Quantity`}
                     value={quantities.scrapQuantity}
                     onChange={(value) =>
                       setQuantities((prev) => ({
@@ -232,10 +244,10 @@ export function SalesOrderLineJobs({
                     }
                     minValue={0}
                   />
-                  <DatePicker name="dueDate" label="Due Date" />
+                  <DatePicker name="dueDate" label={t`Due Date`} />
                   <Select
                     name="deadlineType"
-                    label="Deadline Type"
+                    label={t`Deadline Type`}
                     options={deadlineTypes.map((d) => ({
                       value: d,
                       label: (
@@ -250,7 +262,7 @@ export function SalesOrderLineJobs({
               </ModalBody>
               <ModalFooter>
                 <Button variant="secondary" onClick={newJobDisclosure.onClose}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit>Create</Submit>
               </ModalFooter>
@@ -364,6 +376,7 @@ export function SalesOrderJobItem({ job }: { job: SalesOrderJob }) {
 }
 
 function JobDetails({ job }: { job: Job }) {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -371,7 +384,7 @@ function JobDetails({ job }: { job: Job }) {
 
   const getJobOperations = async () => {
     if (!carbon) {
-      toast.error("Failed to load job operations");
+      toast.error(t`Failed to load job operations`);
       return;
     }
 
@@ -483,7 +496,7 @@ function JobDetails({ job }: { job: Job }) {
                   </VStack>
 
                   <IconButton
-                    aria-label="Edit"
+                    aria-label={t`Edit`}
                     icon={<LuSettings2 />}
                     variant="ghost"
                     onClick={() => {

@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { BsPeopleFill } from "react-icons/bs";
@@ -18,19 +19,25 @@ type CustomerStatusesTableProps = {
 
 const CustomerStatusesTable = memo(
   ({ data, count }: CustomerStatusesTableProps) => {
+    const { t, i18n } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
+
+    const translateStatus = useCallback(
+      (value: string) => i18n._(value),
+      [i18n]
+    );
 
     const customColumns = useCustomColumns<CustomerStatus>("customerStatus");
     const columns = useMemo<ColumnDef<CustomerStatus>[]>(() => {
       const defaultColumns: ColumnDef<CustomerStatus>[] = [
         {
           accessorKey: "name",
-          header: "Customer Status",
+          header: t`Customer Status`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
-              <Enumerable value={row.original.name} />
+              <Enumerable value={translateStatus(row.original.name ?? "")} />
             </Hyperlink>
           ),
           meta: {
@@ -39,7 +46,7 @@ const CustomerStatusesTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [customColumns]);
+    }, [customColumns, t, translateStatus]);
 
     const renderContextMenu = useCallback(
       (row: CustomerStatus) => {
@@ -51,7 +58,7 @@ const CustomerStatusesTable = memo(
               }}
             >
               <MenuIcon icon={<BsPeopleFill />} />
-              View Customers
+              <Trans>View Customers</Trans>
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -61,7 +68,7 @@ const CustomerStatusesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Customer Status
+              <Trans>Edit Customer Status</Trans>
             </MenuItem>
             <MenuItem
               destructive
@@ -73,7 +80,7 @@ const CustomerStatusesTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Customer Status
+              <Trans>Delete Customer Status</Trans>
             </MenuItem>
           </>
         );
@@ -89,13 +96,13 @@ const CustomerStatusesTable = memo(
         primaryAction={
           permissions.can("create", "sales") && (
             <New
-              label="Customer Status"
+              label={t`Customer Status`}
               to={`${path.to.newCustomerStatus}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Customer Statuses"
+        title={t`Customer Statuses`}
       />
     );
   }

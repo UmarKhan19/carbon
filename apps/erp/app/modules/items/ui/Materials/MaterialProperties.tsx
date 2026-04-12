@@ -19,6 +19,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { LuCopy, LuKeySquare, LuLink, LuTriangleAlert } from "react-icons/lu";
 import { Await, useFetcher, useParams } from "react-router";
@@ -26,7 +27,6 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
   Boolean,
   ItemPostingGroup,
   Tags,
@@ -58,6 +58,21 @@ import type {
 import { FileBadge } from "../Item";
 
 const MaterialProperties = () => {
+  const { t } = useLingui();
+  const translateMethodType = (v: string) =>
+    v === "Purchase to Order"
+      ? t`Purchase to Order`
+      : v === "Pull from Inventory"
+        ? t`Pull from Inventory`
+        : t`Make to Order`;
+  const translateTrackingType = (v: string) =>
+    v === "Inventory"
+      ? t`Inventory`
+      : v === "Non-Inventory"
+        ? t`Non-Inventory`
+        : v === "Serial"
+          ? t`Serial`
+          : t`Batch`;
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -246,14 +261,14 @@ const MaterialProperties = () => {
         <VStack spacing={2}>
           <HStack className="w-full justify-between">
             <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-              Properties
+              <Trans>Properties</Trans>
             </h3>
             <HStack spacing={1}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    aria-label="Link"
+                    aria-label={t`Link`}
                     size="sm"
                     className="p-1"
                     onClick={() =>
@@ -266,14 +281,16 @@ const MaterialProperties = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <span>Copy link to material</span>
+                  <span>
+                    <Trans>Copy link to material</Trans>
+                  </span>
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    aria-label="Copy"
+                    aria-label={t`Copy`}
                     size="sm"
                     className="p-1"
                     onClick={() =>
@@ -284,14 +301,16 @@ const MaterialProperties = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <span>Copy material unique identifier</span>
+                  <span>
+                    <Trans>Copy material unique identifier</Trans>
+                  </span>
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    aria-label="Copy"
+                    aria-label={t`Copy`}
                     size="sm"
                     className="p-1"
                     onClick={() =>
@@ -304,7 +323,9 @@ const MaterialProperties = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <span>Copy material number</span>
+                  <span>
+                    <Trans>Copy material number</Trans>
+                  </span>
                 </TooltipContent>
               </Tooltip>
             </HStack>
@@ -391,7 +412,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <ItemPostingGroup
-            label="Item Group"
+            label={t`Item Group`}
             name="itemPostingGroupId"
             inline
             isClearable
@@ -413,11 +434,11 @@ const MaterialProperties = () => {
         >
           <Select
             name="itemTrackingType"
-            label="Tracking Type"
+            label={t`Tracking Type`}
             inline={(value) => (
               <Badge variant="secondary">
                 <TrackingTypeIcon type={value} className="mr-2" />
-                <span>{value}</span>
+                <span>{translateTrackingType(value)}</span>
               </Badge>
             )}
             options={itemTrackingTypes.map((type) => ({
@@ -425,7 +446,7 @@ const MaterialProperties = () => {
               label: (
                 <span className="flex items-center gap-2">
                   <TrackingTypeIcon type={type} />
-                  {type}
+                  {translateTrackingType(type)}
                 </span>
               )
             }))}
@@ -447,11 +468,11 @@ const MaterialProperties = () => {
         >
           <Select
             name="defaultMethodType"
-            label="Default Method Type"
+            label={t`Default Method Type`}
             inline={(value) => (
               <Badge variant="secondary">
                 <MethodIcon type={value} className="mr-2" />
-                <span>{value}</span>
+                <span>{translateMethodType(value)}</span>
               </Badge>
             )}
             options={methodType
@@ -461,7 +482,7 @@ const MaterialProperties = () => {
                 label: (
                   <span className="flex items-center gap-2">
                     <MethodIcon type={type} />
-                    {type}
+                    {translateMethodType(type)}
                   </span>
                 )
               }))}
@@ -482,7 +503,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <Shape
-            label="Shape"
+            label={t`Shape`}
             name="materialFormId"
             inline
             onChange={(value) => {
@@ -502,7 +523,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <Substance
-            label="Substance"
+            label={t`Substance`}
             name="materialSubstanceId"
             inline
             onChange={(value) => {
@@ -521,7 +542,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <MaterialGrade
-            label="Grade"
+            label={t`Grade`}
             name="gradeId"
             substanceId={substanceId}
             inline
@@ -541,7 +562,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <MaterialDimension
-            label="Dimensions"
+            label={t`Dimensions`}
             name="dimensionId"
             formId={formId}
             inline
@@ -561,7 +582,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <MaterialFinish
-            label="Finish"
+            label={t`Finish`}
             name="finishId"
             substanceId={substanceId}
             inline
@@ -583,7 +604,7 @@ const MaterialProperties = () => {
             className="w-full"
           >
             <MaterialType
-              label="Type"
+              label={t`Type`}
               name="materialTypeId"
               substanceId={substanceId}
               formId={formId}
@@ -608,7 +629,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <UnitOfMeasure
-            label="Unit of Measure"
+            label={t`Unit of Measure`}
             name="unitOfMeasureCode"
             inline
             onChange={(value) => {
@@ -619,7 +640,9 @@ const MaterialProperties = () => {
 
         <VStack spacing={2}>
           <HStack className="w-full justify-between">
-            <h3 className="text-xs text-muted-foreground">Methods</h3>
+            <h3 className="text-xs text-muted-foreground">
+              <Trans>Methods</Trans>
+            </h3>
           </HStack>
 
           {routeData?.materialSummary?.replenishmentSystem?.includes("Buy") &&
@@ -654,7 +677,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <Boolean
-            label="Active"
+            label={t`Active`}
             name="active"
             variant="small"
             onChange={(value) => {
@@ -672,7 +695,7 @@ const MaterialProperties = () => {
           className="w-full"
         >
           <Tags
-            label="Tags"
+            label={t`Tags`}
             name="tags"
             availableTags={routeData?.tags ?? []}
             table="material"
@@ -695,7 +718,9 @@ const MaterialProperties = () => {
 
         <VStack spacing={2}>
           <HStack className="w-full justify-between">
-            <h3 className="text-xs text-muted-foreground">Files</h3>
+            <h3 className="text-xs text-muted-foreground">
+              <Trans>Files</Trans>
+            </h3>
           </HStack>
 
           <Suspense fallback={null}>
@@ -769,25 +794,31 @@ function ConfirmMaterialIdChange({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Confirm ID Change</ModalTitle>
+          <ModalTitle>
+            <Trans>Confirm ID Change</Trans>
+          </ModalTitle>
         </ModalHeader>
         <ModalBody className="space-y-4">
           <Alert variant="destructive">
             <LuTriangleAlert className="h-4 w-4" />
-            <AlertTitle>Changing this will update the part ID</AlertTitle>
+            <AlertTitle>
+              <Trans>Changing this will update the part ID</Trans>
+            </AlertTitle>
           </Alert>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to change the {propertyName} property? Since
-            you use generated material IDs this will change the part ID of this
-            part, and all related revisions.
+            <Trans>
+              Are you sure you want to change the {propertyName} property? Since
+              you use generated material IDs this will change the part ID of
+              this part, and all related revisions.
+            </Trans>
           </p>
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <Button variant="destructive" onClick={onConfirm}>
-            Yes, Update IDs
+            <Trans>Yes, Update IDs</Trans>
           </Button>
         </ModalFooter>
       </ModalContent>

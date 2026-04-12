@@ -25,6 +25,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuCircleCheck,
@@ -50,6 +51,7 @@ import type { Opportunity, SalesRFQ, SalesRFQLine } from "../../types";
 import SalesRFQStatus from "./SalesRFQStatus";
 
 const SalesRFQHeader = () => {
+  const { t } = useLingui();
   const { rfqId } = useParams();
   if (!rfqId) throw new Error("rfqId not found");
 
@@ -77,7 +79,7 @@ const SalesRFQHeader = () => {
       <HStack className="w-full justify-between">
         <HStack>
           <IconButton
-            aria-label="Toggle Explorer"
+            aria-label={t`Toggle Explorer`}
             icon={<LuPanelLeft />}
             onClick={toggleExplorer}
             variant="ghost"
@@ -91,7 +93,7 @@ const SalesRFQHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More options"
+                aria-label={t`More options`}
                 icon={<LuEllipsisVertical />}
                 variant="secondary"
                 size="sm"
@@ -116,7 +118,7 @@ const SalesRFQHeader = () => {
                 }}
               >
                 <DropdownMenuIcon icon={<LuLoaderCircle />} />
-                Reopen
+                <Trans>Reopen</Trans>
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={
@@ -128,7 +130,7 @@ const SalesRFQHeader = () => {
                 onClick={deleteRFQModal.onOpen}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete RFQ
+                <Trans>Delete RFQ</Trans>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -155,7 +157,7 @@ const SalesRFQHeader = () => {
                 variant={status === "Draft" ? "primary" : "secondary"}
                 type="submit"
               >
-                Ready for Quote
+                <Trans>Ready for Quote</Trans>
               </Button>
             </statusFetcher.Form>
           ) : (
@@ -169,7 +171,7 @@ const SalesRFQHeader = () => {
               variant={status === "Draft" ? "primary" : "secondary"}
               onClick={requiresCustomerAlert.onOpen}
             >
-              Ready for Quote
+              <Trans>Ready for Quote</Trans>
             </Button>
           )}
 
@@ -188,7 +190,7 @@ const SalesRFQHeader = () => {
             }
             onClick={convertToQuoteModal.onOpen}
           >
-            Quote
+            <Trans>Quote</Trans>
           </Button>
           {/* <statusFetcher.Form
             method="post"
@@ -234,11 +236,11 @@ const SalesRFQHeader = () => {
                 : "secondary"
             }
           >
-            No Quote
+            <Trans>No Quote</Trans>
           </Button>
 
           <IconButton
-            aria-label="Toggle Properties"
+            aria-label={t`Toggle Properties`}
             icon={<LuPanelRight />}
             onClick={toggleProperties}
             variant="ghost"
@@ -267,7 +269,7 @@ const SalesRFQHeader = () => {
           action={path.to.deleteSalesRfq(rfqId)}
           isOpen={deleteRFQModal.isOpen}
           name={routeData?.rfqSummary?.rfqId!}
-          text={`Are you sure you want to delete ${routeData?.rfqSummary
+          text={t`Are you sure you want to delete ${routeData?.rfqSummary
             ?.rfqId!}? This cannot be undone.`}
           onCancel={() => {
             deleteRFQModal.onClose();
@@ -297,6 +299,7 @@ function NoQuoteReasonModal({
   rfqId: string;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const user = useUser();
   const [noQuoteReasons, setNoQuoteReasons] = useState<
     {
@@ -334,9 +337,11 @@ function NoQuoteReasonModal({
           }}
         >
           <ModalHeader>
-            <ModalTitle>No Quote Reason</ModalTitle>
+            <ModalTitle>
+              <Trans>No Quote Reason</Trans>
+            </ModalTitle>
             <ModalDescription>
-              Select a reason for why the quote was not created.
+              <Trans>Select a reason for why the quote was not created.</Trans>
             </ModalDescription>
           </ModalHeader>
           <ModalBody>
@@ -344,16 +349,18 @@ function NoQuoteReasonModal({
             <VStack spacing={2}>
               <Select
                 name="noQuoteReasonId"
-                label="No Quote Reason"
+                label={t`No Quote Reason`}
                 options={noQuoteReasons}
               />
             </VStack>
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
-            <Submit withBlocker={false}>Save</Submit>
+            <Submit withBlocker={false}>
+              <Trans>Save</Trans>
+            </Submit>
           </ModalFooter>
         </ValidatedForm>
       </ModalContent>
@@ -366,20 +373,28 @@ function RequiresCustomerAlert({ onClose }: { onClose: () => void }) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Cannot convert RFQ to quote</ModalTitle>
+          <ModalTitle>
+            <Trans>Cannot convert RFQ to quote</Trans>
+          </ModalTitle>
         </ModalHeader>
         <ModalBody>
           <Alert variant="destructive">
             <LuTriangleAlert className="h-4 w-4" />
-            <AlertTitle>RFQ has no customer</AlertTitle>
+            <AlertTitle>
+              <Trans>RFQ has no customer</Trans>
+            </AlertTitle>
             <AlertDescription>
-              In order to convert this RFQ to a quote, it must be associated
-              with a customer.
+              <Trans>
+                In order to convert this RFQ to a quote, it must be associated
+                with a customer.
+              </Trans>
             </AlertDescription>
           </Alert>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={onClose}>OK</Button>
+          <Button onClick={onClose}>
+            <Trans>OK</Trans>
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -422,9 +437,11 @@ function ConvertToQuoteModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Convert to Quote</ModalTitle>
+          <ModalTitle>
+            <Trans>Convert to Quote</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to convert the RFQ to a quote?
+            <Trans>Are you sure you want to convert the RFQ to a quote?</Trans>
           </ModalDescription>
         </ModalHeader>
 
@@ -432,23 +449,34 @@ function ConvertToQuoteModal({
           {requiresCustomer && (
             <Alert variant="destructive">
               <LuTriangleAlert className="h-4 w-4" />
-              <AlertTitle>RFQ has no customer</AlertTitle>
+              <AlertTitle>
+                <Trans>RFQ has no customer</Trans>
+              </AlertTitle>
               <AlertDescription>
-                In order to convert this RFQ to a quote, it must have a
-                customer.
+                <Trans>
+                  In order to convert this RFQ to a quote, it must have a
+                  customer.
+                </Trans>
               </AlertDescription>
             </Alert>
           )}
           {requiresPartNumbers && (
             <Alert variant="warning">
               <LuTriangleAlert className="h-4 w-4" />
-              <AlertTitle>Lines need internal part numbers</AlertTitle>
+              <AlertTitle>
+                <Trans>Lines need internal part numbers</Trans>
+              </AlertTitle>
               <AlertDescription>
-                In order to convert this RFQ to a quote, all lines must have an
-                internal part number. <br />
+                <Trans>
+                  In order to convert this RFQ to a quote, all lines must have
+                  an internal part number.
+                </Trans>{" "}
                 <br />
-                Upon clicking Convert, parts will be created with the following
-                internal part numbers:
+                <br />
+                <Trans>
+                  Upon clicking Convert, parts will be created with the
+                  following internal part numbers:
+                </Trans>
                 <ul className="list-disc py-2 pl-4">
                   {linesWithoutItems.map((line) => (
                     <li key={line.id}>
@@ -459,8 +487,11 @@ function ConvertToQuoteModal({
                   ))}
                 </ul>
                 <br />
-                If you wish to change the part numbers, please click Cancel and
-                manually assign the parts for each line item before converting.
+                <Trans>
+                  If you wish to change the part numbers, please click Cancel
+                  and manually assign the parts for each line item before
+                  converting.
+                </Trans>
               </AlertDescription>
             </Alert>
           )}
@@ -468,11 +499,11 @@ function ConvertToQuoteModal({
 
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <fetcher.Form method="post" action={path.to.salesRfqConvert(rfqId)}>
             <Button isDisabled={isLoading} type="submit" isLoading={isLoading}>
-              Convert
+              <Trans>Convert</Trans>
             </Button>
           </fetcher.Form>
         </ModalFooter>

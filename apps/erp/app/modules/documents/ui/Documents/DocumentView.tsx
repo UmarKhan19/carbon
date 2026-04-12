@@ -5,6 +5,7 @@ import {
   Skeleton
 } from "@carbon/react";
 import { convertKbToString } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { lazy, Suspense } from "react";
 import { LuDownload, LuX } from "react-icons/lu";
 import { useNavigate } from "react-router";
@@ -66,7 +67,7 @@ const DocumentPreview = ({ bucket, document }: DocumentPreviewProps) => {
             leftIcon={<LuDownload />}
             onClick={() => download(document)}
           >
-            Download
+            <Trans>Download</Trans>
           </Button>
         </div>
       );
@@ -93,7 +94,7 @@ const DocumentView = ({ bucket, document }: DocumentPreviewProps) => {
           <span className="text-sm">{document.name}</span>
           <Button variant={"ghost"} onClick={() => download(document)}>
             <LuDownload className="w-4 h-4 mr-2" />
-            Download
+            <Trans>Download</Trans>
           </Button>
         </div>
         <DocumentPreview bucket={bucket} document={document} />

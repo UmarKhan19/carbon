@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
@@ -36,6 +37,7 @@ const MaterialTypeForm = ({
   type = "drawer",
   onClose
 }: MaterialTypeFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string; name: string }>>();
   const [code, setCode] = useState<string>(initialValues.code);
@@ -50,13 +52,13 @@ const MaterialTypeForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created material type`);
+      toast.success(t`Created material type`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create material type: ${fetcher.data.error.message}`
+        t`Failed to create material type: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   return (
     <ModalDrawerProvider type={type}>
@@ -81,32 +83,38 @@ const MaterialTypeForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Material Type
+                {isEditing ? (
+                  <Trans>Edit Material Type</Trans>
+                ) : (
+                  <Trans>New Material Type</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Substance name="materialSubstanceId" label="Substance" />
-                <Shape name="materialFormId" label="Shape" />
-                <Input name="name" label="Name" />
+                <Substance name="materialSubstanceId" label={t`Substance`} />
+                <Shape name="materialFormId" label={t`Shape`} />
+                <Input name="name" label={t`Name`} />
                 <InputControlled
                   name="code"
-                  label="Code"
+                  label={t`Code`}
                   value={code}
                   onChange={(value) =>
                     setCode(value.toUpperCase().replace(/\s/g, ""))
                   }
-                  helperText="Unique, uppercase, without spaces"
+                  helperText={t`Unique, uppercase, without spaces`}
                 />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

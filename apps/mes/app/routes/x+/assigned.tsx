@@ -7,6 +7,7 @@ import {
   SidebarTrigger,
   useIsMobile
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LuSearch, LuTriangleAlert } from "react-icons/lu";
 import type { ImperativePanelHandle } from "react-resizable-panels";
@@ -39,6 +40,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
 }
 
 export default function AssignedRoute() {
+  const { t } = useLingui();
   const { operations, workCenters } = useLoaderData<typeof loader>();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -83,7 +85,9 @@ export default function AssignedRoute() {
       <header className="sticky top-0 z-10 flex h-[var(--header-height)] overflow-y-scroll scrollbar-thin scrollbar-thumb-accent scrollbar-track-transparent shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b bg-background">
         <div className="flex items-center gap-2 px-2">
           <SidebarTrigger />
-          <Heading size="h4">Assigned to Me</Heading>
+          <Heading size="h4">
+            <Trans>Assigned to Me</Trans>
+          </Heading>
         </div>
       </header>
 
@@ -96,7 +100,7 @@ export default function AssignedRoute() {
                 <Input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search"
+                  placeholder={t`Search`}
                   className="pl-8"
                 />
               </div>
@@ -127,9 +131,11 @@ export default function AssignedRoute() {
               <LuTriangleAlert className="h-6 w-6" />
             </div>
             <span className="text-xs font-mono font-light text-foreground uppercase">
-              No results exist
+              <Trans>No results exist</Trans>
             </span>
-            <Button onClick={() => setSearchTerm("")}>Clear Search</Button>
+            <Button onClick={() => setSearchTerm("")}>
+              <Trans>Clear Search</Trans>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col flex-1 w-full h-[calc(100%-var(--header-height)*2)] items-center justify-center gap-4">
@@ -137,7 +143,7 @@ export default function AssignedRoute() {
               <LuTriangleAlert className="h-6 w-6" />
             </div>
             <span className="text-xs font-mono font-light text-foreground uppercase">
-              No assigned operations
+              <Trans>No assigned operations</Trans>
             </span>
           </div>
         )}

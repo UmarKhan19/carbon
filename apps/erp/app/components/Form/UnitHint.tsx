@@ -1,4 +1,5 @@
 import { FormControl, FormHelperText, FormLabel } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 
 import { Select } from "~/components";
 import type { SelectProps } from "~/components/Select";
@@ -27,9 +28,14 @@ const UnitHint = ({
   onConfigure,
   ...props
 }: UnitHintProps) => {
+  const { t } = useLingui();
+
   const onChange = (value: string) => {
     props?.onChange?.(value);
   };
+
+  const translateUnitHint = (v: string) =>
+    v === "Fixed" ? t`Fixed` : t`Per Unit`;
 
   return (
     <FormControl className={props.className}>
@@ -50,7 +56,7 @@ const UnitHint = ({
         className="w-full"
         options={["Fixed", "Per Unit"].map((u) => ({
           value: u,
-          label: u
+          label: translateUnitHint(u)
         }))}
       />
 

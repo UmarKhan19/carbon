@@ -21,6 +21,7 @@ import {
   toast
 } from "@carbon/react";
 import { convertKbToString, formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -49,6 +50,7 @@ const ItemDocuments = ({
   modelUpload,
   type
 }: ItemDocumentsProps) => {
+  const { t } = useLingui();
   const {
     canDelete,
     download,
@@ -88,7 +90,9 @@ const ItemDocuments = ({
     <Card className="flex-grow">
       <HStack className="justify-between items-start">
         <CardHeader>
-          <CardTitle>Files</CardTitle>
+          <CardTitle>
+            <Trans>Files</Trans>
+          </CardTitle>
         </CardHeader>
         <CardAction>
           <ItemDocumentForm type={type} itemId={itemId} />
@@ -98,9 +102,15 @@ const ItemDocuments = ({
         <Table>
           <Thead>
             <Tr>
-              <Th>Name</Th>
-              <Th>Size</Th>
-              <Th>Created</Th>
+              <Th>
+                <Trans>Name</Trans>
+              </Th>
+              <Th>
+                <Trans>Size</Trans>
+              </Th>
+              <Th>
+                <Trans>Created</Trans>
+              </Th>
               <Th></Th>
             </Tr>
           </Thead>
@@ -128,14 +138,16 @@ const ItemDocuments = ({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <IconButton
-                          aria-label="More"
+                          aria-label={t`More`}
                           icon={<LuEllipsisVertical />}
                           variant="secondary"
                         />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuItem asChild>
-                          <Link to={getModelPath(modelUpload)}>View</Link>
+                          <Link to={getModelPath(modelUpload)}>
+                            <Trans>View</Trans>
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => downloadModel(modelUpload)}
@@ -205,7 +217,7 @@ const ItemDocuments = ({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <IconButton
-                            aria-label="More"
+                            aria-label={t`More`}
                             icon={<LuEllipsisVertical />}
                             variant="secondary"
                           />
@@ -234,7 +246,7 @@ const ItemDocuments = ({
                   colSpan={24}
                   className="py-8 text-muted-foreground text-center"
                 >
-                  No files
+                  <Trans>No files</Trans>
                 </Td>
               </Tr>
             )}
@@ -281,6 +293,7 @@ type Props = {
 };
 
 export const useItemDocuments = ({ itemId, type }: Props) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const revalidator = useRevalidator();
   const { carbon } = useCarbon();
@@ -304,14 +317,14 @@ export const useItemDocuments = ({ itemId, type }: Props) => {
         .remove([getPath(file)]);
 
       if (!fileDelete || fileDelete.error) {
-        toast.error(fileDelete?.error?.message || "Error deleting file");
+        toast.error(fileDelete?.error?.message || t`Error deleting file`);
         return;
       }
 
-      toast.success("File deleted successfully");
+      toast.success(t`File deleted successfully`);
       revalidator.revalidate();
     },
-    [getPath, carbon?.storage, revalidator]
+    [getPath, carbon?.storage, revalidator, t]
   );
 
   const deleteModel = useCallback(async () => {
@@ -322,22 +335,22 @@ export const useItemDocuments = ({ itemId, type }: Props) => {
       .update({ modelUploadId: null })
       .eq("id", itemId);
     if (error) {
-      toast.error("Error removing model from item");
+      toast.error(t`Error removing model from item`);
       return;
     }
-    toast.success("Model removed from item");
+    toast.success(t`Model removed from item`);
     revalidator.revalidate();
-  }, [carbon, itemId, revalidator]);
+  }, [carbon, itemId, revalidator, t]);
 
   const downloadModel = useCallback(
     async (model: ModelUpload) => {
       if (!model.modelPath || !model.modelName) {
-        toast.error("Model data is missing");
+        toast.error(t`Model data is missing`);
         return;
       }
 
       if (!model.modelPath || !model.modelName) {
-        toast.error("Model data is missing");
+        toast.error(t`Model data is missing`);
         return;
       }
 
@@ -354,12 +367,12 @@ export const useItemDocuments = ({ itemId, type }: Props) => {
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } catch (error) {
-        toast.error("Error downloading file");
+        toast.error(t`Error downloading file`);
         console.error(error);
       }
     },
 
-    []
+    [t]
   );
 
   const download = useCallback(
@@ -377,12 +390,12 @@ export const useItemDocuments = ({ itemId, type }: Props) => {
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } catch (error) {
-        toast.error("Error downloading file");
+        toast.error(t`Error downloading file`);
         console.error(error);
       }
     },
 
-    [getPath]
+    [getPath, t]
   );
 
   const getModelPath = useCallback((model: ModelUpload) => {
@@ -395,12 +408,12 @@ export const useItemDocuments = ({ itemId, type }: Props) => {
   const upload = useCallback(
     async (files: File[]) => {
       if (!carbon) {
-        toast.error("Carbon client not available");
+        toast.error(t`Carbon client not available`);
         return;
       }
 
       for (const file of files) {
-        toast.info(`Uploading ${file.name}`);
+        toast.info(t`Uploading ${file.name}`);
         const fileName = getPath(file);
 
         const fileUpload = await carbon.storage
@@ -411,9 +424,9 @@ export const useItemDocuments = ({ itemId, type }: Props) => {
           });
 
         if (fileUpload.error) {
-          toast.error(`Failed to upload file: ${file.name}`);
+          toast.error(t`Failed to upload file: ${file.name}`);
         } else if (fileUpload.data?.path) {
-          toast.success(`Uploaded: ${file.name}`);
+          toast.success(t`Uploaded: ${file.name}`);
           const formData = new FormData();
           formData.append("path", fileUpload.data.path);
           formData.append("name", file.name);
@@ -431,7 +444,7 @@ export const useItemDocuments = ({ itemId, type }: Props) => {
       }
       revalidator.revalidate();
     },
-    [getPath, carbon, revalidator, submit, type, itemId]
+    [getPath, carbon, revalidator, submit, type, itemId, t]
   );
 
   return {

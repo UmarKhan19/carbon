@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
@@ -70,6 +71,7 @@ const WarehouseTransferLineForm = ({
   onClose
 }: WarehouseTransferLineFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { transferId } = useParams();
 
   if (!transferId) {
@@ -125,7 +127,7 @@ const WarehouseTransferLineForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit" : "New"} Transfer Line
+              {isEditing ? t`Edit Transfer Line` : t`New Transfer Line`}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -138,7 +140,7 @@ const WarehouseTransferLineForm = ({
             <VStack spacing={4}>
               <Item
                 name="itemId"
-                label="Item"
+                label={t`Item`}
                 type={itemType}
                 onTypeChange={(t) => setItemType(t as MethodItemType)}
                 value={itemId}
@@ -148,23 +150,23 @@ const WarehouseTransferLineForm = ({
               />
               <Number
                 name="quantity"
-                label="Quantity"
+                label={t`Quantity`}
                 minValue={0.0001}
                 step={0.0001}
               />
               <Shelf
                 name="fromShelfId"
-                label="From Shelf"
+                label={t`From Shelf`}
                 itemId={itemId ?? undefined}
                 locationId={warehouseTransfer.fromLocationId}
               />
               <Shelf
                 name="toShelfId"
-                label="To Shelf"
+                label={t`To Shelf`}
                 itemId={itemId ?? undefined}
                 locationId={warehouseTransfer.toLocationId}
               />
-              <TextArea name="notes" label="Notes" rows={3} />
+              <TextArea name="notes" label={t`Notes`} rows={3} />
               <CustomFormFields table="warehouseTransferLine" />
             </VStack>
           </DrawerBody>
@@ -178,7 +180,7 @@ const WarehouseTransferLineForm = ({
                 Save
               </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

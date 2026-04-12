@@ -15,6 +15,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -47,6 +48,7 @@ import MaintenanceSource from "./MaintenanceSource";
 import MaintenanceStatus from "./MaintenanceStatus";
 
 const MaintenanceDispatchProperties = () => {
+  const { t } = useLingui();
   const { dispatchId } = useParams();
   if (!dispatchId) throw new Error("dispatchId not found");
 
@@ -124,7 +126,7 @@ const MaintenanceDispatchProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
@@ -145,7 +147,9 @@ const MaintenanceDispatchProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to dispatch</span>
+                <span>
+                  <Trans>Copy link to dispatch</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -161,7 +165,9 @@ const MaintenanceDispatchProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy dispatch ID</span>
+                <span>
+                  <Trans>Copy dispatch ID</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
@@ -181,7 +187,9 @@ const MaintenanceDispatchProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy dispatch number</span>
+                <span>
+                  <Trans>Copy dispatch number</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -192,12 +200,16 @@ const MaintenanceDispatchProperties = () => {
       </VStack>
 
       <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Status</h3>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Status</Trans>
+        </h3>
         <MaintenanceStatus status={routeData?.dispatch?.status} />
       </VStack>
 
       <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Assignee</h3>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Assignee</Trans>
+        </h3>
         <Assignee
           id={dispatchId}
           table="maintenanceDispatch"
@@ -218,7 +230,7 @@ const MaintenanceDispatchProperties = () => {
       >
         <Location
           isReadOnly={isLocked || !permissions.can("update", "resources")}
-          label="Location"
+          label={t`Location`}
           name="locationId"
           inline
           isClearable
@@ -239,7 +251,7 @@ const MaintenanceDispatchProperties = () => {
       >
         <WorkCenter
           isReadOnly={isLocked || !permissions.can("update", "resources")}
-          label="Work Center"
+          label={t`Work Center`}
           name="workCenterId"
           inline
           isClearable
@@ -268,7 +280,7 @@ const MaintenanceDispatchProperties = () => {
             )
           }))}
           isReadOnly={isLocked || !permissions.can("update", "resources")}
-          label="Priority"
+          label={t`Priority`}
           name="priority"
           inline={(value) => {
             return (
@@ -300,7 +312,7 @@ const MaintenanceDispatchProperties = () => {
             label: severity
           }))}
           isReadOnly={isLocked || !permissions.can("update", "resources")}
-          label="Severity"
+          label={t`Severity`}
           name="severity"
           inline={(value) => {
             return (
@@ -332,7 +344,7 @@ const MaintenanceDispatchProperties = () => {
             label: <MaintenanceSource source={source} />
           }))}
           isReadOnly={isLocked || !permissions.can("update", "resources")}
-          label="Source"
+          label={t`Source`}
           name="source"
           inline={(value) => {
             return (
@@ -360,7 +372,7 @@ const MaintenanceDispatchProperties = () => {
       >
         <Procedure
           isReadOnly={isLocked || !permissions.can("update", "resources")}
-          label="Procedure"
+          label={t`Procedure`}
           name="procedureId"
           inline={(value, options) => {
             const procedure = options.find((o) => o.value === value);
@@ -388,7 +400,7 @@ const MaintenanceDispatchProperties = () => {
             label: <MaintenanceOeeImpact oeeImpact={impact} />
           }))}
           isReadOnly={isLocked || !permissions.can("update", "resources")}
-          label="OEE Impact"
+          label={t`OEE Impact`}
           name="oeeImpact"
           inline={(value) => {
             return (
@@ -417,7 +429,7 @@ const MaintenanceDispatchProperties = () => {
       >
         <DateTimePicker
           name="plannedStartTime"
-          label="Planned Start"
+          label={t`Planned Start`}
           inline
           isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
@@ -437,7 +449,7 @@ const MaintenanceDispatchProperties = () => {
       >
         <DateTimePicker
           name="plannedEndTime"
-          label="Planned End"
+          label={t`Planned End`}
           inline
           isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
@@ -457,7 +469,7 @@ const MaintenanceDispatchProperties = () => {
       >
         <DateTimePicker
           name="actualStartTime"
-          label="Actual Start"
+          label={t`Actual Start`}
           inline
           isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
@@ -477,7 +489,7 @@ const MaintenanceDispatchProperties = () => {
       >
         <DateTimePicker
           name="actualEndTime"
-          label="Actual End"
+          label={t`Actual End`}
           inline
           isDisabled={!permissions.can("update", "resources") || isLocked}
           onChange={(date) => {
@@ -504,7 +516,7 @@ const MaintenanceDispatchProperties = () => {
                 label: mode.name
               }))}
               isReadOnly={isLocked || !permissions.can("update", "resources")}
-              label="Suspected Failure Mode"
+              label={t`Suspected Failure Mode`}
               name="suspectedFailureModeId"
               inline={(value) => {
                 return (
@@ -537,7 +549,7 @@ const MaintenanceDispatchProperties = () => {
                 label: mode.name
               }))}
               isReadOnly={isLocked || !permissions.can("update", "resources")}
-              label="Actual Failure Mode"
+              label={t`Actual Failure Mode`}
               name="actualFailureModeId"
               inline={(value) => {
                 return (
@@ -557,7 +569,9 @@ const MaintenanceDispatchProperties = () => {
       )}
 
       <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Created By</h3>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Created By</Trans>
+        </h3>
         <EmployeeAvatar
           employeeId={routeData?.dispatch?.createdBy!}
           size="xxs"
@@ -594,7 +608,9 @@ const MaintenanceDispatchProperties = () => {
               }}
             >
               <ModalHeader>
-                <ModalTitle>Edit Timecard</ModalTitle>
+                <ModalTitle>
+                  <Trans>Edit Timecard</Trans>
+                </ModalTitle>
               </ModalHeader>
               <ModalBody>
                 <VStack spacing={4}>
@@ -620,12 +636,12 @@ const MaintenanceDispatchProperties = () => {
                   />
                   <DateTimePicker
                     name="startTime"
-                    label="Start Time"
+                    label={t`Start Time`}
                     isDisabled={!permissions.can("update", "resources")}
                   />
                   <DateTimePicker
                     name="endTime"
-                    label="End Time"
+                    label={t`End Time`}
                     isDisabled={!permissions.can("update", "resources")}
                   />
                 </VStack>
@@ -638,14 +654,14 @@ const MaintenanceDispatchProperties = () => {
                     setSelectedEvent(null);
                   }}
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Button
                   type="submit"
                   isLoading={eventFetcher.state !== "idle"}
                   isDisabled={!permissions.can("update", "resources")}
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Button>
               </ModalFooter>
             </ValidatedForm>

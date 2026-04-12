@@ -1,4 +1,5 @@
 import { GOOGLE_PLACES_API_KEY } from "@carbon/auth";
+import { useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useCallback, useRef, useState } from "react";
 
@@ -37,80 +38,84 @@ interface PlaceDetailsResponse {
 }
 
 export const useGooglePlaces = () => {
+  const { t } = useLingui();
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const sessionTokenRef = useRef<string>("");
 
-  const getSuggestions = useCallback(async (input: string) => {
-    if (!GOOGLE_PLACES_API_KEY) {
-      setError("Google Places API key not configured");
-      return;
-    }
-
-    if (!input) {
-      setSuggestions([]);
-      setError(null);
-      return;
-    }
-
-    // Generate session token on first autocomplete request
-    if (!sessionTokenRef.current) {
-      sessionTokenRef.current = nanoid();
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(
-        "https://places.googleapis.com/v1/places:autocomplete",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY
-          },
-          body: JSON.stringify({
-            input,
-            includedPrimaryTypes: ["street_address"],
-            languageCode: "en",
-            sessionToken: sessionTokenRef.current
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Google Places API error: ${response.status}`);
+  const getSuggestions = useCallback(
+    async (input: string) => {
+      if (!GOOGLE_PLACES_API_KEY) {
+        setError(t`Google Places API key not configured`);
+        return;
       }
 
-      const data: GooglePlacesApiResponse = await response.json();
+      if (!input) {
+        setSuggestions([]);
+        setError(null);
+        return;
+      }
 
-      const placeSuggestions: PlaceSuggestion[] = (data.suggestions || [])
-        .map((suggestion) => {
-          const prediction = suggestion.placePrediction;
-          if (!prediction) return null;
+      // Generate session token on first autocomplete request
+      if (!sessionTokenRef.current) {
+        sessionTokenRef.current = nanoid();
+      }
 
-          return {
-            placeId: prediction.placeId,
-            text: prediction.text.text
-          };
-        })
-        .filter(
-          (suggestion): suggestion is PlaceSuggestion => suggestion !== null
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(
+          "https://places.googleapis.com/v1/places:autocomplete",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY
+            },
+            body: JSON.stringify({
+              input,
+              includedPrimaryTypes: ["street_address"],
+              languageCode: "en",
+              sessionToken: sessionTokenRef.current
+            })
+          }
         );
 
-      setSuggestions(placeSuggestions);
-    } catch (err) {
-      console.error("Google Places API error:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch suggestions"
-      );
-      setSuggestions([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        if (!response.ok) {
+          throw new Error(`Google Places API error: ${response.status}`);
+        }
+
+        const data: GooglePlacesApiResponse = await response.json();
+
+        const placeSuggestions: PlaceSuggestion[] = (data.suggestions || [])
+          .map((suggestion) => {
+            const prediction = suggestion.placePrediction;
+            if (!prediction) return null;
+
+            return {
+              placeId: prediction.placeId,
+              text: prediction.text.text
+            };
+          })
+          .filter(
+            (suggestion): suggestion is PlaceSuggestion => suggestion !== null
+          );
+
+        setSuggestions(placeSuggestions);
+      } catch (err) {
+        console.error("Google Places API error:", err);
+        setError(
+          err instanceof Error ? err.message : t`Failed to fetch suggestions`
+        );
+        setSuggestions([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t]
+  );
 
   const parseAddressComponents = (
     components: Array<{
@@ -177,7 +182,7 @@ export const useGooglePlaces = () => {
     placeId: string
   ): Promise<AddressComponents | null> => {
     if (!GOOGLE_PLACES_API_KEY) {
-      setError("Google Places API key not configured");
+      setError(t`Google Places API key not configured`);
       return null;
     }
 
@@ -209,7 +214,7 @@ export const useGooglePlaces = () => {
     } catch (err) {
       console.error("Google Places API error:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to fetch place details"
+        err instanceof Error ? err.message : t`Failed to fetch place details`
       );
       return null;
     } finally {

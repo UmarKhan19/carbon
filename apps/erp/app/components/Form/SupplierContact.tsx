@@ -1,6 +1,7 @@
 import type { ComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { Avatar, HStack, useDisclosure } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type {
@@ -39,6 +40,7 @@ const SupplierContactPreview = (
 };
 
 const SupplierContact = (props: SupplierContactSelectProps) => {
+  const { t } = useLingui();
   const supplierContactsFetcher =
     useFetcher<Awaited<ReturnType<typeof getSupplierContacts>>>();
 
@@ -84,9 +86,9 @@ const SupplierContact = (props: SupplierContactSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        placeholder="Select Contact"
+        placeholder={t`Select Contact`}
         inline={props.inline ? SupplierContactPreview : undefined}
-        label={props?.label ?? "Supplier Contact"}
+        label={props?.label ?? t`Supplier Contact`}
         onChange={onChange}
         onCreateOption={(option) => {
           newContactModal.onOpen();

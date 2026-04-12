@@ -19,6 +19,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useDroppable } from "@dnd-kit/core";
+import { Trans } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { Link, useFetchers, useParams } from "react-router";
@@ -144,7 +145,7 @@ export default function SalesRFQExplorer() {
                   variant="secondary"
                   onClick={newSalesRFQLineDisclosure.onOpen}
                 >
-                  Add Line Item
+                  <Trans>Add Line Item</Trans>
                 </Button>
               )}
             </Empty>
@@ -161,12 +162,14 @@ export default function SalesRFQExplorer() {
                 variant="secondary"
                 onClick={newSalesRFQLineDisclosure.onOpen}
               >
-                Add Line Item
+                <Trans>Add Line Item</Trans>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <HStack>
-                <span>New Line Item</span>
+                <span>
+                  <Trans>New Line Item</Trans>
+                </span>
                 <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
               </HStack>
             </TooltipContent>
@@ -318,7 +321,7 @@ function SalesRFQLineItem({
                   }}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Line
+                  <Trans>Delete Line</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

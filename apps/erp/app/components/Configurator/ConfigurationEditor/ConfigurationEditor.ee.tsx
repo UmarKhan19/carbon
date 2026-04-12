@@ -14,6 +14,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { OnMount } from "@monaco-editor/react";
 import Editor from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
@@ -53,6 +54,7 @@ export default function Configurator({
   parameters: defaultParameters,
   onClose
 }: ConfiguratorProps) {
+  const { t } = useLingui();
   const { code: defaultCode, defaultValue, label, returnType } = configuration;
   const isActive = !!defaultCode;
 
@@ -219,7 +221,7 @@ export default function Configurator({
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     if (fetcher.data?.success === false) {
-      toast.error("Failed to save configuration rule");
+      toast.error(t`Failed to save configuration rule`);
     }
 
     if (fetcher.data?.success === true) {
@@ -330,10 +332,10 @@ export default function Configurator({
       >
         <ModalContent size="xxxlarge" className="p-0 gap-0 h-[90dvh]">
           <div className="flex items-center justify-between p-5 pr-14">
-            <ModalTitle>Configure {label}</ModalTitle>
+            <ModalTitle>{t`Configure ${label}`}</ModalTitle>
             <HStack>
               <Badge variant={isActive ? "green" : "gray"}>
-                {isActive ? "Active" : "Inactive"}
+                {isActive ? <Trans>Active</Trans> : <Trans>Inactive</Trans>}
                 <LuSquareFunction className="ml-1" />
               </Badge>
 
@@ -343,7 +345,7 @@ export default function Configurator({
                     icon={<LuEllipsisVertical />}
                     variant="secondary"
                     size="sm"
-                    aria-label="Actions"
+                    aria-label={t`Actions`}
                   />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -353,7 +355,7 @@ export default function Configurator({
                     onClick={deleteDialog.onOpen}
                   >
                     <LuTrash2 className="mr-2 h-4 w-4" />
-                    Delete Rule
+                    <Trans>Delete Rule</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -400,7 +402,7 @@ export default function Configurator({
                   variant="secondary"
                   isDisabled={!isScriptLoaded}
                 >
-                  Run Test
+                  <Trans>Run Test</Trans>
                 </Button>
                 <Button
                   onClick={handleSave}
@@ -410,7 +412,7 @@ export default function Configurator({
                   isDisabled={fetcher.state !== "idle"}
                   isLoading={fetcher.state !== "idle"}
                 >
-                  Save & Close
+                  <Trans>Save & Close</Trans>
                 </Button>
 
                 <div className="font-mono mt-4 p-2 bg-accent rounded min-h-[100px] max-h-[300px] max-w-[395px] overflow-auto whitespace-pre-wrap">
@@ -426,7 +428,7 @@ export default function Configurator({
           isOpen={deleteDialog.isOpen}
           action={path.to.deleteConfigurationRule(itemId, configuration.field)}
           name={label}
-          text={`Are you sure you want to deactivate the ${label} configuration rule?`}
+          text={t`Are you sure you want to deactivate the ${label} configuration rule?`}
           onCancel={deleteDialog.onClose}
           onSubmit={onClose}
         />

@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuBookMarked, LuPencil, LuTrash } from "react-icons/lu";
@@ -17,6 +18,7 @@ type NoQuoteReasonsTableProps = {
 
 const NoQuoteReasonsTable = memo(
   ({ data, count }: NoQuoteReasonsTableProps) => {
+    const { t } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -26,7 +28,7 @@ const NoQuoteReasonsTable = memo(
       const defaultColumns: ColumnDef<NoQuoteReason>[] = [
         {
           accessorKey: "name",
-          header: "Reason",
+          header: t`Reason`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               <Enumerable value={row.original.name} />
@@ -38,7 +40,7 @@ const NoQuoteReasonsTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [customColumns]);
+    }, [customColumns, t]);
 
     const renderContextMenu = useCallback(
       (row: NoQuoteReason) => {
@@ -52,7 +54,7 @@ const NoQuoteReasonsTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Reason
+              <Trans>Edit Reason</Trans>
             </MenuItem>
             <MenuItem
               destructive
@@ -64,7 +66,7 @@ const NoQuoteReasonsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Reason
+              <Trans>Delete Reason</Trans>
             </MenuItem>
           </>
         );
@@ -80,13 +82,13 @@ const NoQuoteReasonsTable = memo(
         primaryAction={
           permissions.can("create", "sales") && (
             <New
-              label="Reason"
+              label={t`Reason`}
               to={`${path.to.newNoQuoteReason}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Reasons"
+        title={t`Reasons`}
       />
     );
   }

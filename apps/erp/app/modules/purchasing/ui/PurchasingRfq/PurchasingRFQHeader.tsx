@@ -20,6 +20,7 @@ import {
   ModalTitle,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuChevronDown,
   LuCircleX,
@@ -50,6 +51,7 @@ const PurchasingRFQHeader = () => {
   const { rfqId } = useParams();
   if (!rfqId) throw new Error("rfqId not found");
 
+  const { t } = useLingui();
   const finalizeModal = useDisclosure();
   const requiresSuppliersAlert = useDisclosure();
   const cancelReasonModal = useDisclosure();
@@ -90,7 +92,7 @@ const PurchasingRFQHeader = () => {
       <HStack className="w-full justify-between">
         <HStack>
           <IconButton
-            aria-label="Toggle Explorer"
+            aria-label={t`Toggle Explorer`}
             icon={<LuPanelLeft />}
             onClick={toggleExplorer}
             variant="ghost"
@@ -104,7 +106,7 @@ const PurchasingRFQHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More options"
+                aria-label={t`More options`}
                 icon={<LuEllipsisVertical />}
                 variant="secondary"
                 size="sm"
@@ -128,7 +130,7 @@ const PurchasingRFQHeader = () => {
                 }}
               >
                 <DropdownMenuIcon icon={<LuLoaderCircle />} />
-                Reopen
+                <Trans>Reopen</Trans>
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={
@@ -140,7 +142,7 @@ const PurchasingRFQHeader = () => {
                 onClick={deleteRFQModal.onOpen}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete RFQ
+                <Trans>Delete RFQ</Trans>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -151,7 +153,7 @@ const PurchasingRFQHeader = () => {
           {status === "Draft" && (
             <Button variant="secondary" leftIcon={<LuEye />} asChild>
               <Link to={path.to.purchasingRfqPreview(rfqId)} target="_blank">
-                Preview
+                <Trans>Preview</Trans>
               </Link>
             </Button>
           )}
@@ -165,7 +167,7 @@ const PurchasingRFQHeader = () => {
                   leftIcon={<LuShare2 />}
                   rightIcon={<LuChevronDown />}
                 >
-                  Share
+                  <Trans>Share</Trans>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -216,7 +218,7 @@ const PurchasingRFQHeader = () => {
                 variant={status === "Draft" ? "primary" : "secondary"}
                 onClick={finalizeModal.onOpen}
               >
-                Finalize
+                <Trans>Finalize</Trans>
               </Button>
             ) : (
               // Without Resend: Submit directly
@@ -250,7 +252,7 @@ const PurchasingRFQHeader = () => {
                   leftIcon={<LuSend />}
                   variant={status === "Draft" ? "primary" : "secondary"}
                 >
-                  Finalize
+                  <Trans>Finalize</Trans>
                 </Button>
               </finalizeFetcher.Form>
             )
@@ -265,7 +267,7 @@ const PurchasingRFQHeader = () => {
               variant={status === "Draft" ? "primary" : "secondary"}
               onClick={requiresSuppliersAlert.onOpen}
             >
-              Finalize
+              <Trans>Finalize</Trans>
             </Button>
           )}
 
@@ -279,7 +281,7 @@ const PurchasingRFQHeader = () => {
             leftIcon={<LuCircleX />}
             variant="secondary"
           >
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
 
           {canCompareQuotes && (
@@ -288,12 +290,12 @@ const PurchasingRFQHeader = () => {
               leftIcon={<LuGitCompare />}
               variant="secondary"
             >
-              Compare Quotes
+              <Trans>Compare Quotes</Trans>
             </Button>
           )}
 
           <IconButton
-            aria-label="Toggle Properties"
+            aria-label={t`Toggle Properties`}
             icon={<LuPanelRight />}
             onClick={toggleProperties}
             variant="ghost"
@@ -316,7 +318,7 @@ const PurchasingRFQHeader = () => {
           action={path.to.cancelPurchasingRfq(rfqId)}
           isOpen={cancelReasonModal.isOpen}
           name={routeData?.rfqSummary?.rfqId!}
-          text={`Are you sure you want to cancel ${routeData?.rfqSummary
+          text={t`Are you sure you want to cancel ${routeData?.rfqSummary
             ?.rfqId!}? This will also cancel all related supplier quotes.`}
           deleteText="Cancel"
           onCancel={() => {
@@ -332,7 +334,7 @@ const PurchasingRFQHeader = () => {
           action={path.to.deletePurchasingRfq(rfqId)}
           isOpen={deleteRFQModal.isOpen}
           name={routeData?.rfqSummary?.rfqId!}
-          text={`Are you sure you want to delete ${routeData?.rfqSummary
+          text={t`Are you sure you want to delete ${routeData?.rfqSummary
             ?.rfqId!}? This cannot be undone.`}
           onCancel={() => {
             deleteRFQModal.onClose();
@@ -360,20 +362,28 @@ function RequiresSuppliersAlert({ onClose }: { onClose: () => void }) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Cannot send RFQ</ModalTitle>
+          <ModalTitle>
+            <Trans>Cannot send RFQ</Trans>
+          </ModalTitle>
         </ModalHeader>
         <ModalBody>
           <Alert variant="destructive">
             <LuTriangleAlert className="h-4 w-4" />
-            <AlertTitle>RFQ has no suppliers</AlertTitle>
+            <AlertTitle>
+              <Trans>RFQ has no suppliers</Trans>
+            </AlertTitle>
             <AlertDescription>
-              In order to send this RFQ to suppliers, you must first add
-              suppliers to the RFQ.
+              <Trans>
+                In order to send this RFQ to suppliers, you must first add
+                suppliers to the RFQ.
+              </Trans>
             </AlertDescription>
           </Alert>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={onClose}>OK</Button>
+          <Button onClick={onClose}>
+            <Trans>OK</Trans>
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

@@ -15,6 +15,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { convertKbToString, filterEmpty, formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
@@ -56,6 +57,7 @@ type DocumentsTableProps = {
 
 const DocumentsTable = memo(
   ({ data, count, labels, extensions }: DocumentsTableProps) => {
+    const { t } = useLingui();
     const permissions = usePermissions();
     const revalidator = useRevalidator();
     const [params] = useUrlParams();
@@ -167,7 +169,7 @@ const DocumentsTable = memo(
       return [
         {
           accessorKey: "name",
-          header: "Name",
+          header: t`Name`,
           cell: ({ row }) => (
             <HStack>
               {row.original.favorite ? (
@@ -199,7 +201,7 @@ const DocumentsTable = memo(
         },
         {
           accessorKey: "sourceDocument",
-          header: "Source Document",
+          header: t`Source Document`,
           cell: ({ row }) =>
             row.original.sourceDocument &&
             row.original.sourceDocumentId && (
@@ -231,7 +233,7 @@ const DocumentsTable = memo(
         },
         {
           id: "labels",
-          header: "Labels",
+          header: t`Labels`,
           cell: ({ row }) => (
             <HStack spacing={1}>
               {row.original.labels?.map((label: string) => (
@@ -288,7 +290,7 @@ const DocumentsTable = memo(
         },
         {
           accessorKey: "size",
-          header: "Size",
+          header: t`Size`,
           cell: ({ row }) => convertKbToString(row.original.size ?? 0),
           meta: {
             icon: <LuRuler />
@@ -296,7 +298,7 @@ const DocumentsTable = memo(
         },
         {
           accessorKey: "type",
-          header: "Type",
+          header: t`Type`,
           cell: (item) => <Enumerable value={item.getValue<string>()} />,
           meta: {
             icon: <LuFileText />,
@@ -316,7 +318,7 @@ const DocumentsTable = memo(
         },
         {
           accessorKey: "extension",
-          header: "File Extension",
+          header: t`File Extension`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuFileText />,
@@ -331,7 +333,7 @@ const DocumentsTable = memo(
         },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -348,7 +350,7 @@ const DocumentsTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuFileText />
@@ -356,7 +358,7 @@ const DocumentsTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -373,7 +375,7 @@ const DocumentsTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuFileText />
@@ -406,11 +408,11 @@ const DocumentsTable = memo(
         <>
           <MenuItem disabled={canUpdate(row)} onClick={() => edit(row)}>
             <MenuIcon icon={<LuPencil />} />
-            Edit
+            <Trans>Edit</Trans>
           </MenuItem>
           <MenuItem onClick={() => download(row)}>
             <MenuIcon icon={<LuDownload />} />
-            Download
+            <Trans>Download</Trans>
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -418,7 +420,7 @@ const DocumentsTable = memo(
             }}
           >
             <MenuIcon icon={<LuPin />} />
-            Favorite
+            <Trans>Favorite</Trans>
           </MenuItem>
           <MenuItem
             disabled={canDelete(row)}
@@ -428,7 +430,11 @@ const DocumentsTable = memo(
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            {filter !== "trash" ? "Move to Trash" : "Restore from Trash"}
+            {filter !== "trash" ? (
+              <Trans>Move to Trash</Trans>
+            ) : (
+              <Trans>Restore from Trash</Trans>
+            )}
           </MenuItem>
           <MenuItem
             disabled={canDelete(row)}
@@ -439,7 +445,7 @@ const DocumentsTable = memo(
             }}
           >
             <MenuIcon icon={<LuCircleX />} />
-            Permanently Delete
+            <Trans>Permanently Delete</Trans>
           </MenuItem>
         </>
       );
@@ -465,7 +471,7 @@ const DocumentsTable = memo(
             permissions.can("create", "documents") && <DocumentCreateForm />
           }
           renderContextMenu={renderContextMenu}
-          title="Documents"
+          title={t`Documents`}
         />
 
         {selectedDocument && selectedDocument.id && (
@@ -544,6 +550,7 @@ const CreatableCommand = ({
   onChange,
   onCreateOption
 }: CreatableCommandProps) => {
+  const { t } = useLingui();
   const [search, setSearch] = useState("");
   const isExactMatch = options.some(
     (option) => option.value.toLowerCase() === search.toLowerCase()
@@ -554,7 +561,7 @@ const CreatableCommand = ({
       <CommandInput
         value={search}
         onValueChange={setSearch}
-        placeholder="Search..."
+        placeholder={t`Search...`}
         className="h-9"
       />
       <CommandGroup>
@@ -585,7 +592,9 @@ const CreatableCommand = ({
             }}
             value={search}
           >
-            <span>Create</span>
+            <span>
+              <Trans>Create</Trans>
+            </span>
             <span className="ml-1 font-bold">{search}</span>
           </CommandItem>
         )}

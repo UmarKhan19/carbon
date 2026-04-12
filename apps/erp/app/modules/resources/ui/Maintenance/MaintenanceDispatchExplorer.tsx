@@ -24,6 +24,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -85,6 +86,7 @@ export function MaintenanceDispatchExplorer({
   items: MaintenanceDispatchItem[];
   events: MaintenanceDispatchEvent[];
 }) {
+  const { t } = useLingui();
   const { dispatchId } = useParams();
   if (!dispatchId) throw new Error("dispatchId not found");
 
@@ -168,7 +170,7 @@ export function MaintenanceDispatchExplorer({
               <LuSearch className="h-4 w-4" />
             </InputLeftElement>
             <Input
-              placeholder="Search..."
+              placeholder={t`Search...`}
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
             />
@@ -229,6 +231,7 @@ function MaintenanceExplorerItem({
   onDelete: (child: MaintenanceExplorerChild) => void;
   onEdit: (child: MaintenanceExplorerChild) => void;
 }) {
+  const { t } = useLingui();
   const [isExpanded, setIsExpanded] = useState(
     node.children.length > 0 && node.children.length < 10
   );
@@ -264,7 +267,7 @@ function MaintenanceExplorerItem({
         </button>
         {permissions.can("update", "resources") && !isLocked && (
           <IconButton
-            aria-label="Add"
+            aria-label={t`Add`}
             size="sm"
             variant="ghost"
             icon={<LuCirclePlus />}
@@ -333,6 +336,7 @@ function MaintenanceExplorerChildItem({
   onDelete: (child: MaintenanceExplorerChild) => void;
   onEdit: (child: MaintenanceExplorerChild) => void;
 }) {
+  const { t } = useLingui();
   const [items] = useItems();
   const link = getChildLink(child, items);
   const icon = getChildIcon(child);
@@ -363,7 +367,7 @@ function MaintenanceExplorerChildItem({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <IconButton
-              aria-label="Options"
+              aria-label={t`Options`}
               icon={<LuEllipsisVertical />}
               variant="ghost"
               size="sm"
@@ -378,7 +382,7 @@ function MaintenanceExplorerChildItem({
                 }}
               >
                 <DropdownMenuIcon icon={<LuPencil />} />
-                Edit
+                <Trans>Edit</Trans>
               </DropdownMenuItem>
             )}
             {permissions.can("delete", "resources") && (
@@ -389,7 +393,7 @@ function MaintenanceExplorerChildItem({
                 }}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete
+                <Trans>Delete</Trans>
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -408,6 +412,7 @@ function NewTimecardModal({
   onClose: () => void;
   dispatchId: string;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -431,23 +436,27 @@ function NewTimecardModal({
           fetcher={fetcher}
         >
           <ModalHeader>
-            <ModalTitle>Add Timecard</ModalTitle>
+            <ModalTitle>
+              <Trans>Add Timecard</Trans>
+            </ModalTitle>
           </ModalHeader>
           <ModalBody>
             <Hidden name="maintenanceDispatchId" value={dispatchId} />
             <VStack spacing={4}>
-              <Employee name="employeeId" label="Employee" />
-              <WorkCenter name="workCenterId" label="Work Center" />
-              <DateTimePicker name="startTime" label="Start Time" />
-              <DateTimePicker name="endTime" label="End Time" />
-              <TextArea name="notes" label="Notes" />
+              <Employee name="employeeId" label={t`Employee`} />
+              <WorkCenter name="workCenterId" label={t`Work Center`} />
+              <DateTimePicker name="startTime" label={t`Start Time`} />
+              <DateTimePicker name="endTime" label={t`End Time`} />
+              <TextArea name="notes" label={t`Notes`} />
             </VStack>
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
-            <Submit>Add</Submit>
+            <Submit>
+              <Trans>Add</Trans>
+            </Submit>
           </ModalFooter>
         </ValidatedForm>
       </ModalContent>
@@ -466,6 +475,7 @@ function EditTimecardModal({
   dispatchId: string;
   event: MaintenanceDispatchEvent & { type: "event" };
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher();
 
   useEffect(() => {
@@ -497,23 +507,27 @@ function EditTimecardModal({
           }}
         >
           <ModalHeader>
-            <ModalTitle>Edit Timecard</ModalTitle>
+            <ModalTitle>
+              <Trans>Edit Timecard</Trans>
+            </ModalTitle>
           </ModalHeader>
           <ModalBody>
             <Hidden name="maintenanceDispatchId" value={dispatchId} />
             <VStack spacing={4}>
-              <Employee name="employeeId" label="Employee" />
-              <WorkCenter name="workCenterId" label="Work Center" />
-              <DateTimePicker name="startTime" label="Start Time" />
-              <DateTimePicker name="endTime" label="End Time" />
-              <TextArea name="notes" label="Notes" />
+              <Employee name="employeeId" label={t`Employee`} />
+              <WorkCenter name="workCenterId" label={t`Work Center`} />
+              <DateTimePicker name="startTime" label={t`Start Time`} />
+              <DateTimePicker name="endTime" label={t`End Time`} />
+              <TextArea name="notes" label={t`Notes`} />
             </VStack>
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
-            <Submit>Save</Submit>
+            <Submit>
+              <Trans>Save</Trans>
+            </Submit>
           </ModalFooter>
         </ValidatedForm>
       </ModalContent>

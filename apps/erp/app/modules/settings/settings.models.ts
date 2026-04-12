@@ -47,7 +47,14 @@ export const apiKeyValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
   scopes: zfd.text(z.string().optional()),
-  expiresAt: zfd.text(z.string().optional())
+  expiresAt: zfd.text(
+    z
+      .string()
+      .optional()
+      .refine((val) => !val || new Date(val) > new Date(), {
+        message: "Expiration date must be in the future"
+      })
+  )
 });
 
 const company = {

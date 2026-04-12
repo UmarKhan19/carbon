@@ -20,6 +20,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
   LuCheckCheck,
@@ -77,6 +78,7 @@ const WarehouseTransferForm = ({
     variant: "dropdown"
   });
 
+  const { t } = useLingui();
   const isEditing = !!initialValues.id;
   const isLocked = isWarehouseTransferLocked(warehouseTransfer?.status);
   const canEdit = isEditing
@@ -107,7 +109,7 @@ const WarehouseTransferForm = ({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
-                      aria-label="More options"
+                      aria-label={t`More options`}
                       icon={<LuEllipsisVertical />}
                       variant="secondary"
                       size="sm"
@@ -135,7 +137,7 @@ const WarehouseTransferForm = ({
                       }}
                     >
                       <DropdownMenuIcon icon={<LuLoaderCircle />} />
-                      Reopen
+                      <Trans>Reopen</Trans>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -148,7 +150,7 @@ const WarehouseTransferForm = ({
                       onClick={deleteModal.onOpen}
                     >
                       <DropdownMenuIcon icon={<LuTrash />} />
-                      Delete Warehouse Transfer
+                      <Trans>Delete Warehouse Transfer</Trans>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -183,7 +185,7 @@ const WarehouseTransferForm = ({
                         "To Ship and Receive"
                     }
                   >
-                    Confirm
+                    <Trans>Confirm</Trans>
                   </Button>
                 </statusFetcher.Form>
 
@@ -208,7 +210,7 @@ const WarehouseTransferForm = ({
                       statusFetcher.formData?.get("status") === "Cancelled"
                     }
                   >
-                    Cancel
+                    <Trans>Cancel</Trans>
                   </Button>
                 </statusFetcher.Form>
 
@@ -220,7 +222,7 @@ const WarehouseTransferForm = ({
                         variant="secondary"
                         rightIcon={<LuChevronDown />}
                       >
-                        Shipments
+                        <Trans>Shipments</Trans>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -233,7 +235,7 @@ const WarehouseTransferForm = ({
                         onClick={() => ship(warehouseTransfer)}
                       >
                         <DropdownMenuIcon icon={<LuCirclePlus />} />
-                        New Shipment
+                        <Trans>New Shipment</Trans>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {shipments.map((shipment) => (
@@ -266,7 +268,7 @@ const WarehouseTransferForm = ({
                     }
                     onClick={() => ship(warehouseTransfer)}
                   >
-                    Ship
+                    <Trans>Ship</Trans>
                   </Button>
                 )}
 
@@ -284,7 +286,7 @@ const WarehouseTransferForm = ({
                         }
                         rightIcon={<LuChevronDown />}
                       >
-                        Receipts
+                        <Trans>Receipts</Trans>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -297,7 +299,7 @@ const WarehouseTransferForm = ({
                         onClick={() => receive(warehouseTransfer)}
                       >
                         <DropdownMenuIcon icon={<LuCirclePlus />} />
-                        New Receipt
+                        <Trans>New Receipt</Trans>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {receipts.map((receipt) => (
@@ -330,7 +332,7 @@ const WarehouseTransferForm = ({
                     }
                     onClick={() => receive(warehouseTransfer)}
                   >
-                    Receive
+                    <Trans>Receive</Trans>
                   </Button>
                 )}
               </HStack>
@@ -338,7 +340,7 @@ const WarehouseTransferForm = ({
           ) : (
             <CardHeader>
               <Heading as="h1" size="h3">
-                New Warehouse Transfer
+                <Trans>New Warehouse Transfer</Trans>
               </Heading>
             </CardHeader>
           )}
@@ -350,36 +352,38 @@ const WarehouseTransferForm = ({
                 {isEditing ? (
                   <InputControlled
                     name="transferId"
-                    label="Transfer ID"
+                    label={t`Transfer ID`}
                     isDisabled
                     value={initialValues.transferId!}
                   />
                 ) : (
                   <SequenceOrCustomId
                     name="transferId"
-                    label="Transfer ID"
+                    label={t`Transfer ID`}
                     table="warehouseTransfer"
                   />
                 )}
-                <Input name="reference" label="Reference" />
-                <Location name="fromLocationId" label="From Location" />
-                <Location name="toLocationId" label="To Location" />
+                <Input name="reference" label={t`Reference`} />
+                <Location name="fromLocationId" label={t`From Location`} />
+                <Location name="toLocationId" label={t`To Location`} />
                 {isEditing && (
                   <>
-                    <DatePicker name="transferDate" label="Transfer Date" />
+                    <DatePicker name="transferDate" label={t`Transfer Date`} />
                     <DatePicker
                       name="expectedReceiptDate"
-                      label="Expected Receipt Date"
+                      label={t`Expected Receipt Date`}
                     />
                   </>
                 )}
               </div>
-              <TextArea name="notes" label="Notes" />
+              <TextArea name="notes" label={t`Notes`} />
             </VStack>
           </CardContent>
 
           <CardFooter>
-            <Submit disabled={!canEdit}>Save</Submit>
+            <Submit disabled={!canEdit}>
+              <Trans>Save</Trans>
+            </Submit>
           </CardFooter>
         </Card>
       </ValidatedForm>
@@ -389,7 +393,7 @@ const WarehouseTransferForm = ({
           action={path.to.deleteWarehouseTransfer(warehouseTransfer.id)}
           isOpen={deleteModal.isOpen}
           name={warehouseTransfer.transferId ?? "warehouse transfer"}
-          text={`Are you sure you want to delete ${warehouseTransfer.transferId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${warehouseTransfer.transferId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}
@@ -480,6 +484,7 @@ const useWarehouseTransferRelatedDocuments = (warehouseTransferId?: string) => {
   );
 
   useEffect(() => {
+    if (!warehouseTransferId) return;
     getRelatedDocuments(warehouseTransferId);
   }, [getRelatedDocuments, warehouseTransferId]);
 

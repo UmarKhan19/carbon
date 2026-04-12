@@ -1,5 +1,7 @@
 import { ValidatedForm } from "@carbon/form";
 import { Button, HStack } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { useMemo } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
 import { Select, Submit } from "~/components/Form";
@@ -14,19 +16,6 @@ type FiscalYearSettingsField = {
   description: string;
 };
 
-const fields: FiscalYearSettingsField[] = [
-  {
-    name: "startMonth",
-    label: "Start of Fiscal Year",
-    description: "This is the month your fiscal year starts."
-  },
-  {
-    name: "taxStartMonth",
-    label: "Start of Tax Year",
-    description: "This is the month your tax year starts."
-  }
-];
-
 type FiscalYearSettingsFormProps = {
   initialValues: z.infer<typeof fiscalYearSettingsValidator>;
 };
@@ -34,12 +23,29 @@ type FiscalYearSettingsFormProps = {
 const FiscalYearSettingsForm = ({
   initialValues
 }: FiscalYearSettingsFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
 
   const isDisabled =
     !permissions.can("update", "accounting") || !permissions.is("employee");
+
+  const fields: FiscalYearSettingsField[] = useMemo(
+    () => [
+      {
+        name: "startMonth",
+        label: t`Start of Fiscal Year`,
+        description: t`This is the month your fiscal year starts.`
+      },
+      {
+        name: "taxStartMonth",
+        label: t`Start of Tax Year`,
+        description: t`This is the month your tax year starts.`
+      }
+    ],
+    []
+  );
 
   return (
     <ValidatedForm
@@ -53,16 +59,20 @@ const FiscalYearSettingsForm = ({
         <div className="flex items-center justify-between border-b border-border p-6">
           <div>
             <h1 className="text-xl font-semibold text-foreground">
-              Fiscal Year Settings
+              <Trans>Fiscal Year Settings</Trans>
             </h1>
             <p className="text-sm text-muted-foreground">
-              Configure the start months for your fiscal and tax years
+              <Trans>
+                Configure the start months for your fiscal and tax years
+              </Trans>
             </p>
           </div>
           <HStack>
-            <Submit isDisabled={isDisabled}>Save</Submit>
+            <Submit isDisabled={isDisabled}>
+              <Trans>Save</Trans>
+            </Submit>
             <Button size="md" variant="solid" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
           </HStack>
         </div>

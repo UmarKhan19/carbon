@@ -16,6 +16,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { getLocalTimeZone } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { LuCircleStop } from "react-icons/lu";
@@ -27,6 +28,7 @@ import type { Operation } from "~/services/types";
 import { path } from "~/utils/path";
 
 export function EndShift() {
+  const { t } = useLingui();
   const confirmModal = useDisclosure();
   const fetcher = useFetcher<typeof endShiftAction>();
   const user = useUser();
@@ -39,11 +41,11 @@ export function EndShift() {
   useEffect(() => {
     if (fetcher.data?.success === true) {
       confirmModal.onClose();
-      toast.success(fetcher.data?.message ?? "Operations ended");
+      toast.success(fetcher.data?.message ?? t`Operations ended`);
     }
 
     if (fetcher.data?.success === false) {
-      toast.error(fetcher.data?.message ?? "Failed to end operations");
+      toast.error(fetcher.data?.message ?? t`Failed to end operations`);
     }
   }, [fetcher.data?.success]);
 
@@ -59,7 +61,7 @@ export function EndShift() {
       companyId: user.company.id
     });
     if (error) {
-      toast.error("Failed to fetch active operations");
+      toast.error(t`Failed to fetch active operations`);
     }
     setOperations((data ?? []) as Operation[]);
     setLoading(false);
@@ -67,9 +69,11 @@ export function EndShift() {
 
   return (
     <>
-      <SidebarMenuButton tooltip="End Operations" onClick={openModal}>
+      <SidebarMenuButton tooltip={t`End Operations`} onClick={openModal}>
         <LuCircleStop />
-        <span>End Operations</span>
+        <span>
+          <Trans>End Operations</Trans>
+        </span>
       </SidebarMenuButton>
       {confirmModal.isOpen && (
         <Modal
@@ -78,10 +82,15 @@ export function EndShift() {
         >
           <ModalContent>
             <ModalHeader>
-              <ModalTitle>End Operations</ModalTitle>
+              <ModalTitle>
+                <Trans>End Operations</Trans>
+              </ModalTitle>
               <ModalDescription>
-                Are you sure you want to end all production events? This will
-                end all active operations without completing or finishing them.
+                <Trans>
+                  Are you sure you want to end all production events? This will
+                  end all active operations without completing or finishing
+                  them.
+                </Trans>
               </ModalDescription>
             </ModalHeader>
             <ModalBody>
@@ -91,7 +100,7 @@ export function EndShift() {
                 </div>
               ) : operations?.length === 0 ? (
                 <div className="flex items-center justify-center w-full h-24 text-muted-foreground">
-                  No active operations
+                  <Trans>No active operations</Trans>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
@@ -129,7 +138,7 @@ export function EndShift() {
                   onClick={confirmModal.onClose}
                   variant="secondary"
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <input
                   type="hidden"
@@ -142,7 +151,7 @@ export function EndShift() {
                   isLoading={fetcher.state !== "idle"}
                   variant="destructive"
                 >
-                  End Operations
+                  <Trans>End Operations</Trans>
                 </Button>
               </ModalFooter>
             </fetcher.Form>

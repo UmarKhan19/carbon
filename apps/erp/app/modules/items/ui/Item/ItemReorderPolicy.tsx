@@ -1,6 +1,7 @@
 import type { Database } from "@carbon/database";
 import { Status } from "@carbon/react";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { Trans } from "@lingui/react/macro";
 import { z } from "zod";
 import type {
   ProductionOrder,
@@ -24,25 +25,25 @@ export function ItemReorderPolicy({
     case "Manual Reorder":
       return (
         <Status color="gray" className={className}>
-          Manual
+          <Trans>Manual</Trans>
         </Status>
       );
     case "Demand-Based Reorder":
       return (
         <Status color="blue" className={className}>
-          Demand-Based{" "}
+          <Trans>Demand-Based</Trans>
         </Status>
       );
     case "Fixed Reorder Quantity":
       return (
         <Status color="green" className={className}>
-          Fixed Reorder
+          <Trans>Fixed Reorder</Trans>
         </Status>
       );
     case "Maximum Quantity":
       return (
         <Status color="purple" className={className}>
-          Max Quantity
+          <Trans>Max Quantity</Trans>
         </Status>
       );
   }

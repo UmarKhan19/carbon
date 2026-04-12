@@ -8,6 +8,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ChangeEvent } from "react";
 import { useSubmit } from "react-router";
 import type { Company } from "~/modules/settings";
@@ -26,6 +27,7 @@ const CompanyLogoForm = ({
   mode,
   icon = false
 }: CompanyLogoFormProps) => {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const submit = useSubmit();
 
@@ -65,7 +67,7 @@ const CompanyLogoForm = ({
       ];
       if (!supportedTypes.includes(logo.type)) {
         toast.error(
-          `File type not supported. Please use JPG, PNG, WebP, or GIF.`
+          t`File type not supported. Please use JPG, PNG, WebP, or GIF.`
         );
         return;
       }
@@ -75,7 +77,7 @@ const CompanyLogoForm = ({
       const maxSizeBytes = maxSizeMB * 1024 * 1024;
       if (logo.size > maxSizeBytes) {
         toast.error(
-          `File size exceeds ${maxSizeMB}MB limit. Current size: ${(
+          t`File size exceeds ${maxSizeMB}MB limit. Current size: ${(
             logo.size / 1024 / 1024
           ).toFixed(2)}MB`
         );
@@ -117,7 +119,7 @@ const CompanyLogoForm = ({
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
         console.error("Image resize error:", error);
-        toast.error(`Failed to resize image: ${errorMessage}`);
+        toast.error(t`Failed to resize image: ${errorMessage}`);
         return;
       }
 
@@ -133,12 +135,12 @@ const CompanyLogoForm = ({
       if (imageUpload.error) {
         const errorMessage = imageUpload.error.message || "Unknown error";
         console.error("Upload error:", imageUpload.error);
-        toast.error(`Failed to upload logo: ${errorMessage}`);
+        toast.error(t`Failed to upload logo: ${errorMessage}`);
         return;
       }
 
       if (imageUpload.data?.path) {
-        toast.success("Logo uploaded successfully");
+        toast.success(t`Logo uploaded successfully`);
         submitLogoUrl(imageUpload.data.path);
       }
     }
@@ -153,11 +155,11 @@ const CompanyLogoForm = ({
       if (imageDelete.error) {
         const errorMessage = imageDelete.error.message || "Unknown error";
         console.error("Delete error:", imageDelete.error);
-        toast.error(`Failed to remove image: ${errorMessage}`);
+        toast.error(t`Failed to remove image: ${errorMessage}`);
         return;
       }
 
-      toast.success("Logo removed successfully");
+      toast.success(t`Logo removed successfully`);
       submitLogoUrl(null);
     }
   };
@@ -201,12 +203,12 @@ const CompanyLogoForm = ({
 
       <HStack spacing={2}>
         <FileUpload accept="image/*" onChange={uploadImage}>
-          {currentLogoPath ? "Change" : "Upload"}
+          {currentLogoPath ? <Trans>Change</Trans> : <Trans>Upload</Trans>}
         </FileUpload>
 
         {currentLogoPath && (
           <Button variant="secondary" onClick={deleteImage}>
-            Remove
+            <Trans>Remove</Trans>
           </Button>
         )}
       </HStack>
@@ -230,17 +232,19 @@ const CompanyLogoForm = ({
             className="rounded-lg"
           />
         ) : (
-          <p className="font-mono uppercase text-sm">No logo uploaded</p>
+          <p className="font-mono uppercase text-sm">
+            <Trans>No logo uploaded</Trans>
+          </p>
         )}
       </div>
       <HStack spacing={2}>
         <FileUpload accept="image/*" onChange={uploadImage}>
-          {currentLogoPath ? "Change" : "Upload"}
+          {currentLogoPath ? <Trans>Change</Trans> : <Trans>Upload</Trans>}
         </FileUpload>
 
         {currentLogoPath && (
           <Button variant="secondary" onClick={deleteImage}>
-            Remove
+            <Trans>Remove</Trans>
           </Button>
         )}
       </HStack>

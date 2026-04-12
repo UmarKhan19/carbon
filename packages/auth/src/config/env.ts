@@ -73,6 +73,8 @@ declare global {
       REDIS_URL: string;
       VERCEL_URL: string;
       VERCEL_ENV: string;
+      INNGEST_SIGNING_KEY: string;
+      INNGEST_EVENT_KEY: string;
       XERO_CLIENT_SECRET: string;
       XERO_WEBHOOK_SECRET: string;
     }
@@ -149,6 +151,17 @@ export const CLOUDFLARE_TURNSTILE_SECRET_KEY = getEnv(
 export const DOMAIN = getEnv("DOMAIN", { isRequired: false }); // preview environments need no domain
 export const EXCHANGE_RATES_API_KEY = getEnv("EXCHANGE_RATES_API_KEY", {
   isRequired: false,
+  isSecret: true
+});
+
+const INNGEST_DEV = getEnv("INNGEST_DEV", { isRequired: false });
+
+export const INNGEST_SIGNING_KEY = getEnv("INNGEST_SIGNING_KEY", {
+  isRequired: !INNGEST_DEV,
+  isSecret: true
+});
+export const INNGEST_EVENT_KEY = getEnv("INNGEST_EVENT_KEY", {
+  isRequired: !INNGEST_DEV,
   isSecret: true
 });
 
@@ -310,14 +323,18 @@ export const JIRA_STATE_SECRET = getEnv("JIRA_STATE_SECRET", {
 /**
  * Shared envs
  */
-export const VERCEL_ENV = getEnv("VERCEL_ENV", {
-  isSecret: false,
-  isRequired: false
-});
+
 export const NODE_ENV = getEnv("NODE_ENV", {
   isSecret: false,
   isRequired: false
 });
+
+export const VERCEL_ENV =
+  getEnv("VERCEL_ENV", {
+    isSecret: false,
+    isRequired: false
+  }) ?? NODE_ENV;
+
 export const POSTHOG_API_HOST = getEnv("POSTHOG_API_HOST", {
   isSecret: false
 });

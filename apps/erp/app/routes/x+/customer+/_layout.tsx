@@ -1,5 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Outlet } from "react-router";
 import { getCustomerStatuses, getCustomerTypes } from "~/modules/sales";
@@ -11,7 +12,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Sales",
+  breadcrumb: msg`Sales`,
   to: path.to.sales,
   module: "sales"
 };

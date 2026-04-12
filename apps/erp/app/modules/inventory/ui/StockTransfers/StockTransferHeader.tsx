@@ -13,6 +13,7 @@ import {
   IconButton,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuBarcode,
   LuCircleCheck,
@@ -48,6 +49,7 @@ const StockTransferHeader = () => {
     throw new Error("Failed to load stockTransfer");
   const status = routeData.stockTransfer.status;
 
+  const { t } = useLingui();
   const { company } = useUser();
   const permissions = usePermissions();
   const postModal = useDisclosure();
@@ -96,7 +98,7 @@ const StockTransferHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -124,7 +126,7 @@ const StockTransferHeader = () => {
                   }}
                 >
                   <DropdownMenuIcon icon={<LuLoaderCircle />} />
-                  Reopen
+                  <Trans>Reopen</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -139,7 +141,7 @@ const StockTransferHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Stock Transfer
+                  <Trans>Delete Stock Transfer</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -159,7 +161,7 @@ const StockTransferHeader = () => {
                 href={path.to.file.stockTransfer(id)}
                 rel="noreferrer"
               >
-                Pick List
+                <Trans>Pick List</Trans>
               </a>
             </Button>
             <statusFetcher.Form
@@ -181,7 +183,7 @@ const StockTransferHeader = () => {
                   statusFetcher.formData?.get("status") === "Released"
                 }
               >
-                Release
+                <Trans>Release</Trans>
               </Button>
             </statusFetcher.Form>
 
@@ -206,7 +208,7 @@ const StockTransferHeader = () => {
                   statusFetcher.formData?.get("status") === "Completed"
                 }
               >
-                Complete
+                <Trans>Complete</Trans>
               </Button>
             </statusFetcher.Form>
           </HStack>
@@ -221,7 +223,7 @@ const StockTransferHeader = () => {
           action={path.to.deleteStockTransfer(id)}
           isOpen={deleteModal.isOpen}
           name={routeData?.stockTransfer?.stockTransferId ?? "stockTransfer"}
-          text={`Are you sure you want to delete ${routeData?.stockTransfer?.stockTransferId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.stockTransfer?.stockTransferId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}

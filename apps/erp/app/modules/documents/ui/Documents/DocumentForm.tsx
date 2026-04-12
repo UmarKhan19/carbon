@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
 import { Hidden, Input, Submit, TextArea, Users } from "~/components/Form";
@@ -23,6 +24,7 @@ type DocumentFormProps = {
 };
 
 const DocumentForm = ({ initialValues, ownerId }: DocumentFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
@@ -55,27 +57,29 @@ const DocumentForm = ({ initialValues, ownerId }: DocumentFormProps) => {
             <VStack spacing={4}>
               <Input
                 name="name"
-                label="Name"
+                label={t`Name`}
                 suffix={`.${initialValues.extension}`}
               />
-              <TextArea name="description" label="Description" />
+              <TextArea name="description" label={t`Description`} />
               <Users
                 alwaysSelected={[ownerId]}
                 name="readGroups"
-                label="View Permissions"
+                label={t`View Permissions`}
               />
               <Users
                 alwaysSelected={[ownerId]}
                 name="writeGroups"
-                label="Edit Permissions"
+                label={t`Edit Permissions`}
               />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

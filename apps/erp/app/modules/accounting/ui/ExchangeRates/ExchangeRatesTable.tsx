@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuBookMarked, LuEuro, LuPencil, LuPercent } from "react-icons/lu";
@@ -15,6 +16,7 @@ type ExchangeRatesTableProps = {
 };
 
 const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -24,7 +26,7 @@ const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
     const defaultColumns: ColumnDef<Currency>[] = [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id as string}>
             {row.original.name}
@@ -36,7 +38,7 @@ const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
       },
       {
         accessorKey: "code",
-        header: "Code",
+        header: t`Code`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuEuro />
@@ -44,7 +46,7 @@ const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
       },
       {
         accessorKey: "exchangeRate",
-        header: "Exchange Rate",
+        header: t`Exchange Rate`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPercent />
@@ -52,7 +54,7 @@ const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns]);
+  }, [customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: Currency) => {
@@ -67,7 +69,7 @@ const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Exchange Rate
+            <Trans>Edit Currency</Trans>
           </MenuItem>
         </>
       );
@@ -81,7 +83,7 @@ const ExchangeRatesTable = memo(({ data, count }: ExchangeRatesTableProps) => {
       columns={columns}
       count={count}
       renderContextMenu={renderContextMenu}
-      title="Exchange Rates"
+      title={t`Exchange Rates`}
     />
   );
 });

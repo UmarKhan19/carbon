@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -52,6 +53,7 @@ const SupplierLocationForm = ({
     }
   }, [fetcher.data, fetcher.state, onClose, type]);
 
+  const { t } = useLingui();
   const permissions = usePermissions();
   const isEditing = !!initialValues?.id;
   const isDisabled = isEditing
@@ -89,16 +91,18 @@ const SupplierLocationForm = ({
               <Hidden name="type" value={type} />
               <Hidden name="addressId" />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <AddressAutocomplete />
                 <CustomFormFields table="supplierLocation" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={onClose}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
 import { LuMail, LuPhone, LuUser } from "react-icons/lu";
@@ -10,11 +11,12 @@ type ContactTableProps = {
 };
 
 const ContactTable = memo(({ data, count }: ContactTableProps) => {
+  const { t } = useLingui();
   const columns = useMemo<ColumnDef<Contact>[]>(() => {
     return [
       {
         accessorKey: "firstName",
-        header: "First Name",
+        header: t`First Name`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuUser />
@@ -22,7 +24,7 @@ const ContactTable = memo(({ data, count }: ContactTableProps) => {
       },
       {
         accessorKey: "lastName",
-        header: "Last Name",
+        header: t`Last Name`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuUser />
@@ -30,7 +32,7 @@ const ContactTable = memo(({ data, count }: ContactTableProps) => {
       },
       {
         accessorKey: "email",
-        header: "Email",
+        header: t`Email`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuMail />
@@ -38,7 +40,7 @@ const ContactTable = memo(({ data, count }: ContactTableProps) => {
       },
       {
         accessorKey: "mobilePhone",
-        header: "Mobile Phone",
+        header: t`Mobile Phone`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPhone />
@@ -46,7 +48,7 @@ const ContactTable = memo(({ data, count }: ContactTableProps) => {
       },
       {
         accessorKey: "workPhone",
-        header: "Work Phone",
+        header: t`Work Phone`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPhone />
@@ -54,14 +56,14 @@ const ContactTable = memo(({ data, count }: ContactTableProps) => {
       },
       {
         accessorKey: "homePhone",
-        header: "Home Phone",
+        header: t`Home Phone`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPhone />
         }
       }
     ];
-  }, []);
+  }, [t]);
 
   return (
     <Table<Contact>
@@ -71,7 +73,7 @@ const ContactTable = memo(({ data, count }: ContactTableProps) => {
       defaultColumnPinning={{
         left: ["Select"]
       }}
-      title="Contacts"
+      title={t`Contacts`}
       table="contact"
     />
   );

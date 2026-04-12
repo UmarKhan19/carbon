@@ -15,6 +15,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate, getItemReadableId } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -128,7 +129,7 @@ const LineItems = ({
                           <Link
                             to={path.to.purchaseOrderLine(orderId, line.id!)}
                           >
-                            Edit
+                            <Trans>Edit</Trans>
                           </Link>
                         </Button>
                       </HStack>
@@ -406,7 +407,9 @@ const PurchaseOrderSummary = ({
         <HStack className="justify-between items-center">
           <div className="flex flex-col gap-1">
             <CardTitle>{routeData?.purchaseOrder.purchaseOrderId}</CardTitle>
-            <CardDescription>Purchase Order</CardDescription>
+            <CardDescription>
+              <Trans>Purchase Order</Trans>
+            </CardDescription>
           </div>
           <div className="flex flex-col gap-1 items-end">
             <SupplierAvatar
@@ -466,7 +469,7 @@ const PurchaseOrderSummary = ({
                       className="text-muted-foreground"
                       onClick={onEditShippingCost}
                     >
-                      Edit Shipping
+                      <Trans>Edit Shipping</Trans>
                     </Button>
                   )}
                 </VStack>
@@ -488,7 +491,7 @@ const PurchaseOrderSummary = ({
                 className="text-muted-foreground"
                 onClick={onEditShippingCost}
               >
-                Add Shipping
+                <Trans>Add Shipping</Trans>
               </Button>
             ) : null}
           </HStack>

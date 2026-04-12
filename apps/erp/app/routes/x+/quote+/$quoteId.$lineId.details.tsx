@@ -5,6 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner, VStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { Fragment, Suspense, useMemo } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
@@ -224,6 +225,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function QuoteLine() {
+  const { t } = useLingui();
   const {
     line,
     operations,
@@ -290,7 +292,7 @@ export default function QuoteLine() {
       <OpportunityLineNotes
         id={line.id}
         table="quoteLine"
-        title="Notes"
+        title={t`Notes`}
         subTitle={line.itemReadableId ?? ""}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
@@ -397,7 +399,7 @@ export default function QuoteLine() {
                   itemId: model?.itemId ?? undefined
                 }}
                 modelPath={model?.modelPath ?? null}
-                title="CAD Model"
+                title={t`CAD Model`}
                 uploadClassName="aspect-square min-h-[420px] max-h-[70vh]"
                 viewerClassName="aspect-square min-h-[420px] max-h-[70vh]"
               />

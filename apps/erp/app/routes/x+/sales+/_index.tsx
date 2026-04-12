@@ -35,6 +35,7 @@ import {
 } from "@carbon/react/Chart";
 import { FunnelChart } from "@carbon/react/FunnelChart";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -63,7 +64,6 @@ import type { Quotation, SalesOrder, SalesRFQ } from "~/modules/sales/types";
 import QuoteStatus from "~/modules/sales/ui/Quotes/QuoteStatus";
 import { SalesStatus } from "~/modules/sales/ui/SalesOrder";
 import { SalesRFQStatus } from "~/modules/sales/ui/SalesRFQ";
-
 import type { loader as kpiLoader } from "~/routes/api+/sales.kpi.$key";
 import { useCustomers } from "~/stores";
 import { path } from "~/utils/path";
@@ -127,6 +127,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function SalesDashboard() {
+  const { t } = useLingui();
   const { openSalesOrders, openQuotes, openRFQs, assignedToMe } =
     useLoaderData<typeof loader>();
 
@@ -150,19 +151,19 @@ export default function SalesDashboard() {
     const defaultSteps = [
       {
         id: "rfqs",
-        label: "RFQs",
+        label: t`RFQs`,
         value: 0,
         colorClassName: "text-violet-600"
       },
       {
         id: "quotes",
-        label: "Quotes",
+        label: t`Quotes`,
         value: 0,
         colorClassName: "text-blue-600"
       },
       {
         id: "salesOrders",
-        label: "Sales Orders",
+        label: t`Sales Orders`,
         value: 0,
         additionalValue: 0,
         colorClassName: "text-teal-500"
@@ -193,7 +194,7 @@ export default function SalesDashboard() {
         additionalValue: getKpiValue("Revenue")
       }
     ];
-  }, [kpiFetcher.data?.data]);
+  }, [kpiFetcher.data?.data, t]);
 
   const dateFormatter = useDateFormatter({
     month: "short",
@@ -215,13 +216,16 @@ export default function SalesDashboard() {
   const [customers] = useCustomers();
   const customerOptions = useMemo(() => {
     return [
-      { label: "All Customers", value: "all" },
+      {
+        label: t`All Customers`,
+        value: "all"
+      },
       ...customers.map((customer) => ({
         label: customer.name,
         value: customer.id
       }))
     ];
-  }, [customers]);
+  }, [customers, t]);
 
   const [interval, setInterval] = useState("month");
   const [selectedKpi, setSelectedKpi] = useState("salesOrderRevenue");
@@ -232,6 +236,17 @@ export default function SalesDashboard() {
   });
 
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
+
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      quoteCount: t`Quotes`,
+      rfqCount: t`RFQs`,
+      salesFunnel: t`Sales Funnel`,
+      salesOrderCount: t`Sales Orders`,
+      salesOrderRevenue: t`Sales Revenue`
+    }),
+    [t]
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -348,7 +363,7 @@ export default function SalesDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label}_${startDate}_to_${endDate}${
+    return `${kpiLabels[selectedKpiData.key]}_${startDate}_to_${endDate}${
       customerId === "all"
         ? ""
         : `_${customers.find((c) => c.id === customerId)?.name}`
@@ -356,7 +371,8 @@ export default function SalesDashboard() {
   }, [
     dateRange?.start,
     dateRange?.end,
-    selectedKpiData.label,
+    kpiLabels,
+    selectedKpiData.key,
     customerId,
     customers
   ]);
@@ -367,7 +383,9 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress2Line className="text-muted-foreground" />
-            <CardTitle>Open RFQs</CardTitle>
+            <CardTitle>
+              <Trans>Open RFQs</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -384,7 +402,7 @@ export default function SalesDashboard() {
                     path.to.salesRfqs
                   }?filter=status:in:${OPEN_RFQ_STATUSES.join(",")}`}
                 >
-                  View Open RFQs
+                  <Trans>View Open RFQs</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -394,7 +412,9 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress4Line className="text-muted-foreground" />
-            <CardTitle>Open Quotes</CardTitle>
+            <CardTitle>
+              <Trans>Open Quotes</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -411,7 +431,7 @@ export default function SalesDashboard() {
                     path.to.quotes
                   }?filter=status:in:${OPEN_QUOTE_STATUSES.join(",")}`}
                 >
-                  View Open Quotes
+                  <Trans>View Open Quotes</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -421,7 +441,9 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <RiProgress8Line className="text-muted-foreground" />
-            <CardTitle>Open Sales Orders</CardTitle>
+            <CardTitle>
+              <Trans>Open Sales Orders</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -438,7 +460,7 @@ export default function SalesDashboard() {
                     path.to.salesOrders
                   }?filter=status:in:${OPEN_SALES_ORDER_STATUSES.join(",")}`}
                 >
-                  View Open Orders
+                  <Trans>View Open Orders</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -457,7 +479,7 @@ export default function SalesDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedKpiData.label}</span>
+                    <span>{kpiLabels[selectedKpiData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -467,7 +489,7 @@ export default function SalesDashboard() {
                   >
                     {KPIs.map((kpi) => (
                       <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                        {kpi.label}
+                        {kpiLabels[kpi.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>
@@ -496,7 +518,7 @@ export default function SalesDashboard() {
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label="More"
+                  aria-label={t`More`}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -507,7 +529,7 @@ export default function SalesDashboard() {
                     className="flex flex-row items-center gap-2"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    Export CSV
+                    <Trans>Export CSV</Trans>
                   </CSVLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -610,7 +632,9 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuClock className="text-muted-foreground" />
-            <CardTitle>Recently Created</CardTitle>
+            <CardTitle>
+              <Trans>Recently Created</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="min-h-[200px] max-h-[360px] w-full overflow-y-auto">
@@ -618,9 +642,15 @@ export default function SalesDashboard() {
                 <Table>
                   <Thead>
                     <Tr>
-                      <Th>Document</Th>
-                      <Th>Status</Th>
-                      <Th>Customer</Th>
+                      <Th>
+                        <Trans>Document</Trans>
+                      </Th>
+                      <Th>
+                        <Trans>Status</Trans>
+                      </Th>
+                      <Th>
+                        <Trans>Customer</Trans>
+                      </Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -665,22 +695,34 @@ export default function SalesDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuInbox className="text-muted-foreground" />
-            <CardTitle>Assigned to Me</CardTitle>
+            <CardTitle>
+              <Trans>Assigned to Me</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <Suspense fallback={<Loading isLoading />}>
               <Await
                 resolve={assignedToMe}
-                errorElement={<div>Error loading assigned documents</div>}
+                errorElement={
+                  <div>
+                    <Trans>Error loading assigned documents</Trans>
+                  </div>
+                }
               >
                 {(assignedDocs) =>
                   assignedDocs.length > 0 ? (
                     <Table>
                       <Thead>
                         <Tr>
-                          <Th>Document</Th>
-                          <Th>Status</Th>
-                          <Th>Customer</Th>
+                          <Th>
+                            <Trans>Document</Trans>
+                          </Th>
+                          <Th>
+                            <Trans>Status</Trans>
+                          </Th>
+                          <Th>
+                            <Trans>Customer</Trans>
+                          </Th>
                         </Tr>
                       </Thead>
                       <Tbody>

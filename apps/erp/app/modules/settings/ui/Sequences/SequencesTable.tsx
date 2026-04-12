@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -22,6 +23,7 @@ type SequencesTableProps = {
 };
 
 const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -30,7 +32,7 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
     return [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.table}>{row.original.name}</Hyperlink>
         ),
@@ -40,7 +42,7 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
       },
       {
         accessorKey: "prefix",
-        header: "Prefix",
+        header: t`Prefix`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuTextCursor />
@@ -48,7 +50,7 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
       },
       {
         accessorKey: "next",
-        header: "Current",
+        header: t`Current`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuArrowRight />
@@ -56,7 +58,7 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
       },
       {
         accessorKey: "size",
-        header: "Size",
+        header: t`Size`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuMaximize />
@@ -64,7 +66,7 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
       },
       {
         accessorKey: "step",
-        header: "Step",
+        header: t`Step`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuStepForward />
@@ -72,14 +74,14 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
       },
       {
         accessorKey: "suffix",
-        header: "Suffix",
+        header: t`Suffix`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuHash />
         }
       }
     ];
-  }, []);
+  }, [t]);
 
   const renderContextMenu = useCallback(
     (row: (typeof data)[number]) => {
@@ -94,7 +96,7 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Sequence
+            <Trans>Edit Sequence</Trans>
           </MenuItem>
         </>
       );
@@ -108,7 +110,7 @@ const SequencesTable = memo(({ data, count }: SequencesTableProps) => {
       columns={columns}
       count={count}
       renderContextMenu={renderContextMenu}
-      title="Sequences"
+      title={t`Sequences`}
     />
   );
 });

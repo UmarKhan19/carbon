@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, cn } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { Outlet, useNavigate } from "react-router";
@@ -31,6 +32,7 @@ const SupplierParts = ({
   compact = false
 }: SupplierPartsProps) => {
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const canEdit = permissions.can("update", "parts");
   const formatter = useCurrencyFormatter();
@@ -40,7 +42,7 @@ const SupplierParts = ({
     const defaultColumns: ColumnDef<Part>[] = [
       {
         accessorKey: "supplierId",
-        header: "Supplier",
+        header: t`Supplier`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id!}>
             <SupplierAvatar supplierId={row.original.supplierId} />
@@ -49,12 +51,12 @@ const SupplierParts = ({
       },
       {
         accessorKey: "supplierPartId",
-        header: "Supplier ID",
+        header: t`Supplier ID`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "unitPrice",
-        header: "Unit Price",
+        header: t`Unit Price`,
         cell: (item) => formatter.format(item.getValue<number>()),
         meta: {
           formatter: formatter.format,
@@ -63,28 +65,30 @@ const SupplierParts = ({
       },
       {
         accessorKey: "supplierUnitOfMeasureCode",
-        header: "Unit of Measure",
+        header: t`Unit of Measure`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "minimumOrderQuantity",
-        header: "Minimum Order Quantity",
+        header: t`Minimum Order Quantity`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "conversionFactor",
-        header: "Conversion Factor",
+        header: t`Conversion Factor`,
         cell: (item) => item.getValue()
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns, formatter]);
+  }, [customColumns, formatter, t]);
 
   return (
     <>
       <Card className={cn(compact && "border-none p-0 dark:shadow-none")}>
         <CardHeader className={cn(compact && "px-0")}>
-          <CardTitle>Supplier Parts</CardTitle>
+          <CardTitle>
+            <Trans>Supplier Parts</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent className={cn(compact && "px-0")}>
           <Grid<Part>

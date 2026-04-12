@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { arrayToTree } from "performant-array-to-tree";
 import type { LoaderFunctionArgs } from "react-router";
 import { data, Outlet, useLoaderData } from "react-router";
@@ -12,7 +13,7 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Groups",
+  breadcrumb: msg`Groups`,
   to: path.to.groups
 };
 

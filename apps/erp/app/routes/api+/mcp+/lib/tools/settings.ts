@@ -66,6 +66,7 @@ import {
   updateMetricSettings,
   updateProductLabelSize,
   updatePurchasePriceUpdateTimingSetting,
+  updateLeadTimesOnReceiptSetting,
   updateSupplierApprovalSetting,
   updateAccountsPayableAddressSetting,
   updateAccountsReceivableAddressSetting,
@@ -930,6 +931,21 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
       const result = await updatePurchasePriceUpdateTimingSetting(ctx.client, ctx.companyId, params.purchasePriceUpdateTiming);
       return toMcpResult(result);
     }, "Failed: settings_updatePurchasePriceUpdateTimingSetting"),
+  );
+
+  server.registerTool(
+    "settings_updateLeadTimesOnReceiptSetting",
+    {
+      description: "update lead times on receipt setting",
+      inputSchema: {
+      updateLeadTimesOnReceipt: z.boolean(),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateLeadTimesOnReceiptSetting(ctx.client, ctx.companyId, params.updateLeadTimesOnReceipt);
+      return toMcpResult(result);
+    }, "Failed: settings_updateLeadTimesOnReceiptSetting"),
   );
 
   server.registerTool(

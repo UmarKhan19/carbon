@@ -13,6 +13,7 @@ import {
   reactNodeToString,
   useMount
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LuX } from "react-icons/lu";
@@ -57,6 +58,7 @@ type ActiveFilterProps = {
 };
 
 const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
+  const { t, i18n } = useLingui();
   const { hasFilter, removeKey, toggleFilter } = useFilters();
 
   const [open, setOpen] = useState(false);
@@ -110,13 +112,19 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
     const [, ...others] = v.split(",");
     if (others && others.length > 0) {
       return `${1 + others.length} ${
-        filter.pluralHeader ? filter.pluralHeader : filter.header + "s"
+        filter.pluralHeader
+          ? translate(filter.pluralHeader)
+          : `${translate(filter.header)}s`
       }`;
     } else {
       const node = options.find((o) => o.value === v)?.label ?? "";
-      return typeof node === "string" ? node : reactNodeToString(node);
+      return typeof node === "string"
+        ? translate(node)
+        : reactNodeToString(node);
     }
   };
+
+  const translate = (text: string) => i18n._(text);
 
   return (
     <HStack spacing={0}>
@@ -126,10 +134,16 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         size="sm"
         variant="secondary"
       >
-        {filter.header}
+        {translate(filter.header)}
       </Button>
       <Button className="rounded-none border-l-0" size="sm" variant="secondary">
-        {operator === "eq" ? "is" : operator === "in" ? "is any of" : "matches"}
+        {operator === "eq" ? (
+          <Trans>is</Trans>
+        ) : operator === "in" ? (
+          <Trans>is any of</Trans>
+        ) : (
+          <Trans>matches</Trans>
+        )}
       </Button>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -153,11 +167,15 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder="Search..."
+              placeholder={t`Search...`}
               className="h-9"
             />
             <CommandEmpty>
-              {loading ? "Loading..." : "No options found."}
+              {loading ? (
+                <Trans>Loading...</Trans>
+              ) : (
+                <Trans>No options found.</Trans>
+              )}
             </CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
@@ -177,7 +195,11 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
                   >
                     <HStack spacing={2}>
                       <Checkbox id={option.value} isChecked={isChecked} />
-                      <label htmlFor={option.value}>{option.label}</label>
+                      <label htmlFor={option.value}>
+                        {typeof option.label === "string"
+                          ? translate(option.label)
+                          : option.label}
+                      </label>
                     </HStack>
                   </CommandItem>
                 );
@@ -187,7 +209,7 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         </PopoverContent>
       </Popover>
       <Button
-        aria-label="Remove filter"
+        aria-label={t`Remove filter`}
         className="rounded-l-none border-l-0 px-1 w-6"
         size="sm"
         variant="secondary"

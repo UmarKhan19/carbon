@@ -21,6 +21,7 @@ import {
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import {
   LuBarcode,
@@ -95,6 +96,7 @@ const ShipmentForm = ({
   const { company } = useUser();
   const permissions = usePermissions();
   const navigate = useNavigate();
+  const { t } = useLingui();
   const {
     locationId,
     sourceDocuments,
@@ -170,7 +172,7 @@ const ShipmentForm = ({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
-                    aria-label="More options"
+                    aria-label={t`More options`}
                     icon={<LuEllipsisVertical />}
                     variant="secondary"
                     size="sm"
@@ -188,7 +190,7 @@ const ShipmentForm = ({
                     onClick={deleteDisclosure.onOpen}
                   >
                     <DropdownMenuIcon icon={<LuTrash />} />
-                    Delete Shipment
+                    <Trans>Delete Shipment</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -208,7 +210,7 @@ const ShipmentForm = ({
                   onClick={() => navigateToTrackingLabels(false)}
                   variant="primary"
                 >
-                  Tracking Labels
+                  <Trans>Tracking Labels</Trans>
                 </SplitButton>
               )}
 
@@ -218,7 +220,7 @@ const ShipmentForm = ({
                   href={path.to.file.shipment(shipmentId)}
                   rel="noreferrer"
                 >
-                  Packing Slip
+                  <Trans>Packing Slip</Trans>
                 </a>
               </Button>
 
@@ -258,7 +260,7 @@ const ShipmentForm = ({
                 }
                 leftIcon={<LuCheckCheck />}
               >
-                Post
+                <Trans>Post</Trans>
               </Button>
               {(isPosted || isVoided) && (
                 <Button
@@ -267,7 +269,7 @@ const ShipmentForm = ({
                   isDisabled={isVoided || !permissions.is("employee")}
                   leftIcon={<LuTicketX />}
                 >
-                  Void
+                  <Trans>Void</Trans>
                 </Button>
               )}
             </HStack>
@@ -278,10 +280,10 @@ const ShipmentForm = ({
             <Hidden name="customerId" value={customerId ?? ""} />
             <VStack spacing={4} className="min-h-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 w-full">
-                <Input name="shipmentId" label="Shipment ID" isReadOnly />
+                <Input name="shipmentId" label={t`Shipment ID`} isReadOnly />
                 <Location
                   name="locationId"
-                  label="Location"
+                  label={t`Location`}
                   value={locationId ?? undefined}
                   onChange={(newValue) => {
                     if (newValue) setLocationId(newValue.value as string);
@@ -290,7 +292,7 @@ const ShipmentForm = ({
                 />
                 <Select
                   name="sourceDocument"
-                  label="Source Document"
+                  label={t`Source Document`}
                   options={shipmentSourceDocumentType.map((v) => ({
                     label: v,
                     value: v
@@ -306,17 +308,17 @@ const ShipmentForm = ({
                 />
                 <Combobox
                   name="sourceDocumentId"
-                  label="Source Document ID"
+                  label={t`Source Document ID`}
                   options={sourceDocuments.map((d) => ({
                     label: d.name,
                     value: d.id
                   }))}
                   isReadOnly={isPosted}
                 />
-                <Input name="trackingNumber" label="Tracking Number" />
+                <Input name="trackingNumber" label={t`Tracking Number`} />
                 <ShippingMethod
                   name="shippingMethodId"
-                  label="Shipping Method"
+                  label={t`Shipping Method`}
                 />
                 <CustomFormFields table="shipment" />
               </div>
@@ -331,7 +333,7 @@ const ShipmentForm = ({
                   : !permissions.can("create", "inventory")
               }
             >
-              Save
+              <Trans>Save</Trans>
             </DefaultDisabledSubmit>
           </CardFooter>
         </ValidatedForm>
@@ -344,7 +346,7 @@ const ShipmentForm = ({
           action={path.to.deleteShipment(shipmentId)}
           isOpen={deleteDisclosure.isOpen}
           name={routeData?.shipment?.shipmentId ?? "shipment"}
-          text={`Are you sure you want to delete ${routeData?.shipment?.shipmentId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.shipment?.shipmentId}? This cannot be undone.`}
           onCancel={() => {
             deleteDisclosure.onClose();
           }}
@@ -377,7 +379,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<RiProgress8Line />} asChild>
           <Link to={path.to.salesOrderDetails(sourceDocumentId!)}>
-            Sales Order
+            <Trans>Sales Order</Trans>
           </Link>
         </Button>
       );
@@ -386,7 +388,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuShoppingCart />} asChild>
           <Link to={path.to.purchaseOrderDetails(sourceDocumentId!)}>
-            Purchase Order
+            <Trans>Purchase Order</Trans>
           </Link>
         </Button>
       );
@@ -395,7 +397,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuTruck />} asChild>
           <Link to={path.to.warehouseTransferDetails(sourceDocumentId!)}>
-            Warehouse Transfer
+            <Trans>Warehouse Transfer</Trans>
           </Link>
         </Button>
       );
@@ -442,7 +444,7 @@ function InvoiceButtons({
                   asChild
                 >
                   <Link to={path.to.salesInvoice(invoices[0].id!)}>
-                    Invoice
+                    <Trans>Invoice</Trans>
                   </Link>
                 </Button>
               ) : (
@@ -453,7 +455,7 @@ function InvoiceButtons({
                       rightIcon={<LuChevronDown />}
                       variant="secondary"
                     >
-                      Invoice
+                      <Trans>Invoice</Trans>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -462,7 +464,7 @@ function InvoiceButtons({
                       onClick={() => onCreateInvoice(shipment)}
                     >
                       <DropdownMenuIcon icon={<LuCirclePlus />} />
-                      New Invoice
+                      <Trans>New Invoice</Trans>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {invoices.map((inv) => (
@@ -486,7 +488,7 @@ function InvoiceButtons({
                 isDisabled={!isPosted}
                 onClick={() => onCreateInvoice(shipment)}
               >
-                Invoice
+                <Trans>Invoice</Trans>
               </Button>
             );
           }}
@@ -511,7 +513,7 @@ function InvoiceButtons({
               return (
                 <Button variant="secondary" leftIcon={<LuCreditCard />} asChild>
                   <Link to={path.to.salesInvoice(shipment.sourceDocumentId!)}>
-                    Invoice
+                    <Trans>Invoice</Trans>
                   </Link>
                 </Button>
               );
@@ -519,7 +521,7 @@ function InvoiceButtons({
               return (
                 <Button variant="secondary" leftIcon={<LuCreditCard />} asChild>
                   <Link to={path.to.salesInvoice(invoices[0].id!)}>
-                    Invoice
+                    <Trans>Invoice</Trans>
                   </Link>
                 </Button>
               );
@@ -532,7 +534,7 @@ function InvoiceButtons({
                       rightIcon={<LuChevronDown />}
                       variant="secondary"
                     >
-                      Invoices
+                      <Trans>Invoices</Trans>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

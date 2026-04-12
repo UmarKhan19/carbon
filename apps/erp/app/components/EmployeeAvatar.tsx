@@ -1,5 +1,6 @@
 import type { AvatarProps } from "@carbon/react";
 import { HStack } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { usePeople } from "~/stores";
 import Avatar from "./Avatar";
 
@@ -23,7 +24,11 @@ const EmployeeAvatar = ({
     return (
       <HStack className="truncate no-underline hover:no-underline">
         <Avatar size={size ?? "xs"} path={undefined} />
-        {withName && <span>System</span>}
+        {withName && (
+          <span>
+            <Trans>System</Trans>
+          </span>
+        )}
       </HStack>
     );
   }

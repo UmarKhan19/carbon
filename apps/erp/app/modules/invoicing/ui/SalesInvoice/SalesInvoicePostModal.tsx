@@ -18,6 +18,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import {
@@ -55,6 +56,7 @@ const SalesInvoicePostModal = ({
   customerContactId,
   defaultCc = []
 }: SalesInvoicePostModalProps) => {
+  const { t } = useLingui();
   const hasLinesToShip = linesToShip.length > 0;
   const integrations = useIntegrations();
   const canEmail = integrations.has("resend");
@@ -92,7 +94,9 @@ const SalesInvoicePostModal = ({
           fetcher={fetcher}
         >
           <ModalHeader>
-            <ModalTitle>Post Invoice</ModalTitle>
+            <ModalTitle>
+              <Trans>Post Invoice</Trans>
+            </ModalTitle>
             <ModalDescription>
               {hasLinesToShip ? (
                 <>
@@ -111,7 +115,9 @@ const SalesInvoicePostModal = ({
                   <Table>
                     <Thead>
                       <Tr>
-                        <Th>Item</Th>
+                        <Th>
+                          <Trans>Item</Trans>
+                        </Th>
                         <Th className="text-right">Quantity</Th>
                       </Tr>
                     </Thead>
@@ -138,7 +144,7 @@ const SalesInvoicePostModal = ({
 
               {canEmail && (
                 <SelectControlled
-                  label="Send Via"
+                  label={t`Send Via`}
                   name="notification"
                   options={[
                     {
@@ -163,7 +169,7 @@ const SalesInvoicePostModal = ({
                     name="customerContact"
                     customer={customerId ?? undefined}
                   />
-                  <EmailRecipients name="cc" label="CC" type="employee" />
+                  <EmailRecipients name="cc" label={t`CC`} type="employee" />
                 </>
               )}
             </VStack>
@@ -171,7 +177,7 @@ const SalesInvoicePostModal = ({
           <ModalFooter>
             <HStack>
               <Button variant="secondary" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 isDisabled={fetcher.state !== "idle"}

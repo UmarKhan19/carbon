@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -26,6 +27,7 @@ type ShippingMethodsTableProps = {
 const ShippingMethodsTable = memo(
   ({ data, count }: ShippingMethodsTableProps) => {
     const [params] = useUrlParams();
+    const { t } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
     const hasAccounting =
@@ -41,7 +43,7 @@ const ShippingMethodsTable = memo(
       let result: ColumnDef<(typeof rows)[number]>[] = [
         {
           accessorKey: "name",
-          header: "Name",
+          header: t`Name`,
           cell: ({ row }) => (
             <Hyperlink
               to={`${path.to.shippingMethod(
@@ -57,7 +59,7 @@ const ShippingMethodsTable = memo(
         },
         {
           accessorKey: "carrier",
-          header: "Carrier",
+          header: t`Carrier`,
           cell: (item) => <Enumerable value={item.getValue<string>()} />,
           meta: {
             filter: {
@@ -72,7 +74,7 @@ const ShippingMethodsTable = memo(
         },
         {
           accessorKey: "trackingUrl",
-          header: "Tracking URL",
+          header: t`Tracking URL`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuGlobe />
@@ -85,7 +87,7 @@ const ShippingMethodsTable = memo(
         ? result.concat([
             {
               accessorKey: "carrierAccountId",
-              header: "Carrier Account",
+              header: t`Carrier Account`,
               cell: (item) => item.getValue(),
               meta: {
                 icon: <LuBanknote />
@@ -108,7 +110,7 @@ const ShippingMethodsTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Shipping Method
+              <Trans>Edit Shipping Method</Trans>
             </MenuItem>
             <MenuItem
               disabled={!permissions.can("delete", "inventory")}
@@ -120,7 +122,7 @@ const ShippingMethodsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Shipping Method
+              <Trans>Delete Shipping Method</Trans>
             </MenuItem>
           </>
         );
@@ -136,13 +138,13 @@ const ShippingMethodsTable = memo(
         primaryAction={
           permissions.can("create", "inventory") && (
             <New
-              label="Shipping Method"
+              label={t`Shipping Method`}
               to={`${path.to.newShippingMethod}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Shipping Methods"
+        title={t`Shipping Methods`}
       />
     );
   }

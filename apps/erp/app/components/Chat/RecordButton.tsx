@@ -1,4 +1,5 @@
 import { cn, IconButton, Spinner } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { forwardRef, useCallback, useImperativeHandle } from "react";
 import { useAudioRecording } from "./hooks/useAudioRecording";
 import { useChatStore } from "./lib/store";
@@ -146,6 +147,7 @@ export interface RecordButtonRef {
 
 export const RecordButton = forwardRef<RecordButtonRef, RecordButtonProps>(
   function RecordButton({ disabled = false, className, size = 16 }, ref) {
+    const { t } = useLingui();
     const {
       input,
       setInput,
@@ -205,7 +207,7 @@ export const RecordButton = forwardRef<RecordButtonRef, RecordButtonProps>(
 
     return (
       <IconButton
-        aria-label="Record"
+        aria-label={t`Record`}
         variant="ghost"
         isRound
         icon={

@@ -31,6 +31,7 @@ import {
   VStack
 } from "@carbon/react";
 import { SUPPORT_EMAIL } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useMemo, useState } from "react";
 import { LuChevronDown } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -277,6 +278,7 @@ export function IntegrationForm({
   onClose,
   dynamicOptions = {}
 }: IntegrationFormProps) {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const isDisabled = !permissions.can("update", "settings");
   const {
@@ -362,7 +364,7 @@ export function IntegrationForm({
   }
 
   if (!integration) {
-    toast.error("Integration not found");
+    toast.error(t`Integration not found`);
     return null;
   }
 
@@ -392,7 +394,7 @@ export function IntegrationForm({
 
                   <span className="text-xs text-[#878787] text-right">
                     <Badge variant="secondary">{integration.category}</Badge> •
-                    Published by Carbon
+                    <Trans>Published by Carbon</Trans>
                   </span>
                 </div>
 
@@ -410,7 +412,9 @@ export function IntegrationForm({
           <DrawerBody>
             <ScrollArea className="h-[calc(100dvh-240px)] -mx-2 pb-8">
               <VStack spacing={4} className="px-2">
-                <Heading size="h3">How it works</Heading>
+                <Heading size="h3">
+                  <Trans>How it works</Trans>
+                </Heading>
                 <div className="text-sm text-muted-foreground">
                   {integration.description}
                 </div>
@@ -418,7 +422,9 @@ export function IntegrationForm({
                 {/* @ts-expect-error TS2339 */}
                 {integration.setupInstructions && (
                   <>
-                    <Heading size="h3">Setup Instructions</Heading>
+                    <Heading size="h3">
+                      <Trans>Setup Instructions</Trans>
+                    </Heading>
                     {/* @ts-expect-error TS2339 */}
                     <integration.setupInstructions companyId={companyId} />
                   </>
@@ -449,7 +455,9 @@ export function IntegrationForm({
                   // @ts-expect-error TS2339 - TODO: fix type
                   integration.actions.length > 0 && (
                     <>
-                      <Heading size="h3">Actions</Heading>
+                      <Heading size="h3">
+                        <Trans>Actions</Trans>
+                      </Heading>
                       <VStack spacing={2} className="w-full">
                         {/* @ts-expect-error TS7006 */}
                         {integration.actions.map((action) => (
@@ -480,14 +488,18 @@ export function IntegrationForm({
             <HStack>
               {integration.settings.length > 0 ? (
                 installed ? (
-                  <Submit isDisabled={isDisabled}>Update</Submit>
+                  <Submit isDisabled={isDisabled}>
+                    <Trans>Update</Trans>
+                  </Submit>
                 ) : (
-                  <Submit isDisabled={isDisabled}>Install</Submit>
+                  <Submit isDisabled={isDisabled}>
+                    <Trans>Install</Trans>
+                  </Submit>
                 )
               ) : null}
 
               <Button variant="solid" onClick={onClose}>
-                Close
+                <Trans>Close</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

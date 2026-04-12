@@ -1,7 +1,15 @@
-import { Avatar, Badge, HStack, MenuIcon, MenuItem } from "@carbon/react";
+import {
+  Avatar,
+  Badge,
+  HStack,
+  MenuIcon,
+  MenuItem,
+  useInterval
+} from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   LuCalendar,
   LuClock,
@@ -44,23 +52,29 @@ function formatTime(dateStr: string) {
   });
 }
 
-function formatDuration(clockInStr: string, clockOutStr: string) {
-  const ms = new Date(clockOutStr).getTime() - new Date(clockInStr).getTime();
+function formatDuration(clockInStr: string, clockOutStr: string | null) {
+  const end = clockOutStr ? new Date(clockOutStr).getTime() : Date.now();
+  const ms = end - new Date(clockInStr).getTime();
   const hours = Math.floor(ms / 3600000);
   const minutes = Math.floor((ms % 3600000) / 60000);
   return `${hours}h ${minutes}m`;
 }
 
 const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [params] = useUrlParams();
   const locations = useLocations();
+  const [, setTick] = useState(0);
+
+  // Re-render every minute to update duration for active timecards
+  useInterval(() => setTick((t) => t + 1), 60000);
 
   const columns = useMemo<ColumnDef<TimeCardEntry>[]>(
     () => [
       {
-        header: "Employee",
+        header: t`Employee`,
         cell: ({ row }) => (
           <Hyperlink to={path.to.personTimecard(row.original.employeeId!)}>
             <HStack className="items-center gap-2">
@@ -81,7 +95,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       },
       {
         accessorKey: "clockIn",
-        header: "Date",
+        header: t`Date`,
         cell: ({ row }) =>
           row.original.clockIn
             ? formatDate(row.original.clockIn, { dateStyle: "medium" })
@@ -92,7 +106,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       },
       {
         id: "clockInTime",
-        header: "Clock In",
+        header: t`Clock In`,
         cell: ({ row }) =>
           row.original.clockIn ? formatTime(row.original.clockIn) : "—",
         meta: {
@@ -101,7 +115,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       },
       {
         id: "clockOutTime",
-        header: "Clock Out",
+        header: t`Clock Out`,
         cell: ({ row }) =>
           row.original.clockOut ? formatTime(row.original.clockOut) : "—",
         meta: {
@@ -110,9 +124,9 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       },
       {
         id: "duration",
-        header: "Duration",
+        header: t`Duration`,
         cell: ({ row }) => {
-          if (!row.original.clockIn || !row.original.clockOut) return "—";
+          if (!row.original.clockIn) return "—";
           return formatDuration(row.original.clockIn, row.original.clockOut);
         },
         meta: {
@@ -121,7 +135,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t`Status`,
         cell: ({ row }) => (
           <Badge
             variant={row.original.status === "Active" ? "green" : "secondary"}
@@ -149,7 +163,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       },
       {
         accessorKey: "locationName",
-        header: "Location",
+        header: t`Location`,
         cell: ({ row }) => (
           <Enumerable value={row.original.locationName ?? null} />
         ),
@@ -166,7 +180,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
         }
       }
     ],
-    [locations]
+    [locations, t]
   );
 
   const renderContextMenu = useCallback(
@@ -181,7 +195,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
             }
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Timecard
+            <Trans>Edit Timecard</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -193,7 +207,7 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
             }
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Timecard
+            <Trans>Delete Timecard</Trans>
           </MenuItem>
         </>
       );
@@ -208,14 +222,14 @@ const TimecardsTable = memo(({ data, count }: TimecardsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "people") && (
-          <New label="Timecard" to={`new?${params.toString()}`} />
+          <New label={t`Timecard`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}
       withSearch
       withPagination
       withSavedView
-      title="Timecards"
+      title={t`Timecards`}
       table="timeCardEntry"
     />
   );

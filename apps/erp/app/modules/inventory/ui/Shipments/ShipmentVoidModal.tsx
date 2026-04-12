@@ -13,6 +13,7 @@ import {
   ModalOverlay,
   ModalTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useRef } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher, useNavigation, useParams } from "react-router";
@@ -43,23 +44,37 @@ const ShipmentVoidModal = ({ onClose }: { onClose: () => void }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Void Shipment</ModalTitle>
+          <ModalTitle>
+            <Trans>Void Shipment</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to void this shipment? This action will
-            reverse all inventory transactions and cannot be undone.
+            <Trans>
+              Are you sure you want to void this shipment? This action will
+              reverse all inventory transactions and cannot be undone.
+            </Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
           <Alert variant="destructive">
             <LuTriangleAlert className="h-4 w-4" />
-            <AlertTitle>Warning</AlertTitle>
+            <AlertTitle>
+              <Trans>Warning</Trans>
+            </AlertTitle>
             <AlertDescription>
-              Voiding this shipment will:
+              <Trans>Voiding this shipment will:</Trans>
               <ul className="list-disc pl-4 mt-2 space-y-1">
-                <li>Reverse all inventory adjustments</li>
-                <li>Make tracked entities available again</li>
-                <li>Update source document quantities</li>
-                <li>Create audit trail entries</li>
+                <li>
+                  <Trans>Reverse all inventory adjustments</Trans>
+                </li>
+                <li>
+                  <Trans>Make tracked entities available again</Trans>
+                </li>
+                <li>
+                  <Trans>Update source document quantities</Trans>
+                </li>
+                <li>
+                  <Trans>Create audit trail entries</Trans>
+                </li>
               </ul>
             </AlertDescription>
           </Alert>
@@ -67,7 +82,7 @@ const ShipmentVoidModal = ({ onClose }: { onClose: () => void }) => {
         <ModalFooter>
           <HStack>
             <Button variant="solid" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <fetcher.Form
               action={path.to.shipmentVoid(shipmentId)}

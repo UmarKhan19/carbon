@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
@@ -61,6 +62,7 @@ const GroupAccountForm = ({
 }: GroupAccountFormProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher();
+  const { t } = useLingui();
 
   const parentGroup = groupAccounts.find(
     (a) => a.id === initialValues.parentId
@@ -136,10 +138,10 @@ const GroupAccountForm = ({
               <Hidden name="incomeBalance" value={incomeBalance} />
               <Hidden name="class" value={accountClass} />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <Combobox
                   name="parentId"
-                  label="Parent Group"
+                  label={t`Parent Group`}
                   options={groupAccounts
                     .filter((a) => a.id !== initialValues.id)
                     .filter((a) =>
@@ -155,7 +157,7 @@ const GroupAccountForm = ({
                 />
                 <Combobox
                   name="accountType"
-                  label="Account Type"
+                  label={t`Account Type`}
                   options={accountTypes.map((t) => ({
                     label: t,
                     value: t
@@ -164,7 +166,7 @@ const GroupAccountForm = ({
                 {isRootGroup || parentIsSystem ? (
                   <Combobox
                     name="_class"
-                    label="Class"
+                    label={t`Class`}
                     options={(parentIsSystem
                       ? (incomeBalanceToClasses[incomeBalance] ??
                         accountClassTypes)
@@ -186,13 +188,13 @@ const GroupAccountForm = ({
                   <>
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-muted-foreground">
-                        Income/Balance
+                        <Trans>Income/Balance</Trans>
                       </label>
                       <p className="text-sm">{incomeBalance}</p>
                     </div>
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-muted-foreground">
-                        Class
+                        <Trans>Class</Trans>
                       </label>
                       <p className="text-sm">{accountClass}</p>
                     </div>
@@ -202,9 +204,11 @@ const GroupAccountForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose?.()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

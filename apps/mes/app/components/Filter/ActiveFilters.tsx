@@ -13,6 +13,7 @@ import {
   reactNodeToString,
   useMount
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { LuX } from "react-icons/lu";
@@ -57,6 +58,7 @@ type ActiveFilterProps = {
 };
 
 const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
+  const { t } = useLingui();
   const { hasFilter, removeKey, toggleFilter } = useFilters();
 
   const [open, setOpen] = useState(false);
@@ -133,7 +135,11 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         size="sm"
         variant="secondary"
       >
-        {operator === "eq" ? "is" : operator === "in" ? "is any of" : "matches"}
+        {operator === "eq"
+          ? t`is`
+          : operator === "in"
+            ? t`is any of`
+            : t`matches`}
       </Button>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -157,11 +163,11 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder="Search..."
+              placeholder={t`Search...`}
               className="h-9"
             />
             <CommandEmpty>
-              {loading ? "Loading..." : "No options found."}
+              {loading ? t`Loading...` : t`No options found.`}
             </CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
@@ -191,7 +197,7 @@ const ActiveFilter = ({ filter, operator, value }: ActiveFilterProps) => {
         </PopoverContent>
       </Popover>
       <Button
-        aria-label="Remove filter"
+        aria-label={t`Remove filter`}
         className="rounded-l-none before:rounded-l-none border-l-0 px-1 w-6"
         size="sm"
         variant="secondary"

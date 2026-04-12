@@ -8,6 +8,7 @@ import {
   ValidatedForm
 } from "@carbon/form";
 import { Button, ModalFooter, VStack } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useId, useMemo, useState } from "react";
 import z from "zod";
 import { useAsyncFetcher } from "~/hooks/useAsyncFetcher";
@@ -28,6 +29,7 @@ const createIssueValidator = z.object({
 });
 
 export const CreateIssue = (props: Props) => {
+  const { t } = useLingui();
   const id = useId();
   const [projectKey, setProjectKey] = useState<string | undefined>();
 
@@ -71,31 +73,36 @@ export const CreateIssue = (props: Props) => {
         <Hidden name="actionId" value={props.task.id} />
         <Select
           isLoading={isLoading}
-          label="Project"
+          label={t`Project`}
           name="projectKey"
-          placeholder="Select a project"
+          placeholder={t`Select a project`}
           value={projectKey}
           onChange={(e) => setProjectKey(e?.value)}
           options={projectOptions}
         />
         <Select
           isLoading={isLoading}
-          label="Issue Type"
+          label={t`Issue Type`}
           name="issueTypeId"
-          placeholder="Select an issue type"
+          placeholder={t`Select an issue type`}
           options={issueTypeOptions}
           isDisabled={!projectKey || issueTypes.length === 0}
         />
-        <Input label="Title" name="title" placeholder="Issue title" required />
+        <Input
+          label={t`Title`}
+          name="title"
+          placeholder={t`Issue title`}
+          required
+        />
         <TextArea
-          label="Description"
+          label={t`Description`}
           name="description"
-          placeholder="Issue description"
+          placeholder={t`Issue description`}
         />
         <Select
-          label="Assign To"
+          label={t`Assign To`}
           name="assignee"
-          placeholder="Select an assignee"
+          placeholder={t`Select an assignee`}
           isOptional
           options={memberOptions}
           isDisabled={!projectKey || members.length === 0}
@@ -108,9 +115,11 @@ export const CreateIssue = (props: Props) => {
             props.onClose();
           }}
         >
-          Cancel
+          <Trans>Cancel</Trans>
         </Button>
-        <Submit>Create</Submit>
+        <Submit>
+          <Trans>Create</Trans>
+        </Submit>
       </ModalFooter>
     </ValidatedForm>
   );

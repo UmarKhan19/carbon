@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { getAttributeCategoryWithValues } from "~/modules/account";
@@ -58,7 +59,7 @@ export default function PersonAttributeCategoryRoute() {
         </CardTitle>
         <CardDescription>
           <Badge variant={category.public ? "default" : "secondary"}>
-            {category.public ? "Public" : "Private"}
+            {category.public ? <Trans>Public</Trans> : <Trans>Private</Trans>}
           </Badge>
         </CardDescription>
       </CardHeader>

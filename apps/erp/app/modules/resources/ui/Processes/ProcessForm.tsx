@@ -19,6 +19,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import {
@@ -61,6 +62,7 @@ const ProcessForm = ({
   type = "drawer",
   onClose
 }: ProcessFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -69,11 +71,11 @@ const ProcessForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created process`);
+      toast.success(t`Created process`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(`Failed to create process: ${fetcher.data.error.message}`);
+      toast.error(t`Failed to create process: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -105,17 +107,21 @@ const ProcessForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Process
+                {isEditing ? (
+                  <Trans>Edit Process</Trans>
+                ) : (
+                  <Trans>New Process</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Process Name" />
+                <Input name="name" label={t`Process Name`} />
                 <Select
                   name="processType"
-                  label="Process Type"
+                  label={t`Process Type`}
                   options={processTypes.map((pt) => ({
                     value: pt,
                     label: pt
@@ -130,10 +136,10 @@ const ProcessForm = ({
                   <>
                     <StandardFactor
                       name="defaultStandardFactor"
-                      label="Default Unit"
+                      label={t`Default Unit`}
                       value={initialValues.defaultStandardFactor}
                     />
-                    <WorkCenters name="workCenters" label="Work Centers" />
+                    <WorkCenters name="workCenters" label={t`Work Centers`} />
                   </>
                 )}
                 {processType !== "Inside" && (
@@ -142,16 +148,18 @@ const ProcessForm = ({
                 <Boolean
                   name="completeAllOnScan"
                   label=""
-                  description="Complete all quantities on barcode scan"
+                  description={t`Complete all quantities on barcode scan`}
                 />
                 <CustomFormFields table="process" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose?.()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>
@@ -165,6 +173,7 @@ const ProcessForm = ({
 export default ProcessForm;
 
 function SupplierProcesses({ processId }: { processId?: string }) {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const processes = useSupplierProcesses({ processId });
   const navigate = useNavigate();
@@ -176,7 +185,7 @@ function SupplierProcesses({ processId }: { processId?: string }) {
       <div className="flex flex-col gap-2 w-full">
         {processes.length > 0 && (
           <>
-            <label className="text-muted-foreground text-xs">Suppliers</label>
+            <label className="text-muted-foreground text-xs">{t`Suppliers`}</label>
             {processes.map((sp) => (
               <HStack
                 key={sp.id}
@@ -186,7 +195,7 @@ function SupplierProcesses({ processId }: { processId?: string }) {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
-                      aria-label="Edit supplier process"
+                      aria-label={t`Edit supplier process`}
                       icon={<LuEllipsisVertical />}
                       size="md"
                       variant="ghost"
@@ -203,7 +212,7 @@ function SupplierProcesses({ processId }: { processId?: string }) {
                       disabled={!permissions.can("update", "purchasing")}
                     >
                       <DropdownMenuIcon icon={<LuPencil />} />
-                      Edit Process
+                      <Trans>Edit Process</Trans>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
@@ -214,7 +223,7 @@ function SupplierProcesses({ processId }: { processId?: string }) {
                       disabled={!permissions.can("delete", "purchasing")}
                     >
                       <DropdownMenuIcon icon={<LuTrash />} />
-                      Delete Process
+                      <Trans>Delete Process</Trans>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -228,7 +237,7 @@ function SupplierProcesses({ processId }: { processId?: string }) {
           variant="secondary"
           onClick={newSupplierProcessModal.onOpen}
         >
-          Add Supplier
+          <Trans>Add Supplier</Trans>
         </Button>
       </div>
       {newSupplierProcessModal.isOpen && processId && (

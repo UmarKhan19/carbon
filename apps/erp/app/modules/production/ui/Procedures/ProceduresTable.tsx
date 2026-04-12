@@ -8,6 +8,7 @@ import {
   MenuItem,
   useDisclosure
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -40,6 +41,7 @@ type ProceduresTableProps = {
 
 const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const processes = useProcesses();
   const deleteDisclosure = useDisclosure();
@@ -51,7 +53,7 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
     const defaultColumns: ColumnDef<Procedures>[] = [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <div className="flex flex-col gap-0">
             <Hyperlink to={path.to.procedure(row.original.id!)}>
@@ -68,7 +70,7 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
       },
       {
         accessorKey: "processId",
-        header: "Process",
+        header: t`Process`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -87,7 +89,7 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t`Status`,
         cell: ({ row }) => <ProcedureStatus status={row.original.status} />,
         meta: {
           icon: <LuCalendar />
@@ -95,7 +97,7 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
       },
       {
         accessorKey: "assignee",
-        header: "Assignee",
+        header: t`Assignee`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -105,7 +107,7 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
       },
       {
         accessorKey: "tags",
-        header: "Tags",
+        header: t`Tags`,
         cell: ({ row }) => (
           <HStack spacing={0} className="gap-1">
             {row.original.tags?.map((tag) => (
@@ -129,7 +131,7 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
       },
       {
         id: "versions",
-        header: "Versions",
+        header: t`Versions`,
         cell: ({ row }) => {
           const versions = row.original?.versions as Array<{
             id: string;
@@ -177,7 +179,7 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
       }
     ];
     return [...defaultColumns];
-  }, [processes, tags]);
+  }, [processes, tags, t]);
 
   const renderContextMenu = useCallback(
     (row: Procedures) => {
@@ -219,11 +221,11 @@ const ProceduresTable = memo(({ data, tags, count }: ProceduresTableProps) => {
         count={count}
         primaryAction={
           permissions.can("create", "production") && (
-            <New label="Procedure" to={path.to.newProcedure} />
+            <New label={t`Procedure`} to={path.to.newProcedure} />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Procedures"
+        title={t`Procedures`}
         table="procedure"
         withSavedView
       />

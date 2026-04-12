@@ -7,7 +7,11 @@ import type {
   ProviderConfig,
   ProviderCredentials
 } from "../../core/types";
-import { createOAuthClient, HTTPClient } from "../../core/utils";
+import {
+  createOAuthClient,
+  HTTPClient,
+  type HttpResponse
+} from "../../core/utils";
 import type { Xero } from "./models";
 
 export interface ListContactsOptions {
@@ -110,7 +114,11 @@ export class XeroProvider implements BaseProvider {
     return this.auth.exchangeCode(code, redirectUri);
   }
 
-  async request<T>(method: string, url: string, options?: RequestInit) {
+  async request<T>(
+    method: string,
+    url: string,
+    options?: RequestInit
+  ): Promise<HttpResponse<T>> {
     const { accessToken, ...creds } = this.auth.getCredentials();
 
     const tenantId = creds.tenantId || this.config.tenantId;

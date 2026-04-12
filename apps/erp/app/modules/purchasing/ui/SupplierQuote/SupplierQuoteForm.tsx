@@ -12,6 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
@@ -46,6 +47,7 @@ type SupplierQuoteFormProps = {
 };
 
 const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -75,7 +77,7 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t`Carbon client not found`);
       return;
     }
 
@@ -95,7 +97,7 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
         .eq("id", newValue.value)
         .single();
       if (error) {
-        toast.error("Error fetching supplier data");
+        toast.error(t`Error fetching supplier data`);
       } else {
         setSupplier((prev) => ({
           ...prev,
@@ -145,41 +147,41 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="supplierQuoteId"
-                  label="Supplier Quote ID"
+                  label={t`Supplier Quote ID`}
                   table="supplierQuote"
                 />
               )}
               <Supplier
                 autoFocus={!isEditing}
                 name="supplierId"
-                label="Supplier"
+                label={t`Supplier`}
                 onChange={onSupplierChange}
               />
-              <Input name="supplierReference" label="Supplier Ref. Number" />
+              <Input name="supplierReference" label={t`Supplier Ref. Number`} />
 
               <SupplierLocation
                 name="supplierLocationId"
-                label="Supplier Location"
+                label={t`Supplier Location`}
                 isOptional
                 supplier={supplier.id}
               />
               <SupplierContact
                 name="supplierContactId"
-                label="Supplier Contact"
+                label={t`Supplier Contact`}
                 isOptional
                 supplier={supplier.id}
                 value={supplier.supplierContactId}
               />
-              <DatePicker name="quotedDate" label="Quoted Date" />
+              <DatePicker name="quotedDate" label={t`Quoted Date`} />
               <DatePicker
                 name="expirationDate"
-                label="Expiration Date"
+                label={t`Expiration Date`}
                 minValue={today(getLocalTimeZone())}
               />
 
               <Currency
                 name="currencyCode"
-                label="Currency"
+                label={t`Currency`}
                 value={supplier.currencyCode}
                 onChange={(
                   newValue: {
@@ -221,7 +223,7 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
                 )}
               <Select
                 name="supplierQuoteType"
-                label="Type"
+                label={t`Type`}
                 options={purchaseOrderTypeType.map((type) => ({
                   label: type,
                   value: type
@@ -240,7 +242,7 @@ const SupplierQuoteForm = ({ initialValues }: SupplierQuoteFormProps) => {
                 : !permissions.can("create", "purchasing"))
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

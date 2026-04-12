@@ -21,6 +21,7 @@ import {
 } from "@carbon/react";
 
 import { getItemReadableId } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useMemo } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher, useNavigate } from "react-router";
@@ -82,7 +83,9 @@ const PurchaseInvoicePostModal = ({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Post Invoice</ModalTitle>
+          <ModalTitle>
+            <Trans>Post Invoice</Trans>
+          </ModalTitle>
         </ModalHeader>
         <ModalBody>
           {hasLinesToReceive ? (
@@ -95,7 +98,9 @@ const PurchaseInvoicePostModal = ({
                   </p>
                   <Alert variant="destructive">
                     <LuTriangleAlert className="h-4 w-4" />
-                    <AlertTitle>Serial or Batch Tracking Required</AlertTitle>
+                    <AlertTitle>
+                      <Trans>Serial or Batch Tracking Required</Trans>
+                    </AlertTitle>
                     <AlertDescription>
                       Some items require serial or batch tracking. The receipt
                       will be created but not posted. You will be redirected to
@@ -112,7 +117,9 @@ const PurchaseInvoicePostModal = ({
               <Table>
                 <Thead>
                   <Tr>
-                    <Th>Item</Th>
+                    <Th>
+                      <Trans>Item</Trans>
+                    </Th>
                     <Th className="text-right">Quantity</Th>
                   </Tr>
                 </Thead>
@@ -144,7 +151,7 @@ const PurchaseInvoicePostModal = ({
         <ModalFooter>
           <HStack>
             <Button variant="solid" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <fetcher.Form
               method="post"

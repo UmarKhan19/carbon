@@ -11,6 +11,7 @@ import {
 import { useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { themes } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { RxCheck } from "react-icons/rx";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
@@ -40,9 +41,11 @@ const ThemeForm = ({ theme: defaultValues }: ThemeFormProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Theme</CardTitle>
+        <CardTitle>
+          <Trans>Theme</Trans>
+        </CardTitle>
         <CardDescription>
-          This updates the theme for all users of the application
+          <Trans>This updates the theme for all users of the application</Trans>
         </CardDescription>
       </CardHeader>
       <CardContent>

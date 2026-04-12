@@ -5,6 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Card, CardHeader, CardTitle, Spinner } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Fragment, Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
@@ -152,6 +153,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EditSalesOrderLineRoute() {
+  const { t } = useLingui();
   const { line, jobs, itemReplenishment, files, shipments } =
     useLoaderData<typeof loader>();
   const permissions = usePermissions();
@@ -204,7 +206,7 @@ export default function EditSalesOrderLineRoute() {
       <OpportunityLineNotes
         id={line.id}
         table="salesOrderLine"
-        title="Notes"
+        title={t`Notes`}
         subTitle={line.itemReadableId ?? ""}
         internalNotes={line.internalNotes as JSONContent}
         externalNotes={line.externalNotes as JSONContent}
@@ -215,14 +217,20 @@ export default function EditSalesOrderLineRoute() {
           fallback={
             <Card className="min-h-[264px]">
               <CardHeader>
-                <CardTitle>Jobs</CardTitle>
+                <CardTitle>
+                  <Trans>Jobs</Trans>
+                </CardTitle>
               </CardHeader>
             </Card>
           }
         >
           <Await
             resolve={itemReplenishment}
-            errorElement={<div>Error loading make method</div>}
+            errorElement={
+              <div>
+                <Trans>Error loading make method</Trans>
+              </div>
+            }
           >
             {(resolvedItemReplenishment) => (
               <SalesOrderLineJobs
@@ -277,7 +285,7 @@ export default function EditSalesOrderLineRoute() {
           itemId: line?.itemId ?? undefined
         }}
         modelPath={line?.modelPath ?? null}
-        title="CAD Model"
+        title={t`CAD Model`}
         uploadClassName="aspect-square min-h-[420px] max-h-[70vh]"
         viewerClassName="aspect-square min-h-[420px] max-h-[70vh]"
       />

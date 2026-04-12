@@ -5,6 +5,7 @@ import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import { Fragment } from "react/jsx-runtime";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -138,6 +139,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function EditPurchaseInvoiceLineRoute() {
+  const { t } = useLingui();
   const { invoiceId, lineId } = useParams();
   if (!invoiceId) throw notFound("invoiceId not found");
   if (!lineId) throw notFound("lineId not found");
@@ -185,7 +187,7 @@ export default function EditPurchaseInvoiceLineRoute() {
       <SupplierInteractionLineNotes
         id={purchaseInvoiceLine?.id ?? ""}
         table="purchaseInvoiceLine"
-        title="Notes"
+        title={t`Notes`}
         subTitle={getItemReadableId(items, purchaseInvoiceLine?.itemId) ?? ""}
         internalNotes={purchaseInvoiceLine?.internalNotes as JSONContent}
       />

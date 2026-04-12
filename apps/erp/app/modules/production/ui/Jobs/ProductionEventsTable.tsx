@@ -1,5 +1,6 @@
 import { Badge, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDateTime, formatDurationMilliseconds } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -29,6 +30,7 @@ type ProductionEventsTableProps = {
 const ProductionEventsTable = memo(
   ({ data, count, operations, workCenters }: ProductionEventsTableProps) => {
     const { jobId } = useParams();
+    const { t } = useLingui();
     if (!jobId) throw new Error("Job ID is required");
     const [people] = usePeople();
 
@@ -36,7 +38,7 @@ const ProductionEventsTable = memo(
       return [
         {
           accessorKey: "jobOperationId",
-          header: "Operation",
+          header: t`Operation`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               {row.original.jobOperation?.description ?? null}
@@ -54,7 +56,7 @@ const ProductionEventsTable = memo(
         },
         {
           id: "item",
-          header: "Item",
+          header: t`Item`,
           cell: ({ row }) => {
             return row.original.jobOperation?.jobMakeMethod?.item
               ?.readableIdWithRevision;
@@ -62,7 +64,7 @@ const ProductionEventsTable = memo(
         },
         {
           accessorKey: "employeeId",
-          header: "Employee",
+          header: t`Employee`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.employeeId} />
           ),
@@ -78,7 +80,7 @@ const ProductionEventsTable = memo(
         },
         {
           accessorKey: "type",
-          header: "Type",
+          header: t`Type`,
           cell: ({ row }) => (
             <Badge
               variant={
@@ -118,7 +120,7 @@ const ProductionEventsTable = memo(
         },
         {
           accessorKey: "duration",
-          header: "Duration",
+          header: t`Duration`,
           cell: ({ row }) =>
             row.original.duration
               ? formatDurationMilliseconds(row.original.duration * 1000)
@@ -126,7 +128,7 @@ const ProductionEventsTable = memo(
         },
         {
           accessorKey: "workCenterId",
-          header: "Work Center",
+          header: t`Work Center`,
           cell: ({ row }) => {
             const workCenter = workCenters.find(
               (wc) => wc.id === row.original.workCenterId
@@ -145,18 +147,18 @@ const ProductionEventsTable = memo(
         },
         {
           accessorKey: "startTime",
-          header: "Start Time",
+          header: t`Start Time`,
           cell: ({ row }) => formatDateTime(row.original.startTime)
         },
         {
           accessorKey: "endTime",
-          header: "End Time",
+          header: t`End Time`,
           cell: ({ row }) =>
             row.original.endTime ? formatDateTime(row.original.endTime) : null
         },
         {
           accessorKey: "notes",
-          header: "Notes",
+          header: t`Notes`,
           cell: ({ row }) => (
             <div
               className="max-w-[200px] truncate"
@@ -167,7 +169,7 @@ const ProductionEventsTable = memo(
           )
         }
       ];
-    }, [operations, people, workCenters]);
+    }, [operations, people, workCenters, t]);
 
     const permissions = usePermissions();
 
@@ -225,11 +227,14 @@ const ProductionEventsTable = memo(
           data={data}
           primaryAction={
             permissions.can("update", "accounting") && (
-              <New label="Production Event" to={`new?${params.toString()}`} />
+              <New
+                label={t`Production Event`}
+                to={`new?${params.toString()}`}
+              />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Production Events"
+          title={t`Production Events`}
         />
         {deleteModal.isOpen && selectedEvent && (
           <ConfirmDelete

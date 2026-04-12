@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
 import { Menubar, VStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
@@ -131,6 +132,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function PartMakeMethodPage() {
+  const { t } = useLingui();
   const loaderData = useLoaderData<typeof loader>();
   const permissions = usePermissions();
   const {
@@ -199,7 +201,7 @@ export default function PartMakeMethodPage() {
                 itemId: model?.itemId ?? undefined
               }}
               modelPath={model?.modelPath ?? null}
-              title="CAD Model"
+              title={t`CAD Model`}
               uploadClassName="aspect-square min-h-[420px] max-h-[70vh]"
               viewerClassName="aspect-square min-h-[420px] max-h-[70vh]"
             />

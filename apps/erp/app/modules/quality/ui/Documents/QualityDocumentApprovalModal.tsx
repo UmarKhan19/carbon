@@ -9,6 +9,7 @@ import {
   ModalHeader,
   ModalTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { FetcherWithComponents } from "react-router";
 import { useParams } from "react-router";
 import type { ApprovalDecision } from "~/modules/shared/types";
@@ -31,6 +32,7 @@ const QualityDocumentApprovalModal = ({
   onClose,
   fetcher
 }: QualityDocumentApprovalModalProps) => {
+  const { t } = useLingui();
   const { id } = useParams();
   if (!id) throw new Error("id not found");
 
@@ -73,13 +75,13 @@ const QualityDocumentApprovalModal = ({
             <Hidden name="decision" />
             <TextArea
               name="notes"
-              label="Notes (optional)"
-              placeholder="Add any notes about your decision..."
+              label={t`Notes (optional)`}
+              placeholder={t`Add any notes about your decision...`}
             />
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Button
               type="submit"

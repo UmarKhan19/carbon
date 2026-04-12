@@ -15,6 +15,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import { LuMailX } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -41,6 +42,7 @@ const FinalizeRFQModal = ({
   suppliers,
   onClose
 }: FinalizeRFQModalProps) => {
+  const { t } = useLingui();
   const integrations = useIntegrations();
   const canEmail = integrations.has("resend");
   const fetcher = useFetcher<{ error: string | null }>();
@@ -80,7 +82,9 @@ const FinalizeRFQModal = ({
           fetcher={fetcher}
         >
           <ModalHeader>
-            <ModalTitle>Send RFQ to Suppliers</ModalTitle>
+            <ModalTitle>
+              <Trans>Send RFQ to Suppliers</Trans>
+            </ModalTitle>
             <ModalDescription>
               Create supplier quotes and send quote requests to the selected
               suppliers.
@@ -92,7 +96,9 @@ const FinalizeRFQModal = ({
               {!canEmail ? (
                 <Alert variant="warning">
                   <LuMailX className="h-4 w-4" />
-                  <AlertTitle>Email notifications not configured</AlertTitle>
+                  <AlertTitle>
+                    <Trans>Email notifications not configured</Trans>
+                  </AlertTitle>
                   <AlertDescription>
                     Configure the Resend integration to enable email
                     notifications. Supplier quotes will still be created and you
@@ -128,7 +134,7 @@ const FinalizeRFQModal = ({
                       <SupplierContact
                         name={`suppliers[${index}].contactId`}
                         supplier={supplier.supplierId}
-                        label="Contact (optional)"
+                        label={t`Contact (optional)`}
                       />
                     )}
                   </VStack>
@@ -144,7 +150,7 @@ const FinalizeRFQModal = ({
 
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Button type="submit" isDisabled={isLoading} isLoading={isLoading}>
               Send to {suppliers.length} Supplier

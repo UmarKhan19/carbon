@@ -43,6 +43,7 @@ import {
   usePrettifyShortcut,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -101,7 +102,9 @@ export function StockTransferWizard({
     >
       <DrawerContent size="full">
         <DrawerHeader className="px-4">
-          <DrawerTitle>Stock Transfer Wizard</DrawerTitle>
+          <DrawerTitle>
+            <Trans>Stock Transfer Wizard</Trans>
+          </DrawerTitle>
         </DrawerHeader>
         <DrawerBody className="w-full h-full p-0">
           <TransferGrid locationId={locationId} />
@@ -125,6 +128,7 @@ type TransferTableRow = {
 };
 
 function TransferGrid({ locationId }: { locationId: string }) {
+  const { t } = useLingui();
   const [pageSize, setPageSize] = useState(100);
   const formatter = useNumberFormatter();
 
@@ -362,12 +366,12 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </VStack>
           </HStack>
         ),
-        header: "Item ID"
+        header: t`Item ID`
       },
       {
         accessorKey: "shelfName",
         cell: ({ row }) => row.original.shelfName,
-        header: "Shelf"
+        header: t`Shelf`
       },
       {
         accessorKey: "quantityOnHand",
@@ -405,12 +409,12 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </div>
           );
         },
-        header: "On Shelf"
+        header: t`On Shelf`
       },
       {
         accessorKey: "quantityRequired",
         cell: ({ row }) => formatter.format(row.original.quantityRequired),
-        header: "Required"
+        header: t`Required`
       },
 
       {
@@ -479,12 +483,12 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </div>
           );
         },
-        header: "Available"
+        header: t`Available`
       },
       {
         accessorKey: "quantityIncoming",
         cell: ({ row }) => formatter.format(row.original.quantityIncoming),
-        header: "Incoming"
+        header: t`Incoming`
       },
       {
         id: "actions",
@@ -533,7 +537,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
         header: ""
       }
     ];
-  }, [formatter, wizard.lines]);
+  }, [formatter, wizard.lines, t]);
 
   const [items] = useItems();
 
@@ -672,7 +676,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </NumberField>
           );
         },
-        header: "Quantity"
+        header: t`Quantity`
       },
       {
         accessorKey: "itemReadableId",
@@ -692,12 +696,12 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </VStack>
           </HStack>
         ),
-        header: "Item ID"
+        header: t`Item ID`
       },
       {
         accessorKey: "shelfName",
         cell: ({ row }) => row.original.shelfName,
-        header: "Shelf"
+        header: t`Shelf`
       },
       {
         accessorKey: "quantityOnHand",
@@ -744,7 +748,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </div>
           );
         },
-        header: "On Shelf"
+        header: t`On Shelf`
       },
       {
         accessorKey: "quantityAvailable",
@@ -836,17 +840,17 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </div>
           );
         },
-        header: "Available"
+        header: t`Available`
       },
       {
         accessorKey: "quantityRequired",
         cell: ({ row }) => formatter.format(row.original.quantityRequired),
-        header: "Required"
+        header: t`Required`
       },
       {
         accessorKey: "quantityIncoming",
         cell: ({ row }) => formatter.format(row.original.quantityIncoming),
-        header: "Incoming"
+        header: t`Incoming`
       }
     ];
   }, [
@@ -854,7 +858,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
     wizard.selectedToItemShelfIds,
     wizard.lines,
     items,
-    formatter
+    formatter,
+    t
   ]);
 
   return (
@@ -863,7 +868,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
         <div className="flex flex-col">
           <div className="flex-1 border-r">
             <TransferTable
-              title="Transfer To"
+              title={t`Transfer To`}
               data={paginatedTransferTo}
               isLoading={transferToIsLoading}
               columns={columnsTo}
@@ -886,7 +891,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
         <div className="flex flex-col">
           <div className="flex-1">
             <TransferTable
-              title="Transfer From"
+              title={t`Transfer From`}
               data={paginatedTransferFrom}
               isLoading={transferFromIsLoading}
               columns={columnsFrom}
@@ -954,6 +959,7 @@ function TransferTable({
   onSearchChange: (value: string) => void;
   isRowSelected?: (row: TransferTableRow) => boolean;
 }) {
+  const { t } = useLingui();
   const pageSizes = [20, 100, 500, 1000];
   if (!pageSizes.includes(pageSize)) {
     pageSizes.push(pageSize);
@@ -986,7 +992,7 @@ function TransferTable({
                 onChange={(e) => {
                   onSearchChange(e.target.value);
                 }}
-                placeholder="Search"
+                placeholder={t`Search`}
                 className="w-[100px] sm:w-[200px] text-sm"
               />
             </InputGroup>
@@ -1195,6 +1201,7 @@ function PaginationButtons({
 }
 
 const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
+  const { t } = useLingui();
   const fetcher = useFetcher<Result>();
 
   useEffect(() => {
@@ -1280,7 +1287,7 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
             />
             <IconButton
               variant="ghost"
-              aria-label="Close"
+              aria-label={t`Close`}
               icon={<LuX className="size-4" />}
               onClick={() => setIsMinimized(true)}
             />
@@ -1330,7 +1337,7 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
                         </div>
                         <IconButton
                           variant="secondary"
-                          aria-label="Remove item"
+                          aria-label={t`Remove item`}
                           icon={<LuTrash2 />}
                           size="sm"
                           onClick={() =>

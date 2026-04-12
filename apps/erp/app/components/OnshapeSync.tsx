@@ -21,6 +21,7 @@ import {
   useMount
 } from "@carbon/react";
 import { formatDateTime } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LuChevronRight } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -59,6 +60,7 @@ export const OnshapeSync = ({
   makeMethodId: string;
   isDisabled: boolean;
 }) => {
+  const { t } = useLingui();
   const [initialized, setInitialized] = useState(false);
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [versionId, setVersionId] = useState<string | null>(null);
@@ -68,7 +70,7 @@ export const OnshapeSync = ({
   const { carbon } = useCarbon();
   useMount(() => {
     if (!carbon) {
-      toast.error("Failed to load item data");
+      toast.error(t`Failed to load item data`);
       return;
     }
     carbon
@@ -227,13 +229,13 @@ export const OnshapeSync = ({
       setBomRows([]);
       setLastSyncedAt(new Date().toISOString());
       syncSubmitted.current = false;
-      toast.success("BOM synced successfully");
+      toast.success(t`BOM synced successfully`);
     }
 
     if (upsertBomFetcher.data?.success === false) {
       toast.error(upsertBomFetcher.data.message);
     }
-  }, [bomRows.length, upsertBomFetcher.data]);
+  }, [bomRows.length, upsertBomFetcher.data, t]);
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -241,7 +243,7 @@ export const OnshapeSync = ({
         <div className="flex items-center w-full justify-between">
           <OnshapeLogo className="h-5 w-auto" />
           <IconButton
-            aria-label="Show sync options"
+            aria-label={t`Show sync options`}
             variant="ghost"
             size="sm"
             icon={<LuChevronRight />}
@@ -253,7 +255,9 @@ export const OnshapeSync = ({
         {disclosure.isOpen && (
           <>
             <div className="flex w-full items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">Document:</span>
+              <span className="text-xs text-muted-foreground">
+                <Trans>Document:</Trans>
+              </span>
               <div className="w-[180px]">
                 <Combobox
                   isLoading={documentsFetcher.state === "loading"}
@@ -272,7 +276,9 @@ export const OnshapeSync = ({
             </div>
 
             <div className="flex w-full items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">Version:</span>
+              <span className="text-xs text-muted-foreground">
+                <Trans>Version:</Trans>
+              </span>
               <div className="w-[180px]">
                 <Combobox
                   isLoading={versionsFetcher.state === "loading"}
@@ -290,7 +296,9 @@ export const OnshapeSync = ({
             </div>
 
             <div className="flex w-full items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">Element:</span>
+              <span className="text-xs text-muted-foreground">
+                <Trans>Assembly:</Trans>
+              </span>
               <div className="w-[180px]">
                 <Combobox
                   isLoading={elementsFetcher.state === "loading"}
@@ -342,7 +350,7 @@ export const OnshapeSync = ({
         <div className="flex items-center gap-1 w-full justify-between">
           {lastSyncedAt ? (
             <span className="text-xs text-muted-foreground">
-              Last synced: {formatDateTime(lastSyncedAt)}
+              <Trans>Last synced: {formatDateTime(lastSyncedAt)}</Trans>
             </span>
           ) : (
             <div />
@@ -358,7 +366,7 @@ export const OnshapeSync = ({
                   onClick={() => setInitialized(true)}
                   isDisabled={isDisabled}
                 >
-                  Fetch
+                  <Trans>Fetch</Trans>
                 </Button>
               )}
               <Button
@@ -373,7 +381,11 @@ export const OnshapeSync = ({
                 size="sm"
                 onClick={loadBom}
               >
-                {bomRows.length > 0 ? "Refresh" : "Sync"}
+                {bomRows.length > 0 ? (
+                  <Trans>Refresh</Trans>
+                ) : (
+                  <Trans>Sync</Trans>
+                )}
               </Button>
             </div>
           )}
@@ -383,7 +395,7 @@ export const OnshapeSync = ({
         <div className="flex flex-col gap-2 border bg-muted/30 rounded p-2 w-full">
           <HStack className="w-full justify-between">
             <span className="text-xs text-muted-foreground font-light mb-1">
-              Bill of Materials
+              <Trans>Bill of Materials</Trans>
             </span>
             <Button
               size="sm"
@@ -391,7 +403,7 @@ export const OnshapeSync = ({
               isLoading={upsertBomFetcher.state !== "idle"}
               isDisabled={isDisabled || upsertBomFetcher.state !== "idle"}
             >
-              Save
+              <Trans>Save</Trans>
             </Button>
           </HStack>
 
@@ -448,7 +460,9 @@ export const OnshapeSync = ({
                         {row.readableIdWithRevision || row.name}
                       </span>
                     ) : (
-                      <Status color="red">No part ID</Status>
+                      <Status color="red">
+                        <Trans>No part ID</Trans>
+                      </Status>
                     )}
                     {!isSynced && partId && <PulsingDot className="mt-0.5" />}
                     {/** biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration */}

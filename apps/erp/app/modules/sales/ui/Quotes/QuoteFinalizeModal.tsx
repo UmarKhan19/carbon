@@ -15,6 +15,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import type { FetcherWithComponents } from "react-router";
@@ -56,6 +57,7 @@ const QuotationFinalizeModal = ({
   defaultCc = [],
   pricing
 }: QuotationFinalizeModalProps) => {
+  const { t } = useLingui();
   const { quoteId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
 
@@ -150,7 +152,7 @@ const QuotationFinalizeModal = ({
           <ModalHeader>
             <ModalTitle>{`Finalize ${quote?.quoteId}`}</ModalTitle>
             <ModalDescription>
-              Are you sure you want to finalize the quote?
+              <Trans>Are you sure you want to finalize the quote?</Trans>
             </ModalDescription>
           </ModalHeader>
           <ModalBody>
@@ -158,7 +160,9 @@ const QuotationFinalizeModal = ({
               {warningLineReadableIds.length > 0 && (
                 <Alert variant="destructive">
                   <LuTriangleAlert className="h-4 w-4" />
-                  <AlertTitle>Lines need prices or lead times</AlertTitle>
+                  <AlertTitle>
+                    <Trans>Lines need prices or lead times</Trans>
+                  </AlertTitle>
                   <AlertDescription>
                     The following line items are missing prices or lead times:
                     <ul className="list-disc py-2 pl-4">
@@ -172,7 +176,9 @@ const QuotationFinalizeModal = ({
               {showShippingWarning && (
                 <Alert variant="destructive">
                   <LuTriangleAlert className="h-4 w-4" />
-                  <AlertTitle>Missing Shipping Costs</AlertTitle>
+                  <AlertTitle>
+                    <Trans>Missing Shipping Costs</Trans>
+                  </AlertTitle>
                   <AlertDescription>
                     This quote has no shipping costs defined. Please add
                     shipping costs either at the quote level or for individual
@@ -182,7 +188,7 @@ const QuotationFinalizeModal = ({
               )}
               {canEmail && (
                 <SelectControlled
-                  label="Send Via"
+                  label={t`Send Via`}
                   name="notification"
                   options={[
                     {
@@ -206,17 +212,17 @@ const QuotationFinalizeModal = ({
                     name="customerContact"
                     customer={quote?.customerId ?? undefined}
                   />
-                  <EmailRecipients name="cc" label="CC" type="employee" />
+                  <EmailRecipients name="cc" label={t`CC`} type="employee" />
                 </>
               )}
             </VStack>
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Button isDisabled={loading} type="submit">
-              Finalize
+              <Trans>Finalize</Trans>
             </Button>
           </ModalFooter>
         </ValidatedForm>

@@ -23,6 +23,7 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuCheck,
@@ -62,6 +63,7 @@ import QuoteStatus from "./QuoteStatus";
 import QuoteToOrderDrawer from "./QuoteToOrderDrawer";
 
 const QuoteHeader = () => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { quoteId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
@@ -104,7 +106,7 @@ const QuoteHeader = () => {
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton
-              aria-label="Toggle Explorer"
+              aria-label={t`Toggle Explorer`}
               icon={<LuPanelLeft />}
               onClick={toggleExplorer}
               variant="ghost"
@@ -126,7 +128,7 @@ const QuoteHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -142,7 +144,7 @@ const QuoteHeader = () => {
                   }}
                 >
                   <DropdownMenuIcon icon={<LuCopy />} />
-                  Copy Quote
+                  <Trans>Copy Quote</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
@@ -151,7 +153,7 @@ const QuoteHeader = () => {
                   }}
                 >
                   <DropdownMenuIcon icon={<LuGitBranchPlus />} />
-                  Create Quote Revision
+                  <Trans>Create Quote Revision</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={
@@ -171,7 +173,7 @@ const QuoteHeader = () => {
                   }}
                 >
                   <DropdownMenuIcon icon={<LuLoaderCircle />} />
-                  Reopen
+                  <Trans>Reopen</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={
@@ -183,7 +185,7 @@ const QuoteHeader = () => {
                   onClick={deleteQuoteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Quote
+                  <Trans>Delete Quote</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -197,7 +199,7 @@ const QuoteHeader = () => {
                 leftIcon={<LuShare2 />}
                 variant="secondary"
               >
-                Share
+                <Trans>Share</Trans>
               </Button>
             ) : (
               <DropdownMenu>
@@ -207,7 +209,7 @@ const QuoteHeader = () => {
                     variant="secondary"
                     rightIcon={<LuChevronDown />}
                   >
-                    Preview
+                    <Trans>Preview</Trans>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -221,7 +223,7 @@ const QuoteHeader = () => {
                         rel="noreferrer"
                       >
                         <DropdownMenuIcon icon={<LuExternalLink />} />
-                        Digital Quote
+                        <Trans>Digital Quote</Trans>
                       </a>
                     </DropdownMenuItem>
                   )}
@@ -232,7 +234,7 @@ const QuoteHeader = () => {
                       rel="noreferrer"
                     >
                       <DropdownMenuIcon icon={<LuFile />} />
-                      PDF
+                      <Trans>PDF</Trans>
                     </a>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -253,7 +255,7 @@ const QuoteHeader = () => {
               }
               leftIcon={<LuCheckCheck />}
             >
-              Finalize
+              <Trans>Finalize</Trans>
             </Button>
 
             <Button
@@ -271,7 +273,7 @@ const QuoteHeader = () => {
               }
               onClick={convertToOrderModal.onOpen}
             >
-              Won
+              <Trans>Won</Trans>
             </Button>
 
             <statusFetcher.Form
@@ -297,7 +299,7 @@ const QuoteHeader = () => {
                     : "secondary"
                 }
               >
-                Lost
+                <Trans>Lost</Trans>
               </Button>
             </statusFetcher.Form>
 
@@ -320,13 +322,13 @@ const QuoteHeader = () => {
                   type="submit"
                   variant="secondary"
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </statusFetcher.Form>
             )}
 
             <IconButton
-              aria-label="Toggle Properties"
+              aria-label={t`Toggle Properties`}
               icon={<LuPanelRight />}
               onClick={toggleProperties}
               variant="ghost"
@@ -373,7 +375,7 @@ const QuoteHeader = () => {
           action={path.to.deleteQuote(quoteId)}
           isOpen={deleteQuoteModal.isOpen}
           name={routeData?.quote?.quoteId!}
-          text={`Are you sure you want to delete ${routeData?.quote
+          text={t`Are you sure you want to delete ${routeData?.quote
             ?.quoteId!}? This cannot be undone.`}
           onCancel={() => {
             deleteQuoteModal.onClose();
@@ -399,6 +401,7 @@ function CreateRevisionModal({
   asRevision: boolean;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const [newQuoteId, setNewQuoteId] = useState<string | null>(null);
   const fetcher = useFetcher<
     | { success: false; message: string }
@@ -414,12 +417,12 @@ function CreateRevisionModal({
     if (fetcher.data?.success === true) {
       toast.success(
         asRevision
-          ? "Successfully created a new revision"
-          : "Successfully copied quote"
+          ? t`Successfully created a new revision`
+          : t`Successfully copied quote`
       );
       setNewQuoteId(fetcher.data?.data.newQuoteId ?? null);
     }
-  }, [fetcher.data?.success]);
+  }, [fetcher.data?.success, t]);
 
   if (!quote) return null;
   return (
@@ -427,12 +430,18 @@ function CreateRevisionModal({
       <ModalContent>
         <ModalHeader>
           <ModalTitle>
-            {asRevision ? "Create Quote Revision" : "Copy Quote"}
+            {asRevision ? (
+              <Trans>Create Quote Revision</Trans>
+            ) : (
+              <Trans>Copy Quote</Trans>
+            )}
           </ModalTitle>
           <ModalDescription>
-            {asRevision
-              ? "The quote will be copied with a revision suffix"
-              : "Create a quote with a new quote ID"}
+            {asRevision ? (
+              <Trans>The quote will be copied with a revision suffix</Trans>
+            ) : (
+              <Trans>Create a quote with a new quote ID</Trans>
+            )}
           </ModalDescription>
         </ModalHeader>
         {newQuoteId ? (
@@ -442,22 +451,26 @@ function CreateRevisionModal({
                 <div>
                   <LuCheck className="w-16 h-16 text-green-500" />
                 </div>
-                <h2 className="animate-fade-in">The quote has been created</h2>
+                <h2 className="animate-fade-in">
+                  <Trans>The quote has been created</Trans>
+                </h2>
               </div>
             </ModalBody>
             <ModalFooter>
               <Button variant="secondary" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button asChild>
-                <Link to={path.to.quoteDetails(newQuoteId)}>Open</Link>
+                <Link to={path.to.quoteDetails(newQuoteId)}>
+                  <Trans>Open</Trans>
+                </Link>
               </Button>
             </ModalFooter>
           </>
         ) : (
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <fetcher.Form
               method="post"
@@ -475,7 +488,11 @@ function CreateRevisionModal({
                 variant="primary"
                 type="submit"
               >
-                {asRevision ? "Create Revision" : "Copy Quote"}
+                {asRevision ? (
+                  <Trans>Create Revision</Trans>
+                ) : (
+                  <Trans>Copy Quote</Trans>
+                )}
               </Button>
             </fetcher.Form>
           </ModalFooter>
@@ -511,9 +528,11 @@ function ShareQuoteModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Share Quote</ModalTitle>
+          <ModalTitle>
+            <Trans>Share Quote</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Copy this link to share the quote with a customer
+            <Trans>Copy this link to share the quote with a customer</Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
@@ -526,7 +545,7 @@ function ShareQuoteModal({
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Close
+            <Trans>Close</Trans>
           </Button>
         </ModalFooter>
       </ModalContent>

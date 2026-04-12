@@ -2,7 +2,7 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import { demandProjectionValidator } from "~/modules/production/production.models";
@@ -11,7 +11,7 @@ import {
   upsertDemandProjections
 } from "~/modules/production/production.service";
 import DemandProjectionsForm from "~/modules/production/ui/Projection/DemandProjectionForm";
-import { getPeriods } from "~/modules/shared/shared.service";
+import { getOrCreatePeriods } from "~/modules/shared/shared.server";
 import { path } from "~/utils/path";
 
 const WEEKS_TO_PROJECT = 52;
@@ -27,29 +27,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Item ID and Location ID are required");
   }
 
-  const startDate = startOfWeek(today(getLocalTimeZone()), "en-US");
-  const endDate = startDate.add({ weeks: WEEKS_TO_PROJECT });
-  const periods = await getPeriods(client, {
-    startDate: startDate.toString(),
-    endDate: endDate.toString()
-  });
-
-  if (periods.error) {
-    throw new Error("Failed to load periods");
-  }
+  const periods = await getOrCreatePeriods(
+    today(getLocalTimeZone()),
+    WEEKS_TO_PROJECT
+  );
 
   // Load existing demand forecasts for this item and location
   const existingProjections = await getDemandProjections(client, {
     itemId,
     locationId,
     companyId,
-    periodIds: periods.data?.map((p) => p.id) ?? []
+    periodIds: periods.map((p) => p.id)
   });
 
   // Map existing forecasts to week fields
   const weekValues: Record<string, number> = {};
-  if (existingProjections.data && periods.data) {
-    periods.data.forEach((period, index) => {
+  if (existingProjections.data) {
+    periods.forEach((period, index) => {
       const forecast = existingProjections.data?.find(
         (f) => f.periodId === period.id
       );
@@ -64,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
 
   return {
-    periods: periods.data ?? [],
+    periods,
     initialValues
   };
 }

@@ -1,10 +1,12 @@
 import { Heading, useInterval } from "@carbon/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
+import { useLingui } from "@lingui/react/macro";
 import type { ComponentProps } from "react";
 import { useMemo, useState } from "react";
 import { useUser } from "~/hooks";
 
 export function Greeting(props: ComponentProps<typeof Heading>) {
+  const { t } = useLingui();
   const user = useUser();
   const [currentTime, setCurrentTime] = useState(() => now(getLocalTimeZone()));
 
@@ -17,17 +19,17 @@ export function Greeting(props: ComponentProps<typeof Heading>) {
 
   const greeting = useMemo(() => {
     if (currentTime.hour >= 3 && currentTime.hour < 12) {
-      return "Good morning";
+      return t`Good morning, ${user.firstName}`;
     } else if (currentTime.hour >= 12 && currentTime.hour < 18) {
-      return "Good afternoon";
+      return t`Good afternoon, ${user.firstName}`;
     } else {
-      return "Good evening";
+      return t`Good evening, ${user.firstName}`;
     }
-  }, [currentTime.hour]);
+  }, [currentTime.hour, t, user.firstName]);
 
   return (
     <Heading size="h3" {...props}>
-      {greeting}, {user.firstName}
+      {greeting}
     </Heading>
   );
 }

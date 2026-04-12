@@ -27,6 +27,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import MotionNumber from "motion-number";
@@ -59,6 +60,7 @@ const SalesOrderSummary = ({
 }: {
   onEditShippingCost: () => void;
 }) => {
+  const { t } = useLingui();
   const { orderId } = useParams();
   if (!orderId) throw new Error("Could not find orderId");
 
@@ -132,22 +134,24 @@ const SalesOrderSummary = ({
           <Card>
             <CardHeader>
               <CardTitle className="flex flex-row gap-2">
-                <LuTriangleAlert /> Jobs Required
+                <LuTriangleAlert /> <Trans>Jobs Required</Trans>
               </CardTitle>
               <CardDescription>
-                This sales order has lines that require jobs to be created
+                <Trans>
+                  This sales order has lines that require jobs to be created
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardFooter>
               <Button variant="primary" onClick={salesOrderToJobsModal.onOpen}>
-                Create Jobs
+                <Trans>Create Jobs</Trans>
               </Button>
             </CardFooter>
             {salesOrderToJobsModal.isOpen && (
               <Confirm
-                title="Convert Lines to Jobs"
-                text="Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs."
-                confirmText="Create Jobs"
+                title={t`Convert Lines to Jobs`}
+                text={t`Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs.`}
+                confirmText={t`Create Jobs`}
                 onCancel={salesOrderToJobsModal.onClose}
                 onSubmit={salesOrderToJobsModal.onClose}
                 action={path.to.salesOrderLinesToJobs(orderId)}
@@ -160,7 +164,9 @@ const SalesOrderSummary = ({
           <HStack className="justify-between items-center">
             <div className="flex flex-col gap-1">
               <CardTitle>{routeData?.salesOrder.salesOrderId}</CardTitle>
-              <CardDescription>Sales Order</CardDescription>
+              <CardDescription>
+                <Trans>Sales Order</Trans>
+              </CardDescription>
             </div>
             <div className="flex flex-col gap-1 items-end">
               <CustomerAvatar
@@ -168,12 +174,13 @@ const SalesOrderSummary = ({
               />
               {routeData?.salesOrder?.orderDate && (
                 <span className="text-muted-foreground text-sm">
-                  Ordered {formatDate(routeData?.salesOrder.orderDate)}
+                  <Trans>Ordered</Trans>{" "}
+                  {formatDate(routeData?.salesOrder.orderDate)}
                 </span>
               )}
               {routeData?.quote?.digitalQuoteAcceptedBy && (
                 <span className="text-muted-foreground text-sm flex flex-row items-center gap-x-1">
-                  via Digital Quote
+                  <Trans>via Digital Quote</Trans>
                   <Tooltip>
                     <TooltipTrigger>
                       <LuInfo className="size-4" />
@@ -203,7 +210,9 @@ const SalesOrderSummary = ({
 
           <VStack spacing={2} className="mt-8">
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Subtotal:</span>
+              <span>
+                <Trans>Subtotal:</Trans>
+              </span>
               <MotionNumber
                 value={subtotal}
                 format={{
@@ -214,7 +223,9 @@ const SalesOrderSummary = ({
               />
             </HStack>
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Tax:</span>
+              <span>
+                <Trans>Tax:</Trans>
+              </span>
               <MotionNumber
                 value={tax}
                 format={{
@@ -228,14 +239,16 @@ const SalesOrderSummary = ({
               {convertedShippingCost > 0 ? (
                 <>
                   <VStack spacing={0}>
-                    <span>Shipping:</span>
+                    <span>
+                      <Trans>Shipping:</Trans>
+                    </span>
                     <Button
                       variant="link"
                       size="sm"
                       className="text-muted-foreground"
                       onClick={onEditShippingCost}
                     >
-                      Edit Shipping
+                      <Trans>Edit Shipping</Trans>
                     </Button>
                   </VStack>
                   <MotionNumber
@@ -254,12 +267,14 @@ const SalesOrderSummary = ({
                   className="text-muted-foreground"
                   onClick={onEditShippingCost}
                 >
-                  Add Shipping
+                  <Trans>Add Shipping</Trans>
                 </Button>
               ) : null}
             </HStack>
             <HStack className="justify-between text-xl font-bold w-full">
-              <span>Total:</span>
+              <span>
+                <Trans>Total:</Trans>
+              </span>
               <MotionNumber
                 value={total}
                 format={{
@@ -271,7 +286,9 @@ const SalesOrderSummary = ({
             </HStack>
             <div className="h-px bg-border my-2 w-full" />
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Invoiced Amount:</span>
+              <span>
+                <Trans>Invoiced Amount:</Trans>
+              </span>
               <MotionNumber
                 value={routeData?.invoiceSummary?.invoicedAmount ?? 0}
                 format={{
@@ -282,7 +299,9 @@ const SalesOrderSummary = ({
               />
             </HStack>
             <HStack className="justify-between text-base text-muted-foreground w-full">
-              <span>Paid Amount:</span>
+              <span>
+                <Trans>Paid Amount:</Trans>
+              </span>
               <MotionNumber
                 value={routeData?.invoiceSummary?.paidAmount ?? 0}
                 format={{
@@ -393,7 +412,7 @@ function LineItems({
                           className="text-muted-foreground flex-shrink-0"
                         >
                           <Link to={path.to.salesOrderLine(orderId, line.id!)}>
-                            Edit
+                            <Trans>Edit</Trans>
                           </Link>
                         </Button>
                       </HStack>
@@ -461,7 +480,7 @@ function LineItems({
                         <Tooltip>
                           <TooltipTrigger>
                             <Badge variant="secondary">
-                              {jobs.length} Jobs
+                              {jobs.length} <Trans>Jobs</Trans>
                               <LuEllipsisVertical className="w-3 h-3 ml-2" />
                             </Badge>
                           </TooltipTrigger>

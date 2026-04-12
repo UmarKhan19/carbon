@@ -38,12 +38,15 @@ export type Workspace = {
   controlled_environment: string | null;
   exchange_rates_api_key: string | null;
   google_places_api_key: string | null;
+  inngest_base_url: string | null;
+  inngest_event_key: string | null;
+  inngest_signing_key: string | null;
   jira_client_id: string | null;
   jira_client_secret: string | null;
   jira_oauth_redirect_url: string | null;
   jira_state_secret: string | null;
-  novu_application_id: string | null;
   novu_api_url: string | null;
+  novu_application_id: string | null;
   novu_secret_key: string | null;
   openai_api_key: string | null;
   posthog_api_host: string | null;
@@ -64,9 +67,6 @@ export type Workspace = {
   stripe_bypass_company_ids: string | null;
   stripe_secret_key: string | null;
   stripe_webhook_secret: string | null;
-  trigger_api_url: string | null;
-  trigger_project_id: string | null;
-  trigger_secret_key: string | null;
   url_erp: string | null;
   url_mes: string | null;
   xero_client_id: string | null;
@@ -102,31 +102,32 @@ async function deploy(): Promise<void> {
     try {
       console.log(`✅ 🥚 Migrating ${workspace.id}`);
       const {
-        aws,
+        anon_key,
+        auth_providers,
         aws_account_id,
         aws_region,
-        auth_providers,
-        domain_name,
+        aws,
+        carbon_edition,
         cert_arn_erp,
         cert_arn_mes,
-        database_url,
-        database_connection_pooler_url,
-        database_password,
-        slug,
-        anon_key,
-        service_role_key,
-        carbon_edition,
         cloudflare_turnstile_secret_key,
         cloudflare_turnstile_site_key,
         controlled_environment,
+        database_connection_pooler_url,
+        database_password,
+        database_url,
+        domain_name,
         exchange_rates_api_key,
         google_places_api_key,
+        inngest_base_url,
+        inngest_event_key,
+        inngest_signing_key,
         jira_client_id,
         jira_client_secret,
         jira_oauth_redirect_url,
         jira_state_secret,
-        novu_application_id,
         novu_api_url,
+        novu_application_id,
         novu_secret_key,
         openai_api_key,
         posthog_api_host,
@@ -134,22 +135,21 @@ async function deploy(): Promise<void> {
         quickbooks_client_id,
         quickbooks_client_secret,
         quickbooks_webhook_secret,
+        redis_url,
         resend_api_key,
         resend_domain,
+        service_role_key,
         session_secret,
         slack_bot_token,
-        slack_client_secret,
         slack_client_id,
+        slack_client_secret,
         slack_oauth_redirect_url,
         slack_signing_secret,
         slack_state_secret,
+        slug,
         stripe_bypass_company_ids,
         stripe_secret_key,
         stripe_webhook_secret,
-        trigger_api_url,
-        trigger_project_id,
-        trigger_secret_key,
-        redis_url,
         url_erp,
         url_mes,
         xero_client_id,
@@ -225,18 +225,13 @@ async function deploy(): Promise<void> {
         continue;
       }
 
-      if (!trigger_api_url) {
-        console.log(`🔴🍳 Missing Trigger api url for ${workspace.id}`);
+      if (!inngest_signing_key) {
+        console.log(`🔴🍳 Missing Inngest signing key for ${workspace.id}`);
         continue;
       }
 
-      if (!trigger_project_id) {
-        console.log(`🔴🍳 Missing Trigger project id for ${workspace.id}`);
-        continue;
-      }
-
-      if (!trigger_secret_key) {
-        console.log(`🔴🍳 Missing Trigger secret key for ${workspace.id}`);
+      if (!inngest_event_key) {
+        console.log(`🔴🍳 Missing Inngest event key for ${workspace.id}`);
         continue;
       }
 
@@ -275,6 +270,9 @@ async function deploy(): Promise<void> {
           DOMAIN: domain_name,
           EXCHANGE_RATES_API_KEY: exchange_rates_api_key ?? undefined,
           GOOGLE_PLACES_API_KEY: google_places_api_key ?? undefined,
+          INNGEST_BASE_URL: inngest_base_url ?? undefined,
+          INNGEST_EVENT_KEY: inngest_event_key,
+          INNGEST_SIGNING_KEY: inngest_signing_key,
           JIRA_CLIENT_ID: jira_client_id ?? undefined,
           JIRA_CLIENT_SECRET: jira_client_secret ?? undefined,
           JIRA_OAUTH_REDIRECT_URL: jira_oauth_redirect_url ?? undefined,
@@ -305,9 +303,6 @@ async function deploy(): Promise<void> {
           SUPABASE_DB_URL: database_connection_pooler_url,
           SUPABASE_SERVICE_ROLE_KEY: service_role_key,
           SUPABASE_URL: database_url,
-          TRIGGER_API_URL: trigger_api_url,
-          TRIGGER_PROJECT_ID: trigger_project_id,
-          TRIGGER_SECRET_KEY: trigger_secret_key,
           URL_ERP: url_erp,
           URL_MES: url_mes,
           VERCEL_ENV: "production",

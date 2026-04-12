@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -60,6 +61,7 @@ export default function DeleteTimecardRoute() {
   const { entryId } = useParams();
   const { entry } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!entry) return null;
   if (!entryId) throw new Error("entryId is not found");
@@ -67,12 +69,11 @@ export default function DeleteTimecardRoute() {
   const onCancel = () => navigate(path.to.peopleTimecard);
 
   const clockIn = new Date(entry.clockIn).toLocaleString();
-
   return (
     <ConfirmDelete
       action={path.to.deleteTimecard(entryId)}
       name={`Timecard (${clockIn})`}
-      text="Are you sure you want to delete this timecard? This cannot be undone."
+      text={t`Are you sure you want to delete this timecard? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

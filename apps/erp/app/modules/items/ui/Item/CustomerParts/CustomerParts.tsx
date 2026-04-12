@@ -12,6 +12,7 @@ import {
   HStack,
   IconButton
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { LuEllipsisVertical, LuPencil, LuTrash } from "react-icons/lu";
@@ -30,13 +31,14 @@ type CustomerPartsProps = {
 
 const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
   const navigate = useNavigate();
+  const { t } = useLingui();
   const { canEdit, onCellEdit, canDelete } = useCustomerParts();
 
   const columns = useMemo<ColumnDef<CustomerPart>[]>(() => {
     const defaultColumns: ColumnDef<CustomerPart>[] = [
       {
         accessorKey: "customer.id",
-        header: "Customer",
+        header: t`Customer`,
         cell: ({ row }) => (
           <HStack className="justify-between min-w-[100px]">
             <CustomerAvatar customerId={row.original.customerId} />
@@ -44,7 +46,7 @@ const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
-                    aria-label="Edit purchase order line type"
+                    aria-label={t`Edit purchase order line type`}
                     icon={<LuEllipsisVertical />}
                     size="md"
                     className="absolute right-[-1px] top-[-6px]"
@@ -82,17 +84,17 @@ const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
       },
       {
         accessorKey: "customerPartId",
-        header: "Customer ID",
+        header: t`Customer ID`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "customerPartRevision",
-        header: "Customer Revision",
+        header: t`Customer Revision`,
         cell: (item) => item.getValue()
       }
     ];
     return [...defaultColumns];
-  }, [canDelete, canEdit, itemId, navigate]);
+  }, [canDelete, canEdit, itemId, navigate, t]);
 
   const editableComponents = useMemo(
     () => ({
@@ -107,7 +109,9 @@ const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
       <Card className="w-full">
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Customer Parts</CardTitle>
+            <CardTitle>
+              <Trans>Customer Parts</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>
             {canEdit && <New to={path.to.newCustomerPart(itemId)} />}

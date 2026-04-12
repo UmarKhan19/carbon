@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuCircleGauge, LuPencil, LuTrash } from "react-icons/lu";
@@ -18,6 +19,7 @@ type GaugeTypesTableProps = {
 const GaugeTypesTable = memo(({ data, count }: GaugeTypesTableProps) => {
   const [params] = useUrlParams();
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const customColumns = useCustomColumns<GaugeType>("gaugeType");
@@ -26,7 +28,7 @@ const GaugeTypesTable = memo(({ data, count }: GaugeTypesTableProps) => {
     const defaultColumns: ColumnDef<GaugeType>[] = [
       {
         accessorKey: "name",
-        header: "Gauge Type",
+        header: t`Gauge Type`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id}>
             <Enumerable value={row.original.name} />
@@ -38,7 +40,7 @@ const GaugeTypesTable = memo(({ data, count }: GaugeTypesTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns]);
+  }, [customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: GaugeType) => {
@@ -78,13 +80,13 @@ const GaugeTypesTable = memo(({ data, count }: GaugeTypesTableProps) => {
       primaryAction={
         permissions.can("create", "quality") && (
           <New
-            label="Gauge Type"
+            label={t`Gauge Type`}
             to={`${path.to.newGaugeType}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Gauge Types"
+      title={t`Gauge Types`}
     />
   );
 });

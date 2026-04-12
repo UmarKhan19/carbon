@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuArrowRightLeft,
   LuHandCoins,
@@ -13,89 +14,90 @@ import { useSavedViews } from "~/hooks/useSavedViews";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
-const inventoryRoutes: AuthenticatedRouteGroup[] = [
-  {
-    name: "Manage",
-    routes: [
-      {
-        name: "Receipts",
-        to: path.to.receipts,
-        icon: <LuHandCoins />,
-        table: "receipt"
-      },
-      {
-        name: "Shipments",
-        to: path.to.shipments,
-        icon: <LuTruck />,
-        table: "shipment"
-      },
-      {
-        name: "Stock Transfers",
-        to: path.to.stockTransfers,
-        icon: <LuListChecks />,
-        table: "stockTransfer"
-      },
-      {
-        name: "Warehouse Transfers",
-        to: path.to.warehouseTransfers,
-        icon: <LuArrowRightLeft />,
-        table: "warehouseTransfer"
-      }
-    ]
-  },
-  {
-    name: "Track",
-    routes: [
-      {
-        name: "Kanbans",
-        to: path.to.kanbans,
-        role: "employee",
-        icon: <LuQrCode />
-      },
-      {
-        name: "Quantities",
-        to: path.to.inventory,
-        role: "employee",
-        icon: <LuTally5 />,
-        table: "inventory"
-      },
-      {
-        name: "Tracked Entities",
-        to: path.to.trackedEntities,
-        role: "employee",
-        icon: <LuQrCode />
-      },
-      {
-        name: "Traceability",
-        to: path.to.traceability,
-        role: "employee",
-        icon: <LuNetwork />
-      }
-    ]
-  },
-  {
-    name: "Configure",
-    routes: [
-      {
-        name: "Shelves",
-        to: path.to.shelves,
-        role: "employee",
-        icon: <LuWarehouse />,
-        table: "shelf"
-      },
-      {
-        name: "Shipping Methods",
-        to: path.to.shippingMethods,
-        role: "employee",
-        icon: <LuTruck />
-      }
-    ]
-  }
-];
-
 export default function useInventorySubmodules() {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { addSavedViewsToRoutes } = useSavedViews();
+
+  const inventoryRoutes: AuthenticatedRouteGroup[] = [
+    {
+      name: t`Manage`,
+      routes: [
+        {
+          name: t`Receipts`,
+          to: path.to.receipts,
+          icon: <LuHandCoins />,
+          table: "receipt"
+        },
+        {
+          name: t`Shipments`,
+          to: path.to.shipments,
+          icon: <LuTruck />,
+          table: "shipment"
+        },
+        {
+          name: t`Stock Transfers`,
+          to: path.to.stockTransfers,
+          icon: <LuListChecks />,
+          table: "stockTransfer"
+        },
+        {
+          name: t`Warehouse Transfers`,
+          to: path.to.warehouseTransfers,
+          icon: <LuArrowRightLeft />,
+          table: "warehouseTransfer"
+        }
+      ]
+    },
+    {
+      name: t`Track`,
+      routes: [
+        {
+          name: t`Kanbans`,
+          to: path.to.kanbans,
+          role: "employee",
+          icon: <LuQrCode />
+        },
+        {
+          name: t`Quantities`,
+          to: path.to.inventory,
+          role: "employee",
+          icon: <LuTally5 />,
+          table: "inventory"
+        },
+        {
+          name: t`Tracked Entities`,
+          to: path.to.trackedEntities,
+          role: "employee",
+          icon: <LuQrCode />
+        },
+        {
+          name: t`Traceability`,
+          to: path.to.traceability,
+          role: "employee",
+          icon: <LuNetwork />
+        }
+      ]
+    },
+    {
+      name: t`Configure`,
+      routes: [
+        {
+          name: t`Shelves`,
+          to: path.to.shelves,
+          role: "employee",
+          icon: <LuWarehouse />,
+          table: "shelf"
+        },
+        {
+          name: t`Shipping Methods`,
+          to: path.to.shippingMethods,
+          role: "employee",
+          icon: <LuTruck />
+        }
+      ]
+    }
+  ];
 
   return {
     groups: inventoryRoutes

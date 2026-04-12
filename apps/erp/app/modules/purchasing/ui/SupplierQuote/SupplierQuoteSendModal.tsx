@@ -15,6 +15,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import {
@@ -42,6 +43,7 @@ const SupplierQuoteSendModal = ({
   externalLinkId,
   defaultCc = []
 }: SupplierQuoteSendModalProps) => {
+  const { t } = useLingui();
   const integrations = useIntegrations();
   const canEmail = integrations.has("resend");
 
@@ -82,7 +84,7 @@ const SupplierQuoteSendModal = ({
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Close
+              <Trans>Close</Trans>
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -122,15 +124,15 @@ const SupplierQuoteSendModal = ({
             <VStack spacing={4}>
               {canEmail && (
                 <SelectControlled
-                  label="Send Via"
+                  label={t`Send Via`}
                   name="notification"
                   options={[
                     {
-                      label: "Share Link",
+                      label: t`Share Link`,
                       value: "Share"
                     },
                     {
-                      label: "Email",
+                      label: t`Email`,
                       value: "Email"
                     }
                   ]}
@@ -165,7 +167,7 @@ const SupplierQuoteSendModal = ({
                     name="supplierContact"
                     supplier={quote?.supplierId ?? undefined}
                   />
-                  <EmailRecipients name="cc" label="CC" type="employee" />
+                  <EmailRecipients name="cc" label={t`CC`} type="employee" />
                 </>
               )}
             </VStack>
@@ -173,14 +175,16 @@ const SupplierQuoteSendModal = ({
           <ModalFooter>
             {notificationType === "Share" ? (
               <Button variant="secondary" onClick={onClose}>
-                Close
+                <Trans>Close</Trans>
               </Button>
             ) : (
               <>
                 <Button variant="secondary" onClick={onClose}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
-                <Button type="submit">Send</Button>
+                <Button type="submit">
+                  <Trans>Send</Trans>
+                </Button>
               </>
             )}
           </ModalFooter>

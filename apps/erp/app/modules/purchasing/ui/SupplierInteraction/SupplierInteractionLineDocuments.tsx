@@ -21,6 +21,7 @@ import {
   toast
 } from "@carbon/react";
 import { convertKbToString, formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
@@ -50,6 +51,7 @@ const useSupplierInteractionLineDocuments = ({
   lineId: string;
   type: SupportedDocument;
 }) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const revalidator = useRevalidator();
   const { carbon } = useCarbon();
@@ -102,11 +104,11 @@ const useSupplierInteractionLineDocuments = ({
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } catch (error) {
-        toast.error("Error downloading file");
+        toast.error(t`Error downloading file`);
         console.error(error);
       }
     },
-    [getPath]
+    [getPath, t]
   );
 
   const createDocumentRecord = useCallback(
@@ -139,7 +141,7 @@ const useSupplierInteractionLineDocuments = ({
   const upload = useCallback(
     async (files: File[]) => {
       if (!carbon) {
-        toast.error("Carbon client not available");
+        toast.error(t`Carbon client not available`);
         return;
       }
 
@@ -165,7 +167,7 @@ const useSupplierInteractionLineDocuments = ({
       }
       revalidator.revalidate();
     },
-    [getPath, createDocumentRecord, carbon, revalidator]
+    [getPath, createDocumentRecord, carbon, revalidator, t]
   );
 
   return {
@@ -194,6 +196,7 @@ const SupplierInteractionLineDocuments = ({
   lineId,
   type
 }: SupplierInteractionLineDocumentsProps) => {
+  const { t } = useLingui();
   const { canDelete, download, deleteFile, getPath, upload } =
     useSupplierInteractionLineDocuments({
       id,
@@ -227,7 +230,9 @@ const SupplierInteractionLineDocuments = ({
       <Card className="flex-grow">
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Files</CardTitle>
+            <CardTitle>
+              <Trans>Files</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>
             {!isReadOnly && (
@@ -300,21 +305,21 @@ const SupplierInteractionLineDocuments = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <IconButton
-                              aria-label="More"
+                              aria-label={t`More`}
                               icon={<LuEllipsisVertical />}
                               variant="secondary"
                             />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
                             <DropdownMenuItem onClick={() => download(file)}>
-                              Download
+                              <Trans>Download</Trans>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               destructive
                               disabled={!canDelete || isReadOnly}
                               onClick={() => deleteFile(file)}
                             >
-                              Delete
+                              <Trans>Delete</Trans>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -329,7 +334,7 @@ const SupplierInteractionLineDocuments = ({
                     colSpan={24}
                     className="py-8 text-muted-foreground text-center"
                   >
-                    No files
+                    <Trans>No files</Trans>
                   </Td>
                 </Tr>
               )}
@@ -371,7 +376,7 @@ const SupplierInteractionLineDocumentForm = ({
       onChange={uploadFiles}
       multiple
     >
-      New
+      <Trans>New</Trans>
     </File>
   );
 };

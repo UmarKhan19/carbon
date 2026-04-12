@@ -1,9 +1,8 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validator } from "@carbon/form";
-import type { notifyTask } from "@carbon/jobs/trigger/notify";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { suggestionValidator } from "~/services/models";
 
@@ -59,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (!company.error && company.data?.suggestionNotificationGroup?.length) {
     try {
-      await tasks.trigger<typeof notifyTask>("notify", {
+      await trigger("notify", {
         companyId,
         documentId: insertSuggestion.data.id,
         event: NotificationEvent.SuggestionResponse,

@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useMemo, useState } from "react";
 import { LuSettings2, LuUser } from "react-icons/lu";
@@ -55,6 +56,7 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
     },
     ref
   ) => {
+    const { t } = useLingui();
     const [open, setOpen] = useState(false);
     const [people] = usePeople();
     const fetcher = useFetcher<{}>();
@@ -83,16 +85,18 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
           })) ?? [];
 
       return [
-        { value: "", label: "Unassigned" },
+        { value: "", label: t`Unassigned` },
         { value: user.id, label: `${user.firstName} ${user.lastName}` },
         ...base
       ];
-    }, [people, user]);
+    }, [people, user, t]);
 
     return (
       <VStack spacing={2}>
         {variant === "inline" && (
-          <span className="text-xs text-muted-foreground">Assignee</span>
+          <span className="text-xs text-muted-foreground">
+            <Trans>Assignee</Trans>
+          </span>
         )}
         <HStack className="w-full justify-between">
           {variant === "inline" &&
@@ -102,7 +106,9 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
                 employeeId={value ?? null}
               />
             ) : (
-              <span className="text-sm">Unassigned</span>
+              <span className="text-sm">
+                <Trans>Unassigned</Trans>
+              </span>
             ))}
 
           <Popover open={open} onOpenChange={setOpen}>
@@ -137,13 +143,15 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
                       <LuUser
                         className={size === "sm" ? "w-3 h-3" : "w-4 h-4"}
                       />
-                      <span>Unassigned</span>
+                      <span>
+                        <Trans>Unassigned</Trans>
+                      </span>
                     </div>
                   )}
                 </button>
               ) : (
                 <IconButton
-                  aria-label="Toggle Assignee"
+                  aria-label={t`Toggle Assignee`}
                   icon={<LuSettings2 />}
                   size="sm"
                   variant="secondary"
@@ -156,8 +164,10 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
               className="min-w-[--radix-popover-trigger-width] p-0"
             >
               <Command id="assignee-options">
-                <CommandInput placeholder="Search..." className="h-9" />
-                <CommandEmpty>No option found.</CommandEmpty>
+                <CommandInput placeholder={t`Search...`} className="h-9" />
+                <CommandEmpty>
+                  <Trans>No option found.</Trans>
+                </CommandEmpty>
                 <CommandGroup>
                   {options.map((option) => (
                     <CommandItem

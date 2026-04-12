@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import { useParams } from "react-router";
@@ -42,6 +43,7 @@ type PurchaseOrderFormProps = {
 };
 
 const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const settings = useSettings();
   const { carbon } = useCarbon();
@@ -68,7 +70,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t`Carbon client not found`);
       return;
     }
 
@@ -88,7 +90,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
         .eq("id", newValue.value)
         .single();
       if (error) {
-        toast.error("Error fetching supplier data");
+        toast.error(t`Error fetching supplier data`);
       } else {
         setSupplier((prev) => ({
           ...prev,
@@ -139,34 +141,37 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="purchaseOrderId"
-                  label="Purchase Order ID"
+                  label={t`Purchase Order ID`}
                   table="purchaseOrder"
                 />
               )}
               <Supplier
                 autoFocus={!isEditing}
                 name="supplierId"
-                label="Supplier"
+                label={t`Supplier`}
                 onChange={onSupplierChange}
                 onlyApproved={settings?.supplierApproval ?? false}
               />
-              <Input name="supplierReference" label="Supplier Order Number" />
+              <Input
+                name="supplierReference"
+                label={t`Supplier Order Number`}
+              />
               <SupplierLocation
                 name="supplierLocationId"
-                label="Supplier Location"
+                label={t`Supplier Location`}
                 supplier={supplier.id}
               />
               <SupplierContact
                 name="supplierContactId"
-                label="Supplier Contact"
+                label={t`Supplier Contact`}
                 supplier={supplier.id}
                 value={supplier.supplierContactId}
               />
 
-              <Location name="locationId" label="Location" />
+              <Location name="locationId" label={t`Location`} />
               <Currency
                 name="currencyCode"
-                label="Currency"
+                label={t`Currency`}
                 value={supplier.currencyCode}
                 onChange={(newValue) => {
                   if (newValue?.value) {
@@ -179,7 +184,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
               />
               <Select
                 name="purchaseOrderType"
-                label="Type"
+                label={t`Type`}
                 options={purchaseOrderTypeType.map((type) => ({
                   label: type,
                   value: type
@@ -197,7 +202,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 : !permissions.can("create", "purchasing")
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

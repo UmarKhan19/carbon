@@ -24,6 +24,7 @@ import {
 } from "@carbon/react";
 import { formatRelativeTime } from "@carbon/utils";
 import { parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useState } from "react";
 import {
@@ -73,6 +74,7 @@ const GaugeForm = ({
   type = "drawer",
   onClose
 }: GaugeFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<{}>();
   const navigate = useNavigate();
@@ -131,9 +133,11 @@ const GaugeForm = ({
                     {isEditing && (
                       <div>
                         <TabsList>
-                          <TabsTrigger value="gauge">Details</TabsTrigger>
+                          <TabsTrigger value="gauge">
+                            <Trans>Details</Trans>
+                          </TabsTrigger>
                           <TabsTrigger value="records">
-                            Calibration Records
+                            <Trans>Calibration Records</Trans>
                           </TabsTrigger>
                         </TabsList>
                       </div>
@@ -168,7 +172,7 @@ const GaugeForm = ({
                               )
                             }
                           >
-                            Add Calibration Record
+                            <Trans>Add Calibration Record</Trans>
                           </Button>
                         </div>
                         {records && (
@@ -237,8 +241,8 @@ const GaugeForm = ({
                                                     <span className="text-xs text-muted-foreground">
                                                       {date
                                                         ? isUpdated
-                                                          ? "Updated"
-                                                          : "Created"
+                                                          ? t`Updated`
+                                                          : t`Created`
                                                         : null}{" "}
                                                       {date
                                                         ? formatRelativeTime(
@@ -256,7 +260,7 @@ const GaugeForm = ({
                                                       asChild
                                                     >
                                                       <IconButton
-                                                        aria-label="Open menu"
+                                                        aria-label={t`Open menu`}
                                                         icon={
                                                           <LuEllipsisVertical />
                                                         }
@@ -284,7 +288,9 @@ const GaugeForm = ({
                                     </div>
                                   ) : (
                                     <div className="py-16 w-full">
-                                      <Empty title="No calibration records found" />
+                                      <Empty
+                                        title={t`No calibration records found`}
+                                      />
                                     </div>
                                   )}
                                 </VStack>
@@ -306,10 +312,12 @@ const GaugeForm = ({
                 </ModalDrawerBody>
                 <ModalDrawerFooter>
                   <HStack>
-                    <Submit isDisabled={isDisabled}>Save</Submit>
+                    <Submit isDisabled={isDisabled}>
+                      <Trans>Save</Trans>
+                    </Submit>
                     {onClose && (
                       <Button size="md" variant="solid" onClick={onClose}>
-                        Cancel
+                        <Trans>Cancel</Trans>
                       </Button>
                     )}
                   </HStack>
@@ -346,29 +354,34 @@ function GaugeFormContent({
     }>
   >;
 }) {
+  const { t } = useLingui();
   return (
     <VStack spacing={4}>
       <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
         {isEditing ? (
-          <Input name="gaugeId" label="Gauge ID" isReadOnly />
+          <Input name="gaugeId" label={t`Gauge ID`} isReadOnly />
         ) : (
-          <SequenceOrCustomId name="gaugeId" label="Gauge ID" table="gauge" />
+          <SequenceOrCustomId
+            name="gaugeId"
+            label={t`Gauge ID`}
+            table="gauge"
+          />
         )}
-        <Input name="description" label="Description" />
+        <Input name="description" label={t`Description`} />
         <Select
           name="gaugeTypeId"
-          label="Gauge Type"
+          label={t`Gauge Type`}
           options={gaugeTypes.map((type) => ({
             label: <Enumerable value={type.name} />,
             value: type.id
           }))}
         />
-        <Supplier name="supplierId" label="Manufacturer" />
-        <Input name="modelNumber" label="Model Number" />
-        <Input name="serialNumber" label="Serial Number" />
+        <Supplier name="supplierId" label={t`Manufacturer`} />
+        <Input name="modelNumber" label={t`Model Number`} />
+        <Input name="serialNumber" label={t`Serial Number`} />
         {/* <Select
           name="gaugeCalibrationStatus"
-          label="Calibration Status"
+          label={t`Calibration Status`}
           options={gaugeCalibrationStatus.map((status) => ({
             label: <GaugeCalibrationStatus status={status} />,
             value: status,
@@ -376,16 +389,16 @@ function GaugeFormContent({
         /> */}
         <Select
           name="gaugeRole"
-          label="Role"
+          label={t`Role`}
           options={gaugeRole.map((role) => ({
             label: <GaugeRole role={role} />,
             value: role
           }))}
         />
-        <DatePicker name="dateAcquired" label="Date Acquired" />
+        <DatePicker name="dateAcquired" label={t`Date Acquired`} />
         {/* <Select
           name="gaugeStatus"
-          label="Status"
+          label={t`Status`}
           options={gaugeStatus.map((status) => ({
             label: <GaugeStatus status={status} />,
             value: status,
@@ -393,7 +406,7 @@ function GaugeFormContent({
         /> */}
         <DatePicker
           name="lastCalibrationDate"
-          label="Last Calibration Date"
+          label={t`Last Calibration Date`}
           value={calibrationInterval.lastCalibrationDate}
           onChange={(value) => {
             setCalibrationInterval({
@@ -411,7 +424,7 @@ function GaugeFormContent({
         />
         <DatePicker
           name="nextCalibrationDate"
-          label="Next Calibration Date"
+          label={t`Next Calibration Date`}
           value={calibrationInterval.nextCalibrationDate}
           onChange={(value) => {
             setCalibrationInterval({
@@ -420,10 +433,10 @@ function GaugeFormContent({
             });
           }}
         />
-        <Location name="locationId" label="Location" />
+        <Location name="locationId" label={t`Location`} />
         <Shelf
           name="shelfId"
-          label="Shelf"
+          label={t`Shelf`}
           locationId={initialValues.locationId}
         />
         <CustomFormFields table="gauge" />
@@ -432,7 +445,7 @@ function GaugeFormContent({
         <LuCalendar className="absolute top-2 right-4 text-muted-foreground" />
         <NumberControlled
           name="calibrationIntervalInMonths"
-          label="Calibration Interval (Months)"
+          label={t`Calibration Interval (Months)`}
           value={calibrationInterval.calibrationIntervalInMonths}
           onChange={(value) => {
             setCalibrationInterval({

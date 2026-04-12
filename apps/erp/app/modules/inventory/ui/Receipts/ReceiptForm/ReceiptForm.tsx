@@ -20,6 +20,7 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuCheckCheck,
   LuCreditCard,
@@ -81,6 +82,7 @@ const ReceiptForm = ({
 
   const { company } = useUser();
   const permissions = usePermissions();
+  const { t } = useLingui();
   const {
     locationId,
     sourceDocuments,
@@ -162,7 +164,7 @@ const ReceiptForm = ({
                     onClick={deleteDisclosure.onOpen}
                   >
                     <DropdownMenuIcon icon={<LuTrash />} />
-                    Delete Receipt
+                    <Trans>Delete Receipt</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -179,7 +181,7 @@ const ReceiptForm = ({
                   onClick={() => navigateToTrackingLabels(false)}
                   variant={isPosted ? "primary" : "secondary"}
                 >
-                  Tracking Labels
+                  <Trans>Tracking Labels</Trans>
                 </SplitButton>
               )}
               <SourceDocumentLink
@@ -197,7 +199,7 @@ const ReceiptForm = ({
                 isDisabled={!canPost || isPosted || !permissions.is("employee")}
                 leftIcon={<LuCheckCheck />}
               >
-                Post
+                <Trans>Post</Trans>
               </Button>
             </HStack>
           </CardHeader>
@@ -207,10 +209,10 @@ const ReceiptForm = ({
             <Hidden name="supplierId" value={supplierId ?? ""} />
             <VStack spacing={4} className="min-h-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 w-full">
-                <Input name="receiptId" label="Receipt ID" isReadOnly />
+                <Input name="receiptId" label={t`Receipt ID`} isReadOnly />
                 <Location
                   name="locationId"
-                  label="Location"
+                  label={t`Location`}
                   value={locationId ?? undefined}
                   onChange={(newValue) => {
                     if (newValue) setLocationId(newValue.value as string);
@@ -219,7 +221,7 @@ const ReceiptForm = ({
                 />
                 <Select
                   name="sourceDocument"
-                  label="Source Document"
+                  label={t`Source Document`}
                   options={receiptSourceDocumentType.map((v) => ({
                     label: v,
                     value: v
@@ -235,7 +237,7 @@ const ReceiptForm = ({
                 />
                 <Combobox
                   name="sourceDocumentId"
-                  label="Source Document ID"
+                  label={t`Source Document ID`}
                   options={sourceDocuments.map((d) => ({
                     label: d.name,
                     value: d.id
@@ -244,7 +246,7 @@ const ReceiptForm = ({
                 />
                 <Input
                   name="externalDocumentId"
-                  label="External Reference"
+                  label={t`External Reference`}
                   isDisabled={isPosted}
                 />
                 <CustomFormFields table="receipt" />
@@ -260,7 +262,7 @@ const ReceiptForm = ({
                   : !permissions.can("create", "inventory")
               }
             >
-              Save
+              <Trans>Save</Trans>
             </DefaultDisabledSubmit>
           </CardFooter>
         </ValidatedForm>
@@ -272,7 +274,7 @@ const ReceiptForm = ({
           action={path.to.deleteReceipt(receiptId)}
           isOpen={deleteDisclosure.isOpen}
           name={routeData?.receipt?.receiptId ?? "receipt"}
-          text={`Are you sure you want to delete ${routeData?.receipt?.receiptId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.receipt?.receiptId}? This cannot be undone.`}
           onCancel={() => {
             deleteDisclosure.onClose();
           }}
@@ -305,7 +307,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuShoppingCart />} asChild>
           <Link to={path.to.purchaseOrderDetails(sourceDocumentId!)}>
-            Purchase Order
+            <Trans>Purchase Order</Trans>
           </Link>
         </Button>
       );
@@ -314,7 +316,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuCreditCard />} asChild>
           <Link to={path.to.purchaseInvoice(sourceDocumentId!)}>
-            Purchase Invoice
+            <Trans>Purchase Invoice</Trans>
           </Link>
         </Button>
       );
@@ -323,7 +325,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuTruck />} asChild>
           <Link to={path.to.warehouseTransferDetails(sourceDocumentId!)}>
-            Warehouse Transfer
+            <Trans>Warehouse Transfer</Trans>
           </Link>
         </Button>
       );

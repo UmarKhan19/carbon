@@ -6,6 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import { LuListPlus, LuX } from "react-icons/lu";
 import { Avatar } from "~/components";
@@ -13,6 +14,7 @@ import useUserSelectContext from "../provider";
 import { isGroup } from "../useUserSelect";
 
 const SelectionList = () => {
+  const { t } = useLingui();
   const {
     innerProps: {
       alwaysSelected,
@@ -84,14 +86,16 @@ const SelectionList = () => {
                 <Tooltip>
                   <TooltipTrigger>
                     <IconButton
-                      aria-label={`Expand ${item.label}`}
+                      aria-label={t`Expand ${item.label}`}
                       icon={<LuListPlus />}
                       onClick={() => onExplode(item)}
                       variant="secondary"
                     />
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <span>Expand</span>
+                    <span>
+                      <Trans>Expand</Trans>
+                    </span>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -100,14 +104,16 @@ const SelectionList = () => {
                 <Tooltip>
                   <TooltipTrigger>
                     <IconButton
-                      aria-label={`Remove ${item.label}`}
+                      aria-label={t`Remove ${item.label}`}
                       icon={<LuX />}
                       onClick={() => onDeselect(item)}
                       variant="secondary"
                     />
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    <span>Remove</span>
+                    <span>
+                      <Trans>Remove</Trans>
+                    </span>
                   </TooltipContent>
                 </Tooltip>
               )}

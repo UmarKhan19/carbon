@@ -138,6 +138,7 @@ import {
   upsertMaintenanceScheduleItem,
   upsertDemandForecasts,
   upsertDemandProjections,
+  triggerJobSchedule,
 } from "~/modules/production/production.service";
 import {
   productionEventValidator,
@@ -2249,5 +2250,22 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
       const result = await upsertDemandProjections(ctx.client, { ...params.forecasts, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: production_upsertDemandProjections"),
+  );
+
+  server.registerTool(
+    "production_triggerJobSchedule",
+    {
+      description: "trigger job schedule",
+      inputSchema: {
+      jobId: z.string(),
+      mode: z.string().optional(),
+      direction: z.string().optional(),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await triggerJobSchedule(ctx.client, params.jobId, ctx.companyId, ctx.userId, params.mode, params.direction);
+      return toMcpResult(result);
+    }, "Failed: production_triggerJobSchedule"),
   );
 };

@@ -7,6 +7,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
 import {
@@ -49,6 +50,7 @@ type SuppliersTableProps = {
 };
 
 const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [people] = usePeople();
@@ -63,7 +65,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
     const defaultColumns: ColumnDef<Supplier>[] = [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <div className="max-w-[320px] truncate">
             <Hyperlink to={path.to.supplierDetails(row.original.id!)}>
@@ -77,7 +79,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "status",
-        header: "Supplier Status",
+        header: t`Supplier Status`,
         cell: (item) => (
           // @ts-expect-error TS2322 - TODO: fix type
           <SupplierStatusIndicator status={item.getValue<string>()} />
@@ -95,7 +97,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "supplierTypeId",
-        header: "Type",
+        header: t`Type`,
         cell: (item) => {
           if (!item.getValue<string>()) return null;
           const supplierType = supplierTypes?.find(
@@ -116,7 +118,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         id: "accountManagerId",
-        header: "Account Manager",
+        header: t`Account Manager`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.accountManagerId} />
         ),
@@ -133,7 +135,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "tags",
-        header: "Tags",
+        header: t`Tags`,
         cell: ({ row }) => (
           <HStack spacing={0} className="gap-1">
             {row.original.tags?.map((tag) => (
@@ -157,7 +159,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "currencyCode",
-        header: "Currency",
+        header: t`Currency`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuEuro />
@@ -165,7 +167,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "phone",
-        header: "Phone",
+        header: t`Phone`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPhone />
@@ -173,7 +175,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "fax",
-        header: "Fax",
+        header: t`Fax`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPrinter />
@@ -181,7 +183,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "website",
-        header: "Website",
+        header: t`Website`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuGlobe />
@@ -189,7 +191,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -206,7 +208,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -214,7 +216,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t`Updated By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -231,7 +233,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t`Updated At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -240,14 +242,14 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
     ];
 
     return [...defaultColumns, ...customColumns];
-  }, [supplierTypes, people, tags, customColumns]);
+  }, [supplierTypes, people, tags, customColumns, t]);
 
   const renderContextMenu = useMemo(
     () => (row: Supplier) => (
       <>
         <MenuItem onClick={() => navigate(path.to.supplier(row.id!))}>
           <MenuIcon icon={<LuPencil />} />
-          Edit Supplier
+          <Trans>Edit Supplier</Trans>
         </MenuItem>
         <MenuItem
           destructive
@@ -258,7 +260,7 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
           }}
         >
           <MenuIcon icon={<LuTrash />} />
-          Delete Supplier
+          <Trans>Delete Supplier</Trans>
         </MenuItem>
       </>
     ),
@@ -287,25 +289,27 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
         importCSV={[
           {
             table: "supplier",
-            label: "Suppliers"
+            label: t`Suppliers`
           },
           {
             table: "supplierContact",
-            label: "Contacts"
+            label: t`Contacts`
           }
         ]}
         primaryAction={
           permissions.can("create", "purchasing") && (
             <div className="flex items-center gap-2">
               <Button variant="secondary" leftIcon={<LuShapes />} asChild>
-                <Link to={path.to.supplierTypes}>Supplier Types</Link>
+                <Link to={path.to.supplierTypes}>
+                  <Trans>Supplier Types</Trans>
+                </Link>
               </Button>
-              <New label="Supplier" to={path.to.newSupplier} />
+              <New label={t`Supplier`} to={path.to.newSupplier} />
             </div>
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Suppliers"
+        title={t`Suppliers`}
         table="supplier"
         withSavedView
       />

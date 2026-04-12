@@ -14,6 +14,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 import { Input, Select, Submit } from "~/components/Form";
@@ -89,6 +90,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function ConvertOperatorRoute() {
+  const { t } = useLingui();
   const { operator } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const formFetcher = useFetcher<Result>();
@@ -138,12 +140,12 @@ export default function ConvertOperatorRoute() {
               </p>
               <Input
                 name="email"
-                label="Email Address"
+                label={t`Email Address`}
                 placeholder="operator@company.com"
               />
               <Select
                 name="employeeType"
-                label="Employee Type"
+                label={t`Employee Type`}
                 options={employeeTypeOptions}
                 placeholder="Select Employee Type"
               />

@@ -9,7 +9,6 @@ import {
 } from "kysely";
 import type { KyselifyDatabase } from "kysely-supabase";
 // Aliased it as pg so can be imported as-is in Node environment
-// @ts-expect-error -- pg types may not be available in Deno environment
 import { Pool } from "pg";
 import type { Database as SupabaseDatabase } from "../../../../src/types.ts";
 
@@ -41,6 +40,7 @@ export function getPostgresConnectionPool(connections: number): Pool {
       const connectionPoolerUrl = url.includes("supabase.co")
         ? url.replace("5432", "6543")
         : url;
+      // @ts-ignore Compat
       return new Pool(connectionPoolerUrl, connections);
     }
     case "node": {

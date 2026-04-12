@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useMemo, useRef, useState } from "react";
@@ -59,6 +60,7 @@ const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
     },
     ref
   ) => {
+    const { t } = useLingui();
     const [open, setOpen] = useState(false);
     const isInlinePreview = !!inline;
 
@@ -107,7 +109,7 @@ const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
                   options.find((option) => option.value === value)?.label
                 ) : (
                   <span className="!text-muted-foreground">
-                    {placeholder ?? "Select"}
+                    {placeholder ?? t`Select`}
                   </span>
                 )}
               </CommandTrigger>
@@ -158,6 +160,7 @@ function VirtualizedCommand({
   itemHeight,
   setOpen
 }: VirtualizedCommandProps) {
+  const { t } = useLingui();
   const [search, setSearch] = useState("");
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -188,7 +191,7 @@ function VirtualizedCommand({
       <CommandInput
         value={search}
         onValueChange={setSearch}
-        placeholder="Search..."
+        placeholder={t`Search...`}
         className="h-9"
       />
       <div

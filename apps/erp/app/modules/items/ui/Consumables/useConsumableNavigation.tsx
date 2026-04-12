@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuBox,
   LuChartLine,
@@ -12,6 +13,7 @@ import { path } from "~/utils/path";
 import type { ConsumableSummary } from "../../types";
 
 export function useConsumableNavigation() {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
@@ -26,13 +28,13 @@ export function useConsumableNavigation() {
 
   return [
     {
-      name: "Details",
+      name: t`Details`,
       to: path.to.consumableDetails(itemId),
       icon: LuFileText,
       shortcut: "Command+Shift+d"
     },
     {
-      name: "Purchasing",
+      name: t`Purchasing`,
       to: path.to.consumablePurchasing(itemId),
       role: ["employee", "supplier"],
       permission: "purchasing",
@@ -40,7 +42,7 @@ export function useConsumableNavigation() {
       shortcut: "Command+Shift+p"
     },
     {
-      name: "Accounting",
+      name: t`Accounting`,
       to: path.to.consumableCosting(itemId),
       role: ["employee"],
       permission: "purchasing",
@@ -48,7 +50,7 @@ export function useConsumableNavigation() {
       shortcut: "Command+Shift+a"
     },
     {
-      name: "Planning",
+      name: t`Planning`,
       to: path.to.consumablePlanning(itemId),
       isDisabled: itemTrackingType === "Non-Inventory",
       role: ["employee"],
@@ -56,7 +58,7 @@ export function useConsumableNavigation() {
       shortcut: "Command+Shift+p"
     },
     {
-      name: "Inventory",
+      name: t`Inventory`,
       to: path.to.consumableInventory(itemId),
       isDisabled: itemTrackingType === "Non-Inventory",
       role: ["employee", "supplier"],

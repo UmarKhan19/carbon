@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuOctagonX, LuPencil, LuTrash } from "react-icons/lu";
@@ -18,6 +19,7 @@ type IssueTypesTableProps = {
 const IssueTypesTable = memo(({ data, count }: IssueTypesTableProps) => {
   const [params] = useUrlParams();
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const customColumns = useCustomColumns<IssueType>("nonConformanceType");
@@ -26,7 +28,7 @@ const IssueTypesTable = memo(({ data, count }: IssueTypesTableProps) => {
     const defaultColumns: ColumnDef<IssueType>[] = [
       {
         accessorKey: "name",
-        header: "Issue Type",
+        header: t`Issue Type`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id}>
             <Enumerable value={row.original.name} />
@@ -38,7 +40,7 @@ const IssueTypesTable = memo(({ data, count }: IssueTypesTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns]);
+  }, [customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: IssueType) => {
@@ -78,13 +80,13 @@ const IssueTypesTable = memo(({ data, count }: IssueTypesTableProps) => {
       primaryAction={
         permissions.can("create", "quality") && (
           <New
-            label="Issue Type"
+            label={t`Issue Type`}
             to={`${path.to.newIssueType}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Issue Types"
+      title={t`Issue Types`}
     />
   );
 });

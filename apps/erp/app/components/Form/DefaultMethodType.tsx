@@ -1,5 +1,6 @@
 import type { SelectProps } from "@carbon/form";
 import { SelectControlled } from "@carbon/form";
+import { Trans } from "@lingui/macro";
 import { getValidMethodTypes } from "~/modules/shared/shared.models";
 import { MethodIcon } from "../Icons";
 
@@ -16,7 +17,15 @@ const DefaultMethodType = ({
     label: (
       <span className="flex items-center gap-2">
         <MethodIcon type={t} />
-        {t}
+        {t === "Purchase to Order" ? (
+          <Trans>Purchase to Order</Trans>
+        ) : t === "Pull from Inventory" ? (
+          <Trans>Pull from Inventory</Trans>
+        ) : t === "Make to Order" ? (
+          <Trans>Make to Order</Trans>
+        ) : (
+          t
+        )}
       </span>
     )
   }));

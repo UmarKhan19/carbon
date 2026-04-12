@@ -8,6 +8,8 @@ import {
   VStack
 } from "@carbon/react";
 import { useUrlParams } from "@carbon/remix";
+import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { ParentSize } from "@visx/responsive";
 import { useEffect, useMemo, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
@@ -30,7 +32,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Traceability",
+  breadcrumb: msg`Traceability`,
   to: path.to.traceability,
   module: "inventory"
 };
@@ -262,7 +264,9 @@ export default function TraceabilityRoute() {
       <VStack className="flex-1 min-w-0 h-full">
         <HStack className="px-4 py-6 justify-between w-full relative">
           <HStack spacing={1}>
-            <Heading size={"h2"}>Traceability</Heading>
+            <Heading size={"h2"}>
+              <Trans>Traceability</Trans>
+            </Heading>
           </HStack>
         </HStack>
         <div className="flex flex-1 w-full h-full overflow-y-auto scrollbar-hide p-4">
@@ -270,7 +274,9 @@ export default function TraceabilityRoute() {
             {isEmpty ? (
               <Empty className="h-full w-full">
                 <Button asChild>
-                  <Link to={path.to.traceability}>Back to traceability</Link>
+                  <Link to={path.to.traceability}>
+                    <Trans>Back to traceability</Trans>
+                  </Link>
                 </Button>
               </Empty>
             ) : (

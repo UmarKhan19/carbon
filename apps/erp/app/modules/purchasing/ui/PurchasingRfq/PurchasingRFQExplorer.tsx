@@ -17,6 +17,7 @@ import {
   usePrettifyShortcut,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { Link, useParams } from "react-router";
@@ -102,7 +103,7 @@ export default function PurchasingRFQExplorer() {
                   variant="secondary"
                   onClick={newPurchasingRFQLineDisclosure.onOpen}
                 >
-                  Add Line Item
+                  <Trans>Add Line Item</Trans>
                 </Button>
               )}
             </Empty>
@@ -121,12 +122,14 @@ export default function PurchasingRFQExplorer() {
                 variant="secondary"
                 onClick={newPurchasingRFQLineDisclosure.onOpen}
               >
-                Add Line Item
+                <Trans>Add Line Item</Trans>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <HStack>
-                <span>New Line Item</span>
+                <span>
+                  <Trans>New Line Item</Trans>
+                </span>
                 <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
               </HStack>
             </TooltipContent>
@@ -158,6 +161,7 @@ function PurchasingRFQLineItem({
   isDisabled,
   onDelete
 }: PurchasingRFQLineItemProps) {
+  const { t } = useLingui();
   const { rfqId, lineId } = useParams();
   if (!rfqId) throw new Error("Could not find rfqId");
   const permissions = usePermissions();
@@ -196,7 +200,7 @@ function PurchasingRFQLineItem({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More"
+                  aria-label={t`More`}
                   className="opacity-0 group-hover:opacity-100 group-active:opacity-100 data-[state=open]:opacity-100"
                   icon={<LuEllipsisVertical />}
                   variant="solid"
@@ -215,7 +219,7 @@ function PurchasingRFQLineItem({
                   }}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Line
+                  <Trans>Delete Line</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

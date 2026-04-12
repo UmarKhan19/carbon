@@ -2,6 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { Checkbox, MenuIcon, MenuItem } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -26,7 +28,7 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Operators",
+  breadcrumb: msg`Operators`,
   to: path.to.operators
 };
 
@@ -86,6 +88,7 @@ const OperatorsTable = memo(
     count: number;
     employeeTypes: ListItem[];
   }) => {
+    const { t } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
     const [params] = useUrlParams();
@@ -194,7 +197,7 @@ const OperatorsTable = memo(
         data={data}
         primaryAction={
           permissions.can("create", "users") && (
-            <New label="Operator" to={`new?${params.toString()}`} />
+            <New label={t`Operator`} to={`new?${params.toString()}`} />
           )
         }
         renderContextMenu={renderContextMenu}

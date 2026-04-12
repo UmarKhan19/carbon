@@ -38,6 +38,7 @@ import {
   usePrettifyShortcut,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { DragControls } from "framer-motion";
 import { Reorder, useDragControls } from "framer-motion";
 import type { ReactNode } from "react";
@@ -236,7 +237,7 @@ export default function TrainingExplorer() {
                     questionDisclosure.onOpen();
                   }}
                 >
-                  Add Question
+                  <Trans>Add Question</Trans>
                 </Button>
               )}
             </Empty>
@@ -265,7 +266,9 @@ export default function TrainingExplorer() {
             </TooltipTrigger>
             <TooltipContent>
               <HStack>
-                <span>Add Question</span>
+                <span>
+                  <Trans>Add Question</Trans>
+                </span>
                 <Kbd>{prettifyShortcut("Command+Shift+a")}</Kbd>
               </HStack>
             </TooltipContent>
@@ -350,6 +353,7 @@ function TrainingQuestionItem({
   onDelete,
   dragControls
 }: TrainingQuestionProps) {
+  const { t } = useLingui();
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
   const permissions = usePermissions();
@@ -363,7 +367,7 @@ function TrainingQuestionItem({
     >
       {!isDisabled && (
         <IconButton
-          aria-label="Drag handle"
+          aria-label={t`Drag handle`}
           icon={<LuGripVertical />}
           variant="ghost"
           disabled={isDisabled}
@@ -409,7 +413,7 @@ function TrainingQuestionItem({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More"
+                aria-label={t`More`}
                 className="opacity-0 group-hover:opacity-100 group-active:opacity-100 data-[state=open]:opacity-100"
                 icon={<LuEllipsisVertical />}
                 variant="solid"
@@ -424,7 +428,7 @@ function TrainingQuestionItem({
                 }}
               >
                 <DropdownMenuIcon icon={<LuPencil />} />
-                Edit Question
+                <Trans>Edit Question</Trans>
               </DropdownMenuItem>
               <DropdownMenuItem
                 destructive
@@ -435,7 +439,7 @@ function TrainingQuestionItem({
                 }}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete Question
+                <Trans>Delete Question</Trans>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -476,6 +480,7 @@ function TrainingQuestionForm({
   isDisabled: boolean;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const { id: trainingId } = useParams();
   if (!trainingId) throw new Error("id not found");
 
@@ -574,7 +579,11 @@ function TrainingQuestionForm({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit Question" : "Add Question"}
+              {isEditing ? (
+                <Trans>Edit Question</Trans>
+              ) : (
+                <Trans>Add Question</Trans>
+              )}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -589,7 +598,7 @@ function TrainingQuestionForm({
             <VStack spacing={4}>
               <SelectControlled
                 name="type"
-                label="Type"
+                label={t`Type`}
                 options={typeOptions}
                 value={type}
                 onChange={(option) => {
@@ -598,7 +607,7 @@ function TrainingQuestionForm({
                   }
                 }}
               />
-              <Input name="question" label="Question" />
+              <Input name="question" label={t`Question`} />
 
               {(type === "MultipleChoice" || type === "MultipleAnswers") && (
                 <OptionsWithCorrectAnswers
@@ -610,7 +619,9 @@ function TrainingQuestionForm({
 
               {type === "TrueFalse" && (
                 <VStack spacing={2} className="w-full">
-                  <Label>Correct Answer</Label>
+                  <Label>
+                    <Trans>Correct Answer</Trans>
+                  </Label>
                   <HStack>
                     <Switch
                       checked={correctBoolean}
@@ -623,12 +634,14 @@ function TrainingQuestionForm({
 
               {type === "MatchingPairs" && (
                 <VStack spacing={2} className="w-full">
-                  <Label>Matching Pairs</Label>
+                  <Label>
+                    <Trans>Matching Pairs</Trans>
+                  </Label>
                   {matchingPairs.map((pair, index) => (
                     <HStack key={index} className="w-full">
                       <Input
                         name={`pair-left-${index}`}
-                        placeholder="Left item"
+                        placeholder={t`Left item`}
                         value={pair.left}
                         onChange={(e) =>
                           updateMatchingPair(index, "left", e.target.value)
@@ -636,14 +649,14 @@ function TrainingQuestionForm({
                       />
                       <Input
                         name={`pair-right-${index}`}
-                        placeholder="Right item"
+                        placeholder={t`Right item`}
                         value={pair.right}
                         onChange={(e) =>
                           updateMatchingPair(index, "right", e.target.value)
                         }
                       />
                       <IconButton
-                        aria-label="Remove pair"
+                        aria-label={t`Remove pair`}
                         icon={<LuTrash />}
                         variant="ghost"
                         onClick={() => removeMatchingPair(index)}
@@ -656,18 +669,18 @@ function TrainingQuestionForm({
                     onClick={addMatchingPair}
                     type="button"
                   >
-                    Add Pair
+                    <Trans>Add Pair</Trans>
                   </Button>
                 </VStack>
               )}
 
               {type === "Numerical" && (
                 <>
-                  <Number name="correctNumber" label="Correct Answer" />
+                  <Number name="correctNumber" label={t`Correct Answer`} />
                   <Number
                     name="tolerance"
-                    label="Tolerance (+/-)"
-                    helperText="Leave empty for exact match"
+                    label={t`Tolerance (+/-)`}
+                    helperText={t`Leave empty for exact match`}
                   />
                 </>
               )}
@@ -675,9 +688,11 @@ function TrainingQuestionForm({
           </DrawerBody>
           <DrawerFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
-            <Submit isDisabled={isDisabled}>Save</Submit>
+            <Submit isDisabled={isDisabled}>
+              <Trans>Save</Trans>
+            </Submit>
           </DrawerFooter>
         </ValidatedForm>
       </DrawerContent>
@@ -695,6 +710,7 @@ function OptionsWithCorrectAnswers({
   initialCorrectAnswers: string[];
   initialOptions: string[];
 }) {
+  const { t } = useLingui();
   const { getValues } = useFormContext();
 
   const [options, setOptions] = useState<string[]>(initialOptions);
@@ -756,19 +772,19 @@ function OptionsWithCorrectAnswers({
 
   return (
     <>
-      <ArrayInput name="options" label="Options" />
+      <ArrayInput name="options" label={t`Options`} />
 
       {type === "MultipleChoice" && (
         <Select
           name="correctAnswers"
-          label="Correct Answer"
+          label={t`Correct Answer`}
           options={answerOptions}
           value={correctAnswer}
           onChange={(option) => {
             setCorrectAnswer(option?.value ?? "");
           }}
           helperText={
-            answerOptions.length === 0 ? "Add options above first" : undefined
+            answerOptions.length === 0 ? t`Add options above first` : undefined
           }
         />
       )}
@@ -776,14 +792,14 @@ function OptionsWithCorrectAnswers({
       {type === "MultipleAnswers" && (
         <MultiSelect
           name="correctAnswers"
-          label="Correct Answers"
+          label={t`Correct Answers`}
           options={answerOptions}
           value={correctAnswers}
           onChange={(selected) => {
             setCorrectAnswers(selected.map((s) => s.value));
           }}
           helperText={
-            answerOptions.length === 0 ? "Add options above first" : undefined
+            answerOptions.length === 0 ? t`Add options above first` : undefined
           }
         />
       )}

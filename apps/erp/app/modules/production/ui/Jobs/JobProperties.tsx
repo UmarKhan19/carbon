@@ -16,6 +16,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { LuCopy, LuLink, LuUnlink2 } from "react-icons/lu";
@@ -50,6 +51,7 @@ import { getDeadlineIcon } from "./Deadline";
 
 const JobProperties = () => {
   const { jobId } = useParams();
+  const { t } = useLingui();
   if (!jobId) throw new Error("jobId not found");
 
   const routeData = useRouteData<{
@@ -133,7 +135,7 @@ const JobProperties = () => {
       const formData = new FormData();
 
       if (!trackedEntityId) {
-        toast.error("Tracked entity ID is required but none was found");
+        toast.error(t`Tracked entity ID is required but none was found`);
         return;
       }
 
@@ -170,14 +172,14 @@ const JobProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -190,14 +192,16 @@ const JobProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to Job</span>
+                <span>
+                  <Trans>Copy link to Job</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() => copyToClipboard(routeData?.job?.jobId ?? "")}
@@ -206,7 +210,9 @@ const JobProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy Job number</span>
+                <span>
+                  <Trans>Copy Job number</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -266,7 +272,9 @@ const JobProperties = () => {
           </Await>
         </Suspense>
 
-        <span className="text-xs text-muted-foreground">Target</span>
+        <span className="text-xs text-muted-foreground">
+          <Trans>Target</Trans>
+        </span>
         {routeData?.job?.customerId &&
         routeData?.job?.salesOrderId &&
         routeData?.job?.salesOrderLineId ? (
@@ -355,7 +363,7 @@ const JobProperties = () => {
         className="w-full"
       >
         <NumberControlled
-          label="Quantity"
+          label={t`Quantity`}
           name="quantity"
           inline
           isReadOnly={isDisabled}
@@ -377,7 +385,7 @@ const JobProperties = () => {
         className="w-full"
       >
         <NumberControlled
-          label="Estimated Scrap Quantity"
+          label={t`Estimated Scrap Quantity`}
           name="scrapQuantity"
           inline
           isReadOnly={isDisabled}
@@ -399,7 +407,7 @@ const JobProperties = () => {
       >
         <DatePicker
           name="startDate"
-          label="Start Date"
+          label={t`Start Date`}
           inline
           isDisabled={isDisabled}
           onChange={(date) => {
@@ -419,7 +427,7 @@ const JobProperties = () => {
       >
         <DatePicker
           name="dueDate"
-          label="Due Date"
+          label={t`Due Date`}
           inline
           isDisabled={isDisabled}
           onChange={(date) => {
@@ -441,7 +449,7 @@ const JobProperties = () => {
       >
         <Select
           name="deadlineType"
-          label="Deadline Type"
+          label={t`Deadline Type`}
           inline={(value, options) => {
             const deadlineType = value as (typeof deadlineTypes)[number];
             return (
@@ -492,7 +500,7 @@ const JobProperties = () => {
         className="w-full"
       >
         <UnitOfMeasure
-          label="Unit of Measure"
+          label={t`Unit of Measure`}
           name="unitOfMeasureCode"
           inline
           isReadOnly={isDisabled}
@@ -510,7 +518,7 @@ const JobProperties = () => {
         className="w-full"
       >
         <Location
-          label="Job Location"
+          label={t`Job Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -533,7 +541,7 @@ const JobProperties = () => {
       >
         <Tags
           availableTags={routeData?.tags ?? []}
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           table="job"
           inline
