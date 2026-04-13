@@ -11,6 +11,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo } from "react";
 import { useFetcher } from "react-router";
 import { Employees, Hidden, Radios, Submit } from "~/components/Form";
@@ -35,6 +36,7 @@ const BulkEditPermissions = ({
   isOpen,
   onClose
 }: BulkEditPermissionsProps) => {
+  const { t } = useLingui();
   const emptyPermissionsFetcher = useFetcher<{
     permissions: Record<
       string,
@@ -98,21 +100,23 @@ const BulkEditPermissions = ({
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>Edit Permissions</DrawerTitle>
+            <DrawerTitle>
+              <Trans>Edit Permissions</Trans>
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <VStack spacing={4}>
               <div className="border border-border p-4 w-full rounded-lg">
                 <Radios
                   name="editType"
-                  label="Type of Permission Update"
+                  label={t`Type of Permission Update`}
                   options={[
                     {
-                      label: "Add Permissions",
+                      label: t`Add Permissions`,
                       value: "add"
                     },
                     {
-                      label: "Update Permissions",
+                      label: t`Update Permissions`,
                       value: "update"
                     }
                   ]}
@@ -122,7 +126,7 @@ const BulkEditPermissions = ({
               <Employees
                 name="userIds"
                 selectionsMaxHeight={"calc(100vh - 330px)"}
-                label="Users to Update"
+                label={t`Users to Update`}
               />
 
               {hasModules && <PermissionMatrix matrix={matrix} />}
@@ -131,9 +135,11 @@ const BulkEditPermissions = ({
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit>Save</Submit>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

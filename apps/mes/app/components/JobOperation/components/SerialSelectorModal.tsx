@@ -18,6 +18,7 @@ import {
   TabsTrigger,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuCheck, LuList, LuQrCode, LuX } from "react-icons/lu";
 import type { TrackedEntity } from "~/services/types";
@@ -33,6 +34,7 @@ export function SerialSelectorModal({
   onClose: () => void;
   onSelect: (entity: TrackedEntity) => void;
 }) {
+  const { t } = useLingui();
   const [serial, setSerial] = useState("");
 
   return (
@@ -46,9 +48,13 @@ export function SerialSelectorModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Select Serial Number</ModalTitle>
+          <ModalTitle>
+            <Trans>Select Serial Number</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Select a serial number to continue with this operation
+            <Trans>
+              Select a serial number to continue with this operation
+            </Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
@@ -56,11 +62,11 @@ export function SerialSelectorModal({
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="scan">
                 <LuQrCode className="mr-2" />
-                Scan
+                <Trans>Scan</Trans>
               </TabsTrigger>
               <TabsTrigger value="select">
                 <LuList className="mr-2" />
-                Select
+                <Trans>Select</Trans>
               </TabsTrigger>
             </TabsList>
             <TabsContent value="select" className="mt-4">
@@ -68,7 +74,7 @@ export function SerialSelectorModal({
                 <VStack spacing={2}>
                   {availableEntities.length === 0 ? (
                     <p className="text-center text-muted-foreground">
-                      No available serial numbers found
+                      <Trans>No available serial numbers found</Trans>
                     </p>
                   ) : (
                     availableEntities.map((entity) => {
@@ -85,7 +91,7 @@ export function SerialSelectorModal({
                             variant="secondary"
                             onClick={() => onSelect(entity)}
                           >
-                            Select
+                            <Trans>Select</Trans>
                           </Button>
                         </HStack>
                       );
@@ -99,7 +105,7 @@ export function SerialSelectorModal({
                 <InputGroup>
                   <Input
                     autoFocus
-                    placeholder="Scan or enter serial number"
+                    placeholder={t`Scan or enter serial number`}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         const entity = availableEntities.find(
@@ -130,7 +136,7 @@ export function SerialSelectorModal({
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onCancel}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
         </ModalFooter>
       </ModalContent>

@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import type React from "react";
 import { useMemo } from "react";
@@ -27,6 +28,7 @@ const ExchangeRate: React.FC<ExchangeRateProps> = ({
   value,
   ...props
 }) => {
+  const { t } = useLingui();
   const { locale } = useLocale();
 
   const formatter = useMemo(
@@ -49,14 +51,16 @@ const ExchangeRate: React.FC<ExchangeRateProps> = ({
           <VStack spacing={2}>
             <HStack className="w-full justify-between">
               <span className="text-xs text-muted-foreground">
-                Exchange Rate
+                <Trans>Exchange Rate</Trans>
               </span>
               {exchangeRateUpdatedAt && (
                 <Tooltip>
                   <TooltipTrigger tabIndex={-1}>
                     <LuInfo className="w-4 h-4" />
                   </TooltipTrigger>
-                  <TooltipContent>Last updated: {formattedDate}</TooltipContent>
+                  <TooltipContent>
+                    <Trans>Last updated: {formattedDate}</Trans>
+                  </TooltipContent>
                 </Tooltip>
               )}
             </HStack>
@@ -68,14 +72,16 @@ const ExchangeRate: React.FC<ExchangeRateProps> = ({
           <NumberControlled
             label={
               <HStack spacing={1}>
-                <span>Exchange Rate</span>
+                <span>
+                  <Trans>Exchange Rate</Trans>
+                </span>
                 {exchangeRateUpdatedAt && (
                   <Tooltip>
                     <TooltipTrigger tabIndex={-1}>
                       <LuInfo className="w-4 h-4" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      Last updated: {formattedDate}
+                      <Trans>Last updated: {formattedDate}</Trans>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -90,7 +96,7 @@ const ExchangeRate: React.FC<ExchangeRateProps> = ({
 
         {onRefresh && (
           <IconButton
-            aria-label="Refresh exchange rate"
+            aria-label={t`Refresh exchange rate`}
             className="flex-shrink-0 h-10 w-10 px-3 rounded-l-none border-l-0 shadow-sm"
             icon={<LuLoaderCircle />}
             variant="secondary"

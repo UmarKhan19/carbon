@@ -1,3 +1,4 @@
+import { Trans } from "@lingui/react/macro";
 import { ConfiguratorDataTypeIcon } from "../Icons";
 import type { MaterialValue, Parameter } from "../types";
 
@@ -37,14 +38,16 @@ export default function ParameterPanel({
 
   return (
     <div className="flex-1 p-4 overflow-y-auto text-sm">
-      <h3 className="text-lg font-semibold mb-4">Parameters</h3>
+      <h3 className="text-lg font-semibold mb-4">
+        <Trans>Parameters</Trans>
+      </h3>
       <div className="border rounded-lg overflow-hidden">
         <div className="grid grid-cols-2 bg-accent border-b">
           <div className="px-4 py-2 font-medium text-muted-foreground border-r">
-            Name
+            <Trans>Name</Trans>
           </div>
           <div className="px-4 py-2 font-medium text-muted-foreground">
-            Test Value
+            <Trans>Test Value</Trans>
           </div>
         </div>
 

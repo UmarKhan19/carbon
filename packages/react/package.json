@@ -102,6 +102,7 @@
   },
   "peerDependencies": {
     "@internationalized/date": "^3.5.2",
+    "@lingui/react": "^5.9.4",
     "framer-motion": "^11.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

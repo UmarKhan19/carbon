@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import type { z } from "zod";
@@ -40,6 +41,7 @@ type SalesInvoiceFormProps = {
 };
 
 const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const isEditing = initialValues.id !== undefined;
@@ -87,7 +89,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t`Carbon client not found`);
       return;
     }
 
@@ -119,7 +121,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
       ]);
 
       if (customerData.error || paymentTermData.error) {
-        toast.error("Error fetching customer data");
+        toast.error(t`Error fetching customer data`);
       } else {
         setInvoiceCustomer((prev) => ({
           ...prev,
@@ -157,12 +159,18 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
       <Card>
         <CardHeader>
           <CardTitle>
-            {isEditing ? "Sales Invoice" : "New Sales Invoice"}
+            {isEditing ? (
+              <Trans>Sales Invoice</Trans>
+            ) : (
+              <Trans>New Sales Invoice</Trans>
+            )}
           </CardTitle>
           {!isEditing && (
             <CardDescription>
-              A sales invoice is a document that specifies the products or
-              services sold to a customer and the corresponding cost.
+              <Trans>
+                A sales invoice is a document that specifies the products or
+                services sold to a customer and the corresponding cost.
+              </Trans>
             </CardDescription>
           )}
         </CardHeader>
@@ -181,26 +189,29 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="invoiceId"
-                  label="Invoice ID"
+                  label={t`Invoice ID`}
                   table="salesInvoice"
                 />
               )}
               <Customer
                 name="customerId"
-                label="Customer"
+                label={t`Customer`}
                 onChange={onCustomerChange}
               />
-              <Input name="customerReference" label="Customer Invoice Number" />
+              <Input
+                name="customerReference"
+                label={t`Customer Invoice Number`}
+              />
 
               <Customer
                 name="invoiceCustomerId"
-                label="Invoice Customer"
+                label={t`Invoice Customer`}
                 value={invoiceCustomer.id}
                 onChange={onInvoiceCustomerChange}
               />
               <CustomerLocation
                 name="invoiceCustomerLocationId"
-                label="Invoice Customer Location"
+                label={t`Invoice Customer Location`}
                 customer={customer.id}
                 value={invoiceCustomer.invoiceCustomerLocationId}
                 onChange={(newValue) => {
@@ -214,7 +225,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
               />
               <CustomerContact
                 name="invoiceCustomerContactId"
-                label="Invoice Customer Contact"
+                label={t`Invoice Customer Contact`}
                 customer={customer.id}
                 value={invoiceCustomer.invoiceCustomerContactId}
                 onChange={(newValue) => {
@@ -227,12 +238,12 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
                 }}
               />
 
-              <DatePicker name="dateDue" label="Due Date" />
-              <DatePicker name="dateIssued" label="Date Issued" />
+              <DatePicker name="dateDue" label={t`Due Date`} />
+              <DatePicker name="dateIssued" label={t`Date Issued`} />
 
               <PaymentTerm
                 name="paymentTermId"
-                label="Payment Terms"
+                label={t`Payment Terms`}
                 value={invoiceCustomer?.paymentTermId}
                 onChange={(newValue) => {
                   if (newValue?.value) {
@@ -245,7 +256,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
               />
               <Currency
                 name="currencyCode"
-                label="Currency"
+                label={t`Currency`}
                 value={invoiceCustomer?.currencyCode}
                 onChange={(newValue) => {
                   if (newValue?.value) {
@@ -256,7 +267,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
                   }
                 }}
               />
-              <Location name="locationId" label="Location" />
+              <Location name="locationId" label={t`Location`} />
               <CustomFormFields table="salesInvoice" />
             </div>
           </VStack>
@@ -269,7 +280,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
                 : !permissions.can("create", "invoicing")
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </Card>

@@ -30,6 +30,7 @@ import {
   Tr
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuChevronLeft,
@@ -355,6 +356,7 @@ function getShiftTimesForDate(
 }
 
 export default function PersonTimecardRoute() {
+  const { t } = useLingui();
   const { entries, openEntry, weekOffset, from, to, shift } =
     useLoaderData<typeof loader>();
   const { personId } = useParams();
@@ -424,7 +426,9 @@ export default function PersonTimecardRoute() {
     <Card className="overflow-hidden">
       <CardHeader>
         <HStack className="justify-between items-center">
-          <CardTitle>Timecards</CardTitle>
+          <CardTitle>
+            <Trans>Timecards</Trans>
+          </CardTitle>
           <HStack className="gap-1">
             <Button
               variant="secondary"
@@ -436,7 +440,7 @@ export default function PersonTimecardRoute() {
                 setAddClockOut("");
               }}
             >
-              Add Entry
+              <Trans>Add Entry</Trans>
             </Button>
             {openEntry ? (
               <fetcher.Form method="post">
@@ -446,7 +450,7 @@ export default function PersonTimecardRoute() {
                   type="submit"
                   disabled={fetcher.state !== "idle"}
                 >
-                  Clock Out
+                  <Trans>Clock Out</Trans>
                 </Button>
               </fetcher.Form>
             ) : (
@@ -457,7 +461,7 @@ export default function PersonTimecardRoute() {
                   type="submit"
                   disabled={fetcher.state !== "idle"}
                 >
-                  Clock In
+                  <Trans>Clock In</Trans>
                 </Button>
               </fetcher.Form>
             )}
@@ -465,7 +469,7 @@ export default function PersonTimecardRoute() {
         </HStack>
         {openEntry && (
           <Badge variant="green" className="w-fit">
-            Clocked in since {formatTime(openEntry.clockIn)}
+            <Trans>Clocked in since {formatTime(openEntry.clockIn)}</Trans>
           </Badge>
         )}
       </CardHeader>
@@ -475,7 +479,7 @@ export default function PersonTimecardRoute() {
             <Link
               to={`${path.to.personTimecard(personId!)}?week=${weekOffset - 1}`}
             >
-              Prev
+              <Trans>Prev</Trans>
             </Link>
           </Button>
           <span className="text-sm text-muted-foreground">
@@ -489,12 +493,14 @@ export default function PersonTimecardRoute() {
             rightIcon={<LuChevronRight />}
           >
             {isCurrentWeek ? (
-              <span>Next</span>
+              <span>
+                <Trans>Next</Trans>
+              </span>
             ) : (
               <Link
                 to={`${path.to.personTimecard(personId!)}?week=${weekOffset + 1}`}
               >
-                Next
+                <Trans>Next</Trans>
               </Link>
             )}
           </Button>
@@ -510,10 +516,18 @@ export default function PersonTimecardRoute() {
           </colgroup>
           <Thead>
             <Tr>
-              <Th className="whitespace-nowrap">Date</Th>
-              <Th>Clock In</Th>
-              <Th>Clock Out</Th>
-              <Th className="text-center">Duration</Th>
+              <Th className="whitespace-nowrap">
+                <Trans>Date</Trans>
+              </Th>
+              <Th>
+                <Trans>Clock In</Trans>
+              </Th>
+              <Th>
+                <Trans>Clock Out</Trans>
+              </Th>
+              <Th className="text-center">
+                <Trans>Duration</Trans>
+              </Th>
               <Th />
             </Tr>
           </Thead>
@@ -526,7 +540,7 @@ export default function PersonTimecardRoute() {
                     onValueChange={(value) => setAddDate(value)}
                   >
                     <SelectTrigger size="sm">
-                      <SelectValue placeholder="Date" />
+                      <SelectValue placeholder={t`Date`} />
                     </SelectTrigger>
                     <SelectContent>
                       {Array.from({ length: 7 }, (_, i) => {
@@ -589,14 +603,14 @@ export default function PersonTimecardRoute() {
                         type="submit"
                         disabled={isNaN(new Date(addClockIn).getTime())}
                       >
-                        Save
+                        <Trans>Save</Trans>
                       </Button>
                     </fetcher.Form>
                     <Button
                       variant="ghost"
                       onClick={() => setShowAddForm(false)}
                     >
-                      Cancel
+                      <Trans>Cancel</Trans>
                     </Button>
                   </HStack>
                 </Td>
@@ -608,7 +622,7 @@ export default function PersonTimecardRoute() {
                   colSpan={5}
                   className="text-center text-muted-foreground py-8"
                 >
-                  No time entries for this week
+                  <Trans>No time entries for this week</Trans>
                 </Td>
               </Tr>
             ) : (
@@ -671,14 +685,14 @@ export default function PersonTimecardRoute() {
                             type="submit"
                             disabled={isNaN(new Date(editClockIn).getTime())}
                           >
-                            Save
+                            <Trans>Save</Trans>
                           </Button>
                         </fetcher.Form>
                         <Button
                           variant="ghost"
                           onClick={() => setEditingId(null)}
                         >
-                          Cancel
+                          <Trans>Cancel</Trans>
                         </Button>
                       </HStack>
                     </Td>
@@ -693,7 +707,9 @@ export default function PersonTimecardRoute() {
                       {entry.clockOut ? (
                         formatTime(entry.clockOut)
                       ) : (
-                        <Badge variant="green">Active</Badge>
+                        <Badge variant="green">
+                          <Trans>Active</Trans>
+                        </Badge>
                       )}
                     </Td>
                     <Td className="text-center">
@@ -703,7 +719,7 @@ export default function PersonTimecardRoute() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <IconButton
-                            aria-label="More options"
+                            aria-label={t`More options`}
                             variant="ghost"
                             icon={<LuEllipsisVertical />}
                           />
@@ -711,7 +727,7 @@ export default function PersonTimecardRoute() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => startEdit(entry)}>
                             <DropdownMenuIcon icon={<LuPencil />} />
-                            Edit
+                            <Trans>Edit</Trans>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
@@ -723,7 +739,7 @@ export default function PersonTimecardRoute() {
                             className="text-destructive"
                           >
                             <DropdownMenuIcon icon={<LuTrash />} />
-                            Delete
+                            <Trans>Delete</Trans>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -737,14 +753,14 @@ export default function PersonTimecardRoute() {
 
         {entries.length > 0 && (
           <div className="mt-4 text-right text-sm font-medium">
-            Total: {formatTotalHours(entries)}
+            <Trans>Total:</Trans> {formatTotalHours(entries)}
           </div>
         )}
       </CardContent>
       {deletingEntry && (
         <ConfirmDelete
           name={`Timecard (${new Date(deletingEntry.clockIn).toLocaleString()})`}
-          text="Are you sure you want to delete this timecard? This cannot be undone."
+          text={t`Are you sure you want to delete this timecard? This cannot be undone.`}
           onCancel={() => setDeletingEntry(null)}
           onSubmit={() => {
             const formData = new FormData();

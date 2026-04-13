@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs,
@@ -79,6 +80,7 @@ export default function DeleteSupplierTypeRoute() {
   const { supplierTypeId } = useParams();
   const { supplierType } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!supplierType) return null;
   if (!supplierTypeId) throw notFound("supplierTypeId not found");
@@ -88,7 +90,7 @@ export default function DeleteSupplierTypeRoute() {
     <ConfirmDelete
       action={path.to.deleteSupplierType(supplierTypeId)}
       name={supplierType.name}
-      text={`Are you sure you want to delete the supplier type: ${supplierType.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the supplier type: ${supplierType.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

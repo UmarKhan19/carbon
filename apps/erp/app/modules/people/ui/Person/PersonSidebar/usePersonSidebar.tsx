@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuClock,
   LuHardHat,
@@ -11,26 +12,27 @@ export function usePersonSidebar(
   attributeCategories: PublicAttributes[],
   timeCardEnabled?: boolean
 ) {
+  const { t } = useLingui();
   const baseLinks = [
     {
-      name: "Profile",
+      name: t`Profile`,
       to: "details",
       icon: <LuUser />
     },
     {
-      name: "Job",
+      name: t`Job`,
       to: "job",
       icon: <LuHardHat />
     },
     {
-      name: "Notes",
+      name: t`Notes`,
       to: "notes",
       icon: <LuStickyNote />
     },
     ...(timeCardEnabled
       ? [
           {
-            name: "Timecards",
+            name: t`Timecards`,
             to: "timecard",
             icon: <LuClock />
           }
@@ -39,7 +41,7 @@ export function usePersonSidebar(
   ];
 
   const categoryLinks = attributeCategories.map((category) => ({
-    name: category.name ?? "Attributes",
+    name: category.name ?? t`Attributes`,
     to: `attributes/${category.id}`,
     icon: category.emoji ? (
       <span className="text-base">{category.emoji}</span>

@@ -10,6 +10,8 @@ import {
   ScrollArea,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { LuMoon, LuSun } from "react-icons/lu";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -27,7 +29,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Logos",
+  breadcrumb: msg`Logos`,
   to: path.to.logos
 };
 
@@ -77,7 +79,9 @@ export default function LogosRoute() {
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
       <VStack spacing={4} className="py-12 px-4 max-w-[60rem] h-full mx-auto">
         <div className="flex w-full justify-between items-center gap-1">
-          <Heading size="h3">Logos</Heading>
+          <Heading size="h3">
+            <Trans>Logos</Trans>
+          </Heading>
           <Badge variant="outline">{maxSizeMB}MB limit</Badge>
         </div>
 
@@ -85,10 +89,12 @@ export default function LogosRoute() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <LuSun /> Mark Light Mode
+                <LuSun /> <Trans>Mark Light Mode</Trans>
               </CardTitle>
               <CardDescription>
-                Used in the navigation and on documents like sales orders
+                <Trans>
+                  Used in the navigation and on documents like sales orders
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -98,10 +104,10 @@ export default function LogosRoute() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <LuMoon /> Mark Dark Mode
+                <LuMoon /> <Trans>Mark Dark Mode</Trans>
               </CardTitle>
               <CardDescription>
-                Used in the navigation in dark mode
+                <Trans>Used in the navigation in dark mode</Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -112,10 +118,10 @@ export default function LogosRoute() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <LuSun /> Wordmark Light Mode
+              <LuSun /> <Trans>Wordmark Light Mode</Trans>
             </CardTitle>
             <CardDescription>
-              Used on the home screen and digital quotes
+              <Trans>Used on the home screen and digital quotes</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -125,10 +131,10 @@ export default function LogosRoute() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <LuMoon /> Wordmark Dark Mode
+              <LuMoon /> <Trans>Wordmark Dark Mode</Trans>
             </CardTitle>
             <CardDescription>
-              Used on the home screen in dark mode
+              <Trans>Used on the home screen in dark mode</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
@@ -43,6 +44,7 @@ type QuoteFormProps = {
 };
 
 const QuoteForm = ({ initialValues }: QuoteFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -75,7 +77,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t`Carbon client not found`);
       return;
     }
 
@@ -98,7 +100,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         .eq("id", newValue.value)
         .single();
       if (error) {
-        toast.error("Error fetching customer data");
+        toast.error(t`Error fetching customer data`);
       } else {
         setCustomer((prev) => ({
           ...prev,
@@ -127,10 +129,14 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         isDisabled={isDisabled}
       >
         <CardHeader>
-          <CardTitle>{isEditing ? "Quote" : "New Quote"}</CardTitle>
+          <CardTitle>
+            {isEditing ? <Trans>Quote</Trans> : <Trans>New Quote</Trans>}
+          </CardTitle>
           {!isEditing && (
             <CardDescription>
-              A quote is a set of prices for specific parts and quantities.
+              <Trans>
+                A quote is a set of prices for specific parts and quantities.
+              </Trans>
             </CardDescription>
           )}
         </CardHeader>
@@ -148,57 +154,61 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="quoteId"
-                  label="Quote ID"
+                  label={t`Quote ID`}
                   table="quote"
                 />
               )}
               <Customer
                 autoFocus={!isEditing}
                 name="customerId"
-                label="Customer"
+                label={t`Customer`}
                 onChange={(newValue) => {
                   if (newValue?.value) {
                     onCustomerChange(newValue);
                   }
                 }}
               />
-              <Input name="customerReference" label="Customer RFQ" />
+              <Input name="customerReference" label={t`Customer RFQ`} />
               <CustomerContact
                 name="customerContactId"
-                label="Purchasing Contact"
+                label={t`Purchasing Contact`}
                 isOptional
                 customer={customer.id}
                 value={customer.customerContactId}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
-                label="Engineering Contact"
+                label={t`Engineering Contact`}
                 isOptional
                 customer={customer.id}
               />
               <CustomerLocation
                 name="customerLocationId"
-                label="Customer Location"
+                label={t`Customer Location`}
                 isOptional
                 customer={customer.id}
                 value={customer.customerLocationId}
               />
-              <Employee name="salesPersonId" label="Sales Person" isOptional />
-              <Employee name="estimatorId" label="Estimator" isOptional />
-              <Location name="locationId" label="Quote Location" />
+              <Employee
+                name="salesPersonId"
+                label={t`Sales Person`}
+                isOptional
+              />
+              <Employee name="estimatorId" label={t`Estimator`} isOptional />
+              <Location name="locationId" label={t`Quote Location`} />
               <DatePicker
                 name="dueDate"
-                label="Due Date"
+                label={t`Due Date`}
                 isDisabled={isCustomer}
               />
               <DatePicker
                 name="expirationDate"
-                label="Expiration Date"
+                label={t`Expiration Date`}
                 isDisabled={isCustomer}
               />
               <Currency
                 name="currencyCode"
-                label="Currency"
+                label={t`Currency`}
                 value={customer.currencyCode}
                 onChange={(
                   newValue: {
@@ -250,7 +260,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 : !permissions.can("create", "sales"))
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </ValidatedForm>

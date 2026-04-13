@@ -8,6 +8,7 @@ import {
   CardTitle,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import {
   CustomFormFields,
@@ -32,6 +33,7 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
 
   const replenishmentSystem = item?.replenishmentSystem ?? "Buy";
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { company } = useUser();
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
 
@@ -46,20 +48,22 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
         key={`${initialValues.itemId}-${initialValues.unitCost}`}
       >
         <CardHeader>
-          <CardTitle>Costing & Posting</CardTitle>
+          <CardTitle>
+            <Trans>Costing & Posting</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="itemId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full items-start">
             <ItemPostingGroup
               name="itemPostingGroupId"
-              label="Item Group"
-              helperText="Used to categorize items for reporting and analysis"
+              label={t`Item Group`}
+              helperText={t`Used to categorize items for reporting and analysis`}
               isClearable
             />
             {/* <Select
               name="costingMethod"
-              label="Part Costing Method"
+              label={t`Part Costing Method`}
               options={partCostingMethodOptions}
               onChange={(newValue) => {
                 if (newValue) setItemCostingMethod(newValue.value);
@@ -67,7 +71,7 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
             />
             <Number
               name="standardCost"
-              label="Standard Cost"
+              label={t`Standard Cost`}
               formatOptions={{
                 style: "currency",
                 currency: baseCurrency,
@@ -78,7 +82,7 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
 
             <Number
               name="unitCost"
-              label="Unit Cost"
+              label={t`Unit Cost`}
               formatOptions={{
                 style: "currency",
                 currency: baseCurrency
@@ -86,19 +90,21 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
               helperText={
                 replenishmentSystem === "Make"
                   ? undefined
-                  : "Weighted average cost over last year calculated when the invoice is posted"
+                  : t`Weighted average cost over last year calculated when the invoice is posted`
               }
             />
 
-            {/* <Boolean name="costIsAdjusted" label="Cost Is Adjusted" /> */}
+            {/* <Boolean name="costIsAdjusted" label={t`Cost Is Adjusted`} /> */}
             <CustomFormFields table="partCost" />
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "parts")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "parts")}>
+            <Trans>Save</Trans>
+          </Submit>
           {replenishmentSystem === "Make" && (
             <Button variant="secondary" onClick={recalculateModal.onOpen}>
-              Recalculate
+              <Trans>Recalculate</Trans>
             </Button>
           )}
         </CardFooter>
@@ -106,9 +112,9 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
       {recalculateModal.isOpen && (
         <Confirm
           action={path.to.api.itemCostRecalculate(initialValues.itemId)}
-          title="Recalculate Unit Cost"
-          text="This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
-          confirmText="Recalculate"
+          title={t`Recalculate Unit Cost`}
+          text={t`This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?`}
+          confirmText={t`Recalculate`}
           isOpen={recalculateModal.isOpen}
           onCancel={recalculateModal.onClose}
           onSubmit={recalculateModal.onClose}

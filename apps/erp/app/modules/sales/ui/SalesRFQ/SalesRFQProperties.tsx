@@ -9,6 +9,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import { LuCopy, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -31,6 +32,7 @@ import { isSalesRfqLocked } from "../../sales.models";
 import type { SalesRFQ } from "../../types";
 
 const SalesRFQProperties = () => {
+  const { t } = useLingui();
   const { rfqId } = useParams();
   if (!rfqId) throw new Error("rfqId not found");
 
@@ -105,14 +107,14 @@ const SalesRFQProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -132,7 +134,7 @@ const SalesRFQProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -190,7 +192,7 @@ const SalesRFQProperties = () => {
       >
         <InputControlled
           name="customerReference"
-          label="Customer RFQ"
+          label={t`Customer RFQ`}
           value={routeData?.rfqSummary?.customerReference ?? ""}
           size="sm"
           inline
@@ -236,7 +238,7 @@ const SalesRFQProperties = () => {
           name="customerContactId"
           customer={routeData?.rfqSummary?.customerId ?? ""}
           inline
-          label="Purchasing Contact"
+          label={t`Purchasing Contact`}
           isReadOnly={isDisabled}
           onChange={(customerContact) => {
             if (customerContact?.id) {
@@ -260,7 +262,7 @@ const SalesRFQProperties = () => {
           name="customerEngineeringContactId"
           customer={routeData?.rfqSummary?.customerId ?? ""}
           inline
-          label="Engineering Contact"
+          label={t`Engineering Contact`}
           isReadOnly={isDisabled}
           onChange={(customerEngineeringContact) => {
             if (customerEngineeringContact?.id) {
@@ -284,7 +286,7 @@ const SalesRFQProperties = () => {
       >
         <DatePicker
           name="rfqDate"
-          label="RFQ Date"
+          label={t`RFQ Date`}
           inline
           onChange={(date) => {
             onUpdate("rfqDate", date);
@@ -303,7 +305,7 @@ const SalesRFQProperties = () => {
       >
         <DatePicker
           name="expirationDate"
-          label="Expiration Date"
+          label={t`Expiration Date`}
           inline
           onChange={(date) => {
             onUpdate("expirationDate", date);
@@ -319,7 +321,7 @@ const SalesRFQProperties = () => {
         className="w-full"
       >
         <Location
-          label="RFQ Location"
+          label={t`RFQ Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -342,7 +344,7 @@ const SalesRFQProperties = () => {
       >
         <Employee
           name="salesPersonId"
-          label="Sales Person"
+          label={t`Sales Person`}
           inline
           isReadOnly={isDisabled}
           onChange={(value) => {

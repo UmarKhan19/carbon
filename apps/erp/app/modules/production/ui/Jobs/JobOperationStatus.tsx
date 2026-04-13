@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
   IconButton
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useCallback } from "react";
 import { useFetchers, useParams, useSubmit } from "react-router";
 import { z } from "zod";
@@ -41,6 +42,7 @@ export function JobOperationStatus({
   className?: string;
   onChange?: (status: JobOperation["status"]) => void;
 }) {
+  const { t } = useLingui();
   const params = useParams();
   const jobId = params.jobId ?? operation.jobId;
   if (!jobId) throw new Error("Job ID is required");
@@ -82,7 +84,7 @@ export function JobOperationStatus({
           size="sm"
           variant="ghost"
           className={className}
-          aria-label="Change status"
+          aria-label={t`Change status`}
           icon={<OperationStatusIcon status={currentStatus} />}
           isDisabled={isDisabled}
         />

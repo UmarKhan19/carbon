@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import clsx from "clsx";
 import type { IconType } from "react-icons";
 import { BsBarChartFill, BsCheckLg } from "react-icons/bs";
@@ -20,28 +21,33 @@ const AbilityIcons: Record<
   AbilityEmployeeStatus,
   {
     icon: IconType;
-    description: string;
   }
 > = {
   [AbilityEmployeeStatus.Complete]: {
-    icon: BsCheckLg,
-    description: "Fully trained for"
+    icon: BsCheckLg
   },
   [AbilityEmployeeStatus.InProgress]: {
-    icon: BsBarChartFill,
-    description: "Currently training for"
+    icon: BsBarChartFill
   },
   [AbilityEmployeeStatus.NotStarted]: {
-    icon: FaThumbsUp,
-    description: "Not started training for"
+    icon: FaThumbsUp
   }
 };
 
 const PersonAbilities = ({ abilities }: PersonAbilitiesProps) => {
+  const { t } = useLingui();
+
+  const abilityDescriptions: Record<AbilityEmployeeStatus, string> = {
+    [AbilityEmployeeStatus.Complete]: t`Fully trained for`,
+    [AbilityEmployeeStatus.InProgress]: t`Currently training for`,
+    [AbilityEmployeeStatus.NotStarted]: t`Not started training for`
+  };
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Abilities</CardTitle>
+        <CardTitle>
+          <Trans>Abilities</Trans>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {abilities?.length > 0 ? (
@@ -51,7 +57,8 @@ const PersonAbilities = ({ abilities }: PersonAbilitiesProps) => {
                 getTrainingStatus(employeeAbility) ??
                 AbilityEmployeeStatus.NotStarted;
 
-              const { description, icon } = AbilityIcons[abilityStatus];
+              const { icon } = AbilityIcons[abilityStatus];
+              const description = abilityDescriptions[abilityStatus];
 
               if (
                 !employeeAbility.ability ||
@@ -109,7 +116,7 @@ const PersonAbilities = ({ abilities }: PersonAbilitiesProps) => {
           </ul>
         ) : (
           <div className="text-muted-foreground text-center p-4 w-full">
-            No abilities added
+            <Trans>No abilities added</Trans>
           </div>
         )}
       </CardContent>

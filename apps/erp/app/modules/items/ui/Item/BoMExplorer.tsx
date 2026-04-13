@@ -22,6 +22,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useOptimisticLocation } from "@carbon/remix";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuBraces,
@@ -119,6 +120,7 @@ const BoMExplorer = ({
   );
 
   const navigate = useNavigate();
+  const { t } = useLingui();
   const location = useOptimisticLocation();
 
   const { itemId } = params;
@@ -160,7 +162,7 @@ const BoMExplorer = ({
                 <LuSearch className="h-4 w-4" />
               </InputLeftElement>
               <Input
-                placeholder="Search..."
+                placeholder={t`Search...`}
                 value={filterText}
                 onChange={(e) => setFilterTextInternal(e.target.value)}
               />
@@ -169,7 +171,7 @@ const BoMExplorer = ({
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <IconButton
-                  aria-label="Actions"
+                  aria-label={t`Actions`}
                   variant="secondary"
                   size="sm"
                   icon={<LuEllipsisVertical />}
@@ -179,7 +181,7 @@ const BoMExplorer = ({
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <DropdownMenuIcon icon={<LuDownload />} />
-                    Export
+                    <Trans>Export</Trans>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem asChild>
@@ -396,11 +398,12 @@ const BoMExplorer = ({
 export default BoMExplorer;
 
 export function BoMActions({ makeMethodId }: { makeMethodId: string }) {
+  const { t } = useLingui();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <IconButton
-          aria-label="Actions"
+          aria-label={t`Actions`}
           variant="secondary"
           size="sm"
           icon={<LuEllipsisVertical />}
@@ -410,7 +413,7 @@ export function BoMActions({ makeMethodId }: { makeMethodId: string }) {
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <DropdownMenuIcon icon={<LuDownload />} />
-            Export
+            <Trans>Export</Trans>
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuItem asChild>
@@ -517,6 +520,7 @@ function NodeData({ node }: { node: FlatTreeItem<Method> }) {
 }
 
 function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
+  const { t } = useLingui();
   const integrations = useIntegrations();
   const onShapeState = integrations.has("onshape")
     ? // @ts-expect-error
@@ -528,7 +532,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
     <VStack className="w-full text-sm">
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Item ID
+          <Trans>Item ID</Trans>
         </span>
         <HStack className="w-full justify-between">
           <span>{node.data.itemReadableId}</span>
@@ -541,7 +545,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
               )}
             >
               <IconButton
-                aria-label="View Item Master"
+                aria-label={t`View Item Master`}
                 size="sm"
                 variant="secondary"
                 icon={<LuExternalLink />}
@@ -552,7 +556,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Description
+          <Trans>Description</Trans>
         </span>
         <HStack className="w-full justify-between">
           <span>{node.data.description}</span>
@@ -561,7 +565,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Quantity
+          <Trans>Quantity</Trans>
         </span>
         <HStack className="w-full justify-between">
           <span>
@@ -571,7 +575,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Method
+          <Trans>Method</Trans>
         </span>
         <HStack className="w-full">
           <MethodIcon type={node.data.methodType} />
@@ -580,7 +584,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
       </VStack>
       <VStack spacing={1}>
         <span className="text-xs text-muted-foreground font-medium">
-          Item Type
+          <Trans>Item Type</Trans>
         </span>
         <HStack className="w-full">
           <MethodItemTypeIcon type={node.data.itemType} />
@@ -590,7 +594,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
       {node.data.methodType === "Make to Order" && node.data.version && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
-            Make Method Version
+            <Trans>Make Method Version</Trans>
           </span>
           <HStack className="w-full">
             <Badge variant="outline">V{node.data.version}</Badge>
@@ -600,7 +604,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
       {onShapeState && (
         <VStack spacing={1}>
           <span className="text-xs text-muted-foreground font-medium">
-            Onshape Status
+            <Trans>Onshape Status</Trans>
           </span>
           <HStack className="w-full">
             <OnshapeStatus status={onShapeState} />

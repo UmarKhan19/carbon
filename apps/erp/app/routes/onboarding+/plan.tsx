@@ -14,6 +14,7 @@ import {
 } from "@carbon/react";
 import { getCheckoutUrl } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useMemo } from "react";
 import { LuGraduationCap, LuMoveLeft, LuPhoneCall } from "react-icons/lu";
@@ -22,50 +23,49 @@ import { Form, redirect, useFetcher, useLoaderData } from "react-router";
 import { getCompany, getPlans } from "~/modules/settings";
 import { path } from "~/utils/path";
 
-const PLANS = {
-  STARTER: {
-    price: 33,
-    userMinimum: 0,
-    talkToSales: false,
-    description: "Perfect for low-cost evaluation",
-    features: [
-      "ERP, MES, QMS",
-      "Cloud-Hosted",
-      "Self-Onboarding with Carbon Academy"
-    ]
-  },
-  BUSINESS: {
-    price: 92,
-    userMinimum: 5,
-    talkToSales: true,
-    description: "For growing businesses that need support",
-    features: [
-      "5 User Minimum",
-      "Everything from Starter",
-      "API and Webhooks",
-      "Implementation Support",
-      "Unlimited Functional Support"
-      // <div key="ai-agents" className="flex items-center gap-2">
-      //   <span>AI Agents</span>
-      //   <Badge variant="outline">Beta</Badge>
-      // </div>,
-    ]
-  },
-  GOVCLOUD: {
-    price: 92,
-    userMinimum: 5,
-    talkToSales: true,
-    description: "For US companies handling ITAR data",
-    features: [
-      "5 User Minimum",
-      "ERP, MES, QMS",
-      "Cloud-Hosted",
-      "API and Webhooks",
-      "Implementation Support",
-      "Unlimited Functional Support"
-    ]
-  }
-} as const;
+function usePlans() {
+  const { t } = useLingui();
+  return {
+    STARTER: {
+      price: 33,
+      userMinimum: 0,
+      talkToSales: false,
+      description: t`Perfect for low-cost evaluation`,
+      features: [
+        t`ERP, MES, QMS`,
+        t`Cloud-Hosted`,
+        t`Self-Onboarding with Carbon Academy`
+      ]
+    },
+    BUSINESS: {
+      price: 92,
+      userMinimum: 5,
+      talkToSales: true,
+      description: t`For growing businesses that need support`,
+      features: [
+        t`5 User Minimum`,
+        t`Everything from Starter`,
+        t`API and Webhooks`,
+        t`Implementation Support`,
+        t`Unlimited Functional Support`
+      ]
+    },
+    GOVCLOUD: {
+      price: 92,
+      userMinimum: 5,
+      talkToSales: true,
+      description: t`For US companies handling ITAR data`,
+      features: [
+        t`5 User Minimum`,
+        t`ERP, MES, QMS`,
+        t`Cloud-Hosted`,
+        t`API and Webhooks`,
+        t`Implementation Support`,
+        t`Unlimited Functional Support`
+      ]
+    }
+  };
+}
 
 export async function loader({ request }: ActionFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {});
@@ -95,7 +95,8 @@ export async function action({ request }: ActionFunctionArgs) {
     throw new Error("Plan ID is required");
   }
 
-  if (!(planId in PLANS) || planId.startsWith("PARTNER")) {
+  const validPlanIds = ["STARTER", "BUSINESS", "GOVCLOUD"];
+  if (!validPlanIds.includes(planId) || planId.startsWith("PARTNER")) {
     throw new Error("Invalid plan ID");
   }
 
@@ -124,6 +125,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function OnboardingPlan() {
+  const { t } = useLingui();
+  const PLANS = usePlans();
   const { plans, companyId } = useLoaderData<typeof loader>();
   const { locale } = useLocale();
   const formatter = useMemo(
@@ -145,10 +148,11 @@ export default function OnboardingPlan() {
       <div className="flex flex-col max-w-2xl w-full min-h-screen md:min-h-0">
         <div className="sticky top-0 bg-background z-10 pb-4">
           <CardHeader>
-            <CardTitle>Select a plan</CardTitle>
+            <CardTitle>
+              <Trans>Select a plan</Trans>
+            </CardTitle>
             <CardDescription>
-              Select a plan to get started. You won't be charged for the first{" "}
-              {plans[0].stripeTrialPeriodDays} days. Switch or cancel anytime.
+              {t`Select a plan to get started. You won't be charged for the first ${plans[0].stripeTrialPeriodDays} days. Switch or cancel anytime.`}
             </CardDescription>
           </CardHeader>
         </div>
@@ -185,7 +189,7 @@ export default function OnboardingPlan() {
                           {formatter.format(planDetails?.price)}
                         </span>
                         <span className="ml-1 text-sm text-muted-foreground tracking-tighter">
-                          /month/user
+                          <Trans>/month/user</Trans>
                         </span>
                       </div>
                       <ul className="mt-6 space-y-3">
@@ -214,8 +218,8 @@ export default function OnboardingPlan() {
                             }
                           >
                             {plan.stripeTrialPeriodDays > 0
-                              ? `Start ${plan.stripeTrialPeriodDays} Day Free Trial`
-                              : "Start Now"}
+                              ? t`Start ${plan.stripeTrialPeriodDays} Day Free Trial`
+                              : t`Start Now`}
                           </Button>
                         </fetcher.Form>
 
@@ -231,7 +235,7 @@ export default function OnboardingPlan() {
                               target="_blank"
                               rel="noreferrer"
                             >
-                              Talk to Sales
+                              <Trans>Talk to Sales</Trans>
                             </a>
                           </Button>
                         ) : (
@@ -246,7 +250,7 @@ export default function OnboardingPlan() {
                               target="_blank"
                               rel="noreferrer"
                             >
-                              Start Learning
+                              <Trans>Start Learning</Trans>
                             </a>
                           </Button>
                         )}
@@ -265,7 +269,7 @@ export default function OnboardingPlan() {
             type="submit"
             variant="ghost"
             icon={<LuMoveLeft />}
-            aria-label="Back"
+            aria-label={t`Back`}
           />
         </Form>
       </div>

@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import {
@@ -26,6 +27,7 @@ export function MessageActions({
   messageId,
   messageContent
 }: MessageActionsProps) {
+  const { t } = useLingui();
   const chatId = useChatId();
   const { regenerate } = useChatActions();
   const [feedbackGiven, setFeedbackGiven] = useState<
@@ -50,7 +52,7 @@ export function MessageActions({
 
     if (!chatId) return;
 
-    alert("Positive feedback");
+    alert(t`Positive feedback`);
   };
 
   const handleNegative = () => {
@@ -64,7 +66,7 @@ export function MessageActions({
 
     if (!chatId) return;
 
-    alert("Negative feedback");
+    alert(t`Negative feedback`);
   };
 
   const copyToClipboard = async () => {
@@ -111,7 +113,9 @@ export function MessageActions({
               </button>
             </TooltipTrigger>
             <TooltipContent className="px-2 py-1 text-xs">
-              <p>{copied ? "Copied!" : "Copy response"}</p>
+              <p>
+                {copied ? <Trans>Copied!</Trans> : <Trans>Copy response</Trans>}
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -135,7 +139,9 @@ export function MessageActions({
               </button>
             </TooltipTrigger>
             <TooltipContent className="px-2 py-1 text-xs">
-              <p>Retry response</p>
+              <p>
+                <Trans>Retry response</Trans>
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -172,9 +178,11 @@ export function MessageActions({
             </TooltipTrigger>
             <TooltipContent className="px-2 py-1 text-xs">
               <p>
-                {feedbackGiven === "positive"
-                  ? "Remove positive feedback"
-                  : "Positive feedback"}
+                {feedbackGiven === "positive" ? (
+                  <Trans>Remove positive feedback</Trans>
+                ) : (
+                  <Trans>Positive feedback</Trans>
+                )}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -212,9 +220,11 @@ export function MessageActions({
             </TooltipTrigger>
             <TooltipContent className="px-2 py-1 text-xs">
               <p>
-                {feedbackGiven === "negative"
-                  ? "Remove negative feedback"
-                  : "Negative feedback"}
+                {feedbackGiven === "negative" ? (
+                  <Trans>Remove negative feedback</Trans>
+                ) : (
+                  <Trans>Negative feedback</Trans>
+                )}
               </p>
             </TooltipContent>
           </Tooltip>

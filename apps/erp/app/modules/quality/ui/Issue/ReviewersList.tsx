@@ -17,6 +17,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LuCirclePlus } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -37,6 +38,7 @@ export function ReviewersList({
 }) {
   const disclosure = useDisclosure();
 
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof reviewAction>();
   const submitted = useRef(false);
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -56,7 +58,7 @@ export function ReviewersList({
       <HStack className="justify-between w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            Approval Requirements
+            <Trans>Approval Requirements</Trans>
           </CardTitle>
         </CardHeader>
         <TaskProgress tasks={reviewers} />
@@ -89,10 +91,12 @@ export function ReviewersList({
                   }}
                 >
                   <ModalHeader>
-                    <ModalTitle>Add Approval Requirement</ModalTitle>
+                    <ModalTitle>
+                      <Trans>Add Approval Requirement</Trans>
+                    </ModalTitle>
                   </ModalHeader>
                   <ModalBody>
-                    <Input name="title" label="Title" />
+                    <Input name="title" label={t`Title`} />
                   </ModalBody>
                   <ModalFooter>
                     <Button
@@ -100,7 +104,7 @@ export function ReviewersList({
                       variant="secondary"
                       onClick={disclosure.onClose}
                     >
-                      Cancel
+                      <Trans>Cancel</Trans>
                     </Button>
                     <Submit
                       isLoading={fetcher.state === "submitting"}
@@ -116,11 +120,11 @@ export function ReviewersList({
           <HStack>
             {disclosure.isOpen ? (
               <Button variant="secondary" onClick={disclosure.onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             ) : (
               <Button leftIcon={<LuCirclePlus />} onClick={disclosure.onOpen}>
-                Add Requirement
+                <Trans>Add Requirement</Trans>
               </Button>
             )}
           </HStack>
@@ -189,7 +193,9 @@ function NewApprovalRequirement({ isDisabled }: { isDisabled: boolean }) {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            <ModalTitle>Add Approval Requirement</ModalTitle>
+            <ModalTitle>
+              <Trans>Add Approval Requirement</Trans>
+            </ModalTitle>
           </ModalHeader>
           <ModalBody>
             <VStack spacing={2}>
@@ -214,14 +220,18 @@ function NewApprovalRequirement({ isDisabled }: { isDisabled: boolean }) {
                 setIsMRBChecked(false);
               }}
             >
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Button
               onClick={handleSubmit}
               isLoading={fetcher.state === "submitting"}
               disabled={!isMRBChecked || fetcher.state !== "idle"}
             >
-              {fetcher.state !== "idle" ? "Adding..." : "Add Requirement"}
+              {fetcher.state !== "idle" ? (
+                <Trans>Adding...</Trans>
+              ) : (
+                <Trans>Add Requirement</Trans>
+              )}
             </Button>
           </ModalFooter>
         </ModalContent>

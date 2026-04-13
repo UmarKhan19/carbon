@@ -9,6 +9,7 @@ import {
   Combobox,
   HStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import {
   Combobox as ComboboxFormField,
@@ -35,6 +36,7 @@ const PickMethodForm = ({
   type
 }: PickMethodFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
 
   const locationOptions = locations.map((location) => ({
     label: location.name,
@@ -50,7 +52,9 @@ const PickMethodForm = ({
       >
         <HStack className="w-full justify-between items-start">
           <CardHeader>
-            <CardTitle>Inventory</CardTitle>
+            <CardTitle>
+              <Trans>Inventory</Trans>
+            </CardTitle>
           </CardHeader>
 
           <CardAction>
@@ -77,7 +81,7 @@ const PickMethodForm = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <ComboboxFormField
               name="defaultShelfId"
-              label="Default Shelf"
+              label={t`Default Shelf`}
               options={shelves}
               className="w-full"
             />
@@ -86,7 +90,9 @@ const PickMethodForm = ({
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "parts")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "parts")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

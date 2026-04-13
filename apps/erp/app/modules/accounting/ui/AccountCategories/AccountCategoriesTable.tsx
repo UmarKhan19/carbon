@@ -5,6 +5,7 @@ import {
   MenuItem,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { BiAddToQueue } from "react-icons/bi";
@@ -27,6 +28,7 @@ type AccountCategoriesTableProps = {
 
 const AccountCategoriesTable = memo(
   ({ data, count }: AccountCategoriesTableProps) => {
+    const { t } = useLingui();
     const navigate = useNavigate();
     const [params] = useUrlParams();
     const permissions = usePermissions();
@@ -51,7 +53,7 @@ const AccountCategoriesTable = memo(
       const defaultColumns: ColumnDef<(typeof data)[number]>[] = [
         {
           accessorKey: "category",
-          header: "Category",
+          header: t`Category`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id as string}>
               {row.original.category}
@@ -59,7 +61,7 @@ const AccountCategoriesTable = memo(
           )
         },
         {
-          header: "Income/Balance",
+          header: t`Income/Balance`,
           accessorKey: "incomeBalance",
           cell: (item) => <Enumerable value={item.getValue<string>()} />,
           meta: {
@@ -70,11 +72,11 @@ const AccountCategoriesTable = memo(
                 label: <Enumerable value={incomeBalance} />
               }))
             },
-            pluralHeader: "Income/Balance"
+            pluralHeader: t`Income/Balance`
           }
         },
         {
-          header: "Class",
+          header: t`Class`,
           accessorKey: "class",
           cell: (item) => <Enumerable value={item.getValue<string>()} />,
           meta: {
@@ -85,16 +87,20 @@ const AccountCategoriesTable = memo(
                 label: <Enumerable value={accountClass} />
               }))
             },
-            pluralHeader: "Income/Balance"
+            pluralHeader: t`Income/Balance`
           }
         },
 
         {
-          header: "Subcategories",
+          header: t`Subcategories`,
           cell: ({ row }) => (
             <HStack className="text-xs text-muted-foreground">
               <LuListChecks />
-              <span>{row.original.subCategoriesCount ?? 0} Subcategories</span>
+              <span>
+                <Trans>
+                  {row.original.subCategoriesCount ?? 0} Subcategories
+                </Trans>
+              </span>
               <Button variant="secondary" size="sm" asChild>
                 <Link
                   to={`${path.to.accountingCategoryList(
@@ -102,7 +108,7 @@ const AccountCategoriesTable = memo(
                   )}?${params?.toString()}`}
                   prefetch="intent"
                 >
-                  Edit
+                  <Trans>Edit</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -111,7 +117,7 @@ const AccountCategoriesTable = memo(
       ];
 
       return [...defaultColumns, ...customColumns];
-    }, [params, customColumns]);
+    }, [params, customColumns, t]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
     const renderContextMenu = useCallback(
@@ -129,7 +135,7 @@ const AccountCategoriesTable = memo(
               }}
             >
               <MenuIcon icon={<BiAddToQueue />} />
-              New Subcategory
+              <Trans>New Subcategory</Trans>
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -141,7 +147,7 @@ const AccountCategoriesTable = memo(
               }}
             >
               <MenuIcon icon={<BsListUl />} />
-              View Subcategories
+              <Trans>View Subcategories</Trans>
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -149,14 +155,14 @@ const AccountCategoriesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Account Category
+              <Trans>Edit Account Category</Trans>
             </MenuItem>
             <MenuItem
               disabled={!permissions.can("delete", "users")}
               onClick={() => onDelete(row)}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Account Category
+              <Trans>Delete Account Category</Trans>
             </MenuItem>
           </>
         );
@@ -173,18 +179,21 @@ const AccountCategoriesTable = memo(
           count={count ?? 0}
           primaryAction={
             permissions.can("update", "accounting") && (
-              <New label="Account Category" to={`new?${params.toString()}`} />
+              <New
+                label={t`Account Category`}
+                to={`new?${params.toString()}`}
+              />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Account Categories"
+          title={t`Account Categories`}
         />
 
         {selectedCategory && selectedCategory.id && (
           <ConfirmDelete
             action={path.to.deleteAccountingCategory(selectedCategory.id)}
             name={selectedCategory?.category ?? ""}
-            text={`Are you sure you want to deactivate the ${selectedCategory?.category} account category?`}
+            text={t`Are you sure you want to deactivate the ${selectedCategory?.category} account category?`}
             isOpen={deleteModal.isOpen}
             onCancel={onDeleteCancel}
             onSubmit={onDeleteCancel}

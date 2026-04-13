@@ -1,6 +1,7 @@
 import type { Database } from "@carbon/database";
 import { Checkbox, cn } from "@carbon/react";
 import { formatDateTime } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
@@ -54,6 +55,7 @@ type JobOperationStepRecordsTableProps = {
 const JobOperationStepRecordsTable = memo(
   ({ data, count }: JobOperationStepRecordsTableProps) => {
     const { jobId } = useParams();
+    const { t } = useLingui();
     if (!jobId) throw new Error("Job ID is required");
 
     const numberFormatter = useNumberFormatter();
@@ -64,7 +66,7 @@ const JobOperationStepRecordsTable = memo(
       return [
         {
           accessorKey: "operationDescription",
-          header: "Operation",
+          header: t`Operation`,
           cell: ({ row }) => row.original.operationDescription,
           meta: {
             icon: <LuSettings />
@@ -72,7 +74,7 @@ const JobOperationStepRecordsTable = memo(
         },
         {
           accessorKey: "name",
-          header: "Step",
+          header: t`Step`,
           cell: ({ row }) => row.original.name,
           meta: {
             icon: <LuClipboardList />
@@ -80,7 +82,7 @@ const JobOperationStepRecordsTable = memo(
         },
         {
           id: "value",
-          header: "Value",
+          header: t`Value`,
           cell: ({ row }) => {
             const record = row.original;
 
@@ -175,7 +177,7 @@ const JobOperationStepRecordsTable = memo(
         },
         {
           id: "type",
-          header: "Type",
+          header: t`Type`,
           cell: ({ row }) => (
             <div className="flex items-center gap-2">
               <ProcedureStepTypeIcon type={row.original.type} />
@@ -200,7 +202,7 @@ const JobOperationStepRecordsTable = memo(
         },
         {
           accessorKey: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar
               employeeId={row.original.createdBy}
@@ -213,14 +215,14 @@ const JobOperationStepRecordsTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: ({ row }) => formatDateTime(row.original.createdAt ?? ""),
           meta: {
             icon: <LuCalendar />
           }
         }
       ];
-    }, [numberFormatter, unitOfMeasures, employees]);
+    }, [numberFormatter, unitOfMeasures, employees, t]);
 
     return (
       <Table<JobOperationStepRecord>
@@ -228,7 +230,7 @@ const JobOperationStepRecordsTable = memo(
         count={count}
         columns={columns}
         data={data}
-        title="Step Records"
+        title={t`Step Records`}
       />
     );
   }

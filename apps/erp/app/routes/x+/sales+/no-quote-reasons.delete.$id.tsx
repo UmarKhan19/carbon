@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -65,6 +66,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function DeleteNoQuoteReasonRoute() {
+  const { t } = useLingui();
   const { id } = useParams();
   const { noQuoteReason } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
@@ -77,7 +79,7 @@ export default function DeleteNoQuoteReasonRoute() {
     <ConfirmDelete
       action={path.to.deleteNoQuoteReason(id)}
       name={noQuoteReason.name}
-      text={`Are you sure you want to delete the no quote reason: ${noQuoteReason.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the no quote reason: ${noQuoteReason.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

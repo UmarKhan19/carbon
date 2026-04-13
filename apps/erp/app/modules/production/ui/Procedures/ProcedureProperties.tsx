@@ -8,6 +8,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -25,6 +26,7 @@ import ProcedureStatus from "./ProcedureStatus";
 
 const ProcedureProperties = () => {
   const { id } = useParams();
+  const { t } = useLingui();
   if (!id) throw new Error("id not found");
 
   const routeData = useRouteData<{
@@ -78,14 +80,14 @@ const ProcedureProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -98,14 +100,16 @@ const ProcedureProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to procedure</span>
+                <span>
+                  <Trans>Copy link to procedure</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -116,14 +120,16 @@ const ProcedureProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy procedure unique identifier</span>
+                <span>
+                  <Trans>Copy procedure unique identifier</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -134,7 +140,9 @@ const ProcedureProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy procedure name</span>
+                <span>
+                  <Trans>Copy procedure name</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -163,7 +171,7 @@ const ProcedureProperties = () => {
       >
         <span className="text-sm tracking-tight">
           <Select
-            label="Status"
+            label={t`Status`}
             name="status"
             inline={(value) => (
               <ProcedureStatus
@@ -192,7 +200,7 @@ const ProcedureProperties = () => {
         className="w-full"
       >
         <Process
-          label="Process"
+          label={t`Process`}
           name="processId"
           inline
           onChange={(value) => {
@@ -212,7 +220,7 @@ const ProcedureProperties = () => {
       >
         <Tags
           availableTags={routeData?.tags ?? []}
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           table="procedure"
           inline

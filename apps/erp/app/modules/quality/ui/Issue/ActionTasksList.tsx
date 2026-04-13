@@ -16,6 +16,7 @@ import {
   useDebounce,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { Reorder, useDragControls } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { LuCirclePlus } from "react-icons/lu";
@@ -116,7 +117,9 @@ export function ActionTasksList({
     <Card className="w-full" isCollapsible>
       <HStack className="justify-between w-full">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">Actions</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Trans>Actions</Trans>
+          </CardTitle>
         </CardHeader>
         <TaskProgress tasks={tasks} />
       </HStack>
@@ -209,7 +212,9 @@ function NewAction({ isDisabled }: { isDisabled: boolean }) {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
-            <ModalTitle>Add Required Actions</ModalTitle>
+            <ModalTitle>
+              <Trans>Add Required Actions</Trans>
+            </ModalTitle>
           </ModalHeader>
           <ModalBody>
             <VStack spacing={2}>
@@ -239,7 +244,7 @@ function NewAction({ isDisabled }: { isDisabled: boolean }) {
                 setSelectedActionIds([]);
               }}
             >
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Button
               onClick={handleSubmit}
@@ -248,7 +253,11 @@ function NewAction({ isDisabled }: { isDisabled: boolean }) {
               }
               isLoading={fetcher.state === "submitting"}
             >
-              {fetcher.state !== "idle" ? "Adding..." : "Add Actions"}
+              {fetcher.state !== "idle" ? (
+                <Trans>Adding...</Trans>
+              ) : (
+                <Trans>Add Actions</Trans>
+              )}
             </Button>
           </ModalFooter>
         </ModalContent>

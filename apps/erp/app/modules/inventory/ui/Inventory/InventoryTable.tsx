@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
@@ -79,6 +80,10 @@ const InventoryTable = memo(
     tags
   }: InventoryTableProps) => {
     const [params] = useUrlParams();
+    const { t } = useLingui();
+
+    const translateReplenishment = (v: string) =>
+      v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`;
 
     const locations = useLocations();
     const unitOfMeasures = useUnitOfMeasure();
@@ -87,12 +92,13 @@ const InventoryTable = memo(
     const materialSubstanceId = filters.getFilter("materialSubstanceId")?.[0];
     const materialFormId = filters.getFilter("materialFormId")?.[0];
     const numberFormatter = useNumberFormatter();
+    const formatNumber = numberFormatter.format.bind(numberFormatter);
 
     const columns = useMemo<ColumnDef<InventoryItem>[]>(() => {
       return [
         {
           accessorKey: "readableIdWithRevision",
-          header: "Item ID",
+          header: t`Item ID`,
           cell: ({ row }) => (
             <HStack className="py-1">
               <ItemThumbnail
@@ -121,40 +127,43 @@ const InventoryTable = memo(
 
         {
           accessorKey: "quantityOnHand",
-          header: "On Hand",
+          header: t`On Hand`,
           cell: ({ row }) =>
             row.original.itemTrackingType === "Non-Inventory" ? (
               <TrackingTypeIcon type="Non-Inventory" />
             ) : (
-              numberFormatter.format(row.original.quantityOnHand)
+              formatNumber(row.original.quantityOnHand)
             ),
           meta: {
             icon: <LuPackage />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
 
         {
           accessorKey: "daysRemaining",
-          header: "Days",
-          cell: ({ row }) => numberFormatter.format(row.original.daysRemaining),
+          header: t`Days`,
+          cell: ({ row }) => formatNumber(row.original.daysRemaining),
           meta: {
             icon: <LuClock />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "leadTime",
-          header: "Lead Time",
-          cell: ({ row }) => numberFormatter.format(row.original.leadTime),
+          header: t`Lead Time`,
+          cell: ({ row }) => formatNumber(row.original.leadTime),
           meta: {
             icon: <LuClock />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "reorderingPolicy",
-          header: "Reorder Policy",
+          header: t`Reorder Policy`,
           cell: ({ row }) => {
             return (
               <HStack>
@@ -184,14 +193,18 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "replenishmentSystem",
-          header: "Replenishment",
-          cell: (item) => <Enumerable value={item.getValue<string>()} />,
+          header: t`Replenishment`,
+          cell: (item) => (
+            <Enumerable
+              value={translateReplenishment(item.getValue<string>())}
+            />
+          ),
           meta: {
             filter: {
               type: "static",
               options: itemReplenishmentSystems.map((type) => ({
                 value: type,
-                label: <Enumerable value={type} />
+                label: <Enumerable value={translateReplenishment(type)} />
               }))
             },
             icon: <LuLoaderCircle />
@@ -200,77 +213,79 @@ const InventoryTable = memo(
 
         {
           accessorKey: "usageLast30Days",
-          header: "Usage/Day (30d)",
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.usageLast30Days),
+          header: t`Usage/Day (30d)`,
+          cell: ({ row }) => formatNumber(row.original.usageLast30Days),
           meta: {
             icon: <LuCalculator />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "usageLast90Days",
-          header: "Usage/Day (90d)",
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.usageLast90Days),
+          header: t`Usage/Day (90d)`,
+          cell: ({ row }) => formatNumber(row.original.usageLast90Days),
           meta: {
             icon: <LuCalculator />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnPurchaseOrder",
-          header: "On Purchase Order",
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnPurchaseOrder),
+          header: t`On Purchase Order`,
+          cell: ({ row }) => formatNumber(row.original.quantityOnPurchaseOrder),
           meta: {
             icon: <LuMoveUp className="text-emerald-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnProductionOrder",
-          header: "On Jobs",
+          header: t`On Jobs`,
           cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnProductionOrder),
+            formatNumber(row.original.quantityOnProductionOrder),
           meta: {
             icon: <LuMoveUp className="text-emerald-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnProductionDemand",
-          header: "On Jobs",
+          header: t`On Jobs`,
           cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnProductionDemand),
+            formatNumber(row.original.quantityOnProductionDemand),
           meta: {
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "quantityOnSalesOrder",
-          header: "On Sales Order",
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.quantityOnSalesOrder),
+          header: t`On Sales Order`,
+          cell: ({ row }) => formatNumber(row.original.quantityOnSalesOrder),
           meta: {
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "demandForecast",
-          header: "Demand Forecast",
-          cell: ({ row }) =>
-            numberFormatter.format(row.original.demandForecast),
+          header: t`Demand Forecast`,
+          cell: ({ row }) => formatNumber(row.original.demandForecast),
           meta: {
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true
+            renderTotal: true,
+            formatter: formatNumber
           }
         },
         {
           accessorKey: "unitOfMeasureCode",
-          header: "Unit of Measure",
+          header: t`Unit of Measure`,
           cell: ({ row }) => {
             const unitOfMeasure = unitOfMeasures.find(
               (uom) => uom.value === row.original.unitOfMeasureCode
@@ -287,7 +302,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "materialFormId",
-          header: "Shape",
+          header: t`Shape`,
           cell: ({ row }) => {
             const form = forms.find(
               (f) => f.id === row.original.materialFormId
@@ -307,7 +322,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "materialSubstanceId",
-          header: "Substance",
+          header: t`Substance`,
           cell: ({ row }) => {
             const substance = substances.find(
               (s) => s.id === row.original.materialSubstanceId
@@ -327,7 +342,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "finish",
-          header: "Finish",
+          header: t`Finish`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuPaintBucket />,
@@ -344,7 +359,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "grade",
-          header: "Grade",
+          header: t`Grade`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuStar />,
@@ -361,7 +376,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "dimension",
-          header: "Dimension",
+          header: t`Dimension`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuExpand />,
@@ -378,7 +393,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "materialType",
-          header: "Type",
+          header: t`Type`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuPuzzle />,
@@ -398,7 +413,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "type",
-          header: "Item Type",
+          header: t`Item Type`,
           cell: ({ row }) =>
             row.original.type && (
               <HStack>
@@ -424,7 +439,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "tags",
-          header: "Tags",
+          header: t`Tags`,
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
               {/* @ts-expect-error TS2339 */}
@@ -449,7 +464,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "active",
-          header: "Active",
+          header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
           meta: {
             filter: {
@@ -459,7 +474,7 @@ const InventoryTable = memo(
                 { value: "false", label: "Inactive" }
               ]
             },
-            pluralHeader: "Active Statuses",
+            pluralHeader: t`Active Statuses`,
             icon: <LuCheck />
           }
         }
@@ -468,11 +483,12 @@ const InventoryTable = memo(
       forms,
       materialFormId,
       materialSubstanceId,
-      numberFormatter,
+      formatNumber,
       params,
       substances,
       tags,
-      unitOfMeasures
+      unitOfMeasures,
+      t
     ]);
 
     const defaultColumnVisibility = {
@@ -520,18 +536,17 @@ const InventoryTable = memo(
                     isDisabled={mrpFetcher.state !== "idle"}
                     isLoading={mrpFetcher.state !== "idle"}
                   >
-                    Recalculate
+                    <Trans>Recalculate</Trans>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  MRP runs automatically every 3 hours, but you can run it
-                  manually here.
+                  {t`MRP runs automatically every 3 hours, but you can run it manually here.`}
                 </TooltipContent>
               </Tooltip>
             </mrpFetcher.Form>
           </div>
         }
-        title="Inventory"
+        title={t`Inventory`}
         table="inventory"
         withSavedView
       />

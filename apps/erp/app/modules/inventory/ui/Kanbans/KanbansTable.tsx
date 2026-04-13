@@ -21,6 +21,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -79,6 +80,7 @@ const defaultColumnVisibility = {
 const KanbansTable = memo(
   ({ data, count, locationId, kanbanOutput }: KanbansTableProps) => {
     const [params] = useUrlParams();
+    const { t } = useLingui();
 
     const permissions = usePermissions();
     const [people] = usePeople();
@@ -90,7 +92,7 @@ const KanbansTable = memo(
       () => [
         {
           accessorKey: "itemId",
-          header: "Item",
+          header: t`Item`,
           cell: ({ row }) => (
             <HStack className="py-1">
               <ItemThumbnail
@@ -373,7 +375,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "quantity",
-          header: "Reorder Qty.",
+          header: t`Reorder Qty.`,
           cell: ({ row }) => {
             const { quantity, purchaseUnitOfMeasureCode } = row.original;
             const baseQuantity = quantity || 0;
@@ -391,7 +393,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "replenishmentSystem",
-          header: "Replenishment",
+          header: t`Replenishment`,
           cell: ({ row }) => (
             <Enumerable value={row.original.replenishmentSystem} />
           ),
@@ -408,7 +410,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "supplierId",
-          header: "Supplier",
+          header: t`Supplier`,
           cell: ({ row }) => (
             <SupplierAvatar supplierId={row.original.supplierId} />
           ),
@@ -425,7 +427,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "shelfName",
-          header: "Shelf",
+          header: t`Shelf`,
           cell: ({ row }) => row.original.shelfName || "",
           meta: {
             icon: <LuMapPin />
@@ -433,7 +435,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "autoRelease",
-          header: "Release",
+          header: t`Release`,
           cell: ({ row }) =>
             row.original.replenishmentSystem === "Make" ? (
               <div className="flex w-full items-center justify-center">
@@ -453,7 +455,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "autoStartJob",
-          header: "Start",
+          header: t`Start`,
           cell: ({ row }) =>
             row.original.replenishmentSystem === "Make" ? (
               <div className="flex w-full items-center justify-center">
@@ -473,7 +475,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -490,7 +492,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: ({ row }) =>
             row.original.createdAt
               ? new Date(row.original.createdAt).toLocaleDateString()
@@ -501,7 +503,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -518,7 +520,7 @@ const KanbansTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: ({ row }) =>
             row.original.updatedAt
               ? new Date(row.original.updatedAt).toLocaleDateString()
@@ -528,7 +530,7 @@ const KanbansTable = memo(
           }
         }
       ],
-      [items, kanbanOutput, params, people, suppliers]
+      [items, kanbanOutput, params, people, suppliers, t]
     );
 
     const renderContextMenu = useCallback(
@@ -600,7 +602,9 @@ const KanbansTable = memo(
 
       return (
         <DropdownMenuContent align="end" className="min-w-[200px]">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <Trans>Actions</Trans>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={handlePrintLabels}>
@@ -634,13 +638,13 @@ const KanbansTable = memo(
               <Link to={path.to.inventorySettings}>Settings</Link>
             </Button>
             {permissions.can("create", "inventory") && (
-              <New label="Kanban" to={path.to.newKanban} />
+              <New label={t`Kanban`} to={path.to.newKanban} />
             )}
           </div>
         }
         renderActions={renderActions}
         renderContextMenu={renderContextMenu}
-        title="Kanbans"
+        title={t`Kanbans`}
         table="kanban"
         withSavedView
         withSelectableRows
@@ -666,12 +670,13 @@ function CopyBadge({
   url: string;
   tooltip: string;
 }) {
+  const { t } = useLingui();
   const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = () => {
     copyToClipboard(window.location.origin + url);
     setIsCopied(true);
-    toast.success("Copied link to clipboard");
+    toast.success(t`Copied link to clipboard`);
     setTimeout(() => setIsCopied(false), 1500);
   };
 

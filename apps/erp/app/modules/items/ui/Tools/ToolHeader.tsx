@@ -12,6 +12,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuEllipsisVertical,
   LuPanelLeft,
@@ -28,6 +29,7 @@ import type { Tool } from "../../types";
 import { useToolNavigation } from "./useToolNavigation";
 
 const ToolHeader = () => {
+  const { t } = useLingui();
   const links = useToolNavigation();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
@@ -66,7 +68,7 @@ const ToolHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -84,7 +86,7 @@ const ToolHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Tool
+                  <Trans>Delete Tool</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -104,7 +106,7 @@ const ToolHeader = () => {
             action={path.to.deleteItem(itemId)}
             isOpen={deleteModal.isOpen}
             name={routeData?.toolSummary?.readableIdWithRevision ?? "tool"}
-            text={`Are you sure you want to delete ${routeData?.toolSummary?.readableIdWithRevision}? This cannot be undone.`}
+            text={t`Are you sure you want to delete ${routeData?.toolSummary?.readableIdWithRevision}? This cannot be undone.`}
             onCancel={() => {
               deleteModal.onClose();
             }}

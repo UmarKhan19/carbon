@@ -17,6 +17,7 @@ import {
 } from "@carbon/react";
 import { Edition } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { Link, redirect, useLoaderData } from "react-router";
 import {
@@ -181,6 +182,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function OnboardingCompany() {
+  const { t } = useLingui();
   const { company } = useLoaderData<typeof loader>();
   const { next, previous } = useOnboarding();
 
@@ -202,15 +204,17 @@ export default function OnboardingCompany() {
         method="post"
       >
         <CardHeader>
-          <CardTitle>Now let's set up your company</CardTitle>
+          <CardTitle>
+            <Trans>Now let's set up your company</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="next" value={next} />
           <VStack spacing={4}>
-            <Input autoFocus name="name" label="Company Name" />
+            <Input autoFocus name="name" label={t`Company Name`} />
             <AddressAutocomplete />
-            <Input name="website" label="Website" />
-            <Currency name="baseCurrencyCode" label="Base Currency" />
+            <Input name="website" label={t`Website`} />
+            <Currency name="baseCurrencyCode" label={t`Base Currency`} />
           </VStack>
         </CardContent>
 
@@ -224,10 +228,12 @@ export default function OnboardingCompany() {
               tabIndex={-1}
             >
               <Link to={previous} prefetch="intent">
-                Previous
+                <Trans>Previous</Trans>
               </Link>
             </Button>
-            <Submit>Next</Submit>
+            <Submit>
+              <Trans>Next</Trans>
+            </Submit>
           </HStack>
         </CardFooter>
       </ValidatedForm>

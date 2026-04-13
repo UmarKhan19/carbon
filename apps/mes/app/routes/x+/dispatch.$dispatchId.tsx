@@ -17,6 +17,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import { BsExclamationSquareFill } from "react-icons/bs";
 import { FaCheck, FaPause, FaPlay } from "react-icons/fa6";
@@ -182,6 +183,7 @@ const deletePartValidator = z.object({
 export default function MaintenanceDetailRoute() {
   const { dispatch, events, items, activeEvent } =
     useLoaderData<typeof loader>();
+  const { t } = useLingui();
   const fetcher = useFetcher();
   const deleteFetcher = useFetcher();
   const addPartModal = useDisclosure();
@@ -218,7 +220,9 @@ export default function MaintenanceDetailRoute() {
   if (!dispatch) {
     return (
       <div className="flex flex-col flex-1 items-center justify-center">
-        <span className="text-muted-foreground">Dispatch not found</span>
+        <span className="text-muted-foreground">
+          <Trans>Dispatch not found</Trans>
+        </span>
       </div>
     );
   }
@@ -251,13 +255,13 @@ export default function MaintenanceDetailRoute() {
           <Card className="w-full">
             <CardHeader>
               <CardTitle className="text-sm text-muted-foreground font-normal">
-                Work Center
+                <Trans>Work Center</Trans>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <VStack spacing={2} className="items-start">
                 <span className="text-lg font-semibold">
-                  {dispatch.workCenter?.name ?? "Unknown"}
+                  {dispatch.workCenter?.name ?? t`Unknown`}
                 </span>
                 <HStack>
                   <MaintenanceOeeImpact oeeImpact={dispatch.oeeImpact} />
@@ -277,7 +281,7 @@ export default function MaintenanceDetailRoute() {
               <Card className="w-full">
                 <CardHeader>
                   <CardTitle className="text-sm text-muted-foreground font-normal">
-                    Description
+                    <Trans>Description</Trans>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -299,7 +303,7 @@ export default function MaintenanceDetailRoute() {
               <CardHeader>
                 <CardTitle>
                   <span className="text-sm text-muted-foreground">
-                    Time Worked: {formatDuration(totalDuration)}
+                    <Trans>Time Worked: {formatDuration(totalDuration)}</Trans>
                   </span>
                 </CardTitle>
               </CardHeader>
@@ -377,7 +381,9 @@ export default function MaintenanceDetailRoute() {
           {events.length > 0 && (
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>Time Entries</CardTitle>
+                <CardTitle>
+                  <Trans>Time Entries</Trans>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="w-full divide-y">
@@ -400,7 +406,7 @@ export default function MaintenanceDetailRoute() {
                       <span className="text-sm font-mono">
                         {event.duration
                           ? formatDuration(event.duration)
-                          : "Active"}
+                          : t`Active`}
                       </span>
                     </div>
                   ))}
@@ -415,14 +421,14 @@ export default function MaintenanceDetailRoute() {
               <CardHeader>
                 <HStack className="justify-between w-full">
                   <CardTitle className="text-sm font-medium">
-                    Spare Parts
+                    <Trans>Spare Parts</Trans>
                   </CardTitle>
                   <Button
                     variant="secondary"
                     leftIcon={<LuCirclePlus />}
                     onClick={addPartModal.onOpen}
                   >
-                    Add
+                    <Trans>Add</Trans>
                   </Button>
                 </HStack>
               </CardHeader>
@@ -451,7 +457,7 @@ export default function MaintenanceDetailRoute() {
                               <Hidden name="itemId" value={item.id} />
                               <IconButton
                                 type="submit"
-                                aria-label="Remove part"
+                                aria-label={t`Remove part`}
                                 size="sm"
                                 variant="ghost"
                                 icon={<LuX className="h-4 w-4" />}
@@ -466,7 +472,7 @@ export default function MaintenanceDetailRoute() {
                 )}
                 {items.length === 0 && (
                   <span className="text-xs text-muted-foreground">
-                    No spare parts added yet
+                    <Trans>No spare parts added yet</Trans>
                   </span>
                 )}
               </CardContent>
@@ -478,7 +484,7 @@ export default function MaintenanceDetailRoute() {
             <Card className="w-full">
               <CardHeader>
                 <CardTitle className="text-sm font-medium">
-                  Spare Parts Used
+                  <Trans>Spare Parts Used</Trans>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -507,7 +513,7 @@ export default function MaintenanceDetailRoute() {
               <Card className="w-full">
                 <CardHeader>
                   <CardTitle className="text-sm text-muted-foreground font-normal">
-                    Procedure
+                    <Trans>Procedure</Trans>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -534,10 +540,10 @@ export default function MaintenanceDetailRoute() {
                 <VStack spacing={2}>
                   <LuCheck className="h-8 w-8 text-emerald-600" />
                   <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                    Maintenance Completed
+                    <Trans>Maintenance Completed</Trans>
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    Total time: {formatDuration(totalDuration)}
+                    <Trans>Total time: {formatDuration(totalDuration)}</Trans>
                   </span>
                 </VStack>
               </CardContent>

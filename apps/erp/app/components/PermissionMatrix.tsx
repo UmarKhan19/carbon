@@ -1,4 +1,5 @@
 import { Checkbox, Table, Tbody, Td, Th, Thead, Tr } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { UsePermissionMatrixReturn } from "~/hooks/usePermissionMatrix";
 import { capitalize } from "~/utils/string";
 
@@ -9,10 +10,9 @@ type PermissionMatrixProps = {
   label?: string;
 };
 
-const PermissionMatrix = ({
-  matrix,
-  label = "Permissions"
-}: PermissionMatrixProps) => {
+const PermissionMatrix = ({ matrix, label }: PermissionMatrixProps) => {
+  const { t } = useLingui();
+  const resolvedLabel = label ?? t`Permissions`;
   const {
     modules,
     actions,
@@ -29,9 +29,9 @@ const PermissionMatrix = ({
 
   return (
     <div className="w-full">
-      {label && (
+      {resolvedLabel && (
         <label className="block text-sm font-medium leading-none mb-2">
-          {label}
+          {resolvedLabel}
         </label>
       )}
       <div className="rounded-md border overflow-hidden">
@@ -45,7 +45,9 @@ const PermissionMatrix = ({
                     isIndeterminate={someChecked && !allChecked}
                     onCheckedChange={() => toggleAll()}
                   />
-                  <span>Module</span>
+                  <span>
+                    <Trans>Module</Trans>
+                  </span>
                 </div>
               </Th>
               {actions.map((action) => (

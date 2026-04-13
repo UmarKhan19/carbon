@@ -15,6 +15,8 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -26,7 +28,7 @@ import {
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 export const handle: Handle = {
-  breadcrumb: "Labels",
+  breadcrumb: msg`Labels`,
   to: path.to.labelsSettings
 };
 
@@ -83,6 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function SalesSettingsRoute() {
+  const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
@@ -102,7 +105,9 @@ export default function SalesSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Labels</Heading>
+        <Heading size="h3">
+          <Trans>Labels</Trans>
+        </Heading>
         <Card>
           <ValidatedForm
             method="post"
@@ -115,11 +120,13 @@ export default function SalesSettingsRoute() {
             <input type="hidden" name="intent" value="productLabelSize" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Product Label Size
+                <Trans>Product Label Size</Trans>
               </CardTitle>
               <CardDescription>
-                Define the default size of the product label. Used for tracking
-                items in inventory.
+                <Trans>
+                  Define the default size of the product label. Used for
+                  tracking items in inventory.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -127,7 +134,7 @@ export default function SalesSettingsRoute() {
                 <div className="flex flex-col gap-2">
                   <Select
                     name="productLabelSize"
-                    label="Product Label Size"
+                    label={t`Product Label Size`}
                     options={labelSizes.map((size) => ({
                       value: size.id,
                       label: size.name
@@ -137,7 +144,9 @@ export default function SalesSettingsRoute() {
               </div>
             </CardContent>
             <CardFooter>
-              <Submit>Save</Submit>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
             </CardFooter>
           </ValidatedForm>
         </Card>

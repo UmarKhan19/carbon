@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -43,6 +44,7 @@ const ShippingMethodForm = ({
   onClose
 }: ShippingMethodFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
   useEffect(() => {
@@ -50,13 +52,13 @@ const ShippingMethodForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created shipping method`);
+      toast.success(t`Created shipping method`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create shipping method: ${fetcher.data.error.message}`
+        t`Failed to create shipping method: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -91,27 +93,27 @@ const ShippingMethodForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Shipping Method
+                {isEditing ? t`Edit Shipping Method` : t`New Shipping Method`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <Select
                   name="carrier"
-                  label="Carrier"
+                  label={t`Carrier`}
                   options={shippingCarrierOptions}
                 />
                 {/* <Account
                   classes={["Expense"]}
                   name="carrierAccountId"
-                  label="Carrier Account"
+                  label={t`Carrier Account`}
                 />
                 <Input
                   name="trackingUrl"
-                  label="Tracking URL"
+                  label={t`Tracking URL`}
                   prefix="https://"
                 /> */}
                 <CustomFormFields table="shippingMethod" />
@@ -119,7 +121,9 @@ const ShippingMethodForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
               </HStack>
             </ModalDrawerFooter>
           </ValidatedForm>

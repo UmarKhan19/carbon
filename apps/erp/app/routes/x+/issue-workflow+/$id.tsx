@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 
 import { ScrollArea } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   data,
@@ -23,7 +24,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Issue Workflows",
+  breadcrumb: msg`Issue Workflows`,
   to: path.to.issueWorkflows,
   module: "quality"
 };

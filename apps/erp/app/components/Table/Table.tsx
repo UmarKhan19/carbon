@@ -23,6 +23,7 @@ import {
   VStack
 } from "@carbon/react";
 import { clamp } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type {
   Column,
@@ -241,7 +242,10 @@ const Table = <T extends object>({
   renderContextMenu,
   renderExpandedRow
 }: TableProps<T>) => {
+  const { i18n } = useLingui();
   const tableContainerRef = useRef<HTMLDivElement>(null);
+
+  const translateLabel = useCallback((value: string) => i18n._(value), [i18n]);
 
   const { currentView, view } = useSavedViews();
 
@@ -383,25 +387,27 @@ const Table = <T extends object>({
         if (accessorKey && column.header && typeof column.header === "string") {
           return {
             ...acc,
-            [accessorKey]: column.header
+            [accessorKey]: translateLabel(column.header)
           };
         }
         return acc;
       }, {}),
-    [columns]
+    [columns, translateLabel]
   );
 
   const internalColumns = useMemo(() => {
     let result: ColumnDef<T>[] = [];
     if (renderExpandedRow) {
-      result.push(...getExpandColumn<T>(expandedRows, toggleRowExpanded));
+      result.push(
+        ...getExpandColumn<T>(expandedRows, toggleRowExpanded, translateLabel)
+      );
     }
     if (withSelectableRows) {
       result.push(...getRowSelectionColumn<T>());
     }
     result.push(...columns);
     if (renderContextMenu) {
-      result.push(...getActionColumn<T>(renderContextMenu));
+      result.push(...getActionColumn<T>(renderContextMenu, translateLabel));
     }
     return result;
   }, [
@@ -410,7 +416,8 @@ const Table = <T extends object>({
     withSelectableRows,
     renderExpandedRow,
     expandedRows,
-    toggleRowExpanded
+    toggleRowExpanded,
+    translateLabel
   ]);
 
   const table = useReactTable({
@@ -915,10 +922,10 @@ const Table = <T extends object>({
                   <LuTriangleAlert className="h-6 w-6 flex-shrink-0" />
                 </div>
                 <span className="text-xs font-mono font-light text-foreground uppercase">
-                  No results found
+                  <Trans>No results found</Trans>
                 </span>
                 <Button variant="secondary" onClick={clearFilters}>
-                  Remove Filters
+                  <Trans>Remove Filters</Trans>
                 </Button>
               </div>
             ) : (
@@ -927,7 +934,7 @@ const Table = <T extends object>({
                   <LuTriangleAlert className="h-6 w-6 flex-shrink-0" />
                 </div>
                 <span className="text-xs font-mono font-light text-foreground uppercase">
-                  No data exists
+                  <Trans>No data exists</Trans>
                 </span>
                 {primaryAction}
               </div>
@@ -974,10 +981,15 @@ const Table = <T extends object>({
                                 <DropdownMenuTrigger asChild>
                                   <div className="flex justify-start items-center gap-2">
                                     {header.column.columnDef.meta?.icon}
-                                    {flexRender(
-                                      header.column.columnDef.header,
-                                      header.getContext()
-                                    )}
+                                    {typeof header.column.columnDef.header ===
+                                    "string"
+                                      ? translateLabel(
+                                          header.column.columnDef.header
+                                        )
+                                      : flexRender(
+                                          header.column.columnDef.header,
+                                          header.getContext()
+                                        )}
                                     <span>
                                       {sorted ? (
                                         sorted === -1 ? (
@@ -1006,7 +1018,7 @@ const Table = <T extends object>({
                                       value="1"
                                     >
                                       <DropdownMenuIcon icon={<LuArrowUp />} />
-                                      Sort Ascending
+                                      <Trans>Sort Ascending</Trans>
                                     </DropdownMenuRadioItem>
                                     <DropdownMenuRadioItem
                                       onClick={() =>
@@ -1017,7 +1029,7 @@ const Table = <T extends object>({
                                       <DropdownMenuIcon
                                         icon={<LuArrowDown />}
                                       />
-                                      Sort Descending
+                                      <Trans>Sort Descending</Trans>
                                     </DropdownMenuRadioItem>
                                   </DropdownMenuRadioGroup>
                                 </DropdownMenuContent>
@@ -1025,10 +1037,15 @@ const Table = <T extends object>({
                             ) : (
                               <div className="flex justify-start items-center gap-2">
                                 {header.column.columnDef.meta?.icon}
-                                {flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                                {typeof header.column.columnDef.header ===
+                                "string"
+                                  ? translateLabel(
+                                      header.column.columnDef.header
+                                    )
+                                  : flexRender(
+                                      header.column.columnDef.header,
+                                      header.getContext()
+                                    )}
                               </div>
                             ))}
                         </Th>
@@ -1197,12 +1214,15 @@ function getRowSelectionColumn<T>(): ColumnDef<T>[] {
 }
 
 function getActionColumn<T>(
-  renderContextMenu: (item: T) => JSX.Element | null
+  renderContextMenu: (item: T) => JSX.Element | null,
+  translateLabel: (value: string) => string
 ): ColumnDef<T>[] {
   return [
     {
       id: "Actions",
-      header: () => <span className="sr-only">Actions</span>,
+      header: () => (
+        <span className="sr-only">{translateLabel("Actions")}</span>
+      ),
       cell: (item) => (
         <div className="flex justify-end">
           <ActionMenu>{renderContextMenu(item.row.original)}</ActionMenu>
@@ -1215,14 +1235,15 @@ function getActionColumn<T>(
 
 function getExpandColumn<T>(
   expandedRows: Record<number, boolean>,
-  toggleRowExpanded: (rowIndex: number) => void
+  toggleRowExpanded: (rowIndex: number) => void,
+  translateLabel: (value: string) => string
 ): ColumnDef<T>[] {
   return [
     {
       id: "Expand",
       size: 40,
       enablePinning: true,
-      header: () => <span className="sr-only">Expand</span>,
+      header: () => <span className="sr-only">{translateLabel("Expand")}</span>,
       cell: ({ row }) => {
         const isExpanded = expandedRows[row.index] ?? false;
         return (
@@ -1233,7 +1254,11 @@ function getExpandColumn<T>(
               toggleRowExpanded(row.index);
             }}
             className="p-1 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
-            aria-label={isExpanded ? "Collapse row" : "Expand row"}
+            aria-label={
+              isExpanded
+                ? translateLabel("Collapse row")
+                : translateLabel("Expand row")
+            }
           >
             {isExpanded ? (
               <LuChevronDown className="size-4" />

@@ -23,6 +23,8 @@ import {
   VStack
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+import { Trans, useLingui } from "@lingui/react/macro";
+import type { ReactNode } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
 import { IoMdAdd } from "react-icons/io";
 import { LuChevronsUpDown } from "react-icons/lu";
@@ -55,7 +57,16 @@ const BreadcrumbHandleMatch = z.object({
 });
 
 const Breadcrumbs = () => {
+  const { i18n } = useLingui();
   const matches = useMatches();
+
+  const translateBreadcrumb = (value: unknown): ReactNode => {
+    if (typeof value === "object" && value !== null && "id" in value) {
+      return i18n._(value as { id: string; message?: string });
+    }
+    if (typeof value === "string") return i18n._(value);
+    return value as ReactNode;
+  };
 
   const breadcrumbs = matches
     .map((m) => {
@@ -63,10 +74,11 @@ const Breadcrumbs = () => {
       if (!result.success || !result.data.handle.breadcrumb) return null;
 
       return {
-        breadcrumb:
+        breadcrumb: translateBreadcrumb(
           typeof result.data.handle.breadcrumb === "function"
             ? result.data.handle.breadcrumb(m.params)
-            : result.data.handle.breadcrumb,
+            : result.data.handle.breadcrumb
+        ),
         to: result.data.handle?.to ?? m.pathname
       };
     })
@@ -111,6 +123,7 @@ const Breadcrumbs = () => {
 };
 
 function CompanyBreadcrumb() {
+  const { t: tShared } = useLingui();
   const routeData = useRouteData<{ company: Company; companies: Company[] }>(
     path.to.authenticatedRoot
   );
@@ -142,7 +155,7 @@ function CompanyBreadcrumb() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="min-w-[240px]">
-              <DropdownMenuLabel>Companies</DropdownMenuLabel>
+              <DropdownMenuLabel>{tShared`Companies`}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {routeData?.companies.map((c) => {
@@ -183,7 +196,7 @@ function CompanyBreadcrumb() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={companyForm.onOpen}>
                       <DropdownMenuIcon icon={<IoMdAdd />} />
-                      Add Company
+                      {tShared`Add Company`}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </>
@@ -208,18 +221,38 @@ function CompanyBreadcrumb() {
                 }}
               >
                 <ModalHeader>
-                  <ModalTitle>Let's set up your new company</ModalTitle>
+                  <ModalTitle>
+                    {tShared({
+                      id: "Let's set up your new company",
+                      message: "Let's set up your new company"
+                    })}
+                  </ModalTitle>
                 </ModalHeader>
                 <ModalBody>
                   <VStack spacing={4}>
-                    <Input autoFocus name="name" label="Company Name" />
+                    <Input
+                      autoFocus
+                      name="name"
+                      label={tShared({
+                        id: "Company Name",
+                        message: "Company Name"
+                      })}
+                    />
                     <AddressAutocomplete variant="grid" />
-                    <Currency name="baseCurrencyCode" label="Base Currency" />
+                    <Currency
+                      name="baseCurrencyCode"
+                      label={tShared({
+                        id: "Base Currency",
+                        message: "Base Currency"
+                      })}
+                    />
                   </VStack>
                 </ModalBody>
                 <ModalFooter>
                   <HStack>
-                    <Submit>Save</Submit>
+                    <Submit>
+                      <Trans>Save</Trans>
+                    </Submit>
                   </HStack>
                 </ModalFooter>
               </ValidatedForm>

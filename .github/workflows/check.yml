@@ -76,6 +76,27 @@ jobs:
       - run: npm run typegen
       - run: npm run typecheck
 
+  lingui:
+    name: Lingui
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      - run: npm run lingui:check
+
   audit:
     name: Audit
     runs-on: ubuntu-latest

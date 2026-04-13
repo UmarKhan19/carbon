@@ -26,6 +26,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { convertKbToString } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
@@ -95,9 +96,13 @@ export function MaintenanceDispatchNotes({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notes</CardTitle>
+        <CardTitle>
+          <Trans>Notes</Trans>
+        </CardTitle>
         <CardDescription>
-          Add notes and documentation for this maintenance dispatch
+          <Trans>
+            Add notes and documentation for this maintenance dispatch
+          </Trans>
         </CardDescription>
       </CardHeader>
 
@@ -128,7 +133,9 @@ export function MaintenanceDispatchFilesSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Files</CardTitle>
+        <CardTitle>
+          <Trans>Files</Trans>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-2">
@@ -155,7 +162,9 @@ export function MaintenanceDispatchFiles({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Files</CardTitle>
+        <CardTitle>
+          <Trans>Files</Trans>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Suspense fallback={<MaintenanceDispatchFilesSkeleton />}>
@@ -185,6 +194,7 @@ function MaintenanceFilesContent({
   files: StorageItem[];
   isReadOnly: boolean;
 }) {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const { company } = useUser();
   const revalidator = useRevalidator();
@@ -199,7 +209,7 @@ function MaintenanceFilesContent({
   const upload = useCallback(
     async (filesToUpload: File[]) => {
       if (!carbon) {
-        toast.error("Carbon client not available");
+        toast.error(t`Carbon client not available`);
         return;
       }
 
@@ -214,14 +224,14 @@ function MaintenanceFilesContent({
           });
 
         if (result.error) {
-          toast.error(`Failed to upload file: ${file.name}`);
+          toast.error(t`Failed to upload file: ${file.name}`);
         } else {
-          toast.success(`${file.name} uploaded successfully`);
+          toast.success(t`${file.name} uploaded successfully`);
         }
       }
       revalidator.revalidate();
     },
-    [carbon, getFilePath, revalidator]
+    [carbon, getFilePath, revalidator, t]
   );
 
   const download = useCallback(
@@ -240,17 +250,17 @@ function MaintenanceFilesContent({
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
       } catch (error) {
-        toast.error("Error downloading file");
+        toast.error(t`Error downloading file`);
         console.error(error);
       }
     },
-    [getFilePath]
+    [getFilePath, t]
   );
 
   const deleteFile = useCallback(
     async (file: FileObject) => {
       if (!carbon) {
-        toast.error("Carbon client not available");
+        toast.error(t`Carbon client not available`);
         return;
       }
 
@@ -262,10 +272,10 @@ function MaintenanceFilesContent({
         return;
       }
 
-      toast.success(`${file.name} deleted successfully`);
+      toast.success(t`${file.name} deleted successfully`);
       revalidator.revalidate();
     },
-    [carbon, getFilePath, revalidator]
+    [carbon, getFilePath, revalidator, t]
   );
 
   const onDrop = useCallback(
@@ -287,15 +297,19 @@ function MaintenanceFilesContent({
         <div className="flex justify-end mb-4">
           {/* @ts-expect-error TS2322 */}
           <File leftIcon={<LuUpload />} onChange={uploadFiles} multiple>
-            Upload
+            <Trans>Upload</Trans>
           </File>
         </div>
       )}
       <Table>
         <Thead>
           <Tr>
-            <Th>Name</Th>
-            <Th>Size</Th>
+            <Th>
+              <Trans>Name</Trans>
+            </Th>
+            <Th>
+              <Trans>Size</Trans>
+            </Th>
             <Th />
           </Tr>
         </Thead>
@@ -347,21 +361,21 @@ function MaintenanceFilesContent({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <IconButton
-                          aria-label="More"
+                          aria-label={t`More`}
                           icon={<LuEllipsisVertical />}
                           variant="secondary"
                         />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuItem onClick={() => download(file)}>
-                          Download
+                          <Trans>Download</Trans>
                         </DropdownMenuItem>
                         {!isReadOnly && (
                           <DropdownMenuItem
                             destructive
                             onClick={() => deleteFile(file)}
                           >
-                            Delete
+                            <Trans>Delete</Trans>
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -377,7 +391,7 @@ function MaintenanceFilesContent({
                 colSpan={3}
                 className="py-8 text-muted-foreground text-center"
               >
-                No files uploaded
+                <Trans>No files uploaded</Trans>
               </Td>
             </Tr>
           )}

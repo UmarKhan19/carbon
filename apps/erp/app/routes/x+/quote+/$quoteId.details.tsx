@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import { Suspense, useRef } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -109,6 +110,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function QuoteDetailsRoute() {
+  const { t } = useLingui();
   const { internalNotes, externalNotes } = useLoaderData<typeof loader>();
   const { quoteId } = useParams();
   if (!quoteId) throw new Error("Could not find quoteId");
@@ -177,7 +179,7 @@ export default function QuoteDetailsRoute() {
       <OpportunityNotes
         key={`notes-${initialValues.id}`}
         id={quoteData.quote.id}
-        title="Notes"
+        title={t`Notes`}
         table="quote"
         internalNotes={internalNotes}
         externalNotes={externalNotes}

@@ -19,6 +19,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { useMode } from "@carbon/remix";
+import { useLingui } from "@lingui/react/macro";
 import { useCallback, useRef, useState } from "react";
 import { LuChevronRight } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -56,47 +57,21 @@ enum IssueState {
   NotFound
 }
 
-const translations = {
-  en: {
-    "Issue not found": "Issue not found",
-    "Oops! The link you're trying to access is not valid.":
-      "Oops! The link you're trying to access is not valid."
-  },
-  es: {
-    "Issue not found": "No se encontró el problema",
-    "Oops! The link you're trying to access is not valid.":
-      "¡Ups! El enlace al que intenta acceder no es válido."
-  },
-  de: {
-    "Issue not found": "Problem nicht gefunden",
-    "Oops! The link you're trying to access is not valid.":
-      "Ups! Der Link, den Sie aufrufen möchten, ist nicht gültig."
-  }
-};
-
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) {
     return {
       state: IssueState.NotFound,
-      data: null,
-      strings: translations.en
+      data: null
     };
   }
-  const locale = (request.headers.get("Accept-Language") || "en-US").substring(
-    0,
-    2
-  );
-  const strings =
-    translations[locale as keyof typeof translations] || translations.en;
 
   const serviceRole = getCarbonServiceRole();
   const externalLink = await getExternalLink(serviceRole, id);
   if (!externalLink.data || !externalLink.data?.documentId) {
     return {
       state: IssueState.NotFound,
-      data: null,
-      strings
+      data: null
     };
   }
 
@@ -107,8 +82,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   if (!issue.data) {
     return {
       state: IssueState.NotFound,
-      data: null,
-      strings
+      data: null
     };
   }
 
@@ -130,8 +104,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       company: company.data,
       supplier: supplier.data,
       actionTasks: actionTasks.data
-    },
-    strings
+    }
   };
 }
 
@@ -380,6 +353,7 @@ export function TaskItem({
   permissionsOverride?: Permissions;
 }) {
   // const permissions = usePermissions();
+  const { t } = useLingui();
   const disclosure = useDisclosure({
     defaultIsOpen: true
   });
@@ -410,7 +384,7 @@ export function TaskItem({
           icon={<LuChevronRight />}
           variant="ghost"
           onClick={disclosure.onToggle}
-          aria-label="Open task details"
+          aria-label={t`Open task details`}
           className={cn(disclosure.isOpen && "rotate-90")}
         />
       </div>
@@ -468,12 +442,10 @@ export function TaskItem({
 
 export function TaskList({
   tasks,
-  isDisabled,
-  strings
+  isDisabled
 }: {
   tasks: IssueActionTask[];
   isDisabled: boolean;
-  strings: (typeof translations)["en"];
 }) {
   if (tasks.length === 0) return null;
 
@@ -499,13 +471,7 @@ export function TaskList({
   );
 }
 
-const Issue = ({
-  data,
-  strings
-}: {
-  data: IssueData;
-  strings: (typeof translations)["en"];
-}) => {
+const Issue = ({ data }: { data: IssueData }) => {
   const { company, issue, actionTasks, supplier } = data;
 
   const { id } = useParams();
@@ -530,7 +496,6 @@ const Issue = ({
             <TaskList
               tasks={actionTasks}
               isDisabled={issue.status === "Closed"}
-              strings={strings}
             />
           ) : null}
         </CardContent>
@@ -545,28 +510,25 @@ type IssueData = NonNullable<
 >;
 
 export default function ExternalQuote() {
-  const { state, data, strings } = useLoaderData<typeof loader>();
+  const { state, data } = useLoaderData<typeof loader>();
+  const { t } = useLingui();
 
   switch (state) {
     case IssueState.Valid:
       if (data) {
-        return <Issue data={data as IssueData} strings={strings} />;
+        return <Issue data={data as IssueData} />;
       }
       return (
         <ErrorMessage
-          title={strings["Issue not found"]}
-          message={
-            strings["Oops! The link you're trying to access is not valid."]
-          }
+          title={t`Issue not found`}
+          message={t`Oops! The link you're trying to access is not valid.`}
         />
       );
     case IssueState.NotFound:
       return (
         <ErrorMessage
-          title={strings["Issue not found"]}
-          message={
-            strings["Oops! The link you're trying to access is not valid."]
-          }
+          title={t`Issue not found`}
+          message={t`Oops! The link you're trying to access is not valid.`}
         />
       );
   }

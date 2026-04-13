@@ -18,6 +18,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LuCheck,
@@ -79,6 +80,7 @@ export function PinInOverlay({
   dismissable?: boolean;
   onDismiss?: () => void;
 }) {
+  const { t } = useLingui();
   const [people] = usePeople();
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -264,7 +266,7 @@ export function PinInOverlay({
           <input
             ref={searchRef}
             type="text"
-            placeholder="Search operators..."
+            placeholder={t`Search operators...`}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -280,14 +282,14 @@ export function PinInOverlay({
         <div className="max-h-[240px] overflow-y-auto">
           {operatorList.all.length === 0 ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              {search ? "No results" : "No operators"}
+              {search ? <Trans>No results</Trans> : <Trans>No operators</Trans>}
             </div>
           ) : (
             <div className="py-1">
               {operatorList.recent.length > 0 && (
                 <>
                   <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Recent
+                    <Trans>Recent</Trans>
                   </p>
                   {operatorList.recent.map((person) => (
                     <OperatorRow
@@ -328,7 +330,7 @@ export function PinInOverlay({
         {stationUser && !search && (
           <div className="border-t">
             <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Station User
+              <Trans>Station User</Trans>
             </p>
             <OperatorRow
               person={stationUser}
@@ -347,7 +349,7 @@ export function PinInOverlay({
           <div className="border-t px-4 py-3">
             <div className="flex flex-col items-center gap-2">
               <p className="text-xs text-muted-foreground">
-                Enter PIN for {selectedPerson.name}
+                <Trans>Enter PIN for {selectedPerson.name}</Trans>
               </p>
               <div className="flex items-center gap-3">
                 <InputOTP
@@ -412,7 +414,7 @@ export function PinInOverlay({
             }}
           >
             <LuPlus className="mr-2 h-4 w-4" />
-            Add Operator
+            <Trans>Add Operator</Trans>
           </Button>
           {hasPinnedUser && (
             <Button
@@ -427,7 +429,7 @@ export function PinInOverlay({
               }}
             >
               <LuLogOut className="mr-2 h-4 w-4" />
-              Pin Out
+              <Trans>Pin Out</Trans>
             </Button>
           )}
         </div>
@@ -494,6 +496,7 @@ function AddOperatorModal({
   error: string | null | undefined;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const [editablePin, setEditablePin] = useState(generatedPin);
   const [copied, setCopied] = useState(false);
 
@@ -508,34 +511,42 @@ function AddOperatorModal({
       <ModalContent>
         <form onSubmit={onSubmit} className="flex flex-col h-full">
           <ModalHeader>
-            <ModalTitle>Add New Operator</ModalTitle>
+            <ModalTitle>
+              <Trans>Add New Operator</Trans>
+            </ModalTitle>
           </ModalHeader>
           <ModalBody>
             <VStack spacing={4}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">
+                    <Trans>First Name</Trans>
+                  </Label>
                   <Input
                     id="firstName"
                     name="firstName"
-                    placeholder="Enter first name"
+                    placeholder={t`Enter first name`}
                     required
                     disabled={isAdding}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">
+                    <Trans>Last Name</Trans>
+                  </Label>
                   <Input
                     id="lastName"
                     name="lastName"
-                    placeholder="Enter last name"
+                    placeholder={t`Enter last name`}
                     required
                     disabled={isAdding}
                   />
                 </div>
               </div>
               <div className="space-y-2 w-full">
-                <Label htmlFor="pin">PIN</Label>
+                <Label htmlFor="pin">
+                  <Trans>PIN</Trans>
+                </Label>
                 <HStack>
                   <Input
                     id="pin"
@@ -561,7 +572,7 @@ function AddOperatorModal({
                       setTimeout(() => setCopied(false), 2000);
                     }}
                     disabled={isAdding}
-                    title="Copy PIN"
+                    title={t`Copy PIN`}
                   >
                     {copied ? (
                       <LuCheck className="h-4 w-4 text-emerald-500" />
@@ -575,19 +586,21 @@ function AddOperatorModal({
                     size="sm"
                     onClick={onRegeneratePin}
                     disabled={isAdding}
-                    title="Generate new PIN"
+                    title={t`Generate new PIN`}
                   >
                     <LuRefreshCw className="h-4 w-4" />
                   </Button>
                 </HStack>
                 <p className="text-xs text-muted-foreground">
-                  Share this PIN with the operator so they can pin in at the
-                  terminal.
+                  <Trans>
+                    Share this PIN with the operator so they can pin in at the
+                    terminal.
+                  </Trans>
                 </p>
               </div>
               {error && (
                 <p className="text-sm text-destructive">
-                  {error ?? "Failed to add operator"}
+                  {error ?? <Trans>Failed to add operator</Trans>}
                 </p>
               )}
             </VStack>
@@ -600,7 +613,7 @@ function AddOperatorModal({
                 onClick={onClose}
                 disabled={isAdding}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 type="submit"
@@ -609,7 +622,7 @@ function AddOperatorModal({
                 {isAdding ? (
                   <LuLoader className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Add Operator
+                <Trans>Add Operator</Trans>
               </Button>
             </HStack>
           </ModalFooter>

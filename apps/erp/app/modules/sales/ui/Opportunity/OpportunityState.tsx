@@ -1,5 +1,6 @@
 import { Button, cn, Menubar, SplitButton } from "@carbon/react";
 import { useOptimisticLocation } from "@carbon/remix";
+import { useLingui } from "@lingui/react/macro";
 import { LuCircle } from "react-icons/lu";
 import {
   RiProgress2Line,
@@ -133,8 +134,15 @@ function getItems(opportunity: Opportunity, state: string) {
 const states = ["RFQ", "Quote", "Order"];
 
 const OpportunityState = ({ opportunity }: { opportunity: Opportunity }) => {
+  const { t } = useLingui();
   const { pathname } = useOptimisticLocation();
   const navigate = useNavigate();
+
+  const stateLabels: Record<string, string> = {
+    RFQ: t`RFQ`,
+    Quote: t`Quote`,
+    Order: t`Order`
+  };
 
   return (
     <Menubar>
@@ -168,7 +176,7 @@ const OpportunityState = ({ opportunity }: { opportunity: Opportunity }) => {
                   onClick: () => navigate(item.path)
                 }))}
               >
-                {state}
+                {stateLabels[state]}
               </SplitButton>
             );
           } else {
@@ -186,7 +194,7 @@ const OpportunityState = ({ opportunity }: { opportunity: Opportunity }) => {
                 variant="ghost"
                 asChild
               >
-                <Link to={to}>{state}</Link>
+                <Link to={to}>{stateLabels[state]}</Link>
               </Button>
             );
           }
@@ -205,7 +213,7 @@ const OpportunityState = ({ opportunity }: { opportunity: Opportunity }) => {
                 />
               }
             >
-              {state}
+              {stateLabels[state]}
             </Button>
           );
         }

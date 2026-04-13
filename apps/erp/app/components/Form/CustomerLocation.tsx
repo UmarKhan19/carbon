@@ -2,6 +2,7 @@ import type { ComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { useDisclosure } from "@carbon/react";
 import { formatAddress } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type {
@@ -30,6 +31,7 @@ const CustomerLocationPreview = (
 };
 
 const CustomerLocation = (props: CustomerLocationSelectProps) => {
+  const { t } = useLingui();
   const customerLocationsFetcher =
     useFetcher<Awaited<ReturnType<typeof getCustomerLocations>>>();
 
@@ -79,7 +81,8 @@ const CustomerLocation = (props: CustomerLocationSelectProps) => {
         options={options}
         {...props}
         inline={props?.inline ? CustomerLocationPreview : undefined}
-        label={props?.label ?? "Customer Location"}
+        label={props?.label ?? t`Customer Location`}
+        placeholder={props?.placeholder ?? t`Select`}
         onChange={onChange}
         onCreateOption={(option) => {
           newLocationModal.onOpen();

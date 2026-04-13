@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
@@ -29,6 +30,7 @@ type CurrencyFormProps = {
 };
 
 const CurrencyForm = ({ initialValues }: CurrencyFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
@@ -40,8 +42,8 @@ const CurrencyForm = ({ initialValues }: CurrencyFormProps) => {
 
   const isBaseCurrency = company?.baseCurrencyCode === initialValues.code;
   const exchangeRateHelperText = isBaseCurrency
-    ? "This is the base currency. Exchange rate is always 1."
-    : `One ${company?.baseCurrencyCode} is equal to how many ${initialValues.code}?`;
+    ? t`This is the base currency. Exchange rate is always 1.`
+    : t`One ${company?.baseCurrencyCode} is equal to how many ${initialValues.code}?`;
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -67,23 +69,29 @@ const CurrencyForm = ({ initialValues }: CurrencyFormProps) => {
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Currency</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? (
+                <Trans>Edit Currency</Trans>
+              ) : (
+                <Trans>New Currency</Trans>
+              )}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack spacing={4}>
-              <Input name="name" label="Name" isReadOnly />
-              <Input name="code" label="Code" isReadOnly />
+              <Input name="name" label={t`Name`} isReadOnly />
+              <Input name="code" label={t`Code`} isReadOnly />
               <Number
                 name="decimalPlaces"
-                label="Decimal Places"
+                label={t`Decimal Places`}
                 minValue={0}
                 maxValue={4}
                 onChange={setDecimalPlaces}
               />
               <Number
                 name="exchangeRate"
-                label="Exchange Rate"
+                label={t`Exchange Rate`}
                 minValue={isBaseCurrency ? 1 : 0}
                 maxValue={isBaseCurrency ? 1 : undefined}
                 formatOptions={{
@@ -97,9 +105,11 @@ const CurrencyForm = ({ initialValues }: CurrencyFormProps) => {
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

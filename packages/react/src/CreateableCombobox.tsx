@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useMemo, useRef, useState } from "react";
@@ -62,6 +63,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
     },
     ref
   ) => {
+    const { t } = useLingui();
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const isInlinePreview = !!inline;
@@ -116,7 +118,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
                   options.find((option) => option.value === value)?.label
                 ) : (
                   <span className="!text-muted-foreground">
-                    {placeholder ?? "Select"}
+                    {placeholder ?? t`Select`}
                   </span>
                 )}
               </CommandTrigger>
@@ -182,6 +184,7 @@ function VirtualizedCommand({
   onCreateOption,
   setOpen
 }: VirtualizedCommandProps) {
+  const { t } = useLingui();
   const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredOptions = useMemo(() => {
@@ -211,7 +214,7 @@ function VirtualizedCommand({
       : [
           ...filtered,
           {
-            label: `Create`,
+            label: t`New`,
             value: "create"
           }
         ];
@@ -231,7 +234,7 @@ function VirtualizedCommand({
       <CommandInput
         value={search}
         onValueChange={setSearch}
-        placeholder="Search..."
+        placeholder={t`Search...`}
         className="h-9"
       />
       <CommandGroup>
@@ -284,9 +287,8 @@ function VirtualizedCommand({
                 >
                   {isCreateOption ? (
                     <div className="flex items-center min-w-0 flex-1">
-                      <span>Create</span>
-                      <span className="ml-1 font-bold truncate">
-                        {search.trim() === "" ? label : search}
+                      <span>
+                        {t`Create ${search.trim() === "" ? label : search}`}
                       </span>
                     </div>
                   ) : item.helper ? (

@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs,
@@ -73,6 +74,7 @@ export default function DeleteUnitOfMeasureRoute() {
   const { uomId } = useParams();
   const { unitOfMeasure } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!unitOfMeasure) return null;
   if (!uomId) throw notFound("uomId not found");
@@ -83,7 +85,7 @@ export default function DeleteUnitOfMeasureRoute() {
     <ConfirmDelete
       action={path.to.deleteUom(uomId)}
       name={unitOfMeasure.name}
-      text={`Are you sure you want to delete the unit of measure: ${unitOfMeasure.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the unit of measure: ${unitOfMeasure.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

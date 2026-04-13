@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense, useCallback, useEffect } from "react";
 import { LuCopy, LuLink } from "react-icons/lu";
 import { Await, useFetcher, useParams } from "react-router";
@@ -37,6 +38,21 @@ import type {
 import { FileBadge } from "../Item";
 
 const ConsumableProperties = () => {
+  const { t } = useLingui();
+  const translateMethodType = (v: string) =>
+    v === "Purchase to Order"
+      ? t`Purchase to Order`
+      : v === "Pull from Inventory"
+        ? t`Pull from Inventory`
+        : t`Make to Order`;
+  const translateTrackingType = (v: string) =>
+    v === "Inventory"
+      ? t`Inventory`
+      : v === "Non-Inventory"
+        ? t`Non-Inventory`
+        : v === "Serial"
+          ? t`Serial`
+          : t`Batch`;
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -146,14 +162,14 @@ const ConsumableProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -166,7 +182,9 @@ const ConsumableProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to consumable</span>
+                <span>
+                  <Trans>Copy link to consumable</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
 
@@ -174,7 +192,7 @@ const ConsumableProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -187,7 +205,9 @@ const ConsumableProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy consumable number</span>
+                <span>
+                  <Trans>Copy consumable number</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -268,7 +288,7 @@ const ConsumableProperties = () => {
         className="w-full"
       >
         <ItemPostingGroup
-          label="Item Group"
+          label={t`Item Group`}
           name="itemPostingGroupId"
           inline
           isClearable
@@ -290,11 +310,11 @@ const ConsumableProperties = () => {
       >
         <Select
           name="itemTrackingType"
-          label="Tracking Type"
+          label={t`Tracking Type`}
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>{translateTrackingType(value)}</span>
             </Badge>
           )}
           options={itemTrackingTypes.map((type) => ({
@@ -302,7 +322,7 @@ const ConsumableProperties = () => {
             label: (
               <span className="flex items-center gap-2">
                 <TrackingTypeIcon type={type} />
-                {type}
+                {translateTrackingType(type)}
               </span>
             )
           }))}
@@ -324,11 +344,11 @@ const ConsumableProperties = () => {
       >
         <Select
           name="defaultMethodType"
-          label="Default Method Type"
+          label={t`Default Method Type`}
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>{translateMethodType(value)}</span>
             </Badge>
           )}
           options={methodType
@@ -338,7 +358,7 @@ const ConsumableProperties = () => {
               label: (
                 <span className="flex items-center gap-2">
                   <MethodIcon type={type} />
-                  {type}
+                  {translateMethodType(type)}
                 </span>
               )
             }))}
@@ -349,7 +369,9 @@ const ConsumableProperties = () => {
       </ValidatedForm>
 
       <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Unit of Measure</h3>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Unit of Measure</Trans>
+        </h3>
         <Enumerable
           value={routeData?.consumableSummary?.unitOfMeasure ?? null}
         />
@@ -357,7 +379,9 @@ const ConsumableProperties = () => {
 
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
-          <h3 className="text-xs text-muted-foreground">Methods</h3>
+          <h3 className="text-xs text-muted-foreground">
+            <Trans>Methods</Trans>
+          </h3>
         </HStack>
 
         {routeData?.consumableSummary?.replenishmentSystem?.includes("Buy") &&
@@ -390,7 +414,7 @@ const ConsumableProperties = () => {
         className="w-full"
       >
         <Boolean
-          label="Active"
+          label={t`Active`}
           name="active"
           variant="small"
           onChange={(value) => {
@@ -408,7 +432,7 @@ const ConsumableProperties = () => {
         className="w-full"
       >
         <Tags
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           availableTags={routeData?.tags ?? []}
           table="consumable"
@@ -431,7 +455,9 @@ const ConsumableProperties = () => {
 
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
-          <h3 className="text-xs text-muted-foreground">Files</h3>
+          <h3 className="text-xs text-muted-foreground">
+            <Trans>Files</Trans>
+          </h3>
         </HStack>
 
         <Suspense fallback={null}>

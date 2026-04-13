@@ -9,6 +9,7 @@ import {
   Switch,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { LuHistory } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
@@ -84,14 +85,20 @@ export default function AuditLogUpgradeOverlay() {
               <LuHistory className="size-6 text-muted-foreground" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Audit Logs</h3>
+              <h3 className="text-lg font-semibold">
+                <Trans>Audit Logs</Trans>
+              </h3>
               <p className="text-sm text-muted-foreground text-balance">
-                Track every change to your orders, invoices, customers,
-                suppliers, and more.
+                <Trans>
+                  Track every change to your orders, invoices, customers,
+                  suppliers, and more.
+                </Trans>
               </p>
             </div>
             <Button asChild>
-              <Link to={path.to.billing}>Upgrade to Business</Link>
+              <Link to={path.to.billing}>
+                <Trans>Upgrade to Business</Trans>
+              </Link>
             </Button>
           </CardContent>
         </Card>

@@ -14,6 +14,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -34,6 +35,7 @@ const AccountCategoryDetail = ({
   accountSubcategories,
   onClose
 }: AccountCategoryDetailProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
 
   const deleteModal = useDisclosure();
@@ -76,12 +78,12 @@ const AccountCategoryDetail = ({
                       <DropdownMenuItem asChild>
                         <Link to={`${subcategory.id}?${params.toString()}`}>
                           <DropdownMenuIcon icon={<LuPencil />} />
-                          Edit Subcategory
+                          <Trans>Edit Subcategory</Trans>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onDelete(subcategory)}>
                         <DropdownMenuIcon icon={<LuTrash />} />
-                        Delete Subcategory
+                        <Trans>Delete Subcategory</Trans>
                       </DropdownMenuItem>
                     </ActionMenu>
                   </HStack>
@@ -91,7 +93,9 @@ const AccountCategoryDetail = ({
           </DrawerBody>
           <DrawerFooter>
             <Button asChild leftIcon={<IoMdAdd />}>
-              <Link to={`new?${params.toString()}`}>New Subcategory</Link>
+              <Link to={`new?${params.toString()}`}>
+                <Trans>New Subcategory</Trans>
+              </Link>
             </Button>
           </DrawerFooter>
         </DrawerContent>
@@ -103,7 +107,7 @@ const AccountCategoryDetail = ({
             selectedAccountSubcategory.id
           )}
           name={selectedAccountSubcategory?.name ?? ""}
-          text={`Are you sure you want to deactivate the ${selectedAccountSubcategory?.name} subcategory?`}
+          text={t`Are you sure you want to deactivate the ${selectedAccountSubcategory?.name} subcategory?`}
           onCancel={onDeleteCancel}
         />
       )}

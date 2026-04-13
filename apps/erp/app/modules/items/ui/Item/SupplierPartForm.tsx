@@ -36,6 +36,7 @@ import {
   CarouselPrevious
 } from "@carbon/react/Carousel";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
@@ -100,6 +101,7 @@ const SupplierPartForm = ({
   onClose
 }: SupplierPartFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
 
   const { company } = useUser();
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
@@ -159,7 +161,7 @@ const SupplierPartForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit" : "New"} Supplier Part
+              {isEditing ? t`Edit Supplier Part` : t`New Supplier Part`}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -169,11 +171,11 @@ const SupplierPartForm = ({
 
             <VStack spacing={4}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-                <Supplier name="supplierId" label="Supplier" />
-                <Input name="supplierPartId" label="Supplier Part ID" />
+                <Supplier name="supplierId" label={t`Supplier`} />
+                <Input name="supplierPartId" label={t`Supplier Part ID`} />
                 <Number
                   name="unitPrice"
-                  label="Unit Price"
+                  label={t`Unit Price`}
                   minValue={0}
                   formatOptions={{
                     style: "currency",
@@ -182,20 +184,20 @@ const SupplierPartForm = ({
                 />
                 <UnitOfMeasure
                   name="supplierUnitOfMeasureCode"
-                  label="Unit of Measure"
+                  label={t`Unit of Measure`}
                   onChange={(value) => {
                     if (value) setPurchaseUnitOfMeasure(value.value);
                   }}
                 />
                 <ConversionFactor
                   name="conversionFactor"
-                  label="Conversion Factor"
+                  label={t`Conversion Factor`}
                   inventoryCode={unitOfMeasureCode ?? undefined}
                   purchasingCode={purchaseUnitOfMeasure}
                 />
                 <Number
                   name="minimumOrderQuantity"
-                  label="Minimum Order Quantity"
+                  label={t`Minimum Order Quantity`}
                   minValue={0}
                 />
                 <CustomFormFields table="partSupplier" />
@@ -243,15 +245,18 @@ function PurchaseHistory({
   history: PurchaseHistoryItem[];
   baseCurrency: string;
 }) {
+  const { t } = useLingui();
   if (history.length === 0) return null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Purchase History</CardTitle>
+        <CardTitle>
+          <Trans>Purchase History</Trans>
+        </CardTitle>
         <CardDescription>
           <span className="text-sm text-muted-foreground">
-            {history.length} order{history.length !== 1 ? "s" : ""}
+            {t`${history.length} orders`}
           </span>
         </CardDescription>
       </CardHeader>
@@ -331,6 +336,7 @@ function PriceBreaks({
   baseCurrency: string;
   isDisabled: boolean;
 }) {
+  const { t } = useLingui();
   const formatter = useCurrencyFormatter();
 
   const removeRow = useCallback(
@@ -370,7 +376,7 @@ function PriceBreaks({
     () => [
       {
         accessorKey: "quantity",
-        header: "Quantity",
+        header: t`Quantity`,
         cell: ({ row }) => (
           <HStack className="justify-between min-w-[80px]">
             <span>{row.original.quantity}</span>
@@ -379,7 +385,7 @@ function PriceBreaks({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
-                      aria-label="Price break actions"
+                      aria-label={t`Price break actions`}
                       icon={<LuEllipsisVertical />}
                       size="md"
                       className="absolute right-[-1px] top-[-6px]"
@@ -404,11 +410,11 @@ function PriceBreaks({
       },
       {
         accessorKey: "unitPrice",
-        header: "Unit Price",
+        header: t`Unit Price`,
         cell: ({ row }) => formatter.format(row.original.unitPrice)
       }
     ],
-    [isDisabled, removeRow, formatter]
+    [isDisabled, removeRow, formatter, t]
   );
 
   return (

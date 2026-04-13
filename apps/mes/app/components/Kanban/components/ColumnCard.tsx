@@ -12,6 +12,7 @@ import { formatDurationMilliseconds } from "@carbon/utils";
 import { useDndContext } from "@dnd-kit/core";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
 import { useMemo } from "react";
 import { LuGripVertical } from "react-icons/lu";
@@ -42,6 +43,7 @@ export function ColumnCard({
   progressByItemId,
   ...displaySettings
 }: ColumnCardProps) {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const currentFilters = params.getAll("filter").filter(Boolean);
   const itemsIds = useMemo(() => {
@@ -66,7 +68,7 @@ export function ColumnCard({
       column
     } satisfies ColumnDragData,
     attributes: {
-      roleDescription: `Column: ${column.title}`
+      roleDescription: t`Column: ${column.title}`
     }
   });
 
@@ -123,11 +125,17 @@ export function ColumnCard({
                     to={path.to.maintenanceDetail(column.blockingDispatchId)}
                     className="inline-flex items-center gap-1 text-xs font-normal"
                   >
-                    <span>Blocked by {column.blockingDispatchReadableId}</span>
+                    <span>
+                      <Trans>
+                        Blocked by {column.blockingDispatchReadableId}
+                      </Trans>
+                    </span>
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>View maintenance dispatch</p>
+                  <p>
+                    <Trans>View maintenance dispatch</Trans>
+                  </p>
                 </TooltipContent>
               </Tooltip>
             ) : totalDuration > 0 ? (
@@ -136,13 +144,13 @@ export function ColumnCard({
               </span>
             ) : (
               <span className="text-muted-foreground text-xs">
-                No scheduled time
+                <Trans>No scheduled time</Trans>
               </span>
             )}
           </div>
         </div>
         <IconButton
-          aria-label={`Move column: ${column.title}`}
+          aria-label={t`Move column: ${column.title}`}
           icon={<LuGripVertical />}
           variant={"ghost"}
           {...attributes}

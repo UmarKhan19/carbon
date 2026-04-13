@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
 import { VStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
@@ -96,6 +97,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function QuoteMakeMethodRoute() {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { methodId } = useParams();
   if (!methodId) throw new Error("Could not find methodId");
@@ -132,7 +134,7 @@ export default function QuoteMakeMethodRoute() {
                 itemId: model?.itemId ?? undefined
               }}
               modelPath={model?.modelPath ?? null}
-              title="CAD Model"
+              title={t`CAD Model`}
               uploadClassName="aspect-square min-h-[420px] max-h-[70vh]"
               viewerClassName="aspect-square min-h-[420px] max-h-[70vh]"
             />

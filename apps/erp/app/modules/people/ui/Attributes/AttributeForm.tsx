@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { z } from "zod";
 import {
@@ -45,6 +46,7 @@ const AttributeForm = ({
   dataTypes,
   onClose
 }: AttributeFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const options =
@@ -93,39 +95,45 @@ const AttributeForm = ({
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Attribute</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? (
+                <Trans>Edit Attribute</Trans>
+              ) : (
+                <Trans>New Attribute</Trans>
+              )}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack spacing={4}>
-              <Input name="name" label="Name" />
+              <Input name="name" label={t`Name`} />
               <Hidden name="userAttributeCategoryId" />
 
               <Select
                 name="attributeDataTypeId"
-                label="Data Type"
+                label={t`Data Type`}
                 isReadOnly={isEditing}
                 helperText={
-                  isEditing ? "Data type cannot be changed" : undefined
+                  isEditing ? t`Data type cannot be changed` : undefined
                 }
                 options={options}
                 onChange={onChangeCheckForListType}
               />
-              {isList && <Array name="listOptions" label="List Options" />}
+              {isList && <Array name="listOptions" label={t`List Options`} />}
               <Boolean
                 name="canSelfManage"
-                label="Self Managed"
-                description="Users can update this value for themselves"
+                label={t`Self Managed`}
+                description={t`Users can update this value for themselves`}
               />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Submit withBlocker={false} isDisabled={isDisabled}>
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </HStack>
           </DrawerFooter>

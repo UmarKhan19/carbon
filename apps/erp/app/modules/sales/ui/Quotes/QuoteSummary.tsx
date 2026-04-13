@@ -18,6 +18,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import MotionNumber from "motion-number";
@@ -412,13 +413,31 @@ const LinePricingOptions = ({
           <Thead>
             <Tr>
               <Th />
-              <Th>Quantity</Th>
-              <Th>Unit Price</Th>
-              <Th>Discount</Th>
-              {hasAnyShipping && <Th>Shipping</Th>}
-              {hasAnyFees && <Th>Fees</Th>}
-              <Th>Lead Time</Th>
-              <Th>Subtotal</Th>
+              <Th>
+                <Trans>Quantity</Trans>
+              </Th>
+              <Th>
+                <Trans>Unit Price</Trans>
+              </Th>
+              <Th>
+                <Trans>Discount</Trans>
+              </Th>
+              {hasAnyShipping && (
+                <Th>
+                  <Trans>Shipping</Trans>
+                </Th>
+              )}
+              {hasAnyFees && (
+                <Th>
+                  <Trans>Fees</Trans>
+                </Th>
+              )}
+              <Th>
+                <Trans>Lead Time</Trans>
+              </Th>
+              <Th>
+                <Trans>Subtotal</Trans>
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -509,7 +528,9 @@ const LinePricingOptions = ({
           <Table>
             <Tbody>
               <Tr key="extended-price" className="border-b border-border">
-                <Td>Extended Price</Td>
+                <Td>
+                  <Trans>Extended Price</Trans>
+                </Td>
                 <Td className="text-right">
                   <MotionNumber
                     value={
@@ -565,7 +586,9 @@ const LinePricingOptions = ({
                 ))}
 
               <Tr key="subtotal">
-                <Td>Subtotal</Td>
+                <Td>
+                  <Trans>Subtotal</Trans>
+                </Td>
                 <Td className="text-right">
                   <MotionNumber
                     value={
@@ -606,7 +629,9 @@ const LinePricingOptions = ({
               </Tr>
 
               <Tr key="total" className="font-bold">
-                <Td>Total</Td>
+                <Td>
+                  <Trans>Total</Trans>
+                </Td>
                 <Td className="text-right">
                   <MotionNumber
                     value={
@@ -823,7 +848,9 @@ const QuoteSummary = ({
               )}
             </CardTitle>
 
-            <CardDescription>Quote</CardDescription>
+            <CardDescription>
+              <Trans>Quote</Trans>
+            </CardDescription>
           </div>
           <div className="flex flex-col gap-1 items-end">
             <CustomerAvatar customerId={routeData?.quote.customerId ?? null} />
@@ -894,7 +921,7 @@ const QuoteSummary = ({
                     className="text-muted-foreground"
                     onClick={onEditShippingCost}
                   >
-                    Edit Shipping
+                    <Trans>Edit Shipping</Trans>
                   </Button>
                 </VStack>
                 <MotionNumber
@@ -913,7 +940,7 @@ const QuoteSummary = ({
                 className="text-muted-foreground"
                 onClick={onEditShippingCost}
               >
-                Add Shipping
+                <Trans>Add Shipping</Trans>
               </Button>
             ) : null}
           </HStack>

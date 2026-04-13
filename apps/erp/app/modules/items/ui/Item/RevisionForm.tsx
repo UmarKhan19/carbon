@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import { useFetcher, useNavigate } from "react-router";
 import type { z } from "zod";
@@ -33,6 +34,7 @@ const RevisionForm = ({
   open = true,
   onClose
 }: RevisionFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<
     { success: false; message: string } | { success: true; link: string }
@@ -78,14 +80,19 @@ const RevisionForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"}{" "}
-                {hasSizesInsteadOfRevisions ? "Size" : "Revision"}
+                {isEditing
+                  ? hasSizesInsteadOfRevisions
+                    ? t`Edit Size`
+                    : t`Edit Revision`
+                  : hasSizesInsteadOfRevisions
+                    ? t`New Size`
+                    : t`New Revision`}
               </ModalDrawerTitle>
               {!isEditing && (
                 <ModalDrawerDescription>
-                  A new {hasSizesInsteadOfRevisions ? "size" : "revision"} will
-                  be created using a copy of the current{" "}
-                  {hasSizesInsteadOfRevisions ? "size" : "revision"}
+                  {hasSizesInsteadOfRevisions
+                    ? t`A new size will be created using a copy of the current size`
+                    : t`A new revision will be created using a copy of the current revision`}
                 </ModalDrawerDescription>
               )}
             </ModalDrawerHeader>
@@ -97,11 +104,11 @@ const RevisionForm = ({
               <VStack spacing={4}>
                 <Input
                   name="revision"
-                  label={hasSizesInsteadOfRevisions ? "Size" : "Revision"}
+                  label={hasSizesInsteadOfRevisions ? t`Size` : t`Revision`}
                   helperText={
                     hasSizesInsteadOfRevisions
-                      ? "The size of the part"
-                      : "The revision number of the part"
+                      ? t`The size of the part`
+                      : t`The revision number of the part`
                   }
                 />
               </VStack>
@@ -112,7 +119,7 @@ const RevisionForm = ({
                   isLoading={fetcher.state !== "idle"}
                   isDisabled={fetcher.state !== "idle" || isDisabled}
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </HStack>
             </ModalDrawerFooter>

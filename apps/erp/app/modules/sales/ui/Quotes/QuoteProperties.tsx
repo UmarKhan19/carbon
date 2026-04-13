@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo } from "react";
 import { LuCopy, LuInfo, LuLink, LuRefreshCcw } from "react-icons/lu";
@@ -39,6 +40,7 @@ import { isQuoteLocked } from "../../sales.models";
 import type { Quotation } from "../../types";
 
 const QuoteProperties = () => {
+  const { t } = useLingui();
   const { quoteId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
 
@@ -125,14 +127,14 @@ const QuoteProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -152,7 +154,7 @@ const QuoteProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -163,7 +165,7 @@ const QuoteProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy Quote number</span>
+                <Trans>Copy Quote number</Trans>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -207,7 +209,7 @@ const QuoteProperties = () => {
       >
         <InputControlled
           name="customerReference"
-          label="Customer RFQ"
+          label={t`Customer RFQ`}
           value={routeData?.quote?.customerReference ?? ""}
           size="sm"
           inline
@@ -253,7 +255,7 @@ const QuoteProperties = () => {
           name="customerContactId"
           customer={routeData?.quote?.customerId ?? ""}
           inline
-          label="Purchasing Contact"
+          label={t`Purchasing Contact`}
           isReadOnly={isDisabled}
           onChange={(customerContact) => {
             if (customerContact?.id) {
@@ -277,7 +279,7 @@ const QuoteProperties = () => {
           name="customerEngineeringContactId"
           customer={routeData?.quote?.customerId ?? ""}
           inline
-          label="Engineering Contact"
+          label={t`Engineering Contact`}
           isReadOnly={isDisabled}
           onChange={(customerEngineeringContact) => {
             if (customerEngineeringContact?.id) {
@@ -303,7 +305,7 @@ const QuoteProperties = () => {
       >
         <DatePicker
           name="expirationDate"
-          label="Expiration Date"
+          label={t`Expiration Date`}
           inline
           onChange={(date) => {
             onUpdate("expirationDate", date);
@@ -322,7 +324,7 @@ const QuoteProperties = () => {
       >
         <DatePicker
           name="dueDate"
-          label="Due Date"
+          label={t`Due Date`}
           inline
           onChange={(date) => {
             onUpdate("dueDate", date);
@@ -338,7 +340,7 @@ const QuoteProperties = () => {
         className="w-full"
       >
         <Location
-          label="Quote Location"
+          label={t`Quote Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -359,7 +361,7 @@ const QuoteProperties = () => {
       >
         <Employee
           name="salesPersonId"
-          label="Sales Person"
+          label={t`Sales Person`}
           inline
           isReadOnly={isDisabled}
           onChange={(value) => {
@@ -381,7 +383,7 @@ const QuoteProperties = () => {
       >
         <Employee
           name="estimatorId"
-          label="Estimator"
+          label={t`Estimator`}
           inline
           isReadOnly={isDisabled}
           onChange={(value) => {
@@ -403,7 +405,7 @@ const QuoteProperties = () => {
       >
         <Currency
           name="currencyCode"
-          label="Currency"
+          label={t`Currency`}
           inline
           value={routeData?.quote?.currencyCode ?? ""}
           isReadOnly={isDisabled}
@@ -441,7 +443,7 @@ const QuoteProperties = () => {
               <IconButton
                 size="sm"
                 variant="secondary"
-                aria-label="Refresh"
+                aria-label={t`Refresh`}
                 icon={<LuRefreshCcw />}
                 isDisabled={isDisabled}
                 onClick={() => {

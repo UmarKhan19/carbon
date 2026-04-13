@@ -15,6 +15,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate, getItemReadableId } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -219,7 +220,9 @@ const LineItems = ({
                 <Table>
                   <Tbody>
                     <Tr>
-                      <Td>Quantity</Td>
+                      <Td>
+                        <Trans>Quantity</Trans>
+                      </Td>
                       <Td className="text-right">
                         <VStack spacing={0}>
                           <span>
@@ -234,7 +237,9 @@ const LineItems = ({
                       </Td>
                     </Tr>
                     <Tr>
-                      <Td>Unit Price</Td>
+                      <Td>
+                        <Trans>Unit Price</Trans>
+                      </Td>
                       <Td className="text-right">
                         <VStack spacing={0}>
                           <span>{formatter.format(line.unitPrice ?? 0)}</span>
@@ -266,7 +271,9 @@ const LineItems = ({
                       </Td>
                     </Tr>
                     <Tr className="border-b border-border">
-                      <Td>Extended Price</Td>
+                      <Td>
+                        <Trans>Extended Price</Trans>
+                      </Td>
                       <Td className="text-right">
                         <VStack spacing={0}>
                           <span>{formatter.format(lineSubtotal)}</span>
@@ -300,7 +307,9 @@ const LineItems = ({
                     </Tr>
 
                     <Tr key="total" className="font-bold">
-                      <Td>Total</Td>
+                      <Td>
+                        <Trans>Total</Trans>
+                      </Td>
                       <Td className="text-right">
                         <VStack spacing={0}>
                           <span>{formatter.format(total)}</span>
@@ -414,7 +423,9 @@ const SalesInvoiceSummary = ({
         <HStack className="justify-between items-center">
           <div className="flex flex-col gap-1">
             <CardTitle>{routeData?.salesInvoice.invoiceId}</CardTitle>
-            <CardDescription>Sales Invoice</CardDescription>
+            <CardDescription>
+              <Trans>Sales Invoice</Trans>
+            </CardDescription>
           </div>
           <div className="flex flex-col gap-1 items-end">
             <CustomerAvatar
@@ -475,7 +486,7 @@ const SalesInvoiceSummary = ({
                       className="text-muted-foreground"
                       onClick={onEditShippingCost}
                     >
-                      Edit Shipping
+                      <Trans>Edit Shipping</Trans>
                     </Button>
                   )}
                 </VStack>
@@ -497,7 +508,7 @@ const SalesInvoiceSummary = ({
                 className="text-muted-foreground"
                 onClick={onEditShippingCost}
               >
-                Add Shipping
+                <Trans>Add Shipping</Trans>
               </Button>
             ) : null}
           </HStack>

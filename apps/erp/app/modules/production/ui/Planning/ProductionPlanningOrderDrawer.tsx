@@ -29,6 +29,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { memo, useCallback, useEffect, useMemo } from "react";
 import {
   LuCalendar,
@@ -72,6 +73,7 @@ export const ProductionPlanningOrderDrawer = memo(
     onClose
   }: ProductionPlanningOrderDrawerProps) => {
     const fetcher = useFetcher<typeof bulkUpdateAction>();
+    const { t } = useLingui();
     const { carbon } = useCarbon();
 
     // Memoize getExistingOrders callback
@@ -244,7 +246,7 @@ export const ProductionPlanningOrderDrawer = memo(
       }
 
       if (fetcher.data?.success === true) {
-        toast.success("Orders submitted");
+        toast.success(t`Orders submitted`);
         setOrders(row, []);
         onClose();
       }
@@ -270,7 +272,9 @@ export const ProductionPlanningOrderDrawer = memo(
             <div className="flex flex-col gap-4  w-full">
               <VStack spacing={2} className="text-sm border rounded-lg p-4">
                 <HStack className="justify-between w-full">
-                  <span className="text-muted-foreground">Reorder Policy:</span>
+                  <span className="text-muted-foreground">
+                    <Trans>Reorder Policy:</Trans>
+                  </span>
                   <ItemReorderPolicy reorderingPolicy={row.reorderingPolicy} />
                 </HStack>
                 <Separator />
@@ -329,7 +333,9 @@ export const ProductionPlanningOrderDrawer = memo(
                   row.maximumOrderQuantity > 0) && <Separator />}
                 {row.lotSize > 0 && (
                   <HStack className="justify-between w-full">
-                    <span className="text-muted-foreground">Lot Size:</span>
+                    <span className="text-muted-foreground">
+                      <Trans>Lot Size:</Trans>
+                    </span>
                     <span>{row.lotSize}</span>
                   </HStack>
                 )}
@@ -356,25 +362,33 @@ export const ProductionPlanningOrderDrawer = memo(
                   <Th>
                     <div className="flex items-center gap-2">
                       <LuCirclePlay />
-                      <span>Job</span>
+                      <span>
+                        <Trans>Job</Trans>
+                      </span>
                     </div>
                   </Th>
                   <Th>
                     <div className="flex items-center gap-2 text-left">
                       <LuStar />
-                      <span>Status</span>
+                      <span>
+                        <Trans>Status</Trans>
+                      </span>
                     </div>
                   </Th>
                   <Th>
                     <div className="flex items-center gap-2 text-right">
                       <LuPackage />
-                      <span>Quantity</span>
+                      <span>
+                        <Trans>Quantity</Trans>
+                      </span>
                     </div>
                   </Th>
                   <Th>
                     <div className="flex items-center gap-2">
                       <LuCalendar />
-                      <span>Due Date</span>
+                      <span>
+                        <Trans>Due Date</Trans>
+                      </span>
                     </div>
                   </Th>
                   <Th className="w-[50px]"></Th>
@@ -442,7 +456,7 @@ export const ProductionPlanningOrderDrawer = memo(
                       </Td>
                       <Td className="group-hover:bg-inherit">
                         <IconButton
-                          aria-label="Remove order"
+                          aria-label={t`Remove order`}
                           variant="ghost"
                           size="sm"
                           isDisabled={!!order.existingId}
@@ -500,7 +514,8 @@ export const ProductionPlanningOrderDrawer = memo(
         onAddOrder,
         onRemoveOrder,
         onSubmit,
-        handleOrderUpdate
+        handleOrderUpdate,
+        t
       ]
     );
 

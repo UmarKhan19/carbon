@@ -15,6 +15,7 @@ import {
   Status,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import {
   LuCheckCheck,
@@ -34,7 +35,6 @@ import {
   LuX
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
-
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -62,6 +62,7 @@ const PurchaseOrderHeader = () => {
   const { company } = useUser();
   const { toggleExplorer, toggleProperties } = usePanels();
 
+  const { t } = useLingui();
   const settings = useSettings();
   const routeData = useRouteData<{
     purchaseOrder: PurchaseOrder;
@@ -280,7 +281,7 @@ const PurchaseOrderHeader = () => {
         <HStack className="w-full justify-between min-w-0">
           <HStack className="min-w-0 flex-1">
             <IconButton
-              aria-label="Toggle Explorer"
+              aria-label={t`Toggle Explorer`}
               icon={<LuPanelLeft />}
               onClick={toggleExplorer}
               variant="ghost"
@@ -300,7 +301,7 @@ const PurchaseOrderHeader = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
-                    aria-label="More options"
+                    aria-label={t`More options`}
                     icon={<LuEllipsisVertical />}
                     variant="secondary"
                     size="sm"
@@ -320,7 +321,7 @@ const PurchaseOrderHeader = () => {
                     onClick={deleteModal.onOpen}
                   >
                     <DropdownMenuIcon icon={<LuTrash />} />
-                    Delete Purchase Order
+                    <Trans>Delete Purchase Order</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -335,7 +336,9 @@ const PurchaseOrderHeader = () => {
             )}
             {settings?.supplierApproval && !isSupplierApproved && (
               <div className="hidden lg:block">
-                <Status color="red">Unapproved Supplier</Status>
+                <Status color="red">
+                  <Trans>Unapproved Supplier</Trans>
+                </Status>
               </div>
             )}
           </HStack>
@@ -348,7 +351,7 @@ const PurchaseOrderHeader = () => {
                   rightIcon={<LuChevronDown />}
                   className="hidden lg:inline-flex"
                 >
-                  Preview
+                  <Trans>Preview</Trans>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -359,7 +362,7 @@ const PurchaseOrderHeader = () => {
                     rel="noreferrer"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    PDF
+                    <Trans>PDF</Trans>
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -389,7 +392,7 @@ const PurchaseOrderHeader = () => {
                 }
                 dropdownItems={[
                   {
-                    label: "Mark as Planned",
+                    label: t`Mark as Planned`,
                     icon: <LuCheckCheck />,
                     onClick: markAsPlanned,
                     disabled:
@@ -401,7 +404,7 @@ const PurchaseOrderHeader = () => {
                   }
                 ]}
               >
-                Finalize
+                <Trans>Finalize</Trans>
               </SplitButton>
             </div>
             {routeData?.purchaseOrder?.purchaseOrderType ===
@@ -415,7 +418,7 @@ const PurchaseOrderHeader = () => {
                       rightIcon={<LuChevronDown />}
                       className="hidden lg:inline-flex"
                     >
-                      Shipments
+                      <Trans>Shipments</Trans>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
@@ -432,7 +435,7 @@ const PurchaseOrderHeader = () => {
                       }}
                     >
                       <DropdownMenuIcon icon={<LuCirclePlus />} />
-                      New Shipment
+                      <Trans>New Shipment</Trans>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {shipments.map((shipment) => (
@@ -468,7 +471,7 @@ const PurchaseOrderHeader = () => {
                     ship(routeData?.purchaseOrder);
                   }}
                 >
-                  Ship
+                  <Trans>Ship</Trans>
                 </Button>
               ))}
             {showApprovalActions ? (
@@ -496,7 +499,7 @@ const PurchaseOrderHeader = () => {
                   isDisabled={approvalFetcher.state !== "idle"}
                   onClick={() => setApprovalDecision("Approved")}
                 >
-                  Approve
+                  <Trans>Approve</Trans>
                 </Button>
                 <Button
                   leftIcon={<LuX />}
@@ -509,7 +512,7 @@ const PurchaseOrderHeader = () => {
                   isDisabled={approvalFetcher.state !== "idle"}
                   onClick={() => setApprovalDecision("Rejected")}
                 >
-                  Reject
+                  <Trans>Reject</Trans>
                 </Button>
               </>
             ) : receipts.length > 0 ? (
@@ -527,7 +530,7 @@ const PurchaseOrderHeader = () => {
                     }
                     rightIcon={<LuChevronDown />}
                   >
-                    Receipts
+                    <Trans>Receipts</Trans>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -544,7 +547,7 @@ const PurchaseOrderHeader = () => {
                     }}
                   >
                     <DropdownMenuIcon icon={<LuCirclePlus />} />
-                    New Receipt
+                    <Trans>New Receipt</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {receipts.map((receipt) => (
@@ -580,7 +583,7 @@ const PurchaseOrderHeader = () => {
                   receive(routeData?.purchaseOrder);
                 }}
               >
-                Receive
+                <Trans>Receive</Trans>
               </Button>
             )}
 
@@ -601,7 +604,7 @@ const PurchaseOrderHeader = () => {
                             : "secondary"
                         }
                       >
-                        Invoice
+                        <Trans>Invoice</Trans>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -616,7 +619,7 @@ const PurchaseOrderHeader = () => {
                         }}
                       >
                         <DropdownMenuIcon icon={<LuCirclePlus />} />
-                        New Invoice
+                        <Trans>New Invoice</Trans>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       {invoices.map((invoice) => (
@@ -655,7 +658,7 @@ const PurchaseOrderHeader = () => {
                       invoice(routeData?.purchaseOrder);
                     }}
                   >
-                    Invoice
+                    <Trans>Invoice</Trans>
                   </Button>
                 )}
               </>
@@ -682,7 +685,7 @@ const PurchaseOrderHeader = () => {
                 leftIcon={<LuCircleStop />}
                 variant="secondary"
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </statusFetcher.Form>
             <statusFetcher.Form
@@ -706,14 +709,14 @@ const PurchaseOrderHeader = () => {
                   statusFetcher.formData?.get("status") === "Draft"
                 }
               >
-                Reopen
+                <Trans>Reopen</Trans>
               </Button>
             </statusFetcher.Form>
 
             {mobileActionsMenu}
 
             <IconButton
-              aria-label="Toggle Properties"
+              aria-label={t`Toggle Properties`}
               icon={<LuPanelRight />}
               onClick={toggleProperties}
               variant="ghost"
@@ -735,7 +738,7 @@ const PurchaseOrderHeader = () => {
           action={path.to.deletePurchaseOrder(orderId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.purchaseOrder?.purchaseOrderId ?? "purchase order"}
-          text={`Are you sure you want to delete ${routeData?.purchaseOrder?.purchaseOrderId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.purchaseOrder?.purchaseOrderId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}

@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuBox,
   LuCrown,
@@ -19,53 +20,54 @@ import { usePermissions } from "./usePermissions";
 
 export function useModules() {
   const permissions = usePermissions();
+  const { t } = useLingui();
 
   const modules: Authenticated<NavItem>[] = [
     {
-      name: "Shop Floor",
+      name: t`Shop Floor`,
       to: path.to.external.mes,
       icon: LuTvMinimalPlay,
       role: "employee"
     },
     {
       permission: "sales",
-      name: "Sales",
+      name: t`Sales`,
       to: path.to.sales,
       icon: LuCrown
     },
     {
       permission: "production",
-      name: "Production",
+      name: t`Production`,
       to: path.to.production,
       icon: LuFactory
     },
     {
       permission: "parts",
-      name: "Items",
+      name: t`Items`,
       to: path.to.parts,
       icon: LuSquareStack
     },
     {
       permission: "inventory",
-      name: "Inventory",
+      name: t`Inventory`,
       to: path.to.inventory,
       icon: LuBox
     },
     {
       permission: "purchasing",
-      name: "Purchasing",
+      name: t`Purchasing`,
       to: path.to.purchasing,
       icon: LuShoppingCart
     },
     {
       permission: "quality",
-      name: "Quality",
+      name: t`Quality`,
       to: path.to.quality,
       icon: LuFolderCheck
     },
     {
       permission: "accounting",
-      name: "Finance",
+      name: t`Finance`,
       to: path.to.currencies,
       icon: LuLandmark
     },
@@ -77,31 +79,31 @@ export function useModules() {
     // },
     {
       permission: "people",
-      name: "People",
+      name: t`People`,
       to: path.to.people,
       icon: LuUsers
     },
     {
       permission: "resources",
-      name: "Resources",
+      name: t`Resources`,
       to: path.to.resources,
       icon: LuWrench
     },
     {
       permission: "documents",
-      name: "Documents",
+      name: t`Documents`,
       to: path.to.documents,
       icon: LuFiles
     },
     {
       permission: "users",
-      name: "Users",
+      name: t`Users`,
       to: path.to.employeeAccounts,
       icon: LuShield
     },
     {
       permission: "settings",
-      name: "Settings",
+      name: t`Settings`,
       to: path.to.company,
       icon: LuSettings
     }

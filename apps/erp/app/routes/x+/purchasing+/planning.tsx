@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { ResizablePanel, ResizablePanelGroup, VStack } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import type { PurchasingPlanningItem } from "~/modules/purchasing";
@@ -18,7 +19,7 @@ import { getGenericQueryFilters } from "~/utils/query";
 const WEEKS_TO_PLAN = 12 * 4;
 
 export const handle: Handle = {
-  breadcrumb: "Planning",
+  breadcrumb: msg`Planning`,
   to: path.to.purchasingPlanning
 };
 

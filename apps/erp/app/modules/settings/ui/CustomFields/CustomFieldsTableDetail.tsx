@@ -15,6 +15,7 @@ import {
   useDebounce,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Reorder } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineNumber } from "react-icons/ai";
@@ -51,6 +52,7 @@ const CustomFieldCategoryDetail = ({
   dataTypes,
   onClose
 }: CustomFieldCategoryDetailProps) => {
+  const { t } = useLingui();
   const sortOrderFetcher = useFetcher<{}>();
   const { table } = useParams();
   if (!table) throw new Error("table is not found");
@@ -149,12 +151,12 @@ const CustomFieldCategoryDetail = ({
         <MenuItem asChild>
           <Link to={`${fieldId}?${params.toString()}`}>
             <MenuIcon icon={<LuPencil />} />
-            Edit Custom Field
+            <Trans>Edit Custom Field</Trans>
           </Link>
         </MenuItem>
         <MenuItem destructive onClick={() => onDelete(fieldMap[fieldId])}>
           <MenuIcon icon={<LuTrash />} />
-          Delete Custom Field
+          <Trans>Delete Custom Field</Trans>
         </MenuItem>
       </>
     );
@@ -190,7 +192,7 @@ const CustomFieldCategoryDetail = ({
                     >
                       <HStack>
                         <IconButton
-                          aria-label="Drag handle"
+                          aria-label={t`Drag handle`}
                           icon={<LuGripVertical />}
                           variant="ghost"
                         />
@@ -216,7 +218,7 @@ const CustomFieldCategoryDetail = ({
           </DrawerBody>
           <DrawerFooter>
             <Button asChild size="md">
-              <New label="Custom Field" to={`new?${params?.toString()}`} />
+              <New label={t`Custom Field`} to={`new?${params?.toString()}`} />
             </Button>
           </DrawerFooter>
         </DrawerContent>
@@ -226,7 +228,7 @@ const CustomFieldCategoryDetail = ({
           isOpen={deleteModal.isOpen}
           action={path.to.deleteCustomField(table, selectedCustomField.id)}
           name={selectedCustomField?.name ?? ""}
-          text={`Are you sure you want to delete the ${selectedCustomField?.name} field?`}
+          text={t`Are you sure you want to delete the ${selectedCustomField?.name} field?`}
           onSubmit={onDeleteCancel}
           onCancel={onDeleteCancel}
         />

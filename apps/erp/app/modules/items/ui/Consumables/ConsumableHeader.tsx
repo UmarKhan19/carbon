@@ -12,6 +12,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuEllipsisVertical,
   LuPanelLeft,
@@ -35,6 +36,7 @@ const ConsumableHeader = () => {
   const { toggleExplorer, toggleProperties } = usePanels();
   const { company } = useUser();
   const permissions = usePermissions();
+  const { t } = useLingui();
   const deleteModal = useDisclosure();
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
     entityType: "item",
@@ -69,7 +71,7 @@ const ConsumableHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -87,7 +89,7 @@ const ConsumableHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Consumable
+                  <Trans>Delete Consumable</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -110,7 +112,7 @@ const ConsumableHeader = () => {
               routeData?.consumableSummary?.readableIdWithRevision ??
               "consumable"
             }
-            text={`Are you sure you want to delete ${routeData?.consumableSummary?.readableIdWithRevision}? This cannot be undone.`}
+            text={t`Are you sure you want to delete ${routeData?.consumableSummary?.readableIdWithRevision}? This cannot be undone.`}
             onCancel={() => {
               deleteModal.onClose();
             }}

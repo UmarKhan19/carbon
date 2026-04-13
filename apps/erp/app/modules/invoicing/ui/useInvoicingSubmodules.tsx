@@ -1,14 +1,15 @@
+import { useLingui } from "@lingui/react/macro";
 import { BsCartDash } from "react-icons/bs";
 import { usePermissions } from "~/hooks";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
-const invoicingRoutes: AuthenticatedRouteGroup[] = [
+const useInvoicingRoutes = (t: any): AuthenticatedRouteGroup[] => [
   {
-    name: "Manage",
+    name: t`Manage`,
     routes: [
       {
-        name: "Purchasing",
+        name: t`Purchasing`,
         to: path.to.purchaseInvoices,
         role: "employee",
         icon: <BsCartDash />
@@ -24,9 +25,10 @@ const invoicingRoutes: AuthenticatedRouteGroup[] = [
 ];
 
 export default function useInvoicingSubmodules() {
+  const { t } = useLingui();
   const permissions = usePermissions();
   return {
-    groups: invoicingRoutes
+    groups: useInvoicingRoutes(t)
       .filter((group) => {
         const filteredRoutes = group.routes.filter((route) => {
           if (route.role) {

@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNavigate, useParams } from "react-router";
 import type { z } from "zod";
 import { Customer, Hidden, Input, Submit } from "~/components/Form";
@@ -26,6 +27,7 @@ type CustomerPartFormProps = {
 const CustomerPartForm = ({ initialValues }: CustomerPartFormProps) => {
   const permissions = usePermissions();
   const navigate = useNavigate();
+  const { t } = useLingui();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -53,7 +55,7 @@ const CustomerPartForm = ({ initialValues }: CustomerPartFormProps) => {
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit" : "New"} Customer Part
+              {isEditing ? t`Edit Customer Part` : t`New Customer Part`}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -61,18 +63,20 @@ const CustomerPartForm = ({ initialValues }: CustomerPartFormProps) => {
             <Hidden name="itemId" />
 
             <VStack spacing={4}>
-              <Input name="readableId" label="Part ID" isDisabled />
-              <Customer name="customerId" label="Customer" />
-              <Input name="customerPartId" label="Customer Part ID" />
+              <Input name="readableId" label={t`Part ID`} isDisabled />
+              <Customer name="customerId" label={t`Customer`} />
+              <Input name="customerPartId" label={t`Customer Part ID`} />
               <Input
                 name="customerPartRevision"
-                label="Customer Part Revision"
+                label={t`Customer Part Revision`}
               />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
                 Cancel
               </Button>

@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -68,16 +69,18 @@ export default function DeleteFailureModeRoute() {
   const { failureModeId } = useParams();
   const { failureMode } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!failureMode) return null;
   if (!failureModeId) throw notFound("failureModeId not found");
 
   const onCancel = () => navigate(path.to.failureModes);
+  const name = failureMode.name;
   return (
     <ConfirmDelete
       action={path.to.deleteFailureMode(failureModeId)}
-      name={failureMode.name}
-      text={`Are you sure you want to delete the failure mode: ${failureMode.name}? This cannot be undone.`}
+      name={name}
+      text={t`Are you sure you want to delete the failure mode: ${name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

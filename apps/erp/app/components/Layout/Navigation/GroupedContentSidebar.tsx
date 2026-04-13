@@ -10,6 +10,7 @@ import {
   useDebounce,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Reorder } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
@@ -36,6 +37,7 @@ const GroupedContentSidebar = ({
   width?: number;
   exactMatch?: boolean;
 }) => {
+  const { t } = useLingui();
   const location = useOptimisticLocation();
   const submit = useSubmit();
 
@@ -127,7 +129,7 @@ const GroupedContentSidebar = ({
                       </Button>
                       {hasViews && (
                         <IconButton
-                          aria-label="Toggle views"
+                          aria-label={t`Toggle views`}
                           icon={
                             isExpanded ? <LuChevronDown /> : <LuChevronRight />
                           }
@@ -166,7 +168,7 @@ const GroupedContentSidebar = ({
           isOpen={!!selectedView}
           action={path.to.deleteSavedView(selectedView.id)}
           name={selectedView.name}
-          text={`Are you sure you want to delete the view "${selectedView.name}"?`}
+          text={t`Are you sure you want to delete the view "${selectedView.name}"?`}
           onCancel={() => setSelectedView(null)}
           onSubmit={() => {
             setSelectedView(null);
@@ -195,6 +197,7 @@ const ViewsReorderGroup = ({
     sortOrder: number;
   }) => void;
 }) => {
+  const { t } = useLingui();
   const [sortedViews, setSortedViews] = useState(() => {
     if (views && views[Symbol.iterator]) {
       return [...views].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -252,7 +255,7 @@ const ViewsReorderGroup = ({
                 </Link>
               </Button>
               <IconButton
-                aria-label="Drag handle"
+                aria-label={t`Drag handle`}
                 icon={<LuGripVertical />}
                 variant="ghost"
                 size="sm"
@@ -261,7 +264,7 @@ const ViewsReorderGroup = ({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
-                    aria-label="Options"
+                    aria-label={t`Options`}
                     icon={<LuEllipsisVertical />}
                     variant="ghost"
                     size="sm"
@@ -271,7 +274,7 @@ const ViewsReorderGroup = ({
                 <DropdownMenuContent>
                   <DropdownMenuItem destructive onSelect={() => onDelete(view)}>
                     <DropdownMenuIcon icon={<LuTrash />} />
-                    Delete View
+                    <Trans>Delete View</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -1,6 +1,7 @@
 import type { ComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { Avatar, HStack, useDisclosure } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type {
@@ -39,6 +40,7 @@ const CustomerContactPreview = (
 };
 
 const CustomerContact = (props: CustomerContactSelectProps) => {
+  const { t } = useLingui();
   const newContactModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -62,9 +64,9 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        placeholder="Select Contact"
+        placeholder={props?.placeholder ?? t`Select Contact`}
         inline={props.inline ? CustomerContactPreview : undefined}
-        label={props?.label ?? "Customer Contact"}
+        label={props?.label ?? t`Customer Contact`}
         onChange={onChange}
         onCreateOption={(option) => {
           newContactModal.onOpen();

@@ -27,6 +27,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import {
   LuCheckCheck,
@@ -48,12 +49,9 @@ import type { FetcherWithComponents } from "react-router";
 import { Link, useFetcher, useParams, useRevalidator } from "react-router";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-
 import { usePermissions, useRouteData, useSettings } from "~/hooks";
-
 import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
-
 import { isSupplierQuoteLocked } from "../../purchasing.models";
 import type {
   SupplierInteraction,
@@ -71,6 +69,7 @@ const SupplierQuoteHeader = () => {
   if (!id) throw new Error("id not found");
 
   const { toggleExplorer, toggleProperties } = usePanels();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const revalidator = useRevalidator();
 
@@ -131,7 +130,7 @@ const SupplierQuoteHeader = () => {
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton
-              aria-label="Toggle Explorer"
+              aria-label={t`Toggle Explorer`}
               icon={<LuPanelLeft />}
               onClick={toggleExplorer}
               variant="ghost"
@@ -145,7 +144,7 @@ const SupplierQuoteHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -162,7 +161,7 @@ const SupplierQuoteHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Supplier Quote
+                  <Trans>Delete Supplier Quote</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -173,7 +172,9 @@ const SupplierQuoteHeader = () => {
               </Badge>
             )}
             {settings?.supplierApproval && !isSupplierApproved && (
-              <Status color="red">Unapproved Supplier</Status>
+              <Status color="red">
+                <Trans>Unapproved Supplier</Trans>
+              </Status>
             )}
           </HStack>
           <HStack>
@@ -184,7 +185,7 @@ const SupplierQuoteHeader = () => {
                   variant="secondary"
                   rightIcon={<LuChevronDown />}
                 >
-                  Preview
+                  <Trans>Preview</Trans>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -197,7 +198,7 @@ const SupplierQuoteHeader = () => {
                     rel="noreferrer"
                   >
                     <DropdownMenuIcon icon={<LuExternalLink />} />
-                    Digital Quote
+                    <Trans>Digital Quote</Trans>
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -216,7 +217,7 @@ const SupplierQuoteHeader = () => {
                 variant="primary"
                 leftIcon={<LuSend />}
               >
-                Send
+                <Trans>Send</Trans>
               </Button>
             )}
 
@@ -235,7 +236,7 @@ const SupplierQuoteHeader = () => {
                 variant="secondary"
                 leftIcon={<LuCheckCheck />}
               >
-                Finalize
+                <Trans>Finalize</Trans>
               </Button>
             )}
 
@@ -252,17 +253,17 @@ const SupplierQuoteHeader = () => {
                       leftIcon={<LuShoppingCart />}
                       rightIcon={<LuChevronDown />}
                     >
-                      Order
+                      <Trans>Order</Trans>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem onClick={convertToOrderModal.onOpen}>
                       <DropdownMenuIcon icon={<LuShoppingCart />} />
-                      Order
+                      <Trans>Order</Trans>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={compareModal.onOpen}>
                       <DropdownMenuIcon icon={<LuGitCompare />} />
-                      Compare and Order
+                      <Trans>Compare and Order</Trans>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -276,7 +277,7 @@ const SupplierQuoteHeader = () => {
                   leftIcon={<LuShoppingCart />}
                   onClick={convertToOrderModal.onOpen}
                 >
-                  Order
+                  <Trans>Order</Trans>
                 </Button>
               ))}
 
@@ -299,7 +300,7 @@ const SupplierQuoteHeader = () => {
                   type="submit"
                   variant="secondary"
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </statusFetcher.Form>
             )}
@@ -323,13 +324,13 @@ const SupplierQuoteHeader = () => {
                   type="submit"
                   variant="secondary"
                 >
-                  Reopen
+                  <Trans>Reopen</Trans>
                 </Button>
               </statusFetcher.Form>
             )}
 
             <IconButton
-              aria-label="Toggle Properties"
+              aria-label={t`Toggle Properties`}
               icon={<LuPanelRight />}
               onClick={toggleProperties}
               variant="ghost"
@@ -350,7 +351,7 @@ const SupplierQuoteHeader = () => {
           action={path.to.deleteSupplierQuote(id)}
           isOpen={deleteModal.isOpen}
           name={routeData?.quote?.supplierQuoteId ?? "supplier quote"}
-          text={`Are you sure you want to delete ${routeData?.quote?.supplierQuoteId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.quote?.supplierQuoteId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}
@@ -449,9 +450,11 @@ function SupplierQuoteFinalizeModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Finalize {quote?.supplierQuoteId}</ModalTitle>
+          <ModalTitle>
+            <Trans>Finalize</Trans> {quote?.supplierQuoteId}
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to finalize the supplier quote?
+            <Trans>Are you sure you want to finalize the supplier quote?</Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
@@ -459,9 +462,13 @@ function SupplierQuoteFinalizeModal({
             {hasErrors && (
               <Alert variant="destructive">
                 <LuTriangleAlert className="h-4 w-4" />
-                <AlertTitle>Lines need prices or lead times</AlertTitle>
+                <AlertTitle>
+                  <Trans>Lines need prices or lead times</Trans>
+                </AlertTitle>
                 <AlertDescription>
-                  The following line items are missing prices or lead times:
+                  <Trans>
+                    The following line items are missing prices or lead times:
+                  </Trans>
                   <ul className="list-disc py-2 pl-4">
                     {warningLineReadableIds.map((readableId) => (
                       <li key={readableId}>{readableId}</li>
@@ -474,7 +481,7 @@ function SupplierQuoteFinalizeModal({
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <fetcher.Form
             method="post"
@@ -486,7 +493,7 @@ function SupplierQuoteFinalizeModal({
               isDisabled={hasErrors || fetcher.state !== "idle"}
               isLoading={fetcher.state !== "idle"}
             >
-              Finalize
+              <Trans>Finalize</Trans>
             </Button>
           </fetcher.Form>
         </ModalFooter>
@@ -523,9 +530,11 @@ function ShareQuoteModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Share Quote</ModalTitle>
+          <ModalTitle>
+            <Trans>Share Quote</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Copy this link to share the quote with a supplier
+            <Trans>Copy this link to share the quote with a supplier</Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
@@ -538,7 +547,7 @@ function ShareQuoteModal({
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Close
+            <Trans>Close</Trans>
           </Button>
         </ModalFooter>
       </ModalContent>

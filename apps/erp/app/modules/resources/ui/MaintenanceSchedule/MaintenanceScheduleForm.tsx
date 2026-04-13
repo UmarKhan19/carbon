@@ -20,6 +20,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { BsExclamationSquareFill } from "react-icons/bs";
@@ -62,6 +63,7 @@ function getPriorityIcon(
 
 // Component to show day selector and skip holidays when Daily frequency is selected
 function DailyScheduleOptions() {
+  const { t } = useLingui();
   const [frequency] = useControlField<string>("frequency");
   const isDaily = frequency === "Daily";
 
@@ -70,7 +72,9 @@ function DailyScheduleOptions() {
   return (
     <>
       <FormControl>
-        <FormLabel>Days</FormLabel>
+        <FormLabel>
+          <Trans>Days</Trans>
+        </FormLabel>
         <VStack>
           <Boolean name="monday" description="Monday" />
           <Boolean name="tuesday" description="Tuesday" />
@@ -83,8 +87,8 @@ function DailyScheduleOptions() {
       </FormControl>
       <Boolean
         name="skipHolidays"
-        label="Skip Holidays"
-        description="Skip scheduled maintenance on company holidays"
+        label={t`Skip Holidays`}
+        description={t`Skip scheduled maintenance on company holidays`}
       />
     </>
   );
@@ -103,6 +107,7 @@ const MaintenanceScheduleForm = ({
   type = "drawer",
   onClose
 }: MaintenanceScheduleFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -111,13 +116,13 @@ const MaintenanceScheduleForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created maintenance schedule`);
+      toast.success(t`Created maintenance schedule`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create maintenance schedule: ${fetcher.data.error.message}`
+        t`Failed to create maintenance schedule: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -147,19 +152,23 @@ const MaintenanceScheduleForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Scheduled Maintenance
+                {isEditing ? (
+                  <Trans>Edit Scheduled Maintenance</Trans>
+                ) : (
+                  <Trans>New Scheduled Maintenance</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Schedule Name" />
-                <WorkCenter name="workCenterId" label="Work Center" />
-                <Location name="locationId" label="Location" />
+                <Input name="name" label={t`Schedule Name`} />
+                <WorkCenter name="workCenterId" label={t`Work Center`} />
+                <Location name="locationId" label={t`Location`} />
                 <Select
                   name="frequency"
-                  label="Frequency"
+                  label={t`Frequency`}
                   options={maintenanceFrequency.map((freq) => ({
                     value: freq,
                     label: <Enumerable value={freq} />
@@ -167,7 +176,7 @@ const MaintenanceScheduleForm = ({
                 />
                 <Select
                   name="priority"
-                  label="Priority"
+                  label={t`Priority`}
                   options={maintenanceDispatchPriority.map((priority) => ({
                     value: priority,
                     label: (
@@ -180,19 +189,21 @@ const MaintenanceScheduleForm = ({
                 />
                 <Number
                   name="estimatedDuration"
-                  label="Estimated Duration (minutes)"
+                  label={t`Estimated Duration (minutes)`}
                   minValue={0}
                 />
                 <Procedure name="procedureId" />
-                <Boolean name="active" label="Active" />
+                <Boolean name="active" label={t`Active`} />
                 <DailyScheduleOptions />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

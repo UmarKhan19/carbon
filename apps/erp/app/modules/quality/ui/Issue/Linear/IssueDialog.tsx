@@ -17,6 +17,7 @@ import {
   TabsTrigger,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuExternalLink } from "react-icons/lu";
 import { PiLinkBreak } from "react-icons/pi";
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export const LinearIssueDialog = ({ task }: Props) => {
+  const { t } = useLingui();
   const [tab, setTab] = useState("link");
   const revalidator = useRevalidator();
 
@@ -69,7 +71,7 @@ export const LinearIssueDialog = ({ task }: Props) => {
           <Button
             leftIcon={<LinearIcon className={"size-4"} />}
             variant="ghost"
-            aria-label="Update Linear issue"
+            aria-label={t`Update Linear issue`}
           >
             {linked.identifier}
           </Button>
@@ -77,7 +79,7 @@ export const LinearIssueDialog = ({ task }: Props) => {
           <IconButton
             icon={<LinearIcon className={"size-4 grayscale"} />}
             variant="ghost"
-            aria-label="Connect Linear issue"
+            aria-label={t`Connect Linear issue`}
           />
         )}
       </ModalTrigger>
@@ -85,9 +87,11 @@ export const LinearIssueDialog = ({ task }: Props) => {
         <Tabs value={tab} onValueChange={setTab} defaultValue="link">
           <ModalHeader className="mb-1 flex-row justify-between py-3">
             <div className="space-y-1">
-              <ModalTitle>Link Linear Issue</ModalTitle>
+              <ModalTitle>
+                <Trans>Link Linear Issue</Trans>
+              </ModalTitle>
               <ModalDescription>
-                Search for existing or create a new one
+                <Trans>Search for existing or create a new one</Trans>
               </ModalDescription>
             </div>
 
@@ -150,7 +154,7 @@ export const LinearIssueDialog = ({ task }: Props) => {
                         size="sm"
                         variant={"destructive"}
                       >
-                        Unlink
+                        <Trans>Unlink</Trans>
                       </Button>
                     </div>
                   </div>

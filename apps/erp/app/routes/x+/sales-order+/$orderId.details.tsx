@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { Spinner } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import type { JSONContent } from "@tiptap/react";
 import { Suspense, useRef } from "react";
@@ -141,6 +142,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function SalesOrderDetailsRoute() {
+  const { t } = useLingui();
   const { internalNotes, externalNotes, payment, shipment } =
     useLoaderData<typeof loader>();
   const { orderId } = useParams();
@@ -202,7 +204,7 @@ export default function SalesOrderDetailsRoute() {
         key={`notes-${orderId}`}
         id={orderData.salesOrder.id}
         table="salesOrder"
-        title="Notes"
+        title={t`Notes`}
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />

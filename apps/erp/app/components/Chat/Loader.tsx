@@ -1,4 +1,5 @@
 import { cn } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { HTMLAttributes } from "react";
 
 type LoaderIconProps = {
@@ -13,7 +14,9 @@ const LoaderIcon = ({ size = 16 }: LoaderIconProps) => (
     viewBox="0 0 16 16"
     width={size}
   >
-    <title>Loader</title>
+    <title>
+      <Trans>Loader</Trans>
+    </title>
     <g clipPath="url(#clip0_2393_1490)">
       <path d="M8 0V4" stroke="currentColor" strokeWidth="1.5" />
       <path

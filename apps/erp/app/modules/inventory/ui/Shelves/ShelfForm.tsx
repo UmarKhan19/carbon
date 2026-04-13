@@ -11,6 +11,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import { Hidden, Input, Location, Submit } from "~/components/Form";
@@ -34,6 +35,7 @@ const ShelfForm = ({
   onClose
 }: ShelfFormProps) => {
   const fetcher = useFetcher<{}>();
+  const { t } = useLingui();
 
   const permissions = usePermissions();
   const isEditing = !!initialValues?.id;
@@ -67,7 +69,7 @@ const ShelfForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Shelf
+                {isEditing ? t`Edit Shelf` : t`New Shelf`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -75,19 +77,21 @@ const ShelfForm = ({
               <Hidden name="type" value={type} />
 
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <Location
                   isReadOnly={isEditing}
                   name="locationId"
-                  label="Location"
+                  label={t`Location`}
                 />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={onClose}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>
