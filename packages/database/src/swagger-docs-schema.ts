@@ -26206,6 +26206,12 @@ export default {
             $ref: "#/parameters/rowFilter.itemShelfLife.updatedAt",
           },
           {
+            $ref: "#/parameters/rowFilter.itemShelfLife.shelfLifeTrigger",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.triggerProcessId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -26298,6 +26304,12 @@ export default {
             $ref: "#/parameters/rowFilter.itemShelfLife.updatedAt",
           },
           {
+            $ref: "#/parameters/rowFilter.itemShelfLife.shelfLifeTrigger",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.triggerProcessId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -26342,6 +26354,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemShelfLife.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.shelfLifeTrigger",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.triggerProcessId",
           },
           {
             $ref: "#/parameters/body.itemShelfLife",
@@ -63611,6 +63629,8 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.shelfLifeExpiryNotificationGroup",
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
@@ -63779,6 +63799,8 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.shelfLifeExpiryNotificationGroup",
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
@@ -63901,6 +63923,8 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.shelfLifeExpiryNotificationGroup",
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
@@ -72323,7 +72347,6 @@ export default {
         },
         tags: ["(rpc) calculate_expiration_date"],
       },
-    "/rpc/sync_update_stock_transfer_status": {
       post: {
         parameters: [
           {
@@ -72342,6 +72365,35 @@ export default {
                 },
               },
               required: ["p_item_id", "p_packaging_date"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) calculate_expiration_date"],
+      },
+    },
+    "/rpc/sync_update_stock_transfer_status": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
                 p_new: {
                   format: "jsonb",
                 },
@@ -72375,7 +72427,6 @@ export default {
             description: "OK",
           },
         },
-        tags: ["(rpc) calculate_expiration_date"],
         tags: ["(rpc) sync_update_stock_transfer_status"],
       },
     },
@@ -85211,10 +85262,10 @@ export default {
     itemShelfLife: {
       required: [
         "itemId",
-        "totalShelfLifeDays",
         "companyId",
         "createdBy",
         "createdAt",
+        "shelfLifeTrigger",
       ],
       properties: {
         itemId: {
@@ -85224,15 +85275,15 @@ export default {
           type: "string",
         },
         totalShelfLifeDays: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         commercialShelfLifeDays: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         minRemainingShelfLifeDays: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         storageTypeId: {
@@ -85272,6 +85323,17 @@ export default {
         },
         updatedAt: {
           format: "timestamp with time zone",
+          type: "string",
+        },
+        shelfLifeTrigger: {
+          default: "receipt",
+          format: "text",
+          type: "string",
+        },
+        triggerProcessId: {
+          description:
+            "Note:\nThis is a Foreign Key to `process.id`.<fk table='process' column='id'/>",
+          format: "text",
           type: "string",
         },
       },
@@ -103494,6 +103556,7 @@ export default {
             type: "string",
           },
           type: "array",
+        },
         updateLeadTimesOnReceipt: {
           default: false,
           format: "boolean",
@@ -117830,6 +117893,18 @@ export default {
     },
     "rowFilter.itemShelfLife.updatedAt": {
       name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.shelfLifeTrigger": {
+      name: "shelfLifeTrigger",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemShelfLife.triggerProcessId": {
+      name: "triggerProcessId",
       required: false,
       in: "query",
       type: "string",
@@ -138307,6 +138382,10 @@ export default {
     },
     "rowFilter.companySettings.shelfLifeExpiryNotificationGroup": {
       name: "shelfLifeExpiryNotificationGroup",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.companySettings.updateLeadTimesOnReceipt": {
       name: "updateLeadTimesOnReceipt",
       required: false,
