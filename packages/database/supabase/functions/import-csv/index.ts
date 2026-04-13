@@ -24,6 +24,8 @@ const importCsvValidator = z.object({
     "supplier",
     "supplierContact",
     "tool",
+    "workCenter",
+    "process",
   ]),
   filePath: z.string(),
   columnMappings: z.record(z.string()),
@@ -51,7 +53,9 @@ async function getCsvExternalIdMap(
 
   return new Map(
     result
-      .filter((r): r is typeof r & { externalId: string } => r.externalId !== null)
+      .filter(
+        (r): r is typeof r & { externalId: string } => r.externalId !== null
+      )
       .map((r) => [r.externalId, r.entityId])
   );
 }
@@ -642,8 +646,14 @@ serve(async (req: Request) => {
         break;
       }
       case "customerContact": {
-        const externalContactIdMap = await getCsvExternalIdMap("contact", companyId);
-        const externalCustomerIdMap = await getCsvExternalIdMap("customer", companyId);
+        const externalContactIdMap = await getCsvExternalIdMap(
+          "contact",
+          companyId
+        );
+        const externalCustomerIdMap = await getCsvExternalIdMap(
+          "customer",
+          companyId
+        );
 
         await db.transaction().execute(async (trx) => {
           const contactInserts: Database["public"]["Tables"]["contact"]["Insert"][] =
@@ -747,8 +757,14 @@ serve(async (req: Request) => {
         break;
       }
       case "supplierContact": {
-        const externalContactIdMap = await getCsvExternalIdMap("contact", companyId);
-        const externalSupplierIdMap = await getCsvExternalIdMap("supplier", companyId);
+        const externalContactIdMap = await getCsvExternalIdMap(
+          "contact",
+          companyId
+        );
+        const externalSupplierIdMap = await getCsvExternalIdMap(
+          "supplier",
+          companyId
+        );
 
         await db.transaction().execute(async (trx) => {
           const contactInserts: Database["public"]["Tables"]["contact"]["Insert"][] =
@@ -848,6 +864,200 @@ serve(async (req: Request) => {
           }
         });
 
+        break;
+      }
+      case "workCenter": {
+        const externalIdMap = await getCsvExternalIdMap(
+          "workCenter",
+          companyId
+        );
+        const workCenterIds = new Set();
+
+        await db.transaction().execute(async (trx) => {
+          const workCenterInserts: Database["public"]["Tables"]["workCenter"]["Insert"][] =
+            [];
+          const csvIdsForInserts: string[] = [];
+          const workCenterUpdates: {
+            id: string;
+            data: Database["public"]["Tables"]["workCenter"]["Update"];
+          }[] = [];
+
+          const isWorkCenterValid = (
+            record: Record<string, string>
+          ): record is { name: string; locationId: string } => {
+            return (
+              typeof record.name === "string" &&
+              record.name.trim() !== "" &&
+              typeof record.locationId === "string" &&
+              record.locationId.trim() !== ""
+            );
+          };
+
+          for (const record of mappedRecords) {
+            const { id, ...rest } = record;
+            if (externalIdMap.has(id)) {
+              const existingEntityId = externalIdMap.get(id)!;
+              if (isWorkCenterValid(rest) && !workCenterIds.has(id)) {
+                workCenterIds.add(id);
+                workCenterUpdates.push({
+                  id: existingEntityId,
+                  data: {
+                    ...rest,
+                    laborRate: rest.laborRate ? parseFloat(rest.laborRate) : 0,
+                    machineRate: rest.machineRate
+                      ? parseFloat(rest.machineRate)
+                      : 0,
+                    overheadRate: rest.overheadRate
+                      ? parseFloat(rest.overheadRate)
+                      : 0,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: userId,
+                  },
+                });
+              }
+            } else if (isWorkCenterValid(rest) && !workCenterIds.has(id)) {
+              workCenterIds.add(id);
+              workCenterInserts.push({
+                ...rest,
+                laborRate: rest.laborRate ? parseFloat(rest.laborRate) : 0,
+                machineRate: rest.machineRate
+                  ? parseFloat(rest.machineRate)
+                  : 0,
+                overheadRate: rest.overheadRate
+                  ? parseFloat(rest.overheadRate)
+                  : 0,
+                companyId,
+                createdAt: new Date().toISOString(),
+                createdBy: userId,
+              } as never);
+              csvIdsForInserts.push(id);
+            }
+          }
+
+          console.log({
+            totalRecords: mappedRecords.length,
+            workCenterInserts: workCenterInserts.length,
+            workCenterUpdates: workCenterUpdates.length,
+          });
+
+          if (workCenterInserts.length > 0) {
+            const inserted = await trx
+              .insertInto("workCenter")
+              .values(workCenterInserts)
+              .returning(["id"])
+              .execute();
+            await upsertCsvMappings(
+              trx,
+              "workCenter",
+              inserted.map((row, i) => ({
+                entityId: row.id!,
+                externalId: csvIdsForInserts[i],
+              })),
+              companyId,
+              userId
+            );
+          }
+          if (workCenterUpdates.length > 0) {
+            for (const update of workCenterUpdates) {
+              await trx
+                .updateTable("workCenter")
+                .set(update.data)
+                .where("id", "=", update.id)
+                .execute();
+            }
+          }
+        });
+        break;
+      }
+      case "process": {
+        const externalIdMap = await getCsvExternalIdMap("process", companyId);
+        const processIds = new Set();
+
+        await db.transaction().execute(async (trx) => {
+          const processInserts: Database["public"]["Tables"]["process"]["Insert"][] =
+            [];
+          const csvIdsForInserts: string[] = [];
+          const processUpdates: {
+            id: string;
+            data: Database["public"]["Tables"]["process"]["Update"];
+          }[] = [];
+
+          const isProcessValid = (
+            record: Record<string, string>
+          ): record is { name: string; processType: string } => {
+            return (
+              typeof record.name === "string" &&
+              record.name.trim() !== "" &&
+              typeof record.processType === "string" &&
+              (record.processType === "Inside" ||
+                record.processType === "Outside")
+            );
+          };
+
+          for (const record of mappedRecords) {
+            const { id, ...rest } = record;
+            if (externalIdMap.has(id)) {
+              const existingEntityId = externalIdMap.get(id)!;
+              if (isProcessValid(rest) && !processIds.has(id)) {
+                processIds.add(id);
+                processUpdates.push({
+                  id: existingEntityId,
+                  data: {
+                    ...rest,
+                    completeAllOnScan:
+                      rest.completeAllOnScan?.toLowerCase() === "true" ?? false,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: userId,
+                  },
+                });
+              }
+            } else if (isProcessValid(rest) && !processIds.has(id)) {
+              processIds.add(id);
+              processInserts.push({
+                ...rest,
+                completeAllOnScan:
+                  rest.completeAllOnScan?.toLowerCase() === "true" ?? false,
+                companyId,
+                createdAt: new Date().toISOString(),
+                createdBy: userId,
+              } as never);
+              csvIdsForInserts.push(id);
+            }
+          }
+
+          console.log({
+            totalRecords: mappedRecords.length,
+            processInserts: processInserts.length,
+            processUpdates: processUpdates.length,
+          });
+
+          if (processInserts.length > 0) {
+            const inserted = await trx
+              .insertInto("process")
+              .values(processInserts)
+              .returning(["id"])
+              .execute();
+            await upsertCsvMappings(
+              trx,
+              "process",
+              inserted.map((row, i) => ({
+                entityId: row.id!,
+                externalId: csvIdsForInserts[i],
+              })),
+              companyId,
+              userId
+            );
+          }
+          if (processUpdates.length > 0) {
+            for (const update of processUpdates) {
+              await trx
+                .updateTable("process")
+                .set(update.data)
+                .where("id", "=", update.id)
+                .execute();
+            }
+          }
+        });
         break;
       }
       case "methodMaterial": {

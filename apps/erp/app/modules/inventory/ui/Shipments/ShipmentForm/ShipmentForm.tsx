@@ -17,6 +17,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import type { z } from "zod";
 import {
@@ -51,6 +52,7 @@ const formId = "shipment-form";
 
 const ShipmentForm = ({ initialValues, status }: ShipmentFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const {
     locationId,
     sourceDocuments,
@@ -77,11 +79,10 @@ const ShipmentForm = ({ initialValues, status }: ShipmentFormProps) => {
         >
           <HStack className="justify-between w-full">
             <CardHeader>
-              <CardTitle>{isEditing ? "Shipment" : "New Shipment"}</CardTitle>
+              <CardTitle>{isEditing ? t`Shipment` : t`New Shipment`}</CardTitle>
               {!isEditing && (
                 <CardDescription>
-                  A shipment is a record of a part shipped to a customer or
-                  transferred to another location.
+                  {t`A shipment is a record of a part shipped to a customer or transferred to another location.`}
                 </CardDescription>
               )}
             </CardHeader>
@@ -92,7 +93,7 @@ const ShipmentForm = ({ initialValues, status }: ShipmentFormProps) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <IconButton
-                        aria-label="Open menu"
+                        aria-label={t`Open menu`}
                         variant="secondary"
                         icon={<LuEllipsisVertical />}
                       />
@@ -103,7 +104,7 @@ const ShipmentForm = ({ initialValues, status }: ShipmentFormProps) => {
                         className="text-destructive hover:text-destructive"
                       >
                         <DropdownMenuIcon icon={<LuTrash />} />
-                        Delete Shipment
+                        <Trans>Delete Shipment</Trans>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -115,10 +116,10 @@ const ShipmentForm = ({ initialValues, status }: ShipmentFormProps) => {
             <Hidden name="customerId" value={customerId ?? ""} />
             <VStack spacing={4} className="min-h-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 w-full">
-                <Input name="shipmentId" label="Shipment ID" isReadOnly />
+                <Input name="shipmentId" label={t`Shipment ID`} isReadOnly />
                 <Location
                   name="locationId"
-                  label="Location"
+                  label={t`Location`}
                   value={locationId ?? undefined}
                   onChange={(newValue) => {
                     if (newValue) setLocationId(newValue.value as string);
@@ -127,7 +128,7 @@ const ShipmentForm = ({ initialValues, status }: ShipmentFormProps) => {
                 />
                 <Select
                   name="sourceDocument"
-                  label="Source Document"
+                  label={t`Source Document`}
                   options={shipmentSourceDocumentType.map((v) => ({
                     label: v,
                     value: v
@@ -143,17 +144,17 @@ const ShipmentForm = ({ initialValues, status }: ShipmentFormProps) => {
                 />
                 <Combobox
                   name="sourceDocumentId"
-                  label="Source Document ID"
+                  label={t`Source Document ID`}
                   options={sourceDocuments.map((d) => ({
                     label: d.name,
                     value: d.id
                   }))}
                   isReadOnly={isPosted}
                 />
-                <Input name="trackingNumber" label="Tracking Number" />
+                <Input name="trackingNumber" label={t`Tracking Number`} />
                 <ShippingMethod
                   name="shippingMethodId"
-                  label="Shipping Method"
+                  label={t`Shipping Method`}
                 />
                 <CustomFormFields table="shipment" />
               </div>

@@ -3,9 +3,8 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
-import type { modelThumbnailTask } from "@carbon/jobs/trigger/model-thumbnail";
+import { trigger } from "@carbon/jobs";
 import { supportedModelTypes } from "@carbon/utils";
-import { tasks } from "@trigger.dev/sdk";
 import { generateObject } from "ai";
 import { nanoid } from "nanoid";
 import type { ActionFunctionArgs } from "react-router";
@@ -273,7 +272,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
     }
 
-    await tasks.trigger<typeof modelThumbnailTask>("model-thumbnail", {
+    await trigger("model-thumbnail", {
       companyId,
       modelId
     });

@@ -2,22 +2,21 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import { getProductionProjections } from "~/modules/production";
 import DemandProjectionsTable from "~/modules/production/ui/Projection/DemandProjectionTable";
-
 import { getLocationsList } from "~/modules/resources";
-import { getPeriods } from "~/modules/shared/shared.service";
+import { getOrCreatePeriods } from "~/modules/shared/shared.server";
 import { getUserDefaults } from "~/modules/users/users.server";
-
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: "Projections",
+  breadcrumb: msg`Projections`,
   to: path.to.demandProjections
 };
 
@@ -67,24 +66,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     locationId = locations.data?.[0].id as string;
   }
 
-  const startDate = startOfWeek(today(getLocalTimeZone()), "en-US");
-  const endDate = startDate.add({ weeks: WEEKS_TO_PROJECT });
-  const periods = await getPeriods(client, {
-    startDate: startDate.toString(),
-    endDate: endDate.toString()
-  });
-
-  if (periods.error) {
-    redirect(
-      path.to.authenticatedRoot,
-      await flash(request, error(periods.error, "Failed to load periods"))
-    );
-  }
+  const periods = await getOrCreatePeriods(
+    today(getLocalTimeZone()),
+    WEEKS_TO_PROJECT
+  );
 
   const projections = await getProductionProjections(
     client,
     locationId,
-    periods.data?.map((p) => p.id) ?? [],
+    periods.map((p) => p.id),
     companyId,
     {
       search,
@@ -109,7 +99,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     projections: projections.data ?? [],
     count: projections.data?.length ?? 0,
     locationId,
-    periods: periods.data ?? []
+    periods
   };
 }
 

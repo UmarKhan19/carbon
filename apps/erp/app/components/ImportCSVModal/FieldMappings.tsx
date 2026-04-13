@@ -5,6 +5,7 @@ import type { Database } from "@carbon/database";
 import { Combobox, useFormContext } from "@carbon/form";
 import {
   Button,
+  ModalBody,
   ModalDescription,
   ModalHeader,
   ModalTitle,
@@ -15,6 +16,7 @@ import {
   toast
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { LuInfo, LuMoveRight } from "react-icons/lu";
@@ -53,6 +55,7 @@ export function FieldMapping({
   table: keyof typeof importSchemas;
   onReset: () => void;
 }) {
+  const { t } = useLingui();
   const initialized = useRef(false);
   const { validate } = useFormContext(formId);
   const { fileColumns, filePath, firstRows } = useCsvContext();
@@ -77,7 +80,34 @@ export function FieldMapping({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    if (!fileColumns || !firstRows) return;
+    if (!fileColumns || !firstRows || initialized.current) return;
+
+    // Try exact matching by label and field name before calling the LLM
+    const fileColumnsLower = fileColumns.map((c) => c.toLowerCase().trim());
+    const exactMatches: Record<string, string> = {};
+
+    for (const [fieldName, fieldDef] of Object.entries(mappableFields)) {
+      // Match by label (e.g., "Process Type" === "Process Type")
+      const labelIdx = fileColumnsLower.indexOf(fieldDef.label.toLowerCase());
+      if (labelIdx !== -1) {
+        exactMatches[fieldName] = fileColumns[labelIdx];
+        continue;
+      }
+      // Match by field name (e.g., "processType" === "processtype")
+      const nameIdx = fileColumnsLower.indexOf(fieldName.toLowerCase());
+      if (nameIdx !== -1) {
+        exactMatches[fieldName] = fileColumns[nameIdx];
+      }
+    }
+
+    // If all fields matched exactly, skip the LLM call
+    if (
+      Object.keys(exactMatches).length === Object.keys(mappableFields).length
+    ) {
+      initialized.current = true;
+      setColumnMappings(exactMatches);
+      return;
+    }
 
     fetcher.submit(
       {
@@ -160,104 +190,111 @@ export function FieldMapping({
         <div className="flex space-x-4 items-center mb-4">
           <ModalTitle className="m-0 p-0">
             {currentStep === 0
-              ? "Field Mapping"
+              ? t`Field Mapping`
               : enumFields[currentStep - 1][1].label}
           </ModalTitle>
         </div>
 
         <ModalDescription>
           {currentStep === 0
-            ? "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
+            ? t`We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate.`
             : enumFields[currentStep - 1][1].enumData.description}
         </ModalDescription>
       </ModalHeader>
-      <div className="mt-6">
-        {currentStep === 0 ? (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-            <div className="text-sm">CSV column</div>
-            <div className="text-sm">Carbon column</div>
-            {Object.entries(mappableFields).map(
-              ([name, { label, required, type }]) => (
-                <FieldRow
+      <ModalBody>
+        <div className="mt-6">
+          {currentStep === 0 ? (
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div className="text-sm">
+                <Trans>CSV column</Trans>
+              </div>
+              <div className="text-sm">
+                <Trans>Carbon column</Trans>
+              </div>
+              {Object.entries(mappableFields).map(
+                ([name, { label, required, type }]) => (
+                  <FieldRow
+                    key={name}
+                    label={label}
+                    type={type}
+                    required={required}
+                    name={name}
+                    mappedColumn={columnMappings[name]}
+                    isLoading={fetcher.state !== "idle"}
+                    onColumnMappingChange={onColumnMappingChange}
+                  />
+                )
+              )}
+            </div>
+          ) : (
+            <>
+              {Object.entries(columnMappings).map(([name, value]) => (
+                <input type="hidden" key={name} name={name} value={value} />
+              ))}
+              <input
+                type="hidden"
+                name="enumMappings"
+                value={JSON.stringify(enumMappings)}
+              />
+            </>
+          )}
+          {enumFields.map(
+            ([name, { enumData }], index) =>
+              currentStep === index + 1 && (
+                <EnumMappingStep
                   key={name}
-                  label={label}
-                  type={type}
-                  required={required}
                   name={name}
+                  enumData={enumData}
                   mappedColumn={columnMappings[name]}
-                  isLoading={fetcher.state !== "idle"}
-                  onColumnMappingChange={onColumnMappingChange}
+                  firstRows={firstRows}
+                  mappings={enumMappings[name]}
+                  onEnumMappingChange={onEnumMappingChange}
                 />
               )
-            )}
-          </div>
-        ) : (
-          <>
-            {Object.entries(columnMappings).map(([name, value]) => (
-              <input type="hidden" key={name} name={name} value={value} />
-            ))}
-            <input
-              type="hidden"
-              name="enumMappings"
-              value={JSON.stringify(enumMappings)}
-            />
-          </>
-        )}
-        {enumFields.map(
-          ([name, { enumData }], index) =>
-            currentStep === index + 1 && (
-              <EnumMappingStep
-                key={name}
-                name={name}
-                enumData={enumData}
-                mappedColumn={columnMappings[name]}
-                firstRows={firstRows}
-                mappings={enumMappings[name]}
-                onEnumMappingChange={onEnumMappingChange}
-              />
-            )
-        )}
-      </div>
-      <div className="flex flex-col w-full gap-2 pb-4">
-        {currentStep === steps - 1 && (
-          <Submit
-            isDisabled={!filePath || fetcher.state !== "idle"}
-            type="submit"
-          >
-            Confirm Import
-          </Submit>
-        )}
-        {currentStep < steps - 1 && (
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={async () => {
-              if (currentStep === 0) {
-                const result = await validate();
+          )}
+        </div>
 
-                if (!result.error) {
+        <div className="flex flex-col w-full gap-2 mt-4">
+          {currentStep === steps - 1 && (
+            <Submit
+              isDisabled={!filePath || fetcher.state !== "idle"}
+              type="submit"
+            >
+              <Trans>Confirm Import</Trans>
+            </Submit>
+          )}
+          {currentStep < steps - 1 && (
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={async () => {
+                if (currentStep === 0) {
+                  const result = await validate();
+
+                  if (!result.error) {
+                    onNext();
+                  }
+                } else {
                   onNext();
                 }
-              } else {
-                onNext();
-              }
-            }}
-          >
-            Next
-          </Button>
-        )}
-        {currentStep === 0 && (
-          <Button variant="link" type="button" onClick={onReset}>
-            Choose another file
-          </Button>
-        )}
+              }}
+            >
+              <Trans>Next</Trans>
+            </Button>
+          )}
+          {currentStep === 0 && (
+            <Button variant="link" type="button" onClick={onReset}>
+              <Trans>Choose another file</Trans>
+            </Button>
+          )}
 
-        {currentStep > 0 && (
-          <Button variant="link" type="button" onClick={onPrevious}>
-            Previous
-          </Button>
-        )}
-      </div>
+          {currentStep > 0 && (
+            <Button variant="link" type="button" onClick={onPrevious}>
+              <Trans>Previous</Trans>
+            </Button>
+          )}
+        </div>
+      </ModalBody>
     </>
   );
 }
@@ -413,7 +450,9 @@ function EnumMappingStep({
         <div className="font-medium ">
           {`${capitalize(mappedColumn ?? "CSV")} Value`}
         </div>
-        <div className="font-medium">Carbon Value</div>
+        <div className="font-medium">
+          <Trans>Carbon Value</Trans>
+        </div>
 
         {[...new Set([...uniqueValues, "Default"])].map((csvValue) => {
           return (

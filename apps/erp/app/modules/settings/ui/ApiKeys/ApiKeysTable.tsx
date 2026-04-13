@@ -1,5 +1,6 @@
 import { Badge, Button, HStack, MenuIcon, MenuItem } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -40,6 +41,7 @@ function formatRateLimit(limit: number, window: string): string {
 }
 
 const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const [params] = useUrlParams();
   const permissions = usePermissions();
@@ -49,7 +51,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
     return [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id!}>{row.original.name}</Hyperlink>
         ),
@@ -59,7 +61,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
       },
       {
         id: "keyPreview",
-        header: "Key",
+        header: t`Key`,
         cell: ({ row }) => {
           const preview = (row.original as any).keyPreview as string | null;
           return (
@@ -74,7 +76,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
       },
       {
         id: "scopes",
-        header: "Scopes",
+        header: t`Scopes`,
         cell: ({ row }) => {
           const scopes = (row.original as any).scopes as Record<
             string,
@@ -83,7 +85,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
           const scopeCount = getScopeCount(scopes);
           return (
             <Badge variant="secondary">
-              {scopeCount === 0 ? "No Access" : `${scopeCount} permissions`}
+              {scopeCount === 0 ? t`No Access` : t`${scopeCount} permissions`}
             </Badge>
           );
         },
@@ -93,7 +95,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
       },
       {
         id: "rateLimit",
-        header: "Rate Limit",
+        header: t`Rate Limit`,
         cell: ({ row }) => {
           const limit = (row.original as any).rateLimit as number;
           const window = (row.original as any).rateLimitWindow as string;
@@ -109,7 +111,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => {
           return <EmployeeAvatar employeeId={row.original.createdBy} />;
         },
@@ -126,15 +128,19 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
       },
       {
         id: "expiresAt",
-        header: "Expires",
+        header: t`Expires`,
         cell: ({ row }) => {
           const expiresAt = (row.original as any).expiresAt as string | null;
           if (!expiresAt)
-            return <span className="text-muted-foreground">Never</span>;
+            return (
+              <span className="text-muted-foreground">
+                <Trans>Never</Trans>
+              </span>
+            );
           const isExpired = new Date(expiresAt) < new Date();
           return (
             <Badge variant={isExpired ? "destructive" : "secondary"}>
-              {isExpired ? "Expired" : formatDate(expiresAt)}
+              {isExpired ? t`Expired` : formatDate(expiresAt)}
             </Badge>
           );
         },
@@ -144,14 +150,14 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
         }
       }
     ];
-  }, [people]);
+  }, [people, t]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const renderContextMenu = useCallback(
@@ -164,7 +170,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit API Key
+            <Trans>Edit API Key</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -175,7 +181,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete API Key
+            <Trans>Delete API Key</Trans>
           </MenuItem>
         </>
       );
@@ -194,17 +200,19 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
           <HStack>
             {permissions.can("update", "users") && (
               <New
-                label="API Key"
+                label={t`API Key`}
                 to={`${path.to.newApiKey}?${params.toString()}`}
               />
             )}
             <Button leftIcon={<LuCode />} variant="secondary" asChild>
-              <Link to={path.to.apiIntroduction}>API Docs</Link>
+              <Link to={path.to.apiIntroduction}>
+                <Trans>API Docs</Trans>
+              </Link>
             </Button>
           </HStack>
         }
         renderContextMenu={renderContextMenu}
-        title="API Keys"
+        title={t`API Keys`}
       />
       <Outlet />
     </>

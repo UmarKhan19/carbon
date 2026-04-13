@@ -1,4 +1,5 @@
 import { Button, cn, getValidChildren } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ComponentProps } from "react";
 import { cloneElement, forwardRef } from "react";
 import type { LinkProps } from "react-router";
@@ -10,6 +11,7 @@ const Breadcrumbs = forwardRef<
     useReactRouter?: boolean;
   }
 >(({ className, children, useReactRouter = true, ...props }, ref) => {
+  const { t } = useLingui();
   const validChildren = getValidChildren(children);
   const count = validChildren.length;
   const clones = validChildren.map((child, index) =>
@@ -20,7 +22,7 @@ const Breadcrumbs = forwardRef<
   );
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label={t`Breadcrumb`}
       ref={ref}
       className={cn("reset flex", className)}
       {...props}

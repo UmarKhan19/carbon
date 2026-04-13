@@ -19,6 +19,7 @@ import {
   formatDurationMilliseconds,
   formatRelativeTime
 } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
 import {
   LuCalendarDays,
@@ -85,6 +86,7 @@ export function ItemCard({
   showSalesOrder,
   showThumbnail
 }: ItemCardProps) {
+  const { t } = useLingui();
   const routeData = useRouteData<{
     customers: { id: string; name: string }[];
   }>("/x/operations");
@@ -224,7 +226,7 @@ export function ItemCard({
                     {["ASAP", "No Deadline"].includes(item.deadlineType)
                       ? item.deadlineType
                       : item.dueDate
-                        ? `Due ${formatRelativeTime(
+                        ? t`Due ${formatRelativeTime(
                             convertDateStringToIsoString(item.dueDate)
                           )}`
                         : "–"}
@@ -256,7 +258,9 @@ export function ItemCard({
           {Array.isArray(employeeIds) && employeeIds.length > 0 && (
             <HStack className="justify-start space-x-2">
               <Avatar size="xs" name="Active Employee" />
-              <span className="text-sm">{employeeIds.length} Active</span>
+              <span className="text-sm">
+                <Trans>{employeeIds.length} Active</Trans>
+              </span>
             </HStack>
           )}
 
@@ -273,7 +277,9 @@ export function ItemCard({
           {Number(item.quantityScrapped) > 0 && (
             <HStack className="justify-start space-x-2 text-red-500">
               <LuTrash className="w-4 h-4" />
-              <span className="text-sm">{item.quantityScrapped} Scrapped</span>
+              <span className="text-sm">
+                <Trans>{item.quantityScrapped} Scrapped</Trans>
+              </span>
             </HStack>
           )}
         </CardContent>

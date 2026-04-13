@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { z } from "zod";
@@ -13,7 +14,6 @@ import {
   upsertPurchaseOrder
 } from "~/modules/purchasing";
 import { PurchaseOrderForm } from "~/modules/purchasing/ui/PurchaseOrder";
-
 import { getNextSequence } from "~/modules/settings";
 import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
@@ -24,7 +24,7 @@ const newPurchaseOrderValidator = purchaseOrderValidator.extend({
 });
 
 export const handle: Handle = {
-  breadcrumb: "Orders",
+  breadcrumb: msg`Orders`,
   to: path.to.purchaseOrders
 };
 

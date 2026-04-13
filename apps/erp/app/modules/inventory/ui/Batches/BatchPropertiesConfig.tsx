@@ -39,6 +39,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -71,15 +72,16 @@ export default function BatchPropertiesConfig({
   onClose?: () => void;
 }) {
   const { isList, onChangeCheckForListType, setIsList } = useBatchProperties();
+  const { t } = useLingui();
 
   const submit = useSubmit();
   const fetcher = useFetcher<typeof batchPropertyAction>();
 
   useEffect(() => {
     if (fetcher.data?.success === false) {
-      toast.error("Failed to update batch property");
+      toast.error(t`Failed to update batch property`);
     }
-  }, [fetcher.data]);
+  }, [fetcher.data, t]);
 
   const propertiesById = new Map<string, BatchProperty>(
     initialProperties.map((property) => [property.id, property])
@@ -116,7 +118,9 @@ export default function BatchPropertiesConfig({
       <ModalCard onClose={onClose}>
         <ModalCardContent>
           <ModalCardHeader>
-            <ModalCardTitle>Batch Properties</ModalCardTitle>
+            <ModalCardTitle>
+              <Trans>Batch Properties</Trans>
+            </ModalCardTitle>
           </ModalCardHeader>
 
           <ModalCardBody>
@@ -146,14 +150,14 @@ export default function BatchPropertiesConfig({
                       <VStack>
                         <Input
                           name="label"
-                          label="Label"
+                          label={t`Label`}
                           isDisabled={isReadOnly}
                         />
                       </VStack>
 
                       <Select
                         name="dataType"
-                        label="Data Type"
+                        label={t`Data Type`}
                         disabled={isReadOnly}
                         options={batchPropertyDataTypes.map((type) => ({
                           label: (
@@ -173,7 +177,7 @@ export default function BatchPropertiesConfig({
                         <ArrayInput
                           isDisabled={isReadOnly}
                           name="listOptions"
-                          label="List Options"
+                          label={t`List Options`}
                         />
                       )}
                     </div>
@@ -183,7 +187,7 @@ export default function BatchPropertiesConfig({
                         isDisabled={fetcher.state !== "idle"}
                         isLoading={fetcher.state !== "idle"}
                       >
-                        Add Property
+                        <Trans>Add Property</Trans>
                       </Submit>
                     </HStack>
                   </VStack>
@@ -295,6 +299,7 @@ function BatchPropertyComponent({
   property: BatchProperty;
   isOverlay?: boolean;
 }) {
+  const { t } = useLingui();
   const { isList, onChangeCheckForListType } = useBatchProperties(property);
 
   const disclosure = useDisclosure();
@@ -363,12 +368,12 @@ function BatchPropertyComponent({
           <VStack spacing={4}>
             <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               <VStack>
-                <Input name="label" label="Label" autoFocus />
+                <Input name="label" label={t`Label`} autoFocus />
               </VStack>
 
               <Select
                 name="dataType"
-                label="Data Type"
+                label={t`Data Type`}
                 options={batchPropertyDataTypes.map((type) => ({
                   label: (
                     <HStack className="w-full">
@@ -380,17 +385,19 @@ function BatchPropertyComponent({
                 }))}
                 onChange={onChangeCheckForListType}
               />
-              {isList && <ArrayInput name="listOptions" label="List Options" />}
+              {isList && (
+                <ArrayInput name="listOptions" label={t`List Options`} />
+              )}
             </div>
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Submit
                 isDisabled={fetcher.state !== "idle"}
                 isLoading={fetcher.state !== "idle"}
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </HStack>
           </VStack>
@@ -399,7 +406,7 @@ function BatchPropertyComponent({
         <div className="flex flex-1 justify-between items-center w-full">
           <HStack spacing={2} className="w-1/2">
             <IconButton
-              aria-label="Reorder"
+              aria-label={t`Reorder`}
               icon={<LuGripVertical />}
               variant="ghost"
               {...attributes}
@@ -421,27 +428,27 @@ function BatchPropertyComponent({
           <div className="flex items-center justify-end gap-2">
             <HStack spacing={2}>
               <span className="text-xs text-muted-foreground">
-                {isUpdated ? "Updated" : "Created"} {formatRelativeTime(date)}
+                {isUpdated ? t`Updated` : t`Created`} {formatRelativeTime(date)}
               </span>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="Open menu"
+                  aria-label={t`Open menu`}
                   icon={<LuEllipsisVertical />}
                   variant="ghost"
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={disclosure.onOpen}>
-                  Edit
+                  <Trans>Edit</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   destructive
                   onClick={deletePropertyDisclosure.onOpen}
                 >
-                  Delete
+                  <Trans>Delete</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

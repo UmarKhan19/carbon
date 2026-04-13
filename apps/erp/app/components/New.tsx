@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
   useKeyboardShortcuts
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useRef } from "react";
 import { LuCirclePlus } from "react-icons/lu";
 import { Link } from "react-router";
@@ -19,7 +20,9 @@ type NewProps = {
 };
 
 const New = ({ label, to, variant = "primary" }: NewProps) => {
+  const { i18n, t } = useLingui();
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const translatedLabel = label ? i18n._(label) : undefined;
   useKeyboardShortcuts({
     n: (event: KeyboardEvent) => {
       event.stopPropagation();
@@ -37,7 +40,7 @@ const New = ({ label, to, variant = "primary" }: NewProps) => {
           ref={buttonRef}
         >
           <Link to={to} prefetch="intent">
-            Add {label}
+            {translatedLabel ? `${t`Add`} ${translatedLabel}` : t`Add`}
           </Link>
         </Button>
       </TooltipTrigger>

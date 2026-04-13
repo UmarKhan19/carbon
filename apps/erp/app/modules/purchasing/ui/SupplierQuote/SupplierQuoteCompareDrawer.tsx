@@ -29,6 +29,7 @@ import {
   VStack
 } from "@carbon/react";
 import { pluralize } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useState } from "react";
 import { LuArrowLeft, LuImage, LuStar } from "react-icons/lu";
 import { Form, useFetcher, useNavigation } from "react-router";
@@ -65,6 +66,7 @@ const SupplierQuoteCompareDrawer = ({
   onClose,
   purchasingRfqId
 }: SupplierQuoteCompareDrawerProps) => {
+  const { t } = useLingui();
   const [step, setStep] = useState<DrawerStep>("compare");
   const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
   const [selectedQuantityTier, setSelectedQuantityTier] = useState<
@@ -192,13 +194,13 @@ const SupplierQuoteCompareDrawer = ({
                   leftIcon={<LuArrowLeft />}
                   onClick={handleBackToCompare}
                 >
-                  Back
+                  <Trans>Back</Trans>
                 </Button>
               )}
               <VStack spacing={0} className="items-start">
                 <DrawerTitle>
                   {step === "compare"
-                    ? "Compare Supplier Quotes"
+                    ? t`Compare Supplier Quotes`
                     : `Create Order from ${
                         selectedQuote?.supplier?.name ??
                         selectedQuote?.supplierQuoteId
@@ -216,7 +218,7 @@ const SupplierQuoteCompareDrawer = ({
             {step === "compare" && quantityTiers.length > 1 && (
               <HStack>
                 <span className="text-sm text-muted-foreground">
-                  Compare at quantity:
+                  <Trans>Compare at quantity:</Trans>
                 </span>
                 <Select
                   value={String(selectedQuantityTier ?? "")}
@@ -248,9 +250,13 @@ const SupplierQuoteCompareDrawer = ({
           ) : quotes.length === 0 ? (
             <div className="flex w-full h-full items-center justify-center">
               <VStack spacing={2} className="text-center">
-                <Heading size="h4">No Active Quotes</Heading>
+                <Heading size="h4">
+                  <Trans>No Active Quotes</Trans>
+                </Heading>
                 <p className="text-muted-foreground">
-                  There are no active supplier quotes to compare for this RFQ.
+                  <Trans>
+                    There are no active supplier quotes to compare for this RFQ.
+                  </Trans>
                 </p>
               </VStack>
             </div>
@@ -279,7 +285,7 @@ const SupplierQuoteCompareDrawer = ({
         <DrawerFooter>
           <HStack className="w-full justify-between">
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
 
             {step === "compare" ? (
@@ -466,7 +472,7 @@ const ComparisonView = ({
                     <div className="w-full pt-2 border-t space-y-1">
                       <HStack className="justify-between">
                         <span className="text-sm text-muted-foreground">
-                          Total:
+                          <Trans>Total:</Trans>
                         </span>
                         <HStack spacing={1}>
                           {total === bestTotal && total > 0 && (
@@ -488,7 +494,7 @@ const ComparisonView = ({
                       {leadTimeRange && (
                         <HStack className="justify-between">
                           <span className="text-sm text-muted-foreground">
-                            Lead Time:
+                            <Trans>Lead Time:</Trans>
                           </span>
                           <span className="text-sm">{leadTimeRange}</span>
                         </HStack>
@@ -496,7 +502,7 @@ const ComparisonView = ({
 
                       {!hasMatchingTier && (
                         <span className="text-xs text-amber-600">
-                          No pricing for selected quantity
+                          <Trans>No pricing for selected quantity</Trans>
                         </span>
                       )}
                     </div>
@@ -511,14 +517,16 @@ const ComparisonView = ({
         {uniqueItems.length > 0 && (
           <VStack spacing={2} className="w-full">
             <Heading size="h4" className="self-start">
-              Line Item Comparison
+              <Trans>Line Item Comparison</Trans>
             </Heading>
 
             <div className="w-full overflow-x-auto border border-border rounded-md">
               <Table>
                 <Thead>
                   <Tr>
-                    <Th className="min-w-[150px]">Item</Th>
+                    <Th className="min-w-[150px]">
+                      <Trans>Item</Trans>
+                    </Th>
                     {quotes.map((quote) => (
                       <Th key={quote.id} className="min-w-[180px] text-center">
                         {quote.supplier?.name ?? "Unknown"}
@@ -763,19 +771,31 @@ const LinePricingOptions = ({
           <Thead>
             <Tr>
               <Th></Th>
-              <Th>Quantity</Th>
-              <Th>Unit Price</Th>
-              <Th>Shipping</Th>
-              <Th>Lead Time</Th>
-              <Th>Tax</Th>
-              <Th>Total Price</Th>
+              <Th>
+                <Trans>Quantity</Trans>
+              </Th>
+              <Th>
+                <Trans>Unit Price</Trans>
+              </Th>
+              <Th>
+                <Trans>Shipping</Trans>
+              </Th>
+              <Th>
+                <Trans>Lead Time</Trans>
+              </Th>
+              <Th>
+                <Trans>Tax</Trans>
+              </Th>
+              <Th>
+                <Trans>Total Price</Trans>
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
             {!Array.isArray(options) || options.length === 0 ? (
               <Tr>
                 <Td colSpan={7} className="text-center py-8">
-                  No pricing options found
+                  <Trans>No pricing options found</Trans>
                 </Td>
               </Tr>
             ) : (

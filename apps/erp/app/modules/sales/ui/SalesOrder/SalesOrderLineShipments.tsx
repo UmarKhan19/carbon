@@ -16,6 +16,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { LuCirclePlus } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import { Empty, Hyperlink } from "~/components";
@@ -60,7 +61,9 @@ export function SalesOrderLineShipments({
       <Card>
         <HStack className="w-full justify-between">
           <CardHeader>
-            <CardTitle>Shipments</CardTitle>
+            <CardTitle>
+              <Trans>Shipments</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>
             {permissions.can("create", "inventory") && hasShipments && (
@@ -87,8 +90,12 @@ export function SalesOrderLineShipments({
             <Table>
               <Thead>
                 <Tr>
-                  <Th>Shipment</Th>
-                  <Th>Date</Th>
+                  <Th>
+                    <Trans>Shipment</Trans>
+                  </Th>
+                  <Th>
+                    <Trans>Date</Trans>
+                  </Th>
                   <Th className="text-right">Quantity</Th>
                 </Tr>
               </Thead>

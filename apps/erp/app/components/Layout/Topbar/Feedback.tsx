@@ -18,6 +18,7 @@ import {
   VStack
 } from "@carbon/react";
 import { SUPPORT_EMAIL } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -29,6 +30,7 @@ import { path } from "~/utils/path";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
 const Feedback = () => {
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof action>();
   const location = useLocation();
   const popoverTriggerRef = useRef<HTMLButtonElement>(null);
@@ -55,7 +57,7 @@ const Feedback = () => {
       const fileExtension = file.name.substring(file.name.lastIndexOf(".") + 1);
 
       if (file.size > MAX_FILE_SIZE) {
-        toast.error("File size exceeds 10MB limit");
+        toast.error(t`File size exceeds 10MB limit`);
         return;
       }
 
@@ -68,7 +70,7 @@ const Feedback = () => {
 
       if (imageUpload.error) {
         console.error(imageUpload.error);
-        toast.error("Failed to upload image");
+        toast.error(t`Failed to upload image`);
       }
 
       if (imageUpload.data?.path) {
@@ -83,7 +85,9 @@ const Feedback = () => {
   return (
     <Popover>
       <PopoverTrigger ref={popoverTriggerRef} asChild>
-        <Button variant="secondary">Feedback</Button>
+        <Button variant="secondary">
+          <Trans>Feedback</Trans>
+        </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[380px] ">
         <ValidatedForm
@@ -105,7 +109,7 @@ const Feedback = () => {
                 label=""
                 value={feedback}
                 onChange={(value) => setFeedback(value)}
-                placeholder="Ideas, suggestions or problems with this page?"
+                placeholder={t`Ideas, suggestions or problems with this page?`}
               />
               {attachment && (
                 <Badge className="-mt-2 truncate" variant="secondary">
@@ -128,7 +132,7 @@ const Feedback = () => {
                   popoverTriggerRef.current?.click();
                 }}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <HStack spacing={1}>
                 <Button
@@ -136,11 +140,11 @@ const Feedback = () => {
                   variant="secondary"
                   onClick={() => setFeedback("")}
                 >
-                  Clear
+                  <Trans>Clear</Trans>
                 </Button>
                 <File
                   accept="image/*"
-                  aria-label="Attach File"
+                  aria-label={t`Attach File`}
                   className="px-2"
                   isDisabled={!!attachment}
                   variant="secondary"

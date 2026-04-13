@@ -5,6 +5,7 @@ import {
   MenuItem,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -34,6 +35,7 @@ type TrainingsTableProps = {
 };
 
 const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
 
@@ -45,7 +47,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
     const defaultColumns: ColumnDef<TrainingListItem>[] = [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink to={path.to.training(row.original.id!)}>
             {row.original.name}
@@ -57,7 +59,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t`Status`,
         cell: ({ row }) => <TrainingStatus status={row.original.status} />,
         meta: {
           filter: {
@@ -76,7 +78,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
       },
       {
         accessorKey: "type",
-        header: "Type",
+        header: t`Type`,
         cell: ({ row }) => (
           <Badge
             variant={
@@ -99,7 +101,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
       },
       {
         accessorKey: "frequency",
-        header: "Frequency",
+        header: t`Frequency`,
         cell: ({ row }) => (
           <Badge variant="secondary">{row.original.frequency}</Badge>
         ),
@@ -117,7 +119,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
       },
       {
         accessorKey: "estimatedDuration",
-        header: "Duration",
+        header: t`Duration`,
         cell: ({ row }) =>
           row.original.estimatedDuration ? (
             <div className="flex items-center gap-1">
@@ -135,7 +137,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
       },
       {
         accessorKey: "assignee",
-        header: "Assignee",
+        header: t`Assignee`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -145,7 +147,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
       },
       {
         accessorKey: "tags",
-        header: "Tags",
+        header: t`Tags`,
         cell: ({ row }) => (
           <HStack spacing={0} className="gap-1">
             {row.original.tags?.map((tag) => (
@@ -169,7 +171,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
       }
     ];
     return [...defaultColumns];
-  }, [tags]);
+  }, [tags, t]);
 
   const renderContextMenu = useCallback(
     (row: TrainingListItem) => {
@@ -182,7 +184,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Training
+            <Trans>Edit Training</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -195,7 +197,7 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Training
+            <Trans>Delete Training</Trans>
           </MenuItem>
         </>
       );
@@ -211,11 +213,11 @@ const TrainingsTable = memo(({ data, count, tags }: TrainingsTableProps) => {
         count={count}
         primaryAction={
           permissions.can("create", "resources") && (
-            <New label="Training" to={path.to.newTraining} />
+            <New label={t`Training`} to={path.to.newTraining} />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Training"
+        title={t`Training`}
         table="training"
         withSavedView
       />

@@ -10,6 +10,7 @@ import {
   Textarea,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuSend } from "react-icons/lu";
 import type { ActionFunctionArgs } from "react-router";
@@ -74,6 +75,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function MaintenanceDispatchCommentsRoute() {
+  const { t } = useLingui();
   const { dispatchId } = useParams();
   if (!dispatchId) throw new Error("dispatchId not found");
 
@@ -99,7 +101,9 @@ export default function MaintenanceDispatchCommentsRoute() {
   return (
     <VStack spacing={4}>
       <HStack className="justify-between w-full">
-        <h2 className="text-lg font-semibold">Comments</h2>
+        <h2 className="text-lg font-semibold">
+          <Trans>Comments</Trans>
+        </h2>
       </HStack>
 
       {permissions.can("update", "resources") && (
@@ -107,7 +111,7 @@ export default function MaintenanceDispatchCommentsRoute() {
           <CardContent className="py-4">
             <VStack spacing={2}>
               <Textarea
-                placeholder="Add a comment..."
+                placeholder={t`Add a comment...`}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
@@ -120,7 +124,7 @@ export default function MaintenanceDispatchCommentsRoute() {
                   isDisabled={!comment.trim()}
                   isLoading={fetcher.state !== "idle"}
                 >
-                  Post Comment
+                  <Trans>Post Comment</Trans>
                 </Button>
               </HStack>
             </VStack>
@@ -131,7 +135,7 @@ export default function MaintenanceDispatchCommentsRoute() {
       {comments.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            No comments yet. Be the first to add a comment.
+            <Trans>No comments yet. Be the first to add a comment.</Trans>
           </CardContent>
         </Card>
       ) : (

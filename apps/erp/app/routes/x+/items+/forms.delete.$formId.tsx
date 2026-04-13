@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -64,6 +65,7 @@ export default function DeleteMaterialFormRoute() {
 
   const { materialForm } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!materialForm) return null;
 
@@ -73,7 +75,7 @@ export default function DeleteMaterialFormRoute() {
     <ConfirmDelete
       action={path.to.deleteMaterialForm(formId)}
       name={materialForm.name}
-      text={`Are you sure you want to delete the material form: ${materialForm.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the material form: ${materialForm.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

@@ -13,6 +13,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { Link, redirect, useLoaderData } from "react-router";
 import type { z } from "zod";
@@ -65,6 +66,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function OnboardingUser() {
+  const { t } = useLingui();
   const { user } = useLoaderData<typeof loader>();
   const { next, previous } = useOnboarding();
 
@@ -90,14 +92,16 @@ export default function OnboardingUser() {
         method="post"
       >
         <CardHeader>
-          <CardTitle>Let's setup your account</CardTitle>
+          <CardTitle>
+            <Trans>Let's setup your account</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="next" value={next} />
           <VStack spacing={4}>
-            <Input autoFocus name="firstName" label="First Name" />
-            <Input name="lastName" label="Last Name" />
-            {/* <TextArea name="about" label="About" /> */}
+            <Input autoFocus name="firstName" label={t`First Name`} />
+            <Input name="lastName" label={t`Last Name`} />
+            {/* <TextArea name="about" label={t`About`} /> */}
           </VStack>
         </CardContent>
         <CardFooter>
@@ -110,10 +114,12 @@ export default function OnboardingUser() {
               tabIndex={-1}
             >
               <Link to={previous} prefetch="intent">
-                Previous
+                <Trans>Previous</Trans>
               </Link>
             </Button>
-            <Submit>Next</Submit>
+            <Submit>
+              <Trans>Next</Trans>
+            </Submit>
           </HStack>
         </CardFooter>
       </ValidatedForm>

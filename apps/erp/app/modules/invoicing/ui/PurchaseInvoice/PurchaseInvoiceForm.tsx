@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import { useParams } from "react-router";
@@ -41,6 +42,7 @@ type PurchaseInvoiceFormProps = {
 };
 
 const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const settings = useSettings();
   const { carbon } = useCarbon();
@@ -89,7 +91,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
     } | null
   ) => {
     if (!carbon) {
-      toast.error("Carbon client not found");
+      toast.error(t`Carbon client not found`);
       return;
     }
 
@@ -121,7 +123,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       ]);
 
       if (supplierData.error || paymentTermData.error) {
-        toast.error("Error fetching supplier data");
+        toast.error(t`Error fetching supplier data`);
       } else {
         setInvoiceSupplier((prev) => ({
           ...prev,
@@ -163,8 +165,10 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
           </CardTitle>
           {!isEditing && (
             <CardDescription>
-              A purchase invoice is a document that specifies the products or
-              services purchased by a customer and the corresponding cost.
+              <Trans>
+                A purchase invoice is a document that specifies the products or
+                services purchased by a customer and the corresponding cost.
+              </Trans>
             </CardDescription>
           )}
         </CardHeader>
@@ -183,28 +187,31 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               {!isEditing && (
                 <SequenceOrCustomId
                   name="invoiceId"
-                  label="Invoice ID"
+                  label={t`Invoice ID`}
                   table="purchaseInvoice"
                 />
               )}
               <Supplier
                 name="supplierId"
-                label="Supplier"
+                label={t`Supplier`}
                 onChange={onSupplierChange}
                 onlyApproved={settings?.supplierApproval ?? false}
               />
-              <Input name="supplierReference" label="Supplier Invoice Number" />
+              <Input
+                name="supplierReference"
+                label={t`Supplier Invoice Number`}
+              />
 
               <Supplier
                 name="invoiceSupplierId"
-                label="Invoice Supplier"
+                label={t`Invoice Supplier`}
                 value={invoiceSupplier.id}
                 onChange={onInvoiceSupplierChange}
                 onlyApproved={settings?.supplierApproval ?? false}
               />
               <SupplierLocation
                 name="invoiceSupplierLocationId"
-                label="Invoice Supplier Location"
+                label={t`Invoice Supplier Location`}
                 supplier={supplier.id}
                 value={invoiceSupplier.invoiceSupplierLocationId}
                 onChange={(newValue) => {
@@ -218,7 +225,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               />
               <SupplierContact
                 name="invoiceSupplierContactId"
-                label="Invoice Supplier Contact"
+                label={t`Invoice Supplier Contact`}
                 supplier={supplier.id}
                 value={invoiceSupplier.invoiceSupplierContactId}
                 onChange={(newValue) => {
@@ -231,12 +238,12 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 }}
               />
 
-              <DatePicker name="dateDue" label="Due Date" />
-              <DatePicker name="dateIssued" label="Date Issued" />
+              <DatePicker name="dateDue" label={t`Due Date`} />
+              <DatePicker name="dateIssued" label={t`Date Issued`} />
 
               <PaymentTerm
                 name="paymentTermId"
-                label="Payment Terms"
+                label={t`Payment Terms`}
                 value={invoiceSupplier?.paymentTermId}
                 onChange={(newValue) => {
                   if (newValue?.value) {
@@ -249,7 +256,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               />
               <Currency
                 name="currencyCode"
-                label="Currency"
+                label={t`Currency`}
                 value={invoiceSupplier?.currencyCode}
                 onChange={(newValue) => {
                   if (newValue?.value) {
@@ -260,7 +267,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                   }
                 }}
               />
-              <Location name="locationId" label="Location" />
+              <Location name="locationId" label={t`Location`} />
               <CustomFormFields table="purchaseInvoice" />
             </div>
           </VStack>
@@ -273,7 +280,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 : !permissions.can("create", "invoicing")
             }
           >
-            Save
+            <Trans>Save</Trans>
           </Submit>
         </CardFooter>
       </Card>

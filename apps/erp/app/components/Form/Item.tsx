@@ -26,6 +26,7 @@ import {
   useDisclosure,
   useMount
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LuFilter } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -62,6 +63,26 @@ const ItemPreview = (
   return <span>{item.label}</span>;
 };
 
+const useTranslatedItemType = () => {
+  const { t } = useLingui();
+  return (type: MethodItemType | "Item") => {
+    switch (type) {
+      case "Item":
+        return t`Item`;
+      case "Part":
+        return t`Part`;
+      case "Material":
+        return t`Material`;
+      case "Tool":
+        return t`Tool`;
+      case "Consumable":
+        return t`Consumable`;
+      default:
+        return type;
+    }
+  };
+};
+
 const Item = ({
   name,
   label,
@@ -75,6 +96,8 @@ const Item = ({
   onTypeChange,
   ...props
 }: ItemSelectProps) => {
+  const { t } = useLingui();
+  const translateItemType = useTranslatedItemType();
   const [items] = useItems();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -165,7 +188,7 @@ const Item = ({
             isOptional={isOptional}
             onConfigure={onConfigure}
           >
-            {type === "Item" ? "Item" : type}
+            {translateItemType(type)}
           </FormLabel>
         )}
         <input
@@ -196,7 +219,19 @@ const Item = ({
               onChange(newValue?.replace(/"/g, '\\"') ?? "");
             }}
             isClearable={isOptional && !props.isReadOnly}
-            label={label === "Item" ? "Item" : label}
+            label={
+              label === "Item"
+                ? t`Item`
+                : label === "Part"
+                  ? t`Part`
+                  : label === "Material"
+                    ? t`Material`
+                    : label === "Tool"
+                      ? t`Tool`
+                      : label === "Consumable"
+                        ? t`Consumable`
+                        : undefined
+            }
             itemHeight={44}
             onCreateOption={(option) => {
               if (type === "Item") {
@@ -215,7 +250,7 @@ const Item = ({
                   <DropdownMenuTrigger asChild>
                     <IconButton
                       type="button"
-                      aria-label="Change Type"
+                      aria-label={t`Change Type`}
                       className={cn(
                         "absolute right-0 top-0 bg-card dark:bg-card flex-shrink-0 h-10 w-10 px-3 rounded-l-none before:rounded-l-none border -ml-px shadow-none hover:shadow-button-base"
                       )}
@@ -233,7 +268,9 @@ const Item = ({
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent>
-                  Change the item type (e.g. Part, Material, Tool, etc.)
+                  <Trans>
+                    Change the item type (e.g. Part, Material, Tool, etc.)
+                  </Trans>
                 </TooltipContent>
               </Tooltip>
               <DropdownMenuContent>
@@ -247,7 +284,9 @@ const Item = ({
                     className="flex items-center gap-2"
                   >
                     <LuFilter className="h-4 w-4" />
-                    <span>All Items</span>
+                    <span>
+                      <Trans>All Items</Trans>
+                    </span>
                   </DropdownMenuRadioItem>
                   {Object.values(methodItemType)
                     .filter(
@@ -263,7 +302,7 @@ const Item = ({
                         className="flex items-center gap-2"
                       >
                         <MethodItemTypeIcon type={itemType} />
-                        <span>{itemType}</span>
+                        <span>{translateItemType(itemType)}</span>
                       </DropdownMenuRadioItem>
                     ))}
                 </DropdownMenuRadioGroup>
@@ -288,7 +327,9 @@ const Item = ({
         >
           <ModalContent>
             <ModalHeader>
-              <ModalTitle>Select Item Type</ModalTitle>
+              <ModalTitle>
+                <Trans>Select Item Type</Trans>
+              </ModalTitle>
             </ModalHeader>
             <ModalBody>
               <div className="grid grid-cols-2 gap-4">
@@ -306,7 +347,7 @@ const Item = ({
                       }, 0);
                     }}
                   >
-                    {itemType}
+                    {translateItemType(itemType)}
                   </Button>
                 ))}
               </div>
@@ -318,7 +359,7 @@ const Item = ({
                   selectTypeModal.onClose();
                 }}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 ref={submitRef}
@@ -328,7 +369,7 @@ const Item = ({
                   newItemsModal.onOpen();
                 }}
               >
-                Create
+                <Trans>Create</Trans>
               </Button>
             </ModalFooter>
           </ModalContent>

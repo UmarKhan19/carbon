@@ -1,9 +1,8 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { notifyTask } from "@carbon/jobs/trigger/notify";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { salesRFQStatusType, updateSalesRFQStatus } from "~/modules/sales";
@@ -40,7 +39,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const rfqReadyNotificationGroup =
       companySettings.data.rfqReadyNotificationGroup;
     try {
-      await tasks.trigger<typeof notifyTask>("notify", {
+      await trigger("notify", {
         companyId: companySettings.data.id,
         documentId: id,
         event: NotificationEvent.SalesRfqReady,

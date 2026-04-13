@@ -28,6 +28,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import type { Dispatch, SetStateAction } from "react";
@@ -89,10 +90,8 @@ import type {
   SourcingType
 } from "~/modules/shared";
 import { methodType, sourcingType } from "~/modules/shared";
-
 import type { Item as ItemType } from "~/stores";
 import { useItems } from "~/stores";
-
 import { path } from "~/utils/path";
 import type { methodOperationValidator } from "../../items.models";
 import { methodMaterialValidator } from "../../items.models";
@@ -108,6 +107,7 @@ type Material = z.infer<typeof methodMaterialValidator> & {
   item: {
     name: string;
     itemTrackingType: Database["public"]["Enums"]["itemTrackingType"];
+    replenishmentSystem: string | null;
   };
 };
 
@@ -163,6 +163,7 @@ const BillOfMaterial = ({
   replenishmentSystem
 }: BillOfMaterialProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const isReadOnly =
     permissions.can("update", "parts") === false ||
     makeMethod.status !== "Draft";
@@ -204,7 +205,8 @@ const BillOfMaterial = ({
         description: "",
         item: {
           name: "",
-          itemTrackingType: "Inventory"
+          itemTrackingType: "Inventory",
+          replenishmentSystem: "Buy and Make"
         }
       });
     } else {
@@ -502,7 +504,7 @@ const BillOfMaterial = ({
       <HStack className="justify-between">
         <CardHeader>
           <CardTitle className="flex flex-row items-center gap-2">
-            Bill of Material {isReadOnly && <LuLock />}
+            <Trans>Bill of Material</Trans> {isReadOnly && <LuLock />}
           </CardTitle>
         </CardHeader>
 
@@ -514,12 +516,12 @@ const BillOfMaterial = ({
               isDisabled={isReadOnly}
               onClick={onAddItem}
             >
-              Add Item
+              <Trans>Add Item</Trans>
             </Button>
             {configurable && materials.length > 0 && (
               <IconButton
                 icon={<LuSquareFunction />}
-                aria-label="Configure"
+                aria-label={t`Configure`}
                 variant="ghost"
                 className={cn(
                   rulesByField.has(
@@ -528,7 +530,7 @@ const BillOfMaterial = ({
                 )}
                 onClick={() =>
                   onConfigure({
-                    label: "Bill of Material",
+                    label: t`Bill of Material`,
                     field: `billOfMaterial:${makeMethodId}:${materialId}`,
                     code: rulesByField.get(
                       `billOfMaterial:${makeMethodId}:${materialId}`
@@ -600,6 +602,7 @@ function MaterialForm({
   onConfigure: (configuration: Configuration) => void;
   onSubmit: () => void;
 }) {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const methodMaterialFetcher = useFetcher<{
     id: string;
@@ -655,6 +658,7 @@ function MaterialForm({
     quantity: number;
     kit: boolean;
     shelfIds: Record<string, string>;
+    itemReplenishmentSystem: string;
   }>({
     itemId: item.data.itemId ?? "",
     methodType: item.data.methodType ?? "Pull from Inventory",
@@ -664,7 +668,9 @@ function MaterialForm({
     methodOperationId: item.data.methodOperationId ?? undefined,
     quantity: item.data.quantity ?? 1,
     kit: item.data.kit ?? false,
-    shelfIds: item.data.shelfIds ?? {}
+    shelfIds: item.data.shelfIds ?? {},
+    itemReplenishmentSystem:
+      item.data.item?.replenishmentSystem ?? replenishmentSystem ?? "Buy"
   });
 
   const onTypeChange = (value: MethodItemType | "Item") => {
@@ -680,28 +686,29 @@ function MaterialForm({
       unitOfMeasureCode: "EA",
       kit: false,
       shelfIds: {},
-      methodOperationId: undefined
+      methodOperationId: undefined,
+      itemReplenishmentSystem: replenishmentSystem ?? "Buy"
     });
   };
 
   const onItemChange = async (itemId: string) => {
     if (!carbon) return;
     if (itemId === params.itemId) {
-      toast.error("An item cannot be added to itself.");
+      toast.error(t`An item cannot be added to itself.`);
       return;
     }
 
     const item = await carbon
       .from("item")
       .select(
-        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType"
+        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, replenishmentSystem"
       )
       .eq("id", itemId)
       .eq("companyId", company.id)
       .single();
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -711,7 +718,8 @@ function MaterialForm({
       description: item.data?.name ?? "",
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
       methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
-      kit: false
+      kit: false,
+      itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
     if (item.data?.type) {
       setItemType(item.data.type as MethodItemType);
@@ -762,7 +770,7 @@ function MaterialForm({
             configurable && !temporaryItems[item.id]
               ? () =>
                   onConfigure({
-                    label: "Part",
+                    label: t`Part`,
                     field: key("itemId"),
                     code: rulesByField.get(key("itemId"))?.code,
                     defaultValue: itemData.itemId,
@@ -778,13 +786,13 @@ function MaterialForm({
         />
         <Number
           name="quantity"
-          label="Quantity"
+          label={t`Quantity`}
           isConfigured={rulesByField.has(key("quantity"))}
           onConfigure={
             configurable && !temporaryItems[item.id]
               ? () =>
                   onConfigure({
-                    label: "Quantity",
+                    label: t`Quantity`,
                     field: key("quantity"),
                     code: rulesByField.get(key("quantity"))?.code,
                     defaultValue: itemData.quantity,
@@ -808,7 +816,7 @@ function MaterialForm({
             configurable && !temporaryItems[item.id]
               ? () =>
                   onConfigure({
-                    label: "Unit of Measure",
+                    label: t`Unit of Measure`,
                     field: key("unitOfMeasureCode"),
                     code: rulesByField.get(key("unitOfMeasureCode"))?.code,
                     defaultValue: itemData.unitOfMeasureCode,
@@ -865,7 +873,7 @@ function MaterialForm({
           >
             <Select
               name="sourcingType"
-              label="Sourcing Type"
+              label={t`Sourcing Type`}
               value={itemData.sourcingType}
               options={sourcingType.map((s) => ({
                 value: s,
@@ -916,7 +924,11 @@ function MaterialForm({
           <HStack>
             <Badge variant="secondary">
               <MethodIcon type={itemData.methodType} className="size-3 mr-1" />
-              {itemData.methodType}
+              {itemData.methodType === "Purchase to Order"
+                ? t`Purchase to Order`
+                : itemData.methodType === "Pull from Inventory"
+                  ? t`Pull from Inventory`
+                  : t`Make to Order`}
             </Badge>
             <LuArrowLeft
               className={cn(
@@ -957,7 +969,7 @@ function MaterialForm({
         >
           <DefaultMethodType
             name="methodType"
-            label="Method Type"
+            label={t`Method Type`}
             value={itemData.methodType}
             onChange={(value) => {
               setItemData((d) => ({
@@ -970,7 +982,7 @@ function MaterialForm({
               configurable && !temporaryItems[item.id]
                 ? () =>
                     onConfigure({
-                      label: "Method Type",
+                      label: t`Method Type`,
                       field: key("methodType"),
                       code: rulesByField.get(key("methodType"))?.code,
                       defaultValue: itemData.methodType,
@@ -981,11 +993,11 @@ function MaterialForm({
                     })
                 : undefined
             }
-            replenishmentSystem="Buy and Make"
+            replenishmentSystem={itemData.itemReplenishmentSystem}
           />
           <Location
             name="locationId"
-            label="Location"
+            label={t`Location`}
             value={locationId}
             onChange={(value) => {
               setLocationId(value?.value as string);
@@ -993,7 +1005,7 @@ function MaterialForm({
           />
           <Shelf
             name="shelfId"
-            label="Shelf"
+            label={t`Shelf`}
             value={itemData.shelfIds[locationId ?? ""]}
             locationId={locationId}
             onChange={(value) => {
@@ -1058,7 +1070,7 @@ function MaterialForm({
         >
           <Select
             name="methodOperationId"
-            label="Operation"
+            label={t`Operation`}
             isOptional
             options={methodOperations.map((o) => ({
               value: o.id!,
@@ -1099,7 +1111,7 @@ function MaterialForm({
                   size="sm"
                   rightIcon={<LuChevronDown />}
                 >
-                  {itemData.kit ? "Kit" : "Subassembly"}
+                  {itemData.kit ? t`Kit` : t`Subassembly`}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -1113,9 +1125,11 @@ function MaterialForm({
                   }}
                 >
                   <DropdownMenuRadioItem value="Subassembly">
-                    Subassembly
+                    <Trans>Subassembly</Trans>
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Kit">Kit</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="Kit">
+                    <Trans>Kit</Trans>
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -1128,7 +1142,7 @@ function MaterialForm({
               isDisabled={isReadOnly || methodMaterialFetcher.state !== "idle"}
               isLoading={methodMaterialFetcher.state === "submitting"}
             >
-              Save
+              <Trans>Save</Trans>
             </Submit>
           </div>
         </motion.div>
@@ -1226,7 +1240,15 @@ function makeItem(
               </Badge>
             </TooltipTrigger>
             <TooltipContent>
-              {material.item.itemTrackingType} Tracking
+              {material.item.itemTrackingType === "Inventory" ? (
+                <Trans>Inventory Tracking</Trans>
+              ) : material.item.itemTrackingType === "Non-Inventory" ? (
+                <Trans>Non-Inventory Tracking</Trans>
+              ) : material.item.itemTrackingType === "Serial" ? (
+                <Trans>Serial Tracking</Trans>
+              ) : (
+                <Trans>Batch Tracking</Trans>
+              )}
             </TooltipContent>
           </Tooltip>
         )}
@@ -1237,7 +1259,15 @@ function makeItem(
               <MethodIcon type={material.methodType} isKit={material.kit} />
             </Badge>
           </TooltipTrigger>
-          <TooltipContent>{material.methodType}</TooltipContent>
+          <TooltipContent>
+            {material.methodType === "Purchase to Order" ? (
+              <Trans>Purchase to Order</Trans>
+            ) : material.methodType === "Pull from Inventory" ? (
+              <Trans>Pull from Inventory</Trans>
+            ) : (
+              <Trans>Make to Order</Trans>
+            )}
+          </TooltipContent>
         </Tooltip>
 
         {replenishmentSystem === "Buy and Make" && (
@@ -1259,7 +1289,15 @@ function makeItem(
               <MethodItemTypeIcon type={material.itemType} />
             </Badge>
           </TooltipTrigger>
-          <TooltipContent>{material.itemType}</TooltipContent>
+          <TooltipContent>
+            {material.itemType === "Consumable" ? (
+              <Trans>Consumable</Trans>
+            ) : material.itemType === "Material" ? (
+              <Trans>Material</Trans>
+            ) : (
+              <Trans>Part</Trans>
+            )}
+          </TooltipContent>
         </Tooltip>
       </HStack>
     ),

@@ -57,6 +57,8 @@ export const path = {
       groupsByType: (type?: string) =>
         generatePath(`${api}/users/groups?type=${type}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
+      itemCostRecalculate: (itemId: string) =>
+        generatePath(`${api}/items/${itemId}/recalculate-cost`),
       itemConfigurable: `${api}/items/configurable`,
       itemForecast: (itemId: string, locationId: string) =>
         generatePath(`${api}/items/${itemId}/${locationId}/forecast`),
@@ -433,6 +435,7 @@ export const path = {
     issueActionTasksOrder: `${x}/issue/action-tasks/order`,
     bulkUpdateIssueWorkflow: `${x}/issue-workflow/update`,
     bulkUpdatePurchaseOrder: `${x}/purchase-order/update`,
+    bulkUpdatePurchasingRfq: `${x}/purchasing-rfq/update`,
     bulkUpdatePurchaseInvoice: `${x}/purchase-invoice/update`,
     bulkUpdateQuote: `${x}/quote/update`,
     bulkUpdateQualityDocument: `${x}/quality-document/update`,

@@ -27,6 +27,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -56,6 +57,7 @@ type WebhooksTableProps = {
 };
 
 const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const [params] = useUrlParams();
   const permissions = usePermissions();
@@ -66,7 +68,7 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
     return [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <div className="flex flex-col gap-1 justify-start items-start pb-1">
             <Hyperlink to={row.original.id!}>{row.original.name}</Hyperlink>
@@ -88,7 +90,7 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
       },
       {
         accessorKey: "table",
-        header: "Table",
+        header: t`Table`,
         cell: ({ row }) => (
           <div className="flex flex-col gap-1 justify-start items-start pb-1">
             <Hyperlink
@@ -117,7 +119,7 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
       },
       {
         accessorKey: "successCount",
-        header: "Success",
+        header: t`Success`,
         cell: ({ row }) => (
           <SuccessErrorBar
             successCount={row.original.successCount}
@@ -130,7 +132,7 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -147,14 +149,14 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
         }
       }
     ];
-  }, [people, webhookTables]);
+  }, [people, webhookTables, t]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const renderContextMenu = useCallback(
@@ -167,7 +169,7 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Webhook
+            <Trans>Edit Webhook</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -178,7 +180,7 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Webhook
+            <Trans>Delete Webhook</Trans>
           </MenuItem>
         </>
       );
@@ -203,7 +205,7 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
           <HStack>
             {permissions.can("update", "users") && (
               <New
-                label="Webhook"
+                label={t`Webhook`}
                 to={`${path.to.newWebhook}?${params.toString()}`}
               />
             )}
@@ -212,12 +214,12 @@ const WebhooksTable = memo(({ data, count }: WebhooksTableProps) => {
               variant="secondary"
               onClick={docsDisclosure.onOpen}
             >
-              Webhooks Docs
+              <Trans>Webhooks Docs</Trans>
             </Button>
           </HStack>
         }
         renderContextMenu={renderContextMenu}
-        title="Webhooks"
+        title={t`Webhooks`}
       />
       <Outlet />
       <WebhookDocs
@@ -316,7 +318,9 @@ function WebhookDocs({ open, onClose }: WebhookDocsProps) {
     >
       <DrawerContent size="md">
         <DrawerHeader>
-          <DrawerTitle>Webhook Documentation</DrawerTitle>
+          <DrawerTitle>
+            <Trans>Webhook Documentation</Trans>
+          </DrawerTitle>
         </DrawerHeader>
         <DrawerBody>
           <Tabs defaultValue="INSERT" className="w-full">

@@ -2930,14 +2930,16 @@ export async function insertQuoteLines(
           (component as any).obtain_method === "purchased" ||
           component.type === "purchased" ||
           component.process?.name === "Purchased Components";
-        const rootMethodType = isPurchased ? "Buy" : "Make";
+        const rootMethodType = isPurchased
+          ? "Purchase to Order"
+          : "Make to Order";
 
         // Insert quote line
         const quoteLine: Database["public"]["Tables"]["quoteLine"]["Insert"] = {
           quoteId,
           itemId,
           description: component.description || component.part_name || "",
-          methodType: rootMethodType as "Make to Order" | "Purchase to Order",
+          methodType: rootMethodType,
           quantity: quantities.length > 0 ? quantities : null,
           unitOfMeasureCode: "EA",
           status: "Not Started",
@@ -2995,7 +2997,7 @@ export async function insertQuoteLines(
         }
 
         // For Make items, get the auto-created quoteMakeMethod and add materials/operations
-        if (rootMethodType === "Make") {
+        if (rootMethodType === "Make to Order") {
           const makeMethodResult = await carbon
             .from("quoteMakeMethod")
             .select("id")
@@ -3171,10 +3173,10 @@ export async function insertQuoteLines(
                     const childMethodType =
                       (childComponent as any)?.obtain_method === "purchased" ||
                       (childComponent as any)?.type === "purchased"
-                        ? "Buy"
-                        : "Make";
+                        ? "Purchase to Order"
+                        : "Make to Order";
 
-                    if (childMethodType === "Make") {
+                    if (childMethodType === "Make to Order") {
                       madeChildren.push({
                         childRef,
                         childComponent,

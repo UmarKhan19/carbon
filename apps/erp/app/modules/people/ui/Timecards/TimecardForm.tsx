@@ -17,6 +17,7 @@ import {
   parseAbsolute,
   toCalendarDateTime
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
@@ -30,6 +31,7 @@ type TimecardFormProps = {
 };
 
 const TimecardForm = ({ initialValues }: TimecardFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
@@ -75,36 +77,44 @@ const TimecardForm = ({ initialValues }: TimecardFormProps) => {
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Timecard</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? (
+                <Trans>Edit Timecard</Trans>
+              ) : (
+                <Trans>New Timecard</Trans>
+              )}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack spacing={4}>
               {!isEditing ? (
-                <Employee name="employeeId" label="Employee" />
+                <Employee name="employeeId" label={t`Employee`} />
               ) : (
                 <Hidden name="employeeId" />
               )}
               <DateTimePicker
                 name="clockIn"
-                label="Clock In"
+                label={t`Clock In`}
                 maxValue={clockOut}
                 onChange={setClockIn}
               />
               <DateTimePicker
                 name="clockOut"
-                label="Clock Out"
+                label={t`Clock Out`}
                 minValue={clockIn}
                 onChange={setClockOut}
               />
-              <TextArea name="note" label="Note" />
+              <TextArea name="note" label={t`Note`} />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

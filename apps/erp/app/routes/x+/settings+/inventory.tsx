@@ -15,6 +15,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
@@ -31,7 +33,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Inventory",
+  breadcrumb: msg`Inventory`,
   to: path.to.inventorySettings
 };
 
@@ -129,6 +131,7 @@ const outputLabels: Record<(typeof kanbanOutputTypes)[number], string> = {
 };
 
 export default function InventorySettingsRoute() {
+  const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
@@ -148,7 +151,9 @@ export default function InventorySettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Inventory</Heading>
+        <Heading size="h3">
+          <Trans>Inventory</Trans>
+        </Heading>
         <Card>
           <ValidatedForm
             method="post"
@@ -160,10 +165,12 @@ export default function InventorySettingsRoute() {
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Kanban Output
+                <Trans>Kanban Output</Trans>
               </CardTitle>
               <CardDescription>
-                Style of kanban output to show in the Kanban table
+                <Trans>
+                  Style of kanban output to show in the Kanban table
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -172,7 +179,7 @@ export default function InventorySettingsRoute() {
                 <div className="flex flex-col gap-2">
                   <Select
                     name="kanbanOutput"
-                    label="Output"
+                    label={t`Output`}
                     options={kanbanOutputTypes.map((type) => ({
                       value: type,
                       label: outputLabels[type]
@@ -182,7 +189,9 @@ export default function InventorySettingsRoute() {
               </div>
             </CardContent>
             <CardFooter>
-              <Submit>Save</Submit>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
             </CardFooter>
           </ValidatedForm>
         </Card>

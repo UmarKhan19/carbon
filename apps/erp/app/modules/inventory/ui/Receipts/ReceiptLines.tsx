@@ -36,6 +36,7 @@ import {
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import {
   Suspense,
@@ -225,7 +226,9 @@ const ReceiptLines = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Receipt Lines</CardTitle>
+          <CardTitle>
+            <Trans>Receipt Lines</Trans>
+          </CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -318,6 +321,7 @@ function ReceiptLineItem({
   upload: (files: File[]) => Promise<void>;
   deleteFile: (file: StorageItem) => Promise<void>;
 }) {
+  const { t } = useLingui();
   const [items] = useItems();
   const item = items.find((p) => p.id === line.itemId);
   const unitsOfMeasure = useUnitOfMeasure();
@@ -330,7 +334,7 @@ function ReceiptLineItem({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <IconButton
-              aria-label="Line options"
+              aria-label={t`Line options`}
               variant="secondary"
               icon={<LuEllipsisVertical />}
               size="sm"
@@ -342,7 +346,7 @@ function ReceiptLineItem({
               onClick={splitDisclosure.onOpen}
             >
               <DropdownMenuIcon icon={<LuSplit />} />
-              Split receipt line
+              {t`Split receipt line`}
             </DropdownMenuItem>
             <DropdownMenuItem
               destructive
@@ -350,7 +354,7 @@ function ReceiptLineItem({
               onClick={deleteDisclosure.onOpen}
             >
               <DropdownMenuIcon icon={<LuTrash />} />
-              Delete receipt line
+              {t`Delete receipt line`}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -518,7 +522,7 @@ function ReceiptLineItem({
                           </span>
                           <IconButton
                             icon={<LuX />}
-                            aria-label="Delete file"
+                            aria-label={t`Delete file`}
                             variant="ghost"
                             onClick={() => deleteFile(file)}
                           />
@@ -1070,6 +1074,7 @@ function SplitReceiptLineModal({
   line: ReceiptLine;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<{ success: boolean }>();
   useEffect(() => {
     if (fetcher.data?.success) {
@@ -1107,7 +1112,7 @@ function SplitReceiptLineModal({
             />
             <Number
               name="quantity"
-              label="Quantity"
+              label={t`Quantity`}
               maxValue={line.orderQuantity ?? 0 - 0.0001}
               minValue={0.0001}
             />
@@ -1211,6 +1216,7 @@ const usePendingReceiptLines = () => {
 export default ReceiptLines;
 
 function useReceiptFiles(receiptId: string) {
+  const { t } = useLingui();
   const { company } = useUser();
   const { carbon } = useCarbon();
 
@@ -1228,7 +1234,7 @@ function useReceiptFiles(receiptId: string) {
   const upload = useCallback(
     async (files: File[], lineId: string) => {
       if (!carbon) {
-        toast.error("Carbon client not available");
+        toast.error(t`Carbon client not available`);
         return;
       }
 
@@ -1263,7 +1269,7 @@ function useReceiptFiles(receiptId: string) {
       }
       revalidator.revalidate();
     },
-    [carbon, revalidator, getPath, receiptId, submit]
+    [carbon, revalidator, getPath, receiptId, submit, t]
   );
 
   const deleteFile = useCallback(

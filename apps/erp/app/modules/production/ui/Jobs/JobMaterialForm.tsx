@@ -12,6 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate, useParams } from "react-router";
 import type { z } from "zod";
@@ -46,6 +47,7 @@ const JobMaterialForm = ({
   operations
 }: JobMaterialFormProps) => {
   const fetcher = useFetcher<{ id: string; methodType: MethodType }>();
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const permissions = usePermissions();
   const navigate = useNavigate();
@@ -67,13 +69,15 @@ const JobMaterialForm = ({
     unitCost: number;
     unitOfMeasureCode: string;
     quantity: number;
+    itemReplenishmentSystem: string;
   }>({
     itemId: initialValues.itemId ?? "",
     methodType: initialValues.methodType ?? "Pull from Inventory",
     description: initialValues.description ?? "",
     unitCost: initialValues.unitCost ?? 0,
     unitOfMeasureCode: initialValues.unitOfMeasureCode ?? "EA",
-    quantity: initialValues.quantity ?? 1
+    quantity: initialValues.quantity ?? 1,
+    itemReplenishmentSystem: "Buy"
   });
 
   const onTypeChange = (value: MethodItemType | "Item") => {
@@ -85,7 +89,8 @@ const JobMaterialForm = ({
       quantity: 1,
       description: "",
       unitCost: 0,
-      unitOfMeasureCode: "EA"
+      unitOfMeasureCode: "EA",
+      itemReplenishmentSystem: "Buy"
     });
   };
 
@@ -96,7 +101,7 @@ const JobMaterialForm = ({
       carbon
         .from("item")
         .select(
-          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType"
+          "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, replenishmentSystem"
         )
         .eq("id", itemId)
         .single(),
@@ -104,7 +109,7 @@ const JobMaterialForm = ({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -114,7 +119,8 @@ const JobMaterialForm = ({
       description: item.data?.name ?? "",
       unitCost: itemCost.data?.unitCost ?? 0,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-      methodType: item.data?.defaultMethodType ?? "Purchase to Order"
+      methodType: item.data?.defaultMethodType ?? "Purchase to Order",
+      itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
 
     if (item.data?.type) {
@@ -184,7 +190,7 @@ const JobMaterialForm = ({
               />
               <InputControlled
                 name="description"
-                label="Description"
+                label={t`Description`}
                 value={itemData.description}
                 onChange={(newValue) => {
                   setItemData((d) => ({ ...d, description: newValue }));
@@ -193,7 +199,7 @@ const JobMaterialForm = ({
 
               <Select
                 name="jobOperationId"
-                label="Operation"
+                label={t`Operation`}
                 isClearable
                 options={operations.map((o) => ({
                   value: o.id!,
@@ -203,11 +209,11 @@ const JobMaterialForm = ({
 
               <DefaultMethodType
                 name="methodType"
-                label="Method Type"
+                label={t`Method Type`}
                 value={itemData.methodType}
-                replenishmentSystem="Buy and Make"
+                replenishmentSystem={itemData.itemReplenishmentSystem}
               />
-              <Number name="quantity" label="Quantity per Parent" />
+              <Number name="quantity" label={t`Quantity per Parent`} />
               <UnitOfMeasure
                 name="unitOfMeasureCode"
                 value={itemData.unitOfMeasureCode}
@@ -221,7 +227,7 @@ const JobMaterialForm = ({
               {itemData.methodType !== "Make to Order" && (
                 <NumberControlled
                   name="unitCost"
-                  label="Unit Cost"
+                  label={t`Unit Cost`}
                   value={itemData.unitCost}
                   minValue={0}
                 />

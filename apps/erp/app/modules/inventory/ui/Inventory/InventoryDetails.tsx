@@ -5,6 +5,7 @@ import {
   CardTitle,
   VStack
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import type { ReactNode } from "react";
 import { LuMoveDown, LuMoveUp } from "react-icons/lu";
@@ -48,7 +49,9 @@ const InventoryDetails = ({
       <div className="w-full grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Quantity on Hand</CardTitle>
+            <CardTitle>
+              <Trans>Quantity on Hand</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <h3 className="text-4xl font-medium tracking-tighter">
@@ -58,7 +61,9 @@ const InventoryDetails = ({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Days Remaining</CardTitle>
+            <CardTitle>
+              <Trans>Days Remaining</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <h3 className="text-4xl font-medium tracking-tighter">
@@ -68,7 +73,9 @@ const InventoryDetails = ({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Daily Usage</CardTitle>
+            <CardTitle>
+              <Trans>Daily Usage</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <h3 className="text-4xl font-medium tracking-tighter">
@@ -78,7 +85,9 @@ const InventoryDetails = ({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Quantity on Purchase Order</CardTitle>
+            <CardTitle>
+              <Trans>Quantity on Purchase Order</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-start items-center gap-1">
@@ -91,7 +100,9 @@ const InventoryDetails = ({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Quantity on Sales Order</CardTitle>
+            <CardTitle>
+              <Trans>Quantity on Sales Order</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex justify-start items-center gap-1">
@@ -104,7 +115,9 @@ const InventoryDetails = ({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Quantity on Jobs</CardTitle>
+            <CardTitle>
+              <Trans>Quantity on Jobs</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-start justify-start gap-2">

@@ -81,12 +81,14 @@ Technical highlights:
 - [Radix UI](https://radix-ui.com) - behavior
 - [Supabase](https://supabase.com) - database
 - [Supabase](https://supabase.com) – auth
-- [Upstash](https://upstash.com) - cache
-- [Trigger](https://trigger.dev) - jobs
+- [Redis](https://redis.io) - cache
+- [Inngest](https://inngest.com) - jobs
 - [Resend](https://resend.com) – email
+- [Lingui](https://lingui.dev) - i18n
 - [Novu](https://novu.co) – notifications
 - [Vercel](https://vercel.com) – hosting
 - [Stripe](https://stripe.com) - billing
+
 
 ## Codebase
 
@@ -140,13 +142,11 @@ Make sure that you have [Docker installed](https://docs.docker.com/desktop/insta
 
 In addition you must configure the following external services:
 
-| Service     | Purpose                    | URL                                                                    |
-| ----------- | -------------------------- | ---------------------------------------------------------------------- |
-| Upstash     | Serverless Redis           | [https://console.upstash.com/login](https://console.upstash.com/login) |
-| Trigger.dev | Job runner                 | [https://cloud.trigger.dev/login](https://cloud.trigger.dev/login)     |
-| Posthog     | Product analytics platform | [https://us.posthog.com/signup](https://us.posthog.com/signup)         |
+| Service | Purpose                    | URL                                                            |
+| ------- | -------------------------- | -------------------------------------------------------------- |
+| Posthog | Product analytics platform | [https://us.posthog.com/signup](https://us.posthog.com/signup) |
 
-Each of these services has a free tier which should be plenty to support local development. If you're self hosting, and you don't want to use Upstash or Posthog, it's pretty easy to replace upstash with a redis container in `@carbon/kv` and remove the Posthog analytics.
+Posthog has a free tier which should be plenty to support local development. If you're self hosting and you don't want to use Posthog, it's pretty easy to remove the analytics.
 
 ### Installation
 
@@ -169,27 +169,17 @@ $ cp ./.env.example ./.env
 - `SUPABASE_SERVICE_ROLE_KEY=[service_role key]`
 - `SUPABASE_ANON_KEY=[anon key]`
 
-2. Set up a Redis instance (local or cloud) and add the connection URL:
-
-- `REDIS_URL=[redis://user:password@host:port]`
-
-3. Navigate to the project you created in [https://cloud.trigger.dev](https://cloud.trigger.dev) and copy the following from the `Environments & API Keys` section:
-
-- `TRIGGER_SECRET_KEY=[Private 'dev' API Key, starting 'tr_dev_*']`
-- `TRIGGER_API_URL="https://api.trigger.dev"`
-- `TRIGGER_PROJECT_ID=[Public 'project' key, starting 'proj*]`
-
-4. In Posthog go to [https://[region].posthog.com/project/[project-id]/settings/project-details](https://[region].posthog.com/project/[project-id]/settings/project-details) to find your Project ID and Project API key:
+2. In Posthog go to [https://[region].posthog.com/project/[project-id]/settings/project-details](https://[region].posthog.com/project/[project-id]/settings/project-details) to find your Project ID and Project API key:
 
 - `POSTHOG_API_HOST=[https://[region].posthog.com]`
 - `POSTHOG_PROJECT_PUBLIC_KEY=[Project API Key starting 'phc*']`
 
-5. Add a `STRIPE_SECRET_KEY` from the Stripe admin interface, and then run `npm run -w @carbon/stripe register:stripe` to get a `STRIPE_WEBHOOK_SECRET`
+3. Add a `STRIPE_SECRET_KEY` from the Stripe admin interface, and then run `npm run -w @carbon/stripe register:stripe` to get a `STRIPE_WEBHOOK_SECRET`
 
 - `STRIPE_SECRET_KEY="sk_test_*************"`
 - `STRIPE_WEBHOOK_SECRET="whsec_************"`
 
-6. **Resend** (Email service) - [Create a Resend account](https://resend.com) and configure:
+4. **Resend** (Email service) - [Create a Resend account](https://resend.com) and configure:
 
 - `RESEND_API_KEY="re_**********"`
 - `RESEND_DOMAIN="carbon.ms"` (or your domain, no trailing slashes or protocols)
@@ -197,7 +187,7 @@ $ cp ./.env.example ./.env
 
 Resend is used for transactional emails (user invitations, email verification, onboarding). All three variables are stored in `packages/auth/src/config/env.ts`.
 
-7. **Novu** (In-app notifications) - [Create a Novu account](https://novu.co) and configure:
+5. **Novu** (In-app notifications) - [Create a Novu account](https://novu.co) and configure:
 
 - `NOVU_APPLICATION_ID="********************"` (Client-side, public)
 - `NOVU_SECRET_KEY="********************"` (Server-side secret, backend only)
@@ -210,7 +200,7 @@ npm run novu:sync
 
 This command syncs your Novu workflows with the Carbon application using the bridge URL.
 
-8. Signing in requires you to setup one of two methods:
+6. Signing in requires you to setup one of two methods:
    - Email requires a Resend API key (configured in step 6 above)
    - Sign-in with Google requires a [Google auth client](https://supabase.com/docs/guides/auth/social-login/auth-google) with these variables:
      - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID="******.apps.googleusercontent.com"`
@@ -232,13 +222,13 @@ $ npm run dev:mes        # npm run dev in all apps & packages
 ```
 
 After installation you should be able run the apps locally.
-
 | Application     | URL                                                                                                                |
 | --------------- | ------------------------------------------------------------------------------------------------------------------ |
 | ERP             | [http://localhost:3000](http://localhost:3000)                                                                     |
 | MES             | [http://localhost:3001](http://localhost:3001)                                                                     |
 | Academy         | [http://localhost:4111](http://localhost:4111)                                                                     |
 | Starter         | [http://localhost:4000](http://localhost:4000)                                                                     |
+| Background Jobs | [http://localhost:8288](http://localhost:8288)                                                                     |
 | Postgres        | [postgresql://postgres:postgres@localhost:54322/postgres](postgresql://postgres:postgres@localhost:54322/postgres) |
 | Supabase Studio | [http://localhost:54323/project/default](http://localhost:54323/project/default)                                   |
 | Mailpit         | [http://localhost:54324](http://localhost:54324)                                                                   |
@@ -383,3 +373,32 @@ const { data, error } = await carbon
   .select("*")
   .eq("companyId", companyId);
 ```
+
+
+## Translations
+
+In order to run `npm run translate` you must first run:
+
+```bash
+brew install ollama
+brew services start ollama
+ollama pull llama3.2
+curl http://localhost:11434/api/tags
+npx linguito config set \
+  llmSettings.provider=ollama \
+  llmSettings.url=http://127.0.0.1:11434/api
+```
+## Migration Notes
+
+### Trigger.dev to Inngest
+
+Background jobs have been migrated from [Trigger.dev](https://trigger.dev) to [Inngest](https://inngest.com). Key changes:
+
+- **Job definitions** moved from `packages/jobs/trigger/` to `packages/jobs/src/inngest/functions/`
+- **Triggering jobs** from app code uses `trigger()` and `batchTrigger()` from `@carbon/jobs` instead of `tasks.trigger()` from `@trigger.dev/sdk`
+- **Inngest dev server** runs via `npx inngest-cli@latest dev -u http://localhost:3000/api/inngest`
+- **Environment variables**: `TRIGGER_SECRET_KEY`, `TRIGGER_API_URL`, and `TRIGGER_PROJECT_ID` are no longer needed. Set `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` instead (not required for local dev).
+
+### Upstash to Local Redis
+
+The caching layer (`@carbon/kv`) no longer depends on Upstash. A standard Redis instance is used instead. The `REDIS_URL` environment variable still applies, but you can point it at any Redis-compatible server (including a local Docker container).

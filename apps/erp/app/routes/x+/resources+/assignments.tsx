@@ -9,6 +9,8 @@ import {
   MenuItem,
   VStack
 } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
 import {
@@ -42,7 +44,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Assignments",
+  breadcrumb: msg`Assignments`,
   to: path.to.trainingAssignments
 };
 
@@ -93,13 +95,14 @@ const TrainingAssignmentsTable = memo(
     data: TrainingAssignmentSummaryItem[];
     assignmentsByTraining: Record<string, string[]>;
   }) => {
+    const { t } = useLingui();
     const permissions = usePermissions();
     const fetcher = useFetcher();
     const columns = useMemo<ColumnDef<TrainingAssignmentSummaryItem>[]>(
       () => [
         {
           accessorKey: "trainingName",
-          header: "Training",
+          header: t`Training`,
           cell: ({ row }) => (
             <Hyperlink
               to={path.to.trainingAssignmentDetail(row.original.trainingId)}
@@ -113,7 +116,7 @@ const TrainingAssignmentsTable = memo(
         },
         {
           accessorKey: "frequency",
-          header: "Frequency",
+          header: t`Frequency`,
           cell: ({ row }) => (
             <Badge variant="secondary">{row.original.frequency}</Badge>
           ),
@@ -123,7 +126,7 @@ const TrainingAssignmentsTable = memo(
         },
         {
           accessorKey: "currentPeriod",
-          header: "Period",
+          header: t`Period`,
           cell: ({ row }) => row.original.currentPeriod ?? "-",
           meta: {
             icon: <LuClock />
@@ -131,7 +134,7 @@ const TrainingAssignmentsTable = memo(
         },
         {
           accessorKey: "totalAssigned",
-          header: "Assigned",
+          header: t`Assigned`,
           cell: ({ row }) => (
             <HStack spacing={2}>
               <LuUsers />
@@ -146,7 +149,7 @@ const TrainingAssignmentsTable = memo(
         },
         {
           accessorKey: "completed",
-          header: "Completed",
+          header: t`Completed`,
           cell: ({ row }) => (
             <HStack spacing={2}>
               <LuCircleCheck className="text-emerald-500" />
@@ -161,7 +164,7 @@ const TrainingAssignmentsTable = memo(
         },
         {
           accessorKey: "pending",
-          header: "Pending",
+          header: t`Pending`,
           cell: ({ row }) => (
             <HStack spacing={2}>
               <LuClock className="text-yellow-500" />
@@ -176,7 +179,7 @@ const TrainingAssignmentsTable = memo(
         },
         {
           accessorKey: "overdue",
-          header: "Overdue",
+          header: t`Overdue`,
           cell: ({ row }) => (
             <HStack spacing={2}>
               <LuTriangleAlert className="text-red-500" />
@@ -191,7 +194,7 @@ const TrainingAssignmentsTable = memo(
         },
         {
           accessorKey: "completionPercent",
-          header: "Progress",
+          header: t`Progress`,
           cell: ({ row }) => (
             <BarProgress
               progress={row.original.completionPercent}
@@ -203,7 +206,7 @@ const TrainingAssignmentsTable = memo(
           }
         }
       ],
-      []
+      [t]
     );
 
     const renderContextMenu = useMemo(() => {
@@ -220,14 +223,14 @@ const TrainingAssignmentsTable = memo(
             <MenuItem asChild>
               <Link to={path.to.trainingAssignmentDetail(row.trainingId)}>
                 <MenuIcon icon={<LuEye />} />
-                View Status
+                <Trans>View Status</Trans>
               </Link>
             </MenuItem>
             {permissions.can("update", "resources") && (
               <MenuItem asChild>
                 <Link to={path.to.trainingAssignment(assignmentId)}>
                   <MenuIcon icon={<LuPencil />} />
-                  Edit Assignment
+                  <Trans>Edit Assignment</Trans>
                 </Link>
               </MenuItem>
             )}
@@ -241,7 +244,7 @@ const TrainingAssignmentsTable = memo(
                 }}
               >
                 <MenuIcon icon={<LuTrash />} />
-                Delete Assignment
+                <Trans>Delete Assignment</Trans>
               </MenuItem>
             )}
           </>
@@ -256,10 +259,10 @@ const TrainingAssignmentsTable = memo(
         count={data.length}
         primaryAction={
           permissions.can("create", "resources") && (
-            <New label="Assignment" to={path.to.newTrainingAssignment} />
+            <New label={t`Assignment`} to={path.to.newTrainingAssignment} />
           )
         }
-        title="Training Assignments"
+        title={t`Training Assignments`}
         table="trainingAssignmentSummary"
         renderContextMenu={renderContextMenu}
       />

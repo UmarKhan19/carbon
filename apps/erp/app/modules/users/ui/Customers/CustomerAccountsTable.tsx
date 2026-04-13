@@ -7,6 +7,7 @@ import {
   MenuItem,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -44,6 +45,7 @@ const defaultColumnVisibility = {
 
 const CustomerAccountsTable = memo(
   ({ data, count, customerTypes }: CustomerAccountsTableProps) => {
+    const { t } = useLingui();
     const permissions = usePermissions();
     const [params] = useUrlParams();
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -76,7 +78,7 @@ const CustomerAccountsTable = memo(
     const columns = useMemo<ColumnDef<(typeof rows)[number]>[]>(() => {
       return [
         {
-          header: "User",
+          header: t`User`,
           cell: ({ row }) => (
             <HStack>
               <Avatar
@@ -101,7 +103,7 @@ const CustomerAccountsTable = memo(
 
         {
           accessorKey: "user.firstName",
-          header: "First Name",
+          header: t`First Name`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuUserCheck />
@@ -109,7 +111,7 @@ const CustomerAccountsTable = memo(
         },
         {
           accessorKey: "user.lastName",
-          header: "Last Name",
+          header: t`Last Name`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuUserCheck />
@@ -117,7 +119,7 @@ const CustomerAccountsTable = memo(
         },
         {
           accessorKey: "user.email",
-          header: "Email",
+          header: t`Email`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuMail />
@@ -125,7 +127,7 @@ const CustomerAccountsTable = memo(
         },
         {
           accessorKey: "customer.name",
-          header: "Customer",
+          header: t`Customer`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuSquareUser />,
@@ -140,7 +142,7 @@ const CustomerAccountsTable = memo(
         },
         {
           accessorKey: "customer.customerTypeId",
-          header: "Customer Type",
+          header: t`Customer Type`,
           cell: ({ row }) => (
             // @ts-ignore
             <Enumerable value={row.original.customer?.customerType?.name} />
@@ -158,7 +160,7 @@ const CustomerAccountsTable = memo(
         },
         {
           accessorKey: "active",
-          header: "Active",
+          header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
           meta: {
             icon: <LuUserCheck />,
@@ -167,18 +169,18 @@ const CustomerAccountsTable = memo(
               options: [
                 {
                   value: "true",
-                  label: "Active"
+                  label: t`Active`
                 },
                 {
                   value: "false",
-                  label: "Inactive"
+                  label: t`Inactive`
                 }
               ]
             }
           }
         }
       ];
-    }, [customerTypes, customers]);
+    }, [customerTypes, customers, t]);
 
     const renderActions = useCallback(
       (selectedRows: typeof data) => {
@@ -199,7 +201,9 @@ const CustomerAccountsTable = memo(
               }
             >
               <LuMailCheck className="mr-2 h-4 w-4" />
-              <span>Resend Invite</span>
+              <span>
+                <Trans>Resend Invite</Trans>
+              </span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -216,7 +220,9 @@ const CustomerAccountsTable = memo(
               }
             >
               <LuBan className="mr-2 h-4 w-4" />
-              <span>Deactivate Users</span>
+              <span>
+                <Trans>Deactivate Users</Trans>
+              </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         );
@@ -238,7 +244,7 @@ const CustomerAccountsTable = memo(
                   className="text-red-500 hover:text-red-500"
                 >
                   <MenuIcon icon={<LuBan />} />
-                  Deactivate Account
+                  <Trans>Deactivate Account</Trans>
                 </MenuItem>
               </>
             ) : (
@@ -250,7 +256,7 @@ const CustomerAccountsTable = memo(
                   }}
                 >
                   <MenuIcon icon={<LuMailCheck />} />
-                  Resend Account Invite
+                  <Trans>Resend Account Invite</Trans>
                 </MenuItem>
                 {permissions.can("delete", "users") && (
                   <MenuItem
@@ -261,7 +267,7 @@ const CustomerAccountsTable = memo(
                     destructive
                   >
                     <MenuIcon icon={<LuBan />} />
-                    Revoke Invite
+                    <Trans>Revoke Invite</Trans>
                   </MenuItem>
                 )}
               </>
@@ -286,12 +292,12 @@ const CustomerAccountsTable = memo(
           defaultColumnVisibility={defaultColumnVisibility}
           primaryAction={
             permissions.can("create", "users") && (
-              <New label="Customer" to={`new?${params.toString()}`} />
+              <New label={t`Customer`} to={`new?${params.toString()}`} />
             )
           }
           renderActions={renderActions}
           renderContextMenu={renderContextMenu}
-          title="Customer Accounts"
+          title={t`Customer Accounts`}
           withSelectableRows={canEdit}
         />
 

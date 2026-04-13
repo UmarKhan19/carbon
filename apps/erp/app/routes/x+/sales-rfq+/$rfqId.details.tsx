@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner, VStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
 import { Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -100,6 +101,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function SalesRFQDetailsRoute() {
+  const { t } = useLingui();
   const { internalNotes, externalNotes } = useLoaderData<typeof loader>();
   const { rfqId } = useParams();
   if (!rfqId) throw new Error("Could not find rfqId");
@@ -125,7 +127,7 @@ export default function SalesRFQDetailsRoute() {
         key={`notes-${rfqId}`}
         id={rfqData.rfqSummary.id}
         table="salesRfq"
-        title="Notes"
+        title={t`Notes`}
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />

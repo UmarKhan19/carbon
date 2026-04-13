@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -34,6 +35,7 @@ const IssueTypeForm = ({
   type = "drawer",
   onClose
 }: IssueTypeFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -42,13 +44,13 @@ const IssueTypeForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created non conformance type`);
+      toast.success(t`Created non conformance type`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
         `Failed to create non conformance type: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -78,22 +80,26 @@ const IssueTypeForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Non Conformance Type
+                {isEditing
+                  ? t`Edit Non Conformance Type`
+                  : t`New Non Conformance Type`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Non Conformance Type" />
+                <Input name="name" label={t`Non Conformance Type`} />
                 <CustomFormFields table="nonConformanceType" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

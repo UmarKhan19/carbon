@@ -21,6 +21,7 @@ import {
   ToggleGroupItem,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { memo, useMemo, useState } from "react";
 import {
   LuCalendar,
@@ -149,7 +150,7 @@ function AssignmentListItem({
                 isLoading={isSubmitting}
                 leftIcon={<LuCircleCheck />}
               >
-                Mark Complete
+                <Trans>Mark Complete</Trans>
               </Button>
             </fetcher.Form>
           )}
@@ -167,6 +168,7 @@ const StatusList = memo(
     data: TrainingAssignmentStatusItem[];
     currentPeriod: string | null;
   }) => {
+    const { t } = useLingui();
     const permissions = usePermissions();
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
@@ -201,7 +203,7 @@ const StatusList = memo(
           <div className="relative">
             <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search employees..."
+              placeholder={t`Search employees...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
@@ -280,14 +282,16 @@ const StatusList = memo(
                 spacing={2}
                 className="w-full items-center justify-center"
               >
-                <Empty>No employees found</Empty>
+                <Empty>
+                  <Trans>No employees found</Trans>
+                </Empty>
                 {search && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSearch("")}
                   >
-                    Clear search
+                    <Trans>Clear search</Trans>
                   </Button>
                 )}
               </VStack>
@@ -352,15 +356,23 @@ const TrainingAssignmentForm = ({
                 <HStack className="w-full justify-between pr-8">
                   <VStack>
                     <ModalDrawerTitle>
-                      {isEditing ? "Edit Assignment" : "New Assignment"}
+                      {isEditing ? (
+                        <Trans>Edit Assignment</Trans>
+                      ) : (
+                        <Trans>New Assignment</Trans>
+                      )}
                     </ModalDrawerTitle>
                   </VStack>
 
                   {isEditing && (
                     <div>
                       <TabsList>
-                        <TabsTrigger value="details">Details</TabsTrigger>
-                        <TabsTrigger value="status">Status</TabsTrigger>
+                        <TabsTrigger value="details">
+                          <Trans>Details</Trans>
+                        </TabsTrigger>
+                        <TabsTrigger value="status">
+                          <Trans>Status</Trans>
+                        </TabsTrigger>
                       </TabsList>
                     </div>
                   )}
@@ -388,7 +400,9 @@ const TrainingAssignmentForm = ({
                         />
                       ) : (
                         <div className="py-8 text-center text-muted-foreground">
-                          No employees assigned yet. Add groups to see status.
+                          <Trans>
+                            No employees assigned yet. Add groups to see status.
+                          </Trans>
                         </div>
                       )}
                     </TabsContent>
@@ -406,10 +420,10 @@ const TrainingAssignmentForm = ({
                     isLoading={fetcher.state !== "idle"}
                     isDisabled={fetcher.state !== "idle" || isDisabled}
                   >
-                    Save
+                    <Trans>Save</Trans>
                   </Submit>
                   <Button size="md" variant="solid" onClick={onClose}>
-                    Cancel
+                    <Trans>Cancel</Trans>
                   </Button>
                 </HStack>
               </ModalDrawerFooter>
@@ -428,11 +442,12 @@ function AssignmentFormContent({
   trainings: TrainingListItem[];
   isEditing: boolean;
 }) {
+  const { t } = useLingui();
   return (
     <VStack spacing={4}>
       <Select
         name="trainingId"
-        label="Training"
+        label={t`Training`}
         isReadOnly={isEditing}
         options={trainings.map((training) => ({
           label: training.name ?? "",
@@ -441,9 +456,9 @@ function AssignmentFormContent({
       />
       <Users
         name="groupIds"
-        label="Assign to Groups"
+        label={t`Assign to Groups`}
         type="employee"
-        helperText="Select the groups that should complete this training"
+        helperText={t`Select the groups that should complete this training`}
       />
     </VStack>
   );

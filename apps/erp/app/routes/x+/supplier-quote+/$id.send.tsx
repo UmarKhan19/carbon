@@ -2,8 +2,7 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
@@ -186,7 +185,7 @@ export async function action(args: ActionFunctionArgs) {
         },\n\nPlease provide pricing and lead time(s) for the linked quote:`;
         const emailSignature = `Thanks,\n${user.data.firstName} ${user.data.lastName}\n${company.data.name}`;
 
-        await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
+        await trigger("send-email-resend", {
           to: [user.data.email, supplierContact.data.contact?.email ?? ""],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: user.data.email,

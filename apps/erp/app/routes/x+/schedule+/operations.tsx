@@ -26,6 +26,8 @@ import {
   parseAbsolute,
   toZoned
 } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuCirclePlus, LuSettings2, LuTriangleAlert } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
@@ -59,7 +61,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Schedule",
+  breadcrumb: msg`Schedule`,
   to: path.to.scheduleOperation,
   module: "schedule"
 };
@@ -321,6 +323,7 @@ const defaultDisplaySettings: DisplaySettings = {
 
 const DISPLAY_SETTINGS_KEY = "kanban-schedule-display-settings";
 function KanbanSchedule() {
+  const { t } = useLingui();
   const {
     columns,
     items: initialItems,
@@ -436,7 +439,7 @@ function KanbanSchedule() {
           <Popover>
             <PopoverTrigger asChild>
               <IconButton
-                aria-label="Settings"
+                aria-label={t`Settings`}
                 icon={<LuSettings2 />}
                 variant="secondary"
                 className="border-dashed border-border"
@@ -445,7 +448,7 @@ function KanbanSchedule() {
             <PopoverContent className="w-64">
               <VStack spacing={3}>
                 <span className="text-xs font-medium text-muted-foreground">
-                  Location
+                  <Trans>Location</Trans>
                 </span>
                 <div className="w-full">
                   <Combobox
@@ -461,18 +464,18 @@ function KanbanSchedule() {
                 </div>
                 <Separator />
                 <span className="text-xs font-medium text-muted-foreground">
-                  Display Settings
+                  <Trans>Display Settings</Trans>
                 </span>
                 <VStack>
                   {[
-                    { key: "showCustomer", label: "Customer" },
-                    { key: "showDueDate", label: "Due Date" },
-                    { key: "showDuration", label: "Duration" },
-                    { key: "showProgress", label: "Progress" },
-                    { key: "showQuantity", label: "Quantity" },
-                    { key: "showStatus", label: "Status" },
-                    { key: "showSalesOrder", label: "Sales Order" },
-                    { key: "showThumbnail", label: "Thumbnail" }
+                    { key: "showCustomer", label: t`Customer` },
+                    { key: "showDueDate", label: t`Due Date` },
+                    { key: "showDuration", label: t`Duration` },
+                    { key: "showProgress", label: t`Progress` },
+                    { key: "showQuantity", label: t`Quantity` },
+                    { key: "showStatus", label: t`Status` },
+                    { key: "showSalesOrder", label: t`Sales Order` },
+                    { key: "showThumbnail", label: t`Thumbnail` }
                   ].map(({ key, label }) => (
                     <Switch
                       key={key}
@@ -527,9 +530,11 @@ function KanbanSchedule() {
                 <LuTriangleAlert className="h-6 w-6" />
               </div>
               <span className="text-xs font-mono font-light text-foreground uppercase">
-                No results
+                <Trans>No results</Trans>
               </span>
-              <Button onClick={clearFilters}>Clear Filters</Button>
+              <Button onClick={clearFilters}>
+                <Trans>Clear Filters</Trans>
+              </Button>
             </div>
           ) : (
             <div className="flex flex-col w-full h-full items-center justify-center gap-4">
@@ -537,10 +542,12 @@ function KanbanSchedule() {
                 <LuTriangleAlert className="h-6 w-6" />
               </div>
               <span className="text-xs font-mono font-light text-foreground uppercase">
-                No work centers exist
+                <Trans>No work centers exist</Trans>
               </span>
               <Button leftIcon={<LuCirclePlus />} asChild>
-                <Link to={path.to.newWorkCenter}>Create Work Center</Link>
+                <Link to={path.to.newWorkCenter}>
+                  <Trans>Create Work Center</Trans>
+                </Link>
               </Button>
             </div>
           )}

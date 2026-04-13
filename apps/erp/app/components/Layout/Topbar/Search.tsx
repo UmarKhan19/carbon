@@ -15,6 +15,7 @@ import {
   useShortcutKeys,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import idb from "localforage";
 import { nanoid } from "nanoid";
 import { memo, useEffect, useState } from "react";
@@ -74,6 +75,7 @@ const shortcut: ShortcutDefinition = {
 };
 
 const SearchModal = () => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const fetcher = useFetcher<SearchResponse>();
   const { isSearchModalOpen, closeSearchModal } = useUIStore();
@@ -197,7 +199,7 @@ const SearchModal = () => {
           {/* Search Input */}
 
           <CommandInput
-            placeholder="Search across your workspace..."
+            placeholder={t`Search across your workspace...`}
             value={input}
             onValueChange={onInputChange}
             className="h-14 text-base"
@@ -218,7 +220,7 @@ const SearchModal = () => {
                       heading={
                         <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                           <LuClock className="w-3 h-3" />
-                          Recent
+                          <Trans>Recent</Trans>
                         </span>
                       }
                       key="recent"
@@ -280,7 +282,7 @@ const SearchModal = () => {
                   <CommandGroup
                     heading={
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Results
+                        <Trans>Results</Trans>
                       </span>
                     }
                     key="search"
@@ -376,21 +378,21 @@ const SearchModal = () => {
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">
-                  ↑↓
+                  Up/Down
                 </kbd>
-                Navigate
+                <Trans>Navigate</Trans>
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">
-                  ↵
+                  Enter
                 </kbd>
-                Select
+                <Trans>Select</Trans>
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-1.5 py-0.5 rounded bg-muted font-mono text-[10px]">
-                  esc
+                  Esc
                 </kbd>
-                Close
+                <Trans>Close</Trans>
               </span>
             </div>
           </div>
@@ -453,7 +455,9 @@ const SearchButton = () => {
         onClick={openSearchModal}
       >
         <HStack className="w-full">
-          <div className="flex flex-grow">Search</div>
+          <div className="flex flex-grow">
+            <Trans>Search</Trans>
+          </div>
           <ShortcutKey
             variant="small"
             shortcut={shortcut}

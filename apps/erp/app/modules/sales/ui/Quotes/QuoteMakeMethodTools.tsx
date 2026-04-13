@@ -29,6 +29,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuChevronRight,
@@ -59,6 +60,7 @@ import type { Quotation, QuotationLine, QuoteMethod } from "../../types";
 import { QuoteLineMethodForm } from "./QuoteLineMethodForm";
 
 const QuoteMakeMethodTools = () => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { quoteId, lineId, methodId } = useParams();
   if (!quoteId) throw new Error("quoteId not found");
@@ -290,9 +292,13 @@ const QuoteMakeMethodTools = () => {
               onSubmit={getMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Get Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Get Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
-                  Overwrite the quote method with the source method
+                  <Trans>
+                    Overwrite the quote method with the source method
+                  </Trans>
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
@@ -315,13 +321,15 @@ const QuoteMakeMethodTools = () => {
                           <Alert variant="destructive">
                             <LuTriangleAlert className="h-4 w-4" />
                             <AlertTitle>
-                              This will overwrite the existing quote method
+                              <Trans>
+                                This will overwrite the existing quote method
+                              </Trans>
                             </AlertTitle>
                           </Alert>
                         )}
                         <Item
                           name="sourceId"
-                          label="Source Method"
+                          label={t`Source Method`}
                           type={(line?.itemType ?? "Part") as "Part"}
                           blacklist={configurableItemIds}
                           includeInactive={includeInactive === true}
@@ -359,13 +367,15 @@ const QuoteMakeMethodTools = () => {
                         <Alert variant="destructive">
                           <LuTriangleAlert className="h-4 w-4" />
                           <AlertTitle>
-                            This will overwrite the existing quote method
+                            <Trans>
+                              This will overwrite the existing quote method
+                            </Trans>
                           </AlertTitle>
                         </Alert>
                       )}
                       <Item
                         name="sourceId"
-                        label="Source Method"
+                        label={t`Source Method`}
                         type={(line?.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
@@ -392,13 +402,13 @@ const QuoteMakeMethodTools = () => {
               </ModalBody>
               <ModalFooter>
                 <Button onClick={getMethodModal.onClose} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   isDisabled={!hasMethodParts}
                   variant={hasMethods ? "destructive" : "primary"}
                 >
-                  Confirm
+                  <Trans>Confirm</Trans>
                 </Submit>
               </ModalFooter>
             </ValidatedForm>
@@ -432,10 +442,14 @@ const QuoteMakeMethodTools = () => {
               onSubmit={saveMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Save Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Save Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
-                  Overwrite the target manufacturing method with the quote
-                  method
+                  <Trans>
+                    Overwrite the target manufacturing method with the quote
+                    method
+                  </Trans>
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
@@ -455,13 +469,15 @@ const QuoteMakeMethodTools = () => {
                   <Alert variant="destructive">
                     <LuTriangleAlert className="h-4 w-4" />
                     <AlertTitle>
-                      This will overwrite the existing manufacturing method and
-                      the latest versions of all subassemblies.
+                      <Trans>
+                        This will overwrite the existing manufacturing method
+                        and the latest versions of all subassemblies.
+                      </Trans>
                     </AlertTitle>
                   </Alert>
                   <Item
                     name="itemId"
-                    label="Target Method"
+                    label={t`Target Method`}
                     type={(line?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
                     onChange={(value) => {
@@ -478,7 +494,7 @@ const QuoteMakeMethodTools = () => {
                   <SelectControlled
                     name="targetId"
                     options={makeMethods}
-                    label="Version"
+                    label={t`Version`}
                     value={selectedMakeMethod ?? undefined}
                     onChange={(value) => {
                       if (value) {
@@ -506,13 +522,13 @@ const QuoteMakeMethodTools = () => {
               </ModalBody>
               <ModalFooter>
                 <Button onClick={saveMethodModal.onClose} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   isDisabled={!selectedMakeMethod || !hasMethodParts}
                   variant={hasMethods ? "destructive" : "primary"}
                 >
-                  Confirm
+                  <Trans>Confirm</Trans>
                 </Submit>
               </ModalFooter>
             </ValidatedForm>
@@ -531,13 +547,17 @@ const QuoteMakeMethodTools = () => {
           <ModalContent>
             <ValidatedForm validator={getMethodValidator}>
               <ModalHeader>
-                <ModalTitle>Configure Item</ModalTitle>
-                <ModalDescription>Select an item to configure</ModalDescription>
+                <ModalTitle>
+                  <Trans>Configure Item</Trans>
+                </ModalTitle>
+                <ModalDescription>
+                  <Trans>Select an item to configure</Trans>
+                </ModalDescription>
               </ModalHeader>
               <ModalBody>
                 <Item
                   name="sourceId"
-                  label="Item"
+                  label={t`Item`}
                   type={(line?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}
@@ -554,7 +574,7 @@ const QuoteMakeMethodTools = () => {
                   onClick={configureSelectModal.onClose}
                   variant="secondary"
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </ModalFooter>
             </ValidatedForm>

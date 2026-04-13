@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { BsPeopleFill } from "react-icons/bs";
@@ -17,6 +18,7 @@ type CustomerTypesTableProps = {
 };
 
 const CustomerTypesTable = memo(({ data, count }: CustomerTypesTableProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -26,7 +28,7 @@ const CustomerTypesTable = memo(({ data, count }: CustomerTypesTableProps) => {
     const defaultColumns: ColumnDef<(typeof data)[number]>[] = [
       {
         accessorKey: "name",
-        header: "Customer Type",
+        header: t`Customer Type`,
         cell: ({ row }) => (
           <Enumerable
             value={row.original.name}
@@ -40,7 +42,7 @@ const CustomerTypesTable = memo(({ data, count }: CustomerTypesTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [navigate, customColumns]);
+  }, [navigate, customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: (typeof data)[number]) => {
@@ -52,7 +54,7 @@ const CustomerTypesTable = memo(({ data, count }: CustomerTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<BsPeopleFill />} />
-            View Customers
+            <Trans>View Customers</Trans>
           </MenuItem>
           <MenuItem
             disabled={row.protected || !permissions.can("update", "sales")}
@@ -61,7 +63,7 @@ const CustomerTypesTable = memo(({ data, count }: CustomerTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Customer Type
+            <Trans>Edit Customer Type</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -73,7 +75,7 @@ const CustomerTypesTable = memo(({ data, count }: CustomerTypesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Customer Type
+            <Trans>Delete Customer Type</Trans>
           </MenuItem>
         </>
       );
@@ -89,13 +91,13 @@ const CustomerTypesTable = memo(({ data, count }: CustomerTypesTableProps) => {
       primaryAction={
         permissions.can("create", "sales") && (
           <New
-            label="Customer Types"
+            label={t`Customer Types`}
             to={`${path.to.newCustomerType}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Customer Types"
+      title={t`Customer Types`}
     />
   );
 });

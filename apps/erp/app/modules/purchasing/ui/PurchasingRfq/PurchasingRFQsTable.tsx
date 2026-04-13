@@ -1,5 +1,6 @@
 import { HStack, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
 import {
@@ -31,6 +32,7 @@ type PurchasingRFQsTableProps = {
 
 const PurchasingRFQsTable = memo(
   ({ data, count }: PurchasingRFQsTableProps) => {
+    const { t } = useLingui();
     const permissions = usePermissions();
     const navigate = useNavigate();
     const [suppliers] = useSuppliers();
@@ -47,7 +49,7 @@ const PurchasingRFQsTable = memo(
       const defaultColumns: ColumnDef<PurchasingRFQ>[] = [
         {
           accessorKey: "rfqId",
-          header: "RFQ Number",
+          header: t`RFQ Number`,
           cell: ({ row }) => (
             <HStack>
               <Hyperlink to={path.to.purchasingRfqDetails(row.original.id!)}>
@@ -61,7 +63,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           accessorKey: "supplierIds",
-          header: "Suppliers",
+          header: t`Suppliers`,
           cell: ({ row }) => {
             return (
               <div className="flex items-center gap-1">
@@ -97,7 +99,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           accessorKey: "status",
-          header: "Status",
+          header: t`Status`,
           cell: (item) => {
             const status =
               item.getValue<(typeof purchasingRfqStatusType)[number]>();
@@ -111,13 +113,13 @@ const PurchasingRFQsTable = memo(
                 label: <PurchasingRFQStatus status={status} />
               }))
             },
-            pluralHeader: "Statuses",
+            pluralHeader: t`Statuses`,
             icon: <LuStar />
           }
         },
         {
           accessorKey: "rfqDate",
-          header: "RFQ Date",
+          header: t`RFQ Date`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -125,7 +127,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           accessorKey: "expirationDate",
-          header: "Due Date",
+          header: t`Due Date`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -133,7 +135,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           id: "assignee",
-          header: "Assignee",
+          header: t`Assignee`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.assignee} />
           ),
@@ -150,7 +152,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -167,7 +169,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           accessorKey: "locationName",
-          header: "Location",
+          header: t`Location`,
           cell: (item) => <Enumerable value={item.getValue<string>()} />,
           meta: {
             filter: {
@@ -184,7 +186,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -192,7 +194,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -209,7 +211,7 @@ const PurchasingRFQsTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -218,7 +220,7 @@ const PurchasingRFQsTable = memo(
       ];
 
       return [...defaultColumns, ...customColumns];
-    }, [people, customColumns, suppliers.find, suppliers.map]);
+    }, [people, customColumns, suppliers.find, suppliers.map, t]);
 
     const renderContextMenu = useMemo(() => {
       return (row: PurchasingRFQ) => (
@@ -227,7 +229,7 @@ const PurchasingRFQsTable = memo(
             onClick={() => navigate(path.to.purchasingRfqDetails(row.id!))}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit
+            <Trans>Edit</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -238,7 +240,7 @@ const PurchasingRFQsTable = memo(
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete
+            <Trans>Delete</Trans>
           </MenuItem>
         </>
       );
@@ -260,11 +262,11 @@ const PurchasingRFQsTable = memo(
           }}
           primaryAction={
             permissions.can("create", "purchasing") && (
-              <New label="RFQ" to={path.to.newPurchasingRFQ} />
+              <New label={t`RFQ`} to={path.to.newPurchasingRFQ} />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="RFQs"
+          title={t`RFQs`}
           table="purchasingRfq"
           withSavedView
         />

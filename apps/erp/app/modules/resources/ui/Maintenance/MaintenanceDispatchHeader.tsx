@@ -12,6 +12,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuCircleCheck,
   LuCirclePlay,
@@ -28,6 +29,7 @@ import type { MaintenanceDispatchDetail } from "../../types";
 import MaintenanceStatus from "./MaintenanceStatus";
 
 const MaintenanceDispatchHeader = () => {
+  const { t } = useLingui();
   const { dispatchId } = useParams();
   if (!dispatchId) throw new Error("dispatchId not found");
 
@@ -56,7 +58,7 @@ const MaintenanceDispatchHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -73,7 +75,7 @@ const MaintenanceDispatchHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Dispatch
+                  <Trans>Delete Dispatch</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -104,7 +106,7 @@ const MaintenanceDispatchHeader = () => {
                 statusFetcher.formData?.get("status") === "In Progress"
               }
             >
-              Start
+              <Trans>Start</Trans>
             </Button>
           </statusFetcher.Form>
 
@@ -127,7 +129,7 @@ const MaintenanceDispatchHeader = () => {
                 statusFetcher.formData?.get("status") === "Completed"
               }
             >
-              Complete
+              <Trans>Complete</Trans>
             </Button>
           </statusFetcher.Form>
 
@@ -146,7 +148,7 @@ const MaintenanceDispatchHeader = () => {
                 !permissions.can("update", "resources")
               }
             >
-              Reopen
+              <Trans>Reopen</Trans>
             </Button>
           </statusFetcher.Form>
         </HStack>
@@ -156,7 +158,7 @@ const MaintenanceDispatchHeader = () => {
           action={path.to.deleteMaintenanceDispatch(dispatchId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.dispatch?.maintenanceDispatchId!}
-          text={`Are you sure you want to delete this maintenance dispatch? This cannot be undone.`}
+          text={t`Are you sure you want to delete this maintenance dispatch? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}

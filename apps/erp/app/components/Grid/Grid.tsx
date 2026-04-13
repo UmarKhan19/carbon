@@ -12,6 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { clamp } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import type { ColumnDef, ColumnOrderState } from "@tanstack/react-table";
 import {
   flexRender,
@@ -390,7 +391,7 @@ const Grid = <T extends object>({
               <Tr className="h-10 hover:bg-muted/50">
                 <Td colSpan={24}>
                   <p className="text-muted-foreground text-center w-full">
-                    No Data
+                    <Trans>No Data</Trans>
                   </p>
                 </Td>
               </Tr>
@@ -403,7 +404,9 @@ const Grid = <T extends object>({
                 <Td colSpan={24}>
                   <HStack className="items-center h-6">
                     <LuCirclePlus className="text-muted-foreground h-4 w-4" />
-                    <span>New</span>
+                    <span>
+                      <Trans>New</Trans>
+                    </span>
                   </HStack>
                 </Td>
               </Tr>

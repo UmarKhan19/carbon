@@ -16,6 +16,7 @@ import {
   CardTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
@@ -55,6 +56,7 @@ const IssueForm = ({
   requiredActions
 }: IssueFormProps) => {
   const navigate = useNavigate();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const isEditing = initialValues.id !== undefined;
 
@@ -101,7 +103,10 @@ const IssueForm = ({
           <CardTitle>{isEditing ? "Issue" : "New Issue"}</CardTitle>
           {!isEditing && (
             <CardDescription>
-              A issue record tracks quality issues and their resolution process.
+              <Trans>
+                A issue record tracks quality issues and their resolution
+                process.
+              </Trans>
             </CardDescription>
           )}
         </CardHeader>
@@ -122,21 +127,21 @@ const IssueForm = ({
 
           <VStack spacing={4}>
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
-              <Input name="name" label="Name" />
+              <Input name="name" label={t`Name`} />
               <Select
                 name="nonConformanceTypeId"
-                label="Issue Type"
+                label={t`Issue Type`}
                 options={nonConformanceTypes.map((type) => ({
                   label: type.name,
                   value: type.id
                 }))}
               />
             </div>
-            <TextArea name="description" label="Description" />
+            <TextArea name="description" label={t`Description`} />
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
               <CreatableCombobox
                 name="nonConformanceWorkflowId"
-                label="Workflow"
+                label={t`Workflow`}
                 options={nonConformanceWorkflows.map((workflow) => ({
                   label: workflow.name,
                   value: workflow.id
@@ -149,7 +154,7 @@ const IssueForm = ({
 
               <MultiSelect
                 name="items"
-                label="Items"
+                label={t`Items`}
                 options={items.map((item) => ({
                   label: item.readableIdWithRevision,
                   value: item.id,
@@ -161,7 +166,7 @@ const IssueForm = ({
             <VStack spacing={4}>
               <MultiSelect
                 name="requiredActionIds"
-                label="Required Actions"
+                label={t`Required Actions`}
                 options={requiredActions.map((action) => ({
                   label: action.name,
                   value: action.id
@@ -176,7 +181,7 @@ const IssueForm = ({
               />
               <MultiSelect
                 name="approvalRequirements"
-                label="Approval Requirements"
+                label={t`Approval Requirements`}
                 options={nonConformanceApprovalRequirement.map(
                   (requirement) => ({
                     label: requirement,
@@ -195,7 +200,7 @@ const IssueForm = ({
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
               <SelectControlled
                 name="priority"
-                label="Priority"
+                label={t`Priority`}
                 options={nonConformancePriority.map((priority) => ({
                   label: (
                     <div className="flex gap-2 items-center">
@@ -215,7 +220,7 @@ const IssueForm = ({
               />
               <SelectControlled
                 name="source"
-                label="Source"
+                label={t`Source`}
                 options={nonConformanceSource.map((source) => ({
                   label: (
                     <div className="flex gap-2 items-center">
@@ -234,8 +239,8 @@ const IssueForm = ({
                 }}
               />
 
-              <DatePicker name="openDate" label="Open Date" />
-              <Location name="locationId" label="Location" />
+              <DatePicker name="openDate" label={t`Open Date`} />
+              <Location name="locationId" label={t`Location`} />
               <CustomFormFields table="nonConformance" />
             </div>
           </VStack>

@@ -11,6 +11,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -58,6 +59,7 @@ const SupplierContactForm = ({
     }
   }, [fetcher.data, fetcher.state, onClose, type]);
 
+  const { t } = useLingui();
   const permissions = usePermissions();
   const isEditing = !!initialValues?.id;
   const isDisabled = isEditing
@@ -92,28 +94,30 @@ const SupplierContactForm = ({
             <Hidden name="type" value={type} />
             <Hidden name="contactId" />
             <VStack spacing={4}>
-              <Input name="email" label="Email" />
-              <Input name="firstName" label="First Name" />
-              <Input name="lastName" label="Last Name" />
-              <Input name="title" label="Title" />
-              <PhoneInput name="mobilePhone" label="Mobile Phone" />
-              <PhoneInput name="homePhone" label="Home Phone" />
-              <PhoneInput name="workPhone" label="Work Phone" />
-              <PhoneInput name="fax" label="Fax" />
+              <Input name="email" label={t`Email`} />
+              <Input name="firstName" label={t`First Name`} />
+              <Input name="lastName" label={t`Last Name`} />
+              <Input name="title" label={t`Title`} />
+              <PhoneInput name="mobilePhone" label={t`Mobile Phone`} />
+              <PhoneInput name="homePhone" label={t`Home Phone`} />
+              <PhoneInput name="workPhone" label={t`Work Phone`} />
+              <PhoneInput name="fax" label={t`Fax`} />
               <SupplierLocation
                 name="supplierLocationId"
-                label="Location"
+                label={t`Location`}
                 supplier={supplierId}
               />
-              <TextArea name="notes" label="Notes" />
+              <TextArea name="notes" label={t`Notes`} />
               <CustomFormFields table="supplierContact" />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

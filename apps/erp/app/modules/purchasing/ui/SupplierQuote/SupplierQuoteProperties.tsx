@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo } from "react";
 import { LuCopy, LuInfo, LuLink, LuRefreshCcw } from "react-icons/lu";
@@ -50,6 +51,7 @@ const SupplierQuoteProperties = () => {
   const { company } = useUser();
   const exchangeRateFetcher = useFetcher<typeof exchangeRateAction>();
   const { locale } = useLocale();
+  const { t } = useLingui();
   const formatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
@@ -120,14 +122,14 @@ const SupplierQuoteProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -147,7 +149,7 @@ const SupplierQuoteProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -202,7 +204,7 @@ const SupplierQuoteProperties = () => {
       >
         <InputControlled
           name="supplierReference"
-          label="Supplier Ref. Number"
+          label={t`Supplier Ref. Number`}
           value={routeData?.quote?.supplierReference ?? ""}
           size="sm"
           inline
@@ -270,7 +272,7 @@ const SupplierQuoteProperties = () => {
       >
         <DatePicker
           name="expirationDate"
-          label="Expiration Date"
+          label={t`Expiration Date`}
           inline
           onChange={(date) => {
             onUpdate("expirationDate", date);
@@ -289,7 +291,7 @@ const SupplierQuoteProperties = () => {
       >
         <DatePicker
           name="quotedDate"
-          label="Quoted Date"
+          label={t`Quoted Date`}
           inline
           onChange={(date) => {
             onUpdate("quotedDate", date);
@@ -308,7 +310,7 @@ const SupplierQuoteProperties = () => {
       >
         <Currency
           name="currencyCode"
-          label="Currency"
+          label={t`Currency`}
           inline
           value={routeData?.quote?.currencyCode ?? ""}
           isReadOnly={isDisabled}
@@ -346,7 +348,7 @@ const SupplierQuoteProperties = () => {
               <IconButton
                 size="sm"
                 variant="secondary"
-                aria-label="Refresh"
+                aria-label={t`Refresh`}
                 icon={<LuRefreshCcw />}
                 isDisabled={isDisabled}
                 onClick={() => {

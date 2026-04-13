@@ -13,6 +13,7 @@ import {
   Input as InputBase,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useParams } from "react-router";
 import type { z } from "zod";
 import { CustomFormFields, Hidden, Input, Submit } from "~/components/Form";
@@ -30,6 +31,7 @@ const AccountSubcategoryForm = ({
   initialValues,
   onClose
 }: AccountSubcategoryFormProps) => {
+  const { t } = useLingui();
   const params = useParams();
   const permissions = usePermissions();
 
@@ -68,7 +70,11 @@ const AccountSubcategoryForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit" : "New"} Account Subcategory
+              {isEditing ? (
+                <Trans>Edit Account Subcategory</Trans>
+              ) : (
+                <Trans>New Account Subcategory</Trans>
+              )}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -76,18 +82,22 @@ const AccountSubcategoryForm = ({
             <Hidden name="accountCategoryId" />
             <VStack>
               <FormControl>
-                <FormLabel>Category</FormLabel>
+                <FormLabel>
+                  <Trans>Category</Trans>
+                </FormLabel>
                 <InputBase value={category} isReadOnly />
               </FormControl>
-              <Input name="name" label="Name" />
+              <Input name="name" label={t`Name`} />
               <CustomFormFields table="accountSubcategory" />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

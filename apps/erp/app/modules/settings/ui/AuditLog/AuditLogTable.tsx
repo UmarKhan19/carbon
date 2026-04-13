@@ -6,6 +6,7 @@ import {
 import type { AuditDiff, AuditLogEntry } from "@carbon/database/audit.types";
 import { Badge, HStack } from "@carbon/react";
 import { formatDateTime } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuFilePen, LuFilePlus, LuFileX } from "react-icons/lu";
@@ -164,11 +165,12 @@ const ExpandedRowContent = memo(({ entry }: { entry: AuditLogEntry }) => {
 ExpandedRowContent.displayName = "ExpandedRowContent";
 
 const AuditLogTable = memo(({ entries, count }: AuditLogTableProps) => {
+  const { t } = useLingui();
   const columns = useMemo<ColumnDef<AuditLogEntry>[]>(
     () => [
       {
         accessorKey: "entityType",
-        header: "Entity",
+        header: t`Entity`,
         cell: ({ row }) => {
           const entry = row.original;
           const entityPath = getEntityPath(entry.entityId);
@@ -202,12 +204,12 @@ const AuditLogTable = memo(({ entries, count }: AuditLogTableProps) => {
               value: entityType
             }))
           },
-          pluralHeader: "Entities"
+          pluralHeader: t`Entities`
         }
       },
       {
         accessorKey: "operation",
-        header: "Operation",
+        header: t`Operation`,
         cell: ({ row }) => {
           const config = operationConfig[row.original.operation];
           return (
@@ -235,7 +237,7 @@ const AuditLogTable = memo(({ entries, count }: AuditLogTableProps) => {
       },
       {
         accessorKey: "actorId",
-        header: "Changed By",
+        header: t`Changed By`,
         cell: ({ row }) => {
           const entry = row.original;
           return entry.actorId ? (
@@ -252,7 +254,7 @@ const AuditLogTable = memo(({ entries, count }: AuditLogTableProps) => {
       },
       {
         id: "changes",
-        header: "Changes",
+        header: t`Changes`,
         cell: ({ row }) => {
           const entry = row.original;
           const hasDiff = entry.diff && Object.keys(entry.diff).length > 0;
@@ -269,7 +271,7 @@ const AuditLogTable = memo(({ entries, count }: AuditLogTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "When",
+        header: t`When`,
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
             {formatDateTime(row.original.createdAt)}
@@ -277,7 +279,7 @@ const AuditLogTable = memo(({ entries, count }: AuditLogTableProps) => {
         )
       }
     ],
-    []
+    [t]
   );
 
   const renderExpandedRow = useCallback(
@@ -290,7 +292,7 @@ const AuditLogTable = memo(({ entries, count }: AuditLogTableProps) => {
       data={entries}
       columns={columns}
       count={count}
-      title="Audit Log"
+      title={t`Audit Log`}
       table="auditLog"
       withSearch
       withPagination

@@ -17,6 +17,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -109,6 +110,7 @@ export function UsedInTree({
   filterText?: string;
   hideSearch?: boolean;
 }) {
+  const { t } = useLingui();
   const [filterTextInternal, setFilterTextInternal] = useState("");
   const filterText = filterTextProp ?? filterTextInternal;
 
@@ -131,7 +133,7 @@ export function UsedInTree({
               <LuSearch className="h-4 w-4" />
             </InputLeftElement>
             <Input
-              placeholder="Search..."
+              placeholder={t`Search...`}
               value={filterText}
               onChange={(e) => setFilterTextInternal(e.target.value)}
             />
@@ -176,6 +178,7 @@ export function RevisionsItem({
 }) {
   const { itemId } = useParams();
   const permissions = usePermissions();
+  const { t } = useLingui();
   const revisionDisclosure = useDisclosure();
   const defaultDisclosure = useDisclosure();
 
@@ -221,7 +224,7 @@ export function RevisionsItem({
             size="sm"
             variant="secondary"
             icon={<LuPlus />}
-            aria-label="Create"
+            aria-label={t`Create`}
             className="size-5 absolute right-2 top-1.5"
             onClick={() => {
               flushSync(() => {
@@ -244,7 +247,7 @@ export function RevisionsItem({
             <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-4">
               <LevelLine isSelected={false} />
               <div className="text-xs text-muted-foreground">
-                No {node.name.toLowerCase()} found
+                {t`No ${node.name.toLowerCase()} found`}
               </div>
             </div>
           ) : (
@@ -273,7 +276,7 @@ export function RevisionsItem({
                           size="sm"
                           variant="secondary"
                           icon={<LuEllipsisVertical />}
-                          aria-label="Edit"
+                          aria-label={t`Edit`}
                           className="absolute right-2 top-1 flex-shrink-0 opacity-0 group-hover/used-in:opacity-100 data-[state=open]:opacity-100"
                         />
                       </DropdownMenuTrigger>
@@ -329,13 +332,17 @@ export function RevisionsItem({
       {defaultDisclosure.isOpen && selectedRevision && (
         <Confirm
           action={path.to.defaultRevision(selectedRevision.id!)}
-          confirmText={`Make Default`}
-          title={`Make ${hasSizesInsteadOfRevisions ? "size" : "revision"} ${
-            selectedRevision.revision
-          } default?`}
-          text={`This will replace all method materials of other ${
-            hasSizesInsteadOfRevisions ? "sizes" : "revisions"
-          } with this ${hasSizesInsteadOfRevisions ? "size" : "revision"}.`}
+          confirmText={t`Make Default`}
+          title={
+            hasSizesInsteadOfRevisions
+              ? t`Make size ${selectedRevision.revision} default?`
+              : t`Make revision ${selectedRevision.revision} default?`
+          }
+          text={
+            hasSizesInsteadOfRevisions
+              ? t`This will replace all method materials of other sizes with this size.`
+              : t`This will replace all method materials of other revisions with this revision.`
+          }
           isOpen
           onSubmit={() => {
             defaultDisclosure.onClose();
@@ -378,6 +385,7 @@ export function UsedInItem({
   filterText: string;
   itemReadableIdWithRevision: string;
 }) {
+  const { t } = useLingui();
   const [isExpanded, setIsExpanded] = useState(
     node.children.length > 0 && node.children.length < 10
   );
@@ -416,7 +424,7 @@ export function UsedInItem({
             <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-4">
               <LevelLine isSelected={false} />
               <div className="text-xs text-muted-foreground">
-                No {node.name.toLowerCase()} found
+                {t`No ${node.name.toLowerCase()} found`}
               </div>
             </div>
           ) : (

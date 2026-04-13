@@ -1,11 +1,11 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { deleteDemandProjections } from "~/modules/production/production.service";
-import { getPeriods } from "~/modules/shared/shared.service";
+import { getOrCreatePeriods } from "~/modules/shared/shared.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -27,22 +27,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   // Get current date to determine future periods
-  const startDate = startOfWeek(today(getLocalTimeZone()), "en-US");
-  const endDate = startDate.add({ weeks: 52 });
-  const periods = await getPeriods(client, {
-    startDate: startDate.toString(),
-    endDate: endDate.toString()
-  });
-
-  if (periods.error) {
-    return data(
-      {},
-      await flash(request, error(periods.error, "Failed to load periods"))
-    );
-  }
+  const periods = await getOrCreatePeriods(today(getLocalTimeZone()), 52);
 
   // Only delete projections for future periods (current week and beyond)
-  const futurePeriodIds = periods.data?.map((p) => p.id) ?? [];
+  const futurePeriodIds = periods.map((p) => p.id);
 
   const result = await deleteDemandProjections(client, {
     itemId,

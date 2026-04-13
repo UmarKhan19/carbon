@@ -1,4 +1,5 @@
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import type { MetaFunction } from "react-router";
 import { Outlet } from "react-router";
 import { GroupedContentSidebar } from "~/components/Layout";
@@ -12,7 +13,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Production",
+  breadcrumb: msg`Production`,
   to: path.to.production,
   module: "production"
 };

@@ -54,6 +54,7 @@ import {
   getItemReadableId,
   labelSizes
 } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -185,6 +186,7 @@ export const JobOperation = ({
   trackedEntities,
   workCenter
 }: JobOperationProps) => {
+  const { t } = useLingui();
   const [params, setParams] = useUrlParams();
 
   const trackedEntityParam = params.get("trackedEntityId");
@@ -444,17 +446,19 @@ export const JobOperation = ({
                 onClick={() => navigate(path.to.operations)}
                 className="pl-2"
               >
-                Schedule
+                <Trans>Schedule</Trans>
               </Button>
             </div>
             <div className="flex flex-shrink-0 items-center justify-end gap-2">
               <TabsList className="md:ml-auto">
-                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="details">
+                  <Trans>Details</Trans>
+                </TabsTrigger>
                 <TabsTrigger
                   disabled={!job.modelPath && !operation.itemModelPath}
                   value="model"
                 >
-                  Model
+                  <Trans>Model</Trans>
                 </TabsTrigger>
                 <TabsTrigger
                   disabled={
@@ -463,9 +467,11 @@ export const JobOperation = ({
                   }
                   value="procedure"
                 >
-                  Procedure
+                  <Trans>Procedure</Trans>
                 </TabsTrigger>
-                <TabsTrigger value="chat">Chat</TabsTrigger>
+                <TabsTrigger value="chat">
+                  <Trans>Chat</Trans>
+                </TabsTrigger>
               </TabsList>
             </div>
           </HStack>
@@ -491,13 +497,13 @@ export const JobOperation = ({
                     rel="noreferrer"
                   >
                     <DropdownMenuIcon icon={<LuQrCode />} />
-                    Job Traveler
+                    <Trans>Job Traveler</Trans>
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to={path.to.jobDetail(operation.jobId)}>
                     <DropdownMenuIcon icon={<LuCirclePlay />} />
-                    Job Details
+                    <Trans>Job Details</Trans>
                   </Link>
                 </DropdownMenuItem>
                 {item && (
@@ -506,7 +512,7 @@ export const JobOperation = ({
                       <DropdownMenuIcon
                         icon={<MethodItemTypeIcon type={item.type} />}
                       />
-                      Item Master
+                      <Trans>Item Master</Trans>
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -569,7 +575,7 @@ export const JobOperation = ({
                   {["ASAP", "No Deadline"].includes(operation.jobDeadlineType)
                     ? operation.jobDeadlineType
                     : operation.operationDueDate
-                      ? `Due ${formatRelativeTime(
+                      ? t`Due ${formatRelativeTime(
                           convertDateStringToIsoString(
                             operation.operationDueDate
                           )
@@ -620,19 +626,26 @@ export const JobOperation = ({
               <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-3 w-full">
                 <Card>
                   <CardHeader className="flex flex-row items-center gap-2 justify-between">
-                    <CardTitle>Completed</CardTitle>
+                    <CardTitle>
+                      <Trans>Completed</Trans>
+                    </CardTitle>
                     <FaCheck className="h-3 w-3 text-emerald-500" />
                   </CardHeader>
 
                   <CardContent>
                     <Heading size="h1">
-                      {operation.quantityComplete} of {operation.targetQuantity}
+                      <Trans>
+                        {operation.quantityComplete} of{" "}
+                        {operation.targetQuantity}
+                      </Trans>
                     </Heading>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center gap-2 justify-between">
-                    <CardTitle>Scrapped</CardTitle>
+                    <CardTitle>
+                      <Trans>Scrapped</Trans>
+                    </CardTitle>
                     <FaTrash className="h-3 w-3 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
@@ -641,7 +654,9 @@ export const JobOperation = ({
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center gap-2 justify-between">
-                    <CardTitle>Due Date</CardTitle>
+                    <CardTitle>
+                      <Trans>Due Date</Trans>
+                    </CardTitle>
                     <DeadlineIcon
                       deadlineType={operation.jobDeadlineType}
                       overdue={isOverdue}
@@ -661,7 +676,7 @@ export const JobOperation = ({
                         )
                           ? operation.jobDeadlineType
                           : operation.operationDueDate
-                            ? `Due ${formatRelativeTime(
+                            ? t`Due ${formatRelativeTime(
                                 convertDateStringToIsoString(
                                   operation.operationDueDate
                                 )
@@ -730,7 +745,9 @@ export const JobOperation = ({
                           <div className="flex flex-col items-start justify-between w-full">
                             <div className="flex flex-col gap-4 p-4 lg:p-6 w-full">
                               <HStack className="justify-between w-full">
-                                <Heading size="h3">Steps</Heading>
+                                <Heading size="h3">
+                                  <Trans>Steps</Trans>
+                                </Heading>
                                 <div className="flex items-center gap-2">
                                   {attributes.length > 0 &&
                                     (() => {
@@ -783,7 +800,9 @@ export const JobOperation = ({
                                                     }
                                                   />
                                                   <span className="text-sm font-medium px-2 min-w-[60px] text-center">
-                                                    Record {activeStep + 1}
+                                                    <Trans>
+                                                      Record {activeStep + 1}
+                                                    </Trans>
                                                   </span>
                                                   <IconButton
                                                     aria-label="Next record set"
@@ -813,7 +832,7 @@ export const JobOperation = ({
                                                       nextIndex >= maxRecords
                                                     ) {
                                                       toast.warning(
-                                                        "Maximum number of records reached"
+                                                        t`Maximum number of records reached`
                                                       );
                                                       return;
                                                     }
@@ -824,19 +843,21 @@ export const JobOperation = ({
                                                     activeStep + 1 >= maxRecords
                                                   }
                                                 >
-                                                  New Record
+                                                  <Trans>New Record</Trans>
                                                 </Button>
                                               )}
                                             {parentIsSerial && (
                                               <Heading size="h2">
-                                                {serialIndex + 1} of{" "}
-                                                {operation.operationQuantity}
+                                                <Trans>
+                                                  {serialIndex + 1} of{" "}
+                                                  {operation.operationQuantity}
+                                                </Trans>
                                               </Heading>
                                             )}
                                           </div>
 
                                           <BarProgress
-                                            label="Steps"
+                                            label={t`Steps`}
                                             gradient
                                             invertGradient
                                             progress={
@@ -850,14 +871,17 @@ export const JobOperation = ({
                                             }
                                           />
                                           <span className="text-xs text-muted-foreground">
-                                            {
-                                              attributes.filter((a) =>
-                                                a.jobOperationStepRecord.some(
-                                                  (r) => r.index === activeStep
-                                                )
-                                              ).length
-                                            }{" "}
-                                            of {attributes.length} complete
+                                            <Trans>
+                                              {
+                                                attributes.filter((a) =>
+                                                  a.jobOperationStepRecord.some(
+                                                    (r) =>
+                                                      r.index === activeStep
+                                                  )
+                                                ).length
+                                              }{" "}
+                                              of {attributes.length} complete
+                                            </Trans>
                                           </span>
                                         </div>
                                       );
@@ -896,7 +920,9 @@ export const JobOperation = ({
                           <div className="flex flex-col items-start justify-between w-full">
                             <div className="flex flex-col gap-4 p-4 lg:p-6 w-full">
                               <HStack className="justify-between w-full">
-                                <Heading size="h3">Process Parameters</Heading>
+                                <Heading size="h3">
+                                  <Trans>Process Parameters</Trans>
+                                </Heading>
                               </HStack>
                               <div className="border rounded-lg">
                                 {parameters
@@ -930,7 +956,9 @@ export const JobOperation = ({
             <div className="flex flex-col items-start justify-between w-full">
               <div className="flex flex-col gap-4 p-4 lg:p-6 w-full">
                 <HStack className="justify-between w-full">
-                  <Heading size="h3">Materials</Heading>
+                  <Heading size="h3">
+                    <Trans>Materials</Trans>
+                  </Heading>
                   <Button
                     aria-label="Issue Material"
                     leftIcon={<LuGitBranchPlus />}
@@ -942,7 +970,7 @@ export const JobOperation = ({
                       issueModal.onOpen();
                     }}
                   >
-                    Issue Material
+                    <Trans>Issue Material</Trans>
                   </Button>
                 </HStack>
                 <Suspense
@@ -976,10 +1004,18 @@ export const JobOperation = ({
                           <Table className="w-full">
                             <Thead>
                               <Tr>
-                                <Th>Part</Th>
-                                <Th className="lg:table-cell hidden">Source</Th>
-                                <Th>Estimated</Th>
-                                <Th>Actual</Th>
+                                <Th>
+                                  <Trans>Part</Trans>
+                                </Th>
+                                <Th className="lg:table-cell hidden">
+                                  <Trans>Source</Trans>
+                                </Th>
+                                <Th>
+                                  <Trans>Estimated</Trans>
+                                </Th>
+                                <Th>
+                                  <Trans>Actual</Trans>
+                                </Th>
                                 <Th className="text-right" />
                               </Tr>
                             </Thead>
@@ -990,7 +1026,7 @@ export const JobOperation = ({
                                     colSpan={24}
                                     className="py-8 text-muted-foreground text-center"
                                   >
-                                    No materials
+                                    <Trans>No materials</Trans>
                                   </Td>
                                 </Tr>
                               ) : (
@@ -1063,7 +1099,7 @@ export const JobOperation = ({
                                               />
                                               {material.methodType ===
                                                 "Make to Order" && material.kit
-                                                ? "Kit"
+                                                ? t`Kit`
                                                 : material.methodType}
                                             </Badge>
                                             <LuArrowLeft
@@ -1079,8 +1115,8 @@ export const JobOperation = ({
                                               {material.shelfName ??
                                                 (material.methodType ===
                                                 "Make to Order"
-                                                  ? "WIP"
-                                                  : "Default Shelf")}
+                                                  ? t`WIP`
+                                                  : t`Default Shelf`)}
                                             </Badge>
                                           </div>
                                         </Td>
@@ -1161,7 +1197,7 @@ export const JobOperation = ({
                                                 issueModal.onOpen();
                                               }}
                                             >
-                                              Issue
+                                              <Trans>Issue</Trans>
                                             </Button>
                                           )}
                                         </Td>
@@ -1231,7 +1267,7 @@ export const JobOperation = ({
                                                   {kittedChild.methodType ===
                                                     "Make to Order" &&
                                                   kittedChild.kit
-                                                    ? "Kit"
+                                                    ? t`Kit`
                                                     : kittedChild.methodType}
                                                 </Badge>
                                               </Td>
@@ -1353,9 +1389,13 @@ export const JobOperation = ({
             <Separator />
             <div className="flex flex-col items-start justify-between w-full">
               <div className="flex flex-col gap-4 p-4 lg:p-6 w-full">
-                <Heading size="h3">Files</Heading>
+                <Heading size="h3">
+                  <Trans>Files</Trans>
+                </Heading>
                 <p className="text-muted-foreground text-sm -mt-2">
-                  Files related to the job and the opportunity line.
+                  <Trans>
+                    Files related to the job and the opportunity line.
+                  </Trans>
                 </p>
                 <Suspense
                   key={`files-${operationId}`}
@@ -1366,8 +1406,12 @@ export const JobOperation = ({
                       <Table className="w-full">
                         <Thead>
                           <Tr>
-                            <Th>Name</Th>
-                            <Th>Size</Th>
+                            <Th>
+                              <Trans>Name</Trans>
+                            </Th>
+                            <Th>
+                              <Trans>Size</Trans>
+                            </Th>
                             <Th></Th>
                           </Tr>
                         </Thead>
@@ -1378,7 +1422,7 @@ export const JobOperation = ({
                                 colSpan={24}
                                 className="py-8 text-muted-foreground text-center"
                               >
-                                No files
+                                <Trans>No files</Trans>
                               </Td>
                             </Tr>
                           ) : (
@@ -1419,7 +1463,7 @@ export const JobOperation = ({
                                             <DropdownMenuIcon
                                               icon={<LuDownload />}
                                             />
-                                            Download
+                                            <Trans>Download</Trans>
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
                                       </DropdownMenu>
@@ -1515,7 +1559,9 @@ export const JobOperation = ({
                 <div className="flex flex-col items-start justify-between w-full">
                   <div className="flex flex-col gap-4 p-4 lg:p-6 w-full">
                     <HStack className="justify-between w-full">
-                      <Heading size="h3">Serial Numbers</Heading>
+                      <Heading size="h3">
+                        <Trans>Serial Numbers</Trans>
+                      </Heading>
                       {trackedEntities?.length > 0 && (
                         <HStack>
                           <SplitButton
@@ -1530,10 +1576,10 @@ export const JobOperation = ({
                             // TODO: if we knew the preferred label size, we could use that here
                             onClick={() => navigateToTrackingLabels(false)}
                           >
-                            Tracking Labels
+                            <Trans>Tracking Labels</Trans>
                           </SplitButton>
                           <Button variant="secondary" leftIcon={<LuBarcode />}>
-                            Scan
+                            <Trans>Scan</Trans>
                           </Button>
                         </HStack>
                       )}
@@ -1542,7 +1588,9 @@ export const JobOperation = ({
                     <Table className="w-full">
                       <Thead>
                         <Tr>
-                          <Th>Serial</Th>
+                          <Th>
+                            <Trans>Serial</Trans>
+                          </Th>
                           <Th className="text-right" />
                         </Tr>
                       </Thead>
@@ -1554,7 +1602,7 @@ export const JobOperation = ({
                               className="py-8 text-muted-foreground text-center"
                             >
                               <LuTriangleAlert className="text-red-500 size-4" />
-                              No serial numbers
+                              <Trans>No serial numbers</Trans>
                             </Td>
                           </Tr>
                         ) : (
@@ -1598,7 +1646,7 @@ export const JobOperation = ({
                                       });
                                     }}
                                   >
-                                    Select
+                                    <Trans>Select</Trans>
                                   </Button>
                                 </div>
                               </Td>
@@ -1643,9 +1691,11 @@ export const JobOperation = ({
                       >
                         <div className="w-full py-2 px-4 sticky top-0 z-10">
                           <TabsList className="w-full grid grid-cols-2">
-                            <TabsTrigger value="attributes">Steps</TabsTrigger>
+                            <TabsTrigger value="attributes">
+                              <Trans>Steps</Trans>
+                            </TabsTrigger>
                             <TabsTrigger value="parameters">
-                              Parameters
+                              <Trans>Parameters</Trans>
                             </TabsTrigger>
                           </TabsList>
                         </div>
@@ -1701,7 +1751,9 @@ export const JobOperation = ({
                                             isDisabled={activeStep === 0}
                                           />
                                           <span className="text-sm font-medium px-2 min-w-[60px] text-center">
-                                            Record {activeStep + 1}
+                                            <Trans>
+                                              Record {activeStep + 1}
+                                            </Trans>
                                           </span>
                                           <IconButton
                                             aria-label="Next record set"
@@ -1724,7 +1776,7 @@ export const JobOperation = ({
                                               const nextIndex = activeStep + 1;
                                               if (nextIndex >= maxRecords) {
                                                 toast.warning(
-                                                  "Maximum number of records reached"
+                                                  t`Maximum number of records reached`
                                                 );
                                                 return;
                                               }
@@ -1735,20 +1787,22 @@ export const JobOperation = ({
                                               activeStep + 1 >= maxRecords
                                             }
                                           >
-                                            New Record
+                                            <Trans>New Record</Trans>
                                           </Button>
                                         )}
                                       {parentIsSerial && (
                                         <Heading size="h2">
-                                          {serialIndex + 1} of{" "}
-                                          {operation.operationQuantity}
+                                          <Trans>
+                                            {serialIndex + 1} of{" "}
+                                            {operation.operationQuantity}
+                                          </Trans>
                                         </Heading>
                                       )}
                                     </div>
 
                                     <div className="flex flex-col justify-center items-end gap-1">
                                       <BarProgress
-                                        label="Steps"
+                                        label={t`Steps`}
                                         gradient
                                         invertGradient
                                         progress={
@@ -1762,14 +1816,16 @@ export const JobOperation = ({
                                         }
                                       />
                                       <span className="text-xs text-muted-foreground">
-                                        {
-                                          attributes.filter((a) =>
-                                            a.jobOperationStepRecord.some(
-                                              (r) => r.index === activeStep
-                                            )
-                                          ).length
-                                        }{" "}
-                                        of {attributes.length} completed
+                                        <Trans>
+                                          {
+                                            attributes.filter((a) =>
+                                              a.jobOperationStepRecord.some(
+                                                (r) => r.index === activeStep
+                                              )
+                                            ).length
+                                          }{" "}
+                                          of {attributes.length} completed
+                                        </Trans>
                                       </span>
                                     </div>
                                   </div>
@@ -1876,7 +1932,7 @@ export const JobOperation = ({
               <VStack spacing={2}>
                 <VStack spacing={1}>
                   <span className="text-muted-foreground text-xs">
-                    Work Center
+                    <Trans>Work Center</Trans>
                   </span>
                   <Suspense
                     fallback={<Heading size="h4">...</Heading>}
@@ -1902,7 +1958,9 @@ export const JobOperation = ({
                 </VStack>
 
                 <VStack className="hidden tall:flex" spacing={1}>
-                  <span className="text-muted-foreground text-xs">Item</span>
+                  <span className="text-muted-foreground text-xs">
+                    <Trans>Item</Trans>
+                  </span>
                   <Heading size="h4" className="line-clamp-1">
                     {operation.itemReadableId}
                   </Heading>
@@ -1911,7 +1969,9 @@ export const JobOperation = ({
 
               <div className="md:hidden flex flex-col items-center gap-2 w-full">
                 <VStack spacing={1}>
-                  <span className="text-muted-foreground text-xs">Job</span>
+                  <span className="text-muted-foreground text-xs">
+                    <Trans>Job</Trans>
+                  </span>
                   <HStack className="justify-start space-x-2">
                     <LuClipboardCheck className="text-muted-foreground" />
                     <span className="text-sm truncate">
@@ -1922,7 +1982,7 @@ export const JobOperation = ({
                 {job.customer?.name && (
                   <VStack spacing={1}>
                     <span className="text-muted-foreground text-xs">
-                      Customer
+                      <Trans>Customer</Trans>
                     </span>
                     <HStack className="justify-start space-x-2">
                       <LuSquareUser className="text-muted-foreground" />
@@ -1936,7 +1996,7 @@ export const JobOperation = ({
                 {operation.description && (
                   <VStack spacing={1}>
                     <span className="text-muted-foreground text-xs">
-                      Description
+                      <Trans>Description</Trans>
                     </span>
                     <HStack className="justify-start space-x-2">
                       <LuClipboardCheck className="text-muted-foreground" />
@@ -1949,7 +2009,7 @@ export const JobOperation = ({
                 {operation.jobDeadlineType && (
                   <VStack spacing={1}>
                     <span className="text-muted-foreground text-xs">
-                      Deadline
+                      <Trans>Deadline</Trans>
                     </span>
                     <HStack className="justify-start space-x-2">
                       <DeadlineIcon
@@ -1968,7 +2028,7 @@ export const JobOperation = ({
                         )
                           ? operation.jobDeadlineType
                           : operation.operationDueDate
-                            ? `Due ${formatRelativeTime(
+                            ? t`Due ${formatRelativeTime(
                                 convertDateStringToIsoString(
                                   operation.operationDueDate
                                 )
@@ -2022,7 +2082,7 @@ export const JobOperation = ({
                   icon={
                     <FaTrash className="text-accent-foreground group-hover:text-accent-foreground/80" />
                   }
-                  tooltip="Log Scrap"
+                  tooltip={t`Log Scrap`}
                   onClick={scrapModal.onOpen}
                 />
 
@@ -2039,7 +2099,7 @@ export const JobOperation = ({
                   icon={
                     <FaPlus className="text-accent-foreground group-hover:text-accent-foreground/80" />
                   }
-                  tooltip="Log Completed"
+                  tooltip={t`Log Completed`}
                   onClick={completeModal.onOpen}
                 />
                 <IconButtonWithTooltip
@@ -2049,7 +2109,7 @@ export const JobOperation = ({
                       ? "success"
                       : "default"
                   }
-                  tooltip="Close Out"
+                  tooltip={t`Close Out`}
                   onClick={finishModal.onOpen}
                 />
               </div>
@@ -2066,7 +2126,9 @@ export const JobOperation = ({
                       <TooltipTrigger>
                         <LuTimer className="h-4 w-4 mr-1" />
                       </TooltipTrigger>
-                      <TooltipContent side="right">Setup</TooltipContent>
+                      <TooltipContent side="right">
+                        <Trans>Setup</Trans>
+                      </TooltipContent>
                     </Tooltip>
                     <span className="text-xs text-muted-foreground font-mono flex-shrink-0 flex-nowrap">
                       {formatDurationMilliseconds(progress.setup, {
@@ -2097,7 +2159,9 @@ export const JobOperation = ({
                       <TooltipTrigger>
                         <LuHardHat className="h-4 w-4 mr-1" />
                       </TooltipTrigger>
-                      <TooltipContent side="right">Labor</TooltipContent>
+                      <TooltipContent side="right">
+                        <Trans>Labor</Trans>
+                      </TooltipContent>
                     </Tooltip>
                     <span className="text-xs text-muted-foreground font-mono flex-shrink-0 flex-nowrap">
                       {formatDurationMilliseconds(progress.labor, {
@@ -2128,7 +2192,9 @@ export const JobOperation = ({
                       <TooltipTrigger>
                         <LuHammer className="h-4 w-4 mr-1" />
                       </TooltipTrigger>
-                      <TooltipContent side="right">Machine</TooltipContent>
+                      <TooltipContent side="right">
+                        <Trans>Machine</Trans>
+                      </TooltipContent>
                     </Tooltip>
                     <span className="text-xs text-muted-foreground font-mono flex-shrink-0 flex-nowrap">
                       {formatDurationMilliseconds(progress.machine, {
@@ -2158,7 +2224,9 @@ export const JobOperation = ({
                     <TooltipTrigger>
                       <FaTasks className="h-4 w-4 mr-1" />
                     </TooltipTrigger>
-                    <TooltipContent side="right">Quantity</TooltipContent>
+                    <TooltipContent side="right">
+                      <Trans>Quantity</Trans>
+                    </TooltipContent>
                   </Tooltip>
                   <span className="text-xs text-muted-foreground font-mono flex-shrink-0 flex-nowrap min-w-[100px]">
                     {operation.quantityComplete}/{operation.targetQuantity}
@@ -2292,8 +2360,8 @@ export const JobOperation = ({
               (r) => r.index === activeStep
             )?.id ?? ""
           }
-          title="Delete Step"
-          description="Are you sure you want to delete this step?"
+          title={t`Delete Step`}
+          description={t`Are you sure you want to delete this step?`}
         />
       )}
     </>

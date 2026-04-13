@@ -22,6 +22,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuTrash } from "react-icons/lu";
@@ -53,6 +54,7 @@ const SalesRFQLineForm = ({
   type,
   onClose
 }: SalesRFQLineFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { company } = useUser();
   const { carbon } = useCarbon();
@@ -97,7 +99,7 @@ const SalesRFQLineForm = ({
       .maybeSingle();
 
     if (customerPart.error) {
-      toast.error("Failed to load customer part details");
+      toast.error(t`Failed to load customer part details`);
       return;
     }
 
@@ -151,7 +153,7 @@ const SalesRFQLineForm = ({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -259,7 +261,7 @@ const SalesRFQLineForm = ({
                     <div className="col-span-2 grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-2 auto-rows-min">
                       <InputControlled
                         name="customerPartId"
-                        label="Customer Part Number"
+                        label={t`Customer Part Number`}
                         value={itemData.customerPartId}
                         onChange={(newValue) => {
                           setItemData((d) => ({
@@ -272,7 +274,7 @@ const SalesRFQLineForm = ({
                       />
                       <InputControlled
                         name="customerPartRevision"
-                        label="Customer Part Revision"
+                        label={t`Customer Part Revision`}
                         value={itemData.customerPartRevision}
                         onChange={(newValue) => {
                           setItemData((d) => ({
@@ -286,7 +288,7 @@ const SalesRFQLineForm = ({
                       />
                       <Item
                         name="itemId"
-                        label="Part"
+                        label={t`Part`}
                         type="Part"
                         value={itemData.itemId}
                         includeInactive
@@ -296,7 +298,7 @@ const SalesRFQLineForm = ({
                       />
                       <InputControlled
                         name="description"
-                        label="Description"
+                        label={t`Description`}
                         value={itemData.description}
                         isReadOnly={!!itemData.itemId}
                       />
@@ -316,7 +318,7 @@ const SalesRFQLineForm = ({
                     <div className="flex gap-y-4">
                       <ArrayNumeric
                         name="quantity"
-                        label="Quantity"
+                        label={t`Quantity`}
                         defaults={[1, 25, 50, 100]}
                       />
                     </div>
@@ -332,7 +334,7 @@ const SalesRFQLineForm = ({
                       : !permissions.can("create", "sales"))
                   }
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </ModalCardFooter>
             </ValidatedForm>

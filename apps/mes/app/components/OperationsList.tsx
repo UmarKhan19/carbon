@@ -17,6 +17,7 @@ import {
   formatDurationMilliseconds,
   formatRelativeTime
 } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
 import {
   LuCalendarDays,
@@ -91,6 +92,7 @@ function OperationCard({
   showStatus,
   showThumbnail
 }: OperationCardProps) {
+  const { t } = useLingui();
   const isOverdue =
     operation.jobDeadlineType !== "No Deadline" && operation.jobDueDate
       ? new Date(operation.jobDueDate) < new Date()
@@ -182,7 +184,7 @@ function OperationCard({
                       )
                         ? operation.jobDeadlineType
                         : operation.jobDueDate
-                          ? `Due ${formatRelativeTime(
+                          ? t`Due ${formatRelativeTime(
                               convertDateStringToIsoString(operation.jobDueDate)
                             )}`
                           : "–"}

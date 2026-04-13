@@ -11,6 +11,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher, useNavigate } from "react-router";
 import { Input, Location, Select, Submit } from "~/components/Form";
 import { useUser } from "~/hooks";
@@ -24,6 +25,7 @@ type CreateEmployeeModalProps = {
 };
 
 const CreateEmployeeModal = ({ invitable }: CreateEmployeeModalProps) => {
+  const { t } = useLingui();
   const { defaults } = useUser();
   const navigate = useNavigate();
   const formFetcher = useFetcher<Result>();
@@ -60,28 +62,32 @@ const CreateEmployeeModal = ({ invitable }: CreateEmployeeModalProps) => {
           className="flex flex-col h-full"
         >
           <ModalHeader>
-            <ModalTitle>Create an account</ModalTitle>
+            <ModalTitle>
+              <Trans>Create an account</Trans>
+            </ModalTitle>
           </ModalHeader>
 
           <ModalBody>
             <VStack spacing={4}>
-              <Input name="email" label="Email" />
+              <Input name="email" label={t`Email`} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                <Input name="firstName" label="First Name" />
-                <Input name="lastName" label="Last Name" />
+                <Input name="firstName" label={t`First Name`} />
+                <Input name="lastName" label={t`Last Name`} />
               </div>
               <Select
                 name="employeeType"
-                label="Employee Type"
+                label={t`Employee Type`}
                 options={employeeTypeOptions}
-                placeholder="Select Employee Type"
+                placeholder={t`Select Employee Type`}
               />
-              <Location name="locationId" label="Location" />
+              <Location name="locationId" label={t`Location`} />
             </VStack>
           </ModalBody>
           <ModalFooter>
             <HStack>
-              <Submit isLoading={formFetcher.state !== "idle"}>Invite</Submit>
+              <Submit isLoading={formFetcher.state !== "idle"}>
+                <Trans>Invite</Trans>
+              </Submit>
             </HStack>
           </ModalFooter>
         </ValidatedForm>

@@ -1,10 +1,10 @@
 import type { Database } from "@carbon/database";
 import { Checkbox, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
-
 import { flushSync } from "react-dom";
 import {
   LuBookMarked,
@@ -58,6 +58,7 @@ const GaugeCalibrationRecordsTable = memo(
   ({ data, types, count }: GaugeCalibrationRecordsTableProps) => {
     const [params] = useUrlParams();
     const navigate = useNavigate();
+    const { t } = useLingui();
     const permissions = usePermissions();
     const deleteDisclosure = useDisclosure();
     const [selectedGaugeCalibrationRecord, setSelectedGaugeCalibrationRecord] =
@@ -90,7 +91,7 @@ const GaugeCalibrationRecordsTable = memo(
       const defaultColumns: ColumnDef<GaugeCalibrationRecord>[] = [
         {
           accessorKey: "gaugeId",
-          header: "ID",
+          header: t`ID`,
           cell: ({ row }) => (
             <Hyperlink to={path.to.gaugeCalibrationRecord(row.original.id!)}>
               <div className="flex flex-col gap-0">
@@ -109,7 +110,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "dateCalibrated",
-          header: "Date Calibrated",
+          header: t`Date Calibrated`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -117,7 +118,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "inspectionStatus",
-          header: "Inspection Status",
+          header: t`Inspection Status`,
           cell: (item) => (
             <GaugeCalibrationRecordStatus
               status={item.getValue<string>() as "Pass" | "Fail"}
@@ -142,7 +143,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "gaugeTypeId",
-          header: "Type",
+          header: t`Type`,
           cell: ({ row }) => (
             <Enumerable
               value={
@@ -164,14 +165,14 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "requiresAction",
-          header: "Requires Action",
+          header: t`Requires Action`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
           meta: {
             filter: {
               type: "static",
               options: [
-                { value: "true", label: "Yes" },
-                { value: "false", label: "No" }
+                { value: "true", label: t`Yes` },
+                { value: "false", label: t`No` }
               ]
             },
             icon: <LuCheck />
@@ -179,14 +180,14 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "requiresAdjustment",
-          header: "Requires Adjustment",
+          header: t`Requires Adjustment`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
           meta: {
             filter: {
               type: "static",
               options: [
-                { value: "true", label: "Yes" },
-                { value: "false", label: "No" }
+                { value: "true", label: t`Yes` },
+                { value: "false", label: t`No` }
               ]
             },
             icon: <LuCheck />
@@ -194,14 +195,14 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "requiresRepair",
-          header: "Requires Repair",
+          header: t`Requires Repair`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
           meta: {
             filter: {
               type: "static",
               options: [
-                { value: "true", label: "Yes" },
-                { value: "false", label: "No" }
+                { value: "true", label: t`Yes` },
+                { value: "false", label: t`No` }
               ]
             },
             icon: <LuCheck />
@@ -210,7 +211,7 @@ const GaugeCalibrationRecordsTable = memo(
 
         {
           id: "supplierId",
-          header: "Calibration Supplier",
+          header: t`Calibration Supplier`,
           cell: ({ row }) => (
             <SupplierAvatar supplierId={row.original.supplierId} />
           ),
@@ -228,7 +229,7 @@ const GaugeCalibrationRecordsTable = memo(
 
         {
           accessorKey: "temperature",
-          header: "Temperature",
+          header: t`Temperature`,
           cell: (item) => {
             const value = item.getValue<number | null>();
             return value !== null && value !== undefined
@@ -241,7 +242,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "humidity",
-          header: "Humidity",
+          header: t`Humidity`,
           cell: (item) => {
             const value = item.getValue<number | null>();
             return value !== null && value !== undefined
@@ -254,7 +255,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           id: "approvedBy",
-          header: "Approved By",
+          header: t`Approved By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.approvedBy} />
           ),
@@ -271,7 +272,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -288,7 +289,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuFileText />
@@ -296,7 +297,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -313,7 +314,7 @@ const GaugeCalibrationRecordsTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuFileText />
@@ -327,7 +328,8 @@ const GaugeCalibrationRecordsTable = memo(
       people,
       suppliers,
       temperatureFormatter,
-      types
+      types,
+      t
     ]);
 
     const renderContextMenu = useCallback(
@@ -376,7 +378,7 @@ const GaugeCalibrationRecordsTable = memo(
           primaryAction={
             permissions.can("create", "quality") && (
               <New
-                label="Record"
+                label={t`Record`}
                 to={`${
                   path.to.newGaugeCalibrationRecord
                 }?${params?.toString()}`}
@@ -384,7 +386,7 @@ const GaugeCalibrationRecordsTable = memo(
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Calibration Records"
+          title={t`Calibration Records`}
           table="gaugeCalibrationRecord"
           withSavedView
         />
@@ -405,7 +407,7 @@ const GaugeCalibrationRecordsTable = memo(
             name={`record for ${
               selectedGaugeCalibrationRecord.gaugeReadableId ?? "gauge"
             }`}
-            text="Are you sure you want to delete this record?"
+            text={t`Are you sure you want to delete this record?`}
           />
         )}
       </>

@@ -1,4 +1,5 @@
 import { Checkbox } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { MouseEvent } from "react";
 
 type IndeterminateCheckboxProps = {
@@ -28,7 +29,9 @@ const IndeterminateCheckbox = ({
       onCheckedChange={handleChange}
       {...rest}
     >
-      <span className="sr-only">Select Row</span>
+      <span className="sr-only">
+        <Trans>Select Row</Trans>
+      </span>
     </Checkbox>
   );
 };

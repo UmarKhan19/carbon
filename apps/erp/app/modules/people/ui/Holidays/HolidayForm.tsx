@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
 import {
@@ -28,6 +29,7 @@ type HolidayFormProps = {
 };
 
 const HolidayForm = ({ initialValues }: HolidayFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
@@ -55,21 +57,29 @@ const HolidayForm = ({ initialValues }: HolidayFormProps) => {
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Holiday</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? (
+                <Trans>Edit Holiday</Trans>
+              ) : (
+                <Trans>New Holiday</Trans>
+              )}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack spacing={4}>
-              <Input name="name" label="Holiday Name" />
-              <DatePicker name="date" label="Date" />
+              <Input name="name" label={t`Holiday Name`} />
+              <DatePicker name="date" label={t`Date`} />
               <CustomFormFields table="holiday" />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

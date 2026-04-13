@@ -7,12 +7,14 @@ import {
   CardTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import { Password, Submit } from "~/components/Form";
 import { path } from "~/utils/path";
 import { accountPasswordValidator } from "../../account.models";
 
 const PasswordForm = () => {
+  const { t } = useLingui();
   const [passwordsMatch, setPasswordsMatch] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
@@ -35,22 +37,24 @@ const PasswordForm = () => {
         validator={accountPasswordValidator}
       >
         <CardHeader>
-          <CardTitle>Update Password</CardTitle>
+          <CardTitle>
+            <Trans>Update Password</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <VStack spacing={4} className="my-4 max-w-[440px]">
-            <Password name="currentPassword" label="Current Password" />
+            <Password name="currentPassword" label={t`Current Password`} />
             <Password
               ref={passwordRef}
               onChange={onPasswordChange}
               name="password"
-              label="New Password"
+              label={t`New Password`}
             />
             <Password
               ref={confirmPasswordRef}
               onChange={onPasswordChange}
               name="confirmPassword"
-              label="Confirm Password"
+              label={t`Confirm Password`}
             />
           </VStack>
         </CardContent>

@@ -1,11 +1,13 @@
 import { IconButton } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+import { useLingui } from "@lingui/react/macro";
 import { BiLaptop, BiMoon, BiSun } from "react-icons/bi";
 import { useFetcher } from "react-router";
 import type { action } from "~/root";
 import { path } from "~/utils/path";
 
 const ModeSwitcher = () => {
+  const { t } = useLingui();
   const mode = useMode();
   const nextMode = mode === "dark" ? "light" : "dark";
   const modeLabel = {
@@ -29,7 +31,7 @@ const ModeSwitcher = () => {
 
       <IconButton
         icon={modeLabel[nextMode]}
-        aria-label="Light Mode"
+        aria-label={t`Light Mode`}
         variant="ghost"
         type="submit"
       />

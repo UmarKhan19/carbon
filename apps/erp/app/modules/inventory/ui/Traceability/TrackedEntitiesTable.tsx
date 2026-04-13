@@ -1,4 +1,5 @@
 import { Badge, MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
@@ -31,6 +32,7 @@ type TrackedEntitiesTableProps = {
 const TrackedEntitiesTable = memo(
   ({ data, count }: TrackedEntitiesTableProps) => {
     const navigate = useNavigate();
+    const { t } = useLingui();
     const permissions = usePermissions();
     const numberFormatter = useNumberFormatter();
     const [items] = useItems();
@@ -39,7 +41,7 @@ const TrackedEntitiesTable = memo(
       () => [
         {
           accessorKey: "sourceDocumentId",
-          header: "Entity",
+          header: t`Entity`,
           cell: ({ row }) => (
             <Hyperlink
               to={`${path.to.traceabilityGraph}?trackedEntityId=${row.original.id}`}
@@ -66,7 +68,7 @@ const TrackedEntitiesTable = memo(
         },
         {
           accessorKey: "readableId",
-          header: "Serial/Batch #",
+          header: t`Serial/Batch #`,
           cell: ({ row }) =>
             row.original.readableId ? (
               <Badge variant="secondary" className="items-center gap-1">
@@ -80,7 +82,7 @@ const TrackedEntitiesTable = memo(
         },
         {
           accessorKey: "quantity",
-          header: "Quantity",
+          header: t`Quantity`,
           cell: ({ row }) => (
             <span>{numberFormatter.format(row.original.quantity)}</span>
           ),
@@ -141,7 +143,7 @@ const TrackedEntitiesTable = memo(
         },
         {
           accessorKey: "status",
-          header: "Status",
+          header: t`Status`,
           cell: ({ row }) => (
             <TrackedEntityStatus status={row.original.status} />
           ),
@@ -160,7 +162,7 @@ const TrackedEntitiesTable = memo(
         },
         {
           accessorKey: "sourceDocument",
-          header: "Source Document",
+          header: t`Source Document`,
           cell: ({ row }) => (
             <SourceDocumentLink data={row.original} items={items} />
           ),
@@ -169,7 +171,7 @@ const TrackedEntitiesTable = memo(
           }
         }
       ],
-      [numberFormatter, items]
+      [numberFormatter, items, t]
     );
 
     const renderContextMenu = useCallback(
@@ -185,7 +187,7 @@ const TrackedEntitiesTable = memo(
               }}
             >
               <MenuIcon icon={<LuNetwork />} />
-              View Traceability Graph
+              <Trans>View Traceability Graph</Trans>
             </MenuItem>
           </>
         );
@@ -199,7 +201,7 @@ const TrackedEntitiesTable = memo(
         columns={columns}
         count={count}
         renderContextMenu={renderContextMenu}
-        title="Tracked Entities"
+        title={t`Tracked Entities`}
       />
     );
   }

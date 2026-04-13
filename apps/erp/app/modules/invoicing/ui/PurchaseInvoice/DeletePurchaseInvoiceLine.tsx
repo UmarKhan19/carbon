@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import { useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
 import { path } from "~/utils/path";
@@ -10,6 +11,7 @@ export default function DeletePurchaseInvoiceLine({
   line: PurchaseInvoiceLine;
   onCancel: () => void;
 }) {
+  const { t } = useLingui();
   const { invoiceId } = useParams();
   if (!invoiceId) throw new Error("id not found");
   if (!line.id) return null;
@@ -18,7 +20,7 @@ export default function DeletePurchaseInvoiceLine({
     <ConfirmDelete
       action={path.to.deletePurchaseInvoiceLine(invoiceId, line.id)}
       name={line.itemReadableId ?? "this line"}
-      text={`Are you sure you want to delete the line: ${line.itemReadableId}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the line: ${line.itemReadableId}? This cannot be undone.`}
       onCancel={onCancel}
       onSubmit={onCancel}
     />

@@ -1,4 +1,5 @@
 import { Badge, MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -25,6 +26,7 @@ type ShiftsTableProps = {
 };
 
 const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [params] = useUrlParams();
@@ -53,7 +55,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
     const defaultColumns: ColumnDef<Shift>[] = [
       {
         accessorKey: "name",
-        header: "Shift",
+        header: t`Shift`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id!}>{row.original.name}</Hyperlink>
         ),
@@ -63,7 +65,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
       },
       {
         accessorKey: "startTime",
-        header: "Start Time",
+        header: t`Start Time`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuClock />
@@ -71,7 +73,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
       },
       {
         accessorKey: "endTime",
-        header: "End Time",
+        header: t`End Time`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuClock />
@@ -79,7 +81,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
       },
       {
         accessorKey: "locationName",
-        header: "Location",
+        header: t`Location`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />,
         meta: {
           icon: <LuMapPin />,
@@ -94,7 +96,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
       },
       {
         id: "days",
-        header: "Days",
+        header: t`Days`,
         // @ts-ignore
         cell: ({ row }) => renderDays(row.original),
         meta: {
@@ -104,7 +106,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
     ];
 
     return [...defaultColumns, ...customColumns];
-  }, [locations, renderDays, customColumns]);
+  }, [locations, renderDays, customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: Shift) => {
@@ -116,7 +118,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Shift
+            <Trans>Edit Shift</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -126,7 +128,7 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Shift
+            <Trans>Delete Shift</Trans>
           </MenuItem>
         </>
       );
@@ -141,11 +143,11 @@ const ShiftsTable = memo(({ data, count, locations }: ShiftsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "people") && (
-          <New label="Shift" to={`new?${params.toString()}`} />
+          <New label={t`Shift`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Shifts"
+      title={t`Shifts`}
     />
   );
 });

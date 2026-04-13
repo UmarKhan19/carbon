@@ -16,6 +16,7 @@ import {
   TabsTrigger,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { BsExclamationSquareFill } from "react-icons/bs";
 import { LuTriangleAlert } from "react-icons/lu";
@@ -223,6 +224,7 @@ type MaintenanceDispatch = NonNullable<
 >[number];
 
 function MaintenanceCard({ dispatch }: { dispatch: MaintenanceDispatch }) {
+  const { t } = useLingui();
   if (!dispatch.id) {
     return null;
   }
@@ -253,7 +255,7 @@ function MaintenanceCard({ dispatch }: { dispatch: MaintenanceDispatch }) {
             <Badge
               variant={getOeeImpactColor(dispatch.oeeImpact ?? "No Impact")}
             >
-              {dispatch.oeeImpact ?? "No Impact"}
+              {dispatch.oeeImpact ?? t`No Impact`}
             </Badge>
             {dispatch.assignee && (
               <EmployeeAvatar employeeId={dispatch.assignee} />
@@ -280,7 +282,11 @@ function EmptyState({
       <span className="text-xs font-mono font-light text-foreground uppercase">
         {message}
       </span>
-      {onClear && <Button onClick={onClear}>Clear Search</Button>}
+      {onClear && (
+        <Button onClick={onClear}>
+          <Trans>Clear Search</Trans>
+        </Button>
+      )}
     </div>
   );
 }
@@ -297,6 +303,7 @@ function isToday(dateString: string | null): boolean {
 }
 
 export default function MaintenanceRoute() {
+  const { t } = useLingui();
   const { dispatches, assignedDispatches, workCenters } =
     useLoaderData<typeof loader>();
   const [activeTab, setActiveTab] = useState("all");
@@ -322,7 +329,7 @@ export default function MaintenanceRoute() {
     return [
       {
         accessorKey: "workCenterId",
-        header: "Work Center",
+        header: t`Work Center`,
         filter: {
           type: "static",
           options: workCenters
@@ -335,7 +342,7 @@ export default function MaintenanceRoute() {
       },
       {
         accessorKey: "priority",
-        header: "Priority",
+        header: t`Priority`,
         filter: {
           type: "static",
           options: maintenanceDispatchPriority.map((p) => ({
@@ -346,27 +353,27 @@ export default function MaintenanceRoute() {
       },
       {
         accessorKey: "status",
-        header: "Status",
-        pluralHeader: "Statuses",
+        header: t`Status`,
+        pluralHeader: t`Statuses`,
         filter: {
           type: "static",
           options: [
-            { label: "Open", value: "Open" },
-            { label: "Assigned", value: "Assigned" },
-            { label: "In Progress", value: "In Progress" }
+            { label: t`Open`, value: "Open" },
+            { label: t`Assigned`, value: "Assigned" },
+            { label: t`In Progress`, value: "In Progress" }
           ]
         }
       },
       {
         accessorKey: "oeeImpact",
-        header: "OEE Impact",
+        header: t`OEE Impact`,
         filter: {
           type: "static",
           options: [
-            { label: "Down", value: "Down" },
-            { label: "Planned", value: "Planned" },
-            { label: "Impact", value: "Impact" },
-            { label: "No Impact", value: "No Impact" }
+            { label: t`Down`, value: "Down" },
+            { label: t`Planned`, value: "Planned" },
+            { label: t`Impact`, value: "Impact" },
+            { label: t`No Impact`, value: "No Impact" }
           ]
         }
       }
@@ -393,7 +400,9 @@ export default function MaintenanceRoute() {
       <header className="sticky top-0 z-10 flex h-[var(--header-height)] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b bg-background">
         <div className="flex items-center gap-2 px-2">
           <SidebarTrigger />
-          <Heading size="h4">Maintenance</Heading>
+          <Heading size="h4">
+            <Trans>Maintenance</Trans>
+          </Heading>
         </div>
       </header>
 
@@ -405,7 +414,7 @@ export default function MaintenanceRoute() {
                 <HStack className="justify-between w-full">
                   <TabsList>
                     <TabsTrigger value="all">
-                      All
+                      <Trans>All</Trans>
                       {dispatches.length > 0 && (
                         <Badge variant="secondary" className="ml-2">
                           {dispatches.length}
@@ -413,7 +422,7 @@ export default function MaintenanceRoute() {
                       )}
                     </TabsTrigger>
                     <TabsTrigger value="today">
-                      Today
+                      <Trans>Today</Trans>
                       {todayDispatches.length > 0 && (
                         <Badge variant="secondary" className="ml-2">
                           {todayDispatches.length}
@@ -421,7 +430,7 @@ export default function MaintenanceRoute() {
                       )}
                     </TabsTrigger>
                     <TabsTrigger value="assigned">
-                      Assigned to Me
+                      <Trans>Assigned to Me</Trans>
                       {assignedDispatches.length > 0 && (
                         <Badge variant="secondary" className="ml-2">
                           {assignedDispatches.length}
@@ -429,7 +438,7 @@ export default function MaintenanceRoute() {
                       )}
                     </TabsTrigger>
                     <TabsTrigger value="blocking">
-                      Blocking
+                      <Trans>Blocking</Trans>
                       {blockingDispatches.length > 0 && (
                         <Badge variant="destructive" className="ml-2">
                           {blockingDispatches.length}
@@ -441,7 +450,7 @@ export default function MaintenanceRoute() {
                     <SearchFilter
                       param="search"
                       size="sm"
-                      placeholder="Search"
+                      placeholder={t`Search`}
                     />
                     <Filter filters={filters} />
                   </HStack>
@@ -463,11 +472,11 @@ export default function MaintenanceRoute() {
                     </div>
                   ) : hasFilters ? (
                     <EmptyState
-                      message="No results found"
+                      message={t`No results found`}
                       onClear={clearFilters}
                     />
                   ) : (
-                    <EmptyState message="No active maintenance dispatches" />
+                    <EmptyState message={t`No active maintenance dispatches`} />
                   )}
                 </TabsContent>
                 <TabsContent value="today" className="mt-4">
@@ -482,11 +491,13 @@ export default function MaintenanceRoute() {
                     </div>
                   ) : hasFilters ? (
                     <EmptyState
-                      message="No results found"
+                      message={t`No results found`}
                       onClear={clearFilters}
                     />
                   ) : (
-                    <EmptyState message="No maintenance scheduled for today" />
+                    <EmptyState
+                      message={t`No maintenance scheduled for today`}
+                    />
                   )}
                 </TabsContent>
                 <TabsContent value="assigned" className="mt-4">
@@ -501,11 +512,11 @@ export default function MaintenanceRoute() {
                     </div>
                   ) : hasFilters ? (
                     <EmptyState
-                      message="No results found"
+                      message={t`No results found`}
                       onClear={clearFilters}
                     />
                   ) : (
-                    <EmptyState message="No dispatches assigned to you" />
+                    <EmptyState message={t`No dispatches assigned to you`} />
                   )}
                 </TabsContent>
                 <TabsContent value="blocking" className="mt-4">
@@ -520,11 +531,11 @@ export default function MaintenanceRoute() {
                     </div>
                   ) : hasFilters ? (
                     <EmptyState
-                      message="No results found"
+                      message={t`No results found`}
                       onClear={clearFilters}
                     />
                   ) : (
-                    <EmptyState message="No work centers are blocked" />
+                    <EmptyState message={t`No work centers are blocked`} />
                   )}
                 </TabsContent>
               </Tabs>

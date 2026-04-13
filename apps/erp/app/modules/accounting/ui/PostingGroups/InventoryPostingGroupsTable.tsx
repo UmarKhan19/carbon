@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { Table } from "~/components";
@@ -24,6 +25,7 @@ const InventoryPostingGroupsTable = ({
   balanceSheetAccounts,
   incomeStatementAccounts
 }: InventoryPostingGroupsTableProps) => {
+  const { t } = useLingui();
   const { canEdit, onCellEdit } = usePostingGroups("postingGroupInventory");
 
   const balanceSheetAccountOptions = useMemo(() => {
@@ -44,7 +46,7 @@ const InventoryPostingGroupsTable = ({
     return [
       {
         id: "itemPostingGroupId",
-        header: "Posting Group",
+        header: t`Posting Group`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -66,7 +68,7 @@ const InventoryPostingGroupsTable = ({
       },
       {
         id: "locationId",
-        header: "Location",
+        header: t`Location`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -87,76 +89,76 @@ const InventoryPostingGroupsTable = ({
       },
       {
         accessorKey: "costOfGoodsSoldAccount",
-        header: "COGS",
+        header: t`COGS`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "inventoryAccount",
-        header: "Inventory",
+        header: t`Inventory`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "inventoryInterimAccrualAccount",
-        header: "Inv. Interim Accrual",
+        header: t`Inv. Interim Accrual`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "inventoryReceivedNotInvoicedAccount",
-        header: "Received Not Invoiced",
+        header: t`Received Not Invoiced`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "inventoryInvoicedNotReceivedAccount",
-        header: "Invoiced Not Received",
+        header: t`Invoiced Not Received`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "inventoryShippedNotInvoicedAccount",
-        header: "Shipped Not Invoiced",
+        header: t`Shipped Not Invoiced`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "workInProgressAccount",
-        header: "WIP",
+        header: t`WIP`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "directCostAppliedAccount",
-        header: "Direct Cost Applied",
+        header: t`Direct Cost Applied`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "overheadCostAppliedAccount",
-        header: "Overhead Cost Applied",
+        header: t`Overhead Cost Applied`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "purchaseVarianceAccount",
-        header: "Purchase Variance",
+        header: t`Purchase Variance`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "inventoryAdjustmentVarianceAccount",
-        header: "Inv. Adjustment Variance",
+        header: t`Inv. Adjustment Variance`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "materialVarianceAccount",
-        header: "Material Variance",
+        header: t`Material Variance`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "capacityVarianceAccount",
-        header: "Capacity Variance",
+        header: t`Capacity Variance`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "overheadAccount",
-        header: "Overhead",
+        header: t`Overhead`,
         cell: (item) => item.getValue()
       }
     ];
-  }, [locations, itemPostingGroups]);
+  }, [locations, itemPostingGroups, t]);
 
   const editableComponents = useMemo(
     () => ({
@@ -222,7 +224,7 @@ const InventoryPostingGroupsTable = ({
       editableComponents={editableComponents}
       withInlineEditing={canEdit}
       withSearch={false}
-      title="Inventory Posting Groups"
+      title={t`Inventory Posting Groups`}
     />
   );
 };

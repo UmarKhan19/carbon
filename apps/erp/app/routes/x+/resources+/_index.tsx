@@ -35,6 +35,7 @@ import {
 } from "@carbon/react/Chart";
 import { formatDurationMilliseconds } from "@carbon/utils";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -130,6 +131,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function MaintenanceDashboard() {
+  const { t } = useLingui();
   const {
     openDispatches,
     openScheduled,
@@ -157,13 +159,13 @@ export default function MaintenanceDashboard() {
   const workCenters = useWorkCenters();
   const workCenterOptions = useMemo(() => {
     return [
-      { label: "All Work Centers", value: "all" },
+      { label: t`All Work Centers`, value: "all" },
       ...workCenters.map((wc) => ({
         label: wc.label,
         value: wc.value
       }))
     ];
-  }, [workCenters]);
+  }, [workCenters, t]);
 
   const [interval, setInterval] = useState("month");
   const [selectedKpi, setSelectedKpi] = useState("mttr");
@@ -175,6 +177,17 @@ export default function MaintenanceDashboard() {
 
   const selectedKpiData =
     MaintenanceKPIs.find((k) => k.key === selectedKpi) || MaintenanceKPIs[0];
+
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      mttr: t`Mean Time To Repair`,
+      mtbf: t`Mean Time Between Failures`,
+      sparePartCost: t`Spare Part Cost`,
+      worstPerformingMachines: t`Worst Performing Machines`,
+      sparePartConsumption: t`Spare Part Consumption`
+    }),
+    [t]
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   useEffect(() => {
@@ -325,7 +338,7 @@ export default function MaintenanceDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label.replace(/ /g, "_")}_${startDate}_to_${endDate}${
+    return `${(kpiLabels[selectedKpiData.key] ?? "").replace(/ /g, "_")}_${startDate}_to_${endDate}${
       workCenterId === "all"
         ? ""
         : `_${workCenters.find((wc) => wc.value === workCenterId)?.label}`
@@ -333,7 +346,8 @@ export default function MaintenanceDashboard() {
   }, [
     dateRange?.start,
     dateRange?.end,
-    selectedKpiData.label,
+    kpiLabels,
+    selectedKpiData.key,
     workCenterId,
     workCenters
   ]);
@@ -344,7 +358,9 @@ export default function MaintenanceDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuWrench className="text-muted-foreground" />
-            <CardTitle>Open Dispatches</CardTitle>
+            <CardTitle>
+              <Trans>Open Dispatches</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -361,7 +377,7 @@ export default function MaintenanceDashboard() {
                     path.to.maintenanceDispatches
                   }?filter=status:in:${OPEN_STATUSES.join(",")}`}
                 >
-                  View Open
+                  <Trans>View Open</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -371,7 +387,9 @@ export default function MaintenanceDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuCalendarClock className="text-muted-foreground" />
-            <CardTitle>Open Scheduled</CardTitle>
+            <CardTitle>
+              <Trans>Open Scheduled</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -388,7 +406,7 @@ export default function MaintenanceDashboard() {
                     path.to.maintenanceDispatches
                   }?filter=status:in:${OPEN_STATUSES.join(",")}&filter=source:eq:Scheduled`}
                 >
-                  View Scheduled
+                  <Trans>View Scheduled</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -398,7 +416,9 @@ export default function MaintenanceDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuTriangleAlert className="text-muted-foreground" />
-            <CardTitle>Open Reactive</CardTitle>
+            <CardTitle>
+              <Trans>Open Reactive</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -415,7 +435,7 @@ export default function MaintenanceDashboard() {
                     path.to.maintenanceDispatches
                   }?filter=status:in:${OPEN_STATUSES.join(",")}&filter=source:eq:Reactive`}
                 >
-                  View Reactive
+                  <Trans>View Reactive</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -434,7 +454,7 @@ export default function MaintenanceDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedKpiData.label}</span>
+                    <span>{kpiLabels[selectedKpiData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -444,7 +464,7 @@ export default function MaintenanceDashboard() {
                   >
                     {MaintenanceKPIs.map((kpi) => (
                       <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                        {kpi.label}
+                        {kpiLabels[kpi.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>
@@ -473,7 +493,7 @@ export default function MaintenanceDashboard() {
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label="More"
+                  aria-label={t`More`}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -484,7 +504,7 @@ export default function MaintenanceDashboard() {
                     className="flex flex-row items-center gap-2"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    Export CSV
+                    <Trans>Export CSV</Trans>
                   </CSVLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -632,7 +652,9 @@ export default function MaintenanceDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuClock className="text-muted-foreground" />
-            <CardTitle>Recently Created</CardTitle>
+            <CardTitle>
+              <Trans>Recently Created</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="min-h-[200px] max-h-[360px] w-full overflow-y-auto">
@@ -650,13 +672,19 @@ export default function MaintenanceDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuInbox className="text-muted-foreground" />
-            <CardTitle>Assigned to Me</CardTitle>
+            <CardTitle>
+              <Trans>Assigned to Me</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <Suspense fallback={<Loading isLoading />}>
               <Await
                 resolve={assignedToMe}
-                errorElement={<div>Error loading assigned dispatches</div>}
+                errorElement={
+                  <div>
+                    <Trans>Error loading assigned dispatches</Trans>
+                  </div>
+                }
               >
                 {(dispatches) =>
                   dispatches.length > 0 ? (
@@ -698,10 +726,18 @@ function DispatchTable({ data }: { data: DispatchRow[] }) {
     <Table>
       <Thead>
         <Tr>
-          <Th>Dispatch</Th>
-          <Th>Status</Th>
-          <Th>Source</Th>
-          <Th>Work Center</Th>
+          <Th>
+            <Trans>Dispatch</Trans>
+          </Th>
+          <Th>
+            <Trans>Status</Trans>
+          </Th>
+          <Th>
+            <Trans>Source</Trans>
+          </Th>
+          <Th>
+            <Trans>Work Center</Trans>
+          </Th>
         </Tr>
       </Thead>
       <Tbody>

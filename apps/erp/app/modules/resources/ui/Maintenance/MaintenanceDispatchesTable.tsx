@@ -1,5 +1,6 @@
 import { Combobox, HStack, MenuIcon, MenuItem } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -50,6 +51,7 @@ const MaintenanceDispatchesTable = memo(
     locations,
     locationId
   }: MaintenanceDispatchesTableProps) => {
+    const { t } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -73,7 +75,7 @@ const MaintenanceDispatchesTable = memo(
       return [
         {
           accessorKey: "maintenanceDispatchId",
-          header: "Dispatch ID",
+          header: t`Dispatch ID`,
           cell: ({ row }) => (
             <Hyperlink to={path.to.maintenanceDispatch(row.original.id)}>
               {row.original.maintenanceDispatchId}
@@ -85,7 +87,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "workCenterId",
-          header: "Work Center",
+          header: t`Work Center`,
           cell: ({ row }) => {
             const workCenterId = row.original.workCenterId;
             if (!workCenterId) {
@@ -116,7 +118,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "source",
-          header: "Source",
+          header: t`Source`,
           cell: (item) => {
             const source = item.getValue<(typeof maintenanceSource)[number]>();
             return <MaintenanceSource source={source} />;
@@ -134,7 +136,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "status",
-          header: "Status",
+          header: t`Status`,
           cell: (item) => {
             const status =
               item.getValue<(typeof maintenanceDispatchStatus)[number]>();
@@ -149,12 +151,12 @@ const MaintenanceDispatchesTable = memo(
                 label: <MaintenanceStatus status={status} />
               }))
             },
-            pluralHeader: "Statuses"
+            pluralHeader: t`Statuses`
           }
         },
         {
           accessorKey: "priority",
-          header: "Priority",
+          header: t`Priority`,
           cell: (item) => {
             const priority =
               item.getValue<(typeof maintenanceDispatchPriority)[number]>();
@@ -169,12 +171,12 @@ const MaintenanceDispatchesTable = memo(
                 label: <MaintenancePriority priority={priority} />
               }))
             },
-            pluralHeader: "Priorities"
+            pluralHeader: t`Priorities`
           }
         },
         {
           accessorKey: "oeeImpact",
-          header: "OEE Impact",
+          header: t`OEE Impact`,
           cell: (item) => {
             const impact = item.getValue<(typeof oeeImpact)[number]>();
             return <MaintenanceOeeImpact oeeImpact={impact} />;
@@ -192,7 +194,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "plannedStartTime",
-          header: "Planned Start",
+          header: t`Planned Start`,
           cell: ({ row }) => {
             const date = row.original.plannedStartTime;
             return date ? formatDate(date) : "-";
@@ -203,7 +205,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "assignee",
-          header: "Assignee",
+          header: t`Assignee`,
           cell: ({ row }) => {
             const assignee = row.original.assignee;
             if (!assignee) {
@@ -221,7 +223,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "actualFailureModeId",
-          header: "Actual Failure Mode",
+          header: t`Actual Failure Mode`,
           cell: ({ row }) => {
             const actualFailureModeId = row.original.actualFailureModeId;
             const failureMode = failureModes.find(
@@ -245,7 +247,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "suspectedFailureModeId",
-          header: "Suspected Failure Mode",
+          header: t`Suspected Failure Mode`,
           cell: ({ row }) => {
             const suspectedFailureModeId = row.original.suspectedFailureModeId;
             const failureMode = failureModes.find(
@@ -269,7 +271,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => {
             const createdBy = row.original.createdBy;
             return <EmployeeAvatar employeeId={createdBy} size="xs" />;
@@ -287,7 +289,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: ({ row }) => {
             const date = row.original.createdAt;
             return date ? formatDate(date) : "-";
@@ -298,7 +300,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => {
             const updatedBy = row.original.updatedBy;
             return <EmployeeAvatar employeeId={updatedBy} size="xs" />;
@@ -316,7 +318,7 @@ const MaintenanceDispatchesTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: ({ row }) => {
             const date = row.original.updatedAt;
             return date ? formatDate(date) : "-";
@@ -326,7 +328,7 @@ const MaintenanceDispatchesTable = memo(
           }
         }
       ];
-    }, [workCenters, failureModes.find, failureModes?.map, people.map]);
+    }, [workCenters, failureModes.find, failureModes?.map, people.map, t]);
 
     const renderContextMenu = useCallback(
       (row: MaintenanceDispatch) => {
@@ -338,7 +340,7 @@ const MaintenanceDispatchesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Dispatch
+              <Trans>Edit Dispatch</Trans>
             </MenuItem>
             <MenuItem
               destructive
@@ -350,7 +352,7 @@ const MaintenanceDispatchesTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Dispatch
+              <Trans>Delete Dispatch</Trans>
             </MenuItem>
           </>
         );
@@ -389,14 +391,14 @@ const MaintenanceDispatchesTable = memo(
             )}
             {permissions.can("create", "resources") && (
               <New
-                label="Dispatch"
+                label={t`Dispatch`}
                 to={`${path.to.newMaintenanceDispatch}?${params.toString()}`}
               />
             )}
           </div>
         }
         renderContextMenu={renderContextMenu}
-        title="Maintenance Dispatches"
+        title={t`Maintenance Dispatches`}
       />
     );
   }

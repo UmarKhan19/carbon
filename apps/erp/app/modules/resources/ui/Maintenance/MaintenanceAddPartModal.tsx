@@ -29,6 +29,7 @@ import {
   TabsTrigger,
   toast
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
   LuCheck,
@@ -66,6 +67,7 @@ export function MaintenanceAddPartModal({
   dispatchId: string;
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<{ success: boolean; message: string }>();
   const { carbon } = useCarbon();
 
@@ -202,7 +204,7 @@ export function MaintenanceAddPartModal({
       e.preventDefault();
 
       if (!selectedItemId || !itemDetails) {
-        toast.error("Please select an item");
+        toast.error(t`Please select an item`);
         return;
       }
 
@@ -264,7 +266,7 @@ export function MaintenanceAddPartModal({
         });
       } else {
         if (quantity <= 0) {
-          toast.error("Quantity must be greater than 0");
+          toast.error(t`Quantity must be greater than 0`);
           return;
         }
 
@@ -291,7 +293,8 @@ export function MaintenanceAddPartModal({
       validateSerialNumber,
       validateBatch,
       dispatchId,
-      fetcher
+      fetcher,
+      t
     ]
   );
 
@@ -309,9 +312,11 @@ export function MaintenanceAddPartModal({
   return (
     <Modal open onOpenChange={onClose}>
       <ModalContent>
-        <ModalTitle>Add Spare Part</ModalTitle>
+        <ModalTitle>
+          <Trans>Add Spare Part</Trans>
+        </ModalTitle>
         <ModalDescription>
-          Select an item and specify the quantity to issue
+          <Trans>Select an item and specify the quantity to issue</Trans>
         </ModalDescription>
         <ValidatedForm
           method="post"
@@ -339,7 +344,7 @@ export function MaintenanceAddPartModal({
 
               {isLoadingItem && (
                 <div className="text-sm text-muted-foreground">
-                  Loading item details...
+                  <Trans>Loading item details...</Trans>
                 </div>
               )}
 
@@ -350,14 +355,14 @@ export function MaintenanceAddPartModal({
                   <>
                     <NumberInput
                       name="quantity"
-                      label="Quantity"
+                      label={t`Quantity`}
                       value={quantity}
                       onChange={(value) => setQuantity(value)}
                       minValue={1}
                     />
                     <UnitOfMeasure
                       name="unitOfMeasureCodeDisplay"
-                      label="Unit of Measure"
+                      label={t`Unit of Measure`}
                       value={unitOfMeasureCode}
                       isReadOnly
                     />
@@ -370,11 +375,11 @@ export function MaintenanceAddPartModal({
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="scan">
                       <LuQrCode className="mr-2" />
-                      Scan
+                      <Trans>Scan</Trans>
                     </TabsTrigger>
                     <TabsTrigger value="select">
                       <LuList className="mr-2" />
-                      Select
+                      <Trans>Select</Trans>
                     </TabsTrigger>
                   </TabsList>
                   <TabsContent value="scan">
@@ -490,11 +495,11 @@ export function MaintenanceAddPartModal({
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="scan">
                       <LuQrCode className="mr-2" />
-                      Scan
+                      <Trans>Scan</Trans>
                     </TabsTrigger>
                     <TabsTrigger value="select">
                       <LuList className="mr-2" />
-                      Select
+                      <Trans>Select</Trans>
                     </TabsTrigger>
                   </TabsList>
                   <TabsContent value="scan">
@@ -664,7 +669,7 @@ export function MaintenanceAddPartModal({
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Submit
               isLoading={fetcher.state !== "idle"}
@@ -673,7 +678,7 @@ export function MaintenanceAddPartModal({
               }
               withBlocker={false}
             >
-              Add & Issue
+              <Trans>Add & Issue</Trans>
             </Submit>
           </ModalFooter>
         </ValidatedForm>

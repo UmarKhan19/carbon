@@ -7,6 +7,8 @@ import {
   HStack,
   useDisclosure
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
+
 import { useCallback, useState } from "react";
 import { LuPencil, LuTrash } from "react-icons/lu";
 import { Outlet, useNavigate, useParams } from "react-router";
@@ -65,7 +67,9 @@ const CustomerLocations = ({ locations }: CustomerLocationsProps) => {
       <Card>
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Locations</CardTitle>
+            <CardTitle>
+              <Trans>Locations</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>{canEdit && <New to="new" />}</CardAction>
         </HStack>

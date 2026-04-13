@@ -36,9 +36,9 @@ export const PaperlessParts = defineIntegration({
       name: "methodType",
       label: "Material Method Type",
       type: "options",
-      listOptions: ["Buy", "Pick"],
+      listOptions: ["Purchase to Order", "Pull from Inventory"],
       required: false,
-      value: "Pick"
+      value: "Pull from Inventory"
     },
     {
       name: "trackingType",

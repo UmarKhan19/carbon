@@ -9,6 +9,7 @@ import {
   ModalHeader,
   ModalTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { UserSelect } from "~/components/Selectors";
 import { deactivateUsersValidator } from "~/modules/users";
 import { path } from "~/utils/path";
@@ -38,20 +39,27 @@ const DeactivateUsersModal = ({
       <ModalContent>
         <ModalHeader>
           <ModalTitle>
-            {isSingleUser ? "Deactivate Employee" : "Deactivate Employees"}
+            {isSingleUser ? (
+              <Trans>Deactivate Employee</Trans>
+            ) : (
+              <Trans>Deactivate Employees</Trans>
+            )}
           </ModalTitle>
         </ModalHeader>
         <ModalBody>
           <p className="mb-2">
-            Are you sure you want to deactive
-            {isSingleUser ? " this user" : " these users"}?
+            {isSingleUser ? (
+              <Trans>Are you sure you want to deactivate this user?</Trans>
+            ) : (
+              <Trans>Are you sure you want to deactivate these users?</Trans>
+            )}
           </p>
           <UserSelect value={userIds} readOnly isMulti />
         </ModalBody>
         <ModalFooter>
           <HStack>
             <Button variant="ghost" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <ValidatedForm
               method="post"
@@ -69,7 +77,7 @@ const DeactivateUsersModal = ({
               ))}
               <input type="hidden" name="redirectTo" value={redirectTo} />
               <Button variant="destructive" type="submit">
-                Deactivate
+                <Trans>Deactivate</Trans>
               </Button>
             </ValidatedForm>
           </HStack>

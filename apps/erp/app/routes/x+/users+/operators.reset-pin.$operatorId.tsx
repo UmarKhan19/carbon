@@ -20,6 +20,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuRefreshCw } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -91,6 +92,7 @@ export default function ResetPinRoute() {
   const navigate = useNavigate();
   const formFetcher = useFetcher<Result>();
   const [pinValue, setPinValue] = useState(generatePin);
+  const { t } = useLingui();
 
   return (
     <Modal
@@ -104,18 +106,24 @@ export default function ResetPinRoute() {
         <formFetcher.Form method="post" className="flex flex-col h-full">
           <ModalHeader>
             <ModalTitle>
-              Reset PIN for {operator.firstName} {operator.lastName}
+              <Trans>
+                Reset PIN for {operator.firstName} {operator.lastName}
+              </Trans>
             </ModalTitle>
           </ModalHeader>
 
           <ModalBody>
             <VStack spacing={4}>
               <p className="text-sm text-muted-foreground">
-                Generate a new 4-digit PIN. Share it with the operator so they
-                can pin in at MES terminals.
+                <Trans>
+                  Generate a new 4-digit PIN. Share it with the operator so they
+                  can pin in at MES terminals.
+                </Trans>
               </p>
               <div className="space-y-2 w-full">
-                <Label>New PIN</Label>
+                <Label>
+                  <Trans>New PIN</Trans>
+                </Label>
                 <div className="flex items-center justify-center gap-3">
                   <input type="hidden" name="pin" value={pinValue} />
                   <InputOTP
@@ -136,7 +144,7 @@ export default function ResetPinRoute() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    aria-label="Generate new PIN"
+                    aria-label={t`Generate new PIN`}
                     icon={<LuRefreshCw />}
                     onClick={() => {
                       const newPin = generatePin();
@@ -154,7 +162,7 @@ export default function ResetPinRoute() {
                 isLoading={formFetcher.state !== "idle"}
                 isDisabled={formFetcher.state !== "idle" || pinValue.length < 4}
               >
-                Reset PIN
+                <Trans>Reset PIN</Trans>
               </Button>
             </HStack>
           </ModalFooter>

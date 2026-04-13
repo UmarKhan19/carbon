@@ -23,6 +23,7 @@ import {
   useShortcutKeys
 } from "@carbon/react";
 import { formatDurationMilliseconds, lerp } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { Virtualizer } from "@tanstack/react-virtual";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -71,6 +72,7 @@ const Gantt = ({
   rootSpanStatus,
   rootStartedAt
 }: GanttProps) => {
+  const { t } = useLingui();
   const [filterText, setFilterText] = useState("");
   const [wipOnly, setWipOnly] = useState(false);
   const [showDurations, setShowDurations] = useState(false);
@@ -123,13 +125,13 @@ const Gantt = ({
         <div className="flex items-center gap-2">
           <Switch
             variant="small"
-            label="In Process Only"
+            label={t`In Process Only`}
             checked={wipOnly}
             onCheckedChange={(e) => setWipOnly(e.valueOf())}
           />
           <Switch
             variant="small"
-            label="Show Durations"
+            label={t`Show Durations`}
             checked={showDurations}
             onCheckedChange={(e) => setShowDurations(e.valueOf())}
           />
@@ -228,7 +230,7 @@ const Gantt = ({
                         <NodeText node={node} />
                         {node.data.isRoot && (
                           <Badge variant="outline" className="text-xs">
-                            Job
+                            <Trans>Job</Trans>
                           </Badge>
                         )}
                       </div>
@@ -281,7 +283,9 @@ const Gantt = ({
           </div>
           <div className="@[42rem]:hidden">
             <Popover>
-              <PopoverTrigger className="text-sm">Shortcuts</PopoverTrigger>
+              <PopoverTrigger className="text-sm">
+                <Trans>Shortcuts</Trans>
+              </PopoverTrigger>
               <PopoverContent
                 className="min-w-[20rem] overflow-y-auto p-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent"
                 align="start"
@@ -580,7 +584,7 @@ function NodeStatusIcon({ node }: { node: GanttEvent }) {
           variant="extra-small"
           className={runStatusClassNameColor("CANCELED")}
         >
-          Canceled
+          <Trans>Canceled</Trans>
         </Paragraph>
         <GanttTaskStatusIcon status="CANCELED" className={cn("w-4 h-4")} />
       </>
@@ -637,7 +641,7 @@ function ShowParentLink({ ganttReadableId }: { ganttReadableId: string }) {
           variant="small"
           className={cn(mouseOver ? "text-indigo-500" : "text-gray-500")}
         >
-          Show parent items
+          <Trans>Show parent items</Trans>
         </Paragraph>
       </Link>
     </Button>
@@ -658,7 +662,7 @@ function LiveReloadingStatus({
         variant="extra-small"
         className="whitespace-nowrap text-primary"
       >
-        Live reloading
+        <Trans>Live reloading</Trans>
       </Paragraph>
     </div>
   );
@@ -754,24 +758,25 @@ function KeyboardShortcuts({
   toggleExpandLevel: (depth: number) => void;
   setShowDurations: (show: (show: boolean) => boolean) => void;
 }) {
+  const { t } = useLingui();
   return (
     <>
       <ArrowKeyShortcuts />
       <ShortcutWithAction
         shortcut={{ key: "e" }}
         action={() => expandAllBelowDepth(0)}
-        title="Expand all"
+        title={t`Expand all`}
       />
       <ShortcutWithAction
         shortcut={{ key: "c" }}
         action={() => collapseAllBelowDepth(1)}
-        title="Collapse all"
+        title={t`Collapse all`}
       />
       <NumberShortcuts toggleLevel={(number) => toggleExpandLevel(number)} />
       <ShortcutWithAction
         shortcut={{ key: "d" }}
         action={() => setShowDurations((d) => !d)}
-        title="Toggle durations"
+        title={t`Toggle durations`}
       />
     </>
   );
@@ -801,7 +806,7 @@ function ArrowKeyShortcuts() {
         className="ml-0 mr-0"
       />
       <Paragraph variant="extra-small" className="ml-1.5 whitespace-nowrap">
-        Navigate
+        <Trans>Navigate</Trans>
       </Paragraph>
     </div>
   );
@@ -849,13 +854,14 @@ function NumberShortcuts({
       <span className="text-[0.75rem] text-text-dimmed">–</span>
       <span className={cn(shortcutKeyVariants.medium, "ml-0 mr-0")}>9</span>
       <Paragraph variant="extra-small" className="ml-1.5 whitespace-nowrap">
-        Toggle level
+        <Trans>Toggle level</Trans>
       </Paragraph>
     </div>
   );
 }
 
 function SearchField({ onChange }: { onChange: (value: string) => void }) {
+  const { t } = useLingui();
   const [value, setValue] = useState("");
 
   const updateFilterText = useDebounce((text: string) => {
@@ -873,7 +879,7 @@ function SearchField({ onChange }: { onChange: (value: string) => void }) {
         <LuSearch className="h-4 w-4 text-muted-foreground" />
       </InputLeftElement>
       <Input
-        placeholder="Search Job"
+        placeholder={t`Search Job`}
         value={value}
         onChange={(e) => updateValue(e.target.value)}
       />

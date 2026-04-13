@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -60,19 +61,19 @@ export default function DeleteShiftRoute() {
   const { shiftId } = useParams();
   const { shift } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!shift) return null;
   if (!shiftId) throw notFound("shiftId not found");
 
   const onCancel = () => navigate(path.to.shifts);
-
+  const name = shift.name ?? "Shift";
+  const locationName = shift.locationName ?? t`unknown location`;
   return (
     <ConfirmDelete
       action={path.to.deleteShift(shiftId)}
-      name={shift.name ?? "Shift"}
-      text={`Are you sure you want to delete the shift: ${shift.name} from ${
-        shift.locationName ?? "unknown location"
-      }? This cannot be undone.`}
+      name={name}
+      text={t`Are you sure you want to delete the shift: ${name} from ${locationName}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

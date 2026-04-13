@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -34,6 +35,7 @@ const SupplierTypeForm = ({
   type = "drawer",
   onClose
 }: SupplierTypeFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -85,15 +87,17 @@ const SupplierTypeForm = ({
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Input name="name" label="Supplier Type" />
+                <Input name="name" label={t`Supplier Type`} />
                 <CustomFormFields table="supplierType" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

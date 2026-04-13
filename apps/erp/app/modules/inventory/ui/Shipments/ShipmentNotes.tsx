@@ -18,6 +18,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { usePermissions, useUser } from "~/hooks";
@@ -37,6 +38,7 @@ const ShipmentNotes = ({
     company: { id: companyId }
   } = useUser();
   const { carbon } = useCarbon();
+  const { t } = useLingui();
   const permissions = usePermissions();
   const [tab, setTab] = useState("internal");
   const [internalNotes, setInternalNotes] = useState(
@@ -53,7 +55,7 @@ const ShipmentNotes = ({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 
@@ -102,15 +104,21 @@ const ShipmentNotes = ({
         <Tabs value={tab} onValueChange={setTab}>
           <HStack className="w-full justify-between">
             <CardHeader>
-              <CardTitle>Shipping Notes</CardTitle>
+              <CardTitle>
+                <Trans>Shipping Notes</Trans>
+              </CardTitle>
               <CardDescription>
-                {tab === "internal" ? "Internal Notes" : "External Notes"}
+                {tab === "internal" ? t`Internal Notes` : t`External Notes`}
               </CardDescription>
             </CardHeader>
             <CardAction>
               <TabsList>
-                <TabsTrigger value="internal">Internal</TabsTrigger>
-                <TabsTrigger value="external">External</TabsTrigger>
+                <TabsTrigger value="internal">
+                  <Trans>Internal</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="external">
+                  <Trans>External</Trans>
+                </TabsTrigger>
               </TabsList>
             </CardAction>
           </HStack>

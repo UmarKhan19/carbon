@@ -11,6 +11,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuEllipsisVertical,
   LuPanelLeft,
@@ -33,6 +34,7 @@ const TrainingHeader = () => {
     training: Training;
   }>(path.to.training(id));
 
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { toggleExplorer, toggleProperties } = usePanels();
   const deleteDisclosure = useDisclosure();
@@ -42,7 +44,7 @@ const TrainingHeader = () => {
       <VStack spacing={0} className="flex-grow">
         <HStack>
           <IconButton
-            aria-label="Toggle Explorer"
+            aria-label={t`Toggle Explorer`}
             icon={<LuPanelLeft />}
             onClick={toggleExplorer}
             variant="ghost"
@@ -56,7 +58,7 @@ const TrainingHeader = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="More options"
+                aria-label={t`More options`}
                 icon={<LuEllipsisVertical />}
                 variant="secondary"
                 size="sm"
@@ -72,7 +74,7 @@ const TrainingHeader = () => {
                 onClick={deleteDisclosure.onOpen}
               >
                 <DropdownMenuIcon icon={<LuTrash />} />
-                Delete Training
+                <Trans>Delete Training</Trans>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -80,7 +82,7 @@ const TrainingHeader = () => {
       </VStack>
       <div className="flex flex-shrink-0 gap-1 items-center justify-end">
         <IconButton
-          aria-label="Toggle Properties"
+          aria-label={t`Toggle Properties`}
           icon={<LuPanelRight />}
           onClick={toggleProperties}
           variant="ghost"
@@ -91,7 +93,7 @@ const TrainingHeader = () => {
           action={path.to.deleteTraining(id)}
           isOpen={deleteDisclosure.isOpen}
           name={routeData?.training?.name ?? "training"}
-          text={`Are you sure you want to delete ${routeData?.training?.name}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.training?.name}? This cannot be undone.`}
           onCancel={() => {
             deleteDisclosure.onClose();
           }}

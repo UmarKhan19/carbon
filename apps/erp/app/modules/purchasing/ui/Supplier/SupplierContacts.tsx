@@ -7,6 +7,7 @@ import {
   HStack,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -22,6 +23,7 @@ type SupplierContactsProps = {
 };
 
 const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const { supplierId } = useParams();
   if (!supplierId) throw new Error("supplierId not found");
@@ -37,8 +39,8 @@ const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
       const actions = [];
       actions.push({
         label: permissions.can("update", "purchasing")
-          ? "Edit Contact"
-          : "View Contact",
+          ? t`Edit Contact`
+          : t`View Contact`,
         icon: <LuPencil />,
         onClick: () => {
           navigate(contact.id);
@@ -47,7 +49,7 @@ const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
 
       if (permissions.can("delete", "purchasing")) {
         actions.push({
-          label: "Delete Contact",
+          label: t`Delete Contact`,
           destructive: true,
           icon: <LuTrash />,
           onClick: () => {
@@ -63,7 +65,7 @@ const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
         contact.contact.email
       ) {
         actions.push({
-          label: "Create Account",
+          label: t`Create Account`,
           icon: <IoMdAdd />,
           onClick: () => {
             navigate(
@@ -75,7 +77,7 @@ const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
 
       if (permissions.can("create", "resources")) {
         actions.push({
-          label: "Add Contractor",
+          label: t`Add Contractor`,
           icon: <IoMdAdd />,
           onClick: () => {
             navigate(
@@ -87,7 +89,7 @@ const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
 
       return actions;
     },
-    [permissions, deleteContactModal, navigate, supplierId]
+    [permissions, deleteContactModal, navigate, supplierId, t]
   );
 
   return (
@@ -95,7 +97,9 @@ const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
       <Card>
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Contacts</CardTitle>
+            <CardTitle>
+              <Trans>Contacts</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>{canEdit && <New to="new" />}</CardAction>
         </HStack>
@@ -103,7 +107,7 @@ const SupplierContacts = ({ contacts }: SupplierContactsProps) => {
           {isEmpty ? (
             <div className="my-8 text-center w-full">
               <p className="text-muted-foreground text-sm">
-                You haven't created any contacts yet.
+                <Trans>You haven't created any contacts yet.</Trans>
               </p>
             </div>
           ) : (

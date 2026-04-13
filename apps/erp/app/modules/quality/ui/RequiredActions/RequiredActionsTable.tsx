@@ -1,4 +1,5 @@
 import { Checkbox, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -20,6 +21,7 @@ const RequiredActionsTable = memo(
   ({ data, count }: RequiredActionsTableProps) => {
     const [params] = useUrlParams();
     const navigate = useNavigate();
+    const { t } = useLingui();
     const permissions = usePermissions();
     const deleteDisclosure = useDisclosure();
     const [selectedRequiredAction, setSelectedRequiredAction] =
@@ -29,7 +31,7 @@ const RequiredActionsTable = memo(
       const defaultColumns: ColumnDef<RequiredAction>[] = [
         {
           accessorKey: "name",
-          header: "Required Action",
+          header: t`Required Action`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               <Enumerable value={row.original.name} />
@@ -41,12 +43,12 @@ const RequiredActionsTable = memo(
         },
         {
           accessorKey: "active",
-          header: "Active",
+          header: t`Active`,
           cell: ({ row }) => <Checkbox checked={row.original.active} />
         }
       ];
       return defaultColumns;
-    }, []);
+    }, [t]);
 
     const renderContextMenu = useCallback(
       (row: RequiredAction) => {
@@ -90,13 +92,13 @@ const RequiredActionsTable = memo(
           primaryAction={
             permissions.can("create", "quality") && (
               <New
-                label="Required Action"
+                label={t`Required Action`}
                 to={`${path.to.newRequiredAction}?${params.toString()}`}
               />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Required Actions"
+          title={t`Required Actions`}
         />
         {deleteDisclosure.isOpen && selectedRequiredAction && (
           <ConfirmDelete
@@ -111,7 +113,7 @@ const RequiredActionsTable = memo(
               deleteDisclosure.onClose();
             }}
             name={selectedRequiredAction.name ?? "required action"}
-            text="Are you sure you want to delete this required action?"
+            text={t`Are you sure you want to delete this required action?`}
           />
         )}
       </>

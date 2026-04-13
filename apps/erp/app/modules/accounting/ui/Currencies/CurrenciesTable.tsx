@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuBookMarked, LuEuro, LuPencil, LuPercent } from "react-icons/lu";
@@ -15,6 +16,7 @@ type CurrenciesTableProps = {
 };
 
 const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -24,7 +26,7 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
     const defaultColumns: ColumnDef<Currency>[] = [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id as string}>
             {row.original.name}
@@ -36,7 +38,7 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
       },
       {
         accessorKey: "code",
-        header: "Code",
+        header: t`Code`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuEuro />
@@ -44,7 +46,7 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
       },
       {
         accessorKey: "exchangeRate",
-        header: "Exchange Rate",
+        header: t`Exchange Rate`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPercent />
@@ -52,7 +54,7 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns]);
+  }, [customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: Currency) => {
@@ -67,7 +69,7 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Currency
+            <Trans>Edit Currency</Trans>
           </MenuItem>
         </>
       );
@@ -81,7 +83,7 @@ const CurrenciesTable = memo(({ data, count }: CurrenciesTableProps) => {
       columns={columns}
       count={count}
       renderContextMenu={renderContextMenu}
-      title="Currencies"
+      title={t`Currencies`}
     />
   );
 });

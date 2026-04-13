@@ -18,6 +18,7 @@ import {
 } from "@carbon/react";
 import { useRouteData } from "@carbon/remix";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher, useNavigation, useParams } from "react-router";
@@ -30,6 +31,7 @@ const StockTransferPostModal = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams();
   if (!id) throw new Error("id not found");
 
+  const { t } = useLingui();
   const [items] = useItems();
   const routeData = useRouteData<{
     stockTransferLines: StockTransferLine[];
@@ -60,7 +62,7 @@ const StockTransferPostModal = ({ onClose }: { onClose: () => void }) => {
     }[] = [];
 
     if (!carbon) {
-      toast.error("Carbon client is not available");
+      toast.error(t`Carbon client is not available`);
       return;
     }
 
@@ -123,16 +125,22 @@ const StockTransferPostModal = ({ onClose }: { onClose: () => void }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Complete Stock Transfer</ModalTitle>
+          <ModalTitle>
+            <Trans>Complete Stock Transfer</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to complete this stock transfer?
+            <Trans>
+              Are you sure you want to complete this stock transfer?
+            </Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
           {validationErrors.length > 0 && (
             <Alert variant="destructive">
               <LuTriangleAlert className="h-4 w-4" />
-              <AlertTitle>Missing Information</AlertTitle>
+              <AlertTitle>
+                <Trans>Missing Information</Trans>
+              </AlertTitle>
               <AlertDescription>
                 <ul className="list-disc pl-4 mt-2 space-y-1">
                   {validationErrors.map((error, index) => (
@@ -154,7 +162,7 @@ const StockTransferPostModal = ({ onClose }: { onClose: () => void }) => {
         <ModalFooter>
           <HStack>
             <Button variant="solid" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <fetcher.Form
               action={path.to.stockTransferComplete(id)}

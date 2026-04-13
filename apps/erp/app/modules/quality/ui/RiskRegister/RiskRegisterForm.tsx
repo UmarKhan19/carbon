@@ -16,6 +16,7 @@ import {
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { useFetcher } from "react-router";
@@ -55,6 +56,7 @@ const RiskRegisterForm = ({
   type = "drawer",
   onClose
 }: RiskRegisterFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const {
     company: { id: companyId }
@@ -88,7 +90,7 @@ const RiskRegisterForm = ({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 
@@ -135,7 +137,7 @@ const RiskRegisterForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} {selectedType}
+                {isEditing ? t`Edit` : t`New`} {selectedType}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -146,11 +148,11 @@ const RiskRegisterForm = ({
               <Hidden name="notes" value={JSON.stringify(notes)} />
 
               <VStack spacing={4}>
-                <Input name="title" label="Title" />
+                <Input name="title" label={t`Title`} />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                   <SelectControlled
                     name="type"
-                    label="Type"
+                    label={t`Type`}
                     value={selectedType}
                     onChange={(value) =>
                       // @ts-expect-error TS2345 - TODO: fix type
@@ -164,19 +166,19 @@ const RiskRegisterForm = ({
 
                   <Select
                     name="status"
-                    label="Status"
+                    label={t`Status`}
                     options={riskStatus.map((s) => ({
                       value: s,
                       label: <RiskStatus status={s} />
                     }))}
                   />
                 </div>
-                <TextArea name="description" label="Description" />
+                <TextArea name="description" label={t`Description`} />
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                   <Select
                     name="severity"
-                    label="Severity"
+                    label={t`Severity`}
                     options={Array.from({ length: 5 }, (_, index) => ({
                       value: (index + 1).toString(),
                       label: <RiskRating rating={index + 1} />
@@ -184,7 +186,7 @@ const RiskRegisterForm = ({
                   />
                   <Select
                     name="likelihood"
-                    label="Likelihood"
+                    label={t`Likelihood`}
                     options={Array.from({ length: 5 }, (_, index) => ({
                       value: (index + 1).toString(),
                       label: <RiskRating rating={index + 1} />
@@ -192,10 +194,12 @@ const RiskRegisterForm = ({
                   />
                 </div>
 
-                <Employee name="assignee" label="Assignee" />
+                <Employee name="assignee" label={t`Assignee`} />
 
                 <div className="flex flex-col gap-2 w-full">
-                  <Label>Notes</Label>
+                  <Label>
+                    <Trans>Notes</Trans>
+                  </Label>
                   <Editor
                     initialValue={notes}
                     onUpload={onUploadImage}
@@ -209,14 +213,16 @@ const RiskRegisterForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button
                   size="md"
                   variant="solid"
                   onClick={() => onClose?.()}
                   isDisabled={fetcher.state !== "idle"}
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

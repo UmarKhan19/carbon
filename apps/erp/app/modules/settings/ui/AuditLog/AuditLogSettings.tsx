@@ -12,6 +12,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { memo, useCallback } from "react";
 import { LuDownload } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -56,24 +57,36 @@ const AuditLogSettings = memo(
       <>
         <Card>
           <CardHeader>
-            <CardTitle>Audit Logging</CardTitle>
+            <CardTitle>
+              <Trans>Audit Logging</Trans>
+            </CardTitle>
             <CardDescription>
-              Track changes to key business entities including invoices, orders,
-              customers, suppliers, and more.
+              <Trans>
+                Track changes to key business entities including invoices,
+                orders, customers, suppliers, and more.
+              </Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {enabled
-                    ? "Audit logging is enabled"
-                    : "Audit logging is disabled"}
+                  {enabled ? (
+                    <Trans>Audit logging is enabled</Trans>
+                  ) : (
+                    <Trans>Audit logging is disabled</Trans>
+                  )}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {enabled
-                    ? "All changes to auditable entities are being recorded."
-                    : "Enable to start tracking changes to your data."}
+                  {enabled ? (
+                    <Trans>
+                      All changes to auditable entities are being recorded.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      Enable to start tracking changes to your data.
+                    </Trans>
+                  )}
                 </span>
               </VStack>
               <Switch
@@ -88,10 +101,14 @@ const AuditLogSettings = memo(
         {enabled && (
           <Card>
             <CardHeader>
-              <CardTitle>Archived Logs</CardTitle>
+              <CardTitle>
+                <Trans>Archived Logs</Trans>
+              </CardTitle>
               <CardDescription>
-                Logs older than {auditConfig.retentionDays} days are
-                automatically archived.
+                <Trans>
+                  Logs older than {auditConfig.retentionDays} days are
+                  automatically archived.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -119,16 +136,18 @@ const AuditLogSettings = memo(
                         leftIcon={<LuDownload />}
                         onClick={() => handleDownloadArchive(archive.id)}
                       >
-                        Download
+                        <Trans>Download</Trans>
                       </Button>
                     </HStack>
                   ))}
                 </VStack>
               ) : (
                 <p className="text-sm text-muted-foreground text-center text-balance py-8">
-                  No archived logs yet. Logs older than{" "}
-                  {auditConfig.retentionDays} days will be automatically
-                  archived and available for download here.
+                  <Trans>
+                    No archived logs yet. Logs older than{" "}
+                    {auditConfig.retentionDays} days will be automatically
+                    archived and available for download here.
+                  </Trans>
                 </p>
               )}
             </CardContent>

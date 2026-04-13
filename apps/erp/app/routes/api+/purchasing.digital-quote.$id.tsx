@@ -1,9 +1,8 @@
 import { assertIsPost, notFound } from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validationError, validator } from "@carbon/form";
-import type { notifyTask } from "@carbon/jobs/trigger/notify";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 import {
@@ -260,7 +259,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       // Send notification to supplier quote notification group
       if (companySettings.data?.supplierQuoteNotificationGroup?.length) {
         try {
-          await tasks.trigger<typeof notifyTask>("notify", {
+          await trigger("notify", {
             companyId: companySettings.data.id,
             documentId: quote.data.id,
             event: NotificationEvent.SupplierQuoteResponse,

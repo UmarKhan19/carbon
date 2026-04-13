@@ -192,9 +192,7 @@ function FunnelChartContent({
           }}
         >
           <div
-            className={cn(
-              "rounded-lg border border-border bg-card text-base shadow-sm"
-            )}
+            className={cn("rounded-lg border border-border bg-card text-base")}
           >
             <p className="border-b border-border p-3 text-sm text-foreground">
               {activeStep.label}

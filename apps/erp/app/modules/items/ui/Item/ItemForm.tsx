@@ -16,6 +16,7 @@ import {
   HStack,
   IconButton
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuEllipsisVertical } from "react-icons/lu";
 import { Link, useFetcher } from "react-router";
@@ -53,13 +54,23 @@ function getLabel(type: Database["public"]["Enums"]["itemType"]) {
 
 const ItemForm = ({ initialValues, type }: ItemFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const fetcher = useFetcher<{}>();
+
+  const translateItemTrackingType = (v: string) =>
+    v === "Inventory"
+      ? t`Inventory`
+      : v === "Non-Inventory"
+        ? t`Non-Inventory`
+        : v === "Serial"
+          ? t`Serial`
+          : t`Batch`;
 
   const itemTrackingTypeOptions = itemTrackingTypes.map((itemTrackingType) => ({
     label: (
       <span className="flex items-center gap-2">
         <TrackingTypeIcon type={itemTrackingType} />
-        {itemTrackingType}
+        {translateItemTrackingType(itemTrackingType)}
       </span>
     ),
     value: itemTrackingType
@@ -76,7 +87,11 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
       label: (
         <span className="flex items-center gap-2">
           <ReplenishmentSystemIcon type={itemReplenishmentSystem} />
-          {itemReplenishmentSystem}
+          {itemReplenishmentSystem === "Buy"
+            ? t`Buy`
+            : itemReplenishmentSystem === "Make"
+              ? t`Make`
+              : t`Buy and Make`}
         </span>
       ),
       value: itemReplenishmentSystem
@@ -105,14 +120,14 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label="Open menu"
+                  aria-label={t`Open menu`}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
                   {/* @ts-ignore */}
                   <Link to={getLinkToItemDetails(type, initialValues.id)}>
-                    View Item Master
+                    <Trans>View Item Master</Trans>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -129,18 +144,18 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
               label={`${getLabel(type)} ID`}
             />
 
-            <Input name="name" label="Short Description" />
+            <Input name="name" label={t`Short Description`} />
             <Select
               name="itemTrackingType"
-              label="Tracking Type"
+              label={t`Tracking Type`}
               options={itemTrackingTypeOptions}
             />
 
-            <TextArea name="description" label="Description" />
+            <TextArea name="description" label={t`Description`} />
 
             <Select
               name="replenishmentSystem"
-              label="Replenishment System"
+              label={t`Replenishment System`}
               options={itemReplenishmentSystemOptions}
               onChange={(newValue) => {
                 setReplenishmentSystem(newValue?.value ?? "Buy");
@@ -153,20 +168,25 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
             />
             <DefaultMethodType
               name="defaultMethodType"
-              label="Default Method Type"
+              label={t`Default Method Type`}
               replenishmentSystem={replenishmentSystem}
               value={defaultMethodType}
               onChange={(newValue) =>
                 setDefaultMethodType(newValue?.value ?? "Buy")
               }
             />
-            <UnitOfMeasure name="unitOfMeasureCode" label="Unit of Measure" />
+            <UnitOfMeasure
+              name="unitOfMeasureCode"
+              label={t`Unit of Measure`}
+            />
 
-            <Boolean name="active" label="Active" />
+            <Boolean name="active" label={t`Active`} />
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "parts")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "parts")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

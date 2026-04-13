@@ -11,6 +11,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import {
   LuCalendar,
@@ -43,6 +44,7 @@ const CustomFieldForm = ({
   dataTypes,
   onClose
 }: CustomFieldFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { table } = useParams();
   if (!table) throw new Error("table is not found");
@@ -92,20 +94,26 @@ const CustomFieldForm = ({
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Custom Field</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? (
+                <Trans>Edit Custom Field</Trans>
+              ) : (
+                <Trans>New Custom Field</Trans>
+              )}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack spacing={4}>
-              <Input name="name" label="Name" />
+              <Input name="name" label={t`Name`} />
               <Hidden name="table" />
 
               <SelectControlled
                 name="dataTypeId"
-                label="Data Type"
+                label={t`Data Type`}
                 isReadOnly={isEditing}
                 helperText={
-                  isEditing ? "Data type cannot be changed" : undefined
+                  isEditing ? t`Data type cannot be changed` : undefined
                 }
                 options={options}
                 value={dataType.toString()}
@@ -115,14 +123,14 @@ const CustomFieldForm = ({
                   }
                 }}
               />
-              {isList && <Array name="listOptions" label="List Options" />}
+              {isList && <Array name="listOptions" label={t`List Options`} />}
 
               {tablesWithTags.includes(table) && (
                 <Tags
                   table={table}
                   name="tags"
                   availableTags={routeData?.tags ?? []}
-                  helperText="These custom fields will only be available for entities with the same tags"
+                  helperText={t`These custom fields will only be available for entities with the same tags`}
                 />
               )}
             </VStack>
@@ -130,10 +138,10 @@ const CustomFieldForm = ({
           <DrawerFooter>
             <HStack>
               <Submit withBlocker={false} isDisabled={isDisabled}>
-                Save
+                <Trans>Save</Trans>
               </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

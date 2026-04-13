@@ -1,12 +1,17 @@
 import { CONTROLLED_ENVIRONMENT, error, getBrowserEnv } from "@carbon/auth";
-import { getSessionFlash } from "@carbon/auth/session.server";
+import { flashClientMiddleware } from "@carbon/auth/middleware/flash.client";
+import {
+  flashHeadersContext,
+  flashMiddleware,
+  flashResultContext
+} from "@carbon/auth/middleware/flash.server";
 import { validator } from "@carbon/form";
+import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
   Button,
   Heading,
   OperatingSystemContextProvider,
-  Toaster,
-  toast
+  Toaster
 } from "@carbon/react";
 import { getPreferenceHeaders, useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
@@ -14,7 +19,6 @@ import { modeValidator, themes } from "@carbon/utils";
 import { I18nProvider } from "@react-aria/i18n";
 import { Analytics } from "@vercel/analytics/react";
 import type React from "react";
-import { useEffect } from "react";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -30,12 +34,16 @@ import {
   ScrollRestoration,
   useLoaderData
 } from "react-router";
+import { loadLinguiCatalogForRequest } from "~/services/lingui.server";
 import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
 import type { Route } from "./+types/root";
 import { getTheme } from "./services/theme.server";
+
+export const middleware = [flashMiddleware];
+export const clientMiddleware = [flashClientMiddleware];
 
 export function links() {
   return [
@@ -53,7 +61,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const {
     CARBON_EDITION,
     CARBON_API_URL,
@@ -68,7 +76,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     VERCEL_URL
   } = getBrowserEnv();
 
-  const sessionFlash = await getSessionFlash(request);
+  const preferences = getPreferenceHeaders(request);
+  const appLanguage = resolveLanguage(preferences.locale);
+  const linguiCatalog = await loadLinguiCatalogForRequest(request, appLanguage);
 
   return data(
     {
@@ -87,11 +97,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
       mode: getMode(request),
       theme: getTheme(request),
-      preferences: getPreferenceHeaders(request),
-      result: sessionFlash?.result
+      preferences,
+      linguiCatalog,
+      result: context.get(flashResultContext)
     },
     {
-      headers: sessionFlash?.headers
+      headers: context.get(flashHeadersContext) ?? undefined
     }
   );
 }
@@ -118,11 +129,13 @@ export async function action({ request }: ActionFunctionArgs) {
 function Document({
   children,
   title = "Carbon",
+  lang = "en",
   mode = "light",
   theme = "zinc"
 }: {
   children: React.ReactNode;
   title?: string;
+  lang?: string;
   mode?: "light" | "dark";
   theme?: string;
 }) {
@@ -156,7 +169,7 @@ function Document({
 
   return (
     <html
-      lang="en"
+      lang={lang}
       className={`${mode} h-full overflow-x-hidden`}
       style={themeStyle}
     >
@@ -185,42 +198,28 @@ function Document({
 export default function App() {
   const loaderData = useLoaderData<typeof loader>();
   const env = loaderData?.env ?? {};
-  const result = loaderData?.result;
   const theme = loaderData?.theme ?? "zinc";
   const prefs = loaderData?.preferences;
-
-  /* Toast Messages */
-  useEffect(() => {
-    if (result?.success === true) {
-      toast.success(result.message);
-    } else if (result?.message) {
-      toast.error(result.message);
-    }
-  }, [result]);
-
-  /* Flash Overlay 
-  useEffect(() => {
-    if (result?.flash) {
-      flashOverlay.flash(result.flash);
-    }
-  }, [result]);
-  */
+  const linguiCatalog = loaderData?.linguiCatalog;
+  const appLanguage = resolveLanguage(prefs.locale);
 
   /* Dark/Light Mode */
   const mode = useMode();
 
   return (
     <OperatingSystemContextProvider platform={prefs.platform}>
-      <I18nProvider locale={prefs.locale}>
-        <Document mode={mode} theme={theme}>
-          <Outlet />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.env = ${JSON.stringify(env)};`
-            }}
-          />
-        </Document>
-      </I18nProvider>
+      <LocaleProvider locale={appLanguage} catalog={linguiCatalog}>
+        <I18nProvider locale={prefs.locale}>
+          <Document mode={mode} theme={theme} lang={appLanguage}>
+            <Outlet />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.env = ${JSON.stringify(env)};`
+              }}
+            />
+          </Document>
+        </I18nProvider>
+      </LocaleProvider>
     </OperatingSystemContextProvider>
   );
 }

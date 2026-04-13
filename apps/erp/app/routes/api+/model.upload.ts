@@ -1,7 +1,6 @@
 // import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { modelThumbnailTask } from "@carbon/jobs/trigger/model-thumbnail";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -72,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
     await client.from("job").update({ modelUploadId: modelId }).eq("id", jobId);
   }
 
-  await tasks.trigger<typeof modelThumbnailTask>("model-thumbnail", {
+  await trigger("model-thumbnail", {
     companyId,
     modelId
   });

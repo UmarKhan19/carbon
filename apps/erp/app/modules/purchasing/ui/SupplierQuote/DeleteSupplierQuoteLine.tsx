@@ -1,4 +1,5 @@
 import { getItemReadableId } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import { useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
 import { useItems } from "~/stores";
@@ -11,6 +12,7 @@ export default function DeleteSupplierQuoteLine({
   line: { itemId: string; id: string };
   onCancel: () => void;
 }) {
+  const { t } = useLingui();
   const [items] = useItems();
   const { id } = useParams();
   if (!id) throw new Error("id not found");
@@ -22,7 +24,7 @@ export default function DeleteSupplierQuoteLine({
     <ConfirmDelete
       action={path.to.deleteSupplierQuoteLine(id, line.id)}
       name={itemReadableId ?? "this line"}
-      text={`Are you sure you want to delete the line: ${itemReadableId}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the line: ${itemReadableId}? This cannot be undone.`}
       onCancel={onCancel}
       onSubmit={onCancel}
     />

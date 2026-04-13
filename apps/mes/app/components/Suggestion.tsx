@@ -21,6 +21,7 @@ import {
 } from "@carbon/react";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -40,6 +41,7 @@ type EmojiData = {
 };
 
 const Suggestion = () => {
+  const { t } = useLingui();
   const fetcher = useFetcher<typeof action>();
   const location = useLocation();
   const popoverTriggerRef = useRef<HTMLButtonElement>(null);
@@ -75,7 +77,7 @@ const Suggestion = () => {
       const fileExtension = file.name.substring(file.name.lastIndexOf(".") + 1);
 
       if (file.size > MAX_FILE_SIZE) {
-        toast.error("File size exceeds 10MB limit");
+        toast.error(t`File size exceeds 10MB limit`);
         return;
       }
 
@@ -89,7 +91,7 @@ const Suggestion = () => {
 
       if (imageUpload.error) {
         console.error(imageUpload.error);
-        toast.error("Failed to upload image");
+        toast.error(t`Failed to upload image`);
       }
 
       if (imageUpload.data?.path) {
@@ -109,9 +111,11 @@ const Suggestion = () => {
   return (
     <Popover>
       <PopoverTrigger ref={popoverTriggerRef} asChild>
-        <SidebarMenuButton tooltip="Suggestion">
+        <SidebarMenuButton tooltip={t`Suggestion`}>
           <LuMailbox />
-          <span>Suggestion</span>
+          <span>
+            <Trans>Suggestion</Trans>
+          </span>
         </SidebarMenuButton>
       </PopoverTrigger>
       <PopoverContent className="w-[380px] ">
@@ -132,7 +136,7 @@ const Suggestion = () => {
                 label=""
                 value={suggestion}
                 onChange={(value) => setSuggestion(value)}
-                placeholder="Ideas, suggestions or problems?"
+                placeholder={t`Ideas, suggestions or problems?`}
               />
               {attachment && (
                 <Badge className="-mt-2 truncate" variant="secondary">
@@ -152,7 +156,9 @@ const Suggestion = () => {
                   isChecked={anonymous}
                   onCheckedChange={(checked) => setAnonymous(checked === true)}
                 />
-                <span className="text-sm">Submit anonymously</span>
+                <span className="text-sm">
+                  <Trans>Submit anonymously</Trans>
+                </span>
               </HStack>
               <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
                 <PopoverTrigger asChild>
@@ -190,7 +196,7 @@ const Suggestion = () => {
                   popoverTriggerRef.current?.click();
                 }}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <HStack spacing={1}>
                 <Button
@@ -198,7 +204,7 @@ const Suggestion = () => {
                   variant="secondary"
                   onClick={() => setSuggestion("")}
                 >
-                  Clear
+                  <Trans>Clear</Trans>
                 </Button>
                 <File
                   accept="image/*"
@@ -210,7 +216,9 @@ const Suggestion = () => {
                 >
                   <LuImage />
                 </File>
-                <Submit isDisabled={suggestion.length < 3}>Send</Submit>
+                <Submit isDisabled={suggestion.length < 3}>
+                  <Trans>Send</Trans>
+                </Submit>
               </HStack>
             </HStack>
           </VStack>
