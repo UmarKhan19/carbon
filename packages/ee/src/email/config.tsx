@@ -9,7 +9,7 @@ export const Email = defineIntegration({
   category: "Email",
   logo: HiEnvelope,
   description:
-    "Send transactional emails — quotes, purchase orders, invoices, and more — from your own domain. Pick Resend for a managed email API, or Custom SMTP to use your own mail server. Only one delivery method is used at a time.",
+    "Send transactional emails — quotes, purchase orders, invoices, and more — from your own domain. Pick Resend for a managed email API, or Custom SMTP to use your own mail server.",
   shortDescription:
     "Deliver transactional emails via Resend or a custom SMTP server.",
   images: [],
