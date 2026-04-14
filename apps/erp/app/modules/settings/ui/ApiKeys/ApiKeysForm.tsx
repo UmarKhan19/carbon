@@ -190,7 +190,7 @@ function ApiKeyView({ apiKey, onClose }: ApiKeyViewProps) {
                 <Trans>You can only see this key once. Store it safely.</Trans>
               </AlertTitle>
             </Alert>
-            <div>
+            <div className="flex flex-col gap-2 w-full">
               <Label htmlFor="api-key">
                 <Trans>API Key</Trans>
               </Label>
@@ -210,7 +210,7 @@ function ApiKeyView({ apiKey, onClose }: ApiKeyViewProps) {
                 </InputRightElement>
               </InputGroup>
             </div>
-            <div>
+            <div className="flex flex-col gap-2 w-full">
               <Label htmlFor="mcp-command">
                 <Trans>MCP Command</Trans>
               </Label>

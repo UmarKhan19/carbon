@@ -67,9 +67,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_deleteAttribute",
     {
       description: "delete attribute",
-      inputSchema: {
+      inputSchema: z.object({
       attributeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -82,9 +82,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_deleteAttributeCategory",
     {
       description: "delete attribute category",
-      inputSchema: {
+      inputSchema: z.object({
       attributeCategoryId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -97,9 +97,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_deleteDepartment",
     {
       description: "delete department",
-      inputSchema: {
+      inputSchema: z.object({
       departmentId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -112,9 +112,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_deleteHoliday",
     {
       description: "delete holiday",
-      inputSchema: {
+      inputSchema: z.object({
       holidayId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -127,9 +127,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_deleteShift",
     {
       description: "delete shift",
-      inputSchema: {
+      inputSchema: z.object({
       shiftId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -142,9 +142,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getAttribute",
     {
       description: "get attribute",
-      inputSchema: {
+      inputSchema: z.object({
       attributeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -157,12 +157,12 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getAttributeCategories",
     {
       description: "get attribute categories",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -175,9 +175,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getAttributeCategory",
     {
       description: "get attribute category",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -190,7 +190,7 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getAttributeDataTypes",
     {
       description: "get attribute data types",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -203,9 +203,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getDepartment",
     {
       description: "get department",
-      inputSchema: {
+      inputSchema: z.object({
       departmentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -218,13 +218,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getDepartments",
     {
       description: "get departments",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -237,7 +237,7 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getDepartmentsList",
     {
       description: "get departments list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -250,9 +250,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getEmployeeJob",
     {
       description: "get employee job",
-      inputSchema: {
+      inputSchema: z.object({
       employeeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -265,9 +265,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getEmployeeSummary",
     {
       description: "get employee summary",
-      inputSchema: {
+      inputSchema: z.object({
       employeeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -280,9 +280,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getHoliday",
     {
       description: "get holiday",
-      inputSchema: {
+      inputSchema: z.object({
       holidayId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -295,13 +295,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getHolidays",
     {
       description: "get holidays",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -314,13 +314,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getPeople",
     {
       description: "get people",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -333,13 +333,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getContacts",
     {
       description: "get contacts",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -352,9 +352,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getShift",
     {
       description: "get shift",
-      inputSchema: {
+      inputSchema: z.object({
       shiftId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -367,13 +367,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getShifts",
     {
       description: "get shifts",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -386,9 +386,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getShiftsList",
     {
       description: "get shifts list",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string().nullable(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -401,7 +401,7 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_insertAttribute",
     {
       description: "insert attribute",
-      inputSchema: {
+      inputSchema: z.object({
       attribute: z.object({
     name: z.string(),
     attributeDataTypeId: z.number(),
@@ -409,7 +409,7 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     listOptions: z.array(z.string()).optional(),
     canSelfManage: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -422,13 +422,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_insertAttributeCategory",
     {
       description: "insert attribute category",
-      inputSchema: {
+      inputSchema: z.object({
       attributeCategory: z.object({
     name: z.string(),
     emoji: z.string().optional(),
     public: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -441,12 +441,12 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_insertEmployeeJob",
     {
       description: "insert employee job",
-      inputSchema: {
+      inputSchema: z.object({
       job: z.object({
     id: z.string(),
     locationId: z.string().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -459,14 +459,14 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_updateAttribute",
     {
       description: "update attribute",
-      inputSchema: {
+      inputSchema: z.object({
       attribute: z.object({
     id: z.string().optional(),
     name: z.string(),
     listOptions: z.array(z.string()).optional(),
     canSelfManage: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -479,14 +479,14 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_updateAttributeCategory",
     {
       description: "update attribute category",
-      inputSchema: {
+      inputSchema: z.object({
       attributeCategory: z.object({
     id: z.string(),
     name: z.string(),
     emoji: z.string().optional(),
     public: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -499,12 +499,12 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_updateAttributeSortOrder",
     {
       description: "update attribute sort order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -517,10 +517,10 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_updateEmployeeJob",
     {
       description: "update employee job",
-      inputSchema: {
+      inputSchema: z.object({
       employeeId: z.string(),
       employeeJob: employeeJobValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -533,9 +533,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_upsertDepartment",
     {
       description: "upsert department",
-      inputSchema: {
+      inputSchema: z.object({
       department: departmentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -548,9 +548,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_upsertHoliday",
     {
       description: "upsert holiday",
-      inputSchema: {
+      inputSchema: z.object({
       holiday: holidayValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -563,9 +563,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_upsertShift",
     {
       description: "upsert shift",
-      inputSchema: {
+      inputSchema: z.object({
       shift: shiftValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -578,11 +578,11 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_clockIn",
     {
       description: "clock in",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     employeeId: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -595,13 +595,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_clockOut",
     {
       description: "clock out",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     employeeId: z.string(),
     clockOut: z.string().optional(),
     note: z.string().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -614,14 +614,14 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_createTimeCardEntry",
     {
       description: "create time card entry",
-      inputSchema: {
+      inputSchema: z.object({
       entry: z.object({
     employeeId: z.string(),
     clockIn: z.string(),
     clockOut: z.string().nullable().optional(),
     note: z.string().nullable().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -634,9 +634,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_deleteTimeCardEntry",
     {
       description: "delete time card entry",
-      inputSchema: {
+      inputSchema: z.object({
       entryId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -649,7 +649,7 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getClockedInEmployees",
     {
       description: "get clocked in employees",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -662,9 +662,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getOpenClockEntry",
     {
       description: "get open clock entry",
-      inputSchema: {
+      inputSchema: z.object({
       employeeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -677,7 +677,7 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getRecentTimecards",
     {
       description: "get recent timecards",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -690,7 +690,7 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getScheduledEmployeesToday",
     {
       description: "get scheduled employees today",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -703,9 +703,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getTimeCardEntry",
     {
       description: "get time card entry",
-      inputSchema: {
+      inputSchema: z.object({
       entryId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -718,13 +718,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getTimeCardEntries",
     {
       description: "get time card entries",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     employeeId: z.string(),
     from: z.string().optional(),
     to: z.string().optional()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -737,13 +737,13 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getTimecardEntries",
     {
       description: "get timecard entries",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -756,9 +756,9 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_getWeeklyHoursForEmployees",
     {
       description: "get weekly hours for employees",
-      inputSchema: {
+      inputSchema: z.object({
       employeeIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -771,14 +771,14 @@ export const registerPeopleTools: RegisterTools = (server, ctx) => {
     "people_updateTimeCardEntry",
     {
       description: "update time card entry",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     entryId: z.string(),
     clockIn: z.string().optional(),
     clockOut: z.string().nullable().optional(),
     note: z.string().nullable().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

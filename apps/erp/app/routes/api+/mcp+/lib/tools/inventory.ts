@@ -102,9 +102,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteBatchProperty",
     {
       description: "delete batch property",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -117,9 +117,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteKanban",
     {
       description: "delete kanban",
-      inputSchema: {
+      inputSchema: z.object({
       kanbanId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -132,9 +132,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteReceipt",
     {
       description: "delete receipt",
-      inputSchema: {
+      inputSchema: z.object({
       receiptId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -147,9 +147,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteReceiptLine",
     {
       description: "delete receipt line",
-      inputSchema: {
+      inputSchema: z.object({
       receiptLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -162,9 +162,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteShelf",
     {
       description: "delete shelf",
-      inputSchema: {
+      inputSchema: z.object({
       shelfId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -177,9 +177,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteShipment",
     {
       description: "delete shipment",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -192,9 +192,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteShipmentLine",
     {
       description: "delete shipment line",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -207,9 +207,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteShippingMethod",
     {
       description: "delete shipping method",
-      inputSchema: {
+      inputSchema: z.object({
       shippingMethodId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -222,9 +222,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteStockTransfer",
     {
       description: "delete stock transfer",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransferId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -237,9 +237,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteStockTransferLine",
     {
       description: "delete stock transfer line",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransferLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -252,9 +252,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteWarehouseTransfer",
     {
       description: "delete warehouse transfer",
-      inputSchema: {
+      inputSchema: z.object({
       transferId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -267,9 +267,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_deleteWarehouseTransferLine",
     {
       description: "delete warehouse transfer line",
-      inputSchema: {
+      inputSchema: z.object({
       transferLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -282,12 +282,12 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getItemLedgerPage",
     {
       description: "get item ledger page",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
       sortDescending: z.boolean().optional(),
       page: z.number().optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -300,9 +300,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getBatchProperties",
     {
       description: "get batch properties",
-      inputSchema: {
+      inputSchema: z.object({
       itemIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -315,14 +315,14 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getInventoryItems",
     {
       description: "get inventory items",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -335,14 +335,14 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getInventoryItemsCount",
     {
       description: "get inventory items count",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -355,14 +355,14 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getKanbans",
     {
       description: "get kanbans",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -375,9 +375,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getKanban",
     {
       description: "get kanban",
-      inputSchema: {
+      inputSchema: z.object({
       kanbanId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -390,9 +390,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getStockTransfer",
     {
       description: "get stock transfer",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransferId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -405,9 +405,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getStockTransferLine",
     {
       description: "get stock transfer line",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransferLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -420,9 +420,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getStockTransferLines",
     {
       description: "get stock transfer lines",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransferId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -435,9 +435,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getStockTransferTracking",
     {
       description: "get stock transfer tracking",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransferId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -450,14 +450,14 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getStockTransfers",
     {
       description: "get stock transfers",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     locationId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -470,10 +470,10 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getDefaultShelfOrShelfWithHighestQuantity",
     {
       description: "get default shelf or shelf with highest quantity",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -486,13 +486,13 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getReceipts",
     {
       description: "get receipts",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -505,9 +505,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getReceipt",
     {
       description: "get receipt",
-      inputSchema: {
+      inputSchema: z.object({
       receiptId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -520,9 +520,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getReceiptLines",
     {
       description: "get receipt lines",
-      inputSchema: {
+      inputSchema: z.object({
       receiptId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -535,9 +535,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getReceiptTracking",
     {
       description: "get receipt tracking",
-      inputSchema: {
+      inputSchema: z.object({
       receiptId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -550,9 +550,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getReceiptLineTracking",
     {
       description: "get receipt line tracking",
-      inputSchema: {
+      inputSchema: z.object({
       receiptLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -565,9 +565,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getReceiptFiles",
     {
       description: "get receipt files",
-      inputSchema: {
+      inputSchema: z.object({
       lineIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -580,11 +580,11 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getSerialNumbersForItem",
     {
       description: "get serial numbers for item",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     itemId: z.string()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -597,12 +597,12 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getBatchNumbersForItem",
     {
       description: "get batch numbers for item",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     itemId: z.string(),
     isReadOnly: z.boolean().optional()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -615,7 +615,7 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShelvesList",
     {
       description: "get shelves list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -628,9 +628,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShelvesListForLocation",
     {
       description: "get shelves list for location",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -643,14 +643,14 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShelves",
     {
       description: "get shelves",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -663,9 +663,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShelf",
     {
       description: "get shelf",
-      inputSchema: {
+      inputSchema: z.object({
       shelfId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -678,13 +678,13 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipments",
     {
       description: "get shipments",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -697,9 +697,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipment",
     {
       description: "get shipment",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -712,9 +712,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipmentLines",
     {
       description: "get shipment lines",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -727,9 +727,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipmentLinesWithDetails",
     {
       description: "get shipment lines with details",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -742,9 +742,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipmentFiles",
     {
       description: "get shipment files",
-      inputSchema: {
+      inputSchema: z.object({
       lineIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -757,10 +757,10 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipmentRelatedItems",
     {
       description: "get shipment related items",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentId: z.string(),
       sourceDocumentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -773,9 +773,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipmentTracking",
     {
       description: "get shipment tracking",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -788,9 +788,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShipmentLineTracking",
     {
       description: "get shipment line tracking",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -803,9 +803,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShippingMethod",
     {
       description: "get shipping method",
-      inputSchema: {
+      inputSchema: z.object({
       shippingMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -818,13 +818,13 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShippingMethods",
     {
       description: "get shipping methods",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -837,7 +837,7 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShippingMethodsList",
     {
       description: "get shipping methods list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -850,7 +850,7 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getShippingTermsList",
     {
       description: "get shipping terms list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -863,13 +863,13 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getTrackedEntities",
     {
       description: "get tracked entities",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -882,9 +882,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getTrackedEntitiesByMakeMethodId",
     {
       description: "get tracked entities by make method id",
-      inputSchema: {
+      inputSchema: z.object({
       jobMakeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -897,9 +897,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getTrackedEntity",
     {
       description: "get tracked entity",
-      inputSchema: {
+      inputSchema: z.object({
       trackedEntityId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -912,9 +912,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getTrackedEntitiesByOperationId",
     {
       description: "get tracked entities by operation id",
-      inputSchema: {
+      inputSchema: z.object({
       operationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -927,13 +927,13 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getWarehouseTransfers",
     {
       description: "get warehouse transfers",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -946,9 +946,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getWarehouseTransfer",
     {
       description: "get warehouse transfer",
-      inputSchema: {
+      inputSchema: z.object({
       transferId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -961,10 +961,10 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getWarehouseTransferLine",
     {
       description: "get warehouse transfer line",
-      inputSchema: {
+      inputSchema: z.object({
       transferId: z.string(),
       lineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -977,9 +977,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getWarehouseTransferLines",
     {
       description: "get warehouse transfer lines",
-      inputSchema: {
+      inputSchema: z.object({
       transferId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -992,9 +992,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_insertManualInventoryAdjustment",
     {
       description: "insert manual inventory adjustment",
-      inputSchema: {
+      inputSchema: z.object({
       inventoryAdjustment: inventoryAdjustmentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1007,9 +1007,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_updateBatchPropertyOrder",
     {
       description: "update batch property order",
-      inputSchema: {
+      inputSchema: z.object({
       data: batchPropertyOrderValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1022,14 +1022,14 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_updateStockTransferStatus",
     {
       description: "update stock transfer status",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.string().nullable().optional(),
     completedAt: z.string().nullable()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1042,9 +1042,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertBatchProperty",
     {
       description: "upsert batch property",
-      inputSchema: {
+      inputSchema: z.object({
       batchProperty: batchPropertyValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1057,9 +1057,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertKanban",
     {
       description: "upsert kanban",
-      inputSchema: {
+      inputSchema: z.object({
       kanban: kanbanValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1072,9 +1072,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertReceipt",
     {
       description: "upsert receipt",
-      inputSchema: {
+      inputSchema: z.object({
       receipt: receiptValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1087,9 +1087,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertShelf",
     {
       description: "upsert shelf",
-      inputSchema: {
+      inputSchema: z.object({
       shelf: shelfValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1102,9 +1102,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertShippingMethod",
     {
       description: "upsert shipping method",
-      inputSchema: {
+      inputSchema: z.object({
       shippingMethod: shippingMethodValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1117,9 +1117,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertShipment",
     {
       description: "upsert shipment",
-      inputSchema: {
+      inputSchema: z.object({
       shipment: shipmentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1132,9 +1132,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertStockTransfer",
     {
       description: "upsert stock transfer",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransfer: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1147,9 +1147,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertStockTransferLine",
     {
       description: "upsert stock transfer line",
-      inputSchema: {
+      inputSchema: z.object({
       stockTransferLine: stockTransferLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1162,9 +1162,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertStockTransferLines",
     {
       description: "upsert stock transfer lines",
-      inputSchema: {
+      inputSchema: z.object({
       args: stockTransferValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1177,9 +1177,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertWarehouseTransfer",
     {
       description: "upsert warehouse transfer",
-      inputSchema: {
+      inputSchema: z.object({
       transfer: warehouseTransferValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1192,10 +1192,10 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_updateWarehouseTransferStatus",
     {
       description: "update warehouse transfer status",
-      inputSchema: {
+      inputSchema: z.object({
       transferId: z.string(),
       status: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1208,9 +1208,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_upsertWarehouseTransferLine",
     {
       description: "upsert warehouse transfer line",
-      inputSchema: {
+      inputSchema: z.object({
       line: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1223,10 +1223,10 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
     "inventory_getDefaultShelfForJob",
     {
       description: "get default shelf for job",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

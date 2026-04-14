@@ -4,6 +4,12 @@ import type { ActionFunctionArgs } from "react-router";
 import { createMcpServer } from "./lib/server";
 
 export async function action({ request }: ActionFunctionArgs) {
+  console.log("[MCP] Received request:", {
+    method: request.method,
+    url: request.url,
+    headers: Object.fromEntries(request.headers.entries())
+  });
+
   const authHeader = request.headers.get("Authorization");
   const hasCarbonKey = request.headers.has("carbon-key");
 
@@ -12,9 +18,11 @@ export async function action({ request }: ActionFunctionArgs) {
     const headers = new Headers(request.headers);
     headers.set("carbon-key", token);
     request = new Request(request, { headers });
+    console.log("[MCP] Added carbon-key header from Bearer token");
   }
 
   const { client, companyId, userId } = await requirePermissions(request, {});
+  console.log("[MCP] Auth successful:", { companyId, userId });
 
   const server = createMcpServer({ client, companyId, userId });
   const transport = new WebStandardStreamableHTTPServerTransport({
@@ -23,8 +31,21 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   await server.connect(transport);
+  console.log("[MCP] Server connected");
 
-  return transport.handleRequest(request);
+  const response = await transport.handleRequest(request);
+  console.log("[MCP] Response status:", response.status);
+
+  // Log response body for debugging
+  const clonedResponse = response.clone();
+  try {
+    const responseBody = await clonedResponse.text();
+    console.log("[MCP] Response body:", responseBody.substring(0, 500));
+  } catch (_e) {
+    console.log("[MCP] Could not read response body");
+  }
+
+  return response;
 }
 
 export async function loader() {

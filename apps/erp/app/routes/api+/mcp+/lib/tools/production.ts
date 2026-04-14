@@ -170,11 +170,11 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_convertSalesOrderLinesToJobs",
     {
       description: "convert sales order lines to jobs",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     orderId: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -187,14 +187,14 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_calculateJobPriority",
     {
       description: "calculate job priority",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     jobId: z.string().optional(),
     dueDate: z.string().nullable(),
     deadlineType: z.any(),
     locationId: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -207,13 +207,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteDemandForecasts",
     {
       description: "delete demand forecasts",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     itemId: z.string(),
     locationId: z.string(),
     futurePeriodIds: z.array(z.string())
   }),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -226,13 +226,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteDemandProjections",
     {
       description: "delete demand projections",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     itemId: z.string(),
     locationId: z.string(),
     futurePeriodIds: z.array(z.string())
   }),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -245,9 +245,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteJob",
     {
       description: "delete job",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -260,9 +260,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteJobMaterial",
     {
       description: "delete job material",
-      inputSchema: {
+      inputSchema: z.object({
       jobMaterialId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -275,9 +275,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteJobOperation",
     {
       description: "delete job operation",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -290,9 +290,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteJobOperationStep",
     {
       description: "delete job operation step",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -305,9 +305,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteJobOperationParameter",
     {
       description: "delete job operation parameter",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -320,9 +320,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteJobOperationTool",
     {
       description: "delete job operation tool",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -335,9 +335,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteProcedure",
     {
       description: "delete procedure",
-      inputSchema: {
+      inputSchema: z.object({
       procedureId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -350,9 +350,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteProcedureStep",
     {
       description: "delete procedure step",
-      inputSchema: {
+      inputSchema: z.object({
       procedureStepId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -365,9 +365,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteProcedureParameter",
     {
       description: "delete procedure parameter",
-      inputSchema: {
+      inputSchema: z.object({
       procedureParameterId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -380,9 +380,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteProductionEvent",
     {
       description: "delete production event",
-      inputSchema: {
+      inputSchema: z.object({
       productionEventId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -395,9 +395,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteProductionQuantity",
     {
       description: "delete production quantity",
-      inputSchema: {
+      inputSchema: z.object({
       productionQuantityId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -410,9 +410,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getActiveJobOperationByJobId",
     {
       description: "get active job operation by job id",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -425,10 +425,10 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getActiveJobOperationsByLocation",
     {
       description: "get active job operations by location",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       workCenterIds: z.array(z.string()).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -441,11 +441,11 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobsByDateRange",
     {
       description: "get jobs by date range",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       startDate: z.string(),
       endDate: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -458,9 +458,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getUnscheduledJobs",
     {
       description: "get unscheduled jobs",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -473,7 +473,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getActiveProductionEvents",
     {
       description: "get active production events",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -486,9 +486,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteScrapReason",
     {
       description: "delete scrap reason",
-      inputSchema: {
+      inputSchema: z.object({
       scrapReasonId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -501,9 +501,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteFailureMode",
     {
       description: "delete failure mode",
-      inputSchema: {
+      inputSchema: z.object({
       failureModeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -516,9 +516,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteMaintenanceDispatch",
     {
       description: "delete maintenance dispatch",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -531,9 +531,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteMaintenanceDispatchComment",
     {
       description: "delete maintenance dispatch comment",
-      inputSchema: {
+      inputSchema: z.object({
       commentId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -546,9 +546,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteMaintenanceDispatchEvent",
     {
       description: "delete maintenance dispatch event",
-      inputSchema: {
+      inputSchema: z.object({
       eventId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -561,9 +561,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteMaintenanceDispatchItem",
     {
       description: "delete maintenance dispatch item",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -576,9 +576,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteMaintenanceDispatchWorkCenter",
     {
       description: "delete maintenance dispatch work center",
-      inputSchema: {
+      inputSchema: z.object({
       workCenterId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -591,9 +591,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteMaintenanceSchedule",
     {
       description: "delete maintenance schedule",
-      inputSchema: {
+      inputSchema: z.object({
       scheduleId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -606,9 +606,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_deleteMaintenanceScheduleItem",
     {
       description: "delete maintenance schedule item",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -621,13 +621,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getDemandForecasts",
     {
       description: "get demand forecasts",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     itemId: z.string(),
     locationId: z.string(),
     periodIds: z.array(z.string())
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -640,13 +640,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getDemandProjections",
     {
       description: "get demand projections",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     itemId: z.string(),
     locationId: z.string(),
     periodIds: z.array(z.string())
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -659,14 +659,14 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobDocuments",
     {
       description: "get job documents",
-      inputSchema: {
+      inputSchema: z.object({
       job: z.object({
     id: z.string().nullable(),
     salesOrderLineId: z.string().nullable().optional(),
     quoteLineId: z.string().nullable().optional(),
     itemId: z.string().nullable().optional()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -679,10 +679,10 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobDocumentsWithItemId",
     {
       description: "get job documents with item id",
-      inputSchema: {
+      inputSchema: z.object({
       job: z.any(),
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -695,9 +695,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJob",
     {
       description: "get job",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -710,9 +710,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobByOperationId",
     {
       description: "get job by operation id",
-      inputSchema: {
+      inputSchema: z.object({
       operationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -725,9 +725,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobPurchaseOrderLines",
     {
       description: "get job purchase order lines",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -740,12 +740,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobs",
     {
       description: "get jobs",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -758,9 +758,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobsBySalesOrderLine",
     {
       description: "get jobs by sales order line",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -773,7 +773,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobsList",
     {
       description: "get jobs list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -786,9 +786,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobMakeMethodById",
     {
       description: "get job make method by id",
-      inputSchema: {
+      inputSchema: z.object({
       jobMakeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -801,9 +801,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getRootMakeMethod",
     {
       description: "get root make method",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -816,14 +816,14 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobMaterialsWithQuantityOnHand",
     {
       description: "get job materials with quantity on hand",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
       locationId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -836,9 +836,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobMethodTree",
     {
       description: "get job method tree",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -851,9 +851,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobMethodTreeArray",
     {
       description: "get job method tree array",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -866,9 +866,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobMaterial",
     {
       description: "get job material",
-      inputSchema: {
+      inputSchema: z.object({
       materialId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -881,9 +881,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobMaterialsByMethodId",
     {
       description: "get job materials by method id",
-      inputSchema: {
+      inputSchema: z.object({
       jobMakeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -896,9 +896,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobOperation",
     {
       description: "get job operation",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -911,13 +911,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobOperations",
     {
       description: "get job operations",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -930,9 +930,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobOperationsAssignedToEmployee",
     {
       description: "get job operations assigned to employee",
-      inputSchema: {
+      inputSchema: z.object({
       employeeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -945,9 +945,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobOperationAttachments",
     {
       description: "get job operation attachments",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -960,9 +960,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobOperationsList",
     {
       description: "get job operations list",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -975,9 +975,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobOperationsByMethodId",
     {
       description: "get job operations by method id",
-      inputSchema: {
+      inputSchema: z.object({
       jobMakeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -990,14 +990,14 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getJobOperationStepRecords",
     {
       description: "get job operation step records",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1010,9 +1010,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getOutsideOperationsByJobId",
     {
       description: "get outside operations by job id",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1025,9 +1025,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProcedure",
     {
       description: "get procedure",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1040,9 +1040,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProcedureSteps",
     {
       description: "get procedure steps",
-      inputSchema: {
+      inputSchema: z.object({
       procedureId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1055,9 +1055,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProcedureParameters",
     {
       description: "get procedure parameters",
-      inputSchema: {
+      inputSchema: z.object({
       procedureId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1070,12 +1070,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProcedureVersions",
     {
       description: "get procedure versions",
-      inputSchema: {
+      inputSchema: z.object({
       procedure: z.object({
     name: z.string(),
     version: z.number()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1088,12 +1088,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProcedures",
     {
       description: "get procedures",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1106,7 +1106,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProceduresList",
     {
       description: "get procedures list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1119,9 +1119,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionEvent",
     {
       description: "get production event",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1134,13 +1134,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionEvents",
     {
       description: "get production events",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationIds: z.array(z.string()),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1153,11 +1153,11 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionEventsPage",
     {
       description: "get production events page",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationId: z.string(),
       sortDescending: z.boolean().optional(),
       page: z.number().optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1170,9 +1170,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionEventsByOperations",
     {
       description: "get production events by operations",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1185,7 +1185,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionPlanning",
     {
       description: "get production planning",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       periods: z.array(z.string()),
       args: z.object({
@@ -1193,7 +1193,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1206,7 +1206,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionProjections",
     {
       description: "get production projections",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       periods: z.array(z.string()),
       args: z.object({
@@ -1214,7 +1214,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1227,9 +1227,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionQuantity",
     {
       description: "get production quantity",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1242,13 +1242,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionQuantities",
     {
       description: "get production quantities",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationIds: z.array(z.string()),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1261,9 +1261,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getProductionDataByOperations",
     {
       description: "get production data by operations",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1276,7 +1276,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getScrapReasonsList",
     {
       description: "get scrap reasons list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1289,9 +1289,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getScrapReason",
     {
       description: "get scrap reason",
-      inputSchema: {
+      inputSchema: z.object({
       scrapReasonId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1304,13 +1304,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getScrapReasons",
     {
       description: "get scrap reasons",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1323,9 +1323,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getFailureMode",
     {
       description: "get failure mode",
-      inputSchema: {
+      inputSchema: z.object({
       failureModeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1338,13 +1338,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getFailureModes",
     {
       description: "get failure modes",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1357,7 +1357,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getFailureModesList",
     {
       description: "get failure modes list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1370,9 +1370,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceDispatch",
     {
       description: "get maintenance dispatch",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1385,14 +1385,14 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceDispatches",
     {
       description: "get maintenance dispatches",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     status: z.string().optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1405,9 +1405,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceDispatchComments",
     {
       description: "get maintenance dispatch comments",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1420,9 +1420,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceDispatchEvents",
     {
       description: "get maintenance dispatch events",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1435,9 +1435,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceDispatchItems",
     {
       description: "get maintenance dispatch items",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1450,9 +1450,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceDispatchWorkCenters",
     {
       description: "get maintenance dispatch work centers",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1465,9 +1465,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceSchedule",
     {
       description: "get maintenance schedule",
-      inputSchema: {
+      inputSchema: z.object({
       scheduleId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1480,14 +1480,14 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceSchedules",
     {
       description: "get maintenance schedules",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     active: z.boolean().optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1500,9 +1500,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getMaintenanceScheduleItems",
     {
       description: "get maintenance schedule items",
-      inputSchema: {
+      inputSchema: z.object({
       scheduleId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1515,9 +1515,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getTrackedEntityByJobId",
     {
       description: "get tracked entity by job id",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1530,9 +1530,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_getTrackedEntitiesByJobId",
     {
       description: "get tracked entities by job id",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1545,11 +1545,11 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_recalculateJobOperationDependencies",
     {
       description: "recalculate job operation dependencies",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     jobId: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1562,11 +1562,11 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_recalculateJobRequirements",
     {
       description: "recalculate job requirements",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     id: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1579,11 +1579,11 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_recalculateJobMakeMethodRequirements",
     {
       description: "recalculate job make method requirements",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     id: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1596,12 +1596,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_runMRP",
     {
       description: "run m r p",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     type: z.any(),
     id: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1614,10 +1614,10 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateJobBatchNumber",
     {
       description: "update job batch number",
-      inputSchema: {
+      inputSchema: z.object({
       trackedEntityId: z.string(),
       value: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1630,13 +1630,13 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateJobStatus",
     {
       description: "update job status",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.string().nullable().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1649,12 +1649,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateJobMaterialOrder",
     {
       description: "update job material order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     order: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1667,12 +1667,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateJobOperationOrder",
     {
       description: "update job operation order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     order: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1685,12 +1685,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateJobOperationStepOrder",
     {
       description: "update job operation step order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1703,12 +1703,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateKanbanJob",
     {
       description: "update kanban job",
-      inputSchema: {
+      inputSchema: z.object({
       params: z.object({
     id: z.string(),
     jobId: z.string().nullable()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1721,12 +1721,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateQuoteOperationStepOrder",
     {
       description: "update quote operation step order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1739,12 +1739,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateMethodOperationStepOrder",
     {
       description: "update method operation step order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1757,10 +1757,10 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateJobOperationStatus",
     {
       description: "update job operation status",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
       status: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1773,10 +1773,10 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateJobOperationDueDate",
     {
       description: "update job operation due date",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
       dueDate: z.string().nullable(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1789,12 +1789,12 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateProcedureStepOrder",
     {
       description: "update procedure step order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1807,9 +1807,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertProductionEvent",
     {
       description: "upsert production event",
-      inputSchema: {
+      inputSchema: z.object({
       productionEvent: productionEventValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1822,9 +1822,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_updateProductionQuantity",
     {
       description: "update production quantity",
-      inputSchema: {
+      inputSchema: z.object({
       productionQuantity: productionQuantityValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1837,9 +1837,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertProductionQuantity",
     {
       description: "upsert production quantity",
-      inputSchema: {
+      inputSchema: z.object({
       productionQuantity: productionQuantityValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1852,10 +1852,10 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJob",
     {
       description: "upsert job",
-      inputSchema: {
+      inputSchema: z.object({
       job: jobValidator,
       status: z.any().optional(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1868,9 +1868,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJobMaterial",
     {
       description: "upsert job material",
-      inputSchema: {
+      inputSchema: z.object({
       jobMaterial: jobMaterialValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1883,9 +1883,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJobOperation",
     {
       description: "upsert job operation",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperation: jobOperationValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1898,9 +1898,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJobOperationStep",
     {
       description: "upsert job operation step",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationStep: operationStepValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1913,9 +1913,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJobOperationParameter",
     {
       description: "upsert job operation parameter",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationParameter: operationParameterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1928,9 +1928,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJobOperationTool",
     {
       description: "upsert job operation tool",
-      inputSchema: {
+      inputSchema: z.object({
       jobOperationTool: operationToolValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1943,7 +1943,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJobMethod",
     {
       description: "upsert job method",
-      inputSchema: {
+      inputSchema: z.object({
       type: z.string(),
       jobMethod: z.object({
     sourceId: z.string(),
@@ -1957,7 +1957,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1970,7 +1970,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertJobMaterialMakeMethod",
     {
       description: "upsert job material make method",
-      inputSchema: {
+      inputSchema: z.object({
       jobMaterial: z.object({
     sourceId: z.string(),
     targetId: z.string(),
@@ -1983,7 +1983,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1996,7 +1996,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMakeMethodFromJob",
     {
       description: "upsert make method from job",
-      inputSchema: {
+      inputSchema: z.object({
       jobMethod: z.object({
     sourceId: z.string(),
     targetId: z.string(),
@@ -2008,7 +2008,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2021,7 +2021,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMakeMethodFromJobMethod",
     {
       description: "upsert make method from job method",
-      inputSchema: {
+      inputSchema: z.object({
       jobMethod: z.object({
     sourceId: z.string(),
     targetId: z.string(),
@@ -2033,7 +2033,7 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2046,9 +2046,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertProcedure",
     {
       description: "upsert procedure",
-      inputSchema: {
+      inputSchema: z.object({
       procedure: procedureValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2061,9 +2061,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertProcedureStep",
     {
       description: "upsert procedure step",
-      inputSchema: {
+      inputSchema: z.object({
       procedureStep: procedureStepValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2076,9 +2076,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertProcedureParameter",
     {
       description: "upsert procedure parameter",
-      inputSchema: {
+      inputSchema: z.object({
       procedureParameter: procedureParameterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2091,9 +2091,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertScrapReason",
     {
       description: "upsert scrap reason",
-      inputSchema: {
+      inputSchema: z.object({
       scrapReason: scrapReasonValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2106,9 +2106,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertFailureMode",
     {
       description: "upsert failure mode",
-      inputSchema: {
+      inputSchema: z.object({
       failureMode: failureModeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2121,9 +2121,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMaintenanceDispatch",
     {
       description: "upsert maintenance dispatch",
-      inputSchema: {
+      inputSchema: z.object({
       dispatch: maintenanceDispatchValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2136,9 +2136,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMaintenanceDispatchComment",
     {
       description: "upsert maintenance dispatch comment",
-      inputSchema: {
+      inputSchema: z.object({
       comment: maintenanceDispatchCommentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2151,9 +2151,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMaintenanceDispatchEvent",
     {
       description: "upsert maintenance dispatch event",
-      inputSchema: {
+      inputSchema: z.object({
       event: maintenanceDispatchEventValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2166,9 +2166,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMaintenanceDispatchItem",
     {
       description: "upsert maintenance dispatch item",
-      inputSchema: {
+      inputSchema: z.object({
       item: maintenanceDispatchItemValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2181,9 +2181,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMaintenanceDispatchWorkCenter",
     {
       description: "upsert maintenance dispatch work center",
-      inputSchema: {
+      inputSchema: z.object({
       workCenter: maintenanceDispatchWorkCenterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2196,9 +2196,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMaintenanceSchedule",
     {
       description: "upsert maintenance schedule",
-      inputSchema: {
+      inputSchema: z.object({
       schedule: maintenanceScheduleValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2211,9 +2211,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertMaintenanceScheduleItem",
     {
       description: "upsert maintenance schedule item",
-      inputSchema: {
+      inputSchema: z.object({
       item: maintenanceScheduleItemValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2226,9 +2226,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertDemandForecasts",
     {
       description: "upsert demand forecasts",
-      inputSchema: {
+      inputSchema: z.object({
       forecasts: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2241,9 +2241,9 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_upsertDemandProjections",
     {
       description: "upsert demand projections",
-      inputSchema: {
+      inputSchema: z.object({
       forecasts: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2256,11 +2256,11 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
     "production_triggerJobSchedule",
     {
       description: "trigger job schedule",
-      inputSchema: {
+      inputSchema: z.object({
       jobId: z.string(),
       mode: z.string().optional(),
       direction: z.string().optional(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

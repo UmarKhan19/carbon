@@ -61,11 +61,11 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_approveRequest",
     {
       description: "approve request",
-      inputSchema: {
+      inputSchema: z.object({
       db: z.any(),
       id: z.string(),
       notes: z.string().optional(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -78,9 +78,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_canApproveRequest",
     {
       description: "can approve request",
-      inputSchema: {
+      inputSchema: z.object({
       approvalRequest: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -93,9 +93,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_canApproveRequestInWindow",
     {
       description: "can approve request in window",
-      inputSchema: {
+      inputSchema: z.object({
       approvalRequest: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -108,9 +108,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_cancelApprovalRequest",
     {
       description: "cancel approval request",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -123,9 +123,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_canViewApprovalRequest",
     {
       description: "can view approval request",
-      inputSchema: {
+      inputSchema: z.object({
       approvalRequest: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -138,9 +138,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_createApprovalRequest",
     {
       description: "create approval request",
-      inputSchema: {
+      inputSchema: z.object({
       request: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -153,9 +153,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_deleteApprovalRule",
     {
       description: "delete approval rule",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -168,9 +168,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_deleteNote",
     {
       description: "delete note",
-      inputSchema: {
+      inputSchema: z.object({
       noteId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -183,9 +183,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_deleteSavedView",
     {
       description: "delete saved view",
-      inputSchema: {
+      inputSchema: z.object({
       viewId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -198,9 +198,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_generateEmbedding",
     {
       description: "generate embedding",
-      inputSchema: {
+      inputSchema: z.object({
       text: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -213,9 +213,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApprovalById",
     {
       description: "get approval by id",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -228,10 +228,10 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApprovalRequestsByDocument",
     {
       description: "get approval requests by document",
-      inputSchema: {
+      inputSchema: z.object({
       documentType: z.any(),
       documentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -244,10 +244,10 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApprovalRuleByAmount",
     {
       description: "get approval rule by amount",
-      inputSchema: {
+      inputSchema: z.object({
       documentType: z.any(),
       amount: z.number().optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -260,9 +260,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApproverUserIdsForRule",
     {
       description: "get approver user ids for rule",
-      inputSchema: {
+      inputSchema: z.object({
       rule: z.any(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -275,9 +275,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApprovalRuleById",
     {
       description: "get approval rule by id",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -290,7 +290,7 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApprovalRules",
     {
       description: "get approval rules",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -303,9 +303,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApprovalRulesForApprover",
     {
       description: "get approval rules for approver",
-      inputSchema: {
+      inputSchema: z.object({
       documentType: z.any(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -318,12 +318,12 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getApprovalsForUser",
     {
       description: "get approvals for user",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -336,9 +336,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getBase64ImageFromSupabase",
     {
       description: "get base64 image from supabase",
-      inputSchema: {
+      inputSchema: z.object({
       path: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -351,7 +351,7 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getCountries",
     {
       description: "get countries",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -364,10 +364,10 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getLatestApprovalRequestForDocument",
     {
       description: "get latest approval request for document",
-      inputSchema: {
+      inputSchema: z.object({
       documentType: z.any(),
       documentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -380,9 +380,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getModelByItemId",
     {
       description: "get model by item id",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -395,9 +395,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getNotes",
     {
       description: "get notes",
-      inputSchema: {
+      inputSchema: z.object({
       documentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -410,7 +410,7 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getPendingApprovalsForApprover",
     {
       description: "get pending approvals for approver",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -423,12 +423,12 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getPeriods",
     {
       description: "get periods",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     startDate: z.string(),
     endDate: z.string()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -441,7 +441,7 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getSavedViews",
     {
       description: "get saved views",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -454,9 +454,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getTagsList",
     {
       description: "get tags list",
-      inputSchema: {
+      inputSchema: z.object({
       table: z.string().nullable().optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -469,10 +469,10 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_hasPendingApproval",
     {
       description: "has pending approval",
-      inputSchema: {
+      inputSchema: z.object({
       documentType: z.any(),
       documentId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -485,14 +485,14 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_importCsv",
     {
       description: "import csv",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     table: z.string(),
     filePath: z.string(),
     columnMappings: z.any(),
     enumMappings: z.any().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -505,12 +505,12 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_insertNote",
     {
       description: "insert note",
-      inputSchema: {
+      inputSchema: z.object({
       note: z.object({
     note: z.string(),
     documentId: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -523,9 +523,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_insertTag",
     {
       description: "insert tag",
-      inputSchema: {
+      inputSchema: z.object({
       tag: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -538,10 +538,10 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_isApprovalRequired",
     {
       description: "is approval required",
-      inputSchema: {
+      inputSchema: z.object({
       documentType: z.any(),
       amount: z.number().optional(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -554,9 +554,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getExternalLink",
     {
       description: "get external link",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -569,9 +569,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_upsertExternalLink",
     {
       description: "upsert external link",
-      inputSchema: {
+      inputSchema: z.object({
       externalLink: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -584,13 +584,13 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getCustomerPortals",
     {
       description: "get customer portals",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -603,9 +603,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_getCustomerPortal",
     {
       description: "get customer portal",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -618,9 +618,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_deleteCustomerPortal",
     {
       description: "delete customer portal",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -633,10 +633,10 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_updateModelThumbnail",
     {
       description: "update model thumbnail",
-      inputSchema: {
+      inputSchema: z.object({
       modelId: z.string(),
       thumbnailPath: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -649,9 +649,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_upsertModelUpload",
     {
       description: "upsert model upload",
-      inputSchema: {
+      inputSchema: z.object({
       upload: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -664,10 +664,10 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_updateNote",
     {
       description: "update note",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
       note: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -680,11 +680,11 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_rejectRequest",
     {
       description: "reject request",
-      inputSchema: {
+      inputSchema: z.object({
       db: z.any(),
       id: z.string(),
       notes: z.string().optional(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -697,9 +697,9 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_upsertApprovalRule",
     {
       description: "upsert approval rule",
-      inputSchema: {
+      inputSchema: z.object({
       rule: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -712,7 +712,7 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_upsertSavedView",
     {
       description: "upsert saved view",
-      inputSchema: {
+      inputSchema: z.object({
       view: z.object({
     id: z.string().optional(),
     name: z.string(),
@@ -725,7 +725,7 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     columnVisibility: z.any().optional(),
     columnOrder: z.array(z.string()).optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -738,12 +738,12 @@ export const registerSharedTools: RegisterTools = (server, ctx) => {
     "shared_updateSavedViewOrder",
     {
       description: "update saved view order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

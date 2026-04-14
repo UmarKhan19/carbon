@@ -93,7 +93,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getAccountsPayableBillingAddress",
     {
       description: "get accounts payable billing address",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -106,7 +106,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getAccountsReceivableBillingAddress",
     {
       description: "get accounts receivable billing address",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -119,9 +119,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateAccountsPayableBillingAddress",
     {
       description: "update accounts payable billing address",
-      inputSchema: {
+      inputSchema: z.object({
       data: accountsPayableBillingAddressValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -134,9 +134,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateAccountsReceivableBillingAddress",
     {
       description: "update accounts receivable billing address",
-      inputSchema: {
+      inputSchema: z.object({
       data: accountsReceivableBillingAddressValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -149,9 +149,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_deleteApiKey",
     {
       description: "delete api key",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -164,9 +164,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_deleteWebhook",
     {
       description: "delete webhook",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -179,7 +179,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_deactivateWebhooks",
     {
       description: "deactivate webhooks",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -192,13 +192,13 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getApiKeys",
     {
       description: "get api keys",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -211,7 +211,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCompanies",
     {
       description: "get companies",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -224,7 +224,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCompany",
     {
       description: "get company",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -237,7 +237,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCompanyPlan",
     {
       description: "get company plan",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -250,7 +250,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCompanySettings",
     {
       description: "get company settings",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -263,7 +263,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCompanyIntegrations",
     {
       description: "get company integrations",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -276,7 +276,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getConfig",
     {
       description: "get config",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -289,9 +289,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCurrentSequence",
     {
       description: "get current sequence",
-      inputSchema: {
+      inputSchema: z.object({
       table: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -304,9 +304,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCustomField",
     {
       description: "get custom field",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -319,9 +319,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCustomFields",
     {
       description: "get custom fields",
-      inputSchema: {
+      inputSchema: z.object({
       table: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -334,13 +334,13 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getCustomFieldsTables",
     {
       description: "get custom fields tables",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -353,9 +353,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getIntegration",
     {
       description: "get integration",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -368,7 +368,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getIntegrations",
     {
       description: "get integrations",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -381,7 +381,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getKanbanOutputSetting",
     {
       description: "get kanban output setting",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -394,9 +394,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getPlanById",
     {
       description: "get plan by id",
-      inputSchema: {
+      inputSchema: z.object({
       planId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -409,7 +409,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getPlans",
     {
       description: "get plans",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -422,9 +422,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getNextSequence",
     {
       description: "get next sequence",
-      inputSchema: {
+      inputSchema: z.object({
       table: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -437,9 +437,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getSequence",
     {
       description: "get sequence",
-      inputSchema: {
+      inputSchema: z.object({
       table: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -452,13 +452,13 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getSequences",
     {
       description: "get sequences",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -471,9 +471,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getSequencesList",
     {
       description: "get sequences list",
-      inputSchema: {
+      inputSchema: z.object({
       table: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -486,7 +486,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getTerms",
     {
       description: "get terms",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -499,9 +499,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getWebhook",
     {
       description: "get webhook",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -514,7 +514,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getWebhookTables",
     {
       description: "get webhook tables",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -527,13 +527,13 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_getWebhooks",
     {
       description: "get webhooks",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -546,10 +546,10 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_insertCompany",
     {
       description: "insert company",
-      inputSchema: {
+      inputSchema: z.object({
       company: companyValidator,
       ownerId: z.string().optional(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -562,14 +562,14 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateCompanyPlan",
     {
       description: "update company plan",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     stripeCustomerId: z.string(),
     stripeSubscriptionId: z.string(),
     stripeSubscriptionStatus: z.string(),
     subscriptionStartDate: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -582,7 +582,7 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_seedCompany",
     {
       description: "seed company",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -595,9 +595,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateCompany",
     {
       description: "update company",
-      inputSchema: {
+      inputSchema: z.object({
       company: companyValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -610,9 +610,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateKanbanOutputSetting",
     {
       description: "update kanban output setting",
-      inputSchema: {
+      inputSchema: z.object({
       kanbanOutput: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -625,9 +625,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateMetricSettings",
     {
       description: "update metric settings",
-      inputSchema: {
+      inputSchema: z.object({
       useMetric: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -640,9 +640,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_upsertApiKey",
     {
       description: "upsert api key",
-      inputSchema: {
+      inputSchema: z.object({
       apiKey: apiKeyValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -655,11 +655,11 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateDigitalQuoteSetting",
     {
       description: "update digital quote setting",
-      inputSchema: {
+      inputSchema: z.object({
       digitalQuoteEnabled: z.boolean(),
       digitalQuoteNotificationGroup: z.array(z.string()),
       digitalQuoteIncludesPurchaseOrders: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -672,9 +672,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateLogoDark",
     {
       description: "update logo dark",
-      inputSchema: {
+      inputSchema: z.object({
       logoDark: z.string().nullable(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -687,9 +687,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateLogoLight",
     {
       description: "update logo light",
-      inputSchema: {
+      inputSchema: z.object({
       logoLight: z.string().nullable(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -702,9 +702,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateLogoDarkIcon",
     {
       description: "update logo dark icon",
-      inputSchema: {
+      inputSchema: z.object({
       logoDarkIcon: z.string().nullable(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -717,9 +717,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateLogoLightIcon",
     {
       description: "update logo light icon",
-      inputSchema: {
+      inputSchema: z.object({
       logoLightIcon: z.string().nullable(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -732,9 +732,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateMaterialGeneratedIdsSetting",
     {
       description: "update material generated ids setting",
-      inputSchema: {
+      inputSchema: z.object({
       materialGeneratedIds: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -747,9 +747,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateMaterialUnitsSetting",
     {
       description: "update material units setting",
-      inputSchema: {
+      inputSchema: z.object({
       useMetric: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -762,9 +762,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateProductLabelSize",
     {
       description: "update product label size",
-      inputSchema: {
+      inputSchema: z.object({
       productLabelSize: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -777,9 +777,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updatePurchasingPdfThumbnails",
     {
       description: "update purchasing pdf thumbnails",
-      inputSchema: {
+      inputSchema: z.object({
       includeThumbnailsOnPurchasingPdfs: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -792,9 +792,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateSalesPdfThumbnails",
     {
       description: "update sales pdf thumbnails",
-      inputSchema: {
+      inputSchema: z.object({
       includeThumbnailsOnSalesPdfs: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -807,9 +807,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateJobTravelerWorkInstructions",
     {
       description: "update job traveler work instructions",
-      inputSchema: {
+      inputSchema: z.object({
       jobTravelerIncludeWorkInstructions: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -822,9 +822,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateTimeCardSetting",
     {
       description: "update time card setting",
-      inputSchema: {
+      inputSchema: z.object({
       timeCardEnabled: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -837,9 +837,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateConsoleSetting",
     {
       description: "update console setting",
-      inputSchema: {
+      inputSchema: z.object({
       consoleEnabled: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -852,9 +852,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateRfqReadySetting",
     {
       description: "update rfq ready setting",
-      inputSchema: {
+      inputSchema: z.object({
       rfqReadyNotificationGroup: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -867,9 +867,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateSuggestionNotificationSetting",
     {
       description: "update suggestion notification setting",
-      inputSchema: {
+      inputSchema: z.object({
       suggestionNotificationGroup: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -882,14 +882,14 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateMaintenanceDispatchNotificationSettings",
     {
       description: "update maintenance dispatch notification settings",
-      inputSchema: {
+      inputSchema: z.object({
       settings: z.object({
     maintenanceDispatchNotificationGroup: z.array(z.string()).optional(),
     qualityDispatchNotificationGroup: z.array(z.string()).optional(),
     operationsDispatchNotificationGroup: z.array(z.string()).optional(),
     otherDispatchNotificationGroup: z.array(z.string()).optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -902,9 +902,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateSupplierQuoteNotificationSetting",
     {
       description: "update supplier quote notification setting",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteNotificationGroup: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -917,9 +917,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updatePurchasePriceUpdateTimingSetting",
     {
       description: "update purchase price update timing setting",
-      inputSchema: {
+      inputSchema: z.object({
       purchasePriceUpdateTiming: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -932,9 +932,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateLeadTimesOnReceiptSetting",
     {
       description: "update lead times on receipt setting",
-      inputSchema: {
+      inputSchema: z.object({
       updateLeadTimesOnReceipt: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -947,9 +947,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateSupplierApprovalSetting",
     {
       description: "update supplier approval setting",
-      inputSchema: {
+      inputSchema: z.object({
       supplierApproval: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -962,9 +962,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateAccountsPayableAddressSetting",
     {
       description: "update accounts payable address setting",
-      inputSchema: {
+      inputSchema: z.object({
       accountsPayableAddress: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -977,9 +977,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateAccountsReceivableAddressSetting",
     {
       description: "update accounts receivable address setting",
-      inputSchema: {
+      inputSchema: z.object({
       accountsReceivableAddress: z.boolean(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -992,9 +992,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateAccountsPayableEmail",
     {
       description: "update accounts payable email",
-      inputSchema: {
+      inputSchema: z.object({
       accountsPayableEmail: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1007,9 +1007,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateAccountsReceivableEmail",
     {
       description: "update accounts receivable email",
-      inputSchema: {
+      inputSchema: z.object({
       accountsReceivableEmail: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1022,9 +1022,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateDefaultSupplierCc",
     {
       description: "update default supplier cc",
-      inputSchema: {
+      inputSchema: z.object({
       defaultSupplierCc: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1037,9 +1037,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateDefaultCustomerCc",
     {
       description: "update default customer cc",
-      inputSchema: {
+      inputSchema: z.object({
       defaultCustomerCc: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1052,9 +1052,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateQuoteLineCategoryMarkups",
     {
       description: "update quote line category markups",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineCategoryMarkups: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1067,10 +1067,10 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateSequence",
     {
       description: "update sequence",
-      inputSchema: {
+      inputSchema: z.object({
       table: z.string(),
       sequence: sequenceValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1083,10 +1083,10 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_updateIntegrationMetadata",
     {
       description: "update integration metadata",
-      inputSchema: {
+      inputSchema: z.object({
       integrationId: z.string(),
       metadata: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1099,9 +1099,9 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
     "settings_upsertWebhook",
     {
       description: "upsert webhook",
-      inputSchema: {
+      inputSchema: z.object({
       webhook: webhookValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
