@@ -63,6 +63,7 @@ function unwrapSchema(
         continue;
 
       case "nonoptional":
+        isOptional = false;
         current = def.innerType;
         continue;
 
@@ -78,7 +79,8 @@ function unwrapSchema(
       // lazy — resolve the thunk
       case "lazy":
       case "ZodLazy": {
-        const inner = (current as any)._zod?.innerType ?? def.getter();
+        const inner = (current as any)._zod?.innerType ?? def.getter?.();
+        if (!inner) return { schema: current, isOptional, hasDefault };
         current = inner;
         continue;
       }
