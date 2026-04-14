@@ -173,7 +173,7 @@ msgstr "Bloqueado por {0}"
 msgid "Blocking"
 msgstr "Bloqueando"
 
-#: apps/mes/app/routes/_public+/callback.tsx:153
+#: apps/mes/app/routes/_public+/callback.tsx:160
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
 msgstr "Mas não se preocupe. Você pode usar o fluxo de senha esquecida para solicitar um novo link mágico."
 
@@ -440,7 +440,7 @@ msgstr "Insira o sobrenome"
 msgid "Enter PIN for {0}"
 msgstr "Insira o PIN de {0}"
 
-#: apps/mes/app/routes/_public+/callback.tsx:146
+#: apps/mes/app/routes/_public+/callback.tsx:153
 msgid "Error"
 msgstr "Erro"
 
@@ -650,7 +650,7 @@ msgstr "Registrar Refugo"
 msgid "Log scrap for {0}"
 msgstr "Registrar refugo para {0}"
 
-#: apps/mes/app/routes/_public+/callback.tsx:160
+#: apps/mes/app/routes/_public+/callback.tsx:167
 msgid "Login"
 msgstr "Entrar"
 
@@ -1056,7 +1056,7 @@ msgstr "Pesquisar operadores..."
 
 #: apps/mes/app/components/Filter/ActiveFilters.tsx:166
 #: apps/mes/app/components/Filter/Filter.tsx:163
-#: packages/react/src/Combobox.tsx:193
+#: packages/react/src/Combobox.tsx:194
 #: packages/react/src/CreateableCombobox.tsx:237
 #: packages/react/src/CreateableMultiSelect.tsx:163
 #: packages/react/src/CreateableMultiSelect.tsx:281
@@ -1069,7 +1069,7 @@ msgstr "Pesquisar..."
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1649
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:367
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:487
-#: packages/react/src/Combobox.tsx:111
+#: packages/react/src/Combobox.tsx:112
 #: packages/react/src/CreateableCombobox.tsx:121
 #: packages/react/src/MultiSelect.tsx:178
 msgid "Select"

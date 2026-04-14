@@ -58578,10 +58578,6 @@ export type Database = {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
       }
-      sync_create_posting_groups_for_item_posting_group: {
-        Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
-        Returns: undefined
-      }
       sync_create_posting_groups_for_supplier_type: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined

@@ -70670,51 +70670,6 @@ export default {
         tags: ["(rpc) get_my_claim"],
       },
     },
-    "/rpc/sync_create_posting_groups_for_item_posting_group": {
-      post: {
-        parameters: [
-          {
-            in: "body",
-            name: "args",
-            required: true,
-            schema: {
-              properties: {
-                p_new: {
-                  format: "jsonb",
-                },
-                p_old: {
-                  format: "jsonb",
-                },
-                p_operation: {
-                  format: "text",
-                  type: "string",
-                },
-                p_table: {
-                  format: "text",
-                  type: "string",
-                },
-              },
-              required: ["p_table", "p_operation", "p_new", "p_old"],
-              type: "object",
-            },
-          },
-          {
-            $ref: "#/parameters/preferParams",
-          },
-        ],
-        produces: [
-          "application/json",
-          "application/vnd.pgrst.object+json;nulls=stripped",
-          "application/vnd.pgrst.object+json",
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-          },
-        },
-        tags: ["(rpc) sync_create_posting_groups_for_item_posting_group"],
-      },
-    },
     "/rpc/delete_old_audit_logs": {
       post: {
         parameters: [
