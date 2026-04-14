@@ -21,12 +21,12 @@ import {
   ModalCardHeader,
   ModalCardProvider,
   ModalCardTitle,
+  useDebounce,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { Trans, useLingui } from "@lingui/react/macro";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuChevronRight, LuPlus, LuTrash, LuTruck } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -54,6 +54,7 @@ import {
   useUser
 } from "~/hooks";
 import { getDefaultShelfForJob } from "~/modules/inventory/inventory.service";
+import { PriceTracePopover } from "~/modules/sales/pricing/ui";
 import { methodType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
@@ -79,7 +80,6 @@ const SalesOrderLineForm = ({
   type,
   onClose
 }: SalesOrderLineFormProps) => {
-  const { t } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -98,6 +98,9 @@ const SalesOrderLineForm = ({
 
   const [lineType, setLineType] = useState(initialValues.salesOrderLineType);
   const [locationId, setLocationId] = useState(initialValues.locationId ?? "");
+  const [saleQuantity, setSaleQuantity] = useState(
+    initialValues.saleQuantity ?? 1
+  );
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: string;
@@ -106,6 +109,9 @@ const SalesOrderLineForm = ({
     uom: string;
     shelfId: string;
     modelUploadId: string | null;
+    priceListId: string | null;
+    priceListName: string | null;
+    priceTrace: unknown;
   }>({
     itemId: initialValues.itemId ?? "",
     description: initialValues.description ?? "",
@@ -113,10 +119,27 @@ const SalesOrderLineForm = ({
     unitPrice: initialValues.unitPrice ?? 0,
     uom: initialValues.unitOfMeasureCode ?? "",
     shelfId: initialValues.shelfId ?? "",
-    modelUploadId: initialValues.modelUploadId ?? null
+    modelUploadId: initialValues.modelUploadId ?? null,
+    priceListId: initialValues.priceListId ?? null,
+    priceListName: null,
+    priceTrace: (initialValues as { priceTrace?: unknown }).priceTrace ?? null
   });
 
   const isEditing = initialValues.id !== undefined;
+
+  useEffect(() => {
+    if (!initialValues.priceListId || !carbon) return;
+    carbon
+      .from("pricingRule")
+      .select("name")
+      .eq("id", initialValues.priceListId)
+      .single()
+      .then(({ data }) => {
+        if (data?.name) {
+          setItemData((d) => ({ ...d, priceListName: data.name }));
+        }
+      });
+  }, [initialValues.priceListId, carbon]);
 
   const onTypeChange = (t: SalesOrderLineType) => {
     // @ts-ignore
@@ -128,12 +151,62 @@ const SalesOrderLineForm = ({
       methodType: "",
       uom: "EA",
       shelfId: "",
-      modelUploadId: null
+      modelUploadId: null,
+      priceListId: null,
+      priceListName: null,
+      priceTrace: null
     });
   };
 
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
+
+  const resolvePrice = useCallback(
+    async (itemId: string, quantity: number) => {
+      const customerId = routeData?.salesOrder?.customerId;
+      if (!customerId) return null;
+
+      try {
+        const response = await fetch(path.to.api.salesResolvePrice, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customerId, itemId, quantity })
+        });
+        if (response.ok) {
+          const result = await response.json();
+          return {
+            finalPrice: result.finalPrice as number,
+            priceListId: null as string | null,
+            priceListName: "Pricing Rules" as string | null,
+            trace: result.trace ?? null
+          };
+        }
+      } catch {
+        // Fall back to itemUnitSalePrice on any error
+      }
+      return null;
+    },
+    [routeData?.salesOrder?.customerId]
+  );
+
+  const debouncedQuantityResolve = useDebounce(async (qty: number) => {
+    if (!itemData.itemId) return;
+    const result = await resolvePrice(itemData.itemId, qty);
+    if (result) {
+      setItemData((d) => ({
+        ...d,
+        unitPrice: result.finalPrice,
+        priceListId: result.priceListId,
+        priceListName: result.priceListName,
+        priceTrace: result.trace
+      }));
+    }
+  }, 400);
+
+  const onQuantityChange = (qty: number) => {
+    setSaleQuantity(qty);
+    debouncedQuantityResolve(qty);
+  };
 
   const onChange = async (itemId: string) => {
     if (!itemId) return;
@@ -155,19 +228,30 @@ const SalesOrderLineForm = ({
         .maybeSingle()
     ]);
 
-    // Get default shelf or shelf with highest quantity
     const defaultShelfId = locationId
       ? await getDefaultShelfForJob(carbon, itemId, locationId, company.id)
       : null;
+
+    let resolvedPrice = price.data?.unitSalePrice ?? 0;
+    let priceListId: string | null = null;
+
+    const result = await resolvePrice(itemId, saleQuantity);
+    if (result) {
+      resolvedPrice = result.finalPrice;
+      priceListId = result.priceListId;
+    }
 
     setItemData({
       itemId,
       description: item.data?.name ?? "",
       methodType: item.data?.defaultMethodType ?? "",
-      unitPrice: price.data?.unitSalePrice ?? 0,
+      unitPrice: resolvedPrice,
       uom: item.data?.unitOfMeasureCode ?? "EA",
       shelfId: defaultShelfId ?? "",
-      modelUploadId: item.data?.modelUploadId ?? null
+      modelUploadId: item.data?.modelUploadId ?? null,
+      priceListId,
+      priceListName: result?.priceListName ?? null,
+      priceTrace: result?.trace ?? null
     });
   };
 
@@ -179,7 +263,6 @@ const SalesOrderLineForm = ({
     setLocationId(newLocation.value);
     if (!itemData.itemId) return;
 
-    // Get default shelf or shelf with highest quantity for the new location
     const defaultShelfId = await getDefaultShelfForJob(
       carbon,
       itemData.itemId,
@@ -228,11 +311,9 @@ const SalesOrderLineForm = ({
                       isEditing && !itemData?.itemId && "text-muted-foreground"
                     )}
                   >
-                    {isEditing ? (
-                      getItemReadableId(items, itemData?.itemId) || "..."
-                    ) : (
-                      <Trans>New Sales Order Line</Trans>
-                    )}
+                    {isEditing
+                      ? getItemReadableId(items, itemData?.itemId) || "..."
+                      : "New Sales Order Line"}
                   </ModalCardTitle>
                   <ModalCardDescription>
                     {isEditing ? (
@@ -257,16 +338,13 @@ const SalesOrderLineForm = ({
                               {percentFormatter.format(
                                 initialValues?.taxPercent
                               )}{" "}
-                              <Trans>Tax</Trans>
+                              Tax
                             </Badge>
                           ) : null}
                         </div>
                       </div>
                     ) : (
-                      <Trans>
-                        A sales order line contains order details for a
-                        particular item
-                      </Trans>
+                      "A sales order line contains order details for a particular item"
                     )}
                   </ModalCardDescription>
                 </ModalCardHeader>
@@ -278,7 +356,7 @@ const SalesOrderLineForm = ({
                         <DropdownMenuTrigger asChild>
                           <IconButton
                             icon={<BsThreeDotsVertical />}
-                            aria-label={t`More`}
+                            aria-label="More"
                             variant="ghost"
                           />
                         </DropdownMenuTrigger>
@@ -288,7 +366,7 @@ const SalesOrderLineForm = ({
                             onClick={deleteDisclosure.onOpen}
                           >
                             <DropdownMenuIcon icon={<LuTrash />} />
-                            <Trans>Delete Line</Trans>
+                            Delete Line
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -309,6 +387,18 @@ const SalesOrderLineForm = ({
                   name="modelUploadId"
                   value={itemData?.modelUploadId ?? undefined}
                 />
+                <Hidden
+                  name="priceListId"
+                  value={itemData?.priceListId ?? undefined}
+                />
+                <Hidden
+                  name="priceTrace"
+                  value={
+                    itemData?.priceTrace
+                      ? JSON.stringify(itemData.priceTrace)
+                      : undefined
+                  }
+                />
                 <VStack>
                   <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                     <Item
@@ -326,7 +416,7 @@ const SalesOrderLineForm = ({
                     {isEditing && (
                       <InputControlled
                         name="description"
-                        label={t`Short Description`}
+                        label="Short Description"
                         onChange={(value) => {
                           setItemData((d) => ({
                             ...d,
@@ -341,7 +431,7 @@ const SalesOrderLineForm = ({
                       <>
                         <SelectControlled
                           name="methodType"
-                          label={t`Method`}
+                          label="Method"
                           options={
                             methodType.map((m) => ({
                               label: (
@@ -362,31 +452,45 @@ const SalesOrderLineForm = ({
                               }));
                           }}
                         />
-                        <Number name="saleQuantity" label={t`Quantity`} />
+                        <NumberControlled
+                          name="saleQuantity"
+                          label="Quantity"
+                          value={saleQuantity}
+                          onChange={onQuantityChange}
+                        />
                         <UnitOfMeasure
                           name="unitOfMeasureCode"
-                          label={t`Unit of Measure`}
+                          label="Unit of Measure"
                           value={itemData.uom}
                         />
-                        <NumberControlled
-                          name="unitPrice"
-                          label={t`Unit Price`}
-                          value={itemData.unitPrice}
-                          formatOptions={{
-                            style: "currency",
-                            currency: baseCurrency
-                          }}
-                          onChange={(value) =>
-                            setItemData((d) => ({
-                              ...d,
-                              unitPrice: value
-                            }))
-                          }
-                        />
-                        <DatePicker
-                          name="promisedDate"
-                          label={t`Promised Date`}
-                        />
+                        <div className="flex flex-col gap-y-2 w-full">
+                          <div className="flex items-center justify-between min-h-[16px]">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              Unit Price
+                            </span>
+                            <PriceTracePopover
+                              priceListId={itemData.priceListId}
+                              priceListName={itemData.priceListName}
+                              priceTrace={itemData.priceTrace}
+                              currencyCode={baseCurrency}
+                            />
+                          </div>
+                          <NumberControlled
+                            name="unitPrice"
+                            value={itemData.unitPrice}
+                            formatOptions={{
+                              style: "currency",
+                              currency: baseCurrency
+                            }}
+                            onChange={(value) =>
+                              setItemData((d) => ({
+                                ...d,
+                                unitPrice: value
+                              }))
+                            }
+                          />
+                        </div>
+                        <DatePicker name="promisedDate" label="Promised Date" />
                         {[
                           "Part",
                           "Material",
@@ -396,7 +500,7 @@ const SalesOrderLineForm = ({
                         ].includes(lineType) && (
                           <Location
                             name="locationId"
-                            label={t`Location`}
+                            label="Location"
                             onChange={onLocationChange}
                           />
                         )}
@@ -409,7 +513,7 @@ const SalesOrderLineForm = ({
                         ].includes(lineType) && (
                           <Shelf
                             name="shelfId"
-                            label={t`Shelf`}
+                            label="Shelf"
                             locationId={locationId}
                             itemId={itemData.itemId}
                             value={itemData.shelfId ?? undefined}
@@ -435,16 +539,14 @@ const SalesOrderLineForm = ({
                           className="w-full justify-between cursor-pointer"
                           onClick={costsDisclosure.onToggle}
                         >
-                          <Label>
-                            <Trans>Tax & Additional Costs</Trans>
-                          </Label>
+                          <Label>Tax &amp; Additional Costs</Label>
                           <HStack>
                             {(initialValues?.taxPercent ?? 0) > 0 && (
                               <Badge variant="red">
                                 {percentFormatter.format(
                                   initialValues?.taxPercent ?? 0
                                 )}{" "}
-                                <Trans>Tax</Trans>
+                                Tax
                               </Badge>
                             )}
                             {(initialValues?.shippingCost ?? 0) > 0 && (
@@ -474,7 +576,7 @@ const SalesOrderLineForm = ({
                                         (initialValues?.nonTaxableAddOnCost ??
                                           0)
                                     )}{" "}
-                                    <Trans>Add-On</Trans>
+                                    Add-On
                                   </span>
                                 </Badge>
                               ))}
@@ -483,8 +585,8 @@ const SalesOrderLineForm = ({
                               icon={<LuChevronRight />}
                               aria-label={
                                 costsDisclosure.isOpen
-                                  ? t`Collapse Costs`
-                                  : t`Expand Costs`
+                                  ? "Collapse Costs"
+                                  : "Expand Costs"
                               }
                               variant="ghost"
                               size="md"
@@ -505,7 +607,7 @@ const SalesOrderLineForm = ({
                         >
                           <Number
                             name="taxPercent"
-                            label={t`Tax Percent`}
+                            label="Tax Percent"
                             minValue={0}
                             maxValue={1}
                             step={0.0001}
@@ -517,7 +619,7 @@ const SalesOrderLineForm = ({
                           />
                           <Number
                             name="shippingCost"
-                            label={t`Shipping Cost`}
+                            label="Shipping Cost"
                             minValue={0}
                             formatOptions={{
                               style: "currency",
@@ -526,7 +628,7 @@ const SalesOrderLineForm = ({
                           />
                           <Number
                             name="addOnCost"
-                            label={t`Add-On Cost`}
+                            label="Add-On Cost"
                             formatOptions={{
                               style: "currency",
                               currency: baseCurrency
@@ -534,7 +636,7 @@ const SalesOrderLineForm = ({
                           />
                           <Number
                             name="nonTaxableAddOnCost"
-                            label={t`Non-Taxable Add-On Cost`}
+                            label="Non-Taxable Add-On Cost"
                             formatOptions={{
                               style: "currency",
                               currency: baseCurrency
@@ -555,7 +657,7 @@ const SalesOrderLineForm = ({
                       : !permissions.can("create", "sales"))
                   }
                 >
-                  <Trans>Save</Trans>
+                  Save
                 </Submit>
               </ModalCardFooter>
             </ValidatedForm>

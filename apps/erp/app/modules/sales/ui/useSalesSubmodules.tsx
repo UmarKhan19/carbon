@@ -3,6 +3,7 @@ import {
   LuBan,
   LuCreditCard,
   LuGlobe,
+  LuPercent,
   LuShapes,
   LuSquareUser,
   LuStar
@@ -48,6 +49,12 @@ export default function useSalesSubmodules() {
           to: path.to.salesOrders,
           icon: <RiProgress8Line />,
           table: "salesOrder"
+        },
+        {
+          name: t`Pricing Rules`,
+          to: path.to.salesPricingRules,
+          role: "employee",
+          icon: <LuPercent />
         },
         {
           name: t`Invoices`,

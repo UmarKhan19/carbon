@@ -1432,6 +1432,12 @@ export default {
             $ref: "#/parameters/rowFilter.quoteLine.configuration",
           },
           {
+            $ref: "#/parameters/rowFilter.quoteLine.pricingRuleId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.quoteLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -1575,6 +1581,12 @@ export default {
             $ref: "#/parameters/rowFilter.quoteLine.configuration",
           },
           {
+            $ref: "#/parameters/rowFilter.quoteLine.pricingRuleId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.quoteLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -1670,6 +1682,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.quoteLine.configuration",
+          },
+          {
+            $ref: "#/parameters/rowFilter.quoteLine.pricingRuleId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.quoteLine.priceTrace",
           },
           {
             $ref: "#/parameters/body.quoteLine",
@@ -15387,6 +15405,294 @@ export default {
         tags: ["plan"],
       },
     },
+    "/pricingRule": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.ruleType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.amountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.priority",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.maxQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.customerIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.customerTypeIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.validTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.formulaBase",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.minMarginPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/pricingRule",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["pricingRule"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.pricingRule",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["pricingRule"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.ruleType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.amountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.priority",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.maxQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.customerIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.customerTypeIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.validTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.formulaBase",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.minMarginPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["pricingRule"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.name",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.ruleType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.amountType",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.amount",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.priority",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.maxQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.customerIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.customerTypeIds",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.itemPostingGroupId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.validFrom",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.validTo",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.formulaBase",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.minMarginPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.pricingRule.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.pricingRule",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["pricingRule"],
+      },
+    },
     "/location": {
       get: {
         parameters: [
@@ -17581,6 +17887,195 @@ export default {
           },
         },
         tags: ["timeCardEntries"],
+      },
+    },
+    "/itemSalePriceBreak": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/itemSalePriceBreak",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["itemSalePriceBreak"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.itemSalePriceBreak",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["itemSalePriceBreak"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["itemSalePriceBreak"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.customerTypeId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.minQuantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.unitPrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.discountPercent",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.itemSalePriceBreak",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["itemSalePriceBreak"],
       },
     },
     "/materialDimensions": {
@@ -49276,6 +49771,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.pricingRuleId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -49461,6 +49962,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLine.pricingRuleId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceTrace",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -49598,6 +50105,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.convertedNonTaxableAddOnCost",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.pricingRuleId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLine.priceTrace",
           },
           {
             $ref: "#/parameters/body.salesOrderLine",
@@ -73155,6 +73668,15 @@ export default {
         configuration: {
           format: "jsonb",
         },
+        pricingRuleId: {
+          description:
+            "Note:\nThis is a Foreign Key to `pricingRule.id`.<fk table='pricingRule' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        priceTrace: {
+          format: "jsonb",
+        },
       },
       type: "object",
     },
@@ -79634,6 +80156,135 @@ export default {
       },
       type: "object",
     },
+    pricingRule: {
+      required: [
+        "id",
+        "name",
+        "ruleType",
+        "amountType",
+        "amount",
+        "priority",
+        "active",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('pr'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        name: {
+          format: "text",
+          type: "string",
+        },
+        ruleType: {
+          enum: ["Discount", "Markup"],
+          format: 'public."pricingRuleType"',
+          type: "string",
+        },
+        amountType: {
+          default: "Percentage",
+          enum: ["Percentage", "Fixed"],
+          format: 'public."pricingRuleAmountType"',
+          type: "string",
+        },
+        amount: {
+          format: "numeric",
+          type: "number",
+        },
+        priority: {
+          default: 0,
+          format: "int32",
+          type: "integer",
+        },
+        minQuantity: {
+          format: "numeric",
+          type: "number",
+        },
+        maxQuantity: {
+          format: "numeric",
+          type: "number",
+        },
+        customerIds: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        customerTypeIds: {
+          format: "text[]",
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        itemId: {
+          description:
+            "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        itemPostingGroupId: {
+          description:
+            "Note:\nThis is a Foreign Key to `itemPostingGroup.id`.<fk table='itemPostingGroup' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        validFrom: {
+          format: "date",
+          type: "string",
+        },
+        validTo: {
+          format: "date",
+          type: "string",
+        },
+        formulaBase: {
+          format: "text",
+          type: "string",
+        },
+        minMarginPercent: {
+          format: "numeric",
+          type: "number",
+        },
+        active: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     location: {
       required: [
         "id",
@@ -80739,6 +81390,77 @@ export default {
         },
         status: {
           format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
+    itemSalePriceBreak: {
+      required: [
+        "id",
+        "itemId",
+        "minQuantity",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('ispb'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        itemId: {
+          description:
+            "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        customerTypeId: {
+          description:
+            "Note:\nThis is a Foreign Key to `customerType.id`.<fk table='customerType' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        minQuantity: {
+          default: 1,
+          format: "numeric",
+          type: "number",
+        },
+        unitPrice: {
+          format: "numeric",
+          type: "number",
+        },
+        discountPercent: {
+          format: "numeric",
+          type: "number",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
           type: "string",
         },
       },
@@ -95775,6 +96497,15 @@ export default {
           format: "numeric",
           type: "number",
         },
+        pricingRuleId: {
+          description:
+            "Note:\nThis is a Foreign Key to `pricingRule.id`.<fk table='pricingRule' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        priceTrace: {
+          format: "jsonb",
+        },
       },
       type: "object",
     },
@@ -103974,6 +104705,18 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.quoteLine.pricingRuleId": {
+      name: "pricingRuleId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.quoteLine.priceTrace": {
+      name: "priceTrace",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.employeeSummary": {
       name: "employeeSummary",
       description: "employeeSummary",
@@ -111291,6 +112034,147 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.pricingRule": {
+      name: "pricingRule",
+      description: "pricingRule",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/pricingRule",
+      },
+    },
+    "rowFilter.pricingRule.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.ruleType": {
+      name: "ruleType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.amountType": {
+      name: "amountType",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.amount": {
+      name: "amount",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.priority": {
+      name: "priority",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.minQuantity": {
+      name: "minQuantity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.maxQuantity": {
+      name: "maxQuantity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.customerIds": {
+      name: "customerIds",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.customerTypeIds": {
+      name: "customerTypeIds",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.itemId": {
+      name: "itemId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.itemPostingGroupId": {
+      name: "itemPostingGroupId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.validFrom": {
+      name: "validFrom",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.validTo": {
+      name: "validTo",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.formulaBase": {
+      name: "formulaBase",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.minMarginPercent": {
+      name: "minMarginPercent",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.pricingRule.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.location": {
       name: "location",
       description: "location",
@@ -112592,6 +113476,81 @@ export default {
     },
     "rowFilter.timeCardEntries.status": {
       name: "status",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.itemSalePriceBreak": {
+      name: "itemSalePriceBreak",
+      description: "itemSalePriceBreak",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/itemSalePriceBreak",
+      },
+    },
+    "rowFilter.itemSalePriceBreak.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.itemId": {
+      name: "itemId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.customerTypeId": {
+      name: "customerTypeId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.minQuantity": {
+      name: "minQuantity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.unitPrice": {
+      name: "unitPrice",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.discountPercent": {
+      name: "discountPercent",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemSalePriceBreak.updatedAt": {
+      name: "updatedAt",
       required: false,
       in: "query",
       type: "string",
@@ -129565,6 +130524,18 @@ export default {
     },
     "rowFilter.salesOrderLine.convertedNonTaxableAddOnCost": {
       name: "convertedNonTaxableAddOnCost",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesOrderLine.pricingRuleId": {
+      name: "pricingRuleId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesOrderLine.priceTrace": {
+      name: "priceTrace",
       required: false,
       in: "query",
       type: "string",

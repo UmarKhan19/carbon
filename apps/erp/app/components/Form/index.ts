@@ -31,6 +31,8 @@ import Account from "./Account";
 import AccountCategory from "./AccountCategory";
 import AccountSubcategory from "./AccountSubcategory";
 import AddressAutocomplete from "./AddressAutocomplete";
+import type { ChoiceCardOption } from "./ChoiceCard";
+import { ChoiceCardGroup } from "./ChoiceCard";
 import Color from "./Color";
 import ConversionFactor from "./ConversionFactor";
 import Currency from "./Currency";
@@ -38,7 +40,9 @@ import Customer from "./Customer";
 import CustomerContact from "./CustomerContact";
 import CustomerLocation from "./CustomerLocation";
 import CustomerStatus from "./CustomerStatus";
+import Customers from "./Customers";
 import CustomerType from "./CustomerType";
+import CustomerTypes from "./CustomerTypes";
 import CustomFormFields from "./CustomFormFields";
 import DefaultMethodType from "./DefaultMethodType";
 import Department from "./Department";
@@ -88,6 +92,7 @@ export {
   Array,
   ArrayNumeric,
   Boolean,
+  ChoiceCardGroup,
   Color,
   Combobox,
   ConversionFactor,
@@ -98,7 +103,9 @@ export {
   CustomerContact,
   CustomerLocation,
   CustomerStatus,
+  Customers,
   CustomerType,
+  CustomerTypes,
   CustomFormFields,
   DatePicker,
   DateTimePicker,
@@ -157,3 +164,5 @@ export {
   WorkCenter,
   WorkCenters
 };
+
+export type { ChoiceCardOption };

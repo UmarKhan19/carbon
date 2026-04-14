@@ -155,6 +155,7 @@ export const path = {
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
+      salesResolvePrice: `${api}/sales/resolve-price`,
       salesOrders: `${api}/sales/orders`,
       scrapReasons: `${api}/production/scrap-reasons`,
       search: `${api}/search`,
@@ -577,6 +578,10 @@ export const path = {
     deleteCustomerPart: (id: string, customerPartToItemId: string) =>
       generatePath(
         `${x}/part/${id}/sales/customer-parts/delete/${customerPartToItemId}`
+      ),
+    deleteCustomerTypePriceBreaks: (itemId: string, customerTypeId: string) =>
+      generatePath(
+        `${x}/part/${itemId}/sales/price-breaks/delete/${customerTypeId}`
       ),
     deleteCustomerStatus: (id: string) =>
       generatePath(`${x}/sales/customer-statuses/delete/${id}`),
@@ -1034,6 +1039,8 @@ export const path = {
       generatePath(`${x}/settings/custom-fields/${tableId}/new`),
     newCustomerPart: (id: string) =>
       generatePath(`${x}/part/${id}/sales/customer-parts/new`),
+    newCustomerTypePriceBreak: (id: string) =>
+      generatePath(`${x}/part/${id}/sales/price-breaks/new`),
     newDemandProjection: `${x}/production/projections/new`,
     newDepartment: `${x}/people/departments/new`,
     newDocument: `${x}/documents/new`,
@@ -1192,6 +1199,8 @@ export const path = {
     partPricing: (id: string) => generatePath(`${x}/part/${id}/pricing`),
     partPurchasing: (id: string) => generatePath(`${x}/part/${id}/purchasing`),
     partRoot: `${x}/part`,
+    partSalePriceBreaks: (itemId: string, customerTypeId: string) =>
+      generatePath(`${x}/part/${itemId}/sales/price-breaks/${customerTypeId}`),
     partSales: (id: string) => generatePath(`${x}/part/${id}/sales`),
     partSupplier: (itemId: string, id: string) =>
       generatePath(`${x}/part/${itemId}/purchasing/${id}`),
@@ -1418,6 +1427,11 @@ export const path = {
     salesOrderStatus: (id: string) =>
       generatePath(`${x}/sales-order/${id}/status`),
     salesOrders: `${x}/sales/orders`,
+    salesPricingRules: `${x}/sales/pricing-rules`,
+    pricingRule: (id: string) => generatePath(`${x}/sales/pricing-rules/${id}`),
+    newPricingRule: `${x}/sales/pricing-rules/new`,
+    deletePricingRule: (id: string) =>
+      generatePath(`${x}/sales/pricing-rules/delete/${id}`),
     salesRfq: (id: string) => generatePath(`${x}/sales-rfq/${id}`),
     salesRfqConvert: (id: string) =>
       generatePath(`${x}/sales-rfq/${id}/convert`),

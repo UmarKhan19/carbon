@@ -17,36 +17,45 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { LuEllipsisVertical, LuPencil, LuTrash } from "react-icons/lu";
 import { useNavigate } from "react-router";
-import { CustomerAvatar, New } from "~/components";
-import { EditableText } from "~/components/Editable";
+import { New } from "~/components";
 import Grid from "~/components/Grid";
+import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import type { CustomerPart } from "../../../types";
-import useCustomerParts from "./useCustomerParts";
 
-type CustomerPartsProps = {
-  customerParts: CustomerPart[];
+type CustomerTypePriceBreakSummary = {
+  customerTypeId: string;
+  customerTypeName: string;
+  breakCount: number;
+};
+
+type CustomerTypePriceBreaksProps = {
+  data: CustomerTypePriceBreakSummary[];
   itemId: string;
 };
 
-const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
+const CustomerTypePriceBreaks = ({
+  data,
+  itemId
+}: CustomerTypePriceBreaksProps) => {
   const navigate = useNavigate();
   const { t } = useLingui();
-  const { canEdit, onCellEdit, canDelete } = useCustomerParts();
+  const permissions = usePermissions();
+  const canEdit = permissions.can("update", "parts");
+  const canDelete = permissions.can("delete", "parts");
 
-  const columns = useMemo<ColumnDef<CustomerPart>[]>(() => {
-    const defaultColumns: ColumnDef<CustomerPart>[] = [
+  const columns = useMemo<ColumnDef<CustomerTypePriceBreakSummary>[]>(
+    () => [
       {
-        accessorKey: "customer.id",
-        header: t`Customer`,
+        accessorKey: "customerTypeName",
+        header: t`Customer Type`,
         cell: ({ row }) => (
           <HStack className="justify-between min-w-[100px]">
-            <CustomerAvatar customerId={row.original.customerId} />
+            <span>{row.original.customerTypeName}</span>
             <div className="relative w-6 h-5">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
-                    aria-label={t`Edit purchase order line type`}
+                    aria-label={t`Price break actions`}
                     icon={<LuEllipsisVertical />}
                     size="md"
                     className="absolute right-[-1px] top-[-6px]"
@@ -57,24 +66,32 @@ const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
                 <DropdownMenuContent>
                   <DropdownMenuItem
                     onClick={() =>
-                      navigate(path.to.customerPart(itemId, row.original.id!))
+                      navigate(
+                        path.to.partSalePriceBreaks(
+                          itemId,
+                          row.original.customerTypeId
+                        )
+                      )
                     }
                     disabled={!canEdit}
                   >
                     <DropdownMenuIcon icon={<LuPencil />} />
-                    Edit Customer Part
+                    <Trans>Edit Price Breaks</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() =>
                       navigate(
-                        path.to.deleteCustomerPart(itemId, row.original.id!)
+                        path.to.deleteCustomerTypePriceBreaks(
+                          itemId,
+                          row.original.customerTypeId
+                        )
                       )
                     }
                     destructive
                     disabled={!canDelete}
                   >
                     <DropdownMenuIcon icon={<LuTrash />} />
-                    Delete Customer Part
+                    <Trans>Delete Price Breaks</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -83,25 +100,12 @@ const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
         )
       },
       {
-        accessorKey: "customerPartId",
-        header: t`Customer ID`,
-        cell: (item) => item.getValue()
-      },
-      {
-        accessorKey: "customerPartRevision",
-        header: t`Customer Revision`,
-        cell: (item) => item.getValue()
+        accessorKey: "breakCount",
+        header: t`Price Breaks`,
+        cell: ({ row }) => row.original.breakCount
       }
-    ];
-    return [...defaultColumns];
-  }, [canDelete, canEdit, itemId, navigate, t]);
-
-  const editableComponents = useMemo(
-    () => ({
-      customerPartId: EditableText(onCellEdit),
-      customerPartRevision: EditableText(onCellEdit)
-    }),
-    [onCellEdit]
+    ],
+    [canDelete, canEdit, itemId, navigate, t]
   );
 
   return (
@@ -109,22 +113,21 @@ const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
       <HStack className="justify-between items-start">
         <CardHeader>
           <CardTitle>
-            <Trans>Customer Parts</Trans>
+            <Trans>Customer Type Price Breaks</Trans>
           </CardTitle>
         </CardHeader>
         <CardAction>
-          {canEdit && <New to={path.to.newCustomerPart(itemId)} />}
+          {canEdit && <New to={path.to.newCustomerTypePriceBreak(itemId)} />}
         </CardAction>
       </HStack>
       <CardContent>
-        <Grid<CustomerPart>
-          data={customerParts}
+        <Grid<CustomerTypePriceBreakSummary>
+          data={data}
           columns={columns}
           canEdit={canEdit}
-          editableComponents={editableComponents}
           onNewRow={
             canEdit
-              ? () => navigate(path.to.newCustomerPart(itemId))
+              ? () => navigate(path.to.newCustomerTypePriceBreak(itemId))
               : undefined
           }
         />
@@ -133,4 +136,4 @@ const CustomerParts = ({ customerParts, itemId }: CustomerPartsProps) => {
   );
 };
 
-export default CustomerParts;
+export default CustomerTypePriceBreaks;
