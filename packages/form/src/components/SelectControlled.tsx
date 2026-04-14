@@ -85,6 +85,7 @@ const SelectControlled = ({
           setControlValue(newValue ?? "");
           onChange(newValue ?? "");
         }}
+        isClearable={resolvedIsOptional && !isReadOnly}
         isDisabled={isDisabled}
         isReadOnly={isReadOnly}
         className="w-full"

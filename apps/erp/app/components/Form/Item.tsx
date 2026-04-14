@@ -219,7 +219,6 @@ const Item = ({
               setValue(newValue?.replace(/"/g, '\\"') ?? "");
               onChange(newValue?.replace(/"/g, '\\"') ?? "");
             }}
-            isClearable={resolvedIsOptional && !props.isReadOnly}
             label={
               label === "Item"
                 ? t`Item`
