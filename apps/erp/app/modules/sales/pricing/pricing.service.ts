@@ -5,6 +5,13 @@ import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import type { pricingRuleValidator } from "./pricing.models";
+import type {
+  MatchedRule,
+  OverrideEntry,
+  PriceResolutionInput,
+  PriceResolutionResult,
+  PriceTraceStep
+} from "./types";
 
 export async function getPricingRules(
   client: SupabaseClient<Database>,
@@ -206,7 +213,7 @@ export async function upsertCustomerItemPriceOverride(
     notes: data.notes ?? null,
     validFrom: data.validFrom ?? null,
     validTo: data.validTo ?? null,
-    active: true,
+    active: true
   };
 
   // Determine scope: customer-specific or customer-type
@@ -226,7 +233,7 @@ export async function upsertCustomerItemPriceOverride(
         .update({
           ...sharedFields,
           updatedBy: userId,
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         })
         .eq("id", existing.id)
         .select("id")
@@ -240,7 +247,7 @@ export async function upsertCustomerItemPriceOverride(
         customerId: data.customerId,
         itemId: data.itemId,
         companyId,
-        createdBy: userId,
+        createdBy: userId
       })
       .select("id")
       .single();
@@ -261,7 +268,7 @@ export async function upsertCustomerItemPriceOverride(
         .update({
           ...sharedFields,
           updatedBy: userId,
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         })
         .eq("id", existing.id)
         .select("id")
@@ -275,13 +282,16 @@ export async function upsertCustomerItemPriceOverride(
         customerTypeId: data.customerTypeId,
         itemId: data.itemId,
         companyId,
-        createdBy: userId,
+        createdBy: userId
       })
       .select("id")
       .single();
   }
 
-  return { data: null, error: { message: "Either customerId or customerTypeId is required" } };
+  return {
+    data: null,
+    error: { message: "Either customerId or customerTypeId is required" }
+  };
 }
 
 export async function deleteCustomerItemPriceOverride(
@@ -369,12 +379,6 @@ export async function resolvePriceList(
   }
 
   // 3. Batch-fetch overrides for this customer
-  type OverrideEntry = {
-    overridePrice: number;
-    notes: string | null;
-    validFrom: string | null;
-    validTo: string | null;
-  };
   const overrideMap = new Map<string, OverrideEntry>();
   if (args.customerId) {
     const { data: overrides } = await client
@@ -394,7 +398,7 @@ export async function resolvePriceList(
           overridePrice: ov.overridePrice,
           notes: ov.notes,
           validFrom: ov.validFrom,
-          validTo: ov.validTo,
+          validTo: ov.validTo
         });
       }
     }
@@ -420,7 +424,7 @@ export async function resolvePriceList(
           overridePrice: ov.overridePrice,
           notes: ov.notes,
           validFrom: ov.validFrom,
-          validTo: ov.validTo,
+          validTo: ov.validTo
         });
       }
     }
@@ -457,7 +461,7 @@ export async function resolvePriceList(
     trace.push({
       step: "Base Price",
       source: "Item Unit Sale Price",
-      amount: basePrice,
+      amount: basePrice
     });
 
     const override = overrideMap.get(item.id);
@@ -476,7 +480,7 @@ export async function resolvePriceList(
           ? `Customer Price Override: ${override.notes}`
           : "Customer Price Override",
         amount: override.overridePrice,
-        adjustment: override.overridePrice - basePrice,
+        adjustment: override.overridePrice - basePrice
       });
     } else if (typeOverride) {
       startingPrice = typeOverride.overridePrice;
@@ -491,7 +495,7 @@ export async function resolvePriceList(
           ? `Customer Type Override: ${typeOverride.notes}`
           : "Customer Type Override",
         amount: typeOverride.overridePrice,
-        adjustment: typeOverride.overridePrice - basePrice,
+        adjustment: typeOverride.overridePrice - basePrice
       });
     }
 
@@ -501,7 +505,12 @@ export async function resolvePriceList(
       if (rule.maxQuantity !== null && 1 > rule.maxQuantity) return false;
 
       const ruleItemIds = rule.itemIds as string[] | null;
-      if (ruleItemIds && ruleItemIds.length > 0 && !ruleItemIds.includes(item.id)) return false;
+      if (
+        ruleItemIds &&
+        ruleItemIds.length > 0 &&
+        !ruleItemIds.includes(item.id)
+      )
+        return false;
       if (rule.itemPostingGroupId !== null) return false;
 
       const ruleCustomerIds = rule.customerIds as string[] | null;
@@ -530,21 +539,16 @@ export async function resolvePriceList(
     trace.push({
       step: "Final Price",
       source: "Resolved",
-      amount: finalPrice,
+      amount: finalPrice
     });
 
     // Determine source label for display
     const hasRuleAdjustment = appendedTrace.length > 0;
-    let source: PriceSource;
-    if (isOverridden && hasRuleAdjustment) {
-      source = overrideSource!;
-    } else if (isOverridden) {
-      source = overrideSource!;
-    } else if (hasRuleAdjustment) {
-      source = "Rule";
-    } else {
-      source = "Base";
-    }
+    const source: PriceSource = isOverridden
+      ? overrideSource!
+      : hasRuleAdjustment
+        ? "Rule"
+        : "Base";
 
     return {
       itemId: item.id,
@@ -558,46 +562,12 @@ export async function resolvePriceList(
       trace,
       overrideNotes,
       overrideValidFrom,
-      overrideValidTo,
+      overrideValidTo
     };
   });
 
   return { data: rows, count: count ?? 0 };
 }
-
-// -- Types --
-
-export type PriceTraceStep = {
-  step: string;
-  source: string;
-  amount: number;
-  adjustment?: number;
-  ruleId?: string;
-};
-
-export type MatchedRule = {
-  id: string;
-  name: string;
-  ruleType: string;
-  amountType: string;
-  amount: number;
-};
-
-export type PriceResolutionInput = {
-  customerId?: string;
-  customerTypeId?: string;
-  itemId: string;
-  itemPostingGroupId?: string;
-  quantity: number;
-  date?: string;
-  existingBasePrice?: number;
-};
-
-export type PriceResolutionResult = {
-  finalPrice: number;
-  basePrice: number;
-  trace: PriceTraceStep[];
-};
 
 export function applyPriceRules(
   basePrice: number,
@@ -692,7 +662,7 @@ export async function resolvePrice(
   trace.push({
     step: "Base Price",
     source: "Item Unit Sale Price",
-    amount: basePrice,
+    amount: basePrice
   });
 
   // Step 2: Determine starting price (override > type override > base)
@@ -719,7 +689,7 @@ export async function resolvePrice(
             ? `Customer Price Override: ${override.notes}`
             : "Customer Price Override",
           amount: override.overridePrice,
-          adjustment: override.overridePrice - basePrice,
+          adjustment: override.overridePrice - basePrice
         });
       }
     }
@@ -746,7 +716,7 @@ export async function resolvePrice(
             ? `Customer Type Override: ${typeOverride.notes}`
             : "Customer Type Override",
           amount: typeOverride.overridePrice,
-          adjustment: typeOverride.overridePrice - basePrice,
+          adjustment: typeOverride.overridePrice - basePrice
         });
       }
     }
@@ -772,7 +742,12 @@ export async function resolvePrice(
 
     // Item scope: rule must match item directly, via group, or be unscoped
     const ruleItemIds = rule.itemIds as string[] | null;
-    if (ruleItemIds && ruleItemIds.length > 0 && !ruleItemIds.includes(input.itemId)) return false;
+    if (
+      ruleItemIds &&
+      ruleItemIds.length > 0 &&
+      !ruleItemIds.includes(input.itemId)
+    )
+      return false;
     if (
       rule.itemPostingGroupId !== null &&
       rule.itemPostingGroupId !== (input.itemPostingGroupId ?? null)
@@ -780,10 +755,8 @@ export async function resolvePrice(
       return false;
 
     // Customer scope: empty arrays mean "all"
-    const ruleCustomerIds = (rule as any).customerIds as string[] | null;
-    const ruleCustomerTypeIds = (rule as any).customerTypeIds as
-      | string[]
-      | null;
+    const ruleCustomerIds = rule.customerIds as string[] | null;
+    const ruleCustomerTypeIds = rule.customerTypeIds as string[] | null;
 
     if (ruleCustomerIds && ruleCustomerIds.length > 0) {
       if (!input.customerId || !ruleCustomerIds.includes(input.customerId))

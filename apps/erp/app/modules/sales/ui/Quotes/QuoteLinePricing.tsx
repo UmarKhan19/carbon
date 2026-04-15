@@ -49,7 +49,7 @@ import {
   useSettings,
   useUser
 } from "~/hooks";
-import type { PriceTraceStep } from "~/modules/sales/pricing/pricing.service";
+import type { PriceTraceStep } from "~/modules/sales/pricing";
 import { PriceTracePopover } from "~/modules/sales/pricing/ui";
 import { path } from "~/utils/path";
 import {

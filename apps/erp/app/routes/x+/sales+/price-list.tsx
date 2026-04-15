@@ -5,7 +5,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import {
   resolvePriceList,
-  upsertCustomerItemPriceOverride,
+  upsertCustomerItemPriceOverride
 } from "~/modules/sales/pricing";
 import type { PriceSource } from "~/modules/sales/pricing/pricing.service";
 import { PriceListView } from "~/modules/sales/pricing/ui";
@@ -15,13 +15,13 @@ import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
   breadcrumb: "Price List",
-  to: path.to.salesPriceList,
+  to: path.to.salesPriceList
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
     view: "sales",
-    role: "employee",
+    role: "employee"
   });
 
   const url = new URL(request.url);
@@ -49,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     limit,
     offset,
     sorts,
-    filters: dbFilters,
+    filters: dbFilters
   });
 
   // Apply source filter post-resolution (computed field, not a DB column)
@@ -65,19 +65,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
     data: filteredData,
     count: sourceFilter ? filteredData.length : result.count,
     customerId,
-    customerTypeId,
+    customerTypeId
   };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
-    update: "sales",
+    update: "sales"
   });
 
   const formData = await request.formData();
   const customerId = formData.get("customerId") as string | null;
-  const customerTypeId = formData.get("customerTypeId") as string | null;
   const itemId = formData.get("itemId") as string;
   const overridePrice = Number(formData.get("overridePrice"));
   const notes = (formData.get("notes") as string) || undefined;
@@ -85,7 +84,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const validTo = (formData.get("validTo") as string) || undefined;
 
   if (
-    (!customerId && !customerTypeId) ||
+    !customerId ||
     !itemId ||
     !Number.isFinite(overridePrice) ||
     overridePrice < 0
@@ -101,23 +100,19 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     userId,
     {
-      customerId: customerId || undefined,
-      customerTypeId: customerTypeId || undefined,
+      customerId,
       itemId,
       overridePrice,
       notes,
       validFrom,
-      validTo,
+      validTo
     }
   );
 
   if (result.error) {
     throw redirect(
       `${path.to.salesPriceList}?${getParams(request)}`,
-      await flash(
-        request,
-        error(result.error, "Failed to save price override")
-      )
+      await flash(request, error(result.error, "Failed to save price override"))
     );
   }
 

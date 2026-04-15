@@ -55,7 +55,7 @@ import type {
   ConfigurationParameterGroup
 } from "~/modules/items/types";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
-import type { PriceTraceStep } from "~/modules/sales/pricing/pricing.service";
+import type { PriceTraceStep } from "~/modules/sales/pricing";
 import { PriceTracePopover } from "~/modules/sales/pricing/ui";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/quote+/$quoteId.new";

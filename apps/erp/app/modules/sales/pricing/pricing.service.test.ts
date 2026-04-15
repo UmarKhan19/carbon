@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { MatchedRule } from "./pricing.service";
+import type { MatchedRule } from "./types";
 
 vi.mock("@carbon/auth", () => ({
   badRequest: (message: string) => ({ error: message }),

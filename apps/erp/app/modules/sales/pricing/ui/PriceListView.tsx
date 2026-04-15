@@ -1,4 +1,4 @@
-import { ValidatedForm } from "@carbon/form";
+import { useControlField, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   Button,
@@ -10,31 +10,35 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  VStack,
+  VStack
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import {
+  LuBookMarked,
   LuCircleDollarSign,
-  LuDownload,
-  LuHash,
   LuPanelRight,
   LuSquareUser,
   LuTag,
-  LuUsers,
+  LuUsers
 } from "react-icons/lu";
-import { ItemThumbnail, Table } from "~/components";
-import { DatePicker, Hidden, Number, Submit, TextArea } from "~/components/Form";
+import { useFetcher } from "react-router";
+import { CustomerAvatar, ItemThumbnail, Table } from "~/components";
+import {
+  Customer,
+  DatePicker,
+  Item,
+  Number,
+  Submit,
+  TextArea
+} from "~/components/Form";
 import { useCustomerTypes } from "~/components/Form/CustomerType";
 import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
 import { useCustomers } from "~/stores";
 import { path } from "~/utils/path";
 import { priceOverrideValidator } from "../pricing.models";
-import { priceSourceTypes, type PriceListRow } from "../pricing.service";
+import { type PriceListRow, priceSourceTypes } from "../pricing.service";
 import { PriceTracePopover } from "./PriceTracePopover";
 
 type PriceListViewProps = {
@@ -55,11 +59,7 @@ const PriceListView = memo(
     const customerTypes = useCustomerTypes();
     const [editingRow, setEditingRow] = useState<PriceListRow | null>(null);
 
-    const activeScope = customerId
-      ? ({ type: "customer", id: customerId } as const)
-      : customerTypeId
-        ? ({ type: "customerType", id: customerTypeId } as const)
-        : null;
+    const canEdit = permissions.can("update", "sales");
 
     const customerOptions = useMemo(
       () => customers.map((c) => ({ value: c.id, label: c.name })),
@@ -69,11 +69,6 @@ const PriceListView = memo(
     const customerTypeOptions = useMemo(
       () => customerTypes.map((ct) => ({ value: ct.value, label: ct.label })),
       [customerTypes]
-    );
-
-    const selectedCustomerName = useMemo(
-      () => customers.find((c) => c.id === customerId)?.name ?? null,
-      [customers, customerId]
     );
 
     const selectedCustomerTypeName = useMemo(
@@ -86,11 +81,14 @@ const PriceListView = memo(
       const cols: ColumnDef<PriceListRow>[] = [
         {
           accessorKey: "partId",
-          header: t`Part`,
-          cell: ({ row }) => {
-            const canEdit =
-              !!activeScope && permissions.can("update", "sales");
-            return (
+          header: t`Part ID`,
+          cell: ({ row }) => (
+            <HStack className="py-1 min-w-[200px] truncate" spacing={2}>
+              <ItemThumbnail
+                size="md"
+                thumbnailPath={row.original.thumbnailPath}
+                type="Part"
+              />
               <div
                 role="button"
                 tabIndex={0}
@@ -103,72 +101,45 @@ const PriceListView = memo(
                     setEditingRow(row.original);
                 }}
               >
-                <HStack className="min-w-[180px] truncate" spacing={2}>
-                  <ItemThumbnail
-                    size="sm"
-                    thumbnailPath={row.original.thumbnailPath}
-                    type="Part"
-                  />
+                <span className="flex flex-row items-center gap-1">
                   <VStack spacing={0}>
-                    <span>{row.original.partId}</span>
-                    <span className="text-xs text-muted-foreground truncate max-w-[160px]">
+                    <span className="truncate">{row.original.partId}</span>
+                    <div className="w-full truncate text-muted-foreground text-xs">
                       {row.original.itemName}
-                    </span>
+                    </div>
                   </VStack>
-                </HStack>
-                {!activeScope ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="inline-flex">
-                        <Button
-                          rightIcon={<LuPanelRight />}
-                          variant="secondary"
-                          className="flex-shrink-0 opacity-40 cursor-not-allowed"
-                          size="sm"
-                          isDisabled
-                        >
-                          <span>{t`Open`}</span>
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      {t`Select a customer or customer type first`}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
+                </span>
+                {canEdit && (
                   <Button
                     rightIcon={<LuPanelRight />}
                     variant="secondary"
-                    className="flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover/hyperlink:opacity-100"
+                    className="flex-shrink-0 opacity-0 transition-opacity duration-200 group-hover/hyperlink:opacity-100 no-underline"
                     size="sm"
-                    asChild
                   >
-                    <span>{t`Open`}</span>
+                    {t`Open`}
                   </Button>
                 )}
               </div>
-            );
-          },
-          meta: { icon: <LuHash /> },
+            </HStack>
+          ),
+          meta: { icon: <LuBookMarked /> }
         },
         {
           id: "customerId",
           header: t`Customer`,
           cell: () =>
-            selectedCustomerName ? (
-              <span className="text-sm truncate max-w-[140px]">
-                {selectedCustomerName}
-              </span>
+            customerId ? (
+              <CustomerAvatar customerId={customerId} />
             ) : (
               <span className="text-muted-foreground">—</span>
             ),
           meta: {
             filter: {
               type: "static",
-              options: customerOptions,
+              options: customerOptions
             },
-            icon: <LuSquareUser />,
-          },
+            icon: <LuSquareUser />
+          }
         },
         {
           id: "customerTypeId",
@@ -182,11 +153,11 @@ const PriceListView = memo(
           meta: {
             filter: {
               type: "static",
-              options: customerTypeOptions,
+              options: customerTypeOptions
             },
             pluralHeader: t`Customer Types`,
-            icon: <LuUsers />,
-          },
+            icon: <LuUsers />
+          }
         },
         {
           id: "basePrice",
@@ -196,7 +167,7 @@ const PriceListView = memo(
               {currencyFormatter.format(row.original.basePrice)}
             </span>
           ),
-          meta: { icon: <LuCircleDollarSign /> },
+          meta: { icon: <LuCircleDollarSign /> }
         },
         {
           id: "resolvedPrice",
@@ -206,7 +177,7 @@ const PriceListView = memo(
               {currencyFormatter.format(row.original.resolvedPrice)}
             </span>
           ),
-          meta: { icon: <LuCircleDollarSign /> },
+          meta: { icon: <LuCircleDollarSign /> }
         },
         {
           accessorKey: "source",
@@ -238,32 +209,29 @@ const PriceListView = memo(
               type: "static",
               options: priceSourceTypes.map((s) => ({
                 value: s,
-                label: s,
-              })),
+                label: s
+              }))
             },
             pluralHeader: t`Sources`,
-            icon: <LuTag />,
-          },
-        },
+            icon: <LuTag />
+          }
+        }
       ];
       return cols;
     }, [
-      activeScope,
       baseCurrency,
+      canEdit,
       currencyFormatter,
+      customerId,
       customerOptions,
       customerTypeOptions,
       permissions,
-      selectedCustomerName,
       selectedCustomerTypeName,
-      t,
+      t
     ]);
 
-    const csvHref = customerId
-      ? `${path.to.api.salesPriceListCsv}?customerId=${customerId}`
-      : customerTypeId
-        ? `${path.to.api.salesPriceListCsv}?customerTypeId=${customerTypeId}`
-        : undefined;
+    // Pre-populate customer from filter (use first if multi-selected)
+    const defaultCustomerId = customerId?.split(",")[0] ?? null;
 
     return (
       <VStack spacing={0} className="h-full">
@@ -272,24 +240,11 @@ const PriceListView = memo(
           columns={columns}
           count={count}
           title={t`Price List`}
-          primaryAction={
-            csvHref && (
-              <a
-                href={csvHref}
-                download
-                className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-              >
-                <LuDownload className="size-4" />
-                {t`Export CSV`}
-              </a>
-            )
-          }
         />
-        {editingRow && activeScope && (
+        {editingRow && (
           <PriceOverrideDrawer
             row={editingRow}
-            scope={activeScope}
-            currencyFormatter={currencyFormatter}
+            defaultCustomerId={defaultCustomerId}
             onClose={() => setEditingRow(null)}
           />
         )}
@@ -303,22 +258,37 @@ export default PriceListView;
 
 // -- Override Drawer --
 
-type OverrideScope =
-  | { type: "customer"; id: string }
-  | { type: "customerType"; id: string };
+type OverrideFetcherData = {
+  override: {
+    id: string;
+    overridePrice: number;
+    validFrom: string | null;
+    validTo: string | null;
+    notes: string | null;
+  } | null;
+};
 
 function PriceOverrideDrawer({
   row,
-  scope,
-  currencyFormatter,
-  onClose,
+  defaultCustomerId,
+  onClose
 }: {
   row: PriceListRow;
-  scope: OverrideScope;
-  currencyFormatter: Intl.NumberFormat;
+  defaultCustomerId: string | null;
   onClose: () => void;
 }) {
   const { company } = useUser();
+  const overrideFetcher = useFetcher<OverrideFetcherData>();
+
+  const handleCustomerChange = (
+    option: { value: string; label: string | JSX.Element } | null
+  ) => {
+    if (option?.value) {
+      overrideFetcher.load(
+        `${path.to.api.salesCustomerOverride}?customerId=${option.value}&itemId=${row.itemId}`
+      );
+    }
+  };
 
   return (
     <ModalDrawerProvider type="drawer">
@@ -334,16 +304,13 @@ function PriceOverrideDrawer({
             method="post"
             defaultValues={{
               itemId: row.itemId,
-              customerId:
-                scope.type === "customer" ? scope.id : undefined,
-              customerTypeId:
-                scope.type === "customerType" ? scope.id : undefined,
+              customerId: defaultCustomerId ?? undefined,
               overridePrice: row.isOverridden
                 ? row.resolvedPrice
                 : row.basePrice,
               validFrom: row.overrideValidFrom ?? undefined,
               validTo: row.overrideValidTo ?? undefined,
-              notes: row.overrideNotes ?? undefined,
+              notes: row.overrideNotes ?? undefined
             }}
             className="flex flex-col h-full"
           >
@@ -351,40 +318,37 @@ function PriceOverrideDrawer({
               <ModalDrawerTitle>Price Override</ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
-              <Hidden name="itemId" />
-              <Hidden name="customerId" />
-              <Hidden name="customerTypeId" />
+              <OverrideFieldSync
+                fetcher={overrideFetcher}
+                basePrice={row.basePrice}
+              />
               <VStack spacing={4}>
-                <HStack spacing={3} className="items-center py-1">
-                  <ItemThumbnail
-                    size="md"
-                    thumbnailPath={row.thumbnailPath}
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <Item
+                    name="itemId"
                     type="Part"
+                    value={row.itemId}
+                    isReadOnly
                   />
-                  <VStack spacing={0}>
-                    <span className="text-sm font-medium">
-                      {row.partId}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {row.itemName}
-                    </span>
-                  </VStack>
-                </HStack>
-                <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
-                  <p className="text-xs font-medium text-muted-foreground mb-0.5">
-                    Base Price
-                  </p>
-                  <p className="text-sm font-medium tabular-nums">
-                    {currencyFormatter.format(row.basePrice)}
-                  </p>
+                  <Number
+                    name="basePrice"
+                    label="Base Price"
+                    value={row.basePrice}
+                    isReadOnly
+                    formatOptions={{
+                      style: "currency",
+                      currency: company?.baseCurrencyCode ?? "USD"
+                    }}
+                  />
                 </div>
+                <Customer name="customerId" onChange={handleCustomerChange} />
                 <Number
                   name="overridePrice"
                   label="Override Price"
                   minValue={0}
                   formatOptions={{
                     style: "currency",
-                    currency: company?.baseCurrencyCode ?? "USD",
+                    currency: company?.baseCurrencyCode ?? "USD"
                   }}
                 />
                 <div className="grid grid-cols-2 gap-3 w-full">
@@ -407,4 +371,48 @@ function PriceOverrideDrawer({
       </ModalDrawer>
     </ModalDrawerProvider>
   );
+}
+
+/**
+ * Syncs fetcher data into form fields when a customer is changed.
+ * Must be rendered inside ValidatedForm.
+ */
+function OverrideFieldSync({
+  fetcher,
+  basePrice
+}: {
+  fetcher: ReturnType<typeof useFetcher<OverrideFetcherData>>;
+  basePrice: number;
+}) {
+  const [, setPrice] = useControlField<number | undefined>("overridePrice");
+  const [, setValidFrom] = useControlField<string | undefined>("validFrom");
+  const [, setValidTo] = useControlField<string | undefined>("validTo");
+  const [, setNotes] = useControlField<string | undefined>("notes");
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data) return;
+
+    const override = fetcher.data.override;
+    if (override) {
+      setPrice(override.overridePrice);
+      setValidFrom(override.validFrom ?? undefined);
+      setValidTo(override.validTo ?? undefined);
+      setNotes(override.notes ?? undefined);
+    } else {
+      setPrice(basePrice);
+      setValidFrom(undefined);
+      setValidTo(undefined);
+      setNotes(undefined);
+    }
+  }, [
+    fetcher.data,
+    fetcher.state,
+    basePrice,
+    setPrice,
+    setValidFrom,
+    setValidTo,
+    setNotes
+  ]);
+
+  return null;
 }

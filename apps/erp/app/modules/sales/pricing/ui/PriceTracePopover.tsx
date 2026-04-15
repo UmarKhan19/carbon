@@ -13,7 +13,7 @@ import {
 import { LuChevronRight, LuExternalLink } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
-import type { PriceTraceStep } from "../pricing.service";
+import type { PriceTraceStep } from "../types";
 
 type PriceTracePopoverProps = {
   priceListId: string | null;
@@ -55,7 +55,7 @@ export function PriceTracePopover({
           <LuChevronRight className="size-3" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" sideOffset={8} className="w-[620px] p-0">
+      <PopoverContent align="end" sideOffset={8} className="w-[720px] p-0">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
           <p className="text-sm font-semibold">Pricing trace</p>
           <PriceListSourceLink
@@ -65,69 +65,71 @@ export function PriceTracePopover({
           />
         </div>
         <div className="overflow-x-auto">
-        <Table>
-          <Thead>
-            <Tr>
-              <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                Step
-              </Th>
-              <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                Type
-              </Th>
-              <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                Description
-              </Th>
-              <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
-                Change
-              </Th>
-              <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
-                Running Total
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {steps.map((step, i) => {
-              const isFinal = step.step === "Final Price";
-              return (
-                <Tr
-                  key={i}
-                  className={
-                    isFinal ? "border-t border-border font-semibold" : undefined
-                  }
-                >
-                  <Td className="text-sm whitespace-nowrap">{step.step}</Td>
-                  <Td className="text-sm whitespace-nowrap">
-                    <StepTypeBadge step={step} />
-                  </Td>
-                  <Td
-                    className="text-sm text-muted-foreground max-w-[200px]"
-                    title={step.source}
+          <Table>
+            <Thead>
+              <Tr>
+                <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
+                  Step
+                </Th>
+                <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
+                  Type
+                </Th>
+                <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
+                  Description
+                </Th>
+                <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
+                  Change
+                </Th>
+                <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
+                  Running Total
+                </Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {steps.map((step, i) => {
+                const isFinal = step.step === "Final Price";
+                return (
+                  <Tr
+                    key={i}
+                    className={
+                      isFinal
+                        ? "border-t border-border font-semibold"
+                        : undefined
+                    }
                   >
-                    {step.ruleId ? (
-                      <Link
-                        to={path.to.pricingRule(step.ruleId)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="hover:text-foreground hover:underline decoration-dotted underline-offset-2 inline-flex items-center gap-1 max-w-full"
-                      >
-                        <span className="truncate">{step.source}</span>
-                        <LuExternalLink className="size-3 shrink-0" />
-                      </Link>
-                    ) : (
-                      <span className="block truncate">{step.source}</span>
-                    )}
-                  </Td>
-                  <Td className="text-right whitespace-nowrap">
-                    <ChangeCell step={step} currencyCode={currencyCode} />
-                  </Td>
-                  <Td className="text-right text-sm font-mono tabular-nums whitespace-nowrap">
-                    {formatCurrency(step.amount, currencyCode)}
-                  </Td>
-                </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
+                    <Td className="text-sm whitespace-nowrap">{step.step}</Td>
+                    <Td className="text-sm whitespace-nowrap">
+                      <StepTypeBadge step={step} />
+                    </Td>
+                    <Td
+                      className="text-sm text-muted-foreground max-w-[200px]"
+                      title={step.source}
+                    >
+                      {step.ruleId ? (
+                        <Link
+                          to={path.to.pricingRule(step.ruleId)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:text-foreground hover:underline decoration-dotted underline-offset-2 inline-flex items-center gap-1 max-w-full"
+                        >
+                          <span className="truncate">{step.source}</span>
+                          <LuExternalLink className="size-3 shrink-0" />
+                        </Link>
+                      ) : (
+                        <span className="block truncate">{step.source}</span>
+                      )}
+                    </Td>
+                    <Td className="text-right whitespace-nowrap">
+                      <ChangeCell step={step} currencyCode={currencyCode} />
+                    </Td>
+                    <Td className="text-right text-sm font-mono tabular-nums whitespace-nowrap">
+                      {formatCurrency(step.amount, currencyCode)}
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
         </div>
       </PopoverContent>
     </Popover>

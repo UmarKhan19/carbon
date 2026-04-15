@@ -38,20 +38,15 @@ export const pricingRuleValidator = z
 export const priceOverrideValidator = z
   .object({
     itemId: z.string().min(1),
-    customerId: zfd.text(z.string().optional()),
-    customerTypeId: zfd.text(z.string().optional()),
+    customerId: z.string().min(1, { message: "Customer is required" }),
     overridePrice: zfd.numeric(z.number().min(0)),
     validFrom: zfd.text(z.string().optional()),
     validTo: zfd.text(z.string().optional()),
-    notes: zfd.text(z.string().optional()),
-  })
-  .refine((d) => !!d.customerId || !!d.customerTypeId, {
-    message: "Either customer or customer type is required",
-    path: ["customerId"],
+    notes: zfd.text(z.string().optional())
   })
   .refine((d) => !d.validFrom || !d.validTo || d.validFrom <= d.validTo, {
     message: "Valid From must be on or before Valid To",
-    path: ["validTo"],
+    path: ["validTo"]
   });
 
 export const priceResolutionInputValidator = z.object({
