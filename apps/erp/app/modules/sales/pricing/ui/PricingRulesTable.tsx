@@ -96,8 +96,9 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
             conditions.push(`Qty >= ${rule.minQuantity}`);
           }
           if (
-            rule.customerTypeId !== null &&
-            rule.customerTypeId !== undefined
+            rule.customerTypeIds !== null &&
+            rule.customerTypeIds !== undefined &&
+            rule.customerTypeIds.length > 0
           ) {
             conditions.push("Customer Type");
           }
@@ -107,8 +108,16 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
           ) {
             conditions.push("Item Group");
           }
-          if (rule.itemId !== null && rule.itemId !== undefined) {
-            conditions.push("Specific Item");
+          if (
+            rule.itemIds !== null &&
+            rule.itemIds !== undefined &&
+            rule.itemIds.length > 0
+          ) {
+            conditions.push(
+              rule.itemIds.length === 1
+                ? "Specific Item"
+                : `${rule.itemIds.length} Items`
+            );
           }
 
           if (conditions.length === 0) {

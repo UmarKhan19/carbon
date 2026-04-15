@@ -155,6 +155,7 @@ export const path = {
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
+      salesPriceListCsv: `${api}/sales/price-list.csv`,
       salesResolvePrice: `${api}/sales/resolve-price`,
       salesOrders: `${api}/sales/orders`,
       scrapReasons: `${api}/production/scrap-reasons`,
@@ -1427,6 +1428,7 @@ export const path = {
     salesOrderStatus: (id: string) =>
       generatePath(`${x}/sales-order/${id}/status`),
     salesOrders: `${x}/sales/orders`,
+    salesPriceList: `${x}/sales/price-list`,
     salesPricingRules: `${x}/sales/pricing-rules`,
     pricingRule: (id: string) => generatePath(`${x}/sales/pricing-rules/${id}`),
     newPricingRule: `${x}/sales/pricing-rules/new`,

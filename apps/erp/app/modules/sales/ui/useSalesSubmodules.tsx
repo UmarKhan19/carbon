@@ -3,6 +3,7 @@ import {
   LuBan,
   LuCreditCard,
   LuGlobe,
+  LuList,
   LuPercent,
   LuShapes,
   LuSquareUser,
@@ -49,6 +50,12 @@ export default function useSalesSubmodules() {
           to: path.to.salesOrders,
           icon: <RiProgress8Line />,
           table: "salesOrder"
+        },
+        {
+          name: t`Price Lists`,
+          to: path.to.salesPriceList,
+          role: "employee",
+          icon: <LuList />
         },
         {
           name: t`Pricing Rules`,

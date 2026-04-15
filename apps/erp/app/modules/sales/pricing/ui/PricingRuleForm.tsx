@@ -22,8 +22,8 @@ import {
   DatePicker,
   Hidden,
   Input,
-  Item,
   ItemPostingGroup,
+  Items,
   Number,
   Select,
   Submit
@@ -53,7 +53,7 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
     (typeof pricingRuleAmountTypes)[number]
   >(initialValues.amountType ?? "Percentage");
   const [itemScope, setItemScope] = useState<ItemScopeType>(() => {
-    if (initialValues.itemId) return "item";
+    if (initialValues.itemIds && initialValues.itemIds.length > 0) return "item";
     if (initialValues.itemPostingGroupId) return "group";
     return "all";
   });
@@ -179,8 +179,8 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                     },
                     {
                       value: "item",
-                      title: "Specific Item",
-                      description: "Target one item.",
+                      title: "Specific Items",
+                      description: "Target one or more items.",
                       icon: <LuPackage />
                     },
                     {
@@ -194,19 +194,23 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
 
                 {itemScope === "all" && (
                   <>
-                    <input type="hidden" name="itemId" value="" />
+                    <input type="hidden" name="itemIds" value="" />
                     <input type="hidden" name="itemPostingGroupId" value="" />
                   </>
                 )}
                 {itemScope === "item" && (
                   <>
                     <input type="hidden" name="itemPostingGroupId" value="" />
-                    <Item name="itemId" label="Item" type="Item" />
+                    <Items
+                      name="itemIds"
+                      label="Items"
+                      placeholder="Select items"
+                    />
                   </>
                 )}
                 {itemScope === "group" && (
                   <>
-                    <input type="hidden" name="itemId" value="" />
+                    <input type="hidden" name="itemIds" value="" />
                     <ItemPostingGroup
                       name="itemPostingGroupId"
                       label="Item Group"

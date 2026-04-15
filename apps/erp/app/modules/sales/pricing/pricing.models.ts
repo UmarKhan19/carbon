@@ -15,7 +15,7 @@ export const pricingRuleValidator = z
     maxQuantity: zfd.numeric(z.number().min(0).optional()),
     customerIds: z.array(z.string()).optional(),
     customerTypeIds: z.array(z.string()).optional(),
-    itemId: zfd.text(z.string().optional()),
+    itemIds: z.array(z.string()).optional(),
     itemPostingGroupId: zfd.text(z.string().optional()),
     validFrom: zfd.text(z.string().optional()),
     validTo: zfd.text(z.string().optional()),

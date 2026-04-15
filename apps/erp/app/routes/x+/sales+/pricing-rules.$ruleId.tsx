@@ -103,7 +103,7 @@ export default function EditPricingRuleRoute() {
     maxQuantity: pricingRule.maxQuantity ?? undefined,
     customerIds: pricingRule.customerIds ?? [],
     customerTypeIds: pricingRule.customerTypeIds ?? [],
-    itemId: pricingRule.itemId ?? undefined,
+    itemIds: pricingRule.itemIds ?? [],
     itemPostingGroupId: pricingRule.itemPostingGroupId ?? undefined,
     validFrom: pricingRule.validFrom ?? undefined,
     validTo: pricingRule.validTo ?? undefined,

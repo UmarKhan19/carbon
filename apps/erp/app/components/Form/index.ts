@@ -52,6 +52,7 @@ import Employee from "./Employee";
 import Employees from "./Employees";
 import Item, { useConfigurableItems } from "./Item";
 import ItemPostingGroup from "./ItemPostingGroup";
+import Items from "./Items";
 import Location from "./Location";
 import MaterialType from "./MaterialType";
 import Part from "./Part";
@@ -121,6 +122,7 @@ export {
   InputControlled,
   Item,
   ItemPostingGroup,
+  Items,
   useConfigurableItems,
   Location,
   MaterialType,

@@ -16,7 +16,7 @@ CREATE TABLE "pricingRule" (
   "maxQuantity" NUMERIC(20, 2),
   "customerIds" TEXT[],
   "customerTypeIds" TEXT[],
-  "itemId" TEXT,
+  "itemIds" TEXT[],
   "itemPostingGroupId" TEXT,
   "validFrom" DATE,
   "validTo" DATE,
@@ -30,9 +30,6 @@ CREATE TABLE "pricingRule" (
   "updatedAt" TIMESTAMP WITH TIME ZONE,
 
   CONSTRAINT "pricingRule_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "pricingRule_itemId_fkey"
-    FOREIGN KEY ("itemId") REFERENCES "item"("id")
-    ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "pricingRule_itemPostingGroupId_fkey"
     FOREIGN KEY ("itemPostingGroupId") REFERENCES "itemPostingGroup"("id")
     ON DELETE CASCADE ON UPDATE CASCADE,
@@ -50,7 +47,7 @@ CREATE TABLE "pricingRule" (
 CREATE INDEX "pricingRule_companyId_idx" ON "pricingRule" ("companyId");
 CREATE INDEX "pricingRule_customerIds_idx" ON "pricingRule" USING GIN ("customerIds");
 CREATE INDEX "pricingRule_customerTypeIds_idx" ON "pricingRule" USING GIN ("customerTypeIds");
-CREATE INDEX "pricingRule_itemId_idx" ON "pricingRule" ("itemId");
+CREATE INDEX "pricingRule_itemIds_idx" ON "pricingRule" USING GIN ("itemIds");
 CREATE INDEX "pricingRule_itemPostingGroupId_idx" ON "pricingRule" ("itemPostingGroupId");
 CREATE INDEX "pricingRule_active_idx" ON "pricingRule" ("active");
 
