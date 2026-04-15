@@ -41,6 +41,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let file: ArrayBuffer;
   let fileName: string;
+  let documentFilePath: string;
 
   const setPendingState = await client
     .from("salesInvoice")
@@ -141,7 +142,7 @@ export async function action(args: ActionFunctionArgs) {
         .slice(0, -5)}.pdf`
     );
 
-    const documentFilePath = `${companyId}/opportunity/${salesInvoice.data.opportunityId}/${fileName}`;
+    documentFilePath = `${companyId}/opportunity/${salesInvoice.data.opportunityId}/${fileName}`;
 
     const documentFileUpload = await serviceRole.storage
       .from("private")
@@ -294,6 +295,9 @@ export async function action(args: ActionFunctionArgs) {
 
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
+        const { data: signedUrlData } = await serviceRole.storage
+          .from("private")
+          .createSignedUrl(documentFilePath, 3600);
 
         await trigger("send-email", {
           to: [seller.data.email, customer.data.contact.email!],
@@ -302,12 +306,14 @@ export async function action(args: ActionFunctionArgs) {
           subject: `Invoice ${salesInvoice.data.invoiceId} from ${company.data.name}`,
           html,
           text,
-          attachments: [
-            {
-              content: Buffer.from(file).toString("base64"),
-              filename: fileName
-            }
-          ],
+          attachments: signedUrlData?.signedUrl
+            ? [
+                {
+                  path: signedUrlData.signedUrl,
+                  filename: fileName
+                }
+              ]
+            : undefined,
           companyId
         });
         // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration

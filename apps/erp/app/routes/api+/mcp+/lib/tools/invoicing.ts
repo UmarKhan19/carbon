@@ -53,9 +53,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_createPurchaseInvoiceFromPurchaseOrder",
     {
       description: "create purchase invoice from purchase order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -68,9 +68,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_createSalesInvoiceFromSalesOrder",
     {
       description: "create sales invoice from sales order",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -83,9 +83,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_createSalesInvoiceFromShipment",
     {
       description: "create sales invoice from shipment",
-      inputSchema: {
+      inputSchema: z.object({
       shipmentId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -98,9 +98,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_deletePurchaseInvoice",
     {
       description: "delete purchase invoice",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -113,9 +113,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_deletePurchaseInvoiceLine",
     {
       description: "delete purchase invoice line",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -128,9 +128,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_deleteSalesInvoice",
     {
       description: "delete sales invoice",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -143,9 +143,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_deleteSalesInvoiceLine",
     {
       description: "delete sales invoice line",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -158,9 +158,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getPurchaseInvoice",
     {
       description: "get purchase invoice",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -173,14 +173,14 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getPurchaseInvoices",
     {
       description: "get purchase invoices",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     supplierId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -193,9 +193,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getPurchaseInvoiceDelivery",
     {
       description: "get purchase invoice delivery",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -208,9 +208,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getPurchaseInvoiceLines",
     {
       description: "get purchase invoice lines",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -223,9 +223,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getPurchaseInvoiceLine",
     {
       description: "get purchase invoice line",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -238,9 +238,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getSalesInvoice",
     {
       description: "get sales invoice",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -253,9 +253,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getSalesInvoiceCustomerDetails",
     {
       description: "get sales invoice customer details",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -268,14 +268,14 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getSalesInvoices",
     {
       description: "get sales invoices",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     customerId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -288,9 +288,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getSalesInvoiceShipment",
     {
       description: "get sales invoice shipment",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -303,9 +303,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getSalesInvoiceLines",
     {
       description: "get sales invoice lines",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -318,9 +318,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_getSalesInvoiceLine",
     {
       description: "get sales invoice line",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -333,12 +333,12 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_updatePurchaseInvoiceExchangeRate",
     {
       description: "update purchase invoice exchange rate",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     id: z.string(),
     exchangeRate: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -351,13 +351,13 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_updatePurchaseInvoiceStatus",
     {
       description: "update purchase invoice status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -370,12 +370,12 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_updateSalesInvoiceExchangeRate",
     {
       description: "update sales invoice exchange rate",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     id: z.string(),
     exchangeRate: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -388,13 +388,13 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_updateSalesInvoiceStatus",
     {
       description: "update sales invoice status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -407,9 +407,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_upsertPurchaseInvoice",
     {
       description: "upsert purchase invoice",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoice: purchaseInvoiceValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -422,9 +422,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_upsertPurchaseInvoiceDelivery",
     {
       description: "upsert purchase invoice delivery",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceDelivery: purchaseInvoiceDeliveryValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -437,9 +437,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_upsertPurchaseInvoiceLine",
     {
       description: "upsert purchase invoice line",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseInvoiceLine: purchaseInvoiceLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -452,9 +452,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_upsertSalesInvoice",
     {
       description: "upsert sales invoice",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoice: salesInvoiceValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -467,9 +467,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_upsertSalesInvoiceShipment",
     {
       description: "upsert sales invoice shipment",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceShipment: salesInvoiceShipmentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -482,9 +482,9 @@ export const registerInvoicingTools: RegisterTools = (server, ctx) => {
     "invoicing_upsertSalesInvoiceLine",
     {
       description: "upsert sales invoice line",
-      inputSchema: {
+      inputSchema: z.object({
       salesInvoiceLine: salesInvoiceLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

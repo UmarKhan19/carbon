@@ -91,16 +91,17 @@ export async function action(args: ActionFunctionArgs) {
   try {
     const salesOrder = await getSalesOrder(serviceRole, salesOrderId);
     if (salesOrder.data?.salesOrderId && salesOrder.data?.opportunityId) {
-      const { file, fileName } = await generateAndAttachSalesOrderPdf({
-        routeArgs: args,
-        salesOrderId,
-        salesOrderIdentifier: salesOrder.data.salesOrderId,
-        opportunityId: salesOrder.data.opportunityId,
-        companyId,
-        userId,
-        serviceRole,
-        pdfLoader
-      });
+      const { fileName, documentFilePath } =
+        await generateAndAttachSalesOrderPdf({
+          routeArgs: args,
+          salesOrderId,
+          salesOrderIdentifier: salesOrder.data.salesOrderId,
+          opportunityId: salesOrder.data.opportunityId,
+          companyId,
+          userId,
+          serviceRole,
+          pdfLoader
+        });
 
       if (notification === "Email" && customerContact) {
         const acceptLanguage = request.headers.get("accept-language");
@@ -114,7 +115,7 @@ export async function action(args: ActionFunctionArgs) {
           userId,
           customerContactId: customerContact,
           cc,
-          file,
+          documentFilePath,
           fileName,
           serviceRole,
           locales

@@ -12,7 +12,7 @@ import {
   useDebounce,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGooglePlaces } from "~/hooks/useGooglePlaces";
 import Country from "./Country";
@@ -29,7 +29,7 @@ const AddressAutocomplete = ({
 
   const [value, setValue] = useControlField<string>(address1Field);
   const { clearError } = useFormContext();
-  const { error } = useField(address1Field);
+  const { error, isOptional: isAddressLine1Optional } = useField(address1Field);
   const [open, setOpen] = useState(false);
   const [justSelected, setJustSelected] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
@@ -148,7 +148,9 @@ const AddressAutocomplete = ({
 
   const addressAutocompleteField = (
     <FormControl isInvalid={!!error}>
-      <FormLabel htmlFor={address1Field}>{t`Address Line 1`}</FormLabel>
+      <FormLabel htmlFor={address1Field} isOptional={isAddressLine1Optional}>
+        <Trans>Address Line 1</Trans>
+      </FormLabel>
       <div className="relative w-full" ref={containerRef}>
         <Command shouldFilter={false} className="bg-transparent">
           <CommandInputTextField

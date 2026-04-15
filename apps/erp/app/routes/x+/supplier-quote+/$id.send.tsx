@@ -111,7 +111,7 @@ export async function action(args: ActionFunctionArgs) {
           throw new Error("Failed to get supplier quote");
         if (!user.data) throw new Error("Failed to get user");
 
-        const attachments: Array<{ filename: string; content: string }> = [];
+        const attachments: Array<{ filename: string; path: string }> = [];
 
         // Fetch top-level supplier interaction documents
         const interactionId = supplierQuote.data.supplierInteractionId;
@@ -123,19 +123,15 @@ export async function action(args: ActionFunctionArgs) {
           );
 
           for (const doc of topDocs) {
-            const { data: fileData } = await client.storage
+            const storagePath = `${companyId}/supplier-interaction/${interactionId}/${doc.name}`;
+            const { data: signedUrlData } = await client.storage
               .from("private")
-              .download(
-                `${companyId}/supplier-interaction/${interactionId}/${doc.name}`
-              );
+              .createSignedUrl(storagePath, 3600);
 
-            if (fileData) {
-              const arrayBuffer = await fileData.arrayBuffer();
-              const base64 = Buffer.from(arrayBuffer).toString("base64");
-
+            if (signedUrlData?.signedUrl) {
               attachments.push({
                 filename: doc.name,
-                content: base64
+                path: signedUrlData.signedUrl
               });
             }
           }
@@ -153,19 +149,15 @@ export async function action(args: ActionFunctionArgs) {
             );
 
             for (const doc of docs) {
-              const { data: fileData } = await client.storage
+              const storagePath = `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`;
+              const { data: signedUrlData } = await client.storage
                 .from("private")
-                .download(
-                  `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
-                );
+                .createSignedUrl(storagePath, 3600);
 
-              if (fileData) {
-                const arrayBuffer = await fileData.arrayBuffer();
-                const base64 = Buffer.from(arrayBuffer).toString("base64");
-
+              if (signedUrlData?.signedUrl) {
                 attachments.push({
                   filename: doc.name,
-                  content: base64
+                  path: signedUrlData.signedUrl
                 });
               }
             }
@@ -186,7 +178,9 @@ export async function action(args: ActionFunctionArgs) {
         const emailSignature = `Thanks,\n${user.data.firstName} ${user.data.lastName}\n${company.data.name}`;
 
         await trigger("send-email", {
-          to: [user.data.email, supplierContact.data.contact?.email ?? ""],
+          to: [user.data.email, supplierContact.data.contact?.email].filter(
+            Boolean
+          ) as string[],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: user.data.email,
           subject: emailSubject,

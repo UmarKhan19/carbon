@@ -35,9 +35,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_deleteDocument",
     {
       description: "delete document",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -50,9 +50,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_deleteDocumentFavorite",
     {
       description: "delete document favorite",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -65,10 +65,10 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_deleteDocumentLabel",
     {
       description: "delete document label",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
       label: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -81,9 +81,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_getDocument",
     {
       description: "get document",
-      inputSchema: {
+      inputSchema: z.object({
       documentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -96,7 +96,7 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_getDocuments",
     {
       description: "get documents",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -105,7 +105,7 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     recent: z.boolean().optional(),
     active: z.boolean()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -118,7 +118,7 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_getDocumentExtensions",
     {
       description: "get document extensions",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -131,7 +131,7 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_getDocumentLabels",
     {
       description: "get document labels",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -144,9 +144,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_insertDocumentFavorite",
     {
       description: "insert document favorite",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -159,10 +159,10 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_insertDocumentLabel",
     {
       description: "insert document label",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
       label: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -175,9 +175,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_moveDocumentToTrash",
     {
       description: "move document to trash",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -190,9 +190,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_restoreDocument",
     {
       description: "restore document",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -205,9 +205,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_upsertDocument",
     {
       description: "upsert document",
-      inputSchema: {
+      inputSchema: z.object({
       document: documentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -220,12 +220,12 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_updateDocumentFavorite",
     {
       description: "update document favorite",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     favorite: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -238,9 +238,9 @@ export const registerDocumentsTools: RegisterTools = (server, ctx) => {
     "documents_updateDocumentLabels",
     {
       description: "update document labels",
-      inputSchema: {
+      inputSchema: z.object({
       document: documentLabelsValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

@@ -68,7 +68,12 @@ const ConversionFactor = forwardRef<
     ref
   ) => {
     const { t } = useLingui();
-    const { getInputProps, error, defaultValue } = useField(name);
+    const {
+      getInputProps,
+      error,
+      defaultValue,
+      isOptional: fieldIsOptional
+    } = useField(name);
     const [controlValue, setControlValue] = useControlField<number>(name);
 
     const [open, setOpen] = useState(false);
@@ -181,10 +186,15 @@ const ConversionFactor = forwardRef<
       setConversionFactor(initialValue.current);
       setOpen(false);
     };
+    const resolvedIsOptional = isRequired ? false : (fieldIsOptional ?? false);
 
     return (
       <FormControl isInvalid={!!error} isRequired={isRequired}>
-        {label && <FormLabel htmlFor={name}>{label}</FormLabel>}
+        {label && (
+          <FormLabel htmlFor={name} isOptional={resolvedIsOptional}>
+            {label}
+          </FormLabel>
+        )}
         <input
           {...getInputProps({
             id: name

@@ -88,7 +88,7 @@ const Item = ({
   label,
   helperText,
   isConfigured = false,
-  isOptional = false,
+  isOptional,
   type = "Part",
   typeFieldName = "itemType",
   validItemTypes,
@@ -159,8 +159,9 @@ const Item = ({
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const { getInputProps, error } = useField(name);
+  const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
   const [value, setValue] = useControlField<string | undefined>(name);
+  const resolvedIsOptional = isOptional ?? fieldIsOptional ?? false;
 
   useEffect(() => {
     if (props.value !== null && props.value !== undefined)
@@ -185,7 +186,7 @@ const Item = ({
           <FormLabel
             htmlFor={name}
             isConfigured={isConfigured}
-            isOptional={isOptional}
+            isOptional={resolvedIsOptional}
             onConfigure={onConfigure}
           >
             {translateItemType(type)}
@@ -218,7 +219,6 @@ const Item = ({
               setValue(newValue?.replace(/"/g, '\\"') ?? "");
               onChange(newValue?.replace(/"/g, '\\"') ?? "");
             }}
-            isClearable={isOptional && !props.isReadOnly}
             label={
               label === "Item"
                 ? t`Item`

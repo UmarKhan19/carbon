@@ -50,6 +50,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let file: ArrayBuffer;
   let fileName: string;
+  let documentFilePath: string;
 
   const serviceRole = getCarbonServiceRole();
 
@@ -216,7 +217,7 @@ export async function action(args: ActionFunctionArgs) {
         .slice(0, -5)}.pdf`
     );
 
-    const documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
+    documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
 
     const documentFileUpload = await serviceRole.storage
       .from("private")
@@ -331,6 +332,10 @@ export async function action(args: ActionFunctionArgs) {
           const html = await renderAsync(emailTemplate);
           const text = await renderAsync(emailTemplate, { plainText: true });
 
+          const { data: signedUrlData } = await serviceRole.storage
+            .from("private")
+            .createSignedUrl(documentFilePath, 3600);
+
           await Promise.all([
             trigger("send-email", {
               to: [buyer.data.email, supplier.data.contact.email],
@@ -339,12 +344,14 @@ export async function action(args: ActionFunctionArgs) {
               subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
               html,
               text,
-              attachments: [
-                {
-                  content: Buffer.from(file).toString("base64"),
-                  filename: fileName
-                }
-              ],
+              attachments: signedUrlData?.signedUrl
+                ? [
+                    {
+                      path: signedUrlData.signedUrl,
+                      filename: fileName
+                    }
+                  ]
+                : undefined,
               companyId
             })
           ]);

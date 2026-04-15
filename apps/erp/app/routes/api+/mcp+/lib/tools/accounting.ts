@@ -66,9 +66,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_deleteAccount",
     {
       description: "delete account",
-      inputSchema: {
+      inputSchema: z.object({
       accountId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -81,9 +81,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_deleteAccountCategory",
     {
       description: "delete account category",
-      inputSchema: {
+      inputSchema: z.object({
       accountCategoryId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -96,9 +96,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_deleteAccountSubcategory",
     {
       description: "delete account subcategory",
-      inputSchema: {
+      inputSchema: z.object({
       accountSubcategoryId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -111,9 +111,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_deletePaymentTerm",
     {
       description: "delete payment term",
-      inputSchema: {
+      inputSchema: z.object({
       paymentTermId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -126,9 +126,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccount",
     {
       description: "get account",
-      inputSchema: {
+      inputSchema: z.object({
       accountId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -141,13 +141,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccounts",
     {
       description: "get accounts",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -160,13 +160,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountsList",
     {
       description: "get accounts list",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     type: z.any().optional(),
     incomeBalance: z.any().optional(),
     classes: z.array(z.any()).optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -179,13 +179,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountCategories",
     {
       description: "get account categories",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -198,7 +198,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountCategoriesList",
     {
       description: "get account categories list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -211,9 +211,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountCategory",
     {
       description: "get account category",
-      inputSchema: {
+      inputSchema: z.object({
       accountCategoryId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -226,13 +226,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountSubcategories",
     {
       description: "get account subcategories",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -245,9 +245,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountSubcategoriesByCategory",
     {
       description: "get account subcategories by category",
-      inputSchema: {
+      inputSchema: z.object({
       accountCategoryId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -260,9 +260,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountSubcategory",
     {
       description: "get account subcategory",
-      inputSchema: {
+      inputSchema: z.object({
       accountSubcategoryId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -275,7 +275,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getBaseCurrency",
     {
       description: "get base currency",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -288,7 +288,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getChartOfAccounts",
     {
       description: "get chart of accounts",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -297,7 +297,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     startDate: z.string().nullable(),
     endDate: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -310,9 +310,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrency",
     {
       description: "get currency",
-      inputSchema: {
+      inputSchema: z.object({
       currencyId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -325,9 +325,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrencyByCode",
     {
       description: "get currency by code",
-      inputSchema: {
+      inputSchema: z.object({
       currencyCode: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -340,13 +340,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrencies",
     {
       description: "get currencies",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -359,7 +359,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrenciesList",
     {
       description: "get currencies list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -372,9 +372,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrentAccountingPeriod",
     {
       description: "get current accounting period",
-      inputSchema: {
+      inputSchema: z.object({
       date: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -387,7 +387,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getDefaultAccounts",
     {
       description: "get default accounts",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -400,7 +400,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getFiscalYearSettings",
     {
       description: "get fiscal year settings",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -413,12 +413,12 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getInventoryPostingGroup",
     {
       description: "get inventory posting group",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     itemPostingGroupId: z.string().nullable(),
     locationId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -431,12 +431,12 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getInventoryPostingGroups",
     {
       description: "get inventory posting groups",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -449,9 +449,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPaymentTerm",
     {
       description: "get payment term",
-      inputSchema: {
+      inputSchema: z.object({
       paymentTermId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -464,13 +464,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPaymentTerms",
     {
       description: "get payment terms",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -483,7 +483,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPaymentTermsList",
     {
       description: "get payment terms list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -496,12 +496,12 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPurchasingPostingGroup",
     {
       description: "get purchasing posting group",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     itemPostingGroupId: z.string().nullable(),
     supplierTypeId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -514,12 +514,12 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPurchasingPostingGroups",
     {
       description: "get purchasing posting groups",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -532,12 +532,12 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPurchasingSalesGroup",
     {
       description: "get purchasing sales group",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     itemPostingGroupId: z.string().nullable(),
     customerTypeId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -550,12 +550,12 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getSalesPostingGroups",
     {
       description: "get sales posting groups",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -568,9 +568,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_updateDefaultBalanceSheetAccounts",
     {
       description: "update default balance sheet accounts",
-      inputSchema: {
+      inputSchema: z.object({
       defaultAccounts: defaultBalanceSheetAccountValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -583,9 +583,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_updateDefaultIncomeAccounts",
     {
       description: "update default income accounts",
-      inputSchema: {
+      inputSchema: z.object({
       defaultAccounts: defaultIncomeAcountValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -598,9 +598,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_updateFiscalYearSettings",
     {
       description: "update fiscal year settings",
-      inputSchema: {
+      inputSchema: z.object({
       fiscalYearSettings: fiscalYearSettingsValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -613,9 +613,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_upsertAccount",
     {
       description: "upsert account",
-      inputSchema: {
+      inputSchema: z.object({
       account: accountValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -628,9 +628,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_upsertAccountCategory",
     {
       description: "upsert account category",
-      inputSchema: {
+      inputSchema: z.object({
       accountCategory: accountCategoryValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -643,9 +643,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_upsertAccountSubcategory",
     {
       description: "upsert account subcategory",
-      inputSchema: {
+      inputSchema: z.object({
       accountSubcategory: accountSubcategoryValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -658,9 +658,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_upsertCurrency",
     {
       description: "upsert currency",
-      inputSchema: {
+      inputSchema: z.object({
       currency: currencyValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -673,9 +673,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_upsertPaymentTerm",
     {
       description: "upsert payment term",
-      inputSchema: {
+      inputSchema: z.object({
       paymentTerm: paymentTermValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

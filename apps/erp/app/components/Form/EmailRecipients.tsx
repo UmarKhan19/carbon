@@ -125,7 +125,12 @@ export default function EmailRecipients({
   helperText,
   type = "employee"
 }: EmailRecipientsProps) {
-  const { error, defaultValue, validate } = useField(name);
+  const {
+    error,
+    defaultValue,
+    validate,
+    isOptional: fieldIsOptional
+  } = useField(name);
   const [emails, setEmails] = useState<string[]>(defaultValue ?? []);
   const [inputValue, setInputValue] = useState("");
   const [inputError, setInputError] = useState(false);
@@ -219,7 +224,11 @@ export default function EmailRecipients({
 
   return (
     <FormControl isInvalid={!!error}>
-      {label && <FormLabel htmlFor={name}>{label}</FormLabel>}
+      {label && (
+        <FormLabel htmlFor={name} isOptional={fieldIsOptional}>
+          {label}
+        </FormLabel>
+      )}
       {emails.map((email, index) => (
         <input
           key={email}

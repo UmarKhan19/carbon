@@ -32,7 +32,7 @@ import {
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   LuChevronRight,
   LuGitBranch,
@@ -230,8 +230,12 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
       toast.error(error.message);
     }
 
+    // Only Draft versions can be overwritten - Active and Archived are read-only
+    const availableVersions =
+      data?.filter(({ status }) => status === "Draft") ?? [];
+
     setMakeMethods(
-      data?.map(({ id, version, status }) => ({
+      availableVersions.map(({ id, version, status }) => ({
         label: (
           <div className="flex items-center gap-2">
             <Badge variant="outline">V{version}</Badge>{" "}
@@ -239,11 +243,11 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           </div>
         ),
         value: id
-      })) ?? []
+      }))
     );
 
-    if (data?.length === 1) {
-      setSelectedMakeMethod(data[0].id);
+    if (availableVersions.length === 1) {
+      setSelectedMakeMethod(availableVersions[0].id);
     }
   };
 
@@ -254,7 +258,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
   });
 
   return (
-    <>
+    <Fragment key={jobId}>
       {permissions.can("update", "production") &&
         (isJobMethod || isJobMakeMethod) && (
           <Menubar>
@@ -518,6 +522,11 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                         setSelectedMakeMethod(null);
                       }
                     }}
+                    placeholder={
+                      makeMethods.length === 0
+                        ? t`No draft versions available`
+                        : undefined
+                    }
                   />
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -618,7 +627,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           }}
         />
       )}
-    </>
+    </Fragment>
   );
 };
 

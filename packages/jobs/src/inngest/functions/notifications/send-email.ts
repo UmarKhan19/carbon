@@ -1,5 +1,6 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Email as EmailConfig } from "@carbon/ee";
+import { NonRetriableError, serializeError } from "inngest";
 import { Resend } from "resend";
 import { inngest } from "../../client";
 
@@ -115,7 +116,16 @@ export const sendEmailFunction = inngest.createFunction(
       };
 
       console.info(`Resend Email Job`);
-      return resend.emails.send(email);
+      const response = await resend.emails.send(email);
+      if (response.error) {
+        if (response.error.name === "validation_error") {
+          throw new NonRetriableError(
+            `Resend validation error: ${serializeError(response.error)}`
+          );
+        }
+        throw new Error(`Resend error: ${serializeError(response.error)}`);
+      }
+      return response.data;
     });
 
     return { success: true, result };

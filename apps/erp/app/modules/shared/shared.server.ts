@@ -119,7 +119,7 @@ export async function generateAndAttachSalesOrderPdf(args: {
   serviceRole: SupabaseClient<Database>;
   /** The pdf loader imported from the sales-order pdf route */
   pdfLoader: (args: LoaderFunctionArgs) => Promise<Response>;
-}): Promise<{ file: ArrayBuffer; fileName: string }> {
+}): Promise<{ file: ArrayBuffer; fileName: string; documentFilePath: string }> {
   const {
     routeArgs,
     salesOrderId,
@@ -179,7 +179,7 @@ export async function generateAndAttachSalesOrderPdf(args: {
     throw new Error("Failed to create document record");
   }
 
-  return { file, fileName };
+  return { file, fileName, documentFilePath };
 }
 
 /**
@@ -194,7 +194,7 @@ export async function sendSalesOrderEmail(args: {
   userId: string;
   customerContactId: string;
   cc?: string[];
-  file: ArrayBuffer;
+  documentFilePath: string;
   fileName: string;
   serviceRole: SupabaseClient<Database>;
   locales: string[];
@@ -205,7 +205,7 @@ export async function sendSalesOrderEmail(args: {
     userId,
     customerContactId,
     cc: ccSelections,
-    file,
+    documentFilePath,
     fileName,
     serviceRole,
     locales
@@ -269,6 +269,9 @@ export async function sendSalesOrderEmail(args: {
 
   const html = await renderAsync(emailTemplate);
   const text = await renderAsync(emailTemplate, { plainText: true });
+  const { data: signedUrlData } = await serviceRole.storage
+    .from("private")
+    .createSignedUrl(documentFilePath, 3600);
 
   await trigger("send-email", {
     to: [seller.data.email, customer.data.contact.email!],
@@ -277,12 +280,14 @@ export async function sendSalesOrderEmail(args: {
     subject: `Order ${salesOrder.data.salesOrderId} from ${company.data.name}`,
     html,
     text,
-    attachments: [
-      {
-        content: Buffer.from(file).toString("base64"),
-        filename: fileName
-      }
-    ],
+    attachments: signedUrlData?.signedUrl
+      ? [
+          {
+            path: signedUrlData.signedUrl,
+            filename: fileName
+          }
+        ]
+      : undefined,
     companyId
   });
 

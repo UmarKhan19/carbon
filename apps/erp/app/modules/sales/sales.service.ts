@@ -725,6 +725,11 @@ export async function getOpportunityDocuments(
     .from("private")
     .list(`${companyId}/opportunity/${opportunityId}`);
 
+  if (result.error) {
+    console.error("Failed to list opportunity documents", result.error);
+    return [];
+  }
+
   return result.data?.map((f) => ({ ...f, bucket: "opportunity" })) ?? [];
 }
 
@@ -740,8 +745,18 @@ export async function getOpportunityLineDocuments(
       .list(`${companyId}/opportunity-line/${lineId}`),
     itemId
       ? client.storage.from("private").list(`${companyId}/parts/${itemId}`)
-      : Promise.resolve({ data: [] })
+      : Promise.resolve({ data: [] as any[], error: null })
   ]);
+
+  if (opportunityLineResult.error) {
+    console.error(
+      "Failed to list opportunity line documents",
+      opportunityLineResult.error
+    );
+  }
+  if (itemResult.error) {
+    console.error("Failed to list item documents", itemResult.error);
+  }
 
   const opportunityLineDocs =
     opportunityLineResult.data?.map((f) => ({
