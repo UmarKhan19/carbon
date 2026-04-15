@@ -68,7 +68,33 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
           </Badge>
         ),
         meta: {
+          filter: {
+            type: "static",
+            options: [
+              { value: "Discount", label: t`Discount` },
+              { value: "Markup", label: t`Markup` }
+            ]
+          },
+          pluralHeader: t`Types`,
           icon: <LuTrendingDown />
+        }
+      },
+      {
+        accessorKey: "amountType",
+        header: t`Amount Type`,
+        cell: ({ row }) => (
+          <Badge variant="outline">{row.original.amountType}</Badge>
+        ),
+        meta: {
+          filter: {
+            type: "static",
+            options: [
+              { value: "Percentage", label: t`Percentage` },
+              { value: "Fixed", label: t`Fixed` }
+            ]
+          },
+          pluralHeader: t`Amount Types`,
+          icon: <LuCircleDollarSign />
         }
       },
       {
@@ -158,6 +184,13 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
           </Badge>
         ),
         meta: {
+          filter: {
+            type: "static",
+            options: [
+              { value: "true", label: t`Active` },
+              { value: "false", label: t`Inactive` }
+            ]
+          },
           icon: <LuToggleLeft />
         }
       }

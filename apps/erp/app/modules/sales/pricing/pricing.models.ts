@@ -35,6 +35,25 @@ export const pricingRuleValidator = z
     path: ["validTo"]
   });
 
+export const priceOverrideValidator = z
+  .object({
+    itemId: z.string().min(1),
+    customerId: zfd.text(z.string().optional()),
+    customerTypeId: zfd.text(z.string().optional()),
+    overridePrice: zfd.numeric(z.number().min(0)),
+    validFrom: zfd.text(z.string().optional()),
+    validTo: zfd.text(z.string().optional()),
+    notes: zfd.text(z.string().optional()),
+  })
+  .refine((d) => !!d.customerId || !!d.customerTypeId, {
+    message: "Either customer or customer type is required",
+    path: ["customerId"],
+  })
+  .refine((d) => !d.validFrom || !d.validTo || d.validFrom <= d.validTo, {
+    message: "Valid From must be on or before Valid To",
+    path: ["validTo"],
+  });
+
 export const priceResolutionInputValidator = z.object({
   itemId: z.string().min(1),
   quantity: z.number().nonnegative(),

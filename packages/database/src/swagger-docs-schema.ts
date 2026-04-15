@@ -17889,195 +17889,6 @@ export default {
         tags: ["timeCardEntries"],
       },
     },
-    "/itemSalePriceBreak": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.itemId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.minQuantity",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.unitPrice",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.discountPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedAt",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/itemSalePriceBreak",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["itemSalePriceBreak"],
-      },
-      post: {
-        parameters: [
-          {
-            $ref: "#/parameters/body.itemSalePriceBreak",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/preferPost",
-          },
-        ],
-        responses: {
-          "201": {
-            description: "Created",
-          },
-        },
-        tags: ["itemSalePriceBreak"],
-      },
-      delete: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.itemId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.minQuantity",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.unitPrice",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.discountPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedAt",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["itemSalePriceBreak"],
-      },
-      patch: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.id",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.itemId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.customerTypeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.minQuantity",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.unitPrice",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.discountPercent",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.createdAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedBy",
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemSalePriceBreak.updatedAt",
-          },
-          {
-            $ref: "#/parameters/body.itemSalePriceBreak",
-          },
-          {
-            $ref: "#/parameters/preferReturn",
-          },
-        ],
-        responses: {
-          "204": {
-            description: "No Content",
-          },
-        },
-        tags: ["itemSalePriceBreak"],
-      },
-    },
     "/materialDimensions": {
       get: {
         parameters: [
@@ -38133,6 +37944,9 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.customerId",
           },
           {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.customerTypeId",
+          },
+          {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
           },
           {
@@ -38183,6 +37997,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.customerId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.customerTypeId",
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
@@ -81606,77 +81423,6 @@ export default {
       },
       type: "object",
     },
-    itemSalePriceBreak: {
-      required: [
-        "id",
-        "itemId",
-        "minQuantity",
-        "companyId",
-        "createdBy",
-        "createdAt",
-      ],
-      properties: {
-        id: {
-          default: "public.id('ispb'::text)",
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        itemId: {
-          description:
-            "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        customerTypeId: {
-          description:
-            "Note:\nThis is a Foreign Key to `customerType.id`.<fk table='customerType' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        minQuantity: {
-          default: 1,
-          format: "numeric",
-          type: "number",
-        },
-        unitPrice: {
-          format: "numeric",
-          type: "number",
-        },
-        discountPercent: {
-          format: "numeric",
-          type: "number",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        createdAt: {
-          default: "now()",
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        updatedBy: {
-          description:
-            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        updatedAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-      },
-      type: "object",
-    },
     materialDimensions: {
       properties: {
         id: {
@@ -113777,81 +113523,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "body.itemSalePriceBreak": {
-      name: "itemSalePriceBreak",
-      description: "itemSalePriceBreak",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/itemSalePriceBreak",
-      },
-    },
-    "rowFilter.itemSalePriceBreak.id": {
-      name: "id",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.itemId": {
-      name: "itemId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.customerTypeId": {
-      name: "customerTypeId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.minQuantity": {
-      name: "minQuantity",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.unitPrice": {
-      name: "unitPrice",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.discountPercent": {
-      name: "discountPercent",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.createdBy": {
-      name: "createdBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.createdAt": {
-      name: "createdAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.updatedBy": {
-      name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.itemSalePriceBreak.updatedAt": {
-      name: "updatedAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "body.materialDimensions": {
       name: "materialDimensions",
       description: "materialDimensions",
@@ -124161,6 +123832,12 @@ export default {
     },
     "rowFilter.customerItemPriceOverride.customerId": {
       name: "customerId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverride.customerTypeId": {
+      name: "customerTypeId",
       required: false,
       in: "query",
       type: "string",

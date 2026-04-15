@@ -1,26 +1,41 @@
-import { Badge, CreatableCombobox, HStack, VStack } from "@carbon/react";
+import { ValidatedForm } from "@carbon/form";
+import {
+  Badge,
+  Button,
+  HStack,
+  ModalDrawer,
+  ModalDrawerBody,
+  ModalDrawerContent,
+  ModalDrawerFooter,
+  ModalDrawerHeader,
+  ModalDrawerProvider,
+  ModalDrawerTitle,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  VStack,
+} from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import {
   LuCircleDollarSign,
   LuDownload,
   LuHash,
-  LuInfo,
-  LuPackage,
-  LuPencil,
+  LuPanelRight,
+  LuSquareUser,
   LuTag,
+  LuUsers,
 } from "react-icons/lu";
-import { useFetcher, useSearchParams } from "react-router";
-import { Hyperlink, Table } from "~/components";
+import { ItemThumbnail, Table } from "~/components";
+import { DatePicker, Hidden, Number, Submit, TextArea } from "~/components/Form";
 import { useCustomerTypes } from "~/components/Form/CustomerType";
 import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
 import { useCustomers } from "~/stores";
 import { path } from "~/utils/path";
-import type { PriceListRow } from "../pricing.service";
+import { priceOverrideValidator } from "../pricing.models";
+import { priceSourceTypes, type PriceListRow } from "../pricing.service";
 import { PriceTracePopover } from "./PriceTracePopover";
-
-type FilterMode = "customer" | "customerType";
 
 type PriceListViewProps = {
   data: PriceListRow[];
@@ -36,12 +51,15 @@ const PriceListView = memo(
     const { company } = useUser();
     const baseCurrency = company?.baseCurrencyCode ?? "USD";
     const currencyFormatter = useCurrencyFormatter();
-    const [searchParams, setSearchParams] = useSearchParams();
     const [customers] = useCustomers();
     const customerTypes = useCustomerTypes();
+    const [editingRow, setEditingRow] = useState<PriceListRow | null>(null);
 
-    const filterMode: FilterMode =
-      searchParams.get("customerTypeId") ? "customerType" : "customer";
+    const activeScope = customerId
+      ? ({ type: "customer", id: customerId } as const)
+      : customerTypeId
+        ? ({ type: "customerType", id: customerTypeId } as const)
+        : null;
 
     const customerOptions = useMemo(
       () => customers.map((c) => ({ value: c.id, label: c.name })),
@@ -53,81 +71,122 @@ const PriceListView = memo(
       [customerTypes]
     );
 
-    const onFilterModeChange = useCallback(
-      (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSearchParams((prev) => {
-          const next = new URLSearchParams(prev);
-          next.delete("customerId");
-          next.delete("customerTypeId");
-          next.delete("offset");
-          return next;
-        });
-      },
-      [setSearchParams]
+    const selectedCustomerName = useMemo(
+      () => customers.find((c) => c.id === customerId)?.name ?? null,
+      [customers, customerId]
     );
 
-    const onCustomerChange = useCallback(
-      (selected: string) => {
-        setSearchParams((prev) => {
-          const next = new URLSearchParams(prev);
-          next.delete("customerTypeId");
-          if (selected) {
-            next.set("customerId", selected);
-          } else {
-            next.delete("customerId");
-          }
-          next.delete("offset");
-          return next;
-        });
-      },
-      [setSearchParams]
+    const selectedCustomerTypeName = useMemo(
+      () =>
+        customerTypes.find((ct) => ct.value === customerTypeId)?.label ?? null,
+      [customerTypes, customerTypeId]
     );
-
-    const onCustomerTypeChange = useCallback(
-      (selected: string) => {
-        setSearchParams((prev) => {
-          const next = new URLSearchParams(prev);
-          next.delete("customerId");
-          if (selected) {
-            next.set("customerTypeId", selected);
-          } else {
-            next.delete("customerTypeId");
-          }
-          next.delete("offset");
-          return next;
-        });
-      },
-      [setSearchParams]
-    );
-
-    // Determine which scope is active for inline editing
-    const activeScope = customerId
-      ? ({ type: "customer", id: customerId } as const)
-      : customerTypeId
-        ? ({ type: "customerType", id: customerTypeId } as const)
-        : null;
 
     const columns = useMemo<ColumnDef<PriceListRow>[]>(() => {
       const cols: ColumnDef<PriceListRow>[] = [
         {
           accessorKey: "partId",
-          header: t`Part ID`,
-          cell: ({ row }) => (
-            <Hyperlink to={path.to.partSales(row.original.itemId)}>
-              {row.original.partId}
-            </Hyperlink>
-          ),
+          header: t`Part`,
+          cell: ({ row }) => {
+            const canEdit =
+              !!activeScope && permissions.can("update", "sales");
+            return (
+              <div
+                role="button"
+                tabIndex={0}
+                className={`group/hyperlink text-foreground font-medium flex flex-row items-center justify-start gap-3 ${canEdit ? "cursor-pointer" : ""}`}
+                onClick={() => {
+                  if (canEdit) setEditingRow(row.original);
+                }}
+                onKeyDown={(e) => {
+                  if (canEdit && (e.key === "Enter" || e.key === " "))
+                    setEditingRow(row.original);
+                }}
+              >
+                <HStack className="min-w-[180px] truncate" spacing={2}>
+                  <ItemThumbnail
+                    size="sm"
+                    thumbnailPath={row.original.thumbnailPath}
+                    type="Part"
+                  />
+                  <VStack spacing={0}>
+                    <span>{row.original.partId}</span>
+                    <span className="text-xs text-muted-foreground truncate max-w-[160px]">
+                      {row.original.itemName}
+                    </span>
+                  </VStack>
+                </HStack>
+                {!activeScope ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex">
+                        <Button
+                          rightIcon={<LuPanelRight />}
+                          variant="secondary"
+                          className="flex-shrink-0 opacity-40 cursor-not-allowed"
+                          size="sm"
+                          isDisabled
+                        >
+                          <span>{t`Open`}</span>
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      {t`Select a customer or customer type first`}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    rightIcon={<LuPanelRight />}
+                    variant="secondary"
+                    className="flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover/hyperlink:opacity-100"
+                    size="sm"
+                    asChild
+                  >
+                    <span>{t`Open`}</span>
+                  </Button>
+                )}
+              </div>
+            );
+          },
           meta: { icon: <LuHash /> },
         },
         {
-          accessorKey: "itemName",
-          header: t`Name`,
-          cell: ({ row }) => (
-            <span className="truncate max-w-[200px]">
-              {row.original.itemName}
-            </span>
-          ),
-          meta: { icon: <LuPackage /> },
+          id: "customerId",
+          header: t`Customer`,
+          cell: () =>
+            selectedCustomerName ? (
+              <span className="text-sm truncate max-w-[140px]">
+                {selectedCustomerName}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            ),
+          meta: {
+            filter: {
+              type: "static",
+              options: customerOptions,
+            },
+            icon: <LuSquareUser />,
+          },
+        },
+        {
+          id: "customerTypeId",
+          header: t`Customer Type`,
+          cell: () =>
+            selectedCustomerTypeName ? (
+              <Badge variant="outline">{selectedCustomerTypeName}</Badge>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            ),
+          meta: {
+            filter: {
+              type: "static",
+              options: customerTypeOptions,
+            },
+            pluralHeader: t`Customer Types`,
+            icon: <LuUsers />,
+          },
         },
         {
           id: "basePrice",
@@ -142,46 +201,29 @@ const PriceListView = memo(
         {
           id: "resolvedPrice",
           header: t`Final Price`,
-          cell: ({ row }) => {
-            if (!activeScope) {
-              return (
-                <span className="tabular-nums">
-                  {currencyFormatter.format(row.original.resolvedPrice)}
-                </span>
-              );
-            }
-            return (
-              <InlineEditPrice
-                row={row.original}
-                scope={activeScope}
-                currencyFormatter={currencyFormatter}
-                canEdit={permissions.can("update", "sales")}
-              />
-            );
-          },
+          cell: ({ row }) => (
+            <span className="tabular-nums font-medium">
+              {currencyFormatter.format(row.original.resolvedPrice)}
+            </span>
+          ),
           meta: { icon: <LuCircleDollarSign /> },
         },
         {
-          id: "source",
+          accessorKey: "source",
           header: t`Source`,
           cell: ({ row }) => {
-            const { isOverridden, trace } = row.original;
-            const isTypeOverride = trace.some(
-              (s) => s.step === "Type Override"
-            );
+            const { source, trace } = row.original;
+            const badgeVariant =
+              source === "Override"
+                ? "yellow"
+                : source === "Type Override"
+                  ? "blue"
+                  : source === "Rule"
+                    ? "default"
+                    : "gray";
             return (
               <HStack className="items-center gap-2">
-                {isOverridden && isTypeOverride ? (
-                  <Badge variant="blue">{t`Type Override`}</Badge>
-                ) : isOverridden ? (
-                  <Badge variant="yellow">{t`Override`}</Badge>
-                ) : trace.some(
-                    (s) => s.step === "Discount" || s.step === "Markup"
-                  ) ? (
-                  <Badge variant="default">{t`Rule`}</Badge>
-                ) : (
-                  <Badge variant="gray">{t`Base`}</Badge>
-                )}
+                <Badge variant={badgeVariant}>{source}</Badge>
                 <PriceTracePopover
                   priceListId={null}
                   priceListName={trace.length > 1 ? "Pricing" : null}
@@ -191,11 +233,31 @@ const PriceListView = memo(
               </HStack>
             );
           },
-          meta: { icon: <LuTag /> },
+          meta: {
+            filter: {
+              type: "static",
+              options: priceSourceTypes.map((s) => ({
+                value: s,
+                label: s,
+              })),
+            },
+            pluralHeader: t`Sources`,
+            icon: <LuTag />,
+          },
         },
       ];
       return cols;
-    }, [activeScope, baseCurrency, currencyFormatter, permissions, t]);
+    }, [
+      activeScope,
+      baseCurrency,
+      currencyFormatter,
+      customerOptions,
+      customerTypeOptions,
+      permissions,
+      selectedCustomerName,
+      selectedCustomerTypeName,
+      t,
+    ]);
 
     const csvHref = customerId
       ? `${path.to.api.salesPriceListCsv}?customerId=${customerId}`
@@ -205,57 +267,32 @@ const PriceListView = memo(
 
     return (
       <VStack spacing={0} className="h-full">
-        <div className="px-4 py-3 border-b border-border flex items-center gap-4">
-          <select
-            className="h-8 px-2 text-sm border border-border rounded bg-background"
-            value={filterMode}
-            onChange={onFilterModeChange}
-          >
-            <option value="customer">{t`Customer`}</option>
-            <option value="customerType">{t`Customer Type`}</option>
-          </select>
-          <div className="w-[280px]">
-            {filterMode === "customer" ? (
-              <CreatableCombobox
-                options={customerOptions}
-                placeholder={t`Filter by customer...`}
-                value={customerId ?? ""}
-                onChange={onCustomerChange}
-                isClearable
-              />
-            ) : (
-              <CreatableCombobox
-                options={customerTypeOptions}
-                placeholder={t`Filter by customer type...`}
-                value={customerTypeId ?? ""}
-                onChange={onCustomerTypeChange}
-                isClearable
-              />
-            )}
-          </div>
-          {!activeScope && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <LuInfo className="size-4" />
-              {t`Select a customer or customer type to see resolved prices and enable editing`}
-            </p>
-          )}
-          {csvHref && (
-            <a
-              href={csvHref}
-              download
-              className="ml-auto text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-            >
-              <LuDownload className="size-4" />
-              {t`Export CSV`}
-            </a>
-          )}
-        </div>
         <Table<PriceListRow>
           data={data}
           columns={columns}
           count={count}
           title={t`Price List`}
+          primaryAction={
+            csvHref && (
+              <a
+                href={csvHref}
+                download
+                className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+              >
+                <LuDownload className="size-4" />
+                {t`Export CSV`}
+              </a>
+            )
+          }
         />
+        {editingRow && activeScope && (
+          <PriceOverrideDrawer
+            row={editingRow}
+            scope={activeScope}
+            currencyFormatter={currencyFormatter}
+            onClose={() => setEditingRow(null)}
+          />
+        )}
       </VStack>
     );
   }
@@ -264,104 +301,110 @@ const PriceListView = memo(
 PriceListView.displayName = "PriceListView";
 export default PriceListView;
 
-// -- Inline Edit Component --
+// -- Override Drawer --
 
 type OverrideScope =
   | { type: "customer"; id: string }
   | { type: "customerType"; id: string };
 
-function InlineEditPrice({
+function PriceOverrideDrawer({
   row,
   scope,
   currencyFormatter,
-  canEdit,
+  onClose,
 }: {
   row: PriceListRow;
   scope: OverrideScope;
   currencyFormatter: Intl.NumberFormat;
-  canEdit: boolean;
+  onClose: () => void;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(String(row.resolvedPrice));
-  const inputRef = useRef<HTMLInputElement>(null);
-  const fetcher = useFetcher();
-
-  const save = useCallback(() => {
-    const numValue = Number(value);
-    if (!Number.isFinite(numValue) || numValue < 0) {
-      setValue(String(row.resolvedPrice));
-      setEditing(false);
-      return;
-    }
-
-    if (numValue !== row.resolvedPrice) {
-      const formData: Record<string, string> = {
-        itemId: row.itemId,
-        overridePrice: String(numValue),
-      };
-
-      if (scope.type === "customer") {
-        formData.customerId = scope.id;
-      } else {
-        formData.customerTypeId = scope.id;
-      }
-
-      fetcher.submit(formData, { method: "POST" });
-    }
-    setEditing(false);
-  }, [fetcher, row.itemId, row.resolvedPrice, scope, value]);
-
-  if (!canEdit) {
-    return (
-      <span className="tabular-nums">
-        {currencyFormatter.format(row.resolvedPrice)}
-      </span>
-    );
-  }
-
-  if (editing) {
-    return (
-      <input
-        ref={inputRef}
-        type="number"
-        step="0.01"
-        min="0"
-        className="w-24 px-1.5 py-0.5 text-sm border border-ring rounded bg-background tabular-nums text-right ring-2 ring-ring"
-        value={value}
-        onClick={(e) => e.stopPropagation()}
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={save}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") save();
-          if (e.key === "Escape") {
-            setValue(String(row.resolvedPrice));
-            setEditing(false);
-          }
-        }}
-        autoFocus
-      />
-    );
-  }
+  const { company } = useUser();
 
   return (
-    <button
-      type="button"
-      className="tabular-nums text-left hover:bg-muted px-1.5 py-0.5 rounded border border-transparent hover:border-border transition-colors cursor-text group"
-      onClick={(e) => {
-        e.stopPropagation();
-        setValue(String(row.resolvedPrice));
-        setEditing(true);
-      }}
-      title={
-        scope.type === "customer"
-          ? "Click to override price for this customer"
-          : "Click to override price for this customer type"
-      }
-    >
-      <span className="inline-flex items-center gap-1">
-        {currencyFormatter.format(row.resolvedPrice)}
-        <LuPencil className="size-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-      </span>
-    </button>
+    <ModalDrawerProvider type="drawer">
+      <ModalDrawer
+        open
+        onOpenChange={(open) => {
+          if (!open) onClose();
+        }}
+      >
+        <ModalDrawerContent>
+          <ValidatedForm
+            validator={priceOverrideValidator}
+            method="post"
+            defaultValues={{
+              itemId: row.itemId,
+              customerId:
+                scope.type === "customer" ? scope.id : undefined,
+              customerTypeId:
+                scope.type === "customerType" ? scope.id : undefined,
+              overridePrice: row.isOverridden
+                ? row.resolvedPrice
+                : row.basePrice,
+              validFrom: row.overrideValidFrom ?? undefined,
+              validTo: row.overrideValidTo ?? undefined,
+              notes: row.overrideNotes ?? undefined,
+            }}
+            className="flex flex-col h-full"
+          >
+            <ModalDrawerHeader>
+              <ModalDrawerTitle>Price Override</ModalDrawerTitle>
+            </ModalDrawerHeader>
+            <ModalDrawerBody>
+              <Hidden name="itemId" />
+              <Hidden name="customerId" />
+              <Hidden name="customerTypeId" />
+              <VStack spacing={4}>
+                <HStack spacing={3} className="items-center py-1">
+                  <ItemThumbnail
+                    size="md"
+                    thumbnailPath={row.thumbnailPath}
+                    type="Part"
+                  />
+                  <VStack spacing={0}>
+                    <span className="text-sm font-medium">
+                      {row.partId}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {row.itemName}
+                    </span>
+                  </VStack>
+                </HStack>
+                <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+                  <p className="text-xs font-medium text-muted-foreground mb-0.5">
+                    Base Price
+                  </p>
+                  <p className="text-sm font-medium tabular-nums">
+                    {currencyFormatter.format(row.basePrice)}
+                  </p>
+                </div>
+                <Number
+                  name="overridePrice"
+                  label="Override Price"
+                  minValue={0}
+                  formatOptions={{
+                    style: "currency",
+                    currency: company?.baseCurrencyCode ?? "USD",
+                  }}
+                />
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <DatePicker name="validFrom" label="Valid From" />
+                  <DatePicker name="validTo" label="Valid To" />
+                </div>
+                <TextArea name="notes" label="Notes" />
+              </VStack>
+            </ModalDrawerBody>
+            <ModalDrawerFooter>
+              <HStack>
+                <Submit>Save</Submit>
+                <Button size="md" variant="solid" onClick={onClose}>
+                  Cancel
+                </Button>
+              </HStack>
+            </ModalDrawerFooter>
+          </ValidatedForm>
+        </ModalDrawerContent>
+      </ModalDrawer>
+    </ModalDrawerProvider>
   );
 }

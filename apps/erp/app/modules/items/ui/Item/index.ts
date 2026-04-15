@@ -1,8 +1,6 @@
 import BillOfMaterial from "./BillOfMaterial";
 import BillOfProcess from "./BillOfProcess";
 import BoMExplorer, { BoMActions } from "./BoMExplorer";
-import CustomerTypePriceBreakForm from "./CustomerTypePriceBreakForm";
-import CustomerTypePriceBreaks from "./CustomerTypePriceBreaks";
 import { FileBadge } from "./FileBadge";
 import ItemCostingForm from "./ItemCostingForm";
 import ItemDocuments from "./ItemDocuments";
@@ -22,8 +20,6 @@ export {
   BillOfProcess,
   BoMActions,
   BoMExplorer,
-  CustomerTypePriceBreakForm,
-  CustomerTypePriceBreaks,
   FileBadge,
   ItemCostingForm,
   ItemDocuments,

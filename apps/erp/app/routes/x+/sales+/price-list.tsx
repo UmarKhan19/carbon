@@ -7,6 +7,7 @@ import {
   resolvePriceList,
   upsertCustomerItemPriceOverride,
 } from "~/modules/sales/pricing";
+import type { PriceSource } from "~/modules/sales/pricing/pricing.service";
 import { PriceListView } from "~/modules/sales/pricing/ui";
 import type { Handle } from "~/utils/handle";
 import { getParams, path } from "~/utils/path";
@@ -26,10 +27,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
   const search = searchParams.get("search");
-  const customerId = searchParams.get("customerId");
-  const customerTypeId = searchParams.get("customerTypeId");
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
+
+  // Separate computed / context filters from DB filters
+  const computedKeys = new Set(["source", "customerId", "customerTypeId"]);
+  const sourceFilter = filters?.find((f) => f.column === "source");
+  const customerIdFilter = filters?.find((f) => f.column === "customerId");
+  const customerTypeIdFilter = filters?.find(
+    (f) => f.column === "customerTypeId"
+  );
+  const dbFilters = filters?.filter((f) => !computedKeys.has(f.column));
+
+  const customerId = customerIdFilter?.value ?? null;
+  const customerTypeId = customerTypeIdFilter?.value ?? null;
 
   const result = await resolvePriceList(client, companyId, {
     customerId: customerId ?? undefined,
@@ -38,12 +49,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
     limit,
     offset,
     sorts,
-    filters,
+    filters: dbFilters,
   });
 
+  // Apply source filter post-resolution (computed field, not a DB column)
+  let filteredData = result.data;
+  if (sourceFilter?.value) {
+    const allowedSources = sourceFilter.value.split(",") as PriceSource[];
+    filteredData = result.data.filter((row) =>
+      allowedSources.includes(row.source)
+    );
+  }
+
   return {
-    data: result.data,
-    count: result.count,
+    data: filteredData,
+    count: sourceFilter ? filteredData.length : result.count,
     customerId,
     customerTypeId,
   };
@@ -60,8 +80,16 @@ export async function action({ request }: ActionFunctionArgs) {
   const customerTypeId = formData.get("customerTypeId") as string | null;
   const itemId = formData.get("itemId") as string;
   const overridePrice = Number(formData.get("overridePrice"));
+  const notes = (formData.get("notes") as string) || undefined;
+  const validFrom = (formData.get("validFrom") as string) || undefined;
+  const validTo = (formData.get("validTo") as string) || undefined;
 
-  if ((!customerId && !customerTypeId) || !itemId || !Number.isFinite(overridePrice)) {
+  if (
+    (!customerId && !customerTypeId) ||
+    !itemId ||
+    !Number.isFinite(overridePrice) ||
+    overridePrice < 0
+  ) {
     throw redirect(
       `${path.to.salesPriceList}?${getParams(request)}`,
       await flash(request, error(null, "Invalid override data"))
@@ -77,13 +105,19 @@ export async function action({ request }: ActionFunctionArgs) {
       customerTypeId: customerTypeId || undefined,
       itemId,
       overridePrice,
+      notes,
+      validFrom,
+      validTo,
     }
   );
 
   if (result.error) {
     throw redirect(
       `${path.to.salesPriceList}?${getParams(request)}`,
-      await flash(request, error(result.error, "Failed to save price override"))
+      await flash(
+        request,
+        error(result.error, "Failed to save price override")
+      )
     );
   }
 

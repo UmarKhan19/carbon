@@ -52,18 +52,6 @@ export default function useSalesSubmodules() {
           table: "salesOrder"
         },
         {
-          name: t`Price Lists`,
-          to: path.to.salesPriceList,
-          role: "employee",
-          icon: <LuList />
-        },
-        {
-          name: t`Pricing Rules`,
-          to: path.to.salesPricingRules,
-          role: "employee",
-          icon: <LuPercent />
-        },
-        {
           name: t`Invoices`,
           to: path.to.salesInvoices,
           icon: <LuCreditCard />,
@@ -81,6 +69,18 @@ export default function useSalesSubmodules() {
     {
       name: t`Configure`,
       routes: [
+        {
+          name: t`Price Lists`,
+          to: path.to.salesPriceList,
+          role: "employee",
+          icon: <LuList />
+        },
+        {
+          name: t`Pricing Rules`,
+          to: path.to.salesPricingRules,
+          role: "employee",
+          icon: <LuPercent />
+        },
         {
           name: t`No Quotes`,
           to: path.to.noQuoteReasons,

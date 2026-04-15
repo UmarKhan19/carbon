@@ -1,4 +1,5 @@
 import {
+  Badge,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -63,11 +64,15 @@ export function PriceTracePopover({
             className="text-xs truncate max-w-[320px]"
           />
         </div>
+        <div className="overflow-x-auto">
         <Table>
           <Thead>
             <Tr>
               <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
                 Step
+              </Th>
+              <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
+                Type
               </Th>
               <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
                 Description
@@ -91,8 +96,11 @@ export function PriceTracePopover({
                   }
                 >
                   <Td className="text-sm whitespace-nowrap">{step.step}</Td>
+                  <Td className="text-sm whitespace-nowrap">
+                    <StepTypeBadge step={step} />
+                  </Td>
                   <Td
-                    className="text-sm text-muted-foreground"
+                    className="text-sm text-muted-foreground max-w-[200px]"
                     title={step.source}
                   >
                     {step.ruleId ? (
@@ -100,13 +108,13 @@ export function PriceTracePopover({
                         to={path.to.pricingRule(step.ruleId)}
                         target="_blank"
                         rel="noreferrer"
-                        className="hover:text-foreground hover:underline decoration-dotted underline-offset-2 inline-flex items-center gap-1"
+                        className="hover:text-foreground hover:underline decoration-dotted underline-offset-2 inline-flex items-center gap-1 max-w-full"
                       >
-                        {step.source}
+                        <span className="truncate">{step.source}</span>
                         <LuExternalLink className="size-3 shrink-0" />
                       </Link>
                     ) : (
-                      step.source
+                      <span className="block truncate">{step.source}</span>
                     )}
                   </Td>
                   <Td className="text-right whitespace-nowrap">
@@ -120,9 +128,32 @@ export function PriceTracePopover({
             })}
           </Tbody>
         </Table>
+        </div>
       </PopoverContent>
     </Popover>
   );
+}
+
+function StepTypeBadge({ step }: { step: PriceTraceStep }) {
+  if (step.step === "Base Price") {
+    return <Badge variant="gray">Base</Badge>;
+  }
+  if (step.step === "Override") {
+    return <Badge variant="yellow">Override</Badge>;
+  }
+  if (step.step === "Type Override") {
+    return <Badge variant="blue">Type Override</Badge>;
+  }
+  if (step.step === "Discount") {
+    return <Badge variant="green">Discount</Badge>;
+  }
+  if (step.step === "Markup") {
+    return <Badge variant="secondary">Markup</Badge>;
+  }
+  if (step.step === "Final Price") {
+    return null;
+  }
+  return <Badge variant="gray">{step.step}</Badge>;
 }
 
 function PriceListSourceLink({

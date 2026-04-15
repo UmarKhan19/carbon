@@ -133,47 +133,6 @@ export async function duplicatePricingRule(
     .single();
 }
 
-export async function getItemSalePriceBreaks(
-  client: SupabaseClient<Database>,
-  itemId: string,
-  companyId: string
-) {
-  return client
-    .from("itemSalePriceBreak")
-    .select("*")
-    .eq("itemId", itemId)
-    .eq("companyId", companyId)
-    .order("minQuantity", { ascending: true });
-}
-
-export async function getItemSalePriceBreakSummary(
-  client: SupabaseClient<Database>,
-  itemId: string,
-  companyId: string
-) {
-  return client
-    .from("itemSalePriceBreak")
-    .select("customerTypeId, customerType(name)")
-    .eq("itemId", itemId)
-    .eq("companyId", companyId)
-    .not("customerTypeId", "is", null);
-}
-
-export async function getItemSalePriceBreaksForCustomerType(
-  client: SupabaseClient<Database>,
-  itemId: string,
-  companyId: string,
-  customerTypeId: string
-) {
-  return client
-    .from("itemSalePriceBreak")
-    .select("*")
-    .eq("itemId", itemId)
-    .eq("companyId", companyId)
-    .eq("customerTypeId", customerTypeId)
-    .order("minQuantity", { ascending: true });
-}
-
 // -- Customer Item Price Overrides --
 
 export async function getCustomerItemPriceOverride(
@@ -238,8 +197,18 @@ export async function upsertCustomerItemPriceOverride(
     itemId: string;
     overridePrice: number;
     notes?: string;
+    validFrom?: string;
+    validTo?: string;
   }
 ) {
+  const sharedFields = {
+    overridePrice: data.overridePrice,
+    notes: data.notes ?? null,
+    validFrom: data.validFrom ?? null,
+    validTo: data.validTo ?? null,
+    active: true,
+  };
+
   // Determine scope: customer-specific or customer-type
   if (data.customerId) {
     // First check if a matching row exists (partial unique index, can't use onConflict directly)
@@ -255,9 +224,7 @@ export async function upsertCustomerItemPriceOverride(
       return client
         .from("customerItemPriceOverride")
         .update({
-          overridePrice: data.overridePrice,
-          notes: data.notes ?? null,
-          active: true,
+          ...sharedFields,
           updatedBy: userId,
           updatedAt: new Date().toISOString(),
         })
@@ -269,11 +236,9 @@ export async function upsertCustomerItemPriceOverride(
     return client
       .from("customerItemPriceOverride")
       .insert({
+        ...sharedFields,
         customerId: data.customerId,
         itemId: data.itemId,
-        overridePrice: data.overridePrice,
-        notes: data.notes ?? null,
-        active: true,
         companyId,
         createdBy: userId,
       })
@@ -294,9 +259,7 @@ export async function upsertCustomerItemPriceOverride(
       return client
         .from("customerItemPriceOverride")
         .update({
-          overridePrice: data.overridePrice,
-          notes: data.notes ?? null,
-          active: true,
+          ...sharedFields,
           updatedBy: userId,
           updatedAt: new Date().toISOString(),
         })
@@ -308,11 +271,9 @@ export async function upsertCustomerItemPriceOverride(
     return client
       .from("customerItemPriceOverride")
       .insert({
+        ...sharedFields,
         customerTypeId: data.customerTypeId,
         itemId: data.itemId,
-        overridePrice: data.overridePrice,
-        notes: data.notes ?? null,
-        active: true,
         companyId,
         createdBy: userId,
       })
@@ -332,14 +293,28 @@ export async function deleteCustomerItemPriceOverride(
 
 // -- Price List (batch resolution) --
 
+export const priceSourceTypes = [
+  "Base",
+  "Override",
+  "Type Override",
+  "Rule"
+] as const;
+
+export type PriceSource = (typeof priceSourceTypes)[number];
+
 export type PriceListRow = {
   itemId: string;
   partId: string;
   itemName: string;
+  thumbnailPath: string | null;
   basePrice: number;
   resolvedPrice: number;
   isOverridden: boolean;
+  source: PriceSource;
   trace: PriceTraceStep[];
+  overrideNotes: string | null;
+  overrideValidFrom: string | null;
+  overrideValidTo: string | null;
 };
 
 export type PriceListResult = {
@@ -362,7 +337,7 @@ export async function resolvePriceList(
   let itemQuery = client
     .from("item")
     .select(
-      "id, readableId, name, itemUnitSalePrice(unitSalePrice)",
+      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice)",
       { count: "exact" }
     )
     .eq("active", true);
@@ -394,10 +369,13 @@ export async function resolvePriceList(
   }
 
   // 3. Batch-fetch overrides for this customer
-  const overrideMap = new Map<
-    string,
-    { overridePrice: number; notes: string | null }
-  >();
+  type OverrideEntry = {
+    overridePrice: number;
+    notes: string | null;
+    validFrom: string | null;
+    validTo: string | null;
+  };
+  const overrideMap = new Map<string, OverrideEntry>();
   if (args.customerId) {
     const { data: overrides } = await client
       .from("customerItemPriceOverride")
@@ -415,16 +393,15 @@ export async function resolvePriceList(
         overrideMap.set(ov.itemId, {
           overridePrice: ov.overridePrice,
           notes: ov.notes,
+          validFrom: ov.validFrom,
+          validTo: ov.validTo,
         });
       }
     }
   }
 
   // 3b. Batch-fetch customer-type overrides
-  const typeOverrideMap = new Map<
-    string,
-    { overridePrice: number; notes: string | null }
-  >();
+  const typeOverrideMap = new Map<string, OverrideEntry>();
   if (resolvedCustomerTypeId) {
     const { data: typeOverrides } = await client
       .from("customerItemPriceOverride")
@@ -442,6 +419,8 @@ export async function resolvePriceList(
         typeOverrideMap.set(ov.itemId, {
           overridePrice: ov.overridePrice,
           notes: ov.notes,
+          validFrom: ov.validFrom,
+          validTo: ov.validTo,
         });
       }
     }
@@ -459,15 +438,7 @@ export async function resolvePriceList(
 
   const { data: allRules } = await rulesQuery;
 
-  // 5. Batch-fetch price breaks for these items
-  const { data: allBreaks } = await client
-    .from("itemSalePriceBreak")
-    .select("*")
-    .eq("companyId", companyId)
-    .in("itemId", itemIds)
-    .order("minQuantity", { ascending: false });
-
-  // 6. Resolve each item
+  // 5. Resolve each item
   const rows: PriceListRow[] = items.map((item) => {
     const salePriceRow = Array.isArray(item.itemUnitSalePrice)
       ? item.itemUnitSalePrice[0]
@@ -475,14 +446,30 @@ export async function resolvePriceList(
     const basePrice = salePriceRow?.unitSalePrice ?? 0;
     const trace: PriceTraceStep[] = [];
 
-    // Check customer-specific override first (highest priority)
+    // Step A: Determine starting price (override > type override > base)
+    let startingPrice = basePrice;
+    let isOverridden = false;
+    let overrideNotes: string | null = null;
+    let overrideValidFrom: string | null = null;
+    let overrideValidTo: string | null = null;
+    let overrideSource: "Override" | "Type Override" | null = null;
+
+    trace.push({
+      step: "Base Price",
+      source: "Item Unit Sale Price",
+      amount: basePrice,
+    });
+
     const override = overrideMap.get(item.id);
+    const typeOverride = typeOverrideMap.get(item.id);
+
     if (override) {
-      trace.push({
-        step: "Base Price",
-        source: "Item Unit Sale Price",
-        amount: basePrice,
-      });
+      startingPrice = override.overridePrice;
+      isOverridden = true;
+      overrideSource = "Override";
+      overrideNotes = override.notes;
+      overrideValidFrom = override.validFrom;
+      overrideValidTo = override.validTo;
       trace.push({
         step: "Override",
         source: override.notes
@@ -491,30 +478,13 @@ export async function resolvePriceList(
         amount: override.overridePrice,
         adjustment: override.overridePrice - basePrice,
       });
-      trace.push({
-        step: "Final Price",
-        source: "Resolved",
-        amount: override.overridePrice,
-      });
-      return {
-        itemId: item.id,
-        partId: item.readableId,
-        itemName: item.name,
-        basePrice,
-        resolvedPrice: override.overridePrice,
-        isOverridden: true,
-        trace,
-      };
-    }
-
-    // Check customer-type override (second priority)
-    const typeOverride = typeOverrideMap.get(item.id);
-    if (typeOverride) {
-      trace.push({
-        step: "Base Price",
-        source: "Item Unit Sale Price",
-        amount: basePrice,
-      });
+    } else if (typeOverride) {
+      startingPrice = typeOverride.overridePrice;
+      isOverridden = true;
+      overrideSource = "Type Override";
+      overrideNotes = typeOverride.notes;
+      overrideValidFrom = typeOverride.validFrom;
+      overrideValidTo = typeOverride.validTo;
       trace.push({
         step: "Type Override",
         source: typeOverride.notes
@@ -523,38 +493,16 @@ export async function resolvePriceList(
         amount: typeOverride.overridePrice,
         adjustment: typeOverride.overridePrice - basePrice,
       });
-      trace.push({
-        step: "Final Price",
-        source: "Resolved",
-        amount: typeOverride.overridePrice,
-      });
-      return {
-        itemId: item.id,
-        partId: item.readableId,
-        itemName: item.name,
-        basePrice,
-        resolvedPrice: typeOverride.overridePrice,
-        isOverridden: true,
-        trace,
-      };
     }
 
-    // No override — apply rules
-    trace.push({
-      step: "Base Price",
-      source: "Item Unit Sale Price",
-      amount: basePrice,
-    });
-
-    // Match rules for this item
+    // Step B: Apply rules on top of starting price (override or base)
     const matchedRules: MatchedRule[] = (allRules ?? []).filter((rule) => {
-      // Quantity scope: price list uses qty=1 as default
       if (rule.minQuantity !== null && 1 < rule.minQuantity) return false;
       if (rule.maxQuantity !== null && 1 > rule.maxQuantity) return false;
 
       const ruleItemIds = rule.itemIds as string[] | null;
       if (ruleItemIds && ruleItemIds.length > 0 && !ruleItemIds.includes(item.id)) return false;
-      if (rule.itemPostingGroupId !== null) return false; // can't match without item's group
+      if (rule.itemPostingGroupId !== null) return false;
 
       const ruleCustomerIds = rule.customerIds as string[] | null;
       const ruleCustomerTypeIds = rule.customerTypeIds as string[] | null;
@@ -575,7 +523,7 @@ export async function resolvePriceList(
     });
 
     const { finalPrice, appendedTrace } = applyPriceRules(
-      basePrice,
+      startingPrice,
       matchedRules
     );
     trace.push(...appendedTrace);
@@ -585,14 +533,32 @@ export async function resolvePriceList(
       amount: finalPrice,
     });
 
+    // Determine source label for display
+    const hasRuleAdjustment = appendedTrace.length > 0;
+    let source: PriceSource;
+    if (isOverridden && hasRuleAdjustment) {
+      source = overrideSource!;
+    } else if (isOverridden) {
+      source = overrideSource!;
+    } else if (hasRuleAdjustment) {
+      source = "Rule";
+    } else {
+      source = "Base";
+    }
+
     return {
       itemId: item.id,
       partId: item.readableId,
       itemName: item.name,
+      thumbnailPath: item.thumbnailPath ?? null,
       basePrice,
       resolvedPrice: finalPrice,
-      isOverridden: false,
+      isOverridden,
+      source,
       trace,
+      overrideNotes,
+      overrideValidFrom,
+      overrideValidTo,
     };
   });
 
@@ -723,7 +689,15 @@ export async function resolvePrice(
     basePrice = salePrice?.unitSalePrice ?? 0;
   }
 
-  // Step 1.5: Check for customer-specific price override (highest priority)
+  trace.push({
+    step: "Base Price",
+    source: "Item Unit Sale Price",
+    amount: basePrice,
+  });
+
+  // Step 2: Determine starting price (override > type override > base)
+  let startingPrice = basePrice;
+
   if (input.customerId) {
     const { data: override } = await getCustomerItemPriceOverride(
       client,
@@ -738,11 +712,7 @@ export async function resolvePrice(
         (!override.validTo || override.validTo >= date);
 
       if (withinRange) {
-        trace.push({
-          step: "Base Price",
-          source: "Item Unit Sale Price",
-          amount: basePrice,
-        });
+        startingPrice = override.overridePrice;
         trace.push({
           step: "Override",
           source: override.notes
@@ -751,18 +721,11 @@ export async function resolvePrice(
           amount: override.overridePrice,
           adjustment: override.overridePrice - basePrice,
         });
-        trace.push({
-          step: "Final Price",
-          source: "Resolved",
-          amount: override.overridePrice,
-        });
-        return { finalPrice: override.overridePrice, basePrice, trace };
       }
     }
   }
 
-  // Step 1.6: Check for customer-type price override (second priority)
-  if (resolvedCustomerTypeId) {
+  if (startingPrice === basePrice && resolvedCustomerTypeId) {
     const { data: typeOverride } = await getCustomerTypeItemPriceOverride(
       client,
       resolvedCustomerTypeId,
@@ -776,11 +739,7 @@ export async function resolvePrice(
         (!typeOverride.validTo || typeOverride.validTo >= date);
 
       if (withinRange) {
-        trace.push({
-          step: "Base Price",
-          source: "Item Unit Sale Price",
-          amount: basePrice,
-        });
+        startingPrice = typeOverride.overridePrice;
         trace.push({
           step: "Type Override",
           source: typeOverride.notes
@@ -789,67 +748,11 @@ export async function resolvePrice(
           amount: typeOverride.overridePrice,
           adjustment: typeOverride.overridePrice - basePrice,
         });
-        trace.push({
-          step: "Final Price",
-          source: "Resolved",
-          amount: typeOverride.overridePrice,
-        });
-        return { finalPrice: typeOverride.overridePrice, basePrice, trace };
       }
     }
   }
 
-  // Step 2: Check item price breaks
-  if (input.quantity > 0) {
-    let breakQuery = client
-      .from("itemSalePriceBreak")
-      .select("*")
-      .eq("itemId", input.itemId)
-      .eq("companyId", companyId)
-      .lte("minQuantity", input.quantity)
-      .order("minQuantity", { ascending: false })
-      .limit(1);
-
-    if (resolvedCustomerTypeId) {
-      breakQuery = breakQuery.or(
-        `customerTypeId.is.null,customerTypeId.eq.${resolvedCustomerTypeId}`
-      );
-    } else {
-      breakQuery = breakQuery.is("customerTypeId", null);
-    }
-
-    const { data: breaks } = await breakQuery;
-    if (breaks && breaks.length > 0) {
-      const brk = breaks[0];
-      if (brk.unitPrice !== null) {
-        basePrice = brk.unitPrice;
-        trace.push({
-          step: "Price Break",
-          source: `Qty >= ${brk.minQuantity} (fixed price)`,
-          amount: basePrice
-        });
-      } else if (brk.discountPercent !== null) {
-        const discount = basePrice * brk.discountPercent;
-        basePrice = basePrice - discount;
-        trace.push({
-          step: "Price Break",
-          source: `Qty >= ${brk.minQuantity} (${(brk.discountPercent * 100).toFixed(1)}% off)`,
-          amount: basePrice,
-          adjustment: -discount
-        });
-      }
-    }
-  }
-
-  if (trace.length === 0) {
-    trace.push({
-      step: "Base Price",
-      source: "Item Unit Sale Price",
-      amount: basePrice
-    });
-  }
-
-  // Step 3: Find applicable pricing rules
+  // Step 3: Find applicable pricing rules (apply on top of starting price)
   let rulesQuery = client
     .from("pricingRule")
     .select("*")
@@ -897,9 +800,9 @@ export async function resolvePrice(
     return true;
   });
 
-  // Step 4: Apply rules
+  // Step 4: Apply rules on top of starting price
   const { finalPrice, appendedTrace } = applyPriceRules(
-    basePrice,
+    startingPrice,
     matchedRules
   );
   trace.push(...appendedTrace);
