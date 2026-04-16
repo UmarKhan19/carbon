@@ -55,7 +55,6 @@ import {
   useUser
 } from "~/hooks";
 import { getDefaultShelfForJob } from "~/modules/inventory/inventory.service";
-import { PriceTracePopover } from "~/modules/sales/pricing/ui";
 import { methodType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
@@ -68,6 +67,7 @@ import type {
   SalesOrderLine,
   SalesOrderLineType
 } from "../../types";
+import { PriceTracePopover } from "../Pricing/PriceTracePopover";
 import DeleteSalesOrderLine from "./DeleteSalesOrderLine";
 
 type SalesOrderLineFormProps = {
@@ -122,14 +122,16 @@ const SalesOrderLineForm = ({
     uom: initialValues.unitOfMeasureCode ?? "",
     shelfId: initialValues.shelfId ?? "",
     modelUploadId: initialValues.modelUploadId ?? null,
-    priceListId: (initialValues as { priceListId?: string | null }).priceListId ?? null,
+    priceListId:
+      (initialValues as { priceListId?: string | null }).priceListId ?? null,
     priceListName: null,
     priceTrace: (initialValues as { priceTrace?: unknown }).priceTrace ?? null
   });
 
   const isEditing = initialValues.id !== undefined;
 
-  const pricingRuleId = (initialValues as { priceListId?: string | null }).priceListId;
+  const pricingRuleId = (initialValues as { priceListId?: string | null })
+    .priceListId;
 
   useEffect(() => {
     if (!pricingRuleId || !carbon) return;
@@ -348,7 +350,10 @@ const SalesOrderLineForm = ({
                         </div>
                       </div>
                     ) : (
-                      <Trans>A sales order line contains order details for a particular item</Trans>
+                      <Trans>
+                        A sales order line contains order details for a
+                        particular item
+                      </Trans>
                     )}
                   </ModalCardDescription>
                 </ModalCardHeader>
@@ -494,7 +499,10 @@ const SalesOrderLineForm = ({
                             }
                           />
                         </div>
-                        <DatePicker name="promisedDate" label={t`Promised Date`} />
+                        <DatePicker
+                          name="promisedDate"
+                          label={t`Promised Date`}
+                        />
                         {[
                           "Part",
                           "Material",
@@ -543,7 +551,9 @@ const SalesOrderLineForm = ({
                           className="w-full justify-between cursor-pointer"
                           onClick={costsDisclosure.onToggle}
                         >
-                          <Label><Trans>Tax &amp; Additional Costs</Trans></Label>
+                          <Label>
+                            <Trans>Tax &amp; Additional Costs</Trans>
+                          </Label>
                           <HStack>
                             {(initialValues?.taxPercent ?? 0) > 0 && (
                               <Badge variant="red">

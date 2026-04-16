@@ -13,7 +13,7 @@ import {
 import { LuChevronRight, LuExternalLink } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
-import type { PriceTraceStep } from "../types";
+import type { PriceTraceStep } from "../../types";
 
 type PriceTracePopoverProps = {
   priceListId: string | null;

@@ -37,8 +37,9 @@ import { useCustomerTypes } from "~/components/Form/CustomerType";
 import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
 import { useCustomers } from "~/stores";
 import { path } from "~/utils/path";
-import { priceOverrideValidator } from "../pricing.models";
-import { type PriceListRow, priceSourceTypes } from "../pricing.service";
+import { priceOverrideValidator } from "../../sales.models";
+import { priceSourceTypes } from "../../sales.service";
+import type { PriceListRow } from "../../types";
 import { PriceTracePopover } from "./PriceTracePopover";
 
 type PriceListViewProps = {

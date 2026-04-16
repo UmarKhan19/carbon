@@ -23,7 +23,7 @@ import {
   useUrlParams
 } from "~/hooks";
 import { path } from "~/utils/path";
-import type { PricingRule } from "../types";
+import type { PricingRule } from "../../types";
 
 type PricingRulesTableProps = {
   data: PricingRule[];

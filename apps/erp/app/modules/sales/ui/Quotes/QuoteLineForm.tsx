@@ -55,8 +55,7 @@ import type {
   ConfigurationParameterGroup
 } from "~/modules/items/types";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
-import type { PriceTraceStep } from "~/modules/sales/pricing";
-import { PriceTracePopover } from "~/modules/sales/pricing/ui";
+import type { PriceTraceStep } from "~/modules/sales";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/quote+/$quoteId.new";
 import { useItems } from "~/stores";
@@ -67,6 +66,7 @@ import {
   quoteLineValidator
 } from "../../sales.models";
 import type { Quotation, QuotationLine } from "../../types";
+import { PriceTracePopover } from "../Pricing/PriceTracePopover";
 import DeleteQuoteLine from "./DeleteQuoteLine";
 
 type QuoteLineFormProps = {

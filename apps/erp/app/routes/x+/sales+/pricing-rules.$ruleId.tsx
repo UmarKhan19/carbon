@@ -9,8 +9,8 @@ import {
   getPricingRule,
   pricingRuleValidator,
   updatePricingRule
-} from "~/modules/sales/pricing";
-import { PricingRuleForm } from "~/modules/sales/pricing/ui";
+} from "~/modules/sales";
+import PricingRuleForm from "~/modules/sales/ui/Pricing/PricingRuleForm";
 import { getParams, path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

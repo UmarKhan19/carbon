@@ -4,11 +4,8 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useNavigate } from "react-router";
-import {
-  createPricingRule,
-  pricingRuleValidator
-} from "~/modules/sales/pricing";
-import { PricingRuleForm } from "~/modules/sales/pricing/ui";
+import { createPricingRule, pricingRuleValidator } from "~/modules/sales";
+import PricingRuleForm from "~/modules/sales/ui/Pricing/PricingRuleForm";
 import { getParams, path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {

@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
-import { deletePricingRule, getPricingRule } from "~/modules/sales/pricing";
+import { deletePricingRule, getPricingRule } from "~/modules/sales";
 import { getParams, path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {

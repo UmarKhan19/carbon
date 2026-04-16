@@ -4,11 +4,12 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import {
+  type PriceSource,
   resolvePriceList,
   upsertCustomerItemPriceOverride
-} from "~/modules/sales/pricing";
-import type { PriceSource } from "~/modules/sales/pricing/pricing.service";
-import { PriceListView } from "~/modules/sales/pricing/ui";
+} from "~/modules/sales";
+import PriceListView from "~/modules/sales/ui/Pricing/PriceListView";
+
 import type { Handle } from "~/utils/handle";
 import { getParams, path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";

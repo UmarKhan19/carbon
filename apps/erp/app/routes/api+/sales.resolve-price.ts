@@ -1,10 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import {
-  priceResolutionInputValidator,
-  resolvePrice
-} from "~/modules/sales/pricing";
+import { priceResolutionInputValidator, resolvePrice } from "~/modules/sales";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {

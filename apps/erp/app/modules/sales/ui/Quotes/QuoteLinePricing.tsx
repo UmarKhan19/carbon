@@ -49,8 +49,6 @@ import {
   useSettings,
   useUser
 } from "~/hooks";
-import type { PriceTraceStep } from "~/modules/sales/pricing";
-import { PriceTracePopover } from "~/modules/sales/pricing/ui";
 import { path } from "~/utils/path";
 import {
   type CostCategoryKey,
@@ -60,10 +58,12 @@ import {
 } from "../../sales.models";
 import type {
   Costs,
+  PriceTraceStep,
   Quotation,
   QuotationLine,
   QuotationPrice
 } from "../../types";
+import { PriceTracePopover } from "../Pricing/PriceTracePopover";
 
 const categoryLabels: Record<CostCategoryKey, string> = {
   materialCost: "Material",

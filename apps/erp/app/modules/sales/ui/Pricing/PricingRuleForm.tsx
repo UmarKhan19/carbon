@@ -33,7 +33,7 @@ import {
   pricingRuleAmountTypes,
   pricingRuleTypes,
   pricingRuleValidator
-} from "../pricing.models";
+} from "../../sales.models";
 
 type ItemScopeType = "all" | "item" | "group";
 
@@ -53,7 +53,8 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
     (typeof pricingRuleAmountTypes)[number]
   >(initialValues.amountType ?? "Percentage");
   const [itemScope, setItemScope] = useState<ItemScopeType>(() => {
-    if (initialValues.itemIds && initialValues.itemIds.length > 0) return "item";
+    if (initialValues.itemIds && initialValues.itemIds.length > 0)
+      return "item";
     if (initialValues.itemPostingGroupId) return "group";
     return "all";
   });
