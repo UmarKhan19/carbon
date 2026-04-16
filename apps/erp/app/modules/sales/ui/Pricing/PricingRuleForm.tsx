@@ -193,30 +193,18 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                   ]}
                 />
 
-                {itemScope === "all" && (
-                  <>
-                    <input type="hidden" name="itemIds" value="" />
-                    <input type="hidden" name="itemPostingGroupId" value="" />
-                  </>
-                )}
                 {itemScope === "item" && (
-                  <>
-                    <input type="hidden" name="itemPostingGroupId" value="" />
-                    <Items
-                      name="itemIds"
-                      label="Items"
-                      placeholder="Select items"
-                    />
-                  </>
+                  <Items
+                    name="itemIds"
+                    label="Items"
+                    placeholder="Select items"
+                  />
                 )}
                 {itemScope === "group" && (
-                  <>
-                    <input type="hidden" name="itemIds" value="" />
-                    <ItemPostingGroup
-                      name="itemPostingGroupId"
-                      label="Item Group"
-                    />
-                  </>
+                  <ItemPostingGroup
+                    name="itemPostingGroupId"
+                    label="Item Group"
+                  />
                 )}
 
                 {ruleType === "Markup" && (

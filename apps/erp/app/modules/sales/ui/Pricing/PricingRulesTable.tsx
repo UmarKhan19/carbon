@@ -4,15 +4,15 @@ import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
+  LuArrowDown,
+  LuArrowUp,
   LuCalendar,
-  LuCircleDollarSign,
   LuCopy,
   LuFilter,
   LuPencil,
   LuTag,
   LuToggleLeft,
-  LuTrash,
-  LuTrendingDown
+  LuTrash
 } from "react-icons/lu";
 import { useFetcher, useNavigate } from "react-router";
 import { Hyperlink, New, Table } from "~/components";
@@ -58,57 +58,21 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
       {
         accessorKey: "ruleType",
         header: t`Type`,
-        cell: ({ row }) => (
-          <Badge
-            variant={
-              row.original.ruleType === "Discount" ? "default" : "secondary"
-            }
-          >
-            {row.original.ruleType}
-          </Badge>
-        ),
-        meta: {
-          filter: {
-            type: "static",
-            options: [
-              { value: "Discount", label: t`Discount` },
-              { value: "Markup", label: t`Markup` }
-            ]
-          },
-          pluralHeader: t`Types`,
-          icon: <LuTrendingDown />
-        }
-      },
-      {
-        accessorKey: "amountType",
-        header: t`Amount Type`,
-        cell: ({ row }) => (
-          <Badge variant="outline">{row.original.amountType}</Badge>
-        ),
-        meta: {
-          filter: {
-            type: "static",
-            options: [
-              { value: "Percentage", label: t`Percentage` },
-              { value: "Fixed", label: t`Fixed` }
-            ]
-          },
-          pluralHeader: t`Amount Types`,
-          icon: <LuCircleDollarSign />
-        }
-      },
-      {
-        id: "amount",
-        header: t`Amount`,
         cell: ({ row }) => {
-          const { amount, amountType } = row.original;
-          if (amountType === "Percentage") {
-            return <span>{percentFormatter.format(amount)}</span>;
-          }
-          return <span>{currencyFormatter.format(amount)}</span>;
-        },
-        meta: {
-          icon: <LuCircleDollarSign />
+          const { amount, amountType, ruleType } = row.original;
+          return (
+            <Badge
+              variant={ruleType === "Discount" ? "red" : "green"}
+              className=" items-center gap-1"
+            >
+              {amountType === "Percentage" ? (
+                <span>{percentFormatter.format(amount)}</span>
+              ) : (
+                <span>{currencyFormatter.format(amount)}</span>
+              )}
+              {ruleType === "Discount" ? <LuArrowDown /> : <LuArrowUp />}
+            </Badge>
+          );
         }
       },
       {

@@ -56,7 +56,10 @@ export default function NewPricingRuleRoute() {
         ruleType: "Discount",
         amountType: "Percentage",
         amount: 0,
-        active: true
+        active: true,
+        customerIds: [],
+        customerTypeIds: [],
+        itemIds: []
       }}
       onClose={() => navigate(-1)}
     />
