@@ -258,6 +258,13 @@ export const auditConfig = {
           entityIdColumn: "maintenanceDispatchId"
         }
       }
+    },
+
+    pricingRule: {
+      label: "Pricing Rule",
+      tables: {
+        pricingRule: { role: "root" }
+      }
     }
   } satisfies Record<string, EntityConfig>,
 
@@ -325,7 +332,8 @@ export const auditConfig = {
     maintenanceScheduleItem: "Schedule Item",
     maintenanceDispatch: "Dispatch",
     maintenanceDispatchEvent: "Dispatch Event",
-    maintenanceDispatchComment: "Dispatch Comment"
+    maintenanceDispatchComment: "Dispatch Comment",
+    pricingRule: "Pricing Rule"
   } as Record<string, string>,
 
   /** Fields to skip in diff computation */

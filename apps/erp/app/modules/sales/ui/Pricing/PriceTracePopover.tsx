@@ -10,6 +10,7 @@ import {
   Thead,
   Tr
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { LuChevronRight, LuExternalLink } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
@@ -28,6 +29,8 @@ export function PriceTracePopover({
   priceTrace,
   currencyCode
 }: PriceTracePopoverProps) {
+  const { t } = useLingui();
+
   if (!priceListName) return null;
 
   const steps = Array.isArray(priceTrace)
@@ -51,13 +54,13 @@ export function PriceTracePopover({
           type="button"
           className="text-xxs text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 underline decoration-dotted underline-offset-2"
         >
-          View calc
+          {t`View calc`}
           <LuChevronRight className="size-3" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={8} className="w-[720px] p-0">
         <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold">Pricing trace</p>
+          <p className="text-sm font-semibold">{t`Pricing trace`}</p>
           <PriceListSourceLink
             priceListId={priceListId}
             priceListName={priceListName}
@@ -69,19 +72,19 @@ export function PriceTracePopover({
             <Thead>
               <Tr>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                  Step
+                  {t`Step`}
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                  Type
+                  {t`Type`}
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                  Description
+                  {t`Description`}
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
-                  Change
+                  {t`Change`}
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
-                  Running Total
+                  {t`Running Total`}
                 </Th>
               </Tr>
             </Thead>

@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import { CustomFormFields, Hidden, Number, Submit } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
@@ -16,6 +17,7 @@ type ItemSalePriceFormProps = {
 };
 
 const ItemSalePriceForm = ({ initialValues }: ItemSalePriceFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { company } = useUser();
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
@@ -30,14 +32,14 @@ const ItemSalePriceForm = ({ initialValues }: ItemSalePriceFormProps) => {
         defaultValues={initialValues}
       >
         <CardHeader>
-          <CardTitle>Sale Price</CardTitle>
+          <CardTitle>{t`Sale Price`}</CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="itemId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Number
               name="unitSalePrice"
-              label="Unit Sale Price"
+              label={t`Unit Sale Price`}
               minValue={0}
               formatOptions={{
                 style: "currency",

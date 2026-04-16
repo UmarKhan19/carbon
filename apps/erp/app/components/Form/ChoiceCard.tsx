@@ -1,5 +1,5 @@
 import { cn, RadioGroup, RadioGroupItem } from "@carbon/react";
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 
 /**
  * A single option in a {@link ChoiceCardGroup}.
@@ -56,6 +56,8 @@ export function ChoiceCardGroup<V extends string = string>({
   options,
   className
 }: ChoiceCardGroupProps<V>) {
+  const groupId = useId();
+
   return (
     <div className={cn("space-y-2 w-full", className)}>
       {label && (
@@ -69,15 +71,15 @@ export function ChoiceCardGroup<V extends string = string>({
         className="flex flex-col gap-2"
       >
         {options.map((opt) => {
-          const inputId = `choice-${opt.value}`;
+          const inputId = `${groupId}-${opt.value}`;
           return (
             <label
               key={opt.value}
               htmlFor={inputId}
               className={cn(
-                "flex cursor-pointer items-start gap-3 rounded-md border border-border bg-card p-3 transition-colors",
-                "hover:bg-accent/40",
-                "has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5",
+                "flex cursor-pointer items-start gap-3 rounded-md border border-border bg-accent-40 p-3 transition-colors",
+                "hover:bg-card",
+                "has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-card",
                 "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
                 opt.disabled && "cursor-not-allowed opacity-50"
               )}

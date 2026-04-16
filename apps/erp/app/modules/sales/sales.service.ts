@@ -2389,6 +2389,155 @@ export async function upsertCustomerItemPriceOverride(
   };
 }
 
+export async function deleteCustomerItemPriceOverride(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("customerItemPriceOverride")
+    .delete()
+    .eq("id", id)
+    .eq("companyId", companyId);
+}
+
+export async function getCustomerItemPriceOverrideById(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("customerItemPriceOverride")
+    .select(
+      `
+      *,
+      customer:customerId(id, name),
+      customerType:customerTypeId(id, name),
+      item:itemId(id, name)
+    `
+    )
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .single();
+}
+
+export async function getCustomerItemPriceOverridesList(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: GenericQueryFilters & {
+    search?: string;
+    customerId?: string;
+    customerTypeId?: string;
+    itemId?: string;
+  }
+) {
+  let query = client
+    .from("customerItemPriceOverride")
+    .select(
+      `
+      *,
+      customer:customerId(id, name),
+      customerType:customerTypeId(id, name),
+      item:itemId(id, name, unitSalePrice:itemUnitSalePrice(unitSalePrice))
+    `,
+      { count: "exact" }
+    )
+    .eq("companyId", companyId);
+
+  if (args.search) {
+    query = query.or(
+      `item.name.ilike.%${args.search}%,customer.name.ilike.%${args.search}%,notes.ilike.%${args.search}%`
+    );
+  }
+
+  if (args.customerId) {
+    query = query.eq("customerId", args.customerId);
+  }
+
+  if (args.customerTypeId) {
+    query = query.eq("customerTypeId", args.customerTypeId);
+  }
+
+  if (args.itemId) {
+    query = query.eq("itemId", args.itemId);
+  }
+
+  query = setGenericQueryFilters(query, args, [
+    { column: "createdAt", ascending: false }
+  ]);
+
+  return query;
+}
+
+export async function updateCustomerItemPriceOverride(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string,
+  userId: string,
+  data: {
+    customerId?: string;
+    customerTypeId?: string;
+    itemId: string;
+    overridePrice: number;
+    active: boolean;
+    notes?: string;
+    validFrom?: string;
+    validTo?: string;
+  }
+) {
+  return client
+    .from("customerItemPriceOverride")
+    .update({
+      customerId: data.customerId ?? null,
+      customerTypeId: data.customerTypeId ?? null,
+      itemId: data.itemId,
+      overridePrice: data.overridePrice,
+      active: data.active,
+      notes: data.notes ?? null,
+      validFrom: data.validFrom ?? null,
+      validTo: data.validTo ?? null,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .select("id")
+    .single();
+}
+
+export async function createCustomerItemPriceOverride(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  userId: string,
+  data: {
+    customerId?: string;
+    customerTypeId?: string;
+    itemId: string;
+    overridePrice: number;
+    active: boolean;
+    notes?: string;
+    validFrom?: string;
+    validTo?: string;
+  }
+) {
+  return client
+    .from("customerItemPriceOverride")
+    .insert({
+      companyId,
+      customerId: data.customerId ?? null,
+      customerTypeId: data.customerTypeId ?? null,
+      itemId: data.itemId,
+      overridePrice: data.overridePrice,
+      active: data.active,
+      notes: data.notes ?? null,
+      validFrom: data.validFrom ?? null,
+      validTo: data.validTo ?? null,
+      createdBy: userId
+    })
+    .select("id")
+    .single();
+}
+
 export async function updateCustomerAccounting(
   client: SupabaseClient<Database>,
   customerAccounting: z.infer<typeof customerAccountingValidator> & {

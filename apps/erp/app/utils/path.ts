@@ -1421,6 +1421,10 @@ export const path = {
       generatePath(`${x}/sales-order/${id}/status`),
     salesOrders: `${x}/sales/orders`,
     salesPriceList: `${x}/sales/price-list`,
+    deletePriceOverride: (id: string) =>
+      generatePath(`${x}/sales/price-list/delete/${id}`),
+    newPriceOverride: `${x}/sales/price-list/new`,
+    priceOverride: (id: string) => generatePath(`${x}/sales/price-list/${id}`),
     salesPricingRules: `${x}/sales/pricing-rules`,
     pricingRule: (id: string) => generatePath(`${x}/sales/pricing-rules/${id}`),
     newPricingRule: `${x}/sales/pricing-rules/new`,

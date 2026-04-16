@@ -1,4 +1,4 @@
-import { ValidatedForm } from "@carbon/form";
+import { useControlField, ValidatedForm } from "@carbon/form";
 import {
   Button,
   HStack,
@@ -11,8 +11,16 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
-import { useState } from "react";
-import { LuBoxes, LuLayers, LuPackage } from "react-icons/lu";
+import { useLingui } from "@lingui/react/macro";
+import { useEffect, useState } from "react";
+import {
+  LuBoxes,
+  LuLayers,
+  LuPackage,
+  LuSquareUser,
+  LuUsers,
+  LuUsersRound
+} from "react-icons/lu";
 import type { z } from "zod";
 import {
   Boolean as BooleanField,
@@ -35,6 +43,7 @@ import {
   pricingRuleValidator
 } from "../../sales.models";
 
+type CustomerScopeType = "all" | "customer" | "customerType";
 type ItemScopeType = "all" | "item" | "group";
 
 type PricingRuleFormProps = {
@@ -43,6 +52,7 @@ type PricingRuleFormProps = {
 };
 
 const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { company } = useUser();
 
@@ -52,6 +62,16 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
   const [amountType, setAmountType] = useState<
     (typeof pricingRuleAmountTypes)[number]
   >(initialValues.amountType ?? "Percentage");
+  const [customerScope, setCustomerScope] = useState<CustomerScopeType>(() => {
+    if (initialValues.customerIds && initialValues.customerIds.length > 0)
+      return "customer";
+    if (
+      initialValues.customerTypeIds &&
+      initialValues.customerTypeIds.length > 0
+    )
+      return "customerType";
+    return "all";
+  });
   const [itemScope, setItemScope] = useState<ItemScopeType>(() => {
     if (initialValues.itemIds && initialValues.itemIds.length > 0)
       return "item";
@@ -80,19 +100,19 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Pricing Rule
+                {isEditing ? t`Edit Pricing Rule` : t`New Pricing Rule`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <Select
                   name="ruleType"
-                  label="Rule Type"
-                  options={pricingRuleTypes.map((t) => ({
-                    label: t,
-                    value: t
+                  label={t`Rule Type`}
+                  options={pricingRuleTypes.map((rt) => ({
+                    label: rt,
+                    value: rt
                   }))}
                   onChange={(v) => {
                     if (v)
@@ -101,10 +121,10 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                 />
                 <Select
                   name="amountType"
-                  label="Amount Type"
-                  options={pricingRuleAmountTypes.map((t) => ({
-                    label: t,
-                    value: t
+                  label={t`Amount Type`}
+                  options={pricingRuleAmountTypes.map((at) => ({
+                    label: at,
+                    value: at
                   }))}
                   onChange={(v) => {
                     if (v)
@@ -117,7 +137,7 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                 {amountType === "Percentage" ? (
                   <Number
                     name="amount"
-                    label="Amount"
+                    label={t`Amount`}
                     minValue={0}
                     maxValue={1}
                     step={0.01}
@@ -130,7 +150,7 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                 ) : (
                   <Number
                     name="amount"
-                    label="Amount"
+                    label={t`Amount`}
                     minValue={0}
                     formatOptions={{
                       style: "currency",
@@ -139,89 +159,136 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                   />
                 )}
 
-                <BooleanField name="active" label="Active" />
-
-                <Customers
-                  name="customerIds"
-                  label="Customers"
-                  placeholder="All customers"
-                />
-
-                <CustomerTypes
-                  name="customerTypeIds"
-                  label="Customer Types"
-                  placeholder="All customer types"
-                />
+                <BooleanField name="active" label={t`Active`} />
 
                 <p className="text-sm font-medium text-muted-foreground pt-2">
-                  Scope (optional)
+                  {t`Scope`}
                 </p>
 
-                <div className="grid grid-cols-2 gap-3 w-full">
-                  <DatePicker name="validFrom" label="Valid From" />
-                  <DatePicker name="validTo" label="Valid To" />
-                </div>
+                <ChoiceCardGroup<CustomerScopeType>
+                  label={t`Customer Scope`}
+                  value={customerScope}
+                  onChange={setCustomerScope}
+                  options={[
+                    {
+                      value: "all",
+                      title: t`All Customers`,
+                      description: t`Rule applies to every customer.`,
+                      icon: <LuUsersRound />
+                    },
+                    {
+                      value: "customer",
+                      title: t`Specific Customers`,
+                      description: t`Target one or more customers.`,
+                      icon: <LuSquareUser />
+                    },
+                    {
+                      value: "customerType",
+                      title: t`Customer Type`,
+                      description: t`Target customers by type.`,
+                      icon: <LuUsers />
+                    }
+                  ]}
+                />
 
-                <div className="grid grid-cols-2 gap-3 w-full">
-                  <Number name="minQuantity" label="Min Qty" />
-                  <Number name="maxQuantity" label="Max Qty" />
-                </div>
+                <ClearArrayField
+                  name="customerIds"
+                  active={customerScope === "customer"}
+                />
+                <ClearArrayField
+                  name="customerTypeIds"
+                  active={customerScope === "customerType"}
+                />
+
+                {customerScope === "customer" && (
+                  <Customers
+                    name="customerIds"
+                    label={t`Customers`}
+                    placeholder={t`Select customers`}
+                  />
+                )}
+                {customerScope === "customerType" && (
+                  <CustomerTypes
+                    name="customerTypeIds"
+                    label={t`Customer Types`}
+                    placeholder={t`Select customer types`}
+                  />
+                )}
 
                 <ChoiceCardGroup<ItemScopeType>
-                  label="Item Scope"
+                  label={t`Item Scope`}
                   value={itemScope}
                   onChange={setItemScope}
                   options={[
                     {
                       value: "all",
-                      title: "All Items",
-                      description: "Rule applies to every item.",
+                      title: t`All Items`,
+                      description: t`Rule applies to every item.`,
                       icon: <LuLayers />
                     },
                     {
                       value: "item",
-                      title: "Specific Items",
-                      description: "Target one or more items.",
+                      title: t`Specific Items`,
+                      description: t`Target one or more items.`,
                       icon: <LuPackage />
                     },
                     {
                       value: "group",
-                      title: "Item Group",
-                      description: "Target an item group.",
+                      title: t`Item Group`,
+                      description: t`Target an item group.`,
                       icon: <LuBoxes />
                     }
                   ]}
                 />
 
+                <ClearArrayField name="itemIds" active={itemScope === "item"} />
+
                 {itemScope === "item" && (
                   <Items
                     name="itemIds"
-                    label="Items"
-                    placeholder="Select items"
+                    label={t`Items`}
+                    placeholder={t`Select items`}
                   />
                 )}
                 {itemScope === "group" && (
                   <ItemPostingGroup
                     name="itemPostingGroupId"
-                    label="Item Group"
+                    label={t`Item Group`}
                   />
                 )}
+                {itemScope !== "group" && (
+                  <Hidden name="itemPostingGroupId" value="" />
+                )}
+
+                <p className="text-sm font-medium text-muted-foreground pt-2">
+                  {t`Optional`}
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <DatePicker name="validFrom" label={t`Valid From`} />
+                  <DatePicker name="validTo" label={t`Valid To`} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <Number name="minQuantity" label={t`Min Qty`} />
+                  <Number name="maxQuantity" label={t`Max Qty`} />
+                </div>
 
                 {ruleType === "Markup" && (
                   <>
                     <Select
                       name="formulaBase"
-                      label="Compute From"
-                      placeholder="Base price (default)"
+                      label={t`Compute From`}
+                      placeholder={t`Base price (default)`}
                       options={[
-                        { label: "Item Cost", value: "cost" },
-                        { label: "Item Sale Price", value: "salePrice" }
+                        { label: t`Item Cost`, value: "cost" },
+                        { label: t`Item Sale Price`, value: "salePrice" }
                       ]}
                     />
                     <Number
                       name="minMarginPercent"
-                      label="Min Margin %"
-                      helperText="Floor: price won't drop below this margin over cost"
+                      label={t`Min Margin %`}
+                      helperText={t`Floor: price won't drop below this margin over cost`}
                       minValue={0}
                       maxValue={1}
                       step={0.01}
@@ -255,5 +322,19 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
     </ModalDrawerProvider>
   );
 };
+
+/**
+ * Clears a controlled array field when it should be inactive.
+ * Must be rendered inside a ValidatedForm.
+ */
+function ClearArrayField({ name, active }: { name: string; active: boolean }) {
+  const [, setValue] = useControlField<string[]>(name);
+  useEffect(() => {
+    if (!active) {
+      setValue([]);
+    }
+  }, [active, setValue]);
+  return null;
+}
 
 export default PricingRuleForm;

@@ -6,28 +6,44 @@ import { memo, useCallback, useMemo } from "react";
 import {
   LuArrowDown,
   LuArrowUp,
+  LuBoxes,
   LuCalendar,
   LuCopy,
-  LuFilter,
+  LuPackage,
   LuPencil,
+  LuSquareUser,
   LuTag,
   LuToggleLeft,
-  LuTrash
+  LuTrash,
+  LuUsers
 } from "react-icons/lu";
 import { useFetcher, useNavigate } from "react-router";
-import { Hyperlink, New, Table } from "~/components";
+import { CustomerAvatar, Hyperlink, New, Table } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import { useCustomerTypes } from "~/components/Form/CustomerType";
+import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import {
   useCurrencyFormatter,
   usePercentFormatter,
   usePermissions,
   useUrlParams
 } from "~/hooks";
+import { useCustomers } from "~/stores/customers";
+import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
+import { pricingRuleTypes } from "../../sales.models";
 import type { PricingRule } from "../../types";
 
 type PricingRulesTableProps = {
   data: PricingRule[];
   count: number;
+};
+
+const defaultColumnVisibility = {
+  customerIds: false,
+  customerTypeIds: false,
+  itemIds: false,
+  itemPostingGroupId: false
 };
 
 const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
@@ -38,6 +54,10 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
   const fetcher = useFetcher();
+  const [customers] = useCustomers();
+  const customerTypes = useCustomerTypes();
+  const itemPostingGroups = useItemPostingGroups();
+  const [items] = useItems();
 
   const columns = useMemo<ColumnDef<(typeof data)[number]>[]>(() => {
     const defaultColumns: ColumnDef<(typeof data)[number]>[] = [
@@ -73,52 +93,188 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
               {ruleType === "Discount" ? <LuArrowDown /> : <LuArrowUp />}
             </Badge>
           );
+        },
+        meta: {
+          filter: {
+            type: "static",
+            options: pricingRuleTypes.map((type) => ({
+              value: type,
+              label: type
+            }))
+          },
+          icon: <LuTag />
         }
       },
       {
-        id: "scope",
-        header: t`Scope`,
+        accessorKey: "customerIds",
+        header: t`Customers`,
         cell: ({ row }) => {
-          const conditions: string[] = [];
+          if (!row.original.customerIds?.length) return null;
+          return (
+            <div className="flex flex-col items-start gap-1">
+              {row.original.customerIds.map((id) => (
+                <CustomerAvatar key={id} customerId={id} />
+              ))}
+            </div>
+          );
+        },
+        meta: {
+          filter: {
+            type: "static",
+            options: customers?.map((c) => ({
+              value: c.id,
+              label: c.name
+            })),
+            isArray: true
+          },
+          icon: <LuSquareUser />
+        }
+      },
+      {
+        accessorKey: "customerTypeIds",
+        header: t`Customer Type`,
+        cell: ({ row }) => {
+          if (!row.original.customerTypeIds?.length) return null;
+          return (
+            <div className="flex flex-col items-start gap-1">
+              {row.original.customerTypeIds.map((id) => {
+                const label =
+                  customerTypes?.find((ct) => ct.value === id)?.label ?? "Type";
+                return <Enumerable key={id} value={label} />;
+              })}
+            </div>
+          );
+        },
+        meta: {
+          filter: {
+            type: "static",
+            options: customerTypes?.map((ct) => ({
+              value: ct.value,
+              label: <Enumerable value={ct.label} />
+            })),
+            isArray: true
+          },
+          icon: <LuUsers />
+        }
+      },
+      {
+        accessorKey: "itemIds",
+        header: t`Items`,
+        cell: ({ row }) => {
+          if (!row.original.itemIds?.length) return null;
+          return (
+            <div className="flex flex-col items-start gap-1">
+              {row.original.itemIds.map((id) => {
+                const item = items?.find((i) => i.id === id);
+                return (
+                  <Badge key={id} variant="outline">
+                    {item?.readableIdWithRevision ?? id}
+                  </Badge>
+                );
+              })}
+            </div>
+          );
+        },
+        meta: {
+          filter: {
+            type: "static",
+            options: items?.map((item) => ({
+              value: item.id,
+              label: item.readableIdWithRevision
+            })),
+            isArray: true
+          },
+          pluralHeader: t`Items`,
+          icon: <LuPackage />
+        }
+      },
+      {
+        accessorKey: "itemPostingGroupId",
+        header: t`Item Group`,
+        cell: ({ row }) => {
+          if (!row.original.itemPostingGroupId) return null;
+          const label =
+            itemPostingGroups?.find(
+              (g) => g.value === row.original.itemPostingGroupId
+            )?.label ?? "Item Group";
+          return <Enumerable value={label} />;
+        },
+        meta: {
+          filter: {
+            type: "static",
+            options: itemPostingGroups?.map((g) => ({
+              value: g.value,
+              label: <Enumerable value={g.label} />
+            }))
+          },
+          icon: <LuBoxes />
+        }
+      },
+      {
+        id: "customerScope",
+        header: t`Customers`,
+        cell: ({ row }) => {
           const rule = row.original;
+          const parts: React.ReactNode[] = [];
 
-          if (rule.minQuantity !== null && rule.minQuantity !== undefined) {
-            conditions.push(`Qty >= ${rule.minQuantity}`);
+          if (rule.customerIds?.length) {
+            rule.customerIds.forEach((id) => {
+              parts.push(<CustomerAvatar key={`c-${id}`} customerId={id} />);
+            });
           }
-          if (
-            rule.customerTypeIds !== null &&
-            rule.customerTypeIds !== undefined &&
-            rule.customerTypeIds.length > 0
-          ) {
-            conditions.push("Customer Type");
-          }
-          if (
-            rule.itemPostingGroupId !== null &&
-            rule.itemPostingGroupId !== undefined
-          ) {
-            conditions.push("Item Group");
-          }
-          if (
-            rule.itemIds !== null &&
-            rule.itemIds !== undefined &&
-            rule.itemIds.length > 0
-          ) {
-            conditions.push(
-              rule.itemIds.length === 1
-                ? "Specific Item"
-                : `${rule.itemIds.length} Items`
-            );
+          if (rule.customerTypeIds?.length) {
+            rule.customerTypeIds.forEach((id) => {
+              const label =
+                customerTypes?.find((ct) => ct.value === id)?.label ?? "Type";
+              parts.push(<Enumerable key={`ct-${id}`} value={label} />);
+            });
           }
 
-          if (conditions.length === 0) {
+          if (parts.length === 0) {
             return (
               <span className="text-muted-foreground text-sm">{t`All`}</span>
             );
           }
-          return <span className="text-sm">{conditions.join(", ")}</span>;
+          return <div className="flex flex-col items-start gap-1">{parts}</div>;
         },
         meta: {
-          icon: <LuFilter />
+          icon: <LuSquareUser />
+        }
+      },
+      {
+        id: "itemScope",
+        header: t`Items`,
+        cell: ({ row }) => {
+          const rule = row.original;
+          const parts: React.ReactNode[] = [];
+
+          if (rule.itemPostingGroupId) {
+            const label =
+              itemPostingGroups?.find(
+                (g) => g.value === rule.itemPostingGroupId
+              )?.label ?? "Item Group";
+            parts.push(<Enumerable key="ipg" value={label} />);
+          }
+          if (rule.itemIds?.length) {
+            rule.itemIds.forEach((id) => {
+              const item = items?.find((i) => i.id === id);
+              parts.push(
+                <Badge key={`i-${id}`} variant="outline">
+                  {item?.readableIdWithRevision ?? id}
+                </Badge>
+              );
+            });
+          }
+
+          if (parts.length === 0) {
+            return (
+              <span className="text-muted-foreground text-sm">{t`All`}</span>
+            );
+          }
+          return <div className="flex flex-col items-start gap-1">{parts}</div>;
+        },
+        meta: {
+          icon: <LuPackage />
         }
       },
       {
@@ -160,7 +316,16 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
       }
     ];
     return defaultColumns;
-  }, [currencyFormatter, params, percentFormatter, t]);
+  }, [
+    currencyFormatter,
+    customers,
+    customerTypes,
+    itemPostingGroups,
+    items,
+    params,
+    percentFormatter,
+    t
+  ]);
 
   const renderContextMenu = useCallback(
     (row: (typeof data)[number]) => {
@@ -213,6 +378,7 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
       data={data}
       columns={columns}
       count={count}
+      defaultColumnVisibility={defaultColumnVisibility}
       primaryAction={
         permissions.can("create", "sales") && (
           <New

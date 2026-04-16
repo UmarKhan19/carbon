@@ -148,13 +148,25 @@ export const customerPortalValidator = z.object({
 
 export const priceOverrideValidator = z
   .object({
+    id: z.string().optional(),
     itemId: z.string().min(1),
-    customerId: z.string().min(1, { message: "Customer is required" }),
+    customerId: z.string().optional(),
+    customerTypeId: z.string().optional(),
     overridePrice: zfd.numeric(z.number().min(0)),
+    active: zfd.checkbox(),
     validFrom: zfd.text(z.string().optional()),
     validTo: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
   })
+  .refine(
+    (d) =>
+      (d.customerId && !d.customerTypeId) ||
+      (!d.customerId && d.customerTypeId),
+    {
+      message: "Either Customer or Customer Type must be selected",
+      path: ["customerId"]
+    }
+  )
   .refine((d) => !d.validFrom || !d.validTo || d.validFrom <= d.validTo, {
     message: "Valid From must be on or before Valid To",
     path: ["validTo"]
