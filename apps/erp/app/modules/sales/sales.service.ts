@@ -1869,6 +1869,15 @@ export async function resolvePrice(
   const date = input.date ?? new Date().toISOString().split("T")[0]!;
   const trace: PriceTraceStep[] = [];
 
+  console.log("[pricing][resolvePrice] start", {
+    itemId: input.itemId,
+    quantity: input.quantity,
+    customerId: input.customerId,
+    customerTypeId: input.customerTypeId,
+    existingBasePrice: input.existingBasePrice,
+    date
+  });
+
   let resolvedCustomerTypeId = input.customerTypeId ?? null;
 
   if (input.customerId && !resolvedCustomerTypeId) {
@@ -1882,8 +1891,10 @@ export async function resolvePrice(
 
   // Step 1: Base price from item unit sale price
   let basePrice: number;
+  let basePriceSource: "existingBasePrice" | "itemUnitSalePrice";
   if (input.existingBasePrice !== undefined) {
     basePrice = input.existingBasePrice;
+    basePriceSource = "existingBasePrice";
   } else {
     const { data: salePrice } = await client
       .from("itemUnitSalePrice")
@@ -1891,7 +1902,13 @@ export async function resolvePrice(
       .eq("itemId", input.itemId)
       .maybeSingle();
     basePrice = salePrice?.unitSalePrice ?? 0;
+    basePriceSource = "itemUnitSalePrice";
   }
+  console.log("[pricing][resolvePrice] basePrice", {
+    itemId: input.itemId,
+    source: basePriceSource,
+    basePrice
+  });
 
   trace.push({
     step: "Base Price",
@@ -1917,6 +1934,16 @@ export async function resolvePrice(
         (!override.validFrom || override.validFrom <= date) &&
         (!override.validTo || override.validTo >= date);
 
+      console.log("[pricing][resolvePrice] customerOverride", {
+        found: true,
+        overridePrice: override.overridePrice,
+        validFrom: override.validFrom,
+        validTo: override.validTo,
+        withinRange,
+        applyRulesOnTop: override.applyRulesOnTop,
+        applied: withinRange
+      });
+
       if (withinRange) {
         startingPrice = override.overridePrice;
         overrideApplied = true;
@@ -1930,6 +1957,8 @@ export async function resolvePrice(
           adjustment: override.overridePrice - basePrice
         });
       }
+    } else {
+      console.log("[pricing][resolvePrice] customerOverride", { found: false });
     }
   }
 
@@ -1946,6 +1975,17 @@ export async function resolvePrice(
         (!typeOverride.validFrom || typeOverride.validFrom <= date) &&
         (!typeOverride.validTo || typeOverride.validTo >= date);
 
+      console.log("[pricing][resolvePrice] typeOverride", {
+        found: true,
+        customerTypeId: resolvedCustomerTypeId,
+        overridePrice: typeOverride.overridePrice,
+        validFrom: typeOverride.validFrom,
+        validTo: typeOverride.validTo,
+        withinRange,
+        applyRulesOnTop: typeOverride.applyRulesOnTop,
+        applied: withinRange
+      });
+
       if (withinRange) {
         startingPrice = typeOverride.overridePrice;
         overrideApplied = true;
@@ -1959,6 +1999,11 @@ export async function resolvePrice(
           adjustment: typeOverride.overridePrice - basePrice
         });
       }
+    } else {
+      console.log("[pricing][resolvePrice] typeOverride", {
+        found: false,
+        customerTypeId: resolvedCustomerTypeId
+      });
     }
   }
 
@@ -2013,12 +2058,42 @@ export async function resolvePrice(
     const ruleResult = applyPriceRules(startingPrice, matchedRules);
     finalPrice = ruleResult.finalPrice;
     trace.push(...ruleResult.appendedTrace);
+
+    console.log("[pricing][resolvePrice] rules", {
+      activeRulesFetched: allRules?.length ?? 0,
+      matchedCount: matchedRules.length,
+      matched: matchedRules.map((r) => ({
+        id: r.id,
+        name: r.name,
+        ruleType: r.ruleType,
+        amountType: r.amountType,
+        amount: r.amount,
+        priority: r.priority
+      })),
+      startingPrice,
+      finalPriceAfterRules: finalPrice
+    });
+  } else {
+    console.log("[pricing][resolvePrice] rules", {
+      skipped: true,
+      reason: "override has applyRulesOnTop=false"
+    });
   }
 
   trace.push({
     step: "Final Price",
     source: "Resolved",
     amount: finalPrice
+  });
+
+  console.log("[pricing][resolvePrice] done", {
+    itemId: input.itemId,
+    quantity: input.quantity,
+    basePrice,
+    overrideApplied,
+    skipRules,
+    startingPrice,
+    finalPrice
   });
 
   return { finalPrice, basePrice, trace };
@@ -3672,6 +3747,15 @@ export async function calculatePricesForQuantities(
 
   const { effects } = result;
 
+  console.log("[pricing][MtO calc] start", {
+    quoteId,
+    quoteLineId,
+    itemId,
+    customerId,
+    quantities,
+    defaultMarkups
+  });
+
   // 3. Compute rollup price per quantity, then pipe through pricing engine
   //    so customer overrides and rules apply on top of the cost rollup.
   const priceRows = [];
@@ -3681,6 +3765,11 @@ export async function calculatePricesForQuantities(
       const total = effects[key].reduce((acc, fn) => acc + fn(qty), 0);
       categoryCosts[key] = qty > 0 ? total / qty : 0;
     }
+
+    const unitCost = costCategoryKeys.reduce(
+      (sum, key) => sum + (categoryCosts[key] ?? 0),
+      0
+    );
 
     const rollupPrice = costCategoryKeys.reduce((sum, key) => {
       const cost = categoryCosts[key] ?? 0;
@@ -3699,6 +3788,15 @@ export async function calculatePricesForQuantities(
         ).finalPrice
       : rollupPrice;
 
+    console.log("[pricing][MtO calc] perQty", {
+      quoteLineId,
+      qty,
+      unitCost,
+      categoryCosts,
+      rollupPrice,
+      finalPrice
+    });
+
     priceRows.push({
       quoteId,
       quoteLineId,
@@ -3711,6 +3809,11 @@ export async function calculatePricesForQuantities(
       discountPercent: 0
     });
   }
+
+  console.log("[pricing][MtO calc] inserting", {
+    quoteLineId,
+    rows: priceRows.map((r) => ({ qty: r.quantity, unitPrice: r.unitPrice }))
+  });
 
   // 4. Insert price rows
   await client.from("quoteLinePrice").insert(priceRows);
@@ -3748,12 +3851,27 @@ export async function resolveQuoteLinePrices(
   const precision = lineResult.data.unitPricePrecision ?? 2;
   const customerId = quoteResult.data.customerId ?? undefined;
 
+  console.log("[pricing][Pull] start", {
+    quoteId,
+    quoteLineId,
+    itemId,
+    customerId,
+    quantities
+  });
+
   const priceRows = [];
   for (const qty of quantities) {
     const resolved = await resolvePrice(client, companyId, {
       itemId,
       quantity: qty,
       customerId
+    });
+
+    console.log("[pricing][Pull] perQty", {
+      quoteLineId,
+      qty,
+      basePrice: resolved.basePrice,
+      finalPrice: resolved.finalPrice
     });
 
     priceRows.push({
@@ -3767,6 +3885,11 @@ export async function resolveQuoteLinePrices(
       discountPercent: 0
     });
   }
+
+  console.log("[pricing][Pull] inserting", {
+    quoteLineId,
+    rows: priceRows.map((r) => ({ qty: r.quantity, unitPrice: r.unitPrice }))
+  });
 
   await client.from("quoteLinePrice").insert(priceRows);
 }
@@ -3805,6 +3928,16 @@ export async function resolvePurchaseToOrderPrices(
 
   const priceMap = await getSupplierPriceBreaksForItems(client, [itemId]);
 
+  console.log("[pricing][P2O] start", {
+    quoteId,
+    quoteLineId,
+    itemId,
+    customerId,
+    quantities,
+    supplierBreaks: priceMap[itemId]?.priceBreaks ?? null,
+    supplierFallback: priceMap[itemId]?.fallbackUnitPrice ?? null
+  });
+
   const priceRows = [];
   for (const qty of quantities) {
     const supplierPrice = lookupBuyPriceFromMap(itemId, qty, priceMap, 0);
@@ -3813,6 +3946,13 @@ export async function resolvePurchaseToOrderPrices(
       quantity: qty,
       customerId,
       existingBasePrice: supplierPrice
+    });
+
+    console.log("[pricing][P2O] perQty", {
+      quoteLineId,
+      qty,
+      supplierPrice,
+      finalPrice: resolved.finalPrice
     });
 
     priceRows.push({
@@ -3826,6 +3966,11 @@ export async function resolvePurchaseToOrderPrices(
       discountPercent: 0
     });
   }
+
+  console.log("[pricing][P2O] inserting", {
+    quoteLineId,
+    rows: priceRows.map((r) => ({ qty: r.quantity, unitPrice: r.unitPrice }))
+  });
 
   await client.from("quoteLinePrice").insert(priceRows);
 }
@@ -3888,6 +4033,14 @@ export async function recalculateQuoteLinePrices(
 
   const { effects } = result;
 
+  console.log("[pricing][MtO recalc] start", {
+    quoteId,
+    quoteLineId,
+    itemId,
+    customerId,
+    existingRowCount: existingPrices.data.length
+  });
+
   // 4. Recompute prices using each row's stored categoryMarkups, then pipe
   //    through pricing engine so overrides/rules still apply after BOM edits.
   const updatedRows = [];
@@ -3902,6 +4055,11 @@ export async function recalculateQuoteLinePrices(
       const total = effects[key].reduce((acc, fn) => acc + fn(qty), 0);
       categoryCosts[key] = qty > 0 ? total / qty : 0;
     }
+
+    const unitCost = costCategoryKeys.reduce(
+      (sum, key) => sum + (categoryCosts[key] ?? 0),
+      0
+    );
 
     const rollupPrice = costCategoryKeys.reduce((sum, key) => {
       const cost = categoryCosts[key] ?? 0;
@@ -3920,6 +4078,16 @@ export async function recalculateQuoteLinePrices(
             })
           ).finalPrice
         : rollupPrice;
+
+    console.log("[pricing][MtO recalc] perQty", {
+      quoteLineId,
+      qty,
+      previousUnitPrice: row.unitPrice,
+      unitCost,
+      rollupPrice,
+      finalPrice,
+      delta: finalPrice - (row.unitPrice ?? 0)
+    });
 
     updatedRows.push({
       quoteId: row.quoteId,
