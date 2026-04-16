@@ -138,7 +138,13 @@ const PriceOverrideForm = ({
                   }}
                 />
 
-                <BooleanField name="active" label={t`Active`} />
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <BooleanField name="active" label={t`Active`} />
+                  <BooleanField
+                    name="applyRulesOnTop"
+                    label={t`Apply pricing rules`}
+                  />
+                </div>
 
                 <div className="grid grid-cols-2 gap-3 w-full">
                   <DatePicker name="validFrom" label={t`Valid From`} />

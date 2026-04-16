@@ -78,37 +78,41 @@ export function applyPriceRules(
   const markupRules = matchedRules.filter((r) => r.ruleType === "Markup");
   const discountRules = matchedRules.filter((r) => r.ruleType === "Discount");
 
-  // Discounts: best rate wins (non-stacking)
+  // Discounts: highest priority wins (non-stacking); ties broken by best effective amount
   if (discountRules.length > 0) {
-    let bestDiscount = 0;
-    let bestRule: MatchedRule | null = null;
+    const ranked = discountRules
+      .map((rule) => ({
+        rule,
+        effective:
+          rule.amountType === "Percentage"
+            ? basePrice * rule.amount
+            : rule.amount
+      }))
+      .sort((a, b) => {
+        if (b.rule.priority !== a.rule.priority) {
+          return b.rule.priority - a.rule.priority;
+        }
+        return b.effective - a.effective;
+      });
 
-    for (const rule of discountRules) {
-      const effective =
-        rule.amountType === "Percentage"
-          ? basePrice * rule.amount
-          : rule.amount;
-
-      if (effective > bestDiscount) {
-        bestDiscount = effective;
-        bestRule = rule;
-      }
-    }
-
-    if (bestRule) {
-      finalPrice -= bestDiscount;
+    const winner = ranked[0];
+    if (winner && winner.effective > 0) {
+      finalPrice -= winner.effective;
       appendedTrace.push({
         step: "Discount",
-        source: `Rule: ${bestRule.name}`,
+        source: `Rule: ${winner.rule.name}`,
         amount: finalPrice,
-        adjustment: -bestDiscount,
-        ruleId: bestRule.id
+        adjustment: -winner.effective,
+        ruleId: winner.rule.id
       });
     }
   }
 
-  // Markups: all stack additively
-  for (const rule of markupRules) {
+  // Markups: stack in priority order (highest first) for deterministic output
+  const sortedMarkups = [...markupRules].sort(
+    (a, b) => b.priority - a.priority
+  );
+  for (const rule of sortedMarkups) {
     const adjustment =
       rule.amountType === "Percentage" ? basePrice * rule.amount : rule.amount;
 
@@ -122,8 +126,7 @@ export function applyPriceRules(
     });
   }
 
-  finalPrice = Math.max(0, finalPrice);
-  return { finalPrice, appendedTrace };
+  return { finalPrice: Math.max(0, finalPrice), appendedTrace };
 }
 
 export async function closeSalesOrder(
@@ -1898,6 +1901,8 @@ export async function resolvePrice(
 
   // Step 2: Determine starting price (override > type override > base)
   let startingPrice = basePrice;
+  let overrideApplied = false;
+  let skipRules = false;
 
   if (input.customerId) {
     const { data: override } = await getCustomerItemPriceOverride(
@@ -1914,6 +1919,8 @@ export async function resolvePrice(
 
       if (withinRange) {
         startingPrice = override.overridePrice;
+        overrideApplied = true;
+        skipRules = override.applyRulesOnTop === false;
         trace.push({
           step: "Override",
           source: override.notes
@@ -1926,7 +1933,7 @@ export async function resolvePrice(
     }
   }
 
-  if (startingPrice === basePrice && resolvedCustomerTypeId) {
+  if (!overrideApplied && resolvedCustomerTypeId) {
     const { data: typeOverride } = await getCustomerTypeItemPriceOverride(
       client,
       resolvedCustomerTypeId,
@@ -1941,6 +1948,8 @@ export async function resolvePrice(
 
       if (withinRange) {
         startingPrice = typeOverride.overridePrice;
+        overrideApplied = true;
+        skipRules = typeOverride.applyRulesOnTop === false;
         trace.push({
           step: "Type Override",
           source: typeOverride.notes
@@ -1954,62 +1963,57 @@ export async function resolvePrice(
   }
 
   // Step 3: Find applicable pricing rules (apply on top of starting price)
-  let rulesQuery = client
-    .from("pricingRule")
-    .select("*")
-    .eq("companyId", companyId)
-    .eq("active", true);
+  // unless an override is in force with applyRulesOnTop=false.
+  let finalPrice = startingPrice;
+  if (!skipRules) {
+    let rulesQuery = client
+      .from("pricingRule")
+      .select("*")
+      .eq("companyId", companyId)
+      .eq("active", true);
 
-  rulesQuery = rulesQuery.or(`validFrom.is.null,validFrom.lte.${date}`);
-  rulesQuery = rulesQuery.or(`validTo.is.null,validTo.gte.${date}`);
+    rulesQuery = rulesQuery.or(`validFrom.is.null,validFrom.lte.${date}`);
+    rulesQuery = rulesQuery.or(`validTo.is.null,validTo.gte.${date}`);
 
-  const { data: allRules } = await rulesQuery;
+    const { data: allRules } = await rulesQuery;
 
-  const matchedRules: MatchedRule[] = (allRules ?? []).filter((rule) => {
-    if (rule.minQuantity !== null && input.quantity < rule.minQuantity)
-      return false;
-    if (rule.maxQuantity !== null && input.quantity > rule.maxQuantity)
-      return false;
-
-    // Item scope: rule must match item directly, via group, or be unscoped
-    const ruleItemIds = rule.itemIds as string[] | null;
-    if (
-      ruleItemIds &&
-      ruleItemIds.length > 0 &&
-      !ruleItemIds.includes(input.itemId)
-    )
-      return false;
-    if (
-      rule.itemPostingGroupId !== null &&
-      rule.itemPostingGroupId !== (input.itemPostingGroupId ?? null)
-    )
-      return false;
-
-    // Customer scope: empty arrays mean "all"
-    const ruleCustomerIds = rule.customerIds as string[] | null;
-    const ruleCustomerTypeIds = rule.customerTypeIds as string[] | null;
-
-    if (ruleCustomerIds && ruleCustomerIds.length > 0) {
-      if (!input.customerId || !ruleCustomerIds.includes(input.customerId))
+    const matchedRules: MatchedRule[] = (allRules ?? []).filter((rule) => {
+      if (rule.minQuantity !== null && input.quantity < rule.minQuantity)
         return false;
-    }
-    if (ruleCustomerTypeIds && ruleCustomerTypeIds.length > 0) {
+      if (rule.maxQuantity !== null && input.quantity > rule.maxQuantity)
+        return false;
+      const ruleItemIds = rule.itemIds as string[] | null;
       if (
-        !resolvedCustomerTypeId ||
-        !ruleCustomerTypeIds.includes(resolvedCustomerTypeId)
+        ruleItemIds &&
+        ruleItemIds.length > 0 &&
+        !ruleItemIds.includes(input.itemId)
       )
         return false;
-    }
+      if (
+        rule.itemPostingGroupId !== null &&
+        rule.itemPostingGroupId !== (input.itemPostingGroupId ?? null)
+      )
+        return false;
+      const ruleCustomerIds = rule.customerIds as string[] | null;
+      if (ruleCustomerIds && ruleCustomerIds.length > 0) {
+        if (!input.customerId || !ruleCustomerIds.includes(input.customerId))
+          return false;
+      }
+      const ruleCustomerTypeIds = rule.customerTypeIds as string[] | null;
+      if (ruleCustomerTypeIds && ruleCustomerTypeIds.length > 0) {
+        if (
+          !resolvedCustomerTypeId ||
+          !ruleCustomerTypeIds.includes(resolvedCustomerTypeId)
+        )
+          return false;
+      }
+      return true;
+    }) as MatchedRule[];
 
-    return true;
-  });
-
-  // Step 4: Apply rules on top of starting price
-  const { finalPrice, appendedTrace } = applyPriceRules(
-    startingPrice,
-    matchedRules
-  );
-  trace.push(...appendedTrace);
+    const ruleResult = applyPriceRules(startingPrice, matchedRules);
+    finalPrice = ruleResult.finalPrice;
+    trace.push(...ruleResult.appendedTrace);
+  }
 
   trace.push({
     step: "Final Price",
@@ -2027,15 +2031,16 @@ export async function resolvePriceList(
     customerId?: string;
     customerTypeId?: string;
     search?: string;
+    onlyOverrides?: boolean;
   }
 ): Promise<PriceListResult> {
   const date = new Date().toISOString().split("T")[0]!;
 
-  // 1. Fetch paginated items with base prices
+  // 1. Fetch paginated items with base prices and posting-group classification
   let itemQuery = client
     .from("item")
     .select(
-      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice)",
+      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice), itemCost(itemPostingGroupId)",
       { count: "exact" }
     )
     .eq("active", true);
@@ -2071,7 +2076,9 @@ export async function resolvePriceList(
   if (args.customerId) {
     const { data: overrides } = await client
       .from("customerItemPriceOverride")
-      .select("itemId, overridePrice, notes, validFrom, validTo")
+      .select(
+        "id, itemId, overridePrice, notes, validFrom, validTo, applyRulesOnTop"
+      )
       .eq("companyId", companyId)
       .eq("customerId", args.customerId)
       .eq("active", true)
@@ -2083,10 +2090,12 @@ export async function resolvePriceList(
         (!ov.validTo || ov.validTo >= date);
       if (withinRange) {
         overrideMap.set(ov.itemId, {
+          id: ov.id,
           overridePrice: ov.overridePrice,
           notes: ov.notes,
           validFrom: ov.validFrom,
-          validTo: ov.validTo
+          validTo: ov.validTo,
+          applyRulesOnTop: ov.applyRulesOnTop
         });
       }
     }
@@ -2097,7 +2106,9 @@ export async function resolvePriceList(
   if (resolvedCustomerTypeId) {
     const { data: typeOverrides } = await client
       .from("customerItemPriceOverride")
-      .select("itemId, overridePrice, notes, validFrom, validTo")
+      .select(
+        "id, itemId, overridePrice, notes, validFrom, validTo, applyRulesOnTop"
+      )
       .eq("companyId", companyId)
       .eq("customerTypeId", resolvedCustomerTypeId)
       .eq("active", true)
@@ -2109,10 +2120,12 @@ export async function resolvePriceList(
         (!ov.validTo || ov.validTo >= date);
       if (withinRange) {
         typeOverrideMap.set(ov.itemId, {
+          id: ov.id,
           overridePrice: ov.overridePrice,
           notes: ov.notes,
           validFrom: ov.validFrom,
-          validTo: ov.validTo
+          validTo: ov.validTo,
+          applyRulesOnTop: ov.applyRulesOnTop
         });
       }
     }
@@ -2136,15 +2149,21 @@ export async function resolvePriceList(
       ? item.itemUnitSalePrice[0]
       : item.itemUnitSalePrice;
     const basePrice = salePriceRow?.unitSalePrice ?? 0;
+    const itemCostRow = Array.isArray(item.itemCost)
+      ? item.itemCost[0]
+      : item.itemCost;
+    const itemPostingGroupId = itemCostRow?.itemPostingGroupId ?? null;
     const trace: PriceTraceStep[] = [];
 
     // Step A: Determine starting price (override > type override > base)
     let startingPrice = basePrice;
     let isOverridden = false;
+    let overrideId: string | null = null;
     let overrideNotes: string | null = null;
     let overrideValidFrom: string | null = null;
     let overrideValidTo: string | null = null;
     let overrideSource: "Override" | "Type Override" | null = null;
+    let skipRules = false;
 
     trace.push({
       step: "Base Price",
@@ -2158,10 +2177,12 @@ export async function resolvePriceList(
     if (override) {
       startingPrice = override.overridePrice;
       isOverridden = true;
+      overrideId = override.id;
       overrideSource = "Override";
       overrideNotes = override.notes;
       overrideValidFrom = override.validFrom;
       overrideValidTo = override.validTo;
+      skipRules = override.applyRulesOnTop === false;
       trace.push({
         step: "Override",
         source: override.notes
@@ -2173,10 +2194,12 @@ export async function resolvePriceList(
     } else if (typeOverride) {
       startingPrice = typeOverride.overridePrice;
       isOverridden = true;
+      overrideId = typeOverride.id;
       overrideSource = "Type Override";
       overrideNotes = typeOverride.notes;
       overrideValidFrom = typeOverride.validFrom;
       overrideValidTo = typeOverride.validTo;
+      skipRules = typeOverride.applyRulesOnTop === false;
       trace.push({
         step: "Type Override",
         source: typeOverride.notes
@@ -2188,50 +2211,59 @@ export async function resolvePriceList(
     }
 
     // Step B: Apply rules on top of starting price (override or base)
-    const matchedRules: MatchedRule[] = (allRules ?? []).filter((rule) => {
-      if (rule.minQuantity !== null && 1 < rule.minQuantity) return false;
-      if (rule.maxQuantity !== null && 1 > rule.maxQuantity) return false;
+    let finalPrice = startingPrice;
+    let hasRuleAdjustment = false;
 
-      const ruleItemIds = rule.itemIds as string[] | null;
-      if (
-        ruleItemIds &&
-        ruleItemIds.length > 0 &&
-        !ruleItemIds.includes(item.id)
-      )
-        return false;
-      if (rule.itemPostingGroupId !== null) return false;
-
-      const ruleCustomerIds = rule.customerIds as string[] | null;
-      const ruleCustomerTypeIds = rule.customerTypeIds as string[] | null;
-
-      if (ruleCustomerIds && ruleCustomerIds.length > 0) {
-        if (!args.customerId || !ruleCustomerIds.includes(args.customerId))
+    if (!skipRules) {
+      const matchedRules: MatchedRule[] = (allRules ?? []).filter((rule) => {
+        // Catalog view has no quantity context; only apply rules without quantity bands.
+        if (rule.minQuantity !== null || rule.maxQuantity !== null)
           return false;
-      }
-      if (ruleCustomerTypeIds && ruleCustomerTypeIds.length > 0) {
+
+        const ruleItemIds = rule.itemIds as string[] | null;
         if (
-          !resolvedCustomerTypeId ||
-          !ruleCustomerTypeIds.includes(resolvedCustomerTypeId)
+          ruleItemIds &&
+          ruleItemIds.length > 0 &&
+          !ruleItemIds.includes(item.id)
         )
           return false;
-      }
 
-      return true;
-    });
+        if (
+          rule.itemPostingGroupId !== null &&
+          rule.itemPostingGroupId !== itemPostingGroupId
+        )
+          return false;
 
-    const { finalPrice, appendedTrace } = applyPriceRules(
-      startingPrice,
-      matchedRules
-    );
-    trace.push(...appendedTrace);
+        const ruleCustomerIds = rule.customerIds as string[] | null;
+        const ruleCustomerTypeIds = rule.customerTypeIds as string[] | null;
+
+        if (ruleCustomerIds && ruleCustomerIds.length > 0) {
+          if (!args.customerId || !ruleCustomerIds.includes(args.customerId))
+            return false;
+        }
+        if (ruleCustomerTypeIds && ruleCustomerTypeIds.length > 0) {
+          if (
+            !resolvedCustomerTypeId ||
+            !ruleCustomerTypeIds.includes(resolvedCustomerTypeId)
+          )
+            return false;
+        }
+
+        return true;
+      });
+
+      const ruleResult = applyPriceRules(startingPrice, matchedRules);
+      finalPrice = ruleResult.finalPrice;
+      trace.push(...ruleResult.appendedTrace);
+      hasRuleAdjustment = ruleResult.appendedTrace.length > 0;
+    }
+
     trace.push({
       step: "Final Price",
       source: "Resolved",
       amount: finalPrice
     });
 
-    // Determine source label for display
-    const hasRuleAdjustment = appendedTrace.length > 0;
     const source: PriceSource = isOverridden
       ? overrideSource!
       : hasRuleAdjustment
@@ -2248,9 +2280,69 @@ export async function resolvePriceList(
       isOverridden,
       source,
       trace,
+      overrideId,
       overrideNotes,
       overrideValidFrom,
       overrideValidTo
+    };
+  });
+
+  const filtered = args.onlyOverrides
+    ? rows.filter((r) => r.isOverridden)
+    : rows;
+
+  return {
+    data: filtered,
+    count: args.onlyOverrides ? filtered.length : (count ?? 0)
+  };
+}
+
+export async function getBaseCatalog(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: GenericQueryFilters & { search?: string }
+): Promise<PriceListResult> {
+  let query = client
+    .from("item")
+    .select(
+      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice)",
+      { count: "exact" }
+    )
+    .eq("companyId", companyId)
+    .eq("active", true);
+
+  if (args.search) {
+    query = query.or(
+      `name.ilike.%${args.search}%,readableId.ilike.%${args.search}%`
+    );
+  }
+
+  query = setGenericQueryFilters(query, args);
+
+  const { data: items, count } = await query;
+  if (!items || items.length === 0) {
+    return { data: [], count: count ?? 0 };
+  }
+
+  const rows: PriceListRow[] = items.map((item) => {
+    const salePriceRow = Array.isArray(item.itemUnitSalePrice)
+      ? item.itemUnitSalePrice[0]
+      : item.itemUnitSalePrice;
+    const basePrice = salePriceRow?.unitSalePrice ?? 0;
+    return {
+      itemId: item.id,
+      partId: item.readableId,
+      itemName: item.name,
+      thumbnailPath: item.thumbnailPath ?? null,
+      basePrice,
+      resolvedPrice: basePrice,
+      isOverridden: false,
+      source: "Base" as PriceSource,
+      trace: [],
+      overrideId: null,
+      overrideNotes: null,
+      overrideValidFrom: null,
+      overrideValidTo: null
     };
   });
 
@@ -2294,99 +2386,91 @@ export async function upsertCustomerItemPriceOverride(
   companyId: string,
   userId: string,
   data: {
+    id?: string;
     customerId?: string;
     customerTypeId?: string;
     itemId: string;
     overridePrice: number;
+    active: boolean;
+    applyRulesOnTop: boolean;
     notes?: string;
     validFrom?: string;
     validTo?: string;
   }
 ) {
+  if (!data.customerId && !data.customerTypeId) {
+    return {
+      data: null,
+      error: { message: "Either customerId or customerTypeId is required" }
+    };
+  }
+
   const sharedFields = {
     overridePrice: data.overridePrice,
     notes: data.notes ?? null,
     validFrom: data.validFrom ?? null,
     validTo: data.validTo ?? null,
-    active: true
+    active: data.active,
+    applyRulesOnTop: data.applyRulesOnTop
   };
 
-  // Determine scope: customer-specific or customer-type
-  if (data.customerId) {
-    // First check if a matching row exists (partial unique index, can't use onConflict directly)
-    const { data: existing } = await client
-      .from("customerItemPriceOverride")
-      .select("id")
-      .eq("customerId", data.customerId)
-      .eq("itemId", data.itemId)
-      .eq("companyId", companyId)
-      .maybeSingle();
-
-    if (existing) {
-      return client
-        .from("customerItemPriceOverride")
-        .update({
-          ...sharedFields,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
-        })
-        .eq("id", existing.id)
-        .select("id")
-        .single();
-    }
-
+  // If editing an existing row, update by id so a scope switch (customer ↔ type)
+  // mutates the same row instead of orphaning it.
+  if (data.id) {
     return client
       .from("customerItemPriceOverride")
-      .insert({
+      .update({
         ...sharedFields,
-        customerId: data.customerId,
+        customerId: data.customerId ?? null,
+        customerTypeId: data.customerTypeId ?? null,
         itemId: data.itemId,
-        companyId,
-        createdBy: userId
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
       })
+      .eq("id", data.id)
+      .eq("companyId", companyId)
       .select("id")
       .single();
   }
 
-  if (data.customerTypeId) {
-    const { data: existing } = await client
-      .from("customerItemPriceOverride")
-      .select("id")
-      .eq("customerTypeId", data.customerTypeId)
-      .eq("itemId", data.itemId)
-      .eq("companyId", companyId)
-      .maybeSingle();
+  // Creating a new row — collapse onto an existing same-scope row if one exists,
+  // since the partial unique indexes would reject a duplicate insert anyway.
+  const lookup = client
+    .from("customerItemPriceOverride")
+    .select("id")
+    .eq("itemId", data.itemId)
+    .eq("companyId", companyId);
 
-    if (existing) {
-      return client
-        .from("customerItemPriceOverride")
-        .update({
-          ...sharedFields,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
-        })
-        .eq("id", existing.id)
-        .select("id")
-        .single();
-    }
+  const { data: existing } = await (data.customerId
+    ? lookup.eq("customerId", data.customerId)
+    : lookup.eq("customerTypeId", data.customerTypeId!)
+  ).maybeSingle();
 
+  if (existing) {
     return client
       .from("customerItemPriceOverride")
-      .insert({
+      .update({
         ...sharedFields,
-        customerTypeId: data.customerTypeId,
-        itemId: data.itemId,
-        companyId,
-        createdBy: userId
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
       })
+      .eq("id", existing.id)
       .select("id")
       .single();
   }
 
-  return {
-    data: null,
-    error: { message: "Either customerId or customerTypeId is required" }
-  };
+  return client
+    .from("customerItemPriceOverride")
+    .insert({
+      ...sharedFields,
+      customerId: data.customerId ?? null,
+      customerTypeId: data.customerTypeId ?? null,
+      itemId: data.itemId,
+      companyId,
+      createdBy: userId
+    })
+    .select("id")
+    .single();
 }
 
 export async function deleteCustomerItemPriceOverride(
@@ -3542,16 +3626,16 @@ export async function calculatePricesForQuantities(
 ) {
   if (!quantities.length) return;
 
-  // 1. Fetch quote (with companyId) and line in parallel
+  // 1. Fetch quote (with companyId + customerId) and line in parallel
   const [quoteResult, lineResult] = await Promise.all([
     client
       .from("quote")
-      .select("companyId, exchangeRate")
+      .select("companyId, customerId, exchangeRate")
       .eq("id", quoteId)
       .single(),
     client
       .from("quoteLine")
-      .select("unitPricePrecision")
+      .select("itemId, unitPricePrecision")
       .eq("id", quoteLineId)
       .single()
   ]);
@@ -3567,6 +3651,9 @@ export async function calculatePricesForQuantities(
 
   if (settingsResult.error) return;
 
+  const companyId = quoteResult.data.companyId;
+  const customerId = quoteResult.data.customerId ?? undefined;
+  const itemId = lineResult.data.itemId ?? undefined;
   const exchangeRate = quoteResult.data.exchangeRate ?? 1;
   const precision = lineResult.data.unitPricePrecision ?? 2;
 
@@ -3585,34 +3672,161 @@ export async function calculatePricesForQuantities(
 
   const { effects } = result;
 
-  // 3. Compute prices for each quantity
-  const priceRows = quantities.map((qty) => {
+  // 3. Compute rollup price per quantity, then pipe through pricing engine
+  //    so customer overrides and rules apply on top of the cost rollup.
+  const priceRows = [];
+  for (const qty of quantities) {
     const categoryCosts: Record<string, number> = {};
     for (const key of costCategoryKeys) {
       const total = effects[key].reduce((acc, fn) => acc + fn(qty), 0);
       categoryCosts[key] = qty > 0 ? total / qty : 0;
     }
 
-    const unitPrice = costCategoryKeys.reduce((sum, key) => {
+    const rollupPrice = costCategoryKeys.reduce((sum, key) => {
       const cost = categoryCosts[key] ?? 0;
       const markup = defaultMarkups[key] ?? 0;
       return sum + cost * (1 + markup / 100);
     }, 0);
 
-    return {
+    const finalPrice = itemId
+      ? (
+          await resolvePrice(client, companyId, {
+            itemId,
+            quantity: qty,
+            customerId,
+            existingBasePrice: rollupPrice
+          })
+        ).finalPrice
+      : rollupPrice;
+
+    priceRows.push({
       quoteId,
       quoteLineId,
       quantity: qty,
-      unitPrice: Number(unitPrice.toFixed(precision)),
+      unitPrice: Number(finalPrice.toFixed(precision)),
       categoryMarkups: defaultMarkups,
       exchangeRate,
       createdBy: userId,
       leadTime: 0,
       discountPercent: 0
-    };
-  });
+    });
+  }
 
   // 4. Insert price rows
+  await client.from("quoteLinePrice").insert(priceRows);
+}
+
+export async function resolveQuoteLinePrices(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  quoteId: string,
+  quoteLineId: string,
+  quantities: number[],
+  userId: string
+) {
+  if (!quantities.length) return;
+
+  const [quoteResult, lineResult] = await Promise.all([
+    client
+      .from("quote")
+      .select("customerId, exchangeRate")
+      .eq("id", quoteId)
+      .single(),
+    client
+      .from("quoteLine")
+      .select("itemId, unitPricePrecision")
+      .eq("id", quoteLineId)
+      .single()
+  ]);
+
+  if (quoteResult.error || lineResult.error || !lineResult.data.itemId) {
+    return;
+  }
+
+  const itemId = lineResult.data.itemId;
+  const exchangeRate = quoteResult.data.exchangeRate ?? 1;
+  const precision = lineResult.data.unitPricePrecision ?? 2;
+  const customerId = quoteResult.data.customerId ?? undefined;
+
+  const priceRows = [];
+  for (const qty of quantities) {
+    const resolved = await resolvePrice(client, companyId, {
+      itemId,
+      quantity: qty,
+      customerId
+    });
+
+    priceRows.push({
+      quoteId,
+      quoteLineId,
+      quantity: qty,
+      unitPrice: Number(resolved.finalPrice.toFixed(precision)),
+      exchangeRate,
+      createdBy: userId,
+      leadTime: 0,
+      discountPercent: 0
+    });
+  }
+
+  await client.from("quoteLinePrice").insert(priceRows);
+}
+
+export async function resolvePurchaseToOrderPrices(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  quoteId: string,
+  quoteLineId: string,
+  quantities: number[],
+  userId: string
+) {
+  if (!quantities.length) return;
+
+  const [quoteResult, lineResult] = await Promise.all([
+    client
+      .from("quote")
+      .select("customerId, exchangeRate")
+      .eq("id", quoteId)
+      .single(),
+    client
+      .from("quoteLine")
+      .select("itemId, unitPricePrecision")
+      .eq("id", quoteLineId)
+      .single()
+  ]);
+
+  if (quoteResult.error || lineResult.error || !lineResult.data.itemId) {
+    return;
+  }
+
+  const itemId = lineResult.data.itemId;
+  const exchangeRate = quoteResult.data.exchangeRate ?? 1;
+  const precision = lineResult.data.unitPricePrecision ?? 2;
+  const customerId = quoteResult.data.customerId ?? undefined;
+
+  const priceMap = await getSupplierPriceBreaksForItems(client, [itemId]);
+
+  const priceRows = [];
+  for (const qty of quantities) {
+    const supplierPrice = lookupBuyPriceFromMap(itemId, qty, priceMap, 0);
+    const resolved = await resolvePrice(client, companyId, {
+      itemId,
+      quantity: qty,
+      customerId,
+      existingBasePrice: supplierPrice
+    });
+
+    priceRows.push({
+      quoteId,
+      quoteLineId,
+      quantity: qty,
+      unitPrice: Number(resolved.finalPrice.toFixed(precision)),
+      exchangeRate,
+      createdBy: userId,
+      leadTime: 0,
+      discountPercent: 0
+    });
+  }
+
   await client.from("quoteLinePrice").insert(priceRows);
 }
 
@@ -3630,25 +3844,32 @@ export async function recalculateQuoteLinePrices(
 
   if (!existingPrices.data?.length) return;
 
-  // 2. Fetch line precision and company default markups
+  // 2. Fetch line precision and company + customer context for engine pipe-through
   const [lineResult, quoteResult] = await Promise.all([
     client
       .from("quoteLine")
-      .select("unitPricePrecision")
+      .select("itemId, unitPricePrecision")
       .eq("id", quoteLineId)
       .single(),
-    client.from("quote").select("companyId").eq("id", quoteId).single()
+    client
+      .from("quote")
+      .select("companyId, customerId")
+      .eq("id", quoteId)
+      .single()
   ]);
 
   const precision = lineResult.data?.unitPricePrecision ?? 2;
+  const itemId = lineResult.data?.itemId ?? undefined;
+  const companyId = quoteResult.data?.companyId;
+  const customerId = quoteResult.data?.customerId ?? undefined;
 
   // Fetch default markups to use as fallback for legacy rows without categoryMarkups
   let defaultMarkups: Record<string, number> = {};
-  if (quoteResult.data?.companyId) {
+  if (companyId) {
     const settingsResult = await client
       .from("companySettings")
       .select("quoteLineCategoryMarkups")
-      .eq("id", quoteResult.data.companyId)
+      .eq("id", companyId)
       .single();
 
     const rawDefaults =
@@ -3667,8 +3888,10 @@ export async function recalculateQuoteLinePrices(
 
   const { effects } = result;
 
-  // 4. Recompute prices using each row's stored categoryMarkups
-  const updatedRows = existingPrices.data.map((row) => {
+  // 4. Recompute prices using each row's stored categoryMarkups, then pipe
+  //    through pricing engine so overrides/rules still apply after BOM edits.
+  const updatedRows = [];
+  for (const row of existingPrices.data) {
     const qty = row.quantity;
     const rowMarkups = (row.categoryMarkups as Record<string, number>) ?? {};
     const markups =
@@ -3680,25 +3903,37 @@ export async function recalculateQuoteLinePrices(
       categoryCosts[key] = qty > 0 ? total / qty : 0;
     }
 
-    const unitPrice = costCategoryKeys.reduce((sum, key) => {
+    const rollupPrice = costCategoryKeys.reduce((sum, key) => {
       const cost = categoryCosts[key] ?? 0;
       const markup = markups[key] ?? 0;
       return sum + cost * (1 + markup / 100);
     }, 0);
 
-    return {
+    const finalPrice =
+      itemId && companyId
+        ? (
+            await resolvePrice(client, companyId, {
+              itemId,
+              quantity: qty,
+              customerId,
+              existingBasePrice: rollupPrice
+            })
+          ).finalPrice
+        : rollupPrice;
+
+    updatedRows.push({
       quoteId: row.quoteId,
       quoteLineId: row.quoteLineId,
       quantity: row.quantity,
-      unitPrice: Number(unitPrice.toFixed(precision)),
+      unitPrice: Number(finalPrice.toFixed(precision)),
       categoryMarkups: markups,
       exchangeRate: row.exchangeRate,
       createdBy: row.createdBy,
       updatedBy: userId,
       leadTime: row.leadTime,
       discountPercent: row.discountPercent
-    };
-  });
+    });
+  }
 
   // 5. Delete existing and re-insert with updated prices
   const deleteResult = await client

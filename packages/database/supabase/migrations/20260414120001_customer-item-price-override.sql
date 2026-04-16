@@ -15,6 +15,7 @@ CREATE TABLE "customerItemPriceOverride" (
   "validFrom" DATE,
   "validTo" DATE,
   "active" BOOLEAN NOT NULL DEFAULT true,
+  "applyRulesOnTop" BOOLEAN NOT NULL DEFAULT true,
   "companyId" TEXT NOT NULL,
   "createdBy" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),

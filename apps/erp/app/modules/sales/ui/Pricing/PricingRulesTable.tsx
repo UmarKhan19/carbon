@@ -1,4 +1,12 @@
-import { Badge, MenuIcon, MenuItem } from "@carbon/react";
+import {
+  Badge,
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+  HStack,
+  MenuIcon,
+  MenuItem
+} from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -246,32 +254,54 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
         header: t`Items`,
         cell: ({ row }) => {
           const rule = row.original;
-          const parts: React.ReactNode[] = [];
-
-          if (rule.itemPostingGroupId) {
-            const label =
-              itemPostingGroups?.find(
+          const groupLabel = rule.itemPostingGroupId
+            ? (itemPostingGroups?.find(
                 (g) => g.value === rule.itemPostingGroupId
-              )?.label ?? "Item Group";
-            parts.push(<Enumerable key="ipg" value={label} />);
-          }
-          if (rule.itemIds?.length) {
-            rule.itemIds.forEach((id) => {
-              const item = items?.find((i) => i.id === id);
-              parts.push(
-                <Badge key={`i-${id}`} variant="outline">
-                  {item?.readableIdWithRevision ?? id}
-                </Badge>
-              );
-            });
-          }
+              )?.label ?? "Item Group")
+            : null;
+          const itemIds = rule.itemIds ?? [];
+          const firstItem = itemIds[0]
+            ? items?.find((i) => i.id === itemIds[0])
+            : null;
+          const remainingItems = itemIds.slice(1);
 
-          if (parts.length === 0) {
+          if (!groupLabel && itemIds.length === 0) {
             return (
               <span className="text-muted-foreground text-sm">{t`All`}</span>
             );
           }
-          return <div className="flex flex-col items-start gap-1">{parts}</div>;
+
+          return (
+            <HStack spacing={1} className="flex-wrap">
+              {groupLabel && <Enumerable value={groupLabel} />}
+              {itemIds[0] && (
+                <Badge variant="outline">
+                  {firstItem?.readableIdWithRevision ?? itemIds[0]}
+                </Badge>
+              )}
+              {remainingItems.length > 0 && (
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <Badge variant="secondary" className="cursor-pointer">
+                      +{remainingItems.length}
+                    </Badge>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-[260px]">
+                    <div className="flex flex-col items-start gap-1 text-sm">
+                      {remainingItems.map((id) => {
+                        const item = items?.find((i) => i.id === id);
+                        return (
+                          <Badge key={`i-${id}`} variant="outline">
+                            {item?.readableIdWithRevision ?? id}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
+            </HStack>
+          );
         },
         meta: {
           icon: <LuPackage />

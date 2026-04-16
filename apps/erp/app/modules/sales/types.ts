@@ -38,13 +38,16 @@ export type MatchedRule = {
   ruleType: string;
   amountType: string;
   amount: number;
+  priority: number;
 };
 
 export type OverrideEntry = {
+  id: string;
   overridePrice: number;
   notes: string | null;
   validFrom: string | null;
   validTo: string | null;
+  applyRulesOnTop: boolean;
 };
 
 export type PriceListRow = {
@@ -57,6 +60,7 @@ export type PriceListRow = {
   isOverridden: boolean;
   source: PriceSource;
   trace: PriceTraceStep[];
+  overrideId: string | null;
   overrideNotes: string | null;
   overrideValidFrom: string | null;
   overrideValidTo: string | null;

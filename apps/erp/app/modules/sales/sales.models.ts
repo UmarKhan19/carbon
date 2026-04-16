@@ -154,6 +154,7 @@ export const priceOverrideValidator = z
     customerTypeId: z.string().optional(),
     overridePrice: zfd.numeric(z.number().min(0)),
     active: zfd.checkbox(),
+    applyRulesOnTop: zfd.checkbox(),
     validFrom: zfd.text(z.string().optional()),
     validTo: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
@@ -202,10 +203,7 @@ export const pricingRuleValidator = z
     validTo: zfd.text(z.string().optional()),
     formulaBase: zfd.text(z.string().optional()),
     minMarginPercent: zfd.numeric(z.number().min(0).max(1).optional()),
-    active: z
-      .union([z.boolean(), z.literal("on"), z.literal("off")])
-      .transform((v) => v === true || v === "on")
-      .default(true)
+    active: zfd.checkbox()
   })
   .refine((d) => d.amountType !== "Percentage" || d.amount <= 1, {
     message: "Percentage must be between 0% and 100%",

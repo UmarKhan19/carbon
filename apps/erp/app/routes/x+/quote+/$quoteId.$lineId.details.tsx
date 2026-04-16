@@ -39,6 +39,8 @@ import {
   getRootQuoteMakeMethod,
   isQuoteLocked,
   quoteLineValidator,
+  resolvePurchaseToOrderPrices,
+  resolveQuoteLinePrices,
   upsertQuoteLine
 } from "~/modules/sales";
 import {
@@ -148,7 +150,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     create: "sales"
   });
 
@@ -213,6 +215,56 @@ export async function action({ request, params }: ActionFunctionArgs) {
     if (addedQuantities.length > 0) {
       await calculatePricesForQuantities(
         serviceRole,
+        quoteId,
+        lineId,
+        addedQuantities,
+        userId
+      );
+    }
+  } else if (d.methodType === "Pull from Inventory" && d.quantity?.length) {
+    const serviceRole = getCarbonServiceRole();
+    const existingPrices = await serviceRole
+      .from("quoteLinePrice")
+      .select("quantity")
+      .eq("quoteLineId", lineId);
+
+    const existingQuantities = new Set(
+      (existingPrices.data ?? []).map((p) => p.quantity)
+    );
+
+    const addedQuantities = d.quantity.filter(
+      (q) => !existingQuantities.has(q)
+    );
+
+    if (addedQuantities.length > 0) {
+      await resolveQuoteLinePrices(
+        serviceRole,
+        companyId,
+        quoteId,
+        lineId,
+        addedQuantities,
+        userId
+      );
+    }
+  } else if (d.methodType === "Purchase to Order" && d.quantity?.length) {
+    const serviceRole = getCarbonServiceRole();
+    const existingPrices = await serviceRole
+      .from("quoteLinePrice")
+      .select("quantity")
+      .eq("quoteLineId", lineId);
+
+    const existingQuantities = new Set(
+      (existingPrices.data ?? []).map((p) => p.quantity)
+    );
+
+    const addedQuantities = d.quantity.filter(
+      (q) => !existingQuantities.has(q)
+    );
+
+    if (addedQuantities.length > 0) {
+      await resolvePurchaseToOrderPrices(
+        serviceRole,
+        companyId,
         quoteId,
         lineId,
         addedQuantities,

@@ -37864,6 +37864,9 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.active",
           },
           {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.applyRulesOnTop",
+          },
+          {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.companyId",
           },
           {
@@ -37965,6 +37968,9 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.active",
           },
           {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.applyRulesOnTop",
+          },
+          {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.companyId",
           },
           {
@@ -38018,6 +38024,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.applyRulesOnTop",
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.companyId",
@@ -90530,6 +90539,7 @@ export default {
         "itemId",
         "overridePrice",
         "active",
+        "applyRulesOnTop",
         "companyId",
         "createdBy",
         "createdAt",
@@ -90576,6 +90586,11 @@ export default {
           type: "string",
         },
         active: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        applyRulesOnTop: {
           default: true,
           format: "boolean",
           type: "boolean",
@@ -123874,6 +123889,12 @@ export default {
     },
     "rowFilter.customerItemPriceOverride.active": {
       name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverride.applyRulesOnTop": {
+      name: "applyRulesOnTop",
       required: false,
       in: "query",
       type: "string",

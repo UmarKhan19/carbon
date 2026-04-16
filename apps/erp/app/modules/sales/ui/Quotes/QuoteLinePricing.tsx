@@ -32,7 +32,7 @@ import {
 } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuChevronDown,
   LuChevronRight,
@@ -58,12 +58,10 @@ import {
 } from "../../sales.models";
 import type {
   Costs,
-  PriceTraceStep,
   Quotation,
   QuotationLine,
   QuotationPrice
 } from "../../types";
-import { PriceTracePopover } from "../Pricing/PriceTracePopover";
 
 const categoryLabels: Record<CostCategoryKey, string> = {
   materialCost: "Material",
@@ -107,39 +105,6 @@ const QuoteLinePricing = ({
   });
 
   const [showCategoryMarkups, setShowCategoryMarkups] = useState(false);
-  const [priceTraceByQuantity, setPriceTraceByQuantity] = useState<
-    Record<number, PriceTraceStep[]>
-  >({});
-  const resolvedRef = useRef(false);
-
-  const resolveItemPriceForQuantity = useCallback(
-    async (itemId: string, quantity: number, customerId?: string) => {
-      if (!itemId || quantity <= 0) return;
-      try {
-        const response = await fetch(path.to.api.salesResolvePrice, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            itemId,
-            quantity,
-            customerId,
-            date: new Date().toISOString().split("T")[0]
-          })
-        });
-        if (!response.ok) return;
-        const result = await response.json();
-        if (result.trace) {
-          setPriceTraceByQuantity((prev) => ({
-            ...prev,
-            [quantity]: result.trace
-          }));
-        }
-      } catch {
-        // silently ignore — price trace is informational
-      }
-    },
-    []
-  );
 
   useEffect(() => {
     setEditableFields((prev) => ({
@@ -201,21 +166,6 @@ const QuoteLinePricing = ({
       toast.error(fetcher.data.error);
     }
   }, [fetcher.data]);
-
-  // Resolve price-list trace for each quantity on mount (informational only)
-  useEffect(() => {
-    if (resolvedRef.current || !line.itemId) return;
-    resolvedRef.current = true;
-    const customerId = routeData?.quote?.customerId ?? undefined;
-    for (const quantity of quantities) {
-      resolveItemPriceForQuantity(line.itemId, quantity, customerId);
-    }
-  }, [
-    line.itemId,
-    quantities,
-    routeData?.quote?.customerId,
-    resolveItemPriceForQuantity
-  ]);
 
   const { carbon } = useCarbon();
   const { id: userId, company } = useUser();
@@ -816,33 +766,37 @@ const QuoteLinePricing = ({
                   const price = editableFields.prices[quantity]?.unitPrice ?? 0;
                   const cost = unitCostsByQuantity[index];
 
-                  const markup = price ? (price - cost) / cost : 0;
+                  const markup = cost > 0 ? (price - cost) / cost : 0;
 
                   return (
                     <Td key={quantity.toString()}>
-                      <NumberField
-                        value={markup}
-                        formatOptions={{
-                          style: "percent",
-                          maximumFractionDigits: 2
-                        }}
-                        onChange={(value) => {
-                          if (Number.isFinite(value) && value !== markup) {
-                            onUpdatePrice(
-                              "unitPrice",
-                              quantity,
-                              cost * (1 + value)
-                            );
-                          }
-                        }}
-                      >
-                        <NumberInput
-                          className="border-0 -ml-3 shadow-none disabled:bg-transparent disabled:opacity-100"
-                          isDisabled={!isEditable}
-                          size="sm"
-                          min={0}
-                        />
-                      </NumberField>
+                      {cost > 0 ? (
+                        <NumberField
+                          value={markup}
+                          formatOptions={{
+                            style: "percent",
+                            maximumFractionDigits: 2
+                          }}
+                          onChange={(value) => {
+                            if (Number.isFinite(value) && value !== markup) {
+                              onUpdatePrice(
+                                "unitPrice",
+                                quantity,
+                                cost * (1 + value)
+                              );
+                            }
+                          }}
+                        >
+                          <NumberInput
+                            className="border-0 -ml-3 shadow-none disabled:bg-transparent disabled:opacity-100"
+                            isDisabled={!isEditable}
+                            size="sm"
+                            min={0}
+                          />
+                        </NumberField>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </Td>
                   );
                 })}
@@ -941,38 +895,29 @@ const QuoteLinePricing = ({
               </Td>
               {quantities.map((quantity) => {
                 const price = editableFields.prices[quantity]?.unitPrice;
-                const trace = priceTraceByQuantity[quantity];
                 return (
                   <Td key={quantity.toString()}>
-                    <HStack spacing={1}>
-                      <NumberField
-                        value={price}
-                        formatOptions={{
-                          style: "currency",
-                          currency: baseCurrency,
-                          maximumFractionDigits: unitPricePrecision
-                        }}
-                        minValue={0}
-                        onChange={(value) => {
-                          if (Number.isFinite(value) && value !== price) {
-                            onUpdatePrice("unitPrice", quantity, value);
-                          }
-                        }}
-                      >
-                        <NumberInput
-                          className="border-0 -ml-3 shadow-none disabled:bg-transparent disabled:opacity-100"
-                          isDisabled={!isEditable}
-                          size="sm"
-                          min={0}
-                        />
-                      </NumberField>
-                      <PriceTracePopover
-                        priceListId={null}
-                        priceListName={trace ? "Pricing Rules" : null}
-                        priceTrace={trace ?? []}
-                        currencyCode={baseCurrency}
+                    <NumberField
+                      value={price}
+                      formatOptions={{
+                        style: "currency",
+                        currency: baseCurrency,
+                        maximumFractionDigits: unitPricePrecision
+                      }}
+                      minValue={0}
+                      onChange={(value) => {
+                        if (Number.isFinite(value) && value !== price) {
+                          onUpdatePrice("unitPrice", quantity, value);
+                        }
+                      }}
+                    >
+                      <NumberInput
+                        className="border-0 -ml-3 shadow-none disabled:bg-transparent disabled:opacity-100"
+                        isDisabled={!isEditable}
+                        size="sm"
+                        min={0}
                       />
-                    </HStack>
+                    </NumberField>
                   </Td>
                 );
               })}

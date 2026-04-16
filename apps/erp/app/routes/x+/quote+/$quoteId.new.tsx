@@ -5,16 +5,15 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { getSupplierPriceBreaksForItems } from "~/modules/items";
 import {
   getQuote,
   isQuoteLocked,
   quoteLineValidator,
+  resolvePurchaseToOrderPrices,
+  resolveQuoteLinePrices,
   upsertQuoteLine,
-  upsertQuoteLineMethod,
-  upsertQuoteLinePrices
+  upsertQuoteLineMethod
 } from "~/modules/sales";
-import { lookupBuyPriceFromMap } from "~/modules/shared";
 import { setCustomFields } from "~/utils/form";
 import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
@@ -83,21 +82,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (d.methodType === "Purchase to Order") {
     const quantities = d.quantity ?? [1];
-    const priceMap = await getSupplierPriceBreaksForItems(serviceRole, [
-      d.itemId
-    ]);
-    await upsertQuoteLinePrices(
+    await resolvePurchaseToOrderPrices(
       serviceRole,
+      companyId,
       quoteId,
       quoteLineId,
-      quantities.map((qty) => ({
-        quoteLineId,
-        quantity: qty,
-        unitPrice: lookupBuyPriceFromMap(d.itemId, qty, priceMap, 0),
-        leadTime: 0,
-        discountPercent: 0,
-        createdBy: userId
-      }))
+      quantities,
+      userId
+    );
+  }
+
+  if (d.methodType === "Pull from Inventory") {
+    const quantities = d.quantity ?? [1];
+    await resolveQuoteLinePrices(
+      serviceRole,
+      companyId,
+      quoteId,
+      quoteLineId,
+      quantities,
+      userId
     );
   }
 

@@ -4817,6 +4817,7 @@ export type Database = {
       customerItemPriceOverride: {
         Row: {
           active: boolean
+          applyRulesOnTop: boolean
           companyId: string
           createdAt: string
           createdBy: string
@@ -4833,6 +4834,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          applyRulesOnTop?: boolean
           companyId: string
           createdAt?: string
           createdBy: string
@@ -4849,6 +4851,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          applyRulesOnTop?: boolean
           companyId?: string
           createdAt?: string
           createdBy?: string

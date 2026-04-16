@@ -55,7 +55,6 @@ import type {
   ConfigurationParameterGroup
 } from "~/modules/items/types";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
-import type { PriceTraceStep } from "~/modules/sales";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/quote+/$quoteId.new";
 import { useItems } from "~/stores";
@@ -66,7 +65,6 @@ import {
   quoteLineValidator
 } from "../../sales.models";
 import type { Quotation, QuotationLine } from "../../types";
-import { PriceTracePopover } from "../Pricing/PriceTracePopover";
 import DeleteQuoteLine from "./DeleteQuoteLine";
 
 type QuoteLineFormProps = {
@@ -130,31 +128,6 @@ const QuoteLineForm = ({
   >("");
 
   const percentFormatter = usePercentFormatter();
-
-  const [priceTrace, setPriceTrace] = useState<PriceTraceStep[]>([]);
-
-  const resolveItemPrice = async (itemId: string, quantity: number) => {
-    if (!itemId || quantity <= 0) return;
-    try {
-      const response = await fetch(path.to.api.salesResolvePrice, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          itemId,
-          quantity,
-          customerId: routeData?.quote?.customerId ?? undefined,
-          date: new Date().toISOString().split("T")[0]
-        })
-      });
-      if (!response.ok) return;
-      const result = await response.json();
-      if (result.trace) {
-        setPriceTrace(result.trace);
-      }
-    } catch {
-      // silently ignore — price trace is informational
-    }
-  };
 
   const onCustomerPartChange = async (customerPartId: string) => {
     if (!carbon || !routeData?.quote?.customerId) return;
@@ -245,8 +218,6 @@ const QuoteLineForm = ({
     }
 
     setItemData(newItemData);
-    setPriceTrace([]);
-    await resolveItemPrice(itemId, initialValues.quantity?.[0] ?? 1);
     if (itemReplenishment.data?.requiresConfiguration) {
       setRequiresConfiguration(true);
       const [parameters, groups] = await Promise.all([
@@ -501,24 +472,12 @@ const QuoteLineForm = ({
                       )}
                     </div>
                     <div className="flex flex-col gap-y-4">
-                      <HStack className="items-center gap-1">
-                        <ArrayNumeric
-                          name="quantity"
-                          label={t`Quantity`}
-                          defaults={[1, 25, 50, 100]}
-                          isDisabled={!isEditable}
-                        />
-                        <div className="mt-6">
-                          <PriceTracePopover
-                            priceListId={null}
-                            priceListName={
-                              priceTrace.length > 0 ? "Pricing Rules" : null
-                            }
-                            priceTrace={priceTrace}
-                            currencyCode={company?.baseCurrencyCode ?? "USD"}
-                          />
-                        </div>
-                      </HStack>
+                      <ArrayNumeric
+                        name="quantity"
+                        label={t`Quantity`}
+                        defaults={[1, 25, 50, 100]}
+                        isDisabled={!isEditable}
+                      />
                     </div>
                   </div>
                 </VStack>

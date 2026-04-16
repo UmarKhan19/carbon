@@ -51,6 +51,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     customerTypeId,
     itemId,
     overridePrice,
+    active,
+    applyRulesOnTop,
     notes,
     validFrom,
     validTo
@@ -61,10 +63,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     companyId,
     userId,
     {
+      id: overrideId,
       customerId: customerId || undefined,
       customerTypeId: customerTypeId || undefined,
       itemId,
       overridePrice,
+      active,
+      applyRulesOnTop,
       notes,
       validFrom,
       validTo
@@ -103,6 +108,7 @@ export default function EditPriceOverrideRoute() {
         customerTypeId: override.customerTypeId ?? undefined,
         overridePrice: override.overridePrice,
         active: override.active,
+        applyRulesOnTop: override.applyRulesOnTop ?? true,
         validFrom: override.validFrom ?? undefined,
         validTo: override.validTo ?? undefined,
         notes: override.notes ?? undefined
