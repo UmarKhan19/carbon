@@ -11,7 +11,15 @@ export async function getClaims(
   return client.rpc("get_claims", { uid, company: company ?? "" });
 }
 
-export function getPermissionCacheKey(userId: string) {
+export function getPermissionCacheKey(userId: string, companyId: string) {
+  return `permissions:${userId}:${companyId}`;
+}
+
+export function getPermissionCachePattern(userId: string) {
+  return `permissions:${userId}:*`;
+}
+
+export function getLegacyPermissionCacheKey(userId: string) {
   return `permissions:${userId}`;
 }
 

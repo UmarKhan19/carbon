@@ -1,8 +1,8 @@
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import type { MiddlewareFunction } from "react-router";
 import { redirect } from "react-router";
 import { userContext } from "~/context";
-import { getConsolePinIn } from "~/services/console.server";
+import { getValidatedConsolePinIn } from "~/services/console.server";
 import { getLocation, setLocation } from "~/services/location.server";
 import { path } from "~/utils/path";
 
@@ -10,17 +10,16 @@ export const userMiddleware: MiddlewareFunction = async ({
   context,
   request
 }) => {
-  const { client, companyId, userId, consoleMode } = await requirePermissions(
-    request,
-    {}
-  );
+  const { client, companyId, userId, consoleMode } =
+    await requireActiveEmployee(request);
   const { location, updated } = await getLocation(request, client, {
     companyId,
     userId
   });
 
-  // Read pin-in state from cookies (console mode comes from auth session)
-  const pinIn = consoleMode ? getConsolePinIn(request, companyId) : null;
+  const pinIn = consoleMode
+    ? await getValidatedConsolePinIn(request, companyId)
+    : null;
 
   context.set(userContext, {
     locationId: location,

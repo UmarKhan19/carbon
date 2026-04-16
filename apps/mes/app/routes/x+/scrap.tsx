@@ -1,5 +1,5 @@
 import { assertIsPost, error, success } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
@@ -7,11 +7,14 @@ import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { scrapQuantityValidator } from "~/services/models";
-import { insertScrapQuantity } from "~/services/operations.service";
+import {
+  getJobOperationForCompany,
+  insertScrapQuantity
+} from "~/services/operations.service";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {});
+  const { client, companyId, userId } = await requireActiveEmployee(request);
 
   const formData = await request.formData();
   const validation = await validator(scrapQuantityValidator).validate(formData);
@@ -23,8 +26,22 @@ export async function action({ request }: ActionFunctionArgs) {
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { trackedEntityId, trackingType, ...d } = validation.data;
 
+  const authorizedOperation = await getJobOperationForCompany(
+    client,
+    validation.data.jobOperationId,
+    companyId
+  );
+
+  if (authorizedOperation.error || !authorizedOperation.data) {
+    return data(
+      {},
+      await flash(request, error(authorizedOperation.error, "Access Denied"))
+    );
+  }
+
   const insertScrap = await insertScrapQuantity(client, {
     ...d,
+    jobOperationId: authorizedOperation.data.id,
     companyId,
     createdBy: userId
   });
@@ -41,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const issue = await getCarbonServiceRole().functions.invoke("issue", {
     body: {
-      id: validation.data.jobOperationId,
+      id: authorizedOperation.data.id,
       type: "jobOperation",
       quantity: validation.data.quantity,
       companyId,

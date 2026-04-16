@@ -3,11 +3,14 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { updateJobBatchNumber } from "~/modules/production/production.service";
+import {
+  getTrackedEntityForJob,
+  updateJobBatchNumber
+} from "~/modules/production/production.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     update: "production",
     bypassRls: true
   });
@@ -19,7 +22,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const value = String(formData.get("value"));
   if (!value) throw new Error("Could not find value");
 
-  const update = await updateJobBatchNumber(client, trackedEntityId, value);
+  const trackedEntity = await getTrackedEntityForJob(
+    client,
+    trackedEntityId,
+    jobId,
+    companyId
+  );
+
+  if (trackedEntity.error || !trackedEntity.data) {
+    return data(
+      trackedEntity,
+      await flash(request, error(trackedEntity.error, "Access Denied"))
+    );
+  }
+
+  const update = await updateJobBatchNumber(
+    client,
+    trackedEntity.data.id,
+    value
+  );
 
   if (update.error) {
     return data(

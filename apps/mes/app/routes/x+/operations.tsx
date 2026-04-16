@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   Button,
@@ -49,7 +49,7 @@ import { usePeople } from "~/stores";
 import { makeDurations } from "~/utils/durations";
 
 export async function loader({ context, request }: LoaderFunctionArgs) {
-  const { companyId } = await requirePermissions(request, {});
+  const { companyId } = await requireActiveEmployee(request);
   const serviceRole = getCarbonServiceRole();
 
   const url = new URL(request.url);

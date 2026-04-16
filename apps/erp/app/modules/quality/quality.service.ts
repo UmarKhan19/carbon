@@ -922,6 +922,19 @@ export async function getQualityDocument(
     .single();
 }
 
+export async function getQualityDocumentForCompany(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("qualityDocument")
+    .select("*, qualityDocumentStep(*)")
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
 export async function getQualityDocumentSteps(
   client: SupabaseClient<Database>,
   qualityDocumentId: string

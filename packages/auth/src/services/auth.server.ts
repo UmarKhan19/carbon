@@ -13,6 +13,7 @@ import { getCarbonServiceRole } from "../lib/supabase/client.server";
 import type { AuthSession } from "../types";
 import { path } from "../utils/path";
 import { error } from "../utils/result";
+import { getValidatedConsolePinIn } from "./console.server";
 import {
   destroyAuthSession,
   flash,
@@ -120,38 +121,18 @@ function makeAuthSession(
  * the operator's ID. Otherwise returns the session user's ID.
  *
  * Console mode is read from the auth session; pin-in state is
- * still read from the `console-pin-{companyId}` cookie.
+ * read from a signed cookie and re-validated against the employee table.
  */
-function getEffectiveUser(
+async function getEffectiveUser(
   request: Request,
   companyId: string,
   sessionUserId: string,
   consoleMode: boolean
-): string {
+) {
   if (!consoleMode) return sessionUserId;
 
-  const cookieHeader = request.headers.get("cookie");
-  if (!cookieHeader) return sessionUserId;
-
-  // Parse only the pin-in cookie we need
-  const cookies = Object.fromEntries(
-    cookieHeader.split(";").map((c) => {
-      const [key, ...rest] = c.trim().split("=");
-      return [key, decodeURIComponent(rest.join("="))];
-    })
-  );
-
-  const pinRaw = cookies[`console-pin-${companyId}`];
-  if (!pinRaw) return sessionUserId;
-
-  try {
-    const pinIn = JSON.parse(pinRaw);
-    const elapsed = Date.now() - pinIn.pinnedAt;
-    if (elapsed > 3600000) return sessionUserId;
-    return pinIn.userId ?? sessionUserId;
-  } catch {
-    return sessionUserId;
-  }
+  const pinIn = await getValidatedConsolePinIn(request, companyId);
+  return pinIn?.userId ?? sessionUserId;
 }
 
 export async function requirePermissions(
@@ -267,7 +248,7 @@ export async function requirePermissions(
           : getCarbon(accessToken),
       companyId,
       email,
-      userId: getEffectiveUser(request, companyId, userId, consoleMode),
+      userId: await getEffectiveUser(request, companyId, userId, consoleMode),
       sessionUserId: userId,
       consoleMode
     };
@@ -324,10 +305,43 @@ export async function requirePermissions(
         : getCarbon(accessToken),
     companyId,
     email,
-    userId: getEffectiveUser(request, companyId, userId, consoleMode),
+    userId: await getEffectiveUser(request, companyId, userId, consoleMode),
     sessionUserId: userId,
     consoleMode
   };
+}
+
+async function assertActiveEmployee(
+  request: Request,
+  userId: string,
+  companyId: string
+) {
+  const employee = await getCarbonServiceRole()
+    .from("employee")
+    .select("id")
+    .eq("id", userId)
+    .eq("companyId", companyId)
+    .eq("active", true)
+    .maybeSingle();
+
+  if (employee.error || !employee.data) {
+    throw redirect(
+      path.to.authenticatedRoot,
+      await flash(request, error(employee.error, "Access Denied"))
+    );
+  }
+}
+
+export async function requireActiveEmployee(request: Request) {
+  const auth = await requirePermissions(request, { role: "employee" });
+
+  await assertActiveEmployee(request, auth.sessionUserId, auth.companyId);
+
+  if (auth.userId !== auth.sessionUserId) {
+    await assertActiveEmployee(request, auth.userId, auth.companyId);
+  }
+
+  return auth;
 }
 
 export async function resetPassword(accessToken: string, password: string) {

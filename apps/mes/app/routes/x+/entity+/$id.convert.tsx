@@ -1,14 +1,15 @@
 import { assertIsPost } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { convertEntityValidator } from "~/services/models";
+import { getTrackedEntityForCompany } from "~/services/operations.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { userId, companyId } = await requirePermissions(request, {});
+  const { userId, companyId } = await requireActiveEmployee(request);
 
   const { id } = params;
   if (!id) throw new Error("Could not find id");
@@ -37,10 +38,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
   } = validation.data;
 
   const serviceRole = await getCarbonServiceRole();
+  const trackedEntity = await getTrackedEntityForCompany(
+    serviceRole,
+    trackedEntityId,
+    companyId
+  );
+
+  if (trackedEntity.error || !trackedEntity.data) {
+    return data({ success: false, message: "Access denied" }, { status: 403 });
+  }
+
   const convert = await serviceRole.functions.invoke("issue", {
     body: {
       type: "convertEntity",
-      trackedEntityId,
+      trackedEntityId: trackedEntity.data.id,
       newRevision: revision,
       quantity: newQuantity,
       companyId,

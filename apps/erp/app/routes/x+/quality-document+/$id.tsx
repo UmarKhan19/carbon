@@ -12,7 +12,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import {
-  getQualityDocument,
+  getQualityDocumentForCompany,
   getQualityDocumentVersions,
   qualityDocumentApprovalValidator
 } from "~/modules/quality";
@@ -217,14 +217,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!id) throw new Error("Could not find id");
 
   const [document, tags] = await Promise.all([
-    getQualityDocument(client, id),
+    getQualityDocumentForCompany(client, id, companyId),
     getTagsList(client, companyId, "qualityDocument")
   ]);
 
-  if (document.error) {
+  if (document.error || !document.data) {
     throw redirect(
       path.to.qualityDocuments,
-      await flash(request, error(document.error, "Failed to load document"))
+      await flash(request, error(document.error, "Access Denied"))
     );
   }
 

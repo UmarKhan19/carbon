@@ -1,4 +1,4 @@
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
@@ -7,10 +7,8 @@ import { clearConsolePinIn } from "~/services/console.server";
 import { endProductionEvents } from "~/services/operations.service";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId, consoleMode } = await requirePermissions(
-    request,
-    {}
-  );
+  const { client, companyId, userId, consoleMode } =
+    await requireActiveEmployee(request);
   const formData = await request.formData();
   const timezone = formData.get("timezone") as string | null;
 

@@ -1,9 +1,4 @@
-import {
-  CarbonEdition,
-  error,
-  getAppUrl,
-  getPermissionCacheKey
-} from "@carbon/auth";
+import { CarbonEdition, error, getAppUrl } from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { setCompanyId } from "@carbon/auth/company.server";
 import {
@@ -11,7 +6,6 @@ import {
   getAuthSession,
   updateCompanySession
 } from "@carbon/auth/session.server";
-import { redis } from "@carbon/kv";
 import { Button as _Button, Heading as _Heading, VStack } from "@carbon/react";
 import { updateSubscriptionQuantityForCompany } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
@@ -23,7 +17,10 @@ import type {
   MetaFunction
 } from "react-router";
 import { Form, Link, redirect, useLoaderData } from "react-router";
-import { acceptInvite } from "~/modules/users/users.server";
+import {
+  acceptInvite,
+  clearPermissionCache
+} from "~/modules/users/users.server";
 import { path } from "~/utils/path";
 
 export const meta: MetaFunction = () => {
@@ -71,7 +68,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (authSession) {
-    await redis.del(getPermissionCacheKey(authSession.userId));
+    await clearPermissionCache(authSession.userId);
     const sessionCookie = await updateCompanySession(
       request,
       accept.data.companyId

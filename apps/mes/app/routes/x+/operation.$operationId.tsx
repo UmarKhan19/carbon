@@ -1,5 +1,5 @@
 import { error } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
@@ -12,6 +12,7 @@ import {
   getJobMaterialsByOperationId,
   getJobMethodBomIdMap,
   getJobOperationById,
+  getJobOperationForCompany,
   getJobOperationProcedure,
   getKanbanByJobId,
   getNonConformanceActions,
@@ -26,7 +27,7 @@ import { makeDurations } from "~/utils/durations";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { userId, companyId } = await requirePermissions(request, {});
+  const { userId, companyId } = await requireActiveEmployee(request);
 
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");
@@ -35,15 +36,30 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const trackedEntityId = url.searchParams.get("trackedEntityId");
 
   const serviceRole = await getCarbonServiceRole();
+  const authorizedOperation = await getJobOperationForCompany(
+    serviceRole,
+    operationId,
+    companyId
+  );
+
+  if (authorizedOperation.error || !authorizedOperation.data) {
+    throw redirect(
+      path.to.operations,
+      await flash(request, error(authorizedOperation.error, "Access Denied"))
+    );
+  }
 
   const [events, quantities, job, operation] = await Promise.all([
     getProductionEventsForJobOperation(serviceRole, {
-      operationId,
+      operationId: authorizedOperation.data.id,
       userId
     }),
-    getProductionQuantitiesForJobOperation(serviceRole, operationId),
-    getJobByOperationId(serviceRole, operationId),
-    getJobOperationById(serviceRole, operationId)
+    getProductionQuantitiesForJobOperation(
+      serviceRole,
+      authorizedOperation.data.id
+    ),
+    getJobByOperationId(serviceRole, authorizedOperation.data.id),
+    getJobOperationById(serviceRole, authorizedOperation.data.id)
   ]);
 
   if (job.error) {
@@ -78,6 +94,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       getKanbanByJobId(serviceRole, job.data.id),
       getJobMethodBomIdMap(serviceRole, job.data.id!)
     ]);
+
+  const selectedTrackedEntityId = trackedEntities.data?.some(
+    (entity) => entity.id === trackedEntityId
+  )
+    ? (trackedEntityId ?? undefined)
+    : trackedEntities.data?.[0]?.id;
 
   // If no trackedEntityId is provided in the URL but trackedEntities exist,
   // redirect to the same URL with the last trackedEntityId as a search param
@@ -120,7 +142,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     files: getJobFiles(serviceRole, companyId, job.data, operation.data),
     materials: getJobMaterialsByOperationId(serviceRole, {
       operation: operation.data?.[0],
-      trackedEntityId: trackedEntityId ?? trackedEntities?.data?.[0]?.id,
+      trackedEntityId: selectedTrackedEntityId,
       requiresSerialTracking:
         jobMakeMethod.data?.requiresSerialTracking ?? false
     }),

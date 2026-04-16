@@ -1,5 +1,5 @@
 import { error } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { getLocalTimeZone, now } from "@internationalized/date";
@@ -7,13 +7,14 @@ import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getWorkCenterWithBlockingStatus } from "~/services/maintenance.service";
 import {
+  getJobOperationForCompany,
   getTrackedEntitiesByMakeMethodId,
   startProductionEvent
 } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { userId, companyId } = await requirePermissions(request, {});
+  const { userId, companyId } = await requireActiveEmployee(request);
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");
 
@@ -30,11 +31,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const serviceRole = await getCarbonServiceRole();
   const [jobOperation] = await Promise.all([
-    serviceRole
-      .from("jobOperation")
-      .select("*")
-      .eq("id", operationId)
-      .maybeSingle(),
+    getJobOperationForCompany(serviceRole, operationId, companyId),
     serviceRole
       .from("productionEvent")
       .update({
@@ -51,16 +48,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       await flash(
         request,
         error(jobOperation.error, "Failed to fetch job operation")
-      )
-    );
-  }
-
-  if (jobOperation.data?.companyId !== companyId) {
-    throw redirect(
-      path.to.operations,
-      await flash(
-        request,
-        error("You are not authorized to start this operation", "Unauthorized")
       )
     );
   }

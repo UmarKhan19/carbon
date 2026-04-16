@@ -4,7 +4,6 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { setCompanyId } from "@carbon/auth/company.server";
 import { updateCompanySession } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { redis } from "@carbon/kv";
 import { getLocalTimeZone } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -15,7 +14,7 @@ import {
   insertCompany,
   seedCompany
 } from "~/modules/settings";
-import { getPermissionCacheKey } from "~/modules/users/users.server";
+import { clearPermissionCache } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -77,7 +76,7 @@ export async function action({ request }: ActionFunctionArgs) {
       companyId,
       locationId
     }),
-    redis.del(getPermissionCacheKey(userId))
+    clearPermissionCache(userId)
   ]);
 
   if (job.error) {

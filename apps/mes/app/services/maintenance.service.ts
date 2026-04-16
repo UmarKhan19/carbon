@@ -70,6 +70,19 @@ export async function getMaintenanceDispatch(
     .single();
 }
 
+export async function getMaintenanceDispatchForCompany(
+  client: SupabaseClient<Database>,
+  dispatchId: string,
+  companyId: string
+) {
+  return client
+    .from("maintenanceDispatch")
+    .select("id, companyId, workCenterId")
+    .eq("id", dispatchId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
 export async function getActiveMaintenanceEventByEmployee(
   client: SupabaseClient<Database>,
   employeeId: string
@@ -149,6 +162,19 @@ export async function endMaintenanceEvent(
     .eq("id", args.eventId)
     .select("id")
     .single();
+}
+
+export async function getMaintenanceEventForCompany(
+  client: SupabaseClient<Database>,
+  eventId: string,
+  companyId: string
+) {
+  return client
+    .from("maintenanceDispatchEvent")
+    .select("id, companyId, maintenanceDispatchId")
+    .eq("id", eventId)
+    .eq("companyId", companyId)
+    .maybeSingle();
 }
 
 export async function updateMaintenanceDispatchStatus(
@@ -262,6 +288,21 @@ export async function addMaintenanceDispatchItem(
     ])
     .select("id")
     .single();
+}
+
+export async function getMaintenanceDispatchItemForDispatch(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  dispatchId: string,
+  companyId: string
+) {
+  return client
+    .from("maintenanceDispatchItem")
+    .select("id, companyId, maintenanceDispatchId")
+    .eq("id", itemId)
+    .eq("maintenanceDispatchId", dispatchId)
+    .eq("companyId", companyId)
+    .maybeSingle();
 }
 
 export async function deleteMaintenanceDispatchItem(

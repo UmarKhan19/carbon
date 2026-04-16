@@ -1,4 +1,3 @@
-import { redis } from "@carbon/kv";
 import { Edition } from "@carbon/utils";
 import { createCookieSessionStorage, redirect } from "react-router";
 
@@ -16,7 +15,7 @@ import { getCurrentPath, isGet, makeRedirectToFromHere } from "../utils/http";
 import { path } from "../utils/path";
 import { refreshAccessToken, verifyAuthSession } from "./auth.server";
 import { setCompanyId } from "./company.server";
-import { getPermissionCacheKey } from "./users";
+import { clearPermissionCache } from "./users.server";
 
 async function assertAuthSession(
   request: Request,
@@ -234,7 +233,7 @@ export async function updateCompanySession(
   const authSession = await getAuthSession(request);
 
   if (authSession !== undefined) {
-    await redis.del(getPermissionCacheKey(authSession?.userId!));
+    await clearPermissionCache(authSession?.userId!);
     session.set(SESSION_KEY, {
       ...authSession,
       companyId

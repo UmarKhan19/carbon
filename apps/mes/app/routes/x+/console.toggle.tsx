@@ -1,5 +1,5 @@
 import { assertIsPost } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { updateSessionConsole } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -8,7 +8,7 @@ import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId } = await requirePermissions(request, {});
+  const { client, companyId } = await requireActiveEmployee(request);
 
   const formData = await request.formData();
   const enabled = formData.get("consoleMode") === "true";

@@ -1,16 +1,19 @@
 import { assertIsPost } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import {
+  getItemForCompany,
+  getLocationForCompany,
+  getShelfForCompany,
   insertManualInventoryAdjustment,
   inventoryAdjustmentValidator
 } from "~/services/inventory.service";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, userId } = await requirePermissions(request, {});
+  const { companyId, userId } = await requireActiveEmployee(request);
   const serviceRole = await getCarbonServiceRole();
 
   const formData = await request.formData();
@@ -23,8 +26,32 @@ export async function action({ request }: ActionFunctionArgs) {
   }
   const { ...d } = validation.data;
 
+  const [item, location, shelf] = await Promise.all([
+    getItemForCompany(serviceRole, d.itemId, companyId),
+    getLocationForCompany(serviceRole, d.locationId, companyId),
+    d.shelfId
+      ? getShelfForCompany(serviceRole, d.shelfId, companyId)
+      : Promise.resolve({ data: null, error: null })
+  ]);
+
+  if (
+    item.error ||
+    !item.data ||
+    location.error ||
+    !location.data ||
+    (d.shelfId && (shelf.error || !shelf.data))
+  ) {
+    return {
+      success: false,
+      message: "Access denied"
+    };
+  }
+
   const itemLedger = await insertManualInventoryAdjustment(serviceRole, {
     ...d,
+    itemId: item.data.id,
+    locationId: location.data.id,
+    shelfId: shelf.data?.id,
     companyId,
     createdBy: userId
   });

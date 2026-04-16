@@ -1,12 +1,15 @@
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { getTrackedEntity } from "~/services/operations.service";
+import {
+  getJobMaterialForCompany,
+  getTrackedEntityForCompany
+} from "~/services/operations.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {});
+  const { companyId, userId } = await requireActiveEmployee(request);
 
   const { trackedEntityId, materialId } = params;
   if (!materialId) throw new Error("Could not find materialId");
@@ -16,20 +19,40 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const url = new URL(request.url);
   const parentTrackedEntityId = url.searchParams.get("parentId") || undefined;
 
-  const trackedEntity = await getTrackedEntity(client, trackedEntityId);
-  if (trackedEntity.error) {
-    return data(
-      { success: false, message: "Failed to get tracked entity" },
-      { status: 400 }
-    );
+  const serviceRole = await getCarbonServiceRole();
+  const [trackedEntity, jobMaterial, parentTrackedEntity] = await Promise.all([
+    getTrackedEntityForCompany(serviceRole, trackedEntityId, companyId),
+    getJobMaterialForCompany(serviceRole, materialId, companyId),
+    parentTrackedEntityId
+      ? getTrackedEntityForCompany(
+          serviceRole,
+          parentTrackedEntityId,
+          companyId
+        )
+      : Promise.resolve({ data: null, error: null })
+  ]);
+
+  if (
+    trackedEntity.error ||
+    !trackedEntity.data ||
+    jobMaterial.error ||
+    !jobMaterial.data
+  ) {
+    return data({ success: false, message: "Access denied" }, { status: 403 });
   }
 
-  const serviceRole = await getCarbonServiceRole();
+  if (
+    parentTrackedEntityId &&
+    (parentTrackedEntity.error || !parentTrackedEntity.data)
+  ) {
+    return data({ success: false, message: "Access denied" }, { status: 403 });
+  }
+
   const issue = await serviceRole.functions.invoke("issue", {
     body: {
-      trackedEntityId,
-      materialId,
-      parentTrackedEntityId,
+      trackedEntityId: trackedEntity.data.id,
+      materialId: jobMaterial.data.id,
+      parentTrackedEntityId: parentTrackedEntity.data?.id,
       type: "scrapTrackedEntity",
       companyId,
       userId

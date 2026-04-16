@@ -1792,6 +1792,36 @@ export async function getTrackedEntitiesByJobId(
     .eq("companyId", jobMakeMethod.data.companyId);
 }
 
+export async function getTrackedEntityForJob(
+  client: SupabaseClient<Database>,
+  trackedEntityId: string,
+  jobId: string,
+  companyId: string
+) {
+  const jobMakeMethod = await client
+    .from("jobMakeMethod")
+    .select("id")
+    .eq("jobId", jobId)
+    .eq("companyId", companyId)
+    .is("parentMaterialId", null)
+    .maybeSingle();
+
+  if (jobMakeMethod.error || !jobMakeMethod.data) {
+    return {
+      data: null,
+      error: jobMakeMethod.error
+    };
+  }
+
+  return client
+    .from("trackedEntity")
+    .select("id, readableId, companyId")
+    .eq("id", trackedEntityId)
+    .eq("companyId", companyId)
+    .eq("attributes ->> Job Make Method", jobMakeMethod.data.id)
+    .maybeSingle();
+}
+
 /**
  * Reschedule a job using the unified scheduling engine.
  * This recalculates dates, work centers, and priorities for all operations.

@@ -56,6 +56,45 @@ export async function getCompanySettings(
     .single();
 }
 
+export async function getItemForCompany(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  return client
+    .from("item")
+    .select("id, companyId")
+    .eq("id", itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function getLocationForCompany(
+  client: SupabaseClient<Database>,
+  locationId: string,
+  companyId: string
+) {
+  return client
+    .from("location")
+    .select("id, companyId")
+    .eq("id", locationId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function getShelfForCompany(
+  client: SupabaseClient<Database>,
+  shelfId: string,
+  companyId: string
+) {
+  return client
+    .from("shelf")
+    .select("id, companyId")
+    .eq("id", shelfId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
 export async function getSerialNumbersForItem(
   client: SupabaseClient<Database>,
   args: {

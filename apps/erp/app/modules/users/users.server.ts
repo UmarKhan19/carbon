@@ -602,8 +602,25 @@ export async function getCurrentUser(
   return user.data;
 }
 
-export function getPermissionCacheKey(userId: string) {
+export function getPermissionCacheKey(userId: string, companyId: string) {
+  return `permissions:${userId}:${companyId}`;
+}
+
+export function getPermissionCachePattern(userId: string) {
+  return `permissions:${userId}:*`;
+}
+
+export function getLegacyPermissionCacheKey(userId: string) {
   return `permissions:${userId}`;
+}
+
+export async function clearPermissionCache(userId: string) {
+  const cacheKeys = await redis.keys(getPermissionCachePattern(userId));
+  const keysToDelete = [getLegacyPermissionCacheKey(userId), ...cacheKeys];
+
+  if (keysToDelete.length > 0) {
+    await redis.del(...keysToDelete);
+  }
 }
 
 export async function getUser(client: SupabaseClient<Database>, id: string) {
@@ -630,7 +647,9 @@ export async function getUserClaims(userId: string, companyId: string) {
   } | null = null;
 
   try {
-    const cachedClaims = await redis.get(getPermissionCacheKey(userId));
+    const cachedClaims = await redis.get(
+      getPermissionCacheKey(userId, companyId)
+    );
     if (cachedClaims) {
       claims = JSON.parse(cachedClaims) as {
         permissions: Record<string, Permission>;
@@ -657,7 +676,10 @@ export async function getUserClaims(userId: string, companyId: string) {
       claims = makePermissionsFromClaims(rawClaims.data as Json[]);
 
       // store claims in redis
-      await redis.set(getPermissionCacheKey(userId), JSON.stringify(claims));
+      await redis.set(
+        getPermissionCacheKey(userId, companyId),
+        JSON.stringify(claims)
+      );
 
       if (!claims) {
         throw new Error("Failed to get claims");
@@ -1472,7 +1494,7 @@ export async function updatePermissions(
     if (permissionsUpdate.error)
       return error(permissionsUpdate.error, "Failed to update claims");
 
-    await redis.del(getPermissionCacheKey(id));
+    await clearPermissionCache(id);
 
     return success("Permissions updated");
   } else {

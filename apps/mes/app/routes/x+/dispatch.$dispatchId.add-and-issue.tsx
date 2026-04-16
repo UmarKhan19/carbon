@@ -1,10 +1,13 @@
 import { assertIsPost } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
+import { getItemForCompany } from "~/services/inventory.service";
+import { getMaintenanceDispatchForCompany } from "~/services/maintenance.service";
+import { getTrackedEntitiesForCompany } from "~/services/operations.service";
 
 const addAndIssueValidator = z.object({
   itemId: z.string().min(1),
@@ -24,7 +27,7 @@ const addAndIssueValidator = z.object({
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { userId, companyId } = await requirePermissions(request, {});
+  const { userId, companyId } = await requireActiveEmployee(request);
   const { dispatchId } = params;
 
   if (!dispatchId) {
@@ -59,14 +62,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const serviceRole = await getCarbonServiceRole();
+  const [dispatch, item, trackedEntities] = await Promise.all([
+    getMaintenanceDispatchForCompany(serviceRole, dispatchId, companyId),
+    getItemForCompany(serviceRole, itemId, companyId),
+    children && children.length > 0
+      ? getTrackedEntitiesForCompany(
+          serviceRole,
+          children.map((child) => child.trackedEntityId),
+          companyId
+        )
+      : Promise.resolve({ data: [], error: null })
+  ]);
+
+  if (
+    dispatch.error ||
+    !dispatch.data ||
+    item.error ||
+    !item.data ||
+    trackedEntities.error ||
+    trackedEntities.data.length !== (children?.length ?? 0)
+  ) {
+    return data({ success: false, message: "Access denied" }, { status: 403 });
+  }
 
   if (children && children.length > 0) {
     // Tracked entities (serial/batch)
     const issue = await serviceRole.functions.invoke("issue", {
       body: {
         type: "maintenanceDispatchTrackedEntities",
-        maintenanceDispatchId: dispatchId,
-        itemId,
+        maintenanceDispatchId: dispatch.data.id,
+        itemId: item.data.id,
         unitOfMeasureCode,
         children,
         companyId,
@@ -87,8 +112,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const issue = await serviceRole.functions.invoke("issue", {
       body: {
         type: "maintenanceDispatchInventory",
-        maintenanceDispatchId: dispatchId,
-        itemId,
+        maintenanceDispatchId: dispatch.data.id,
+        itemId: item.data.id,
         unitOfMeasureCode,
         quantity: totalQuantity,
         companyId,

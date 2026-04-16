@@ -1,5 +1,5 @@
 import { assertIsPost, error, success } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
@@ -9,13 +9,14 @@ import { data, redirect } from "react-router";
 import { nonScrapQuantityValidator } from "~/services/models";
 import {
   finishJobOperation,
+  getJobOperationForCompany,
   insertProductionQuantity
 } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {});
+  const { client, companyId, userId } = await requireActiveEmployee(request);
 
   const formData = await request.formData();
   const validation = await validator(nonScrapQuantityValidator).validate(
@@ -27,30 +28,27 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const serviceRole = await getCarbonServiceRole();
+  const authorizedOperation = await getJobOperationForCompany(
+    serviceRole,
+    validation.data.jobOperationId,
+    companyId
+  );
+
+  if (authorizedOperation.error || !authorizedOperation.data) {
+    return data(
+      {},
+      await flash(request, error(authorizedOperation.error, "Access Denied"))
+    );
+  }
 
   // Get current job operation and production quantities to check if operation will be finished
-  const [jobOperation, productionQuantities] = await Promise.all([
-    serviceRole
-      .from("jobOperation")
-      .select("*")
-      .eq("id", validation.data.jobOperationId)
-      .maybeSingle(),
+  const [productionQuantities] = await Promise.all([
     serviceRole
       .from("productionQuantity")
       .select("*")
       .eq("type", "Production")
-      .eq("jobOperationId", validation.data.jobOperationId)
+      .eq("jobOperationId", authorizedOperation.data.id)
   ]);
-
-  if (jobOperation.error || !jobOperation.data) {
-    return data(
-      {},
-      await flash(request, {
-        ...error(jobOperation.error, "Failed to fetch job operation"),
-        flash: "error"
-      })
-    );
-  }
 
   const currentQuantity =
     productionQuantities.data?.reduce((acc, curr) => acc + curr.quantity, 0) ??
@@ -58,8 +56,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const willBeFinished =
     validation.data.quantity + currentQuantity >=
-    (jobOperation.data.targetQuantity ??
-      jobOperation.data.operationQuantity ??
+    (authorizedOperation.data.targetQuantity ??
+      authorizedOperation.data.operationQuantity ??
       0);
 
   if (validation.data.trackingType === "Serial") {
@@ -77,7 +75,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
-        jobOperationId: jobOperation.data.id,
+        jobOperationId: authorizedOperation.data.id,
         userId
       });
 
@@ -133,7 +131,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
-        jobOperationId: jobOperation.data.id,
+        jobOperationId: authorizedOperation.data.id,
         userId
       });
 
@@ -202,7 +200,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
-        jobOperationId: jobOperation.data.id,
+        jobOperationId: authorizedOperation.data.id,
         userId
       });
 

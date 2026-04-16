@@ -1,15 +1,20 @@
 import { assertIsPost, error, success } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { addMaintenanceDispatchItem } from "~/services/maintenance.service";
+import { getItemForCompany } from "~/services/inventory.service";
+import {
+  addMaintenanceDispatchItem,
+  getMaintenanceDispatchForCompany,
+  getMaintenanceDispatchItemForDispatch
+} from "~/services/maintenance.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { companyId, userId } = await requirePermissions(request, {});
+  const { companyId, userId } = await requireActiveEmployee(request);
   const { dispatchId } = params;
 
   if (!dispatchId) {
@@ -20,6 +25,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const action = formData.get("action") as "add" | "delete";
 
   const serviceRole = await getCarbonServiceRole();
+  const dispatch = await getMaintenanceDispatchForCompany(
+    serviceRole,
+    dispatchId,
+    companyId
+  );
+
+  if (dispatch.error || !dispatch.data) {
+    return data(
+      {},
+      await flash(request, error(dispatch.error, "Access Denied"))
+    );
+  }
 
   if (action === "add") {
     const itemId = formData.get("itemId") as string;
@@ -37,9 +54,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
     }
 
+    const item = await getItemForCompany(serviceRole, itemId, companyId);
+
+    if (item.error || !item.data) {
+      return data({}, await flash(request, error(item.error, "Access Denied")));
+    }
+
     const result = await addMaintenanceDispatchItem(serviceRole, {
-      maintenanceDispatchId: dispatchId,
-      itemId,
+      maintenanceDispatchId: dispatch.data.id,
+      itemId: item.data.id,
       quantity,
       unitOfMeasureCode: unitOfMeasureCode || "EA",
       companyId,
@@ -66,10 +89,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return data({}, await flash(request, error("Item ID is required")));
     }
 
+    const dispatchItem = await getMaintenanceDispatchItemForDispatch(
+      serviceRole,
+      itemId,
+      dispatch.data.id,
+      companyId
+    );
+
+    if (dispatchItem.error || !dispatchItem.data) {
+      return data(
+        {},
+        await flash(request, error(dispatchItem.error, "Access Denied"))
+      );
+    }
+
     const result = await serviceRole.functions.invoke("issue", {
       body: {
         type: "maintenanceDispatchUnissue",
-        maintenanceDispatchItemId: itemId,
+        maintenanceDispatchItemId: dispatchItem.data.id,
         companyId,
         userId
       },

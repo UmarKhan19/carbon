@@ -1,5 +1,11 @@
 import type { Result } from "@carbon/auth";
-import { error, getClaims, getPermissionCacheKey, success } from "@carbon/auth";
+import {
+  error,
+  getClaims,
+  getLegacyPermissionCacheKey,
+  getPermissionCachePattern,
+  success
+} from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { redis } from "@carbon/kv";
@@ -171,7 +177,8 @@ export async function updatePermissions(
     if (permissionsUpdate.error)
       return error(permissionsUpdate.error, "Failed to update claims");
 
-    await redis.del(getPermissionCacheKey(id));
+    const cacheKeys = await redis.keys(getPermissionCachePattern(id));
+    await redis.del(getLegacyPermissionCacheKey(id), ...cacheKeys);
 
     return success("Permissions updated");
   } else {

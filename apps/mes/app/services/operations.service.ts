@@ -179,6 +179,19 @@ export async function getJobAttributesByOperationId(
     .eq("operationId", operationId);
 }
 
+export async function getJobOperationStepForCompany(
+  client: SupabaseClient<Database>,
+  jobOperationStepId: string,
+  companyId: string
+) {
+  return client
+    .from("jobOperationStep")
+    .select("id, operationId, companyId")
+    .eq("id", jobOperationStepId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
 export async function getJobByOperationId(
   client: SupabaseClient<Database>,
   operationId: string
@@ -365,6 +378,91 @@ export async function getJobOperationsAssignedToEmployee(
   });
 }
 
+export async function getJobOperationForCompany(
+  client: SupabaseClient<Database>,
+  operationId: string,
+  companyId: string
+) {
+  return client
+    .from("jobOperation")
+    .select(
+      "id, companyId, jobId, jobMakeMethodId, processId, workCenterId, targetQuantity, operationQuantity"
+    )
+    .eq("id", operationId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function getJobMaterialForOperation(
+  client: SupabaseClient<Database>,
+  materialId: string,
+  jobOperationId: string,
+  companyId: string
+) {
+  return client
+    .from("jobMaterial")
+    .select("id, itemId, companyId, jobOperationId")
+    .eq("id", materialId)
+    .eq("jobOperationId", jobOperationId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function getJobMaterialForCompany(
+  client: SupabaseClient<Database>,
+  materialId: string,
+  companyId: string
+) {
+  return client
+    .from("jobMaterial")
+    .select("id, itemId, companyId, jobOperationId")
+    .eq("id", materialId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function getItemForCompany(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  return client
+    .from("item")
+    .select("id, companyId")
+    .eq("id", itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function getTrackedEntitiesForCompany(
+  client: SupabaseClient<Database>,
+  trackedEntityIds: string[],
+  companyId: string
+) {
+  if (trackedEntityIds.length === 0) {
+    return { data: [], error: null };
+  }
+
+  return client
+    .from("trackedEntity")
+    .select("id, companyId")
+    .in("id", trackedEntityIds)
+    .eq("companyId", companyId);
+}
+
+export async function getTrackedEntityForCompany(
+  client: SupabaseClient<Database>,
+  trackedEntityId: string,
+  companyId: string
+) {
+  return client
+    .from("trackedEntity")
+    .select("*")
+    .eq("id", trackedEntityId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
 export async function getJobOperationById(
   client: SupabaseClient<Database>,
   operationId: string
@@ -458,6 +556,19 @@ export async function getProductionEventsForJobOperation(
     .from("productionEvent")
     .select("*")
     .eq("jobOperationId", args.operationId);
+}
+
+export async function getProductionEventForCompany(
+  client: SupabaseClient<Database>,
+  eventId: string,
+  companyId: string
+) {
+  return client
+    .from("productionEvent")
+    .select("id, companyId, jobOperationId")
+    .eq("id", eventId)
+    .eq("companyId", companyId)
+    .maybeSingle();
 }
 
 export async function getProductionQuantitiesForJobOperation(

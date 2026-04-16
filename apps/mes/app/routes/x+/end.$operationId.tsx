@@ -1,5 +1,5 @@
 import { error, success } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { requireActiveEmployee } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { FunctionRegion } from "@supabase/supabase-js";
@@ -7,13 +7,14 @@ import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
   finishJobOperation,
+  getJobOperationForCompany,
   getTrackedEntitiesByMakeMethodId,
   insertProductionQuantity
 } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { userId, companyId } = await requirePermissions(request, {});
+  const { userId, companyId } = await requireActiveEmployee(request);
 
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");
@@ -22,18 +23,36 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   let trackedEntityId = url.searchParams.get("trackedEntityId");
   const serviceRole = await getCarbonServiceRole();
 
-  const [jobOperation, productionQuantities] = await Promise.all([
-    serviceRole
-      .from("jobOperation")
-      .select("*, ...process(completeAllOnScan)")
-      .eq("id", operationId)
-      .maybeSingle(),
+  const [authorizedOperation, productionQuantities] = await Promise.all([
+    getJobOperationForCompany(serviceRole, operationId, companyId),
     serviceRole
       .from("productionQuantity")
       .select("*")
       .eq("type", "Production")
       .eq("jobOperationId", operationId)
   ]);
+
+  if (
+    authorizedOperation.error ||
+    !authorizedOperation.data ||
+    !authorizedOperation.data.jobMakeMethodId
+  ) {
+    return redirect(
+      path.to.operations,
+      await flash(request, {
+        ...error(authorizedOperation.error, "Failed to fetch job operation"),
+        flash: "error"
+      })
+    );
+  }
+
+  const jobOperation = await serviceRole
+    .from("jobOperation")
+    .select(
+      "id, jobMakeMethodId, operationQuantity, targetQuantity, ...process(completeAllOnScan)"
+    )
+    .eq("id", authorizedOperation.data.id)
+    .maybeSingle();
 
   if (
     jobOperation.error ||
@@ -49,19 +68,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  if (jobOperation.data?.companyId !== companyId) {
-    return redirect(
-      path.to.operations,
-      await flash(request, {
-        ...error(
-          "You are not authorized to start this operation",
-          "Unauthorized"
-        ),
-        flash: "error"
-      })
-    );
-  }
-  const completeAll = jobOperation.data?.completeAllOnScan ?? false;
+  const completeAll = jobOperation.data.completeAllOnScan ?? false;
 
   const [jobMakeMethod] = await Promise.all([
     serviceRole
