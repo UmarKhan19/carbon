@@ -1242,9 +1242,9 @@ export const path = {
     processDeactivate: (id: string) =>
       generatePath(`${x}/resources/processes/deactivate/${id}`),
     printingSettings: `${x}/settings/printing`,
+    printingSettingsJobs: `${x}/settings/printing/jobs`,
     deletePrinterRoute: (id: string) =>
       generatePath(`${x}/settings/printing/${id}/delete`),
-    printManager: `${x}/print-manager`,
     production: `${x}/production`,
     productionPlanning: `${x}/production/planning`,
     productionPlanningItem: (itemId: string) =>

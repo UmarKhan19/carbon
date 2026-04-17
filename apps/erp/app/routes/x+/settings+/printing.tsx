@@ -46,10 +46,23 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
-import { LuEllipsisVertical, LuPlay, LuPlus, LuTrash } from "react-icons/lu";
+import {
+  LuEllipsisVertical,
+  LuPlay,
+  LuPlus,
+  LuPrinter,
+  LuTrash
+} from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useFetcher, useLoaderData } from "react-router";
+import {
+  Link,
+  Outlet,
+  redirect,
+  useFetcher,
+  useLoaderData
+} from "react-router";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { getLocationsList, getWorkCentersList } from "~/modules/resources";
 import {
@@ -134,11 +147,6 @@ const mediaSizeOptions = labelSizes.map((s) => ({
   value: s.id,
   label: `${s.name} (${s.description})`
 }));
-
-const formatOptions = [
-  { value: "zpl", label: "ZPL (Thermal Label)" },
-  { value: "pdf", label: "PDF (Document)" }
-];
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -492,11 +500,17 @@ export default function PrintingSettingsRoute() {
     locations,
     defaultLocationId
   } = useLoaderData<typeof loader>();
+  const { t } = useLingui();
   const autoPrintFetcher = useFetcher<typeof action>();
   const routeFetcher = useFetcher<typeof action>();
   const assignmentFetcher = useFetcher<typeof action>();
   const locationOverrideFetcher = useFetcher<typeof action>();
   const overrideFetcher = useFetcher<typeof action>();
+
+  const formatOptions = [
+    { value: "zpl", label: t`ZPL (Thermal Label)` },
+    { value: "pdf", label: t`PDF (Document)` }
+  ];
 
   const newPrinterDisclosure = useDisclosure();
   const newLocationOverrideDisclosure = useDisclosure();
@@ -625,16 +639,29 @@ export default function PrintingSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Printing</Heading>
+        <div className="flex items-center justify-between w-full">
+          <Heading size="h3">
+            <Trans>Printing</Trans>
+          </Heading>
+          <Button leftIcon={<LuPrinter />} asChild>
+            <Link to={path.to.printingSettingsJobs}>
+              <Trans>View Prints</Trans>
+            </Link>
+          </Button>
+        </div>
 
         {/* Printer Routes */}
         <Card>
           <HStack className="w-full justify-between items-start">
             <CardHeader>
-              <CardTitle>Printers</CardTitle>
+              <CardTitle>
+                <Trans>Printers</Trans>
+              </CardTitle>
               <CardDescription>
-                Configure physical printers. Each printer has a format, media
-                size, and endpoint URL.
+                <Trans>
+                  Configure physical printers. Each printer has a format, media
+                  size, and endpoint URL.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardAction className="py-6">
@@ -642,7 +669,7 @@ export default function PrintingSettingsRoute() {
                 leftIcon={<LuPlus />}
                 onClick={newPrinterDisclosure.onOpen}
               >
-                Add Printer
+                <Trans>Add Printer</Trans>
               </Button>
             </CardAction>
           </HStack>
@@ -676,7 +703,7 @@ export default function PrintingSettingsRoute() {
                           )}
                           {route.apiKey && (
                             <span className="text-xs text-muted-foreground">
-                              API Key: ••••••
+                              <Trans>API Key: ••••••</Trans>
                             </span>
                           )}
                         </div>
@@ -687,7 +714,7 @@ export default function PrintingSettingsRoute() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <IconButton
-                            aria-label="More"
+                            aria-label={t`More`}
                             icon={<LuEllipsisVertical />}
                             variant="ghost"
                             size="sm"
@@ -703,7 +730,7 @@ export default function PrintingSettingsRoute() {
                             }
                           >
                             <DropdownMenuIcon icon={<LuPlay />} />
-                            Test
+                            <Trans>Test</Trans>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             destructive
@@ -716,7 +743,7 @@ export default function PrintingSettingsRoute() {
                             }}
                           >
                             <DropdownMenuIcon icon={<LuTrash />} />
-                            Delete
+                            <Trans>Delete</Trans>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -726,7 +753,9 @@ export default function PrintingSettingsRoute() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No printers configured. Click "Add Printer" to create one.
+                <Trans>
+                  No printers configured. Click "Add Printer" to create one.
+                </Trans>
               </p>
             )}
           </CardContent>
@@ -742,11 +771,15 @@ export default function PrintingSettingsRoute() {
           >
             <input type="hidden" name="intent" value="assignments" />
             <CardHeader>
-              <CardTitle>Templates</CardTitle>
+              <CardTitle>
+                <Trans>Templates</Trans>
+              </CardTitle>
               <CardDescription>
-                Assign each document type to a printer and choose the generation
-                template. Leave template blank for the built-in generator, or
-                enter a BinderyPress template ID.
+                <Trans>
+                  Assign each document type to a printer and choose the
+                  generation template. Leave template blank for the built-in
+                  generator, or enter a BinderyPress template ID.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -762,7 +795,9 @@ export default function PrintingSettingsRoute() {
               </div>
             </CardContent>
             <CardFooter>
-              <Submit>Save</Submit>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
             </CardFooter>
           </ValidatedForm>
         </Card>
@@ -771,10 +806,14 @@ export default function PrintingSettingsRoute() {
         <Card>
           <HStack className="w-full justify-between items-start">
             <CardHeader>
-              <CardTitle>Location Overrides</CardTitle>
+              <CardTitle>
+                <Trans>Location Overrides</Trans>
+              </CardTitle>
               <CardDescription>
-                Override the default printer for specific locations. The
-                generation template from the template assignment is preserved.
+                <Trans>
+                  Override the default printer for specific locations. The
+                  generation template from the template assignment is preserved.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardAction className="py-6">
@@ -782,7 +821,7 @@ export default function PrintingSettingsRoute() {
                 leftIcon={<LuPlus />}
                 onClick={newLocationOverrideDisclosure.onOpen}
               >
-                Add Override
+                <Trans>Add Override</Trans>
               </Button>
             </CardAction>
           </HStack>
@@ -815,7 +854,7 @@ export default function PrintingSettingsRoute() {
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <IconButton
-                                aria-label="More"
+                                aria-label={t`More`}
                                 icon={<LuEllipsisVertical />}
                                 variant="ghost"
                                 size="sm"
@@ -836,7 +875,7 @@ export default function PrintingSettingsRoute() {
                                 }
                               >
                                 <DropdownMenuIcon icon={<LuTrash />} />
-                                Remove
+                                <Trans>Remove</Trans>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -847,7 +886,7 @@ export default function PrintingSettingsRoute() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No location overrides configured.
+                <Trans>No location overrides configured.</Trans>
               </p>
             )}
           </CardContent>
@@ -857,10 +896,14 @@ export default function PrintingSettingsRoute() {
         <Card>
           <HStack className="w-full justify-between items-start">
             <CardHeader>
-              <CardTitle>Work Center Overrides</CardTitle>
+              <CardTitle>
+                <Trans>Work Center Overrides</Trans>
+              </CardTitle>
               <CardDescription>
-                Override the default printer for specific work centers. The
-                generation template from the template assignment is preserved.
+                <Trans>
+                  Override the default printer for specific work centers. The
+                  generation template from the template assignment is preserved.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardAction className="py-6">
@@ -868,7 +911,7 @@ export default function PrintingSettingsRoute() {
                 leftIcon={<LuPlus />}
                 onClick={newWorkCenterOverrideDisclosure.onOpen}
               >
-                Add Override
+                <Trans>Add Override</Trans>
               </Button>
             </CardAction>
           </HStack>
@@ -901,7 +944,7 @@ export default function PrintingSettingsRoute() {
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <IconButton
-                                aria-label="More"
+                                aria-label={t`More`}
                                 icon={<LuEllipsisVertical />}
                                 variant="ghost"
                                 size="sm"
@@ -922,7 +965,7 @@ export default function PrintingSettingsRoute() {
                                 }
                               >
                                 <DropdownMenuIcon icon={<LuTrash />} />
-                                Remove
+                                <Trans>Remove</Trans>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -933,7 +976,7 @@ export default function PrintingSettingsRoute() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No work center overrides configured.
+                <Trans>No work center overrides configured.</Trans>
               </p>
             )}
           </CardContent>
@@ -953,29 +996,35 @@ export default function PrintingSettingsRoute() {
           >
             <input type="hidden" name="intent" value="autoPrint" />
             <CardHeader>
-              <CardTitle>Auto-Print</CardTitle>
+              <CardTitle>
+                <Trans>Auto-Print</Trans>
+              </CardTitle>
               <CardDescription>
-                Automatically print labels when business events occur.
+                <Trans>
+                  Automatically print labels when business events occur.
+                </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-4 max-w-[400px]">
                 <Boolean
                   name="receiptLabels"
-                  description="Print labels when receipts are posted"
+                  description={t`Print labels when receipts are posted`}
                 />
                 <Boolean
                   name="shipmentLabels"
-                  description="Print labels when shipments are posted"
+                  description={t`Print labels when shipments are posted`}
                 />
                 <Boolean
                   name="operationLabels"
-                  description="Print labels when tracked parts are completed"
+                  description={t`Print labels when tracked parts are completed`}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Submit>Save</Submit>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
             </CardFooter>
           </ValidatedForm>
         </Card>
@@ -997,45 +1046,47 @@ export default function PrintingSettingsRoute() {
             >
               <input type="hidden" name="intent" value="upsertRoute" />
               <ModalHeader>
-                <ModalTitle>Add Printer</ModalTitle>
+                <ModalTitle>
+                  <Trans>Add Printer</Trans>
+                </ModalTitle>
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-4">
                   <div className="grid grid-cols-2 gap-4">
                     <Input
                       name="name"
-                      label="Name"
-                      placeholder="e.g. Zebra 2x1"
+                      label={t`Name`}
+                      placeholder={t`e.g. Zebra 2x1`}
                     />
                     <Select
                       name="format"
-                      label="Format"
+                      label={t`Format`}
                       options={formatOptions}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Select
                       name="mediaSizeId"
-                      label="Media Size"
+                      label={t`Media Size`}
                       options={mediaSizeOptions}
                     />
                     <Select
                       name="locationId"
-                      label="Location"
+                      label={t`Location`}
                       options={locationOptions}
-                      placeholder="All locations"
+                      placeholder={t`All locations`}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Input
                       name="printerUrl"
-                      label="Printer URL"
+                      label={t`Printer URL`}
                       placeholder="https://pbx-XXXX.pbxz.cloud/api/v1/print/..."
                     />
                     <Input
                       name="apiKey"
-                      label="API Key"
-                      placeholder="Optional"
+                      label={t`API Key`}
+                      placeholder={t`Optional`}
                     />
                   </div>
                 </div>
@@ -1047,9 +1098,11 @@ export default function PrintingSettingsRoute() {
                     variant="solid"
                     onClick={newPrinterDisclosure.onClose}
                   >
-                    Cancel
+                    <Trans>Cancel</Trans>
                   </Button>
-                  <Submit>Add Printer</Submit>
+                  <Submit>
+                    <Trans>Add Printer</Trans>
+                  </Submit>
                 </HStack>
               </ModalFooter>
             </ValidatedForm>
@@ -1077,23 +1130,25 @@ export default function PrintingSettingsRoute() {
             >
               <input type="hidden" name="intent" value="addLocationOverride" />
               <ModalHeader>
-                <ModalTitle>Add Location Override</ModalTitle>
+                <ModalTitle>
+                  <Trans>Add Location Override</Trans>
+                </ModalTitle>
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-4">
                   <Select
                     name="locationId"
-                    label="Location"
+                    label={t`Location`}
                     options={locationOptions}
                   />
                   <Select
                     name="documentType"
-                    label="Document Type"
+                    label={t`Document Type`}
                     options={documentTypeOptions}
                   />
                   <Select
                     name="printerRouteId"
-                    label="Printer"
+                    label={t`Printer`}
                     options={printerRouteOptions}
                   />
                 </div>
@@ -1105,9 +1160,11 @@ export default function PrintingSettingsRoute() {
                     variant="solid"
                     onClick={newLocationOverrideDisclosure.onClose}
                   >
-                    Cancel
+                    <Trans>Cancel</Trans>
                   </Button>
-                  <Submit>Add Override</Submit>
+                  <Submit>
+                    <Trans>Add Override</Trans>
+                  </Submit>
                 </HStack>
               </ModalFooter>
             </ValidatedForm>
@@ -1135,23 +1192,25 @@ export default function PrintingSettingsRoute() {
             >
               <input type="hidden" name="intent" value="addOverride" />
               <ModalHeader>
-                <ModalTitle>Add Work Center Override</ModalTitle>
+                <ModalTitle>
+                  <Trans>Add Work Center Override</Trans>
+                </ModalTitle>
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-4">
                   <Select
                     name="workCenterId"
-                    label="Work Center"
+                    label={t`Work Center`}
                     options={workCenterOptions}
                   />
                   <Select
                     name="documentType"
-                    label="Document Type"
+                    label={t`Document Type`}
                     options={workCenterDocumentTypeOptions}
                   />
                   <Select
                     name="printerRouteId"
-                    label="Printer"
+                    label={t`Printer`}
                     options={printerRouteOptions}
                   />
                 </div>
@@ -1163,9 +1222,11 @@ export default function PrintingSettingsRoute() {
                     variant="solid"
                     onClick={newWorkCenterOverrideDisclosure.onClose}
                   >
-                    Cancel
+                    <Trans>Cancel</Trans>
                   </Button>
-                  <Submit>Add Override</Submit>
+                  <Submit>
+                    <Trans>Add Override</Trans>
+                  </Submit>
                 </HStack>
               </ModalFooter>
             </ValidatedForm>
@@ -1177,7 +1238,7 @@ export default function PrintingSettingsRoute() {
           action={path.to.deletePrinterRoute(printerToDelete.id)}
           isOpen={deletePrinterDisclosure.isOpen}
           name={printerToDelete.name}
-          text={`Are you sure you want to delete the printer "${printerToDelete.name}"? Any assignments or overrides referencing this printer will be cleared. This cannot be undone.`}
+          text={t`Are you sure you want to delete the printer "${printerToDelete.name}"? Any assignments or overrides referencing this printer will be cleared. This cannot be undone.`}
           onCancel={() => {
             deletePrinterDisclosure.onClose();
             setPrinterToDelete(null);
@@ -1188,6 +1249,7 @@ export default function PrintingSettingsRoute() {
           }}
         />
       )}
+      <Outlet />
     </ScrollArea>
   );
 }
@@ -1201,19 +1263,20 @@ function AssignmentRow({
   prefix: string;
   printerRouteOptions: { value: string; label: string }[];
 }) {
+  const { t } = useLingui();
   return (
     <div>
       <p className="text-sm font-medium mb-3">{title}</p>
       <div className="grid grid-cols-2 gap-4">
         <Select
           name={`${prefix}_printerRouteId`}
-          label="Printer"
+          label={t`Printer`}
           options={printerRouteOptions}
         />
         <Input
           name={`${prefix}_templateId`}
-          label="Template"
-          placeholder="Leave blank for built-in"
+          label={t`Template`}
+          placeholder={t`Leave blank for built-in`}
         />
       </div>
     </div>

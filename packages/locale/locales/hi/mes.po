@@ -56,15 +56,15 @@ msgstr "{0} में से {1} पूर्ण"
 msgid "{0} Scrapped"
 msgstr "{0} स्क्रैप किया गया"
 
-#: apps/mes/app/components/AppSidebar.tsx:558
+#: apps/mes/app/components/AppSidebar.tsx:564
 msgid "About"
 msgstr "के बारे में"
 
-#: apps/mes/app/components/AppSidebar.tsx:412
+#: apps/mes/app/components/AppSidebar.tsx:418
 msgid "Account Settings"
 msgstr "खाता सेटिंग्स"
 
-#: apps/mes/app/components/AppSidebar.tsx:199
+#: apps/mes/app/components/AppSidebar.tsx:200
 #: apps/mes/app/routes/x+/active.tsx:69
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:409
 #: apps/mes/app/routes/x+/timecard.tsx:424
@@ -90,15 +90,6 @@ msgstr "जोड़ें और जारी करें"
 msgid "Add Inventory"
 msgstr "इन्वेंटरी जोड़ें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "नया ऑपरेटर जोड़ें"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "ऑपरेटर जोड़ें"
-
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
 msgstr "स्पेयर पार्ट जोड़ें"
@@ -123,7 +114,7 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "क्या आप सुनिश्चित हैं कि आप सभी उत्पादन घटनाओं को समाप्त करना चाहते हैं? यह सभी सक्रिय संचालन को पूरा किए बिना या समाप्त किए बिना समाप्त कर देगा।"
 
-#: apps/mes/app/components/AppSidebar.tsx:194
+#: apps/mes/app/components/AppSidebar.tsx:195
 #: apps/mes/app/routes/x+/maintenance.tsx:362
 msgid "Assigned"
 msgstr "निर्दिष्ट"
@@ -189,7 +180,6 @@ msgstr "साइन इन करके, आप <0>सेवा की शर�
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -281,7 +271,7 @@ msgstr "कॉलम {0} को {1} के ऊपर स्थिति {2} म�
 msgid "Column: {0}"
 msgstr "कॉलम: {0}"
 
-#: apps/mes/app/components/AppSidebar.tsx:420
+#: apps/mes/app/components/AppSidebar.tsx:426
 msgid "Company"
 msgstr "कंपनी"
 
@@ -293,17 +283,13 @@ msgstr "पूर्ण करें"
 msgid "Completed"
 msgstr "पूर्ण"
 
-#: apps/mes/app/components/AppSidebar.tsx:353
+#: apps/mes/app/components/AppSidebar.tsx:359
 msgid "Console"
 msgstr "कंसोल"
 
-#: apps/mes/app/components/AppSidebar.tsx:525
+#: apps/mes/app/components/AppSidebar.tsx:531
 msgid "Console Mode"
 msgstr "कंसोल मोड"
-
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "PIN कॉपी करें"
 
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
@@ -316,7 +302,7 @@ msgstr "{0} बनाएं"
 msgid "Customer"
 msgstr "ग्राहक"
 
-#: apps/mes/app/components/AppSidebar.tsx:489
+#: apps/mes/app/components/AppSidebar.tsx:495
 msgid "Dark Mode"
 msgstr "डार्क मोड"
 
@@ -427,16 +413,8 @@ msgstr "ईमेल पता"
 msgid "End Operations"
 msgstr "संचालन समाप्त करें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "पहला नाम दर्ज करें"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "अंतिम नाम दर्ज करें"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "{0} के लिए PIN दर्ज करें"
 
@@ -447,10 +425,6 @@ msgstr "त्रुटि"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1014
 msgid "Estimated"
 msgstr "अनुमानित"
-
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "ऑपरेटर जोड़ने में विफल"
 
 #: apps/mes/app/components/AdjustInventory.tsx:94
 msgid "Failed to complete inventory adjustment"
@@ -499,17 +473,9 @@ msgstr "नौकरी और अवसर लाइन से संबंध�
 msgid "Filter"
 msgstr "फ़िल्टर"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "पहला नाम"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "घड़ी से बाहर निकलना भूल गए?"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "नया PIN जेनरेट करें"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -548,7 +514,7 @@ msgstr "अपर्याप्त मात्रा"
 msgid "Inventory adjustment completed"
 msgstr "इन्वेंटरी समायोजन पूर्ण हुआ"
 
-#: apps/mes/app/components/AppSidebar.tsx:269
+#: apps/mes/app/components/AppSidebar.tsx:275
 msgid "Inventory Adjustments"
 msgstr "इन्वेंटरी समायोजन"
 
@@ -600,10 +566,6 @@ msgstr "किट"
 msgid "Labor"
 msgstr "श्रम"
 
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "अंतिम नाम"
-
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
 msgstr "चलिए कुछ बनाते हैं"
@@ -617,7 +579,7 @@ msgstr "आइटम विवरण लोड हो रहे हैं..."
 msgid "Loading..."
 msgstr "लोड हो रहा है..."
 
-#: apps/mes/app/components/AppSidebar.tsx:460
+#: apps/mes/app/components/AppSidebar.tsx:466
 msgid "Location"
 msgstr "स्थान"
 
@@ -659,7 +621,7 @@ msgstr "लॉगिन"
 msgid "Machine"
 msgstr "मशीन"
 
-#: apps/mes/app/components/AppSidebar.tsx:210
+#: apps/mes/app/components/AppSidebar.tsx:211
 #: apps/mes/app/routes/x+/maintenance.tsx:404
 msgid "Maintenance"
 msgstr "रखरखाव"
@@ -782,7 +744,7 @@ msgstr "आज के लिए कोई रखरखाव निर्धा�
 msgid "No materials"
 msgstr "कोई सामग्री नहीं"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "कोई ऑपरेटर नहीं"
 
@@ -799,7 +761,7 @@ msgstr "कोई विकल्प नहीं मिला।"
 msgid "No recent operations"
 msgstr "कोई हाल के संचालन नहीं"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "कोई परिणाम नहीं"
@@ -866,7 +828,7 @@ msgstr "अरे। आपको यह पृष्ठ नहीं देख�
 msgid "Open"
 msgstr "खुला"
 
-#: apps/mes/app/components/AppSidebar.tsx:223
+#: apps/mes/app/components/AppSidebar.tsx:229
 msgid "Operations"
 msgstr "संचालन"
 
@@ -905,11 +867,7 @@ msgstr "रोकें"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "कॉलम {0} को स्थिति {1} पर उठाया गया: {2} में से"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "पिन"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "पिन आउट"
 
@@ -933,6 +891,10 @@ msgstr "पिछला"
 #: apps/mes/app/components/MaintenanceSeverity.tsx:28
 msgid "Preventive"
 msgstr "निवारक"
+
+#: apps/mes/app/components/AppSidebar.tsx:217
+msgid "Print Manager"
+msgstr "प्रिंट मैनेजर"
 
 #: apps/mes/app/routes/x+/maintenance.tsx:345
 msgid "Priority"
@@ -971,8 +933,8 @@ msgstr "मात्रा"
 msgid "Quantity must be greater than 0"
 msgstr "मात्रा 0 से अधिक होनी चाहिए"
 
-#: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/AppSidebar.tsx:206
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "हाल ही में"
@@ -1027,7 +989,7 @@ msgstr "स्कैन करें"
 msgid "Scan or enter serial number"
 msgstr "स्कैन करें या सीरियल नंबर दर्ज करें"
 
-#: apps/mes/app/components/AppSidebar.tsx:189
+#: apps/mes/app/components/AppSidebar.tsx:190
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:449
 #: apps/mes/app/routes/x+/operations.tsx:404
 msgid "Schedule"
@@ -1050,7 +1012,7 @@ msgstr "स्क्रैप किया गया"
 msgid "Search"
 msgstr "खोजें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "ऑपरेटर खोजें..."
 
@@ -1158,10 +1120,6 @@ msgstr "घड़ी बंद करने का समय सेट करे
 msgid "Setup"
 msgstr "सेटअप"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "इस PIN को ऑपरेटर के साथ साझा करें ताकि वे टर्मिनल पर पिन इन कर सकें।"
-
 #: apps/mes/app/components/AdjustInventory.tsx:170
 msgid "Shelf"
 msgstr "शेल्फ"
@@ -1178,11 +1136,11 @@ msgstr "Google के साथ साइन इन करें"
 msgid "Sign in with Outlook"
 msgstr "Outlook के साथ साइन इन करें"
 
-#: apps/mes/app/components/AppSidebar.tsx:566
+#: apps/mes/app/components/AppSidebar.tsx:572
 msgid "Sign Out"
 msgstr "साइन आउट"
 
-#: apps/mes/app/components/AppSidebar.tsx:406
+#: apps/mes/app/components/AppSidebar.tsx:412
 msgid "Signed in as {stationName}"
 msgstr "के रूप में साइन इन किया गया {stationName}"
 
@@ -1206,11 +1164,11 @@ msgstr "उपयोग किए गए स्पेयर पार्ट्�
 msgid "Start"
 msgstr "शुरू करें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "स्टेशन उपयोगकर्ता"
 
-#: apps/mes/app/components/AppSidebar.tsx:400
+#: apps/mes/app/components/AppSidebar.tsx:406
 msgid "Station: {stationName}"
 msgstr "स्टेशन: {stationName}"
 
@@ -1247,7 +1205,7 @@ msgstr "सुझाव"
 msgid "Support Required"
 msgstr "समर्थन आवश्यक"
 
-#: apps/mes/app/components/AppSidebar.tsx:396
+#: apps/mes/app/components/AppSidebar.tsx:402
 msgid "Switch Operator"
 msgstr "ऑपरेटर स्विच करें"
 
@@ -1281,7 +1239,7 @@ msgstr "समय काम किया: {0}"
 msgid "Today"
 msgstr "आज"
 
-#: apps/mes/app/components/AppSidebar.tsx:282
+#: apps/mes/app/components/AppSidebar.tsx:288
 msgid "Tools"
 msgstr "उपकरण"
 

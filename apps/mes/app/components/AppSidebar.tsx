@@ -214,9 +214,9 @@ export function OperationsNav({
       to: path.to.maintenance
     },
     {
-      title: "Print Manager",
+      title: t`Print Manager`,
       icon: LuPrinter,
-      to: `${ERP_URL}/x/print-manager`
+      to: `${ERP_URL}/x/settings/printing/jobs`
     }
   ];
 

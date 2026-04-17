@@ -56,15 +56,15 @@ msgstr "{0} of {1} completed"
 msgid "{0} Scrapped"
 msgstr "{0} Scrapped"
 
-#: apps/mes/app/components/AppSidebar.tsx:558
+#: apps/mes/app/components/AppSidebar.tsx:564
 msgid "About"
 msgstr "About"
 
-#: apps/mes/app/components/AppSidebar.tsx:412
+#: apps/mes/app/components/AppSidebar.tsx:418
 msgid "Account Settings"
 msgstr "Account Settings"
 
-#: apps/mes/app/components/AppSidebar.tsx:199
+#: apps/mes/app/components/AppSidebar.tsx:200
 #: apps/mes/app/routes/x+/active.tsx:69
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:409
 #: apps/mes/app/routes/x+/timecard.tsx:424
@@ -90,15 +90,6 @@ msgstr "Add & Issue"
 msgid "Add Inventory"
 msgstr "Add Inventory"
 
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "Add New Operator"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "Add Operator"
-
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
 msgstr "Add Spare Part"
@@ -123,7 +114,7 @@ msgstr "Are you sure you want to delete this timecard? This cannot be undone."
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 
-#: apps/mes/app/components/AppSidebar.tsx:194
+#: apps/mes/app/components/AppSidebar.tsx:195
 #: apps/mes/app/routes/x+/maintenance.tsx:362
 msgid "Assigned"
 msgstr "Assigned"
@@ -189,7 +180,6 @@ msgstr "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy P
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -281,7 +271,7 @@ msgstr "Column {0} was moved over {1} at position {2} of {3}"
 msgid "Column: {0}"
 msgstr "Column: {0}"
 
-#: apps/mes/app/components/AppSidebar.tsx:420
+#: apps/mes/app/components/AppSidebar.tsx:426
 msgid "Company"
 msgstr "Company"
 
@@ -293,17 +283,13 @@ msgstr "Complete"
 msgid "Completed"
 msgstr "Completed"
 
-#: apps/mes/app/components/AppSidebar.tsx:353
+#: apps/mes/app/components/AppSidebar.tsx:359
 msgid "Console"
 msgstr "Console"
 
-#: apps/mes/app/components/AppSidebar.tsx:525
+#: apps/mes/app/components/AppSidebar.tsx:531
 msgid "Console Mode"
 msgstr "Console Mode"
-
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "Copy PIN"
 
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
@@ -316,7 +302,7 @@ msgstr "Create {0}"
 msgid "Customer"
 msgstr "Customer"
 
-#: apps/mes/app/components/AppSidebar.tsx:489
+#: apps/mes/app/components/AppSidebar.tsx:495
 msgid "Dark Mode"
 msgstr "Dark Mode"
 
@@ -427,16 +413,8 @@ msgstr "Email Address"
 msgid "End Operations"
 msgstr "End Operations"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "Enter first name"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "Enter last name"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "Enter PIN for {0}"
 
@@ -447,10 +425,6 @@ msgstr "Error"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1014
 msgid "Estimated"
 msgstr "Estimated"
-
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "Failed to add operator"
 
 #: apps/mes/app/components/AdjustInventory.tsx:94
 msgid "Failed to complete inventory adjustment"
@@ -499,17 +473,9 @@ msgstr "Files related to the job and the opportunity line."
 msgid "Filter"
 msgstr "Filter"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "First Name"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "Forgot to Clock Out?"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "Generate new PIN"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -548,7 +514,7 @@ msgstr "Insufficient quantity"
 msgid "Inventory adjustment completed"
 msgstr "Inventory adjustment completed"
 
-#: apps/mes/app/components/AppSidebar.tsx:269
+#: apps/mes/app/components/AppSidebar.tsx:275
 msgid "Inventory Adjustments"
 msgstr "Inventory Adjustments"
 
@@ -600,10 +566,6 @@ msgstr "Kit"
 msgid "Labor"
 msgstr "Labor"
 
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "Last Name"
-
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
 msgstr "Let's build something"
@@ -617,7 +579,7 @@ msgstr "Loading item details..."
 msgid "Loading..."
 msgstr "Loading..."
 
-#: apps/mes/app/components/AppSidebar.tsx:460
+#: apps/mes/app/components/AppSidebar.tsx:466
 msgid "Location"
 msgstr "Location"
 
@@ -659,7 +621,7 @@ msgstr "Login"
 msgid "Machine"
 msgstr "Machine"
 
-#: apps/mes/app/components/AppSidebar.tsx:210
+#: apps/mes/app/components/AppSidebar.tsx:211
 #: apps/mes/app/routes/x+/maintenance.tsx:404
 msgid "Maintenance"
 msgstr "Maintenance"
@@ -782,7 +744,7 @@ msgstr "No maintenance scheduled for today"
 msgid "No materials"
 msgstr "No materials"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "No operators"
 
@@ -799,7 +761,7 @@ msgstr "No options found."
 msgid "No recent operations"
 msgstr "No recent operations"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "No results"
@@ -866,7 +828,7 @@ msgstr "Oops. You shouldn't see this page. Eventually it will be a landing page.
 msgid "Open"
 msgstr "Open"
 
-#: apps/mes/app/components/AppSidebar.tsx:223
+#: apps/mes/app/components/AppSidebar.tsx:229
 msgid "Operations"
 msgstr "Operations"
 
@@ -905,11 +867,7 @@ msgstr "Pause"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Picked up Column {0} at position: {1} of {2}"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "Pin Out"
 
@@ -933,6 +891,10 @@ msgstr "Prev"
 #: apps/mes/app/components/MaintenanceSeverity.tsx:28
 msgid "Preventive"
 msgstr "Preventive"
+
+#: apps/mes/app/components/AppSidebar.tsx:217
+msgid "Print Manager"
+msgstr "Print Manager"
 
 #: apps/mes/app/routes/x+/maintenance.tsx:345
 msgid "Priority"
@@ -971,8 +933,8 @@ msgstr "Quantity"
 msgid "Quantity must be greater than 0"
 msgstr "Quantity must be greater than 0"
 
-#: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/AppSidebar.tsx:206
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "Recent"
@@ -1027,7 +989,7 @@ msgstr "Scan"
 msgid "Scan or enter serial number"
 msgstr "Scan or enter serial number"
 
-#: apps/mes/app/components/AppSidebar.tsx:189
+#: apps/mes/app/components/AppSidebar.tsx:190
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:449
 #: apps/mes/app/routes/x+/operations.tsx:404
 msgid "Schedule"
@@ -1050,7 +1012,7 @@ msgstr "Scrapped"
 msgid "Search"
 msgstr "Search"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "Search operators..."
 
@@ -1158,10 +1120,6 @@ msgstr "Set clock-out time"
 msgid "Setup"
 msgstr "Setup"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "Share this PIN with the operator so they can pin in at the terminal."
-
 #: apps/mes/app/components/AdjustInventory.tsx:170
 msgid "Shelf"
 msgstr "Shelf"
@@ -1178,11 +1136,11 @@ msgstr "Sign in with Google"
 msgid "Sign in with Outlook"
 msgstr "Sign in with Outlook"
 
-#: apps/mes/app/components/AppSidebar.tsx:566
+#: apps/mes/app/components/AppSidebar.tsx:572
 msgid "Sign Out"
 msgstr "Sign Out"
 
-#: apps/mes/app/components/AppSidebar.tsx:406
+#: apps/mes/app/components/AppSidebar.tsx:412
 msgid "Signed in as {stationName}"
 msgstr "Signed in as {stationName}"
 
@@ -1206,11 +1164,11 @@ msgstr "Spare Parts Used"
 msgid "Start"
 msgstr "Start"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "Station User"
 
-#: apps/mes/app/components/AppSidebar.tsx:400
+#: apps/mes/app/components/AppSidebar.tsx:406
 msgid "Station: {stationName}"
 msgstr "Station: {stationName}"
 
@@ -1247,7 +1205,7 @@ msgstr "Suggestion"
 msgid "Support Required"
 msgstr "Support Required"
 
-#: apps/mes/app/components/AppSidebar.tsx:396
+#: apps/mes/app/components/AppSidebar.tsx:402
 msgid "Switch Operator"
 msgstr "Switch Operator"
 
@@ -1281,7 +1239,7 @@ msgstr "Time Worked: {0}"
 msgid "Today"
 msgstr "Today"
 
-#: apps/mes/app/components/AppSidebar.tsx:282
+#: apps/mes/app/components/AppSidebar.tsx:288
 msgid "Tools"
 msgstr "Tools"
 

@@ -14,6 +14,10 @@ export async function getPrintJobs(
   companyId: string,
   args?: {
     status?: string;
+    origin?: string;
+    sourceDocument?: string;
+    contentType?: string;
+    search?: string | null;
     limit?: number;
     offset?: number;
   }
@@ -31,13 +35,27 @@ export async function getPrintJobs(
     query = query.eq("status", args.status);
   }
 
-  if (args?.limit) {
-    query = query.limit(args.limit);
+  if (args?.origin) {
+    query = query.eq("origin", args.origin);
   }
 
-  if (args?.offset) {
-    query = query.range(args.offset, args.offset + (args?.limit ?? 50) - 1);
+  if (args?.sourceDocument) {
+    query = query.eq("sourceDocument", args.sourceDocument);
   }
+
+  if (args?.contentType) {
+    query = query.eq("contentType", args.contentType);
+  }
+
+  if (args?.search) {
+    query = query.or(
+      `description.ilike.%${args.search}%,sourceDocumentReadableId.ilike.%${args.search}%`
+    );
+  }
+
+  const limit = args?.limit ?? 100;
+  const offset = args?.offset ?? 0;
+  query = query.range(offset, offset + limit - 1);
 
   return query;
 }
