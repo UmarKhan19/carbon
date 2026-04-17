@@ -1,16 +1,9 @@
--- Customer Item Price Overrides
--- Manual price overrides that take precedence over pricing rules.
--- Supports two scopes:
---   1. Customer-specific: customerId + itemId (highest priority)
---   2. Customer-type: customerTypeId + itemId (second priority)
--- Exactly one of customerId or customerTypeId must be set.
-
 CREATE TABLE "customerItemPriceOverride" (
   "id" TEXT NOT NULL DEFAULT id('cipo'),
   "customerId" TEXT,
   "customerTypeId" TEXT,
   "itemId" TEXT NOT NULL,
-  "overridePrice" NUMERIC(15, 5) NOT NULL,
+  "breaks" JSONB NOT NULL DEFAULT '[]'::jsonb,
   "notes" TEXT,
   "validFrom" DATE,
   "validTo" DATE,
@@ -24,9 +17,10 @@ CREATE TABLE "customerItemPriceOverride" (
 
   CONSTRAINT "customerItemPriceOverride_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "customerItemPriceOverride_scope_check" CHECK (
-    ("customerId" IS NOT NULL AND "customerTypeId" IS NULL)
-    OR ("customerId" IS NULL AND "customerTypeId" IS NOT NULL)
+    NOT ("customerId" IS NOT NULL AND "customerTypeId" IS NOT NULL)
   ),
+  CONSTRAINT "customerItemPriceOverride_breaks_check"
+    CHECK (jsonb_typeof("breaks") = 'array'),
   CONSTRAINT "customerItemPriceOverride_customerId_fkey"
     FOREIGN KEY ("customerId") REFERENCES "customer"("id")
     ON DELETE CASCADE ON UPDATE CASCADE,
@@ -47,13 +41,15 @@ CREATE TABLE "customerItemPriceOverride" (
     ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
--- Partial unique indexes: one override per scope per item per company
 CREATE UNIQUE INDEX "customerItemPriceOverride_customer_item_uq"
   ON "customerItemPriceOverride" ("customerId", "itemId", "companyId")
   WHERE "customerId" IS NOT NULL;
 CREATE UNIQUE INDEX "customerItemPriceOverride_customerType_item_uq"
   ON "customerItemPriceOverride" ("customerTypeId", "itemId", "companyId")
   WHERE "customerTypeId" IS NOT NULL;
+CREATE UNIQUE INDEX "customerItemPriceOverride_all_item_uq"
+  ON "customerItemPriceOverride" ("itemId", "companyId")
+  WHERE "customerId" IS NULL AND "customerTypeId" IS NULL;
 
 CREATE INDEX "customerItemPriceOverride_customerId_itemId_idx"
   ON "customerItemPriceOverride" ("customerId", "itemId");
@@ -92,4 +88,10 @@ FOR DELETE USING (
   "companyId" = ANY (
     (SELECT get_companies_with_employee_permission('sales_delete'))::text[]
   )
+);
+
+SELECT attach_event_trigger(
+  'customerItemPriceOverride',
+  ARRAY[]::TEXT[],
+  ARRAY[]::TEXT[]
 );

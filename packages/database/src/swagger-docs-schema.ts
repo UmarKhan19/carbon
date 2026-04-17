@@ -37849,7 +37849,7 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
           },
           {
-            $ref: "#/parameters/rowFilter.customerItemPriceOverride.overridePrice",
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.breaks",
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.notes",
@@ -37953,7 +37953,7 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
           },
           {
-            $ref: "#/parameters/rowFilter.customerItemPriceOverride.overridePrice",
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.breaks",
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.notes",
@@ -38011,7 +38011,7 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
           },
           {
-            $ref: "#/parameters/rowFilter.customerItemPriceOverride.overridePrice",
+            $ref: "#/parameters/rowFilter.customerItemPriceOverride.breaks",
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.notes",
@@ -90537,7 +90537,7 @@ export default {
       required: [
         "id",
         "itemId",
-        "overridePrice",
+        "breaks",
         "active",
         "applyRulesOnTop",
         "companyId",
@@ -90569,9 +90569,8 @@ export default {
           format: "text",
           type: "string",
         },
-        overridePrice: {
-          format: "numeric",
-          type: "number",
+        breaks: {
+          format: "jsonb",
         },
         notes: {
           format: "text",
@@ -123863,8 +123862,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.customerItemPriceOverride.overridePrice": {
-      name: "overridePrice",
+    "rowFilter.customerItemPriceOverride.breaks": {
+      name: "breaks",
       required: false,
       in: "query",
       type: "string",

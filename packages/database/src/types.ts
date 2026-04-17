@@ -4818,6 +4818,7 @@ export type Database = {
         Row: {
           active: boolean
           applyRulesOnTop: boolean
+          breaks: Json
           companyId: string
           createdAt: string
           createdBy: string
@@ -4826,7 +4827,6 @@ export type Database = {
           id: string
           itemId: string
           notes: string | null
-          overridePrice: number
           updatedAt: string | null
           updatedBy: string | null
           validFrom: string | null
@@ -4835,6 +4835,7 @@ export type Database = {
         Insert: {
           active?: boolean
           applyRulesOnTop?: boolean
+          breaks?: Json
           companyId: string
           createdAt?: string
           createdBy: string
@@ -4843,7 +4844,6 @@ export type Database = {
           id?: string
           itemId: string
           notes?: string | null
-          overridePrice: number
           updatedAt?: string | null
           updatedBy?: string | null
           validFrom?: string | null
@@ -4852,6 +4852,7 @@ export type Database = {
         Update: {
           active?: boolean
           applyRulesOnTop?: boolean
+          breaks?: Json
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -4860,7 +4861,6 @@ export type Database = {
           id?: string
           itemId?: string
           notes?: string | null
-          overridePrice?: number
           updatedAt?: string | null
           updatedBy?: string | null
           validFrom?: string | null
