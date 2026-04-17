@@ -83,21 +83,12 @@ msgstr "जोड़ें"
 msgid "Add & Issue"
 msgstr "जोड़ें और जारी करें"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:140
-#: apps/mes/app/components/AdjustInventory.tsx:193
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:142
+#: apps/mes/app/components/AdjustInventory.tsx:195
 msgid "Add Inventory"
 msgstr "इन्वेंटरी जोड़ें"
-
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "नया ऑपरेटर जोड़ें"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "ऑपरेटर जोड़ें"
 
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
@@ -181,7 +172,7 @@ msgstr "लेकिन चिंता न करें। आप नया ज
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "साइन इन करके, आप <0>सेवा की शर्तें</0> और <1>गोपनीयता नीति</1> से सहमत हैं।"
 
-#: apps/mes/app/components/AdjustInventory.tsx:188
+#: apps/mes/app/components/AdjustInventory.tsx:190
 #: apps/mes/app/components/EndShift.tsx:141
 #: apps/mes/app/components/Feedback.tsx:139
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:268
@@ -189,7 +180,6 @@ msgstr "साइन इन करके, आप <0>सेवा की शर�
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -300,10 +290,6 @@ msgstr "कंसोल"
 #: apps/mes/app/components/AppSidebar.tsx:525
 msgid "Console Mode"
 msgstr "कंसोल मोड"
-
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "PIN कॉपी करें"
 
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
@@ -427,16 +413,8 @@ msgstr "ईमेल पता"
 msgid "End Operations"
 msgstr "संचालन समाप्त करें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "पहला नाम दर्ज करें"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "अंतिम नाम दर्ज करें"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "{0} के लिए PIN दर्ज करें"
 
@@ -448,11 +426,7 @@ msgstr "त्रुटि"
 msgid "Estimated"
 msgstr "अनुमानित"
 
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "ऑपरेटर जोड़ने में विफल"
-
-#: apps/mes/app/components/AdjustInventory.tsx:94
+#: apps/mes/app/components/AdjustInventory.tsx:96
 msgid "Failed to complete inventory adjustment"
 msgstr "इन्वेंटरी समायोजन पूरा करने में विफल"
 
@@ -464,9 +438,9 @@ msgstr "संचालन समाप्त करने में विफ�
 msgid "Failed to fetch active operations"
 msgstr "सक्रिय संचालन प्राप्त करने में विफल"
 
-#: apps/mes/app/components/AdjustInventory.tsx:63
-msgid "Failed to fetch shelves"
-msgstr "शेल्फ़ लाने में विफल"
+#: apps/mes/app/components/AdjustInventory.tsx:65
+msgid "Failed to fetch storageUnits"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 #: apps/mes/app/components/JobOperation/components/Step.tsx:385
@@ -499,17 +473,9 @@ msgstr "नौकरी और अवसर लाइन से संबंध�
 msgid "Filter"
 msgstr "फ़िल्टर"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "पहला नाम"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "घड़ी से बाहर निकलना भूल गए?"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "नया PIN जेनरेट करें"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -544,7 +510,7 @@ msgstr "प्रगति में"
 msgid "Insufficient quantity"
 msgstr "अपर्याप्त मात्रा"
 
-#: apps/mes/app/components/AdjustInventory.tsx:89
+#: apps/mes/app/components/AdjustInventory.tsx:91
 msgid "Inventory adjustment completed"
 msgstr "इन्वेंटरी समायोजन पूर्ण हुआ"
 
@@ -568,7 +534,7 @@ msgstr "जारी करें"
 msgid "Issue Material"
 msgstr "सामग्री जारी करें"
 
-#: apps/mes/app/components/AdjustInventory.tsx:162
+#: apps/mes/app/components/AdjustInventory.tsx:164
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1962
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:313
 msgid "Item"
@@ -599,10 +565,6 @@ msgstr "किट"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
 msgid "Labor"
 msgstr "श्रम"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "अंतिम नाम"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
@@ -668,11 +630,11 @@ msgstr "रखरखाव"
 msgid "Maintenance Completed"
 msgstr "रखरखाव पूर्ण"
 
-#: apps/mes/app/components/AdjustInventory.tsx:147
+#: apps/mes/app/components/AdjustInventory.tsx:149
 msgid "Manually add items to inventory"
 msgstr "इन्वेंटरी में आइटम मैन्युअली जोड़ें"
 
-#: apps/mes/app/components/AdjustInventory.tsx:149
+#: apps/mes/app/components/AdjustInventory.tsx:151
 msgid "Manually remove items from inventory"
 msgstr "इन्वेंटरी से आइटम को मैन्युअली हटाएं"
 
@@ -782,7 +744,7 @@ msgstr "आज के लिए कोई रखरखाव निर्धा�
 msgid "No materials"
 msgstr "कोई सामग्री नहीं"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "कोई ऑपरेटर नहीं"
 
@@ -799,7 +761,7 @@ msgstr "कोई विकल्प नहीं मिला।"
 msgid "No recent operations"
 msgstr "कोई हाल के संचालन नहीं"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "कोई परिणाम नहीं"
@@ -905,11 +867,7 @@ msgstr "रोकें"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "कॉलम {0} को स्थिति {1} पर उठाया गया: {2} में से"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "पिन"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "पिन आउट"
 
@@ -959,7 +917,7 @@ msgstr "प्रक्रियाएं"
 msgid "Progress"
 msgstr "प्रगति"
 
-#: apps/mes/app/components/AdjustInventory.tsx:168
+#: apps/mes/app/components/AdjustInventory.tsx:170
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:236
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2228
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:335
@@ -972,7 +930,7 @@ msgid "Quantity must be greater than 0"
 msgstr "मात्रा 0 से अधिक होनी चाहिए"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "हाल ही में"
@@ -997,10 +955,10 @@ msgstr "हटाएं"
 msgid "Remove filter"
 msgstr "फ़िल्टर हटाएं"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:142
-#: apps/mes/app/components/AdjustInventory.tsx:195
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:144
+#: apps/mes/app/components/AdjustInventory.tsx:197
 msgid "Remove Inventory"
 msgstr "इन्वेंटरी हटाएं"
 
@@ -1050,7 +1008,7 @@ msgstr "स्क्रैप किया गया"
 msgid "Search"
 msgstr "खोजें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "ऑपरेटर खोजें..."
 
@@ -1158,14 +1116,6 @@ msgstr "घड़ी बंद करने का समय सेट करे
 msgid "Setup"
 msgstr "सेटअप"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "इस PIN को ऑपरेटर के साथ साझा करें ताकि वे टर्मिनल पर पिन इन कर सकें।"
-
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "शेल्फ"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "ईमेल के साथ साइन इन करें"
@@ -1206,7 +1156,7 @@ msgstr "उपयोग किए गए स्पेयर पार्ट्�
 msgid "Start"
 msgstr "शुरू करें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "स्टेशन उपयोगकर्ता"
 
@@ -1233,6 +1183,10 @@ msgstr "चरण"
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:223
 msgid "Steps are missing"
 msgstr "चरण गायब हैं"
+
+#: apps/mes/app/components/AdjustInventory.tsx:172
+msgid "Storage Unit"
+msgstr ""
 
 #: apps/mes/app/components/Suggestion.tsx:160
 msgid "Submit anonymously"

@@ -83,21 +83,12 @@ msgstr "Agregar"
 msgid "Add & Issue"
 msgstr "Agregar y emitir"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:140
-#: apps/mes/app/components/AdjustInventory.tsx:193
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:142
+#: apps/mes/app/components/AdjustInventory.tsx:195
 msgid "Add Inventory"
 msgstr "Agregar inventario"
-
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "Agregar nuevo operador"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "Agregar operador"
 
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
@@ -181,7 +172,7 @@ msgstr "Pero no te preocupes. Puedes usar el flujo de contraseña olvidada para 
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "Al iniciar sesión, acepta los <0>Términos de servicio</0> y la <1>Política de privacidad.</1>"
 
-#: apps/mes/app/components/AdjustInventory.tsx:188
+#: apps/mes/app/components/AdjustInventory.tsx:190
 #: apps/mes/app/components/EndShift.tsx:141
 #: apps/mes/app/components/Feedback.tsx:139
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:268
@@ -189,7 +180,6 @@ msgstr "Al iniciar sesión, acepta los <0>Términos de servicio</0> y la <1>Pol�
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -300,10 +290,6 @@ msgstr "Consola"
 #: apps/mes/app/components/AppSidebar.tsx:525
 msgid "Console Mode"
 msgstr "Modo consola"
-
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "Copiar PIN"
 
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
@@ -427,16 +413,8 @@ msgstr "Correo electrónico"
 msgid "End Operations"
 msgstr "Finalizar operaciones"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "Ingrese el nombre"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "Ingrese el apellido"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "Ingrese el PIN para {0}"
 
@@ -448,11 +426,7 @@ msgstr "Error"
 msgid "Estimated"
 msgstr "Estimado"
 
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "Error al agregar operador"
-
-#: apps/mes/app/components/AdjustInventory.tsx:94
+#: apps/mes/app/components/AdjustInventory.tsx:96
 msgid "Failed to complete inventory adjustment"
 msgstr "Error al completar el ajuste de inventario"
 
@@ -464,9 +438,9 @@ msgstr "Error al finalizar las operaciones"
 msgid "Failed to fetch active operations"
 msgstr "Error al obtener las operaciones activas"
 
-#: apps/mes/app/components/AdjustInventory.tsx:63
-msgid "Failed to fetch shelves"
-msgstr "Error al obtener los estantes"
+#: apps/mes/app/components/AdjustInventory.tsx:65
+msgid "Failed to fetch storageUnits"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 #: apps/mes/app/components/JobOperation/components/Step.tsx:385
@@ -499,17 +473,9 @@ msgstr "Archivos relacionados con el trabajo y la línea de oportunidad."
 msgid "Filter"
 msgstr "Filtrar"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "Nombre"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "¿Olvidó registrar la salida?"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "Generar nuevo PIN"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -544,7 +510,7 @@ msgstr "En progreso"
 msgid "Insufficient quantity"
 msgstr "Cantidad insuficiente"
 
-#: apps/mes/app/components/AdjustInventory.tsx:89
+#: apps/mes/app/components/AdjustInventory.tsx:91
 msgid "Inventory adjustment completed"
 msgstr "Ajuste de inventario completado"
 
@@ -568,7 +534,7 @@ msgstr "Emitir"
 msgid "Issue Material"
 msgstr "Emitir material"
 
-#: apps/mes/app/components/AdjustInventory.tsx:162
+#: apps/mes/app/components/AdjustInventory.tsx:164
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1962
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:313
 msgid "Item"
@@ -599,10 +565,6 @@ msgstr "Kit"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
 msgid "Labor"
 msgstr "Mano de obra"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "Apellido"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
@@ -668,11 +630,11 @@ msgstr "Mantenimiento"
 msgid "Maintenance Completed"
 msgstr "Mantenimiento completado"
 
-#: apps/mes/app/components/AdjustInventory.tsx:147
+#: apps/mes/app/components/AdjustInventory.tsx:149
 msgid "Manually add items to inventory"
 msgstr "Agregar artículos al inventario manualmente"
 
-#: apps/mes/app/components/AdjustInventory.tsx:149
+#: apps/mes/app/components/AdjustInventory.tsx:151
 msgid "Manually remove items from inventory"
 msgstr "Eliminar artículos del inventario manualmente"
 
@@ -782,7 +744,7 @@ msgstr "No hay mantenimiento programado para hoy"
 msgid "No materials"
 msgstr "Sin materiales"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "Sin operadores"
 
@@ -799,7 +761,7 @@ msgstr "No se encontraron opciones."
 msgid "No recent operations"
 msgstr "No hay operaciones recientes"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "Sin resultados"
@@ -905,11 +867,7 @@ msgstr "Pausar"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Se tomó la columna {0} en la posición: {1} de {2}"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "Cerrar sesión con PIN"
 
@@ -959,7 +917,7 @@ msgstr "Procesos"
 msgid "Progress"
 msgstr "Progreso"
 
-#: apps/mes/app/components/AdjustInventory.tsx:168
+#: apps/mes/app/components/AdjustInventory.tsx:170
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:236
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2228
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:335
@@ -972,7 +930,7 @@ msgid "Quantity must be greater than 0"
 msgstr "La cantidad debe ser mayor que 0"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "Recientes"
@@ -997,10 +955,10 @@ msgstr "Eliminar"
 msgid "Remove filter"
 msgstr "Eliminar filtro"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:142
-#: apps/mes/app/components/AdjustInventory.tsx:195
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:144
+#: apps/mes/app/components/AdjustInventory.tsx:197
 msgid "Remove Inventory"
 msgstr "Eliminar inventario"
 
@@ -1050,7 +1008,7 @@ msgstr "Descartado"
 msgid "Search"
 msgstr "Buscar"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "Buscar operadores..."
 
@@ -1158,14 +1116,6 @@ msgstr "Establecer hora de salida"
 msgid "Setup"
 msgstr "Preparación"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "Comparta este PIN con el operador para que pueda iniciar sesión en la terminal."
-
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "Estante"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "Iniciar sesión con correo electrónico"
@@ -1206,7 +1156,7 @@ msgstr "Repuestos utilizados"
 msgid "Start"
 msgstr "Iniciar"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "Usuario de estación"
 
@@ -1233,6 +1183,10 @@ msgstr "Pasos"
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:223
 msgid "Steps are missing"
 msgstr "Faltan pasos"
+
+#: apps/mes/app/components/AdjustInventory.tsx:172
+msgid "Storage Unit"
+msgstr ""
 
 #: apps/mes/app/components/Suggestion.tsx:160
 msgid "Submit anonymously"

@@ -83,21 +83,12 @@ msgstr "添加"
 msgid "Add & Issue"
 msgstr "添加并发放"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:140
-#: apps/mes/app/components/AdjustInventory.tsx:193
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:142
+#: apps/mes/app/components/AdjustInventory.tsx:195
 msgid "Add Inventory"
 msgstr "添加库存"
-
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "添加新操作员"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "添加操作员"
 
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
@@ -181,7 +172,7 @@ msgstr "但别担心。您可以使用忘记密码流程来请求新的魔法链
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
 
-#: apps/mes/app/components/AdjustInventory.tsx:188
+#: apps/mes/app/components/AdjustInventory.tsx:190
 #: apps/mes/app/components/EndShift.tsx:141
 #: apps/mes/app/components/Feedback.tsx:139
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:268
@@ -189,7 +180,6 @@ msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -300,10 +290,6 @@ msgstr "控制台"
 #: apps/mes/app/components/AppSidebar.tsx:525
 msgid "Console Mode"
 msgstr "控制台模式"
-
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "复制 PIN 码"
 
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
@@ -427,16 +413,8 @@ msgstr "电子邮箱"
 msgid "End Operations"
 msgstr "结束工序"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "输入名字"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "输入姓氏"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "输入 {0} 的 PIN 码"
 
@@ -448,11 +426,7 @@ msgstr "错误"
 msgid "Estimated"
 msgstr "估计"
 
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "添加操作员失败"
-
-#: apps/mes/app/components/AdjustInventory.tsx:94
+#: apps/mes/app/components/AdjustInventory.tsx:96
 msgid "Failed to complete inventory adjustment"
 msgstr "库存调整失败"
 
@@ -464,9 +438,9 @@ msgstr "结束工序失败"
 msgid "Failed to fetch active operations"
 msgstr "获取活跃工序失败"
 
-#: apps/mes/app/components/AdjustInventory.tsx:63
-msgid "Failed to fetch shelves"
-msgstr "获取货架失败"
+#: apps/mes/app/components/AdjustInventory.tsx:65
+msgid "Failed to fetch storageUnits"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 #: apps/mes/app/components/JobOperation/components/Step.tsx:385
@@ -499,17 +473,9 @@ msgstr "与工单和商机行相关的文件。"
 msgid "Filter"
 msgstr "筛选"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "名字"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "忘记打卡下班了？"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "生成新 PIN 码"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -544,7 +510,7 @@ msgstr "进行中"
 msgid "Insufficient quantity"
 msgstr "数量不足"
 
-#: apps/mes/app/components/AdjustInventory.tsx:89
+#: apps/mes/app/components/AdjustInventory.tsx:91
 msgid "Inventory adjustment completed"
 msgstr "库存调整已完成"
 
@@ -568,7 +534,7 @@ msgstr "发放"
 msgid "Issue Material"
 msgstr "发放物料"
 
-#: apps/mes/app/components/AdjustInventory.tsx:162
+#: apps/mes/app/components/AdjustInventory.tsx:164
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1962
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:313
 msgid "Item"
@@ -599,10 +565,6 @@ msgstr "套件"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
 msgid "Labor"
 msgstr "人工"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "姓氏"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
@@ -668,11 +630,11 @@ msgstr "维护"
 msgid "Maintenance Completed"
 msgstr "维护已完成"
 
-#: apps/mes/app/components/AdjustInventory.tsx:147
+#: apps/mes/app/components/AdjustInventory.tsx:149
 msgid "Manually add items to inventory"
 msgstr "手动添加物料到库存"
 
-#: apps/mes/app/components/AdjustInventory.tsx:149
+#: apps/mes/app/components/AdjustInventory.tsx:151
 msgid "Manually remove items from inventory"
 msgstr "手动从库存中移除物料"
 
@@ -782,7 +744,7 @@ msgstr "今天没有计划的维护"
 msgid "No materials"
 msgstr "无物料"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "无操作员"
 
@@ -799,7 +761,7 @@ msgstr "未找到选项。"
 msgid "No recent operations"
 msgstr "无近期工序"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "无结果"
@@ -905,11 +867,7 @@ msgstr "暂停"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "已拾取列 {0}，位于第 {1} 个位置（共 {2} 个）"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN 码"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "退出登录"
 
@@ -959,7 +917,7 @@ msgstr "工艺"
 msgid "Progress"
 msgstr "进度"
 
-#: apps/mes/app/components/AdjustInventory.tsx:168
+#: apps/mes/app/components/AdjustInventory.tsx:170
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:236
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2228
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:335
@@ -972,7 +930,7 @@ msgid "Quantity must be greater than 0"
 msgstr "数量必须大于 0"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "最近"
@@ -997,10 +955,10 @@ msgstr "移除"
 msgid "Remove filter"
 msgstr "移除筛选"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:142
-#: apps/mes/app/components/AdjustInventory.tsx:195
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:144
+#: apps/mes/app/components/AdjustInventory.tsx:197
 msgid "Remove Inventory"
 msgstr "移除库存"
 
@@ -1050,7 +1008,7 @@ msgstr "已报废"
 msgid "Search"
 msgstr "搜索"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "搜索操作员..."
 
@@ -1158,14 +1116,6 @@ msgstr "设置下班打卡时间"
 msgid "Setup"
 msgstr "设置"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "将此 PIN 码分享给操作员，以便他们在终端登录。"
-
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "货架"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "使用邮箱登录"
@@ -1206,7 +1156,7 @@ msgstr "已使用备件"
 msgid "Start"
 msgstr "开始"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "工位用户"
 
@@ -1233,6 +1183,10 @@ msgstr "步骤"
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:223
 msgid "Steps are missing"
 msgstr "缺少步骤"
+
+#: apps/mes/app/components/AdjustInventory.tsx:172
+msgid "Storage Unit"
+msgstr ""
 
 #: apps/mes/app/components/Suggestion.tsx:160
 msgid "Submit anonymously"
