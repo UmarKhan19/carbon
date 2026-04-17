@@ -5,7 +5,6 @@ import { documentTypeRegistry } from "./registry";
 export const autoPrintSettingsValidator = z.object({
   receiptLabels: zfd.checkbox(),
   shipmentLabels: zfd.checkbox(),
-  kanbanCards: zfd.checkbox(),
   operationLabels: zfd.checkbox()
 });
 
@@ -14,7 +13,7 @@ export const printerRouteValidator = z.object({
   locationId: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
   format: z.enum(["zpl", "pdf"]),
-  mediaSizeId: zfd.text(z.string().optional()),
+  mediaSizeId: z.string().min(1, { message: "Media size is required" }),
   printerUrl: z.string().url({ message: "Must be a valid URL" }),
   apiKey: zfd.text(z.string().optional())
 });

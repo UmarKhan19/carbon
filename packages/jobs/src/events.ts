@@ -352,6 +352,26 @@ export type Events = {
     };
   };
 
+  // Print job (renders content for a source document and queues delivery)
+  "carbon/print-job": {
+    data: {
+      sourceDocument: string;
+      sourceDocumentId: string;
+      companyId: string;
+      userId: string;
+      locationId?: string;
+      workCenterId?: string;
+    };
+  };
+
+  // Print job delivery (sends rendered content to a printer)
+  "carbon/print-job-deliver": {
+    data: {
+      printJobId: string;
+      companyId: string;
+    };
+  };
+
   // Jira integration (full webhook payload)
   "carbon/jira-sync": {
     data: {

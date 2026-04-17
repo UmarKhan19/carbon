@@ -1,6 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
 import {
-  LuBarcode,
   LuBox,
   LuCircleCheck,
   LuClipboardCheck,
@@ -52,22 +51,16 @@ export default function useSettingsSubmodules() {
           requiresCloudEnvironment: true
         },
         {
-          name: t`Labels`,
-          to: path.to.labelsSettings,
+          name: t`Logos`,
+          to: path.to.logos,
           role: "employee",
-          icon: <LuBarcode />
+          icon: <LuImage />
         },
         {
           name: t`Printing`,
           to: path.to.printingSettings,
           role: "employee",
           icon: <LuPrinter />
-        },
-        {
-          name: t`Logos`,
-          to: path.to.logos,
-          role: "employee",
-          icon: <LuImage />
         }
       ]
     },

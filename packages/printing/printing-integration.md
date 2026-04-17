@@ -80,7 +80,7 @@ Four permission keys are used: printing_view, printing_create, printing_update, 
 
 The migration adds a `printing` JSONB column to the `companySettings` table. This column stores a `PrintingSettings` object with four top-level fields:
 
-- **autoPrint** contains boolean toggles for each business event: `receiptLabels`, `shipmentLabels`, `kanbanCards`, and `operationLabels`
+- **autoPrint** contains boolean toggles for each business event: `receiptLabels`, `shipmentLabels`, and `operationLabels`
 - **assignments** maps each document type ID (such as "productLabel" or "kanbanCard") to a `TemplateAssignment` containing a `printerRouteId` and an optional `templateId` (for BinderyPress templates)
 - **locationOverrides** maps location IDs to document type IDs to printer route IDs, providing location-specific printer routing
 - **workCenterOverrides** maps work center IDs to document type IDs to printer route IDs, providing work center-specific printer routing

@@ -3,7 +3,6 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { trigger } from "@carbon/jobs";
-import type { PrintingSettings } from "@carbon/printing";
 import { Loading } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -157,27 +156,6 @@ async function handleKanban({
         data: null,
         error: "Failed to associate kanban with job"
       };
-    }
-
-    // Auto-print kanban card if enabled
-    try {
-      const { data: cs } = await serviceRole
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-      const printing = cs?.printing as PrintingSettings | null;
-      if (printing?.autoPrint?.kanbanCards) {
-        await trigger("print-job", {
-          sourceDocument: "Kanban",
-          sourceDocumentId: kanban.data.id!,
-          companyId,
-          userId,
-          locationId: kanban.data.locationId ?? undefined
-        });
-      }
-    } catch (e) {
-      console.error("Auto-print failed:", e);
     }
 
     if (!upsertMethod.error && kanban.data.autoRelease) {
@@ -365,28 +343,6 @@ async function handleKanban({
         data: null,
         error: "Failed to create purchase order line"
       };
-    }
-
-    // Auto-print kanban card if enabled
-    try {
-      const serviceRole = getCarbonServiceRole();
-      const { data: cs } = await serviceRole
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-      const printing = cs?.printing as PrintingSettings | null;
-      if (printing?.autoPrint?.kanbanCards) {
-        await trigger("print-job", {
-          sourceDocument: "Kanban",
-          sourceDocumentId: kanban.data.id!,
-          companyId,
-          userId,
-          locationId: kanban.data.locationId ?? undefined
-        });
-      }
-    } catch (e) {
-      console.error("Auto-print failed:", e);
     }
 
     return {

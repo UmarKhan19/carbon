@@ -7,7 +7,6 @@ export type PrintingSettings = {
   autoPrint: {
     receiptLabels: boolean;
     shipmentLabels: boolean;
-    kanbanCards: boolean;
     operationLabels: boolean;
   } | null;
   assignments: Record<string, TemplateAssignment | null> | null;

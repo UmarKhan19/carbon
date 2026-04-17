@@ -407,7 +407,6 @@ export async function seedPrinting(
         autoPrint: {
           receiptLabels: true,
           shipmentLabels: true,
-          kanbanCards: true,
           operationLabels: true
         },
         assignments: {

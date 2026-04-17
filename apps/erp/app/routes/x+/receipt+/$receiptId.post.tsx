@@ -2,9 +2,9 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import { trigger } from "@carbon/jobs";
 import type { PrintingSettings } from "@carbon/printing";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -113,20 +113,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
           .select("locationId")
           .eq("id", receiptId)
           .single();
-        await tasks.trigger(
-          "print-job",
-          {
-            sourceDocument: "Receipt",
-            sourceDocumentId: receiptId,
-            companyId,
-            userId,
-            locationId: receipt?.locationId ?? undefined
-          },
-          {
-            idempotencyKey: `auto-print-Receipt-${receiptId}`,
-            idempotencyKeyTTL: "5m"
-          }
-        );
+        await trigger("print-job", {
+          sourceDocument: "Receipt",
+          sourceDocumentId: receiptId,
+          companyId,
+          userId,
+          locationId: receipt?.locationId ?? undefined
+        });
       }
     } catch (e) {
       console.error("Auto-print failed:", e);

@@ -63493,6 +63493,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.printing",
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
@@ -63660,6 +63663,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.printing",
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
@@ -63779,6 +63785,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.printing",
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
@@ -75570,8 +75579,8 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "int32",
-          type: "integer",
+          format: "numeric",
+          type: "number",
         },
         setupProductionEventId: {
           description:
@@ -93088,7 +93097,7 @@ export default {
         },
         attempts: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         createdBy: {
@@ -103105,6 +103114,9 @@ export default {
           default: false,
           format: "boolean",
           type: "boolean",
+        },
+        printing: {
+          format: "jsonb",
         },
         updateLeadTimesOnReceipt: {
           default: false,
@@ -137887,6 +137899,12 @@ export default {
     },
     "rowFilter.companySettings.timeCardEnabled": {
       name: "timeCardEnabled",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.printing": {
+      name: "printing",
       required: false,
       in: "query",
       type: "string",

@@ -3,9 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { trigger } from "@carbon/jobs";
 import type { PrintingSettings } from "@carbon/printing";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { nonScrapQuantityValidator } from "~/services/models";
@@ -98,21 +98,14 @@ export async function action({ request }: ActionFunctionArgs) {
               .single();
             locationId = wc?.locationId ?? undefined;
           }
-          await tasks.trigger(
-            "print-job",
-            {
-              sourceDocument: "Entity" as const,
-              sourceDocumentId: completedEntityId,
-              companyId,
-              userId,
-              locationId,
-              workCenterId: jobOperation.data.workCenterId ?? undefined
-            },
-            {
-              idempotencyKey: `auto-print-Entity-${completedEntityId}`,
-              idempotencyKeyTTL: "5m"
-            }
-          );
+          await trigger("print-job", {
+            sourceDocument: "Entity",
+            sourceDocumentId: completedEntityId,
+            companyId,
+            userId,
+            locationId,
+            workCenterId: jobOperation.data.workCenterId ?? undefined
+          });
         }
       } catch (e) {
         console.error("Auto-print failed:", e);
@@ -195,21 +188,14 @@ export async function action({ request }: ActionFunctionArgs) {
             .single();
           batchLocationId = wc?.locationId ?? undefined;
         }
-        await tasks.trigger(
-          "print-job",
-          {
-            sourceDocument: "Operation" as const,
-            sourceDocumentId: validation.data.jobOperationId,
-            companyId,
-            userId,
-            locationId: batchLocationId,
-            workCenterId: jobOperation.data.workCenterId ?? undefined
-          },
-          {
-            idempotencyKey: `auto-print-Operation-${validation.data.jobOperationId}-batch`,
-            idempotencyKeyTTL: "5m"
-          }
-        );
+        await trigger("print-job", {
+          sourceDocument: "Operation",
+          sourceDocumentId: validation.data.jobOperationId,
+          companyId,
+          userId,
+          locationId: batchLocationId,
+          workCenterId: jobOperation.data.workCenterId ?? undefined
+        });
       }
     } catch (e) {
       console.error("Auto-print failed:", e);

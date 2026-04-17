@@ -1,6 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { trigger } from "@carbon/jobs";
 import {
   createPrintJob,
   getPrinterRoutes,
@@ -27,7 +28,6 @@ import {
   Tr,
   VStack
 } from "@carbon/react";
-import { tasks } from "@trigger.dev/sdk";
 import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, useFetcher, useLoaderData, useSearchParams } from "react-router";
@@ -136,7 +136,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
 
       try {
-        await tasks.trigger("print-job-deliver", {
+        await trigger("print-job-deliver", {
           printJobId: newJob.data.id,
           companyId
         });
