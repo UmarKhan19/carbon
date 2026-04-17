@@ -263,7 +263,7 @@ serve(async (req: Request) => {
                     outstandingQuantity: invoiceLineQuantityInInventoryUnit,
                     shippedQuantity: invoiceLineQuantityInInventoryUnit,
                     locationId: invoiceLine.locationId,
-                    shelfId: invoiceLine.shelfId,
+                    storageUnitId: invoiceLine.storageUnitId,
                     unitOfMeasure: invoiceLine.unitOfMeasureCode ?? "EA",
                     unitPrice: invoiceLine.unitPrice ?? 0,
                     createdBy: invoiceLine.createdBy,
@@ -277,7 +277,7 @@ serve(async (req: Request) => {
                       itemId: invoiceLine.itemId!,
                       quantity: -invoiceLineQuantityInInventoryUnit,
                       locationId: invoiceLine.locationId,
-                      shelfId: invoiceLine.shelfId,
+                      storageUnitId: invoiceLine.storageUnitId,
                       entryType: "Negative Adjmt.",
                       documentType: "Sales Shipment",
                       documentId: salesInvoice.data?.id ?? undefined,
@@ -760,7 +760,7 @@ serve(async (req: Request) => {
               itemId: entry.itemId,
               quantity: -entry.quantity, // Reverse the quantity
               locationId: entry.locationId,
-              shelfId: entry.shelfId,
+              storageUnitId: entry.storageUnitId,
               entryType:
                 entry.entryType === "Negative Adjmt."
                   ? "Positive Adjmt."

@@ -61,7 +61,7 @@ import { DocumentPreview, Empty, ItemThumbnail } from "~/components";
 import DocumentIcon from "~/components/DocumentIcon";
 import { Enumerable } from "~/components/Enumerable";
 import FileDropzone from "~/components/FileDropzone";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData, useUser } from "~/hooks";
@@ -71,7 +71,7 @@ import type {
   Receipt,
   ReceiptLine
 } from "~/modules/inventory";
-import { ShelfForm, splitValidator } from "~/modules/inventory";
+import { StorageUnitForm, splitValidator } from "~/modules/inventory";
 import { getDocumentType } from "~/modules/shared/shared.service";
 import type { action as receiptLinesUpdateAction } from "~/routes/x+/receipt+/lines.update";
 import { useItems } from "~/stores";
@@ -196,7 +196,7 @@ const ReceiptLines = () => {
         }
       | {
           lineId: string;
-          field: "shelfId";
+          field: "storageUnitId";
           value: string;
         }) => {
       const formData = new FormData();
@@ -308,7 +308,7 @@ function ReceiptLineItem({
       }
     | {
         lineId: string;
-        field: "shelfId";
+        field: "storageUnitId";
         value: string;
       }) => Promise<void>;
   upload: (files: File[]) => Promise<void>;
@@ -446,15 +446,15 @@ function ReceiptLineItem({
             </VStack>
           </HStack>
 
-          <Shelf
+          <StorageUnit
             locationId={line.locationId}
-            shelfId={line.shelfId}
+            storageUnitId={line.storageUnitId}
             isReadOnly={isReadOnly}
-            onChange={(shelf) => {
+            onChange={(storageUnit) => {
               onUpdate({
                 lineId: line.id!,
-                field: "shelfId",
-                value: shelf
+                field: "storageUnitId",
+                value: storageUnit
               });
             }}
           />
@@ -1023,51 +1023,51 @@ function SplitReceiptLineModal({
   );
 }
 
-function Shelf({
+function StorageUnit({
   locationId,
-  shelfId,
+  storageUnitId,
   isReadOnly,
   onChange
 }: {
   locationId: string | null;
-  shelfId: string | null;
+  storageUnitId: string | null;
   isReadOnly: boolean;
-  onChange: (shelf: string) => void;
+  onChange: (storageUnit: string) => void;
 }) {
-  const { options } = useShelves(locationId ?? undefined);
+  const { options } = useStorageUnits(locationId ?? undefined);
   const newShelfModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   if (!locationId) return null;
 
-  const ShelfPreview = (
+  const StorageUnitPreview = (
     value: string,
     options: { value: string; label: string | JSX.Element }[]
   ) => {
-    const shelf = options.find((o) => o.value === value);
-    if (!shelf) return null;
-    return shelf.label;
+    const storageUnit = options.find((o) => o.value === value);
+    if (!storageUnit) return null;
+    return storageUnit.label;
   };
 
   return (
     <div className="flex flex-col items-start gap-1 min-w-[140px] text-sm">
-      <label className="text-xs text-muted-foreground">Shelf</label>
+      <label className="text-xs text-muted-foreground">Storage Unit</label>
       <CreatableCombobox
         ref={triggerRef}
         options={options}
-        value={shelfId ?? undefined}
+        value={storageUnitId ?? undefined}
         onChange={onChange}
         disabled={isReadOnly}
         isReadOnly={isReadOnly}
-        inline={ShelfPreview}
+        inline={StorageUnitPreview}
         onCreateOption={(option) => {
           newShelfModal.onOpen();
           setCreated(option);
         }}
       />
       {newShelfModal.isOpen && (
-        <ShelfForm
+        <StorageUnitForm
           locationId={locationId}
           type="modal"
           onClose={() => {

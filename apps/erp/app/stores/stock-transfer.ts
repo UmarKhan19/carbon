@@ -11,7 +11,7 @@ export type StockTransferSessionItem = {
   quantity?: number;
   requiresSerialTracking: boolean;
   requiresBatchTracking: boolean;
-  shelfId?: string;
+  storageUnitId?: string;
 };
 
 export type StockTransferSessionState = {
@@ -97,10 +97,10 @@ export type StockTransferWizardLine = {
   itemReadableId: string;
   description: string;
   thumbnailPath: string;
-  fromShelfId: string;
-  fromShelfName: string;
-  toShelfId: string;
-  toShelfName: string;
+  fromStorageUnitId: string;
+  fromStorageUnitName: string;
+  toStorageUnitId: string;
+  toStorageUnitName: string;
   quantityAvailable: number;
   quantity?: number;
   requiresSerialTracking: boolean;
@@ -108,7 +108,7 @@ export type StockTransferWizardLine = {
 };
 
 export type StockTransferWizardState = {
-  selectedToItemShelfIds: Set<string>; // Set of "itemId:shelfId" composite keys selected in the "to" table
+  selectedToItemShelfIds: Set<string>; // Set of "itemId:storageUnitId" composite keys selected in the "to" table
   lines: StockTransferWizardLine[];
 };
 
@@ -128,18 +128,22 @@ export const useStockTransferWizardLinesCount = () =>
   useValue($wizardLinesCount);
 
 // Stock Transfer Wizard actions
-export const toggleToItemShelfSelection = (itemId: string, shelfId: string) => {
+export const toggleToItemShelfSelection = (
+  itemId: string,
+  storageUnitId: string
+) => {
   const currentWizard = $wizardStore.get();
-  const compositeKey = `${itemId}:${shelfId}`;
+  const compositeKey = `${itemId}:${storageUnitId}`;
   const newSelectedToItemShelfIds = new Set(
     currentWizard.selectedToItemShelfIds
   );
 
   if (newSelectedToItemShelfIds.has(compositeKey)) {
     newSelectedToItemShelfIds.delete(compositeKey);
-    // Remove all lines that have this itemId and toShelfId
+    // Remove all lines that have this itemId and toStorageUnitId
     const updatedLines = currentWizard.lines.filter(
-      (line) => !(line.itemId === itemId && line.toShelfId === shelfId)
+      (line) =>
+        !(line.itemId === itemId && line.toStorageUnitId === storageUnitId)
     );
     $wizardStore.set({
       selectedToItemShelfIds: newSelectedToItemShelfIds,
@@ -154,21 +158,24 @@ export const toggleToItemShelfSelection = (itemId: string, shelfId: string) => {
   }
 };
 
-export const isToItemShelfSelected = (itemId: string, shelfId: string) => {
+export const isToItemShelfSelected = (
+  itemId: string,
+  storageUnitId: string
+) => {
   const currentWizard = $wizardStore.get();
-  const compositeKey = `${itemId}:${shelfId}`;
+  const compositeKey = `${itemId}:${storageUnitId}`;
   return currentWizard.selectedToItemShelfIds.has(compositeKey);
 };
 
 export const addTransferLine = (line: StockTransferWizardLine) => {
   const currentWizard = $wizardStore.get();
 
-  // Check if a line with same itemId, fromShelfId and toShelfId already exists
+  // Check if a line with same itemId, fromStorageUnitId and toStorageUnitId already exists
   const existingLineIndex = currentWizard.lines.findIndex(
     (l) =>
       l.itemId === line.itemId &&
-      l.fromShelfId === line.fromShelfId &&
-      l.toShelfId === line.toShelfId
+      l.fromStorageUnitId === line.fromStorageUnitId &&
+      l.toStorageUnitId === line.toStorageUnitId
   );
 
   if (existingLineIndex >= 0) {
@@ -190,16 +197,16 @@ export const addTransferLine = (line: StockTransferWizardLine) => {
 
 export const removeTransferLine = (
   itemId: string,
-  fromShelfId: string,
-  toShelfId: string
+  fromStorageUnitId: string,
+  toStorageUnitId: string
 ) => {
   const currentWizard = $wizardStore.get();
   const updatedLines = currentWizard.lines.filter(
     (line) =>
       !(
         line.itemId === itemId &&
-        line.fromShelfId === fromShelfId &&
-        line.toShelfId === toShelfId
+        line.fromStorageUnitId === fromStorageUnitId &&
+        line.toStorageUnitId === toStorageUnitId
       )
   );
   $wizardStore.set({ ...currentWizard, lines: updatedLines });
@@ -207,43 +214,43 @@ export const removeTransferLine = (
 
 export const hasTransferLine = (
   itemId: string,
-  fromShelfId: string,
-  toShelfId: string
+  fromStorageUnitId: string,
+  toStorageUnitId: string
 ) => {
   const currentWizard = $wizardStore.get();
   return currentWizard.lines.some(
     (line) =>
       line.itemId === itemId &&
-      line.fromShelfId === fromShelfId &&
-      line.toShelfId === toShelfId
+      line.fromStorageUnitId === fromStorageUnitId &&
+      line.toStorageUnitId === toStorageUnitId
   );
 };
 
 export const hasTransferLinesToItemShelf = (
   itemId: string,
-  shelfId: string
+  storageUnitId: string
 ) => {
   const currentWizard = $wizardStore.get();
   return currentWizard.lines.some(
     (line) =>
       line.itemId === itemId &&
-      line.toShelfId === shelfId &&
+      line.toStorageUnitId === storageUnitId &&
       (line.quantity ?? 0) > 0
   );
 };
 
 export const updateTransferLineQuantity = (
   itemId: string,
-  fromShelfId: string,
-  toShelfId: string,
+  fromStorageUnitId: string,
+  toStorageUnitId: string,
   quantity: number
 ) => {
   const currentWizard = $wizardStore.get();
   const lineIndex = currentWizard.lines.findIndex(
     (line) =>
       line.itemId === itemId &&
-      line.fromShelfId === fromShelfId &&
-      line.toShelfId === toShelfId
+      line.fromStorageUnitId === fromStorageUnitId &&
+      line.toStorageUnitId === toStorageUnitId
   );
 
   if (lineIndex >= 0) {

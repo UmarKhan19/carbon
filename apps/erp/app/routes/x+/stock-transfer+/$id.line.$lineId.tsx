@@ -96,8 +96,8 @@ export default function NewStockTransferLinesRoute() {
     stockTransferId: id,
     itemId: line?.itemId ?? "",
     quantity: line?.quantity ?? 1,
-    fromShelfId: line?.fromShelfId ?? "",
-    toShelfId: line?.toShelfId ?? ""
+    fromStorageUnitId: line?.fromStorageUnitId ?? "",
+    toStorageUnitId: line?.toStorageUnitId ?? ""
   };
 
   return (

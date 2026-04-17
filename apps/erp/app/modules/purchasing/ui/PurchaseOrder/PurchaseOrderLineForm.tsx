@@ -32,7 +32,7 @@ import {
   Item,
   Location,
   NumberControlled,
-  Shelf,
+  StorageUnit,
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
@@ -99,7 +99,7 @@ const PurchaseOrderLineForm = ({
     purchaseQuantity: number;
     purchaseUom: string;
     requestedDate: string | null;
-    shelfId: string | null;
+    storageUnitId: string | null;
     supplierShippingCost: number;
     supplierTaxAmount: number;
     supplierUnitPrice: number;
@@ -115,7 +115,7 @@ const PurchaseOrderLineForm = ({
     purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
     priceBreaks: [],
     requestedDate: initialValues?.requestedDate ?? null,
-    shelfId: initialValues.shelfId ?? "",
+    storageUnitId: initialValues.storageUnitId ?? "",
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
     supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
@@ -198,7 +198,7 @@ const PurchaseOrderLineForm = ({
       purchaseQuantity: 1,
       purchaseUom: "",
       requestedDate: null,
-      shelfId: "",
+      storageUnitId: "",
       supplierShippingCost: 0,
       supplierTaxAmount: 0,
       supplierUnitPrice: 0,
@@ -233,7 +233,7 @@ const PurchaseOrderLineForm = ({
             .maybeSingle(),
           carbon
             .from("pickMethod")
-            .select("defaultShelfId")
+            .select("defaultStorageUnitId")
             .eq("itemId", itemId)
             .eq("companyId", company.id)
             .eq("locationId", locationId!)
@@ -279,7 +279,7 @@ const PurchaseOrderLineForm = ({
             leadTime === 0
               ? null
               : today(getLocalTimeZone()).add({ days: leadTime }).toString(),
-          shelfId: inventory.data?.defaultShelfId ?? null,
+          storageUnitId: inventory.data?.defaultStorageUnitId ?? null,
           supplierTaxAmount: 0,
           taxPercent: 0,
           priceBreaks: breaks,
@@ -305,9 +305,9 @@ const PurchaseOrderLineForm = ({
 
     setLocationId(newLocation.value);
     if (!itemData.itemId) return;
-    const shelf = await carbon
+    const storageUnit = await carbon
       .from("pickMethod")
-      .select("defaultShelfId")
+      .select("defaultStorageUnitId")
       .eq("itemId", itemData.itemId)
       .eq("companyId", company.id)
       .eq("locationId", newLocation.value)
@@ -315,7 +315,7 @@ const PurchaseOrderLineForm = ({
 
     setItemData((d) => ({
       ...d,
-      shelfId: shelf?.data?.defaultShelfId ?? ""
+      storageUnitId: storageUnit?.data?.defaultStorageUnitId ?? ""
     }));
   };
 
@@ -586,16 +586,16 @@ const PurchaseOrderLineForm = ({
                       "Fixed Asset"
                     ].includes(itemType) &&
                       !isOutsideProcessing && (
-                        <Shelf
-                          name="shelfId"
-                          label={t`Shelf`}
+                        <StorageUnit
+                          name="storageUnitId"
+                          label={t`Storage Unit`}
                           locationId={locationId}
-                          value={itemData.shelfId ?? undefined}
+                          value={itemData.storageUnitId ?? undefined}
                           onChange={(newValue) => {
                             if (newValue) {
                               setItemData((d) => ({
                                 ...d,
-                                shelfId: newValue?.id
+                                storageUnitId: newValue?.id
                               }));
                             }
                           }}

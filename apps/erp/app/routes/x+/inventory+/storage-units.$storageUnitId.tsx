@@ -9,14 +9,14 @@ import type {
 } from "react-router";
 import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
-  getShelf,
-  ShelfForm,
-  shelfValidator,
-  upsertShelf
+  getStorageUnit,
+  StorageUnitForm,
+  storageUnitValidator,
+  upsertStorageUnit
 } from "~/modules/inventory";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
-import { getCompanyId, shelvesQuery } from "~/utils/react-query";
+import { getCompanyId, storageUnitsQuery } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
@@ -24,13 +24,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     role: "employee"
   });
 
-  const { shelfId } = params;
-  if (!shelfId) throw notFound("shelfId not found");
+  const { storageUnitId } = params;
+  if (!storageUnitId) throw notFound("storageUnitId not found");
 
-  const shelf = await getShelf(client, shelfId);
+  const storageUnit = await getStorageUnit(client, storageUnitId);
 
   return {
-    shelf: shelf?.data ?? null
+    storageUnit: storageUnit?.data ?? null
   };
 }
 
@@ -41,7 +41,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
-  const validation = await validator(shelfValidator).validate(formData);
+  const validation = await validator(storageUnitValidator).validate(formData);
 
   if (validation.error) {
     return validationError(validation.error);
@@ -50,23 +50,26 @@ export async function action({ request }: ActionFunctionArgs) {
   const { id, ...d } = validation.data;
   if (!id) throw new Error("id not found");
 
-  const updateShelf = await upsertShelf(client, {
+  const updateStorageUnit = await upsertStorageUnit(client, {
     id,
     ...d,
     updatedBy: userId,
     customFields: setCustomFields(formData)
   });
 
-  if (updateShelf.error) {
+  if (updateStorageUnit.error) {
     return data(
       {},
-      await flash(request, error(updateShelf.error, "Failed to update shelf"))
+      await flash(
+        request,
+        error(updateStorageUnit.error, "Failed to update storageUnit")
+      )
     );
   }
 
   throw redirect(
-    `${path.to.shelves}?${getParams(request)}`,
-    await flash(request, success("Updated shelf"))
+    `${path.to.storageUnits}?${getParams(request)}`,
+    await flash(request, success("Updated storageUnit"))
   );
 }
 
@@ -77,7 +80,7 @@ export async function clientAction({
   const companyId = getCompanyId();
 
   const formData = await request.clone().formData();
-  const validation = await validator(shelfValidator).validate(formData);
+  const validation = await validator(storageUnitValidator).validate(formData);
 
   if (validation.error) {
     return validationError(validation.error);
@@ -85,26 +88,29 @@ export async function clientAction({
 
   if (companyId && validation.data.locationId) {
     window.clientCache?.setQueryData(
-      shelvesQuery(companyId, validation.data.locationId).queryKey,
+      storageUnitsQuery(companyId, validation.data.locationId).queryKey,
       null
     );
   }
   return await serverAction();
 }
 
-export default function EditShelfRoute() {
-  const { shelf } = useLoaderData<typeof loader>();
+export default function EditStorageUnitRoute() {
+  const { storageUnit } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const initialValues = {
-    id: shelf?.id ?? undefined,
-    name: shelf?.name ?? "",
-    locationId: shelf?.locationId ?? "",
-    ...getCustomFields(shelf?.customFields)
+    id: storageUnit?.id ?? undefined,
+    name: storageUnit?.name ?? "",
+    locationId: storageUnit?.locationId ?? "",
+    warehouseId: storageUnit?.warehouseId ?? undefined,
+    parentId: storageUnit?.parentId ?? undefined,
+    storageTypeIds: storageUnit?.storageTypeIds ?? [],
+    ...getCustomFields(storageUnit?.customFields)
   };
 
   return (
-    <ShelfForm
+    <StorageUnitForm
       key={initialValues.id}
       initialValues={initialValues}
       locationId={initialValues.locationId}

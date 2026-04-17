@@ -5,13 +5,13 @@ import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
 import { InventoryDetails } from "~/modules/inventory";
 import type { PartSummary, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getPickMethod,
   pickMethodValidator,
   upsertPickMethod
@@ -100,9 +100,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
   }
 
-  const [quantities, itemShelfQuantities] = await Promise.all([
+  const [quantities, itemStorageUnitQuantities] = await Promise.all([
     getItemQuantities(client, itemId, companyId, locationId),
-    getItemShelfQuantities(client, itemId, companyId, locationId)
+    getItemStorageUnitQuantities(client, itemId, companyId, locationId)
   ]);
   if (quantities.error) {
     throw redirect(
@@ -111,19 +111,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.items,
       await flash(
         request,
-        error(itemShelfQuantities, "Failed to load part quantities")
+        error(itemStorageUnitQuantities, "Failed to load part quantities")
       )
     );
   }
 
   return {
     partInventory: partInventory.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
     itemId,
     locationId
@@ -177,7 +177,7 @@ export default function PartInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.partRoot);
 
-  const { partInventory, itemShelfQuantities, quantities, itemId } =
+  const { partInventory, itemStorageUnitQuantities, quantities, itemId } =
     useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
@@ -188,14 +188,14 @@ export default function PartInventoryRoute() {
 
   const initialValues = {
     ...partInventory,
-    defaultShelfId: partInventory.defaultShelfId ?? undefined,
+    defaultStorageUnitId: partInventory.defaultStorageUnitId ?? undefined,
     ...getCustomFields(partInventory.customFields ?? {})
   };
 
   const [items] = useItems();
   const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
 
-  const shelves = useShelves(partInventory?.locationId);
+  const storageUnits = useStorageUnits(partInventory?.locationId);
 
   return (
     <VStack spacing={2} className="p-2">
@@ -203,16 +203,16 @@ export default function PartInventoryRoute() {
         key={initialValues.itemId}
         initialValues={initialValues}
         locations={sharedPartsData?.locations ?? []}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
         type="Part"
       />
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
         pickMethod={initialValues}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
       />
     </VStack>
   );

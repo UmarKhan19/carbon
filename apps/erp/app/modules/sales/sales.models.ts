@@ -261,7 +261,7 @@ export const quoteMaterialValidator = z
     description: z.string().min(1, { message: "Description is required" }),
     quoteOperationId: zfd.text(z.string().optional()),
     quantity: zfd.numeric(z.number().min(0)),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     unitCost: zfd.numeric(z.number().min(0)),
     unitOfMeasureCode: z
       .string()
@@ -656,7 +656,7 @@ export const salesOrderLineValidator = z
     saleQuantity: zfd.numeric(z.number().optional()),
     serviceId: zfd.text(z.string().optional()),
     setupPrice: zfd.numeric(z.number().optional()),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     taxPercent: zfd.numeric(
       z
         .number()

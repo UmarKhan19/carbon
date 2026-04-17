@@ -5,6 +5,7 @@ import {
   LuListChecks,
   LuNetwork,
   LuQrCode,
+  LuTag,
   LuTally5,
   LuTruck,
   LuWarehouse
@@ -83,11 +84,18 @@ export default function useInventorySubmodules() {
       name: t`Configure`,
       routes: [
         {
-          name: t`Shelves`,
-          to: path.to.shelves,
+          name: t`Storage Units`,
+          to: path.to.storageUnits,
           role: "employee",
           icon: <LuWarehouse />,
-          table: "shelf"
+          table: "storageUnit"
+        },
+        {
+          name: t`Storage Types`,
+          to: path.to.storageTypes,
+          role: "employee",
+          icon: <LuTag />,
+          table: "storageType"
         },
         {
           name: t`Shipping Methods`,

@@ -5,13 +5,13 @@ import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
 import { InventoryDetails } from "~/modules/inventory";
 import type { ToolSummary, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getPickMethod,
   pickMethodValidator,
   upsertPickMethod
@@ -113,25 +113,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const itemShelfQuantities = await getItemShelfQuantities(
+  const itemStorageUnitQuantities = await getItemStorageUnitQuantities(
     client,
     itemId,
     companyId,
     locationId
   );
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.items,
       await flash(
         request,
-        error(itemShelfQuantities, "Failed to load tool quantities")
+        error(itemStorageUnitQuantities, "Failed to load tool quantities")
       )
     );
   }
 
   return {
     toolInventory: toolInventory.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
     itemId,
     locationId
@@ -185,7 +185,7 @@ export default function ToolInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.toolRoot);
 
-  const { toolInventory, itemShelfQuantities, quantities, itemId } =
+  const { toolInventory, itemStorageUnitQuantities, quantities, itemId } =
     useLoaderData<typeof loader>();
 
   const toolData = useRouteData<{
@@ -196,14 +196,14 @@ export default function ToolInventoryRoute() {
 
   const initialValues = {
     ...toolInventory,
-    defaultShelfId: toolInventory.defaultShelfId ?? undefined,
+    defaultStorageUnitId: toolInventory.defaultStorageUnitId ?? undefined,
     ...getCustomFields(toolInventory.customFields ?? {})
   };
 
   const [items] = useItems();
   const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
 
-  const shelves = useShelves(toolInventory?.locationId);
+  const storageUnits = useStorageUnits(toolInventory?.locationId);
 
   return (
     <VStack spacing={2} className="p-2">
@@ -211,16 +211,16 @@ export default function ToolInventoryRoute() {
         key={initialValues.itemId}
         initialValues={initialValues}
         locations={sharedToolsData?.locations ?? []}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
         type="Part"
       />
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
         pickMethod={initialValues}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
       />
     </VStack>
   );

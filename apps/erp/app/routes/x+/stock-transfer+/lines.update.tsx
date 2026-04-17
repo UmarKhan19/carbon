@@ -47,8 +47,8 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   switch (field) {
-    case "fromShelfId":
-    case "toShelfId":
+    case "fromStorageUnitId":
+    case "toStorageUnitId":
       const update = await client
         .from("stockTransferLine")
         .update({

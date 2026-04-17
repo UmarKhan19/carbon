@@ -197,7 +197,7 @@ export async function action({ request }: ActionFunctionArgs) {
     case "customerId":
     case "jobId":
     case "locationId":
-    case "shelfId":
+    case "storageUnitId":
     case "startDate":
     case "unitOfMeasureCode":
       return await client

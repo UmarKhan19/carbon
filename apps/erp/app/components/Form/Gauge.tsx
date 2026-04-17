@@ -54,7 +54,7 @@ const Gauge = (props: GaugeSelectProps) => {
             lastCalibrationDate: "",
             nextCalibrationDate: "",
             locationId: defaults.locationId ?? "",
-            shelfId: "",
+            storageUnitId: "",
             calibrationIntervalInMonths: 6,
             gaugeRole: "Standard" as const
           }}

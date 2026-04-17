@@ -50,7 +50,7 @@ import {
   getItemPlanning,
   getItemQuantities,
   getItemReplenishment,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getItemSupply,
   getItemUnitSalePrice,
   getMaterialUsedIn,
@@ -804,9 +804,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "items_getItemShelfQuantities",
+    "items_getItemStorageUnitQuantities",
     {
-      description: "get item shelf quantities",
+      description: "get item storage unit quantities",
       inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
@@ -814,9 +814,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getItemShelfQuantities(ctx.client, params.itemId, ctx.companyId, params.locationId);
+      const result = await getItemStorageUnitQuantities(ctx.client, params.itemId, ctx.companyId, params.locationId);
       return toMcpResult(result);
-    }, "Failed: items_getItemShelfQuantities"),
+    }, "Failed: items_getItemStorageUnitQuantities"),
   );
 
   server.registerTool(

@@ -41,10 +41,9 @@ import { useRouteData } from "~/hooks";
 import type { StockTransfer, StockTransferLine } from "~/modules/inventory";
 import {
   getStockTransfer,
-  isStockTransferLocked,
   stockTransferLineScanValidator
 } from "~/modules/inventory";
-import { getItemShelfQuantities } from "~/modules/items";
+import { getItemStorageUnitQuantities } from "~/modules/items";
 import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
@@ -62,9 +61,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const transfer = await getStockTransfer(viewClient, id);
   await requireUnlocked({
     request,
-    isLocked: isStockTransferLocked(transfer.data?.status),
+    isLocked: transfer.data?.status === "Completed",
     redirectTo: path.to.stockTransfer(id),
-    message: "Cannot modify a locked stock transfer. Reopen it first."
+    message: "Cannot pick from a completed stock transfer."
   });
 
   const payload = await request.json();
@@ -84,12 +83,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
     trackedEntityId
   } = validated.data;
 
-  const [stockTransferLine, itemShelfQuantities] = await Promise.all([
+  const [stockTransferLine, itemStorageUnitQuantities] = await Promise.all([
     client.from("stockTransferLines").select("*").eq("id", lineId!).single(),
-    getItemShelfQuantities(client, itemId, companyId, locationId)
+    getItemStorageUnitQuantities(client, itemId, companyId, locationId)
   ]);
 
-  if (stockTransferLine.error || itemShelfQuantities.error) {
+  if (stockTransferLine.error || itemStorageUnitQuantities.error) {
     return data(
       {
         success: false,
@@ -98,7 +97,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await flash(
         request,
         error(
-          stockTransferLine.error || itemShelfQuantities.error,
+          stockTransferLine.error || itemStorageUnitQuantities.error,
           "Failed to load stock transfer line or item shelf quantities"
         )
       )
@@ -106,9 +105,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const currentShelfId =
-    itemShelfQuantities.data
+    itemStorageUnitQuantities.data
       ?.sort((a, b) => b.quantity - a.quantity)
-      .find((q) => q.trackedEntityId === trackedEntityId)?.shelfId ?? null;
+      .find((q) => q.trackedEntityId === trackedEntityId)?.storageUnitId ??
+    null;
 
   // Determine the type of transfer based on tracking requirements
   const transferType = stockTransferLine.data?.requiresBatchTracking
@@ -123,7 +123,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     trackedEntityId,
     quantity:
       transferType === "batch" ? (stockTransferLine.data?.quantity ?? 1) : 1,
-    fromShelfId: currentShelfId,
+    fromStorageUnitId: currentShelfId,
     locationId: locationId,
     userId,
     companyId

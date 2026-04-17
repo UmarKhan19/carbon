@@ -85,7 +85,7 @@ export default function NewSalesOrderLineRoute() {
     itemId: "",
     saleQuantity: 1,
     setupPrice: 0,
-    shelfId: "",
+    storageUnitId: "",
     unitOfMeasureCode: "",
     unitPrice: 0,
     addOnCost: 0,

@@ -58,10 +58,11 @@ import Processes from "./Processes";
 import Sequence from "./Sequence";
 import SequenceOrCustomId from "./SequenceOrCustomId";
 import Service from "./Service";
-import Shelf from "./Shelf";
 import Shift from "./Shift";
 import ShippingMethod from "./ShippingMethod";
 import StandardFactor from "./StandardFactor";
+import StorageTypes from "./StorageTypes";
+import StorageUnit from "./StorageUnit";
 import Supplier from "./Supplier";
 import SupplierContact from "./SupplierContact";
 import SupplierLocation from "./SupplierLocation";
@@ -133,7 +134,8 @@ export {
   Sequence,
   SequenceOrCustomId,
   Service,
-  Shelf,
+  StorageUnit,
+  StorageTypes,
   Shift,
   ShippingMethod,
   StandardFactor,

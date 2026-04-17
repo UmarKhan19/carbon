@@ -72,11 +72,11 @@ import {
   Location,
   Number,
   Select,
-  Shelf,
+  StorageUnit,
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import type {
   Item as SortableItem,
@@ -150,7 +150,7 @@ const initialMethodMaterial: Omit<Material, "makeMethodId" | "order"> & {
   description: "",
   quantity: 1,
   unitOfMeasureCode: "EA",
-  shelfIds: {}
+  storageUnitIds: {}
 };
 
 const BillOfMaterial = ({
@@ -615,7 +615,7 @@ function MaterialForm({
     defaults.locationId ?? undefined
   );
 
-  const shelves = useShelves(locationId);
+  const storageUnits = useStorageUnits(locationId);
 
   useEffect(() => {
     if (defaults.locationId) {
@@ -657,7 +657,7 @@ function MaterialForm({
     methodOperationId: string | undefined;
     quantity: number;
     kit: boolean;
-    shelfIds: Record<string, string>;
+    storageUnitIds: Record<string, string>;
     itemReplenishmentSystem: string;
   }>({
     itemId: item.data.itemId ?? "",
@@ -668,7 +668,7 @@ function MaterialForm({
     methodOperationId: item.data.methodOperationId ?? undefined,
     quantity: item.data.quantity ?? 1,
     kit: item.data.kit ?? false,
-    shelfIds: item.data.shelfIds ?? {},
+    storageUnitIds: item.data.storageUnitIds ?? {},
     itemReplenishmentSystem:
       item.data.item?.replenishmentSystem ?? replenishmentSystem ?? "Buy"
   });
@@ -685,7 +685,7 @@ function MaterialForm({
       description: "",
       unitOfMeasureCode: "EA",
       kit: false,
-      shelfIds: {},
+      storageUnitIds: {},
       methodOperationId: undefined,
       itemReplenishmentSystem: replenishmentSystem ?? "Buy"
     });
@@ -748,7 +748,10 @@ function MaterialForm({
         <Hidden name="makeMethodId" />
         <Hidden name="order" />
         <Hidden name="kit" value={itemData.kit.toString()} />
-        <Hidden name="shelfIds" value={JSON.stringify(itemData.shelfIds)} />
+        <Hidden
+          name="storageUnitIds"
+          value={JSON.stringify(itemData.storageUnitIds)}
+        />
         {replenishmentSystem !== "Buy and Make" && (
           <Hidden name="sourcingType" value={itemData.sourcingType} />
         )}
@@ -939,12 +942,12 @@ function MaterialForm({
             />
             <Badge variant="secondary">
               <LuGitPullRequest className="size-3 mr-1" />
-              {shelves.options?.find(
-                (s) => s.value === itemData.shelfIds[locationId ?? ""]
+              {storageUnits.options?.find(
+                (s) => s.value === itemData.storageUnitIds[locationId ?? ""]
               )?.label ??
                 (itemData.methodType === "Make to Order"
                   ? "WIP"
-                  : "Default Shelf")}
+                  : "Default Storage Unit")}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -1003,16 +1006,16 @@ function MaterialForm({
               setLocationId(value?.value as string);
             }}
           />
-          <Shelf
-            name="shelfId"
-            label={t`Shelf`}
-            value={itemData.shelfIds[locationId ?? ""]}
+          <StorageUnit
+            name="storageUnitId"
+            label={t`Storage Unit`}
+            value={itemData.storageUnitIds[locationId ?? ""]}
             locationId={locationId}
             onChange={(value) => {
               setItemData((d) => ({
                 ...d,
-                shelfIds: {
-                  ...d.shelfIds,
+                storageUnitIds: {
+                  ...d.storageUnitIds,
                   [locationId ?? ""]: value?.id ?? ""
                 }
               }));

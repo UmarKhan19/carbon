@@ -38,7 +38,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     salesOrderId,
     salesOrderLineId,
     locationId,
-    shelfId,
+    storageUnitId,
     leftoverAction,
     leftoverShipQuantity,
     leftoverReceiveQuantity
@@ -123,7 +123,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           companyId,
           userId,
           quantityComplete: quantityToReceiveToInventory,
-          shelfId,
+          storageUnitId,
           locationId
         },
         region: FunctionRegion.UsEast1
@@ -149,7 +149,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         companyId,
         userId,
         quantityComplete,
-        shelfId,
+        storageUnitId,
         locationId
       },
       region: FunctionRegion.UsEast1

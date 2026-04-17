@@ -34,7 +34,7 @@ import {
   Customer,
   Item,
   Location,
-  Shelf,
+  StorageUnit,
   Tags,
   UnitOfMeasure
 } from "~/components/Form";
@@ -304,20 +304,22 @@ const JobProperties = () => {
           </HStack>
         ) : (
           <ValidatedForm
-            defaultValues={{ shelfId: routeData?.job?.shelfId ?? undefined }}
+            defaultValues={{
+              storageUnitId: routeData?.job?.storageUnitId ?? undefined
+            }}
             validator={z.object({
-              shelfId: zfd.text(z.string().optional())
+              storageUnitId: zfd.text(z.string().optional())
             })}
             className="w-full"
           >
-            <Shelf
+            <StorageUnit
               label=""
-              name="shelfId"
+              name="storageUnitId"
               inline
               locationId={routeData?.job?.locationId ?? undefined}
               isReadOnly={isDisabled}
               onChange={(value) => {
-                onUpdate("shelfId", value?.id ?? null);
+                onUpdate("storageUnitId", value?.id ?? null);
               }}
             />
           </ValidatedForm>

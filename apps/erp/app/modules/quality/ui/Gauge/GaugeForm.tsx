@@ -44,7 +44,7 @@ import {
   Location,
   NumberControlled,
   SequenceOrCustomId,
-  Shelf,
+  StorageUnit,
   Submit,
   Supplier
 } from "~/components/Form";
@@ -434,9 +434,9 @@ function GaugeFormContent({
           }}
         />
         <Location name="locationId" label={t`Location`} />
-        <Shelf
-          name="shelfId"
-          label={t`Shelf`}
+        <StorageUnit
+          name="storageUnitId"
+          label={t`Storage Unit`}
           locationId={initialValues.locationId}
         />
         <CustomFormFields table="gauge" />

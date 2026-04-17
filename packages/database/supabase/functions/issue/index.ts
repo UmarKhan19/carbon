@@ -7,9 +7,9 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/nanoid.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import {
-  getShelfWithHighestQuantity,
-  updatePickMethodDefaultShelfIfNeeded,
-} from "../lib/shelves.ts";
+  getStorageUnitWithHighestQuantity,
+  updatePickMethodDefaultStorageUnitIfNeeded,
+} from "../lib/storage-units.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { TrackedEntityAttributes } from "../lib/utils.ts";
@@ -106,29 +106,29 @@ async function issueJobOperationMaterials(
 
     const quantityToIssue = Number(material.quantity) * quantity;
 
-    let proposedShelfId = material.shelfId;
+    let proposedShelfId = material.storageUnitId;
 
     if (!proposedShelfId) {
-      if (material.defaultShelf) {
+      if (material.defaultStorageUnit) {
         const pickMethod = await trx
           .selectFrom("pickMethod")
           .where("itemId", "=", material.itemId)
           .where("locationId", "=", job.locationId!)
           .where("companyId", "=", companyId)
-          .select("defaultShelfId")
+          .select("defaultStorageUnitId")
           .executeTakeFirst();
 
-        proposedShelfId = pickMethod?.defaultShelfId;
+        proposedShelfId = pickMethod?.defaultStorageUnitId;
 
         if (!proposedShelfId) {
-          proposedShelfId = await getShelfWithHighestQuantity(
+          proposedShelfId = await getStorageUnitWithHighestQuantity(
             trx,
             material.itemId,
             job.locationId!
           );
         }
       } else {
-        proposedShelfId = await getShelfWithHighestQuantity(
+        proposedShelfId = await getStorageUnitWithHighestQuantity(
           trx,
           material.itemId,
           job.locationId!
@@ -141,18 +141,18 @@ async function issueJobOperationMaterials(
       .select((eb) => eb.fn.sum("quantity").as("quantity"))
       .where("itemId", "=", material.itemId)
       .where("locationId", "=", job.locationId!)
-      .where("shelfId", "=", proposedShelfId ?? "")
+      .where("storageUnitId", "=", proposedShelfId ?? "")
       .executeTakeFirst();
 
     const allShelfQuantities = await trx
       .selectFrom("itemLedger")
       .select([
-        "shelfId",
+        "storageUnitId",
         (eb) => eb.fn.sum("quantity").as("quantity"),
       ])
       .where("itemId", "=", material.itemId)
       .where("locationId", "=", job.locationId!)
-      .groupBy("shelfId")
+      .groupBy("storageUnitId")
       .having((eb) => eb.fn.sum("quantity"), ">", 0)
       .execute();
 
@@ -166,7 +166,7 @@ async function issueJobOperationMaterials(
       const bestShelf = allShelfQuantities.reduce((best, current) =>
         Number(current.quantity) > Number(best.quantity) ? current : best
       );
-      finalShelfId = bestShelf.shelfId ?? null;
+      finalShelfId = bestShelf.storageUnitId ?? null;
     }
 
     const isTracked = itemIdIsTracked.get(material.itemId);
@@ -181,7 +181,7 @@ async function issueJobOperationMaterials(
         itemId: material.itemId,
         quantity: -quantityToIssue,
         locationId: job.locationId,
-        shelfId: finalShelfId,
+        storageUnitId: finalShelfId,
         createdBy: userId,
       });
     }
@@ -200,11 +200,11 @@ async function issueJobOperationMaterials(
     await trx.insertInto("itemLedger").values(itemLedgerInserts).execute();
 
     for (const ledger of itemLedgerInserts) {
-      await updatePickMethodDefaultShelfIfNeeded(
+      await updatePickMethodDefaultStorageUnitIfNeeded(
         trx,
         ledger.itemId,
         ledger.locationId,
-        ledger.shelfId,
+        ledger.storageUnitId,
         companyId,
         userId
       );
@@ -228,7 +228,7 @@ const payloadValidator = z.discriminatedUnion("type", [
     type: z.literal("jobCompleteInventory"),
     jobId: z.string(),
     quantityComplete: z.number(),
-    shelfId: z.string().optional(),
+    storageUnitId: z.string().optional(),
     locationId: z.string().optional(),
     companyId: z.string(),
     userId: z.string(),
@@ -387,7 +387,7 @@ serve(async (req: Request) => {
         const {
           jobId,
           quantityComplete,
-          shelfId,
+          storageUnitId,
           locationId,
           companyId,
           userId,
@@ -454,7 +454,7 @@ serve(async (req: Request) => {
               itemId: job?.itemId!,
               quantity: quantityReceivedToInventory,
               locationId,
-              shelfId,
+              storageUnitId,
               trackedEntityId: trackedEntity.data.id,
               createdBy: userId,
             });
@@ -479,7 +479,7 @@ serve(async (req: Request) => {
                 itemId: job?.itemId!,
                 quantity: 1,
                 locationId,
-                shelfId,
+                storageUnitId,
                 trackedEntityId: trackedEntity.id,
                 createdBy: userId,
               });
@@ -505,7 +505,7 @@ serve(async (req: Request) => {
               itemId: job?.itemId!,
               quantity: quantityReceivedToInventory,
               locationId,
-              shelfId,
+              storageUnitId,
               createdBy: userId,
             });
           }
@@ -516,13 +516,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
+            // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -841,20 +841,20 @@ serve(async (req: Request) => {
               .selectAll()
               .executeTakeFirst();
 
-            let shelfId: string | null | undefined;
-            // Prioritize material.shelfId if available
-            if (material?.shelfId) {
-              shelfId = material.shelfId;
-            } else if (material?.defaultShelf) {
+            let storageUnitId: string | null | undefined;
+            // Prioritize material.storageUnitId if available
+            if (material?.storageUnitId) {
+              storageUnitId = material.storageUnitId;
+            } else if (material?.defaultStorageUnit) {
               const pickMethod = await trx
                 .selectFrom("pickMethod")
                 .where("itemId", "=", itemId)
                 .where("locationId", "=", job?.locationId!)
-                .select("defaultShelfId")
+                .select("defaultStorageUnitId")
                 .executeTakeFirst();
-              shelfId = pickMethod?.defaultShelfId;
+              storageUnitId = pickMethod?.defaultStorageUnitId;
             } else {
-              shelfId = await getShelfWithHighestQuantity(
+              storageUnitId = await getStorageUnitWithHighestQuantity(
                 trx,
                 itemId,
                 job?.locationId!
@@ -880,7 +880,7 @@ serve(async (req: Request) => {
                 companyId,
                 itemId: material?.itemId!,
                 locationId: job?.locationId,
-                shelfId,
+                storageUnitId,
                 quantity:
                   adjustmentType === "Positive Adjmt."
                     ? Number(quantityToIssue)
@@ -905,31 +905,31 @@ serve(async (req: Request) => {
                 .values(itemLedgerInserts)
                 .execute();
 
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
+              // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
               for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
+                await updatePickMethodDefaultStorageUnitIfNeeded(
                   trx,
                   ledger.itemId,
                   ledger.locationId,
-                  ledger.shelfId,
+                  ledger.storageUnitId,
                   companyId,
                   userId
                 );
               }
             }
           } else {
-            let shelfId: string | null | undefined;
+            let storageUnitId: string | null | undefined;
             if (item?.itemTrackingType === "Inventory") {
               const pickMethod = await trx
                 .selectFrom("pickMethod")
                 .where("itemId", "=", itemId)
                 .where("locationId", "=", job?.locationId!)
-                .select("defaultShelfId")
+                .select("defaultStorageUnitId")
                 .executeTakeFirst();
 
-              shelfId =
-                pickMethod?.defaultShelfId ??
-                (await getShelfWithHighestQuantity(
+              storageUnitId =
+                pickMethod?.defaultStorageUnitId ??
+                (await getStorageUnitWithHighestQuantity(
                   trx,
                   itemId,
                   job?.locationId!
@@ -947,7 +947,7 @@ serve(async (req: Request) => {
                     ? Number(quantity)
                     : -Number(quantity),
                 locationId: job?.locationId,
-                shelfId,
+                storageUnitId,
                 createdBy: userId,
               });
             }
@@ -970,7 +970,7 @@ serve(async (req: Request) => {
                 jobId: jobOperation?.jobId!,
                 jobMakeMethodId: jobOperation?.jobMakeMethodId!,
                 jobOperationId: id,
-                shelfId: shelfId ?? undefined,
+                storageUnitId: storageUnitId ?? undefined,
                 methodType: "Pull from Inventory",
                 quantity: 0,
                 quantityIssued: Number(quantity ?? 0),
@@ -984,13 +984,13 @@ serve(async (req: Request) => {
                 .values(itemLedgerInserts)
                 .execute();
 
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
+              // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
               for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
+                await updatePickMethodDefaultStorageUnitIfNeeded(
                   trx,
                   ledger.itemId,
                   ledger.locationId,
-                  ledger.shelfId,
+                  ledger.storageUnitId,
                   companyId,
                   userId
                 );
@@ -1036,7 +1036,7 @@ serve(async (req: Request) => {
           const material = jobMaterial.data!;
           const quantity = Number(entity.quantity);
 
-          // Get item ledger to find location and shelf
+          // Get item ledger to find location and storage unit
           const itemLedger = await trx
             .selectFrom("itemLedger")
             .where("trackedEntityId", "=", trackedEntityId)
@@ -1127,7 +1127,7 @@ serve(async (req: Request) => {
                 itemId: entity.sourceDocumentId!,
                 quantity: -quantity,
                 locationId: job?.locationId ?? itemLedger?.locationId,
-                shelfId: itemLedger?.shelfId,
+                storageUnitId: itemLedger?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               })
@@ -1549,10 +1549,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: -Number(trackedEntity.quantity),
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: trackedEntity.id!,
                     createdBy: userId,
                   },
@@ -1564,10 +1564,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: quantity,
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: trackedEntity.id!,
                     createdBy: userId,
                   },
@@ -1579,10 +1579,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: remainingQuantity,
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: newTrackedEntityId,
                     createdBy: userId,
                   }
@@ -1616,9 +1616,9 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: -quantity,
                 locationId: job?.locationId,
-                shelfId: itemLedgers.find(
+                storageUnitId: itemLedgers.find(
                   (itemLedger) => itemLedger.trackedEntityId === trackedEntityId
-                )?.shelfId,
+                )?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               });
@@ -1638,13 +1638,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
+            // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -1846,9 +1846,9 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: quantity,
                 locationId: job?.locationId,
-                shelfId: itemLedgers.find(
+                storageUnitId: itemLedgers.find(
                   (itemLedger) => itemLedger.trackedEntityId === trackedEntityId
-                )?.shelfId,
+                )?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               });
@@ -1868,13 +1868,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
+            // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2077,7 +2077,7 @@ serve(async (req: Request) => {
           const existingLedger = await trx
             .selectFrom("itemLedger")
             .where("trackedEntityId", "=", trackedEntityId)
-            .select(["locationId", "shelfId"])
+            .select(["locationId", "storageUnitId"])
             .orderBy("createdAt", "desc")
             .executeTakeFirst();
 
@@ -2095,7 +2095,7 @@ serve(async (req: Request) => {
                   itemId: oldItem.id,
                   quantity: -oldQuantity,
                   locationId: existingLedger?.locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId,
                   createdBy: userId,
                 },
@@ -2108,7 +2108,7 @@ serve(async (req: Request) => {
                   itemId: newItem.id,
                   quantity: quantity,
                   locationId: existingLedger?.locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId,
                   createdBy: userId,
                 },
@@ -2195,9 +2195,9 @@ serve(async (req: Request) => {
 
           // Only create item ledger entry for non-tracked items (not Serial or Batch)
           if (item.itemTrackingType !== "Serial" && item.itemTrackingType !== "Batch") {
-            // Get shelf with highest quantity for this item at this location
-            const shelfId = locationId
-              ? await getShelfWithHighestQuantity(
+            // Get storage unit with highest quantity for this item at this location
+            const storageUnitId = locationId
+              ? await getStorageUnitWithHighestQuantity(
                   trx,
                   itemId,
                   locationId
@@ -2215,18 +2215,18 @@ serve(async (req: Request) => {
                 itemId,
                 quantity: -quantity,
                 locationId,
-                shelfId,
+                storageUnitId,
                 createdBy: userId,
               })
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             if (locationId) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 itemId,
                 locationId,
-                shelfId,
+                storageUnitId,
                 companyId,
                 userId
               );
@@ -2490,7 +2490,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: -Number(trackedEntity.quantity),
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: trackedEntity.id!,
                   createdBy: userId,
                 },
@@ -2502,7 +2502,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: quantity,
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: trackedEntity.id!,
                   createdBy: userId,
                 },
@@ -2514,7 +2514,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: remainingQuantity,
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: newTrackedEntityId,
                   createdBy: userId,
                 }
@@ -2561,7 +2561,7 @@ serve(async (req: Request) => {
               itemId: trackedEntity.sourceDocumentId,
               quantity: -quantity,
               locationId,
-              shelfId: existingLedger?.shelfId,
+              storageUnitId: existingLedger?.storageUnitId,
               trackedEntityId,
               createdBy: userId,
             });
@@ -2587,13 +2587,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2753,7 +2753,7 @@ serve(async (req: Request) => {
               itemId: trackedEntity.sourceDocumentId,
               quantity: quantity, // Positive to return to inventory
               locationId,
-              shelfId: existingLedger?.shelfId,
+              storageUnitId: existingLedger?.storageUnitId,
               trackedEntityId,
               createdBy: userId,
             });
@@ -2772,13 +2772,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2934,7 +2934,7 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: quantity, // Positive to return to inventory
                 locationId,
-                shelfId: existingLedger?.shelfId,
+                storageUnitId: existingLedger?.storageUnitId,
                 trackedEntityId: junction.trackedEntityId,
                 createdBy: userId,
               });
@@ -2967,7 +2967,7 @@ serve(async (req: Request) => {
             const quantity = Number(dispatchItem.quantity);
 
             if (quantity > 0) {
-              // Find the shelf from the original consumption ledger entry
+              // Find the storage unit from the original consumption ledger entry
               const originalLedger = await trx
                 .selectFrom("itemLedger")
                 .where("documentLineId", "=", maintenanceDispatchItemId)
@@ -2987,7 +2987,7 @@ serve(async (req: Request) => {
                   itemId: dispatchItem.itemId,
                   quantity: quantity, // Positive to return to inventory
                   locationId,
-                  shelfId: originalLedger?.shelfId,
+                  storageUnitId: originalLedger?.storageUnitId,
                   createdBy: userId,
                 })
                 .execute();

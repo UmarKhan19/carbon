@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-16T18:24:47.881Z",
+  "generated": "2026-04-17T23:06:50.460Z",
   "totalTools": 1016,
   "modules": 15,
   "tools": [
@@ -473,10 +473,10 @@
       "paramCount": 1
     },
     {
-      "name": "inventory_deleteShelf",
+      "name": "inventory_deleteStorageUnit",
       "module": "inventory",
       "classification": "DESTRUCTIVE",
-      "description": "delete shelf",
+      "description": "delete storage unit",
       "paramCount": 1
     },
     {
@@ -606,10 +606,10 @@
       "paramCount": 5
     },
     {
-      "name": "inventory_getDefaultShelfOrShelfWithHighestQuantity",
+      "name": "inventory_getDefaultStorageUnitOrStorageUnitWithHighestQuantity",
       "module": "inventory",
       "classification": "READ",
-      "description": "get default shelf or shelf with highest quantity",
+      "description": "get default storage unit or storage unit with highest quantity",
       "paramCount": 2
     },
     {
@@ -669,31 +669,31 @@
       "paramCount": 3
     },
     {
-      "name": "inventory_getShelvesList",
+      "name": "inventory_getStorageUnitsList",
       "module": "inventory",
       "classification": "READ",
-      "description": "get shelves list",
+      "description": "get storage units list",
       "paramCount": 0
     },
     {
-      "name": "inventory_getShelvesListForLocation",
+      "name": "inventory_getStorageUnitsListForLocation",
       "module": "inventory",
       "classification": "READ",
-      "description": "get shelves list for location",
+      "description": "get storage units list for location",
       "paramCount": 1
     },
     {
-      "name": "inventory_getShelves",
+      "name": "inventory_getStorageUnits",
       "module": "inventory",
       "classification": "READ",
-      "description": "get shelves",
+      "description": "get storage units",
       "paramCount": 5
     },
     {
-      "name": "inventory_getShelf",
+      "name": "inventory_getStorageUnit",
       "module": "inventory",
       "classification": "READ",
-      "description": "get shelf",
+      "description": "get storage unit",
       "paramCount": 1
     },
     {
@@ -879,10 +879,10 @@
       "paramCount": 0
     },
     {
-      "name": "inventory_upsertShelf",
+      "name": "inventory_upsertStorageUnit",
       "module": "inventory",
       "classification": "WRITE",
-      "description": "upsert shelf",
+      "description": "upsert storage unit",
       "paramCount": 0
     },
     {
@@ -942,10 +942,10 @@
       "paramCount": 1
     },
     {
-      "name": "inventory_getDefaultShelfForJob",
+      "name": "inventory_getDefaultStorageUnitForJob",
       "module": "inventory",
       "classification": "READ",
-      "description": "get default shelf for job",
+      "description": "get default storage unit for job",
       "paramCount": 2
     },
     {
@@ -1425,10 +1425,10 @@
       "paramCount": 1
     },
     {
-      "name": "items_getItemShelfQuantities",
+      "name": "items_getItemStorageUnitQuantities",
       "module": "items",
       "classification": "READ",
-      "description": "get item shelf quantities",
+      "description": "get item storage unit quantities",
       "paramCount": 2
     },
     {

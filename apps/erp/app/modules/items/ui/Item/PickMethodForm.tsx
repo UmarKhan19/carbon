@@ -26,13 +26,13 @@ type PickMethodFormProps = {
   initialValues: z.infer<typeof pickMethodValidator>;
   locations: ListItem[];
   type: "Part" | "Material" | "Tool" | "Consumable";
-  shelves: { value: string; label: string }[];
+  storageUnits: { value: string; label: string }[];
 };
 
 const PickMethodForm = ({
   initialValues,
   locations,
-  shelves,
+  storageUnits,
   type
 }: PickMethodFormProps) => {
   const permissions = usePermissions();
@@ -80,9 +80,9 @@ const PickMethodForm = ({
           <Hidden name="locationId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <ComboboxFormField
-              name="defaultShelfId"
-              label={t`Default Shelf`}
-              options={shelves}
+              name="defaultStorageUnitId"
+              label={t`Default Storage Unit`}
+              options={storageUnits}
               className="w-full"
             />
 

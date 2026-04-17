@@ -1,81 +1,81 @@
 import { Transaction } from "kysely";
 import { DB } from "../lib/database.ts";
 
-export async function getShelfId(
+export async function getStorageUnitId(
   trx: Transaction<DB>,
   itemId: string,
   locationId: string,
-  shelfId?: string
+  storageUnitId?: string
 ): Promise<string | undefined> {
-  if (shelfId) return shelfId;
+  if (storageUnitId) return storageUnitId;
 
   const pickMethod = await trx
     .selectFrom("pickMethod")
     .where("itemId", "=", itemId)
     .where("locationId", "=", locationId)
-    .select("defaultShelfId")
+    .select("defaultStorageUnitId")
     .executeTakeFirst();
 
-  if (pickMethod?.defaultShelfId) return pickMethod.defaultShelfId;
+  if (pickMethod?.defaultStorageUnitId) return pickMethod.defaultStorageUnitId;
 
-  const shelfWithHighestQuantity = await getShelfWithHighestQuantity(
+  const storageUnitWithHighestQuantity = await getStorageUnitWithHighestQuantity(
     trx,
     itemId,
     locationId
   );
 
-  return shelfWithHighestQuantity ?? undefined;
+  return storageUnitWithHighestQuantity ?? undefined;
 }
 
-// Utility function to get the shelf with the highest quantity
-export async function getShelfWithHighestQuantity(
+// Utility function to get the storage unit with the highest quantity
+export async function getStorageUnitWithHighestQuantity(
   trx: Transaction<DB>,
   itemId: string,
   locationId: string
 ): Promise<string | null> {
-  const shelfWithHighestQuantity = await trx
+  const storageUnitWithHighestQuantity = await trx
     .selectFrom("itemLedger")
     .where("itemId", "=", itemId)
     .where("locationId", "=", locationId)
-    .where("shelfId", "is not", null)
-    .groupBy("shelfId")
-    .select(["shelfId", (eb) => eb.fn.sum("quantity").as("totalQuantity")])
+    .where("storageUnitId", "is not", null)
+    .groupBy("storageUnitId")
+    .select(["storageUnitId", (eb) => eb.fn.sum("quantity").as("totalQuantity")])
     .having((eb) => eb.fn.sum("quantity"), ">", 0)
     .orderBy("totalQuantity", "desc")
     .executeTakeFirst();
 
-  return shelfWithHighestQuantity?.shelfId ?? null;
+  return storageUnitWithHighestQuantity?.storageUnitId ?? null;
 }
 
-// Utility function to update pickMethod defaultShelfId if this is the only non-null shelf
-export async function updatePickMethodDefaultShelfIfNeeded(
+// Utility function to update pickMethod defaultStorageUnitId if this is the only non-null storage unit
+export async function updatePickMethodDefaultStorageUnitIfNeeded(
   trx: Transaction<DB>,
   itemId: string,
   locationId: string | null | undefined,
-  shelfId: string | null | undefined,
+  storageUnitId: string | null | undefined,
   companyId: string,
   userId: string
 ): Promise<void> {
-  // Only proceed if shelfId and locationId are not null
-  if (!shelfId || !locationId) return;
+  // Only proceed if storageUnitId and locationId are not null
+  if (!storageUnitId || !locationId) return;
 
-  // Check if there are other non-null shelves for this item/location
-  const otherShelves = await trx
+  // Check if there are other non-null storage units for this item/location
+  const otherStorageUnits = await trx
     .selectFrom("itemLedger")
     .where("itemId", "=", itemId)
     .where("locationId", "=", locationId)
-    .where("shelfId", "is not", null)
-    .where("shelfId", "!=", shelfId)
-    .select("shelfId")
+    .where("storageUnitId", "is not", null)
+    .where("storageUnitId", "!=", storageUnitId)
+    .select("storageUnitId")
     .executeTakeFirst();
 
-  // If there are no other non-null shelves, update or insert pickMethod
-  if (!otherShelves) {
+  // If there are no other non-null storage units, update or insert pickMethod
+  if (!otherStorageUnits) {
     const existingPickMethod = await trx
       .selectFrom("pickMethod")
       .where("itemId", "=", itemId)
       .where("locationId", "=", locationId)
-      .select("defaultShelfId")
+      .select("defaultStorageUnitId")
       .executeTakeFirst();
 
     if (existingPickMethod) {
@@ -83,7 +83,7 @@ export async function updatePickMethodDefaultShelfIfNeeded(
       await trx
         .updateTable("pickMethod")
         .set({
-          defaultShelfId: shelfId,
+          defaultStorageUnitId: storageUnitId,
           updatedBy: userId,
           updatedAt: new Date().toISOString(),
         })
@@ -97,7 +97,7 @@ export async function updatePickMethodDefaultShelfIfNeeded(
         .values({
           itemId,
           locationId,
-          defaultShelfId: shelfId,
+          defaultStorageUnitId: storageUnitId,
           companyId,
           createdBy: userId,
           createdAt: new Date().toISOString(),

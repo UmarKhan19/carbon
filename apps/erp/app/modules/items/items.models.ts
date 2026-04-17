@@ -229,7 +229,7 @@ export const methodMaterialValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  shelfIds: z.string().transform((val) => {
+  storageUnitIds: z.string().transform((val) => {
     try {
       return JSON.parse(val) as Record<string, string>;
     } catch {
@@ -502,7 +502,7 @@ export const partValidator = itemValidator.merge(
 export const pickMethodValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   locationId: z.string().min(1, { message: "Location is required" }),
-  defaultShelfId: zfd.text(z.string().optional())
+  defaultStorageUnitId: zfd.text(z.string().optional())
 });
 
 export const revisionValidator = z

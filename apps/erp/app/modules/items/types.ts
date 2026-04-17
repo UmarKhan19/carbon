@@ -11,7 +11,7 @@ import type {
   getItemPostingGroups,
   getItemPostingGroupsList,
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getMakeMethods,
   getMaterial,
   getMaterialDimensions,
@@ -102,7 +102,7 @@ export type ItemQuantities = NonNullable<
 >;
 
 export type ItemShelfQuantities = NonNullable<
-  Awaited<ReturnType<typeof getItemShelfQuantities>>["data"]
+  Awaited<ReturnType<typeof getItemStorageUnitQuantities>>["data"]
 >[number];
 
 export type ItemReorderingPolicy =

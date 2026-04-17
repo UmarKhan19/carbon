@@ -5,14 +5,14 @@ import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
 import { InventoryDetails } from "~/modules/inventory";
 
 import type { Consumable, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getPickMethod,
   pickMethodValidator,
   upsertPickMethod
@@ -125,25 +125,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const itemShelfQuantities = await getItemShelfQuantities(
+  const itemStorageUnitQuantities = await getItemStorageUnitQuantities(
     client,
     itemId,
     companyId,
     locationId
   );
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.items,
       await flash(
         request,
-        error(itemShelfQuantities, "Failed to load consumable quantities")
+        error(itemStorageUnitQuantities, "Failed to load consumable quantities")
       )
     );
   }
 
   return {
     consumableInventory: consumableInventory.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
     itemId,
     locationId
@@ -197,7 +197,7 @@ export default function ConsumableInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.consumableRoot);
 
-  const { consumableInventory, itemShelfQuantities, quantities, itemId } =
+  const { consumableInventory, itemStorageUnitQuantities, quantities, itemId } =
     useLoaderData<typeof loader>();
 
   const consumableData = useRouteData<{
@@ -209,11 +209,11 @@ export default function ConsumableInventoryRoute() {
 
   const initialValues = {
     ...consumableInventory,
-    defaultShelfId: consumableInventory.defaultShelfId ?? undefined,
+    defaultStorageUnitId: consumableInventory.defaultStorageUnitId ?? undefined,
     ...getCustomFields(consumableInventory.customFields ?? {})
   };
 
-  const shelves = useShelves(consumableInventory?.locationId);
+  const storageUnits = useStorageUnits(consumableInventory?.locationId);
 
   const [items] = useItems();
   const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
@@ -224,16 +224,16 @@ export default function ConsumableInventoryRoute() {
         key={initialValues.itemId}
         initialValues={initialValues}
         locations={sharedConsumablesData?.locations ?? []}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
         type="Part"
       />
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
         pickMethod={initialValues}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
       />
     </VStack>
   );

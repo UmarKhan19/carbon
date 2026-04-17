@@ -66,7 +66,7 @@ import { RiProgress8Line } from "react-icons/ri";
 import type { FetcherWithComponents } from "react-router";
 import { Link, useFetcher, useNavigate, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
-import { Location, Shelf } from "~/components/Form";
+import { Location, StorageUnit } from "~/components/Form";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import Select from "~/components/Select";
@@ -887,9 +887,9 @@ function JobCompleteModal({
   const { carbon } = useCarbon();
   const [loading, setLoading] = useState(true);
   const { t } = useLingui();
-  const [defaultShelfId, setDefaultShelfId] = useState<string | undefined>(
-    undefined
-  );
+  const [defaultStorageUnitId, setDefaultShelfId] = useState<
+    string | undefined
+  >(undefined);
 
   const [quantityComplete, setQuantityComplete] = useState<number>(
     job?.quantityComplete ?? 0
@@ -950,7 +950,7 @@ function JobCompleteModal({
     }
 
     flushSync(() => {
-      setDefaultShelfId(pickMethod.data?.defaultShelfId ?? undefined);
+      setDefaultShelfId(pickMethod.data?.defaultStorageUnitId ?? undefined);
     });
 
     setLoading(false);
@@ -1005,7 +1005,8 @@ function JobCompleteModal({
               salesOrderId: job.salesOrderId ?? undefined,
               salesOrderLineId: job.salesOrderLineId ?? undefined,
               locationId: job.locationId ?? undefined,
-              shelfId: job.shelfId ?? defaultShelfId ?? undefined
+              storageUnitId:
+                job.storageUnitId ?? defaultStorageUnitId ?? undefined
             }}
             fetcher={fetcher}
           >
@@ -1035,7 +1036,7 @@ function JobCompleteModal({
             {makeToOrder && (
               <>
                 <Hidden name="locationId" />
-                <Hidden name="shelfId" />
+                <Hidden name="storageUnitId" />
               </>
             )}
             <ModalBody>
@@ -1047,10 +1048,10 @@ function JobCompleteModal({
                       label={t`Location`}
                       isReadOnly
                     />
-                    <Shelf
-                      name="shelfId"
+                    <StorageUnit
+                      name="storageUnitId"
                       locationId={job.locationId ?? undefined}
-                      label={t`Shelf`}
+                      label={t`Storage Unit`}
                     />
                   </>
                 )}

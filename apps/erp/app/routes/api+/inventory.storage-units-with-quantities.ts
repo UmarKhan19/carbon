@@ -3,9 +3,9 @@ import type {
   ClientLoaderFunctionArgs,
   LoaderFunctionArgs
 } from "react-router";
-import { getShelvesListForLocation } from "~/modules/inventory";
-import { getItemShelfQuantities } from "~/modules/items/items.service";
-import { getCompanyId, shelvesQuery } from "~/utils/react-query";
+import { getStorageUnitsListForLocation } from "~/modules/inventory";
+import { getItemStorageUnitQuantities } from "~/modules/items/items.service";
+import { getCompanyId, storageUnitsQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -23,11 +23,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   }
 
-  // If itemId is provided, get shelves with quantities
+  // If itemId is provided, get storageUnits with quantities
   if (itemId) {
     const [shelvesResult, quantitiesResult] = await Promise.all([
-      getShelvesListForLocation(client, companyId, locationId),
-      getItemShelfQuantities(client, itemId, companyId, locationId)
+      getStorageUnitsListForLocation(client, companyId, locationId),
+      getItemStorageUnitQuantities(client, itemId, companyId, locationId)
     ]);
 
     if (shelvesResult.error || quantitiesResult.error) {
@@ -37,22 +37,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
       };
     }
 
-    // Filter shelves to only include those with quantities > 0
+    // Filter storageUnits to only include those with quantities > 0
     const quantitiesMap = new Map(
-      quantitiesResult.data?.map((q) => [q.shelfId, q.quantity]) ?? []
+      quantitiesResult.data?.map((q) => [q.storageUnitId, q.quantity]) ?? []
     );
 
     const shelvesWithQuantities =
-      shelvesResult.data?.filter((shelf) => {
-        const quantity = quantitiesMap.get(shelf.id);
+      shelvesResult.data?.filter((storageUnit) => {
+        const quantity = quantitiesMap.get(storageUnit.id);
         return quantity && quantity > 0;
       }) ?? [];
 
-    // Add quantity information to each shelf
-    const shelvesWithQuantityData = shelvesWithQuantities.map((shelf) => ({
-      ...shelf,
-      quantity: quantitiesMap.get(shelf.id) ?? 0
-    }));
+    // Add quantity information to each storageUnit
+    const shelvesWithQuantityData = shelvesWithQuantities.map(
+      (storageUnit) => ({
+        ...storageUnit,
+        quantity: quantitiesMap.get(storageUnit.id) ?? 0
+      })
+    );
 
     return {
       data: shelvesWithQuantityData,
@@ -60,7 +62,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   }
 
-  return await getShelvesListForLocation(client, companyId, locationId);
+  return await getStorageUnitsListForLocation(client, companyId, locationId);
 }
 
 export async function clientLoader({
@@ -77,7 +79,7 @@ export async function clientLoader({
   const locationId = url.searchParams.get("locationId");
   const itemId = url.searchParams.get("itemId");
 
-  const queryKey = shelvesQuery(
+  const queryKey = storageUnitsQuery(
     companyId,
     locationId ?? null,
     itemId ?? null

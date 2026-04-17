@@ -21,7 +21,7 @@ import {
   Hidden,
   Item,
   Number,
-  Shelf,
+  StorageUnit,
   Submit,
   TextArea
 } from "~/components/Form";
@@ -41,8 +41,8 @@ const warehouseTransferLineFormValidator = z.discriminatedUnion("type", [
     toLocationId: z.string().min(1),
     itemId: z.string().min(1),
     quantity: zfd.numeric(z.number().min(0.0001)),
-    fromShelfId: zfd.text(z.string().optional()),
-    toShelfId: zfd.text(z.string().optional()),
+    fromStorageUnitId: zfd.text(z.string().optional()),
+    toStorageUnitId: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
   }),
   z.object({
@@ -53,8 +53,8 @@ const warehouseTransferLineFormValidator = z.discriminatedUnion("type", [
     fromLocationId: z.string().min(1),
     toLocationId: z.string().min(1),
     quantity: zfd.numeric(z.number().min(0.0001)),
-    fromShelfId: zfd.text(z.string().optional()),
-    toShelfId: zfd.text(z.string().optional()),
+    fromStorageUnitId: zfd.text(z.string().optional()),
+    toStorageUnitId: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
   })
 ]);
@@ -154,15 +154,15 @@ const WarehouseTransferLineForm = ({
                 minValue={0.0001}
                 step={0.0001}
               />
-              <Shelf
-                name="fromShelfId"
-                label={t`From Shelf`}
+              <StorageUnit
+                name="fromStorageUnitId"
+                label={t`From Storage Unit`}
                 itemId={itemId ?? undefined}
                 locationId={warehouseTransfer.fromLocationId}
               />
-              <Shelf
-                name="toShelfId"
-                label={t`To Shelf`}
+              <StorageUnit
+                name="toStorageUnitId"
+                label={t`To Storage Unit`}
                 itemId={itemId ?? undefined}
                 locationId={warehouseTransfer.toLocationId}
               />

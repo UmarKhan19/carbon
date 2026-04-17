@@ -426,9 +426,9 @@ const KanbansTable = memo(
           }
         },
         {
-          accessorKey: "shelfName",
-          header: t`Shelf`,
-          cell: ({ row }) => row.original.shelfName || "",
+          accessorKey: "storageUnitName",
+          header: t`Storage Unit`,
+          cell: ({ row }) => row.original.storageUnitName || "",
           meta: {
             icon: <LuMapPin />
           }

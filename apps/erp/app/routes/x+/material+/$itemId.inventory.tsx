@@ -5,13 +5,13 @@ import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
 import { InventoryDetails } from "~/modules/inventory";
 import type { Material, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getPickMethod,
   pickMethodValidator,
   upsertPickMethod
@@ -121,25 +121,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const itemShelfQuantities = await getItemShelfQuantities(
+  const itemStorageUnitQuantities = await getItemStorageUnitQuantities(
     client,
     itemId,
     companyId,
     locationId
   );
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.items,
       await flash(
         request,
-        error(itemShelfQuantities, "Failed to load material quantities")
+        error(itemStorageUnitQuantities, "Failed to load material quantities")
       )
     );
   }
 
   return {
     materialInventory: materialInventory.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
     itemId,
     locationId
@@ -193,7 +193,7 @@ export default function MaterialInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.materialRoot);
 
-  const { materialInventory, itemShelfQuantities, quantities, itemId } =
+  const { materialInventory, itemStorageUnitQuantities, quantities, itemId } =
     useLoaderData<typeof loader>();
 
   const materialData = useRouteData<{
@@ -205,14 +205,14 @@ export default function MaterialInventoryRoute() {
 
   const initialValues = {
     ...materialInventory,
-    defaultShelfId: materialInventory.defaultShelfId ?? undefined,
+    defaultStorageUnitId: materialInventory.defaultStorageUnitId ?? undefined,
     ...getCustomFields(materialInventory.customFields ?? {})
   };
 
   const [items] = useItems();
   const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
 
-  const shelves = useShelves(materialInventory?.locationId);
+  const storageUnits = useStorageUnits(materialInventory?.locationId);
 
   return (
     <VStack spacing={2} className="p-2">
@@ -220,16 +220,16 @@ export default function MaterialInventoryRoute() {
         key={initialValues.itemId}
         initialValues={initialValues}
         locations={sharedMaterialsData?.locations ?? []}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
         type="Material"
       />
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
         pickMethod={initialValues}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
       />
     </VStack>
   );

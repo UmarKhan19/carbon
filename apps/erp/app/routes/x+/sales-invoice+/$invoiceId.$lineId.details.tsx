@@ -167,7 +167,7 @@ export default function EditSalesInvoiceLineRoute() {
     taxPercent: salesInvoiceLine?.taxPercent ?? 0,
     exchangeRate: salesInvoiceLine?.exchangeRate ?? 1,
     unitOfMeasureCode: salesInvoiceLine?.unitOfMeasureCode ?? "",
-    shelfId: salesInvoiceLine?.shelfId ?? "",
+    storageUnitId: salesInvoiceLine?.storageUnitId ?? "",
     ...getCustomFields(salesInvoiceLine?.customFields)
   };
 

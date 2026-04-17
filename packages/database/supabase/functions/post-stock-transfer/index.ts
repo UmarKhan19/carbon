@@ -32,7 +32,7 @@ const payloadValidator = z.discriminatedUnion("type", [
     stockTransferId: z.string(),
     stockTransferLineId: z.string(),
     trackedEntityId: z.string(),
-    fromShelfId: z.string().nullable(),
+    fromStorageUnitId: z.string().nullable(),
     locationId: z.string(),
     userId: z.string(),
     companyId: z.string(),
@@ -42,7 +42,7 @@ const payloadValidator = z.discriminatedUnion("type", [
     stockTransferId: z.string(),
     stockTransferLineId: z.string(),
     trackedEntityId: z.string(),
-    fromShelfId: z.string().nullable(),
+    fromStorageUnitId: z.string().nullable(),
     quantity: z.number().positive(),
     locationId: z.string(),
     userId: z.string(),
@@ -113,7 +113,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: -quantity,
             locationId: locationId,
-            shelfId: stockTransferLine.fromShelfId,
+            storageUnitId: stockTransferLine.fromStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -126,7 +126,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: quantity,
             locationId: locationId,
-            shelfId: stockTransferLine.toShelfId,
+            storageUnitId: stockTransferLine.toStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -189,7 +189,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: currentPickedQuantity, // Positive to restore inventory at from shelf
               locationId: locationId,
-              shelfId: stockTransferLine.fromShelfId,
+              storageUnitId: stockTransferLine.fromStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -202,7 +202,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: -currentPickedQuantity, // Negative to remove inventory from to shelf
               locationId: locationId,
-              shelfId: stockTransferLine.toShelfId,
+              storageUnitId: stockTransferLine.toStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -238,7 +238,7 @@ serve(async (req: Request) => {
 
       case "serial": {
         const {
-          fromShelfId,
+          fromStorageUnitId,
           stockTransferId,
           stockTransferLineId,
           trackedEntityId,
@@ -273,8 +273,8 @@ serve(async (req: Request) => {
                 "Stock Transfer Line": stockTransferLineId,
                 "From Location": locationId,
                 "To Location": locationId,
-                "From Shelf": stockTransferLine.fromShelfId,
-                "To Shelf": stockTransferLine.toShelfId,
+                "From Shelf": stockTransferLine.fromStorageUnitId,
+                "To Shelf": stockTransferLine.toStorageUnitId,
               },
               companyId,
               createdBy: userId,
@@ -299,7 +299,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: -1,
             locationId: locationId,
-            shelfId: fromShelfId,
+            storageUnitId: fromStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -313,7 +313,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: 1,
             locationId: locationId,
-            shelfId: stockTransferLine.toShelfId,
+            storageUnitId: stockTransferLine.toStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -335,7 +335,7 @@ serve(async (req: Request) => {
             .updateTable("stockTransferLine")
             .set({
               trackedEntityId,
-              fromShelfId: fromShelfId,
+              fromStorageUnitId: fromStorageUnitId,
               pickedQuantity: (stockTransferLine.pickedQuantity ?? 0) + 1,
               updatedBy: userId,
               updatedAt: new Date().toISOString(),
@@ -350,7 +350,7 @@ serve(async (req: Request) => {
 
       case "batch": {
         const {
-          fromShelfId,
+          fromStorageUnitId,
           stockTransferId,
           stockTransferLineId,
           trackedEntityId,
@@ -478,7 +478,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: -entityQuantity,
                 locationId: locationId,
-                shelfId: fromShelfId,
+                storageUnitId: fromStorageUnitId,
                 entryType: "Negative Adjmt.",
                 documentType: "Batch Split",
                 documentId: splitActivityId,
@@ -491,7 +491,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: transferQuantity,
                 locationId: locationId,
-                shelfId: fromShelfId,
+                storageUnitId: fromStorageUnitId,
                 entryType: "Positive Adjmt.",
                 documentType: "Batch Split",
                 documentId: splitActivityId,
@@ -504,7 +504,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: remainingQuantity,
                 locationId: locationId,
-                shelfId: fromShelfId,
+                storageUnitId: fromStorageUnitId,
                 entryType: "Positive Adjmt.",
                 documentType: "Batch Split",
                 documentId: splitActivityId,
@@ -529,8 +529,8 @@ serve(async (req: Request) => {
                 "Stock Transfer Line": stockTransferLineId,
                 "From Location": locationId,
                 "To Location": locationId,
-                "From Shelf": stockTransferLine.fromShelfId,
-                "To Shelf": stockTransferLine.toShelfId,
+                "From Shelf": stockTransferLine.fromStorageUnitId,
+                "To Shelf": stockTransferLine.toStorageUnitId,
               },
               companyId,
               createdBy: userId,
@@ -565,7 +565,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: -transferQuantity,
               locationId: locationId,
-              shelfId: fromShelfId,
+              storageUnitId: fromStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -578,7 +578,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: transferQuantity,
               locationId: locationId,
-              shelfId: stockTransferLine.toShelfId,
+              storageUnitId: stockTransferLine.toStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -601,7 +601,7 @@ serve(async (req: Request) => {
             .updateTable("stockTransferLine")
             .set({
               trackedEntityId,
-              fromShelfId: fromShelfId,
+              fromStorageUnitId: fromStorageUnitId,
               pickedQuantity: transferQuantity,
               updatedBy: userId,
               updatedAt: new Date().toISOString(),
@@ -661,13 +661,13 @@ serve(async (req: Request) => {
             [];
 
           // Create reverse item ledger entries to undo the transfer
-          // First, remove the entity from the destination shelf (toShelfId)
+          // First, remove the entity from the destination shelf (toStorageUnitId)
           itemLedgerInserts.push({
             postingDate: today,
             itemId: stockTransferLine.itemId,
             quantity: -1, // Negative to remove inventory from to shelf
             locationId: locationId,
-            shelfId: stockTransferLine.toShelfId,
+            storageUnitId: stockTransferLine.toStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -676,13 +676,13 @@ serve(async (req: Request) => {
             companyId,
           });
 
-          // Then, restore the entity to the source shelf (fromShelfId)
+          // Then, restore the entity to the source shelf (fromStorageUnitId)
           itemLedgerInserts.push({
             postingDate: today,
             itemId: stockTransferLine.itemId,
             quantity: 1, // Positive to restore inventory at from shelf
             locationId: locationId,
-            shelfId: stockTransferLine.fromShelfId,
+            storageUnitId: stockTransferLine.fromStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -717,7 +717,7 @@ serve(async (req: Request) => {
               status: "Available",
               attributes: {
                 ...(trackedEntity.attributes as Record<string, unknown>),
-                Shelf: stockTransferLine.fromShelfId,
+                Shelf: stockTransferLine.fromStorageUnitId,
               },
             })
             .where("id", "=", trackedEntityId)
@@ -842,14 +842,14 @@ serve(async (req: Request) => {
               .execute();
 
             // Create item ledger entries for merge
-            // Both entities are on the fromShelfId during the merge operation
+            // Both entities are on the fromStorageUnitId during the merge operation
             itemLedgerInserts.push(
               {
                 postingDate: today,
                 itemId: stockTransferLine.itemId,
                 quantity: originalQuantity, // zero out the split entity
                 locationId: locationId,
-                shelfId: stockTransferLine.fromShelfId,
+                storageUnitId: stockTransferLine.fromStorageUnitId,
                 entryType: "Positive Adjmt.",
                 documentType: "Direct Transfer",
                 documentId: stockTransferId!,
@@ -862,7 +862,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: -transferQuantity, // Positive to restore to original entity
                 locationId: locationId,
-                shelfId: stockTransferLine.toShelfId, // Both entities are on the source shelf
+                storageUnitId: stockTransferLine.toStorageUnitId, // Both entities are on the source shelf
                 entryType: "Negative Adjmt.",
                 documentType: "Direct Transfer",
                 documentId: stockTransferId!,
@@ -875,7 +875,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: -(originalQuantity - transferQuantity), // Positive to restore to original entity
                 locationId: locationId,
-                shelfId: stockTransferLine.fromShelfId, // Both entities are on the source shelf
+                storageUnitId: stockTransferLine.fromStorageUnitId, // Both entities are on the source shelf
                 entryType: "Negative Adjmt.",
                 documentType: "Direct Transfer",
                 documentId: stockTransferId!,
@@ -908,7 +908,7 @@ serve(async (req: Request) => {
                 status: "Available",
                 attributes: {
                   ...(trackedEntity.attributes as Record<string, unknown>),
-                  Shelf: stockTransferLine.fromShelfId,
+                  Shelf: stockTransferLine.fromStorageUnitId,
                 },
               })
               .where("id", "=", trackedEntityId)
@@ -925,7 +925,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: transferQuantity, // Positive to restore inventory at from shelf
               locationId: locationId,
-              shelfId: stockTransferLine.fromShelfId,
+              storageUnitId: stockTransferLine.fromStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -939,7 +939,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: -transferQuantity, // Negative to remove inventory from to shelf
               locationId: locationId,
-              shelfId: stockTransferLine.toShelfId,
+              storageUnitId: stockTransferLine.toStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,

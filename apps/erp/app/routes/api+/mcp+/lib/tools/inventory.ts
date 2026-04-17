@@ -14,7 +14,7 @@ import {
   deleteKanban,
   deleteReceipt,
   deleteReceiptLine,
-  deleteShelf,
+  deleteStorageUnit,
   deleteShipment,
   deleteShipmentLine,
   deleteShippingMethod,
@@ -33,7 +33,7 @@ import {
   getStockTransferLines,
   getStockTransferTracking,
   getStockTransfers,
-  getDefaultShelfOrShelfWithHighestQuantity,
+  getDefaultStorageUnitOrStorageUnitWithHighestQuantity,
   getReceipts,
   getReceipt,
   getReceiptLines,
@@ -42,10 +42,10 @@ import {
   getReceiptFiles,
   getSerialNumbersForItem,
   getBatchNumbersForItem,
-  getShelvesList,
-  getShelvesListForLocation,
-  getShelves,
-  getShelf,
+  getStorageUnitsList,
+  getStorageUnitsListForLocation,
+  getStorageUnits,
+  getStorageUnit,
   getShipments,
   getShipment,
   getShipmentLines,
@@ -72,7 +72,7 @@ import {
   upsertBatchProperty,
   upsertKanban,
   upsertReceipt,
-  upsertShelf,
+  upsertStorageUnit,
   upsertShippingMethod,
   upsertShipment,
   upsertStockTransfer,
@@ -81,7 +81,7 @@ import {
   upsertWarehouseTransfer,
   updateWarehouseTransferStatus,
   upsertWarehouseTransferLine,
-  getDefaultShelfForJob,
+  getDefaultStorageUnitForJob,
 } from "~/modules/inventory/inventory.service";
 import {
   inventoryAdjustmentValidator,
@@ -89,7 +89,7 @@ import {
   batchPropertyValidator,
   kanbanValidator,
   receiptValidator,
-  shelfValidator,
+  storageUnitValidator,
   shippingMethodValidator,
   shipmentValidator,
   stockTransferLineValidator,
@@ -159,18 +159,18 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "inventory_deleteShelf",
+    "inventory_deleteStorageUnit",
     {
-      description: "delete shelf",
+      description: "delete storage unit",
       inputSchema: z.object({
-      shelfId: z.string(),
+      storageUnitId: z.string(),
     }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await deleteShelf(ctx.client, params.shelfId);
+      const result = await deleteStorageUnit(ctx.client, params.storageUnitId);
       return toMcpResult(result);
-    }, "Failed: inventory_deleteShelf"),
+    }, "Failed: inventory_deleteStorageUnit"),
   );
 
   server.registerTool(
@@ -467,9 +467,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "inventory_getDefaultShelfOrShelfWithHighestQuantity",
+    "inventory_getDefaultStorageUnitOrStorageUnitWithHighestQuantity",
     {
-      description: "get default shelf or shelf with highest quantity",
+      description: "get default storage unit or storage unit with highest quantity",
       inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
@@ -477,9 +477,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getDefaultShelfOrShelfWithHighestQuantity(ctx.client, params.itemId, params.locationId, ctx.companyId);
+      const result = await getDefaultStorageUnitOrStorageUnitWithHighestQuantity(ctx.client, params.itemId, params.locationId, ctx.companyId);
       return toMcpResult(result);
-    }, "Failed: inventory_getDefaultShelfOrShelfWithHighestQuantity"),
+    }, "Failed: inventory_getDefaultStorageUnitOrStorageUnitWithHighestQuantity"),
   );
 
   server.registerTool(
@@ -612,37 +612,37 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "inventory_getShelvesList",
+    "inventory_getStorageUnitsList",
     {
-      description: "get shelves list",
+      description: "get storage units list",
       inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getShelvesList(ctx.client, ctx.companyId);
+      const result = await getStorageUnitsList(ctx.client, ctx.companyId);
       return toMcpResult(result);
-    }, "Failed: inventory_getShelvesList"),
+    }, "Failed: inventory_getStorageUnitsList"),
   );
 
   server.registerTool(
-    "inventory_getShelvesListForLocation",
+    "inventory_getStorageUnitsListForLocation",
     {
-      description: "get shelves list for location",
+      description: "get storage units list for location",
       inputSchema: z.object({
       locationId: z.string(),
     }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getShelvesListForLocation(ctx.client, ctx.companyId, params.locationId);
+      const result = await getStorageUnitsListForLocation(ctx.client, ctx.companyId, params.locationId);
       return toMcpResult(result);
-    }, "Failed: inventory_getShelvesListForLocation"),
+    }, "Failed: inventory_getStorageUnitsListForLocation"),
   );
 
   server.registerTool(
-    "inventory_getShelves",
+    "inventory_getStorageUnits",
     {
-      description: "get shelves",
+      description: "get storage units",
       inputSchema: z.object({
       locationId: z.string(),
       args: z.object({
@@ -654,24 +654,24 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getShelves(ctx.client, params.locationId, ctx.companyId, params.args);
+      const result = await getStorageUnits(ctx.client, params.locationId, ctx.companyId, params.args);
       return toMcpResult(result);
-    }, "Failed: inventory_getShelves"),
+    }, "Failed: inventory_getStorageUnits"),
   );
 
   server.registerTool(
-    "inventory_getShelf",
+    "inventory_getStorageUnit",
     {
-      description: "get shelf",
+      description: "get storage unit",
       inputSchema: z.object({
-      shelfId: z.string(),
+      storageUnitId: z.string(),
     }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getShelf(ctx.client, params.shelfId);
+      const result = await getStorageUnit(ctx.client, params.storageUnitId);
       return toMcpResult(result);
-    }, "Failed: inventory_getShelf"),
+    }, "Failed: inventory_getStorageUnit"),
   );
 
   server.registerTool(
@@ -1084,18 +1084,18 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "inventory_upsertShelf",
+    "inventory_upsertStorageUnit",
     {
-      description: "upsert shelf",
+      description: "upsert storage unit",
       inputSchema: z.object({
-      shelf: shelfValidator,
+      storageUnit: storageUnitValidator,
     }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await upsertShelf(ctx.client, { ...params.shelf, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
+      const result = await upsertStorageUnit(ctx.client, { ...params.storageUnit, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
       return toMcpResult(result);
-    }, "Failed: inventory_upsertShelf"),
+    }, "Failed: inventory_upsertStorageUnit"),
   );
 
   server.registerTool(
@@ -1220,9 +1220,9 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "inventory_getDefaultShelfForJob",
+    "inventory_getDefaultStorageUnitForJob",
     {
-      description: "get default shelf for job",
+      description: "get default storage unit for job",
       inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
@@ -1230,8 +1230,8 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getDefaultShelfForJob(ctx.client, params.itemId, params.locationId, ctx.companyId);
+      const result = await getDefaultStorageUnitForJob(ctx.client, params.itemId, params.locationId, ctx.companyId);
       return toMcpResult(result);
-    }, "Failed: inventory_getDefaultShelfForJob"),
+    }, "Failed: inventory_getDefaultStorageUnitForJob"),
   );
 };

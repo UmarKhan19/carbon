@@ -94,8 +94,8 @@ export default function NewWarehouseTransferLineRoute() {
     toLocationId: routeData.warehouseTransfer.toLocationId,
     itemId: "",
     quantity: 1,
-    fromShelfId: "",
-    toShelfId: "",
+    fromStorageUnitId: "",
+    toStorageUnitId: "",
     unitOfMeasureCode: "",
     notes: ""
   };

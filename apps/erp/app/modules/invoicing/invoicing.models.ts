@@ -119,7 +119,7 @@ export const purchaseInvoiceLineValidator = z
     supplierShippingCost: zfd.numeric(z.number().optional().default(0)),
     supplierTaxAmount: zfd.numeric(z.number().optional().default(0)),
     locationId: zfd.text(z.string().optional()),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     exchangeRate: zfd.numeric(z.number().optional())
   })
   .refine(
@@ -238,7 +238,7 @@ export const salesInvoiceLineValidator = z
     shippingCost: zfd.numeric(z.number().optional().default(0)),
     taxPercent: zfd.numeric(z.number().optional().default(0)),
     locationId: zfd.text(z.string().optional()),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     exchangeRate: zfd.numeric(z.number().optional())
   })
   .refine(

@@ -3,8 +3,8 @@ import type {
   ClientLoaderFunctionArgs,
   LoaderFunctionArgs
 } from "react-router";
-import { getShelvesListForLocation } from "~/modules/inventory";
-import { getCompanyId, shelvesQuery } from "~/utils/react-query";
+import { getStorageUnitsListForLocation } from "~/modules/inventory";
+import { getCompanyId, storageUnitsQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -20,7 +20,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   }
 
-  return await getShelvesListForLocation(client, companyId, locationId);
+  return await getStorageUnitsListForLocation(client, companyId, locationId);
 }
 
 export async function clientLoader({
@@ -36,7 +36,7 @@ export async function clientLoader({
   const url = new URL(request.url);
   const locationId = url.searchParams.get("locationId");
 
-  const queryKey = shelvesQuery(companyId, locationId ?? null).queryKey;
+  const queryKey = storageUnitsQuery(companyId, locationId ?? null).queryKey;
   const data =
     window?.clientCache?.getQueryData<Awaited<ReturnType<typeof loader>>>(
       queryKey

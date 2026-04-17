@@ -873,7 +873,7 @@ serve(async (req: Request) => {
               d.unitPrice / (d.conversionFactor ?? 1) + shippingAndTaxUnitCost,
             unitOfMeasure: d.inventoryUnitOfMeasureCode ?? "EA",
             locationId: d.locationId,
-            shelfId: d.shelfId,
+            storageUnitId: d.storageUnitId,
             createdBy: userId ?? "",
           });
 
@@ -1057,7 +1057,7 @@ serve(async (req: Request) => {
             lineId: d.id,
             itemId: d.itemId,
             locationId: d.toLocationId ?? locationId,
-            shelfId: d.toShelfId,
+            storageUnitId: d.toStorageUnitId,
             requiresSerialTracking: serialTracking,
             requiresBatchTracking: batchTracking,
             receivedQuantity: quantityToReceive,
@@ -1235,7 +1235,7 @@ serve(async (req: Request) => {
             lineId: d.id,
             itemId: d.itemId,
             locationId: d.toLocationId ?? locationId,
-            shelfId: d.toShelfId,
+            storageUnitId: d.toStorageUnitId,
             requiresSerialTracking: serialTracking,
             requiresBatchTracking: batchTracking,
             receivedQuantity: quantityToReceive,
@@ -1299,7 +1299,7 @@ serve(async (req: Request) => {
                 lineId: d.lineId,
                 itemId: d.itemId,
                 locationId: d.locationId,
-                shelfId: d.shelfId,
+                storageUnitId: d.storageUnitId,
                 requiresSerialTracking: d.requiresSerialTracking,
                 requiresBatchTracking: d.requiresBatchTracking,
                 receivedQuantity: d.receivedQuantity,
@@ -1559,7 +1559,7 @@ serve(async (req: Request) => {
             lineId: d.id,
             itemId: d.itemId,
             locationId: d.fromLocationId ?? locationId,
-            shelfId: d.fromShelfId,
+            storageUnitId: d.fromStorageUnitId,
             requiresSerialTracking: serialTracking,
             requiresBatchTracking: batchTracking,
             shippedQuantity: quantityToShip,
@@ -1832,7 +1832,7 @@ serve(async (req: Request) => {
                 unitOfMeasure:
                   purchaseOrderLine.purchaseUnitOfMeasureCode ?? "EA",
                 locationId: purchaseOrderLine.locationId,
-                shelfId: purchaseOrderLine.shelfId,
+                storageUnitId: purchaseOrderLine.storageUnitId,
                 createdBy: userId ?? "",
               })
               .execute();
@@ -2156,7 +2156,7 @@ serve(async (req: Request) => {
                   unitPrice: shippingAndTaxUnitCost,
                   unitOfMeasure: salesOrderLine.unitOfMeasureCode ?? "EA",
                   locationId: salesOrderLine.locationId,
-                  shelfId: salesOrderLine.shelfId,
+                  storageUnitId: salesOrderLine.storageUnitId,
                   createdBy: userId ?? "",
                 })
                 .execute();
@@ -2446,7 +2446,7 @@ serve(async (req: Request) => {
                 unitPrice: shippingAndTaxUnitCost,
                 unitOfMeasure: salesOrderLine.data.unitOfMeasureCode ?? "EA",
                 locationId: salesOrderLine.data.locationId!,
-                shelfId: salesOrderLine.data.shelfId!,
+                storageUnitId: salesOrderLine.data.storageUnitId!,
                 createdBy: userId ?? "",
               })
               .execute();

@@ -5,8 +5,8 @@ import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
-import { getShelves } from "~/modules/inventory";
-import ShelvesTable from "~/modules/inventory/ui/Shelves/ShelvesTable";
+import { getStorageUnits } from "~/modules/inventory";
+import StorageUnitsTable from "~/modules/inventory/ui/StorageUnits/StorageUnitsTable";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
 import type { Handle } from "~/utils/handle";
@@ -14,8 +14,8 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: msg`Shelves`,
-  to: path.to.shelves,
+  breadcrumb: msg`Storage Units`,
+  to: path.to.storageUnits,
   module: "inventory"
 };
 
@@ -38,7 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const userDefaults = await getUserDefaults(client, userId, companyId);
     if (userDefaults.error) {
       throw redirect(
-        path.to.shelves,
+        path.to.storageUnits,
         await flash(
           request,
           error(userDefaults.error, "Failed to load default location")
@@ -49,21 +49,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
     locationId = userDefaults.data?.locationId ?? null;
   }
 
-  if (!locationId) {
-    const locations = await getLocationsList(client, companyId);
-    if (locations.error || !locations.data?.length) {
-      throw redirect(
-        path.to.shelves,
-        await flash(
-          request,
-          error(locations.error, "Failed to load any locations")
-        )
-      );
-    }
-    locationId = locations.data?.[0].id as string;
+  // Always fetch the locations list server-side so the Location column can
+  // render the resolved name on first paint instead of flashing the raw
+  // locationId while the client-side useLocations() fetcher catches up.
+  const locationsList = await getLocationsList(client, companyId);
+  if (locationsList.error || !locationsList.data?.length) {
+    throw redirect(
+      path.to.storageUnits,
+      await flash(
+        request,
+        error(locationsList.error, "Failed to load any locations")
+      )
+    );
   }
 
-  const shelves = await getShelves(client, locationId, companyId, {
+  if (!locationId) {
+    locationId = locationsList.data[0].id as string;
+  }
+
+  const storageUnits = await getStorageUnits(client, locationId, companyId, {
     search,
     limit,
     offset,
@@ -71,26 +75,36 @@ export async function loader({ request }: LoaderFunctionArgs) {
     filters
   });
 
-  if (shelves.error) {
+  if (storageUnits.error) {
     throw redirect(
       path.to.authenticatedRoot,
-      await flash(request, error(shelves.error, "Failed to fetch shelves"))
+      await flash(
+        request,
+        error(storageUnits.error, "Failed to fetch storageUnits")
+      )
     );
   }
 
   return {
-    count: shelves.count ?? 0,
-    shelves: shelves.data ?? [],
+    count: storageUnits.count ?? 0,
+    storageUnits: storageUnits.data ?? [],
+    locations: locationsList.data,
     locationId
   };
 }
 
-export default function ShelvesRoute() {
-  const { count, shelves, locationId } = useLoaderData<typeof loader>();
+export default function StorageUnitsRoute() {
+  const { count, storageUnits, locations, locationId } =
+    useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={0} className="h-full">
-      <ShelvesTable data={shelves} count={count} locationId={locationId} />
+      <StorageUnitsTable
+        data={storageUnits}
+        count={count}
+        locations={locations}
+        locationId={locationId}
+      />
       <Outlet />
     </VStack>
   );

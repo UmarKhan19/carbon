@@ -126,7 +126,7 @@ export default function GaugeRoute() {
     lastCalibrationDate: gauge.lastCalibrationDate ?? "",
     nextCalibrationDate: gauge.nextCalibrationDate ?? "",
     locationId: gauge.locationId ?? "",
-    shelfId: gauge.shelfId ?? "",
+    storageUnitId: gauge.storageUnitId ?? "",
     calibrationIntervalInMonths: gauge.calibrationIntervalInMonths ?? 6,
     ...getCustomFields(gauge.customFields)
   };

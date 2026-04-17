@@ -19,7 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   switch (field) {
-    case "shelfId":
+    case "storageUnitId":
     case "shippedQuantity":
       const update = await client
         .from("shipmentLine")

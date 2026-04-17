@@ -9,10 +9,14 @@ import type {
 } from "react-router";
 import { data, redirect, useNavigate, useSearchParams } from "react-router";
 import { useUser } from "~/hooks";
-import { ShelfForm, shelfValidator, upsertShelf } from "~/modules/inventory";
+import {
+  StorageUnitForm,
+  storageUnitValidator,
+  upsertStorageUnit
+} from "~/modules/inventory";
 import { setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
-import { getCompanyId, shelvesQuery } from "~/utils/react-query";
+import { getCompanyId, storageUnitsQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, {
@@ -31,7 +35,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const modal = formData.get("type") === "modal";
 
-  const validation = await validator(shelfValidator).validate(formData);
+  const validation = await validator(storageUnitValidator).validate(formData);
 
   if (validation.error) {
     return validationError(validation.error);
@@ -40,24 +44,27 @@ export async function action({ request }: ActionFunctionArgs) {
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { id, ...rest } = validation.data;
 
-  const createShelf = await upsertShelf(client, {
+  const createStorageUnit = await upsertStorageUnit(client, {
     ...rest,
     companyId,
     customFields: setCustomFields(formData),
     createdBy: userId
   });
-  if (createShelf.error) {
+  if (createStorageUnit.error) {
     return data(
       {},
-      await flash(request, error(createShelf.error, "Failed to insert shelf"))
+      await flash(
+        request,
+        error(createStorageUnit.error, "Failed to insert storageUnit")
+      )
     );
   }
 
   return modal
-    ? data(createShelf, { status: 201 })
+    ? data(createStorageUnit, { status: 201 })
     : redirect(
-        `${path.to.shelves}?${getParams(request)}`,
-        await flash(request, success("Shelf created"))
+        `${path.to.storageUnits}?${getParams(request)}`,
+        await flash(request, success("Storage unit created"))
       );
 }
 
@@ -68,7 +75,7 @@ export async function clientAction({
   const companyId = getCompanyId();
 
   const formData = await request.clone().formData();
-  const validation = await validator(shelfValidator).validate(formData);
+  const validation = await validator(storageUnitValidator).validate(formData);
 
   if (validation.error) {
     return validationError(validation.error);
@@ -76,14 +83,14 @@ export async function clientAction({
 
   if (companyId && validation.data.locationId) {
     window.clientCache?.setQueryData(
-      shelvesQuery(companyId, validation.data.locationId).queryKey,
+      storageUnitsQuery(companyId, validation.data.locationId).queryKey,
       null
     );
   }
   return await serverAction();
 }
 
-export default function NewShelfRoute() {
+export default function NewStorageUnitRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { defaults } = useUser();
@@ -96,7 +103,7 @@ export default function NewShelfRoute() {
   };
 
   return (
-    <ShelfForm
+    <StorageUnitForm
       initialValues={initialValues}
       locationId={locationId}
       onClose={() => navigate(-1)}

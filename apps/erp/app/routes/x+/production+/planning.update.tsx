@@ -2,7 +2,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
-import { getDefaultShelfForJob } from "~/modules/inventory";
+import { getDefaultStorageUnitForJob } from "~/modules/inventory";
 import {
   productionOrderValidator,
   recalculateJobRequirements,
@@ -176,7 +176,7 @@ export async function action({ request }: ActionFunctionArgs) {
                 continue;
               }
 
-              const shelfId = await getDefaultShelfForJob(
+              const storageUnitId = await getDefaultStorageUnitForJob(
                 client,
                 item.id,
                 locationId,
@@ -201,7 +201,7 @@ export async function action({ request }: ActionFunctionArgs) {
                   dueDate: order.dueDate ?? undefined,
                   deadlineType: order.isASAP ? "ASAP" : "Soft Deadline",
                   locationId,
-                  shelfId: shelfId ?? undefined,
+                  storageUnitId: storageUnitId ?? undefined,
                   companyId,
                   createdBy: userId,
                   unitOfMeasureCode: "EA"

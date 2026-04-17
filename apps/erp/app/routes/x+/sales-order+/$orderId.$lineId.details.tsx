@@ -186,7 +186,7 @@ export default function EditSalesOrderLineRoute() {
     promisedDate: line?.promisedDate ?? undefined,
     saleQuantity: line?.saleQuantity ?? 1,
     setupPrice: line?.setupPrice ?? 0,
-    shelfId: line?.shelfId ?? "",
+    storageUnitId: line?.storageUnitId ?? "",
     unitOfMeasureCode: line?.unitOfMeasureCode ?? "",
     unitPrice: line?.unitPrice ?? 0,
     taxPercent: line?.taxPercent ?? 0,

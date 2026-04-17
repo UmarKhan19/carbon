@@ -641,7 +641,7 @@ export async function getItemReplenishment(
     .single();
 }
 
-export async function getItemShelfQuantities(
+export async function getItemStorageUnitQuantities(
   client: SupabaseClient<Database>,
   itemId: string,
   companyId: string,

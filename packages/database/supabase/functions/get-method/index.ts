@@ -30,7 +30,7 @@ import {
     traverseQuoteMethod,
 } from "../lib/methods.ts";
 import { importTypeScript } from "../lib/sandbox.ee.ts";
-import { getShelfId } from "../lib/shelves.ts";
+import { getStorageUnitId } from "../lib/storage-units.ts";
 import {
     getNextRevisionSequence,
     getNextSequence,
@@ -893,13 +893,13 @@ serve(async (req: Request) => {
                 quantity,
                 scrapQuantity: childScrapQuantity,
                 estimatedQuantity: childEstimatedQuantity,
-                shelfId: locationId
-                  ? await getShelfId(
+                storageUnitId: locationId
+                  ? await getStorageUnitId(
                       trx,
                       child.data.itemId,
                       locationId,
                       // @ts-ignore
-                      child.data.shelfIds?.[locationId] as string
+                      child.data.storageUnitIds?.[locationId] as string
                     )
                   : undefined,
                 requiresSerialTracking,
@@ -1403,12 +1403,12 @@ serve(async (req: Request) => {
                 unitOfMeasureCode: child.data.unitOfMeasureCode,
                 unitCost: child.data.unitCost,
                 itemScrapPercentage,
-                shelfId: await getShelfId(
+                storageUnitId: await getStorageUnitId(
                   trx,
                   child.data.itemId,
                   job.data?.locationId ?? "",
-                  // @ts-ignore: shelfIds is a dynamic field
-                  child.data.shelfIds?.[job.data.locationId] ?? undefined
+                  // @ts-ignore: storageUnitIds is a dynamic field
+                  child.data.storageUnitIds?.[job.data.locationId] ?? undefined
                 ),
                 companyId,
                 createdBy: userId,
@@ -2028,9 +2028,9 @@ serve(async (req: Request) => {
                 methodType,
                 description,
                 quantity,
-                shelfId: quoteLocationId
-                  ? // @ts-ignore: shelfIds is a dynamic object with location keys
-                    (child.data.shelfIds?.[quoteLocationId] as string) || null
+                storageUnitId: quoteLocationId
+                  ? // @ts-ignore: storageUnitIds is a dynamic object with location keys
+                    (child.data.storageUnitIds?.[quoteLocationId] as string) || null
                   : null,
                 unitOfMeasureCode,
                 unitCost: unitCost ?? 0,
@@ -2453,7 +2453,7 @@ serve(async (req: Request) => {
               order: child.data.order,
               description: child.data.description,
               quantity: child.data.quantity,
-              shelfId: (child.data as any).shelfId || null, // @ts-ignore: shelfId field exists in database but types may not be updated
+              storageUnitId: (child.data as any).storageUnitId || null, // @ts-ignore: storageUnitId field exists in database but types may not be updated
               unitOfMeasureCode: child.data.unitOfMeasureCode,
               unitCost: child.data.unitCost ?? 0,
               companyId,
@@ -2641,9 +2641,9 @@ serve(async (req: Request) => {
                 order: child.data.order,
                 quantity: child.data.quantity,
                 unitOfMeasureCode: child.data.unitOfMeasureCode,
-                shelfIds: job.data?.locationId
+                storageUnitIds: job.data?.locationId
                   ? {
-                      [job.data.locationId]: child.data.shelfId || null,
+                      [job.data.locationId]: child.data.storageUnitId || null,
                     }
                   : {},
                 companyId,
@@ -2941,9 +2941,9 @@ serve(async (req: Request) => {
                 order: child.data.order,
                 quantity: child.data.quantity,
                 unitOfMeasureCode: child.data.unitOfMeasureCode,
-                shelfIds: job.data?.locationId
+                storageUnitIds: job.data?.locationId
                   ? {
-                      [job.data.locationId]: child.data.shelfId || null,
+                      [job.data.locationId]: child.data.storageUnitId || null,
                     }
                   : {},
                 companyId,
@@ -3545,9 +3545,9 @@ serve(async (req: Request) => {
                   methodType: child.data.methodType,
                   order: child.data.order,
                   quantity: child.data.quantity,
-                  shelfIds: quote.data?.locationId
-                    ? // @ts-ignore: shelfIds is a dynamic object with location keys
-                      { [quote.data.locationId]: child.data.shelfId || null }
+                  storageUnitIds: quote.data?.locationId
+                    ? // @ts-ignore: storageUnitIds is a dynamic object with location keys
+                      { [quote.data.locationId]: child.data.storageUnitId || null }
                     : {},
                   unitOfMeasureCode: child.data.unitOfMeasureCode,
                   companyId,
@@ -4263,11 +4263,11 @@ serve(async (req: Request) => {
                   scrapQuantity: childScrapQuantity,
                   estimatedQuantity: childEstimatedQuantity,
                   itemScrapPercentage,
-                  shelfId: await getShelfId(
+                  storageUnitId: await getStorageUnitId(
                     trx,
                     child.data.itemId,
                     job.data.locationId,
-                    child.data.shelfId
+                    child.data.storageUnitId
                   ),
                   requiresBatchTracking:
                     child.data.itemTrackingType === "Batch",
@@ -4582,7 +4582,7 @@ serve(async (req: Request) => {
                           child.data.quoteMakeMethodId
                         ],
                   quantity: child.data.quantity,
-                  shelfId: child.data.shelfId,
+                  storageUnitId: child.data.storageUnitId,
                   unitOfMeasureCode: child.data.unitOfMeasureCode,
                   unitCost: child.data.unitCost, // TODO: get unit cost
                   companyId,
@@ -5064,7 +5064,7 @@ serve(async (req: Request) => {
                             child.data.quoteMakeMethodId
                           ],
                     quantity: child.data.quantity,
-                    shelfId: child.data.shelfId,
+                    storageUnitId: child.data.storageUnitId,
                     unitCost: child.data.unitCost, // TODO: get unit cost
                     unitOfMeasureCode: child.data.unitOfMeasureCode,
                     companyId,

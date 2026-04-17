@@ -100,8 +100,8 @@ export const batchPropertyOrderValidator = z.object({
 export const inventoryAdjustmentValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   locationId: z.string().min(1, { message: "Location is required" }),
-  shelfId: zfd.text(z.string().optional()),
-  originalShelfId: zfd.text(z.string().optional()),
+  storageUnitId: zfd.text(z.string().optional()),
+  originalStorageUnitId: zfd.text(z.string().optional()),
   adjustmentType: z.enum([...itemLedgerTypes, "Set Quantity"]),
   quantity: zfd.numeric(z.number()),
   trackedEntityId: zfd.text(z.string().optional()),
@@ -116,7 +116,7 @@ export const itemLedgerValidator = z.object({
   documentId: z.string().optional(),
   itemId: z.string().min(1, { message: "Item is required" }),
   locationId: z.string().optional(),
-  shelfId: z.string().optional(),
+  storageUnitId: z.string().optional(),
   quantity: z.number()
 });
 
@@ -132,7 +132,7 @@ export const kanbanValidator = z
       z.number().int().min(1, { message: "Quantity must be at least 1" })
     ),
     locationId: z.string().min(1, { message: "Location is required" }),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     supplierId: zfd.text(z.string().optional()),
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
     conversionFactor: zfd.numeric(z.number().min(0).default(1))
@@ -158,10 +158,18 @@ export const receiptValidator = z.object({
   supplierId: zfd.text(z.string().optional())
 });
 
-export const shelfValidator = z.object({
+export const storageUnitValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
-  locationId: z.string().min(1, { message: "Location ID is required" })
+  locationId: z.string().min(1, { message: "Location ID is required" }),
+  warehouseId: zfd.text(z.string().optional()),
+  parentId: zfd.text(z.string().optional()),
+  storageTypeIds: zfd.repeatableOfType(z.string()).optional()
+});
+
+export const storageTypeValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" })
 });
 
 export const shipmentStatusType = [
@@ -266,9 +274,9 @@ export const warehouseTransferLineValidator = z
       z.number().min(0.0001, { message: "Quantity must be greater than 0" })
     ),
     fromLocationId: z.string().min(1, { message: "From Location is required" }),
-    fromShelfId: zfd.text(z.string().optional()),
+    fromStorageUnitId: zfd.text(z.string().optional()),
     toLocationId: z.string().min(1, { message: "To Location is required" }),
-    toShelfId: zfd.text(z.string().optional()),
+    toStorageUnitId: zfd.text(z.string().optional()),
     unitOfMeasureCode: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
   })
@@ -300,8 +308,8 @@ export const stockTransferValidator = z.object({
         .array(
           z.object({
             itemId: z.string().min(1, { message: "Item is required" }),
-            fromShelfId: z.string().optional(),
-            toShelfId: z.string().optional(),
+            fromStorageUnitId: z.string().nullish(),
+            toStorageUnitId: z.string().nullish(),
             quantity: z.number().min(0).optional(),
             requiresSerialTracking: z.boolean().optional(),
             requiresBatchTracking: z.boolean().optional()
@@ -324,8 +332,8 @@ export const stockTransferLineValidator = z.object({
   id: zfd.text(z.string().optional()),
   stockTransferId: z.string().min(1, { message: "Pick list is required" }),
   itemId: z.string().min(1, { message: "Item is required" }),
-  fromShelfId: zfd.text(z.string().optional()),
-  toShelfId: zfd.text(z.string().optional()),
+  fromStorageUnitId: zfd.text(z.string().optional()),
+  toStorageUnitId: zfd.text(z.string().optional()),
   quantity: zfd.numeric(
     z
       .number()

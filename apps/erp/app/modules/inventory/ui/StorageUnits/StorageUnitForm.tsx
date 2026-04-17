@@ -14,34 +14,41 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
-import { Hidden, Input, Location, Submit } from "~/components/Form";
+import {
+  Hidden,
+  Input,
+  Location,
+  StorageTypes,
+  StorageUnit,
+  Submit
+} from "~/components/Form";
 import { usePermissions } from "~/hooks";
-import { shelfValidator } from "~/modules/inventory";
+import { storageUnitValidator } from "~/modules/inventory";
 import { path } from "~/utils/path";
 
-type ShelfFormProps = {
+type StorageUnitFormProps = {
   locationId: string;
-  initialValues: z.infer<typeof shelfValidator>;
+  initialValues: z.infer<typeof storageUnitValidator>;
   type?: "modal" | "drawer";
   open?: boolean;
   onClose: () => void;
 };
 
-const ShelfForm = ({
+const StorageUnitForm = ({
   locationId,
   initialValues,
   open = true,
   type = "drawer",
   onClose
-}: ShelfFormProps) => {
+}: StorageUnitFormProps) => {
   const fetcher = useFetcher<{}>();
   const { t } = useLingui();
 
   const permissions = usePermissions();
   const isEditing = !!initialValues?.id;
   const isDisabled = isEditing
-    ? !permissions.can("update", "sales")
-    : !permissions.can("create", "sales");
+    ? !permissions.can("update", "parts")
+    : !permissions.can("create", "parts");
 
   return (
     <ModalDrawerProvider type={type}>
@@ -53,10 +60,12 @@ const ShelfForm = ({
       >
         <ModalDrawerContent>
           <ValidatedForm
-            validator={shelfValidator}
+            validator={storageUnitValidator}
             method="post"
             action={
-              isEditing ? path.to.shelf(initialValues.id!) : path.to.newShelf
+              isEditing
+                ? path.to.storageUnit(initialValues.id!)
+                : path.to.newStorageUnit
             }
             defaultValues={initialValues}
             fetcher={fetcher}
@@ -69,7 +78,7 @@ const ShelfForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? t`Edit Shelf` : t`New Shelf`}
+                {isEditing ? t`Edit Storage Unit` : t`New Storage Unit`}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -82,6 +91,19 @@ const ShelfForm = ({
                   isReadOnly={isEditing}
                   name="locationId"
                   label={t`Location`}
+                />
+                <StorageUnit
+                  name="parentId"
+                  label={t`Parent Storage Unit`}
+                  locationId={locationId}
+                  isOptional
+                  helperText={t`Must be in the same location`}
+                  excludeDescendantsOf={initialValues.id}
+                />
+                <StorageTypes
+                  name="storageTypeIds"
+                  label={t`Storage Types`}
+                  isOptional
                 />
               </VStack>
             </ModalDrawerBody>
@@ -102,4 +124,4 @@ const ShelfForm = ({
   );
 };
 
-export default ShelfForm;
+export default StorageUnitForm;

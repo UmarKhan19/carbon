@@ -1408,7 +1408,7 @@ export async function getSalesOrderLineShipments(
 ) {
   return client
     .from("shipmentLine")
-    .select("*, shipment(*), shelf(id, name)")
+    .select("*, shipment(*), storageUnit(id, name)")
     .eq("lineId", salesOrderLineId)
     .gt("shippedQuantity", 0);
 }
