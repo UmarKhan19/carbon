@@ -103,9 +103,9 @@ const StockTransferPDF = ({
 
           {stockTransferLines
             .sort((a, b) => {
-              const shelfA = a.fromShelfName || "Any";
-              const shelfB = b.fromShelfName || "Any";
-              return shelfA.localeCompare(shelfB);
+              const storageUnitA = a.fromStorageUnitName || "Any";
+              const storageUnitB = b.fromStorageUnitName || "Any";
+              return storageUnitA.localeCompare(storageUnitB);
             })
             .map((line) => {
               const barcodeDataUrl = generateBarcode(line.itemReadableId ?? "");
@@ -150,8 +150,8 @@ const StockTransferPDF = ({
 
                   <View style={tw("w-1/4 text-center")}>
                     <Text style={tw("text-xs")}>
-                      {line.fromShelfName || "Any"} →{" "}
-                      {line.toShelfName || "Any"}
+                      {line.fromStorageUnitName || "Any"} →{" "}
+                      {line.toStorageUnitName || "Any"}
                     </Text>
                   </View>
 

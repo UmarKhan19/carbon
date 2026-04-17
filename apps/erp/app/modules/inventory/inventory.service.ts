@@ -78,7 +78,12 @@ export async function deleteStorageUnitCascade(
   const descendants = await getStorageUnitDescendants(client, storageUnitId);
   if (descendants.error) return descendants;
 
-  const ids = (descendants.data ?? []).map((row) => row.id);
+  // storageUnits_recursive is a view, so every column is nominally nullable
+  // in the generated types. Narrow `id` to a concrete string[] for
+  // Supabase's `.in()` signature.
+  const ids = (descendants.data ?? [])
+    .map((row) => row.id)
+    .filter((id): id is string => id != null);
   // Safety net: fall back to the single-row delete if the view returned
   // nothing (shouldn't happen — the self row is always in the subtree).
   if (ids.length === 0) {

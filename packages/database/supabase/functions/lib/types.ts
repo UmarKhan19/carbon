@@ -41811,7 +41811,7 @@ export type Database = {
           createdBy: string
           customFields: Json | null
           fromLocationId: string
-          fromShelfId: string | null
+          fromStorageUnitId: string | null
           id: string
           itemId: string
           notes: string | null
@@ -41819,7 +41819,7 @@ export type Database = {
           receivedQuantity: number
           shippedQuantity: number
           toLocationId: string
-          toShelfId: string | null
+          toStorageUnitId: string | null
           transferId: string
           unitOfMeasureCode: string | null
           updatedAt: string | null
@@ -41831,7 +41831,7 @@ export type Database = {
           createdBy: string
           customFields?: Json | null
           fromLocationId: string
-          fromShelfId?: string | null
+          fromStorageUnitId?: string | null
           id?: string
           itemId: string
           notes?: string | null
@@ -41839,7 +41839,7 @@ export type Database = {
           receivedQuantity?: number
           shippedQuantity?: number
           toLocationId: string
-          toShelfId?: string | null
+          toStorageUnitId?: string | null
           transferId: string
           unitOfMeasureCode?: string | null
           updatedAt?: string | null
@@ -41851,7 +41851,7 @@ export type Database = {
           createdBy?: string
           customFields?: Json | null
           fromLocationId?: string
-          fromShelfId?: string | null
+          fromStorageUnitId?: string | null
           id?: string
           itemId?: string
           notes?: string | null
@@ -41859,7 +41859,7 @@ export type Database = {
           receivedQuantity?: number
           shippedQuantity?: number
           toLocationId?: string
-          toShelfId?: string | null
+          toStorageUnitId?: string | null
           transferId?: string
           unitOfMeasureCode?: string | null
           updatedAt?: string | null
@@ -41938,7 +41938,7 @@ export type Database = {
           },
           {
             foreignKeyName: "warehouseTransferLine_fromShelfId_fkey"
-            columns: ["fromShelfId"]
+            columns: ["fromStorageUnitId"]
             isOneToOne: false
             referencedRelation: "storageUnit"
             referencedColumns: ["id"]
@@ -41994,7 +41994,7 @@ export type Database = {
           },
           {
             foreignKeyName: "warehouseTransferLine_toShelfId_fkey"
-            columns: ["toShelfId"]
+            columns: ["toStorageUnitId"]
             isOneToOne: false
             referencedRelation: "storageUnit"
             referencedColumns: ["id"]
@@ -49258,7 +49258,7 @@ export type Database = {
           requestedDate: string | null
           requiresInspection: boolean | null
           setupPrice: number | null
-          shelfId: string | null
+          storageUnitId: string | null
           shippingCost: number | null
           supplierExtendedPrice: number | null
           supplierPartId: string | null
@@ -49466,7 +49466,7 @@ export type Database = {
           },
           {
             foreignKeyName: "purchaseOrderLine_storageUnitId_fkey"
-            columns: ["shelfId"]
+            columns: ["storageUnitId"]
             isOneToOne: false
             referencedRelation: "storageUnit"
             referencedColumns: ["id"]
@@ -52042,7 +52042,7 @@ export type Database = {
           receivedQuantity: number | null
           requiresBatchTracking: boolean | null
           requiresSerialTracking: boolean | null
-          shelfId: string | null
+          storageUnitId: string | null
           thumbnailPath: string | null
           unitOfMeasure: string | null
           unitPrice: number | null
@@ -52150,7 +52150,7 @@ export type Database = {
           },
           {
             foreignKeyName: "receiptLine_storageUnitId_fkey"
-            columns: ["shelfId"]
+            columns: ["storageUnitId"]
             isOneToOne: false
             referencedRelation: "storageUnit"
             referencedColumns: ["id"]

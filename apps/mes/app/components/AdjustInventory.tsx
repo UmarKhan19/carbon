@@ -35,10 +35,12 @@ export function AdjustInventory({ add }: { add: boolean }) {
   const [items] = useItems();
   const [loading, setLoading] = useState(false);
 
-  const [shelves, setShelves] = useState<{ value: string; label: string }[]>(
-    []
+  const [storageUnits, setStorageUnits] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [selectedStorageUnit, setSelectedStorageUnit] = useState<string | null>(
+    null
   );
-  const [selectedShelf, setSelectedShelf] = useState<string | null>(null);
   const { carbon } = useCarbon();
 
   const routeData = useRouteData<{
@@ -49,29 +51,29 @@ export function AdjustInventory({ add }: { add: boolean }) {
     if (!value || !carbon) return;
     carbon
       .from("pickMethod")
-      .select("defaultShelfId")
+      .select("defaultStorageUnitId")
       .eq("itemId", value.value)
       .eq("locationId", routeData?.location ?? "")
       .maybeSingle()
       .then((pickMethod) => {
-        setSelectedShelf(pickMethod?.data?.defaultShelfId ?? null);
+        setSelectedStorageUnit(pickMethod?.data?.defaultStorageUnitId ?? null);
       });
   };
 
-  async function fetchShelvesByLocationId() {
+  async function fetchStorageUnitsByLocationId() {
     if (!carbon) {
-      toast.error(t`Failed to fetch shelves`);
+      toast.error(t`Failed to fetch storageUnits`);
       return;
     }
-    const shelves = await carbon
-      .from("shelf")
+    const storageUnits = await carbon
+      .from("storageUnit")
       .select("id, name")
       .eq("locationId", routeData?.location ?? "");
 
-    setShelves(
-      shelves.data?.map((shelf) => ({
-        value: shelf.id,
-        label: shelf.name
+    setStorageUnits(
+      storageUnits.data?.map((storageUnit) => ({
+        value: storageUnit.id,
+        label: storageUnit.name
       })) ?? []
     );
     setLoading(false);
@@ -79,7 +81,7 @@ export function AdjustInventory({ add }: { add: boolean }) {
 
   useMount(() => {
     setLoading(true);
-    fetchShelvesByLocationId();
+    fetchStorageUnitsByLocationId();
   });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -167,12 +169,12 @@ export function AdjustInventory({ add }: { add: boolean }) {
                     />
                     <Number label={t`Quantity`} name="quantity" />
                     <Combobox
-                      label={t`Shelf`}
-                      name="shelfId"
-                      options={shelves}
-                      value={selectedShelf ?? ""}
+                      label={t`Storage Unit`}
+                      name="storageUnitId"
+                      options={storageUnits}
+                      value={selectedStorageUnit ?? ""}
                       onChange={(value) =>
-                        setSelectedShelf(value?.value ?? null)
+                        setSelectedStorageUnit(value?.value ?? null)
                       }
                     />
                   </Loading>

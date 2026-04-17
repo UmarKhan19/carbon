@@ -1112,7 +1112,7 @@ export const JobOperation = ({
                                             />
                                             <Badge variant="secondary">
                                               <LuGitPullRequest className="size-3 mr-1" />
-                                              {material.shelfName ??
+                                              {material.storageUnitName ??
                                                 (material.methodType ===
                                                 "Make to Order"
                                                   ? t`WIP`

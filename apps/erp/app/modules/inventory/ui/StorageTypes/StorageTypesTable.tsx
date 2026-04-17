@@ -1,3 +1,4 @@
+import type { Json } from "@carbon/database";
 import { MenuIcon, MenuItem } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -14,6 +15,7 @@ type StorageType = {
   id: string;
   name: string;
   companyId: string;
+  customFields: Json;
 };
 
 type StorageTypesTableProps = {

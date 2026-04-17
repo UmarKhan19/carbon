@@ -97,10 +97,24 @@ export default function StorageUnitsRoute() {
   const { count, storageUnits, locations, locationId } =
     useLoaderData<typeof loader>();
 
+  // storageUnits comes from storageUnits_recursive (a view) so every column
+  // is nominally nullable in the generated types. In practice only roots have
+  // a null parentId; id / name / active / companyId / locationId are always
+  // populated for rows visible to a user. Narrow by filtering and casting.
+  const rows = storageUnits.filter(
+    (
+      r
+    ): r is typeof r & {
+      id: string;
+      name: string;
+      active: boolean;
+    } => r.id != null && r.name != null && r.active != null
+  );
+
   return (
     <VStack spacing={0} className="h-full">
       <StorageUnitsTable
-        data={storageUnits}
+        data={rows}
         count={count}
         locations={locations}
         locationId={locationId}

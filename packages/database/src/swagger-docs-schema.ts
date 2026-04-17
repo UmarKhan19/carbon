@@ -9004,13 +9004,13 @@ export default {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.fromLocationId",
           },
           {
-            $ref: "#/parameters/rowFilter.warehouseTransferLine.fromShelfId",
+            $ref: "#/parameters/rowFilter.warehouseTransferLine.fromStorageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.toLocationId",
           },
           {
-            $ref: "#/parameters/rowFilter.warehouseTransferLine.toShelfId",
+            $ref: "#/parameters/rowFilter.warehouseTransferLine.toStorageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.unitOfMeasureCode",
@@ -9117,13 +9117,13 @@ export default {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.fromLocationId",
           },
           {
-            $ref: "#/parameters/rowFilter.warehouseTransferLine.fromShelfId",
+            $ref: "#/parameters/rowFilter.warehouseTransferLine.fromStorageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.toLocationId",
           },
           {
-            $ref: "#/parameters/rowFilter.warehouseTransferLine.toShelfId",
+            $ref: "#/parameters/rowFilter.warehouseTransferLine.toStorageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.unitOfMeasureCode",
@@ -9184,13 +9184,13 @@ export default {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.fromLocationId",
           },
           {
-            $ref: "#/parameters/rowFilter.warehouseTransferLine.fromShelfId",
+            $ref: "#/parameters/rowFilter.warehouseTransferLine.fromStorageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.toLocationId",
           },
           {
-            $ref: "#/parameters/rowFilter.warehouseTransferLine.toShelfId",
+            $ref: "#/parameters/rowFilter.warehouseTransferLine.toStorageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.warehouseTransferLine.unitOfMeasureCode",
@@ -76982,7 +76982,7 @@ export default {
           format: "text",
           type: "string",
         },
-        fromShelfId: {
+        fromStorageUnitId: {
           description:
             "Note:\nThis is a Foreign Key to `storageUnit.id`.<fk table='storageUnit' column='id'/>",
           format: "text",
@@ -76994,7 +76994,7 @@ export default {
           format: "text",
           type: "string",
         },
-        toShelfId: {
+        toStorageUnitId: {
           description:
             "Note:\nThis is a Foreign Key to `storageUnit.id`.<fk table='storageUnit' column='id'/>",
           format: "text",
@@ -108459,8 +108459,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.warehouseTransferLine.fromShelfId": {
-      name: "fromShelfId",
+    "rowFilter.warehouseTransferLine.fromStorageUnitId": {
+      name: "fromStorageUnitId",
       required: false,
       in: "query",
       type: "string",
@@ -108471,8 +108471,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.warehouseTransferLine.toShelfId": {
-      name: "toShelfId",
+    "rowFilter.warehouseTransferLine.toStorageUnitId": {
+      name: "toStorageUnitId",
       required: false,
       in: "query",
       type: "string",

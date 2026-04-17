@@ -74,6 +74,7 @@ DROP VIEW IF EXISTS "stockTransferLines" CASCADE;
 -- Shipment / receipt
 DROP VIEW IF EXISTS "shipmentLines" CASCADE;
 DROP VIEW IF EXISTS "receipts" CASCADE;
+DROP VIEW IF EXISTS "receiptLines" CASCADE;
 
 -- Sales invoice
 DROP VIEW IF EXISTS "salesInvoiceLines" CASCADE;
@@ -84,6 +85,7 @@ DROP VIEW IF EXISTS "salesInvoices" CASCADE;
 DROP VIEW IF EXISTS "salesOrderLines" CASCADE;
 DROP VIEW IF EXISTS "salesOrders" CASCADE;
 DROP VIEW IF EXISTS "purchaseOrders" CASCADE;
+DROP VIEW IF EXISTS "purchaseOrderLines" CASCADE;
 DROP VIEW IF EXISTS "purchaseInvoices" CASCADE;
 
 -- Demand-planning open-line views
@@ -197,3 +199,9 @@ ALTER TABLE "stockTransferLine" RENAME COLUMN "fromShelfId" TO "fromStorageUnitI
 ALTER TABLE "stockTransferLine" RENAME COLUMN "toShelfId"   TO "toStorageUnitId";
 ALTER TABLE "stockTransferLine" RENAME CONSTRAINT "stockTransferLine_fromShelfId_fkey" TO "stockTransferLine_fromStorageUnitId_fkey";
 ALTER TABLE "stockTransferLine" RENAME CONSTRAINT "stockTransferLine_toShelfId_fkey"   TO "stockTransferLine_toStorageUnitId_fkey";
+
+-- warehouseTransferLine.fromShelfId / toShelfId
+ALTER TABLE "warehouseTransferLine" RENAME COLUMN "fromShelfId" TO "fromStorageUnitId";
+ALTER TABLE "warehouseTransferLine" RENAME COLUMN "toShelfId"   TO "toStorageUnitId";
+ALTER TABLE "warehouseTransferLine" RENAME CONSTRAINT "warehouseTransferLine_fromShelfId_fkey" TO "warehouseTransferLine_fromStorageUnitId_fkey";
+ALTER TABLE "warehouseTransferLine" RENAME CONSTRAINT "warehouseTransferLine_toShelfId_fkey"   TO "warehouseTransferLine_toStorageUnitId_fkey";

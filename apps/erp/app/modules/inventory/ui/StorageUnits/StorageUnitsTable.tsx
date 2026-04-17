@@ -27,8 +27,6 @@ type StorageUnit = {
   parentId: string | null;
   depth: number | null;
   ancestorPath: string[] | null;
-  createdAt?: string;
-  updatedAt?: string | null;
 };
 
 type StorageUnitsTableProps = {

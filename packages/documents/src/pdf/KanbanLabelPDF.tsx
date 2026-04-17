@@ -10,8 +10,8 @@ interface KanbanLabel {
   itemReadableId: string;
   locationName: string;
   supplierName?: string | null;
-  shelfId?: string | null;
-  shelfName?: string | null;
+  storageUnitId?: string | null;
+  storageUnitName?: string | null;
   quantity: number;
   unitOfMeasureCode?: string | null;
   thumbnail?: string | null;
@@ -186,8 +186,8 @@ const KanbanLabelPDF = ({
                             "border-t border-gray-300 pt-2 mt-2 flex flex-col items-center text-center text-[14pt]"
                           )}
                         >
-                          {label.shelfName ? (
-                            <Text>{label.shelfName}</Text>
+                          {label.storageUnitName ? (
+                            <Text>{label.storageUnitName}</Text>
                           ) : (
                             <Text>{label.locationName}</Text>
                           )}
