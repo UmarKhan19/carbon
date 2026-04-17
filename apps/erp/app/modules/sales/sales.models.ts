@@ -147,8 +147,10 @@ export const customerPortalValidator = z.object({
 });
 
 export const priceOverrideBreakValidator = z.object({
+  id: z.string().optional(),
   quantity: z.number().nonnegative(),
-  overridePrice: z.number().nonnegative()
+  overridePrice: z.number().nonnegative(),
+  active: z.boolean().default(true)
 });
 
 export const priceOverrideBreaksValidator = z

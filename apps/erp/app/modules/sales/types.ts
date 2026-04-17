@@ -42,8 +42,10 @@ export type MatchedRule = {
 };
 
 export type PriceOverrideBreak = {
+  id?: string;
   quantity: number;
   overridePrice: number;
+  active: boolean;
 };
 
 export type OverrideEntry = {

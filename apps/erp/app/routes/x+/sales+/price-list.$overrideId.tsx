@@ -134,7 +134,12 @@ export default function EditPriceOverrideRoute() {
       }}
       initialBreaks={
         Array.isArray(override.breaks)
-          ? (override.breaks as { quantity: number; overridePrice: number }[])
+          ? (override.breaks as {
+              id: string;
+              quantity: number;
+              overridePrice: number;
+              active: boolean;
+            }[])
           : []
       }
       onClose={() => navigate(-1)}

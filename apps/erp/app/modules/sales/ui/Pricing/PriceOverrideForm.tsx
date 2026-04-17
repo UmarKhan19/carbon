@@ -16,6 +16,7 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
+  Switch,
   useDisclosure,
   VStack
 } from "@carbon/react";
@@ -81,10 +82,12 @@ const PriceOverrideForm = ({
     const seed =
       Array.isArray(initialBreaks) && initialBreaks.length > 0
         ? initialBreaks.map((b) => ({
+            id: b.id,
             quantity: Number(b.quantity) || 0,
-            overridePrice: Number(b.overridePrice) || 0
+            overridePrice: Number(b.overridePrice) || 0,
+            active: b.active !== false
           }))
-        : [{ quantity: 1, overridePrice: 0 }];
+        : [{ quantity: 1, overridePrice: 0, active: true }];
     return seed.sort((a, b) => a.quantity - b.quantity);
   });
 
@@ -275,9 +278,21 @@ function PriceBreaks({
   const addRow = useCallback(() => {
     onChange((prev) => {
       const maxQty = prev.reduce((m, b) => Math.max(m, b.quantity), 0);
-      return [...prev, { quantity: maxQty + 1, overridePrice: 0 }];
+      return [
+        ...prev,
+        { quantity: maxQty + 1, overridePrice: 0, active: true }
+      ];
     });
   }, [onChange]);
+
+  const toggleActive = useCallback(
+    (index: number, next: boolean) => {
+      onChange((prev) =>
+        prev.map((b, i) => (i === index ? { ...b, active: next } : b))
+      );
+    },
+    [onChange]
+  );
 
   // Grid mutation is a no-op — edits land via local state + form submit.
   const noOpMutation = useCallback(
@@ -346,9 +361,22 @@ function PriceBreaks({
         accessorKey: "overridePrice",
         header: t`Override Price`,
         cell: ({ row }) => formatter.format(row.original.overridePrice)
+      },
+      {
+        accessorKey: "active",
+        header: t`Active`,
+        cell: ({ row }) => (
+          <Switch
+            variant="small"
+            checked={row.original.active !== false}
+            disabled={isDisabled}
+            onCheckedChange={(next) => toggleActive(row.index, next === true)}
+            aria-label={t`Toggle break active`}
+          />
+        )
       }
     ],
-    [isDisabled, removeRow, formatter, t]
+    [isDisabled, removeRow, formatter, t, toggleActive]
   );
 
   return (

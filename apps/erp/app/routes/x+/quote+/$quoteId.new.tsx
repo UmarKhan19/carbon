@@ -83,7 +83,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (d.methodType === "Purchase to Order") {
     const quantities = d.quantity ?? [1];
-    await resolvePurchaseToOrderPrices(
+    const priceResult = await resolvePurchaseToOrderPrices(
       serviceRole,
       companyId,
       quoteId,
@@ -91,11 +91,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       quantities,
       userId
     );
+    if (priceResult?.error) {
+      throw redirect(
+        path.to.quoteLine(quoteId, quoteLineId),
+        await flash(
+          request,
+          error(priceResult.error, "Failed to resolve Purchase to Order prices")
+        )
+      );
+    }
   }
 
   if (d.methodType === "Pull from Inventory") {
     const quantities = d.quantity ?? [1];
-    await resolveQuoteLinePrices(
+    const priceResult = await resolveQuoteLinePrices(
       serviceRole,
       companyId,
       quoteId,
@@ -103,6 +112,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
       quantities,
       userId
     );
+    if (priceResult?.error) {
+      throw redirect(
+        path.to.quoteLine(quoteId, quoteLineId),
+        await flash(
+          request,
+          error(
+            priceResult.error,
+            "Failed to resolve Pull from Inventory prices"
+          )
+        )
+      );
+    }
   }
 
   if (d.methodType === "Make to Order") {
@@ -124,7 +145,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       );
     }
-    await recalculateQuoteLinePrices(serviceRole, quoteId, quoteLineId, userId);
+    const recalcResult = await recalculateQuoteLinePrices(
+      serviceRole,
+      quoteId,
+      quoteLineId,
+      userId
+    );
+    if (recalcResult?.error) {
+      throw redirect(
+        path.to.quoteLine(quoteId, quoteLineId),
+        await flash(
+          request,
+          error(recalcResult.error, "Failed to recalculate quote line prices")
+        )
+      );
+    }
   }
 
   throw redirect(path.to.quoteLine(quoteId, quoteLineId));

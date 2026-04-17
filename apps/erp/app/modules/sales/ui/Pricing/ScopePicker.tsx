@@ -12,6 +12,7 @@ import {
   PopoverTrigger
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
+import type { ComponentType } from "react";
 import { useMemo, useState } from "react";
 import { LuCheck, LuGlobe, LuSquareUser, LuUsers } from "react-icons/lu";
 
@@ -53,6 +54,11 @@ export function ScopePicker({
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
 
+  const select = (next: string) => {
+    onChange(next);
+    setOpen(false);
+  };
+
   const { allOption, types, customers, selected } = useMemo(() => {
     const allOption: ScopeOption = {
       value: ALL_CUSTOMERS_SCOPE,
@@ -71,11 +77,6 @@ export function ScopePicker({
     return { allOption, types, customers, selected };
   }, [options, value, t]);
 
-  const select = (next: string) => {
-    onChange(next);
-    setOpen(false);
-  };
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -83,23 +84,18 @@ export function ScopePicker({
           asButton
           size={size}
           role="combobox"
-          aria-expanded={open}
-          className={cn(
-            "min-w-[220px] hover:scale-100 focus-visible:scale-100",
-            !value && "text-muted-foreground"
-          )}
-          onClick={() => setOpen(true)}
+          className={cn("min-w-[220px]", !value && "text-muted-foreground")}
         >
           {selected ? (
-            <span className="!flex items-center gap-2 truncate">
+            <div className="flex items-center gap-2 truncate">
               <ScopeIcon
                 helper={selected.helper}
                 className="size-3.5 shrink-0 text-muted-foreground"
               />
               <span className="truncate">{selected.label}</span>
-            </span>
+            </div>
           ) : (
-            <span className="!text-muted-foreground">
+            <span className="text-muted-foreground">
               {placeholder ?? t`Select scope`}
             </span>
           )}
@@ -128,10 +124,7 @@ export function ScopePicker({
             {types.length > 0 && (
               <CommandGroup
                 heading={
-                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <LuUsers className="size-3" />
-                    {t`Customer Types`}
-                  </span>
+                  <GroupHeading icon={LuUsers} label={t`Customer Types`} />
                 }
               >
                 {types.map((opt) => (
@@ -152,10 +145,7 @@ export function ScopePicker({
             {customers.length > 0 && (
               <CommandGroup
                 heading={
-                  <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <LuSquareUser className="size-3" />
-                    {t`Customers`}
-                  </span>
+                  <GroupHeading icon={LuSquareUser} label={t`Customers`} />
                 }
               >
                 {customers.map((opt) => (
@@ -172,6 +162,21 @@ export function ScopePicker({
         </Command>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function GroupHeading({
+  icon: Icon,
+  label
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <Icon className="size-3" />
+      {label}
+    </span>
   );
 }
 

@@ -37849,9 +37849,6 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
           },
           {
-            $ref: "#/parameters/rowFilter.customerItemPriceOverride.breaks",
-          },
-          {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.notes",
           },
           {
@@ -37953,9 +37950,6 @@ export default {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
           },
           {
-            $ref: "#/parameters/rowFilter.customerItemPriceOverride.breaks",
-          },
-          {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.notes",
           },
           {
@@ -38009,9 +38003,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.itemId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.customerItemPriceOverride.breaks",
           },
           {
             $ref: "#/parameters/rowFilter.customerItemPriceOverride.notes",
@@ -55171,6 +55162,186 @@ export default {
           },
         },
         tags: ["purchaseOrderPayment"],
+      },
+    },
+    "/customerItemPriceOverrideBreak": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.customerItemPriceOverrideId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.quantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.overridePrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/customerItemPriceOverrideBreak",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["customerItemPriceOverrideBreak"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.customerItemPriceOverrideBreak",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["customerItemPriceOverrideBreak"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.customerItemPriceOverrideId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.quantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.overridePrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["customerItemPriceOverrideBreak"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.customerItemPriceOverrideId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.quantity",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.overridePrice",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.active",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.customerItemPriceOverrideBreak.updatedAt",
+          },
+          {
+            $ref: "#/parameters/body.customerItemPriceOverrideBreak",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["customerItemPriceOverrideBreak"],
       },
     },
     "/supplyActual": {
@@ -75696,8 +75867,8 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "int32",
-          type: "integer",
+          format: "numeric",
+          type: "number",
         },
         setupProductionEventId: {
           description:
@@ -90537,7 +90708,6 @@ export default {
       required: [
         "id",
         "itemId",
-        "breaks",
         "active",
         "applyRulesOnTop",
         "companyId",
@@ -90568,9 +90738,6 @@ export default {
             "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
           format: "text",
           type: "string",
-        },
-        breaks: {
-          format: "jsonb",
         },
         notes: {
           format: "text",
@@ -98859,6 +99026,71 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+      },
+      type: "object",
+    },
+    customerItemPriceOverrideBreak: {
+      required: [
+        "id",
+        "customerItemPriceOverrideId",
+        "quantity",
+        "overridePrice",
+        "active",
+        "companyId",
+        "createdBy",
+        "createdAt",
+      ],
+      properties: {
+        id: {
+          default: "public.id('cipob'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        customerItemPriceOverrideId: {
+          format: "text",
+          type: "string",
+        },
+        quantity: {
+          format: "numeric",
+          type: "number",
+        },
+        overridePrice: {
+          format: "numeric",
+          type: "number",
+        },
+        active: {
+          default: true,
+          format: "boolean",
+          type: "boolean",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
         },
       },
       type: "object",
@@ -123862,12 +124094,6 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.customerItemPriceOverride.breaks": {
-      name: "breaks",
-      required: false,
-      in: "query",
-      type: "string",
-    },
     "rowFilter.customerItemPriceOverride.notes": {
       name: "notes",
       required: false,
@@ -133254,6 +133480,75 @@ export default {
     },
     "rowFilter.purchaseOrderPayment.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "body.customerItemPriceOverrideBreak": {
+      name: "customerItemPriceOverrideBreak",
+      description: "customerItemPriceOverrideBreak",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/customerItemPriceOverrideBreak",
+      },
+    },
+    "rowFilter.customerItemPriceOverrideBreak.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.customerItemPriceOverrideId": {
+      name: "customerItemPriceOverrideId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.quantity": {
+      name: "quantity",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.overridePrice": {
+      name: "overridePrice",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.active": {
+      name: "active",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.customerItemPriceOverrideBreak.updatedAt": {
+      name: "updatedAt",
       required: false,
       in: "query",
       type: "string",

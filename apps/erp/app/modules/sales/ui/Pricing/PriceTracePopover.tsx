@@ -11,11 +11,27 @@ import {
   Tr
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { LuChevronRight, LuExternalLink } from "react-icons/lu";
 import { Link } from "react-router";
+import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import { path } from "~/utils/path";
 import type { PriceTraceStep } from "../../types";
+
+type BadgeVariant = NonNullable<ComponentProps<typeof Badge>["variant"]>;
+
+const STEP_BADGE: Record<
+  string,
+  { label: string; variant: BadgeVariant } | null
+> = {
+  "Base Price": { label: "Base", variant: "gray" },
+  Override: { label: "Override", variant: "yellow" },
+  "Type Override": { label: "Type Override", variant: "blue" },
+  "All Override": { label: "All Override", variant: "gray" },
+  Discount: { label: "Discount", variant: "green" },
+  Markup: { label: "Markup", variant: "secondary" },
+  "Final Price": null
+};
 
 type PriceTracePopoverProps = {
   trace: PriceTraceStep[] | null | undefined;
@@ -30,6 +46,8 @@ export function PriceTracePopover({
   children
 }: PriceTracePopoverProps) {
   const { t } = useLingui();
+  const currencyFormatter = useCurrencyFormatter({ currency: currencyCode });
+  const format = (value: number) => currencyFormatter.format(value);
 
   const steps = Array.isArray(trace) ? trace : [];
   if (steps.length === 0) {
@@ -119,10 +137,10 @@ export function PriceTracePopover({
                       )}
                     </Td>
                     <Td className="text-right whitespace-nowrap">
-                      <ChangeCell step={step} currencyCode={currencyCode} />
+                      <DeltaPill value={step.adjustment} format={format} />
                     </Td>
                     <Td className="text-right text-sm font-mono tabular-nums whitespace-nowrap">
-                      {formatCurrency(step.amount, currencyCode)}
+                      {format(step.amount)}
                     </Td>
                   </Tr>
                 );
@@ -136,29 +154,23 @@ export function PriceTracePopover({
 }
 
 function StepTypeBadge({ step }: { step: PriceTraceStep }) {
-  if (step.step === "Base Price") return <Badge variant="gray">Base</Badge>;
-  if (step.step === "Override") return <Badge variant="yellow">Override</Badge>;
-  if (step.step === "Type Override")
-    return <Badge variant="blue">Type Override</Badge>;
-  if (step.step === "All Override")
-    return <Badge variant="gray">All Override</Badge>;
-  if (step.step === "Discount") return <Badge variant="green">Discount</Badge>;
-  if (step.step === "Markup") return <Badge variant="secondary">Markup</Badge>;
-  if (step.step === "Final Price") return null;
-  return <Badge variant="gray">{step.step}</Badge>;
+  const mapping = STEP_BADGE[step.step];
+  if (mapping === null) return null;
+  if (!mapping) return <Badge variant="gray">{step.step}</Badge>;
+  return <Badge variant={mapping.variant}>{mapping.label}</Badge>;
 }
 
-function ChangeCell({
-  step,
-  currencyCode
+export function DeltaPill({
+  value,
+  format
 }: {
-  step: PriceTraceStep;
-  currencyCode: string;
+  value: number | undefined;
+  format: (value: number) => string;
 }) {
-  if (step.adjustment === undefined || step.adjustment === 0) {
+  if (value === undefined || value === 0) {
     return <span className="text-sm text-muted-foreground">—</span>;
   }
-  const isDiscount = step.adjustment < 0;
+  const isDiscount = value < 0;
   const classes = isDiscount
     ? "bg-green-500/10 text-green-600 dark:text-green-400"
     : "bg-red-500/10 text-red-600 dark:text-red-400";
@@ -168,14 +180,7 @@ function ChangeCell({
       className={`px-2 py-0.5 rounded text-sm font-mono tabular-nums ${classes}`}
     >
       {sign}
-      {formatCurrency(step.adjustment, currencyCode)}
+      {format(value)}
     </span>
   );
-}
-
-function formatCurrency(value: number, currencyCode: string) {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: currencyCode
-  }).format(value);
 }

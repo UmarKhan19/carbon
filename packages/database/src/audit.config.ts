@@ -270,7 +270,10 @@ export const auditConfig = {
     priceOverride: {
       label: "Price Override",
       tables: {
-        customerItemPriceOverride: { role: "root" }
+        customerItemPriceOverride: { role: "root" },
+        customerItemPriceOverrideBreak: {
+          entityIdColumn: "customerItemPriceOverrideId"
+        }
       }
     }
   } satisfies Record<string, EntityConfig>,
@@ -341,7 +344,8 @@ export const auditConfig = {
     maintenanceDispatchEvent: "Dispatch Event",
     maintenanceDispatchComment: "Dispatch Comment",
     pricingRule: "Pricing Rule",
-    customerItemPriceOverride: "Price Override"
+    customerItemPriceOverride: "Price Override",
+    customerItemPriceOverrideBreak: "Quantity Break"
   } as Record<string, string>,
 
   /** Fields to skip in diff computation */

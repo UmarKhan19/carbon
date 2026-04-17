@@ -548,7 +548,9 @@ export async function getCustomerItemPriceOverride(
 ) {
   const { data, error } = await client
     .from("customerItemPriceOverride")
-    .select("*")
+    .select(
+      "*, breaks:customerItemPriceOverrideBreak(id, quantity, overridePrice, active)"
+    )
     .eq("customerId", customerId)
     .eq("itemId", itemId)
     .eq("companyId", companyId)
@@ -616,7 +618,9 @@ export async function getCustomerTypeItemPriceOverride(
 ) {
   const { data, error } = await client
     .from("customerItemPriceOverride")
-    .select("*")
+    .select(
+      "*, breaks:customerItemPriceOverrideBreak(id, quantity, overridePrice, active)"
+    )
     .eq("customerTypeId", customerTypeId)
     .eq("itemId", itemId)
     .eq("companyId", companyId)
@@ -636,7 +640,9 @@ export async function getAllCustomersItemPriceOverride(
 ) {
   const { data, error } = await client
     .from("customerItemPriceOverride")
-    .select("*")
+    .select(
+      "*, breaks:customerItemPriceOverrideBreak(id, quantity, overridePrice, active)"
+    )
     .is("customerId", null)
     .is("customerTypeId", null)
     .eq("itemId", itemId)
@@ -679,10 +685,13 @@ function applyBreakToParent(
     if (parent.validTo && parent.validTo < today) return null;
   }
 
-  const breaks = Array.isArray(parent.breaks)
+  const raw = Array.isArray(parent.breaks)
     ? (parent.breaks as PriceOverrideBreak[])
     : [];
-  const best = pickBestBreak(breaks, quantity);
+  // Inactive rungs are treated as if they don't exist so a toggled-off break
+  // falls through to the next applicable rung (or the next scope in precedence).
+  const active = raw.filter((b) => b.active !== false);
+  const best = pickBestBreak(active, quantity);
   if (!best) return null;
 
   return {
@@ -2167,7 +2176,7 @@ export async function resolvePriceList(
   }
 
   const overrideSelect =
-    "id, itemId, notes, validFrom, validTo, applyRulesOnTop, breaks";
+    "id, itemId, notes, validFrom, validTo, applyRulesOnTop, breaks:customerItemPriceOverrideBreak(id, quantity, overridePrice, active)";
 
   type ParentRow = {
     id: string;
@@ -2176,7 +2185,7 @@ export async function resolvePriceList(
     validFrom: string | null;
     validTo: string | null;
     applyRulesOnTop: boolean;
-    breaks: unknown;
+    breaks: PriceOverrideBreak[] | null;
   };
 
   const fillMap = (
@@ -2524,8 +2533,7 @@ export async function upsertCustomerItemPriceOverride(
 
   const sortedBreaks = [...data.breaks].sort((a, b) => a.quantity - b.quantity);
 
-  const sharedFields = {
-    breaks: sortedBreaks,
+  const parentFields = {
     notes: data.notes ?? null,
     validFrom: data.validFrom ?? null,
     validTo: data.validTo ?? null,
@@ -2533,11 +2541,14 @@ export async function upsertCustomerItemPriceOverride(
     applyRulesOnTop: data.applyRulesOnTop
   };
 
+  let parentId: string | null = null;
+  let parentError: unknown = null;
+
   if (data.id) {
-    return client
+    const { data: row, error } = await client
       .from("customerItemPriceOverride")
       .update({
-        ...sharedFields,
+        ...parentFields,
         customerId: data.customerId ?? null,
         customerTypeId: data.customerTypeId ?? null,
         itemId: data.itemId,
@@ -2548,48 +2559,128 @@ export async function upsertCustomerItemPriceOverride(
       .eq("companyId", companyId)
       .select("id")
       .single();
-  }
-
-  // Collapse onto an existing (scope, item) row if one exists — the partial
-  // unique indexes would reject a duplicate insert anyway.
-  const lookup = client
-    .from("customerItemPriceOverride")
-    .select("id")
-    .eq("itemId", data.itemId)
-    .eq("companyId", companyId);
-
-  const scopedLookup = data.customerId
-    ? lookup.eq("customerId", data.customerId)
-    : data.customerTypeId
-      ? lookup.eq("customerTypeId", data.customerTypeId)
-      : lookup.is("customerId", null).is("customerTypeId", null);
-  const { data: existing } = await scopedLookup.maybeSingle();
-
-  if (existing) {
-    return client
+    parentId = row?.id ?? null;
+    parentError = error;
+  } else {
+    // Collapse onto an existing (scope, item) row if one exists — the partial
+    // unique indexes would reject a duplicate insert anyway.
+    const lookup = client
       .from("customerItemPriceOverride")
-      .update({
-        ...sharedFields,
-        updatedBy: userId,
-        updatedAt: new Date().toISOString()
-      })
-      .eq("id", existing.id)
       .select("id")
-      .single();
+      .eq("itemId", data.itemId)
+      .eq("companyId", companyId);
+
+    const scopedLookup = data.customerId
+      ? lookup.eq("customerId", data.customerId)
+      : data.customerTypeId
+        ? lookup.eq("customerTypeId", data.customerTypeId)
+        : lookup.is("customerId", null).is("customerTypeId", null);
+    const { data: existing } = await scopedLookup.maybeSingle();
+
+    if (existing) {
+      const { data: row, error } = await client
+        .from("customerItemPriceOverride")
+        .update({
+          ...parentFields,
+          updatedBy: userId,
+          updatedAt: new Date().toISOString()
+        })
+        .eq("id", existing.id)
+        .select("id")
+        .single();
+      parentId = row?.id ?? null;
+      parentError = error;
+    } else {
+      const { data: row, error } = await client
+        .from("customerItemPriceOverride")
+        .insert({
+          ...parentFields,
+          customerId: data.customerId ?? null,
+          customerTypeId: data.customerTypeId ?? null,
+          itemId: data.itemId,
+          companyId,
+          createdBy: userId
+        })
+        .select("id")
+        .single();
+      parentId = row?.id ?? null;
+      parentError = error;
+    }
   }
 
-  return client
-    .from("customerItemPriceOverride")
-    .insert({
-      ...sharedFields,
-      customerId: data.customerId ?? null,
-      customerTypeId: data.customerTypeId ?? null,
-      itemId: data.itemId,
-      companyId,
-      createdBy: userId
-    })
+  if (parentError || !parentId) {
+    return { data: null, error: parentError };
+  }
+
+  // Identity-preserving sync so the audit log shows one UPDATE per actually-
+  // changed rung instead of a churn of DELETE+INSERT on every save. The form
+  // round-trips each break's id — rows with known ids update in place, rows
+  // without ids insert, rows missing from the submission delete.
+  const { data: existingRows, error: fetchExistingError } = await client
+    .from("customerItemPriceOverrideBreak")
     .select("id")
-    .single();
+    .eq("customerItemPriceOverrideId", parentId)
+    .eq("companyId", companyId);
+  if (fetchExistingError) {
+    return { data: null, error: fetchExistingError };
+  }
+
+  const existingIds = new Set((existingRows ?? []).map((r) => r.id));
+  const submittedIds = new Set(
+    sortedBreaks
+      .map((b) => b.id)
+      .filter((id): id is string => typeof id === "string")
+  );
+
+  const toDelete = [...existingIds].filter((id) => !submittedIds.has(id));
+  if (toDelete.length > 0) {
+    const { error } = await client
+      .from("customerItemPriceOverrideBreak")
+      .delete()
+      .in("id", toDelete)
+      .eq("companyId", companyId);
+    if (error) return { data: null, error };
+  }
+
+  // Updates go one-at-a-time. Edge case: if the user swaps quantities between
+  // two existing rungs (A 5↔10 B), the mid-batch state transiently violates
+  // the (parent, quantity) UNIQUE constraint. In that narrow case the save
+  // returns an error and the user saves again. Worth it for the clean audit.
+  const updateTimestamp = new Date().toISOString();
+  for (const b of sortedBreaks) {
+    if (!b.id || !existingIds.has(b.id)) continue;
+    const { error } = await client
+      .from("customerItemPriceOverrideBreak")
+      .update({
+        quantity: b.quantity,
+        overridePrice: b.overridePrice,
+        active: b.active,
+        updatedBy: userId,
+        updatedAt: updateTimestamp
+      })
+      .eq("id", b.id)
+      .eq("companyId", companyId);
+    if (error) return { data: null, error };
+  }
+
+  const toInsert = sortedBreaks.filter((b) => !b.id || !existingIds.has(b.id));
+  if (toInsert.length > 0) {
+    const { error } = await client
+      .from("customerItemPriceOverrideBreak")
+      .insert(
+        toInsert.map((b) => ({
+          customerItemPriceOverrideId: parentId as string,
+          quantity: b.quantity,
+          overridePrice: b.overridePrice,
+          active: b.active,
+          companyId,
+          createdBy: userId
+        }))
+      );
+    if (error) return { data: null, error };
+  }
+
+  return { data: { id: parentId }, error: null };
 }
 
 export async function deleteCustomerItemPriceOverride(
@@ -2616,7 +2707,8 @@ export async function getCustomerItemPriceOverrideById(
       *,
       customer:customerId(id, name),
       customerType:customerTypeId(id, name),
-      item:itemId(id, name)
+      item:itemId(id, name),
+      breaks:customerItemPriceOverrideBreak(id, quantity, overridePrice, active)
     `
     )
     .eq("id", id)
@@ -3674,7 +3766,7 @@ export async function calculatePricesForQuantities(
   quantities: number[],
   userId: string
 ) {
-  if (!quantities.length) return;
+  if (!quantities.length) return { error: null };
 
   // 1. Fetch quote (with companyId + customerId) and line in parallel
   const [quoteResult, lineResult] = await Promise.all([
@@ -3690,7 +3782,8 @@ export async function calculatePricesForQuantities(
       .single()
   ]);
 
-  if (quoteResult.error || lineResult.error) return;
+  if (quoteResult.error) return { error: quoteResult.error };
+  if (lineResult.error) return { error: lineResult.error };
 
   // Fetch settings filtered by company (required for service-role access)
   const settingsResult = await client
@@ -3699,7 +3792,7 @@ export async function calculatePricesForQuantities(
     .eq("id", quoteResult.data.companyId)
     .single();
 
-  if (settingsResult.error) return;
+  if (settingsResult.error) return { error: settingsResult.error };
 
   const companyId = quoteResult.data.companyId;
   const customerId = quoteResult.data.customerId ?? undefined;
@@ -3718,7 +3811,9 @@ export async function calculatePricesForQuantities(
 
   // 2. Build cost effects
   const result = await buildCostEffects(client, quoteLineId);
-  if (!result) return;
+  // buildCostEffects returns null when the line has no costed method yet —
+  // treat as a no-op so partial drafts don't block the save.
+  if (!result) return { error: null };
 
   const { effects } = result;
 
@@ -3766,7 +3861,9 @@ export async function calculatePricesForQuantities(
       quoteLineId,
       error: insertResult.error
     });
+    return { error: insertResult.error };
   }
+  return { error: null };
 }
 
 export async function resolveQuoteLinePrices(
@@ -3777,7 +3874,7 @@ export async function resolveQuoteLinePrices(
   quantities: number[],
   userId: string
 ) {
-  if (!quantities.length) return;
+  if (!quantities.length) return { error: null };
 
   const [quoteResult, lineResult] = await Promise.all([
     client
@@ -3792,9 +3889,10 @@ export async function resolveQuoteLinePrices(
       .single()
   ]);
 
-  if (quoteResult.error || lineResult.error || !lineResult.data.itemId) {
-    return;
-  }
+  if (quoteResult.error) return { error: quoteResult.error };
+  if (lineResult.error) return { error: lineResult.error };
+  // Missing itemId is a benign draft state, not an error.
+  if (!lineResult.data.itemId) return { error: null };
 
   const itemId = lineResult.data.itemId;
   const exchangeRate = quoteResult.data.exchangeRate ?? 1;
@@ -3827,7 +3925,9 @@ export async function resolveQuoteLinePrices(
       quoteLineId,
       error: insertResult.error
     });
+    return { error: insertResult.error };
   }
+  return { error: null };
 }
 
 export async function resolvePurchaseToOrderPrices(
@@ -3838,7 +3938,7 @@ export async function resolvePurchaseToOrderPrices(
   quantities: number[],
   userId: string
 ) {
-  if (!quantities.length) return;
+  if (!quantities.length) return { error: null };
 
   const [quoteResult, lineResult] = await Promise.all([
     client
@@ -3853,9 +3953,9 @@ export async function resolvePurchaseToOrderPrices(
       .single()
   ]);
 
-  if (quoteResult.error || lineResult.error || !lineResult.data.itemId) {
-    return;
-  }
+  if (quoteResult.error) return { error: quoteResult.error };
+  if (lineResult.error) return { error: lineResult.error };
+  if (!lineResult.data.itemId) return { error: null };
 
   const itemId = lineResult.data.itemId;
   const exchangeRate = quoteResult.data.exchangeRate ?? 1;
@@ -3892,7 +3992,9 @@ export async function resolvePurchaseToOrderPrices(
       quoteLineId,
       error: insertResult.error
     });
+    return { error: insertResult.error };
   }
+  return { error: null };
 }
 
 export async function recalculateQuoteLinePrices(
@@ -3907,7 +4009,8 @@ export async function recalculateQuoteLinePrices(
     .select("*")
     .eq("quoteLineId", quoteLineId);
 
-  if (!existingPrices.data?.length) return;
+  if (existingPrices.error) return { error: existingPrices.error };
+  if (!existingPrices.data?.length) return { error: null };
 
   // 2. Fetch line precision and company + customer context for engine pipe-through
   const [lineResult, quoteResult] = await Promise.all([
@@ -3949,7 +4052,7 @@ export async function recalculateQuoteLinePrices(
 
   // 3. Build cost effects
   const result = await buildCostEffects(client, quoteLineId);
-  if (!result) return;
+  if (!result) return { error: null };
 
   const { effects } = result;
 
@@ -4005,14 +4108,22 @@ export async function recalculateQuoteLinePrices(
     .eq("quoteLineId", quoteLineId);
 
   if (deleteResult.error) {
-    throw new Error(`Failed to delete prices: ${deleteResult.error.message}`);
+    console.error("[qpricing][recalc] DELETE ERROR", {
+      quoteLineId,
+      error: deleteResult.error
+    });
+    return { error: deleteResult.error };
   }
 
   const insertResult = await client.from("quoteLinePrice").insert(updatedRows);
-
   if (insertResult.error) {
-    throw new Error(`Failed to insert prices: ${insertResult.error.message}`);
+    console.error("[qpricing][recalc] INSERT ERROR", {
+      quoteLineId,
+      error: insertResult.error
+    });
+    return { error: insertResult.error };
   }
+  return { error: null };
 }
 
 export async function upsertQuoteLineMethod(

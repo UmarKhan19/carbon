@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Outlet, redirect, useLoaderData } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import {
   getItemCustomerParts,
   getItemUnitSalePrice,
@@ -65,7 +65,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  // Save unit sale price
   const updatePartUnitSalePrice = await upsertItemUnitSalePrice(client, {
     ...validation.data,
     itemId,
@@ -108,7 +107,6 @@ export default function PartSalesRoute() {
       {customerParts ? (
         <CustomerParts customerParts={customerParts} itemId={itemId} />
       ) : null}
-      <Outlet />
     </VStack>
   );
 }
